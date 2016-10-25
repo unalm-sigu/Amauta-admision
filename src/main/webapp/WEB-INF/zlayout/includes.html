@@ -1,0 +1,208 @@
+<base th:fragment="styles">
+<meta charset="utf-8"/>
+<meta name="google" value="notranslate"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+
+<link rel="stylesheet" type="text/css" th:href="@{/bootstrap-datepicker/1.3.0/css/datepicker3.css}"/>
+
+<link rel="stylesheet" type="text/css" th:href="@{/bootstrap-timepicker/css/bootstrap-timepicker.min.css}"/>
+
+<link rel="stylesheet" type="text/css" th:href="@{/select2/3.5.1/select2.css}"/>
+<link rel="stylesheet" type="text/css" th:href="@{/font-awesome/4.6.2/css/font-awesome.min.css}"/>
+
+<link rel="stylesheet" type="text/css" th:href="@{/hubspot/css/messenger.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/hubspot/css/messenger-theme-flat.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/humane-js/original.css}" />
+
+
+<link rel="stylesheet" type="text/css" th:href="@{/fullcalendar/fullcalendar.min.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/fullcalendar-theme.css}" />
+
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/animate.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/font.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/icon.css}" />
+
+
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/app.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/override.css}" />
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/select2-bootstrap.css}" />
+
+<link rel="stylesheet" type="text/css" th:href="@{/phobos/css/left.css}" />
+
+
+
+
+<!--[if lt IE 9]>
+<script type="text/javascript" th:src="@{/phobos/js/ie/html5shiv.js}" />
+<script type="text/javascript" th:src="@{/phobos/js/ie/respond.min.js}" />
+<script type="text/javascript" th:src="@{/phobos/js/ie/excanvas.js}" />
+<![endif]-->
+</base>
+
+<base th:fragment="styles-upload">
+<link rel="stylesheet" type="text/css" th:href="@{/jquery-file-upload/9.8.0/css/jquery.fileupload-ui.css}"/>
+<link rel="stylesheet" type="text/css" th:href="@{/jquery-file-upload/9.8.0/css/jquery.fileupload.css}"/>
+</base>
+
+
+<base th:fragment="styles-nestable">
+<link rel="stylesheet" type="text/css" th:href="@{/nestable/nestable.css}" />
+</base>
+
+<base th:fragment="styles-dynatable">
+<link rel="stylesheet" type="text/css" th:href="@{/dynatable/jquery.dynatable.css}" />
+</base>
+
+
+
+<base th:fragment="favicon">
+<link rel="apple-touch-icon" sizes="57x57" th:href="@{/phobos/images/favicon/apple-touch-icon-57x57.png}"/>
+<link rel="apple-touch-icon" sizes="114x114" th:href="@{/phobos/images/favicon/apple-touch-icon-114x114.png}"/>
+<link rel="apple-touch-icon" sizes="72x72" th:href="@{/phobos/images/favicon/apple-touch-icon-72x72.png}"/>
+<link rel="apple-touch-icon" sizes="144x144" th:href="@{/phobos/images/favicon/apple-touch-icon-144x144.png}"/>
+<link rel="apple-touch-icon" sizes="60x60" th:href="@{/phobos/images/favicon/apple-touch-icon-60x60.png}"/>
+<link rel="apple-touch-icon" sizes="120x120" th:href="@{/phobos/images/favicon/apple-touch-icon-120x120.png}"/>
+<link rel="apple-touch-icon" sizes="76x76" th:href="@{/phobos/images/favicon/apple-touch-icon-76x76.png}"/>
+<link rel="apple-touch-icon" sizes="152x152" th:href="@{/phobos/images/favicon/apple-touch-icon-152x152.png}"/>
+<link rel="apple-touch-icon" sizes="180x180" th:href="@{/phobos/images/favicon/apple-touch-icon-180x180.png}"/>
+<link rel="shortcut icon" th:href="@{/phobos/images/favicon/favicon.ico}"/>
+<link rel="icon" type="image/png" th:href="@{/phobos/images/favicon/favicon-192x192.png}" sizes="192x192"/>
+<link rel="icon" type="image/png" th:href="@{/phobos/images/favicon/favicon-160x160.png}" sizes="160x160"/>
+<link rel="icon" type="image/png" th:href="@{/phobos/images/favicon/favicon-96x96.png}" sizes="96x96"/>
+<link rel="icon" type="image/png" th:href="@{/phobos/images/favicon/favicon-16x16.png}" sizes="16x16"/>
+<link rel="icon" type="image/png" th:href="@{/phobos/images/favicon/favicon-32x32.png}" sizes="32x32"/>
+<meta name="msapplication-TileColor" content="#ffffff"/>
+<meta name="msapplication-TileImage" th:content="@{/phobos/images/favicon/mstile-144x144.png}"/>
+<meta name="msapplication-config" th:content="@{/phobos/images/favicon/browserconfig.xml}"/>
+</base>
+
+
+
+
+<div th:fragment="javascript">
+    <script type="text/javascript" th:src="@{/jquery/1.10.2/jquery.min.js}" />
+
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"/>
+    <script type="text/javascript" th:src="@{/jQuery-slimScroll/1.3.1/jquery.slimscroll.min.js}"/>
+
+    <script type="text/javascript" th:src="@{/parsleyjs/2.0.5/parsley.remote.min.js}"/>
+    <script type="text/javascript" th:src="@{/parsleyjs/2.0.5/extra/validator/comparison.js}"/>
+    <script type="text/javascript" th:src="@{/parsleyjs/2.0.5/i18n/es.js}" charset="utf-8"/>
+
+    <script type="text/javascript" th:src="@{/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js}"/>
+    <script type="text/javascript" th:src="@{/bootstrap-datepicker/1.3.0/js/locales/bootstrap-datepicker.es.js}"/>
+
+    <script type="text/javascript" th:src="@{/bootstrap-timepicker/js/bootstrap-timepicker.min.js}"/>
+
+    <script type="text/javascript" th:src="@{/select2/3.5.1/select2.min.js}"/>
+    <script type="text/javascript" th:src="@{/select2/3.5.1/select2_locale_es.js}" charset="utf-8"/>
+
+    <script type="text/javascript" th:src="@{/bootbox/4.3.0/bootbox.js}"/>
+    <script type="text/javascript" th:src="@{/hubspot/js/messenger.min.js}"/>
+    <script type="text/javascript" th:src="@{/hubspot/js/messenger-theme-flat.js}"/>    
+    <script type="text/javascript" th:src="@{/humane-js/humane.min.js}"/>
+
+    <script type="text/javascript" th:src="@{/momentjs/2.9.0/min/moment.min.js}"/>
+    <script type="text/javascript" th:src="@{/fullcalendar/fullcalendar.min.js}" charset="utf-8"/>
+    <script type="text/javascript" th:src="@{/fullcalendar/lang/es.js}"  charset="utf-8"/>
+
+    <script  th:inline="javascript" >
+        /*<![CDATA[*/
+        var contextPath = /*[[@{/}]]*/ '/app';
+        /*]]>*/
+    </script>
+    <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
+    <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
+    <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
+
+    <script type="text/javascript" th:src="@{/phobos/js/libs/jquery.md5.js}"/>
+    <script type="text/javascript" th:src="@{/phobos/js/libs/jquery.numeric.js}"/>
+    <script type="text/javascript" th:src="@{/phobos/js/libs/js.cookie.js}"/>
+
+    <script type="text/javascript" th:src="@{/jsrender/jsviews.min.js}"/>
+
+    <script type="text/javascript" th:src="@{/phobos/js/left.js}"/>
+
+
+</div>
+
+
+
+<div th:fragment="javascript-upload">
+    <script type="text/javascript" th:src="@{/jquery-ui/jquery-ui.min.js}"/>
+    <script type="text/javascript" th:src="@{/jquery-file-upload/9.8.0/js/jquery.fileupload.js}"/>
+    <script type="text/javascript" th:src="@{/jquery-file-upload/9.8.0/js/jquery.fileupload-ui.js}"/>
+    <script type="text/javascript" th:src="@{/jquery-file-upload/9.8.0/js/cors/jquery.xdr-transport.js}"/>
+    <script type="text/javascript" th:src="@{/jquery-file-upload/9.8.0/js/jquery.fileupload-process.js}"/>
+    <script type="text/javascript" th:src="@{/jquery-file-upload/9.8.0/js/jquery.fileupload-validate.js}"/>
+</div>
+
+<div th:fragment="javascript-d3">
+    <script type="text/javascript" th:src="@{/d3js/3.4.11/d3.min.js}"/>
+</div>
+
+<div th:fragment="javascript-nestable">
+    <script type="text/javascript" th:src="@{/nestable/jquery.nestable.js}"/>
+</div>
+
+
+
+<div th:fragment="javascript-dynatable">
+    <script type="text/javascript" th:src="@{/dynatable/jquery.dynatable.js}" />
+    <script type="text/javascript" th:src="@{/phobos/js/dynatable.setup.js}" charset="utf-8"/>
+</div>
+
+<div th:fragment="javascript-jquery-ui">
+    <script type="text/javascript" th:src="@{/jquery-ui/jquery-ui.min.js}"/>
+</div>
+
+<div th:fragment="javascript-highcharts">
+    <script type="text/javascript" th:src="@{/highcharts/highcharts.js}" />
+    <script type="text/javascript" th:src="@{/highcharts/highcharts-3d.js}" />
+    <script type="text/javascript" th:src="@{/highcharts/highcharts-more.js}" />
+    <!--<script type="text/javascript" th:src="@{/highcharts/modules/exporting.js}" />-->
+</div>
+
+<div th:fragment="notify">
+    <script th:inline="javascript" th:if="${notificaciones}">
+        /*<![CDATA[*/
+        Messenger.options = {
+            extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
+            theme: 'flat'
+        }
+        var msgJson = /*[[${notificaciones.all()}]]*/ mensajes;
+
+        $(function () {
+            for (var i = 0; i < msgJson.length; i++) {
+                notify(msgJson[i].mensaje, msgJson[i].tipo);
+            }
+        });
+
+        /*]]>*/
+    </script>
+</div>
+
+
+<div th:fragment="notificacion">
+    <div id='templateNotificacion' type="text/x-jsrender" class="hide">
+
+        <a href="#" class="media list-group-item notificaLink" rel='{{:url}}'> 
+            <span class="media-body block m-b-none"> 
+                {{:titulo}}
+                <small class="block text-dark">
+                    {{:texto}}
+                </small>
+                <small class="text-muted block">{{:fechaHora}}</small> 
+            </span> 
+        </a>
+    </div>
+    <script type="text/javascript" th:src="@{/phobos/js/app.notificacion.js}"/>
+
+</div>
+
+
+
+
+

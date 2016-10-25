@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html class="app">
+    <head>
+        <title>La Molina</title>
+        <base th:substituteby="zlayout/includes :: styles"/>
+        <base th:substituteby="zlayout/includes :: favicon"/>
+    </head>
+
+    <body class="login-bg">
+        <section class="login-wrapper">
+            <h2 class="logo">LA MOLINA</h2>
+            <div class="box">
+                <div class="content-wrap">
+                    <a class="btn btn-danger" th:href="@{/}">Sus credenciales no tienen acceso al sistema.</a>
+                </div>
+            </div>
+
+        </section>
+
+        <div th:substituteby="zlayout/includes :: javascript"/>
+    </body>
+</html>

@@ -1,0 +1,16 @@
+<html layout:decorator="zlayout/base">
+    
+    <div class="hbox stretch"  layout:fragment="body">
+            <aside th:substituteby="zlayout/menu :: sideBarFlat"> BARRA LATERAL </aside>
+
+            <section id="content" class="vbox">
+
+                <header th:substituteby="zlayout/menu :: topBarResponsive"> BARRA SUPERIOR TABLET </header>
+                <header th:substituteby="zlayout/menu :: topBar"> BARRA SUPERIOR </header>
+
+                <section class="scrollable" id="pjax-container">
+                    <section  layout:fragment="main" class="wrapper"> </section>
+                </section>
+            </section>
+        </div>    
+</html>

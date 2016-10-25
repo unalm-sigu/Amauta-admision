@@ -1,0 +1,54 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+
+            $(document).ready(function () {
+                var div = $("#divLogger");
+                var postuls = new Array(
+                        48472, 48489, 48490, 48506, 48507, 48509, 48511, 48516, 48518, 48522, 48523, 48524, 48526, 48527, 48528, 48529, 48530, 48532, 48534, 48536, 48537
+                        );
+                $.each(postuls, function (i, po) {
+                    $.ajax({
+                        url: 'http://localhost:9000/academico/admision/voucherAdmision',
+                        type: 'POST',
+                        async: true,
+                        data: {
+                            fechaOperacion: "12/08/2016",
+                            monto: 70.00,
+                            numeroOperacion: "928372983",
+                            "postulante.id": po,
+                            "postulante.periodoSede.sede.id": 8},
+                        success: function (response) {
+                            if (response.success) {
+                                div.after('<div class="panel col-lg-3" style="color:blue;">' + i + ".- " + po + ' :::: ' + response.message + '</div>');
+                            } else {
+                                div.after('<div class="panel col-lg-3" style="color:red;">' + i + ".- " + +po + ' :::: ' + response.message + '</div>');
+                            }
+                        },
+                        error: function () {
+                            div.after('<div class="panel col-lg-3" style="color:green;">' + i + ".- " + +po + ' :::: Error de comunicación</div>');
+                        }
+                    });
+                });
+            });
+
+
+
+
+
+        </script>
+    </head>
+    <body>
+        <div class="panel panel-body">
+            Logger:
+            <div id="divLogger" class="col-lg-12"></div>
+        </div>
+    </body>
+</html>

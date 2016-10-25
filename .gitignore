@@ -1,0 +1,4 @@
+/target/
+.DS_Store 
+nohup.out
+src/main/resources/application.properties

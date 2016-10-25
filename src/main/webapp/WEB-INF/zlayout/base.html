@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" class="app">
+    <head>
+        <title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">La Molina</title>
+        <base th:substituteby="zlayout/includes :: styles"/>
+        <base th:substituteby="zlayout/includes :: favicon"/>
+    </head>
+
+    <body>   
+        <section  layout:fragment="body"> </section>
+
+        <div th:substituteby="zlayout/includes :: javascript"/>
+        <!--div th:substituteby="zlayout/includes :: notificacion"/-->
+        <section layout:fragment="js"> JAVASCRIPTS </section>
+        <div th:substituteby="zlayout/includes :: notify"/>
+    </body>
+</html>
