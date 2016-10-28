@@ -1,0 +1,30 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Lista de Ciclos</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">
+            <div class="dropdown pull-right" >
+                <a class="btn btn-primary nuevo-ciclo" href="#" >Agregar ciclo</a>
+            </div>
+            <h2>Lista de Ciclos</h2>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                
+                
+            </section>
+        </section>
+
+       
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+    </div>
+</body>
+</html>
