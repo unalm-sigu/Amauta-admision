@@ -1,0 +1,254 @@
+package pe.edu.lamolina.pivot.model.academico;
+
+import java.io.Serializable;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
+
+@Entity
+@Table(name = "aca_curso")
+public class Curso implements Serializable {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "estado")
+    private String estado;
+
+    @Column(name = "codigo")
+    private String codigo;
+
+    @Column(name = "codigo_anterior1")
+    private String codigoAnterior1;
+
+    @Column(name = "codigo_anterior2")
+    private String codigoAnterior2;
+
+    @Column(name = "nombre")
+    private String nombre;
+
+    @Column(name = "creditos")
+    private Integer creditos;
+
+    @Column(name = "tipo_curso")
+    private String tipoCurso;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_departamento_academico")
+    private DepartamentoAcademico departamentoAcademico;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sistema_evaluacion")
+    private PlanCalificacion sistemaEvaluacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_coordinador")
+    private Docente coordinador;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<AlumnoCicloCurso> alumnoCicloCurso;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<CursoAdicionalCurricula> cursoAdicionalCurricula;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<CursoCurricula> cursoCurricula;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<CursoOpcionalCurricula> cursoOpcionalCurricula;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<FormatoCurso> formatoCurso;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<MatriculaCurso> matriculaCurso;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<NombreCurso> nombreCurso;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<Seccion> seccion;
+
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<RetiroCurso> retiroCurso;
+
+    public Curso() {
+    }
+
+    public Curso(Object id) {
+        this.id = TypesUtil.getLong(id);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public DepartamentoAcademico getDepartamentoAcademico() {
+        return departamentoAcademico;
+    }
+
+    public void setDepartamentoAcademico(DepartamentoAcademico departamentoAcademico) {
+        this.departamentoAcademico = departamentoAcademico;
+    }
+
+    public PlanCalificacion getSistemaEvaluacion() {
+        return sistemaEvaluacion;
+    }
+
+    public void setSistemaEvaluacion(PlanCalificacion sistemaEvaluacion) {
+        this.sistemaEvaluacion = sistemaEvaluacion;
+    }
+
+    public Docente getCoordinador() {
+        return coordinador;
+    }
+
+    public void setCoordinador(Docente coordinador) {
+        this.coordinador = coordinador;
+    }
+
+    public String getCodigoAnterior1() {
+        return codigoAnterior1;
+    }
+
+    public void setCodigoAnterior1(String codigoAnterior1) {
+        this.codigoAnterior1 = codigoAnterior1;
+    }
+
+    public String getCodigoAnterior2() {
+        return codigoAnterior2;
+    }
+
+    public void setCodigoAnterior2(String codigoAnterior2) {
+        this.codigoAnterior2 = codigoAnterior2;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public Integer getCreditos() {
+        return creditos;
+    }
+
+    public void setCreditos(Integer creditos) {
+        this.creditos = creditos;
+    }
+
+    public String getTipoCurso() {
+        return tipoCurso;
+    }
+
+    public void setTipoCurso(String tipoCurso) {
+        this.tipoCurso = tipoCurso;
+    }
+
+    public List<AlumnoCicloCurso> getAlumnoCicloCurso() {
+        return alumnoCicloCurso;
+    }
+
+    public void setAlumnoCicloCurso(List<AlumnoCicloCurso> alumnoCicloCurso) {
+        this.alumnoCicloCurso = alumnoCicloCurso;
+    }
+
+    public List<CursoAdicionalCurricula> getCursoAdicionalCurricula() {
+        return cursoAdicionalCurricula;
+    }
+
+    public void setCursoAdicionalCurricula(List<CursoAdicionalCurricula> cursoAdicionalCurricula) {
+        this.cursoAdicionalCurricula = cursoAdicionalCurricula;
+    }
+
+    public List<CursoCurricula> getCursoCurricula() {
+        return cursoCurricula;
+    }
+
+    public void setCursoCurricula(List<CursoCurricula> cursoCurricula) {
+        this.cursoCurricula = cursoCurricula;
+    }
+
+    public List<CursoOpcionalCurricula> getCursoOpcionalCurricula() {
+        return cursoOpcionalCurricula;
+    }
+
+    public void setCursoOpcionalCurricula(List<CursoOpcionalCurricula> cursoOpcionalCurricula) {
+        this.cursoOpcionalCurricula = cursoOpcionalCurricula;
+    }
+
+    public List<FormatoCurso> getFormatoCurso() {
+        return formatoCurso;
+    }
+
+    public void setFormatoCurso(List<FormatoCurso> formatoCurso) {
+        this.formatoCurso = formatoCurso;
+    }
+
+    public List<MatriculaCurso> getMatriculaCurso() {
+        return matriculaCurso;
+    }
+
+    public void setMatriculaCurso(List<MatriculaCurso> matriculaCurso) {
+        this.matriculaCurso = matriculaCurso;
+    }
+
+    public List<NombreCurso> getNombreCurso() {
+        return nombreCurso;
+    }
+
+    public void setNombreCurso(List<NombreCurso> nombreCurso) {
+        this.nombreCurso = nombreCurso;
+    }
+
+    public List<Seccion> getSeccion() {
+        return seccion;
+    }
+
+    public void setSeccion(List<Seccion> seccion) {
+        this.seccion = seccion;
+    }
+
+    public List<RetiroCurso> getRetiroCurso() {
+        return retiroCurso;
+    }
+
+    public void setRetiroCurso(List<RetiroCurso> retiroCurso) {
+        this.retiroCurso = retiroCurso;
+    }
+
+}
+
