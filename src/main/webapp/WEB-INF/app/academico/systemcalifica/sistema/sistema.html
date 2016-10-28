@@ -8,23 +8,40 @@
     <div layout:fragment="main">
         <header class="page-header">
             <div class="dropdown pull-right" >
-                <a class="btn btn-primary nuevo-ciclo" href="#" >Agregar ciclo</a>
+                <a class="btn btn-primary nuevo-sistema" href="#" >Nuevo</a>
             </div>
-            <h2>Lista de Ciclos</h2>
+            <h2>Sistemas de Calificación</h2>
+            <span>Departamento Academico: Matematicas</span>
         </header>
 
         <section class="panel">
             <section class="panel-body">
-                
-                
+
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-2">Codigo</th>
+                            <th class="col-md-6 text-center">Formula</th>
+                            <th class="col-md-3 text-center">Origen</th>
+                            <th class="col-md-1 text-center">Estado</th>
+                            <th class=""></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+
             </section>
         </section>
 
-       
+        <div th:substituteby="app/templates/modal"/> 
+        <div th:substituteby="app/academico/systemcalifica/sistema/modalSistema"/>
+        <script id="templateSistema" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/systemcalifica/sistema/templateSistema"/></script>
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/systemcalifica/sistema/sistema.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

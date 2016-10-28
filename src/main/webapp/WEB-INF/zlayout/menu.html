@@ -13,7 +13,6 @@
         <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user user">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle name-role" data-toggle="dropdown">
-
                     <span class="thumb-sm avatar pull-left">
                         <img th:src="@{/phobos/images/avatar.png}" />
                     </span>
@@ -64,18 +63,89 @@
 
 
 <aside th:fragment="sideBarFlat" class="aside-lg" id="nav" >
-
     <section class="vbox">
         <div id="sidebar-flat-dark" class="main-sidebar fix-scroll">
 
-            <div class="logo bg-primary">
+<!--            <div class="logo bg-primary">
                 <a href="#" class="nav-brand" data-toggle="fullscreen">La Molina</a>
+            </div>-->
+            
+             <div class="logo bg-primary">
+                <a th:href="@{/}" class="navbar-brand"> SIPs </a>
             </div>
-
-            <div class="contenedor-secciones">
-
+            
+            
+            <div class="menu-section">
+                <h3>Sistema de Calificacion</h3>
+                <ul>
+                    <li class="option" >
+                        <a th:href="@{/academico/systemcalifica/sistema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Sist. Calificación</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 2</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 3</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 4</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 5</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
-
+            
+            <div class="menu-section">
+                <h3>Sistema de Calificacion</h3>
+                <ul>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 1</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 2</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 3</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 4</span>
+                        </a>
+                    </li>
+                    <li class="option" >
+                        <a th:href="@{/calificacion/tema}">
+                            <i class="fa fa-object-ungroup"></i>
+                            <span>Opcion 5</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <footer class="footer hidden-xs no-padder text-center-nav-xs">
