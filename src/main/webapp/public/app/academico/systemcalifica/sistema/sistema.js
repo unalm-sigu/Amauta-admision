@@ -32,18 +32,29 @@ $(function () {
         },
         verDetalleSistema: function ($this, e) {
             e.preventDefault();
-            var info = {};
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
 
             MODAL.init("lg");
-            MODAL.title("Detalle del Sistema de Calificación");
-            MODAL.body($.templates("#divDetalleSistema").render(info));
+            MODAL.title("Detalle del Sistema de Calificación") ;
             MODAL.buttons(
                     '<a class="btn btn-success">Aceptar</a>' +
                     '<a class="btn btn-primary">Expandir</a>' +
                     '<a class="btn btn-warning">Solicita Modificacion</a>');
             MODAL.show();
 
-
+            $.ajax({
+                url: APP.url('academico/systemcalifica/sistema/' + rec.id + '/detalleSistema'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    MODAL.body(response);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
 
@@ -58,5 +69,4 @@ $(function () {
     $("body").delegate(".detalle-sistema", "click", function (e) {
         Sistema.verDetalleSistema($(this), e);
     });
-
 });

@@ -1,0 +1,29 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Lista de Ciclos</title>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">
+            <h2>Nuevo Sistema de Calificación</h2>
+            <span>Departamento Academico: Matematicas</span>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                
+                
+
+            </section>
+        </section>
+
+        <div th:substituteby="app/templates/modal"/> 
+        <script id="templateSistema" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/systemcalifica/sistema/templateNuevoSistema"/></script>
+    </div>
+
+    <div layout:fragment="js">
+        <script th:src="@{/app/academico/systemcalifica/sistema/nuevoSistema.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>
