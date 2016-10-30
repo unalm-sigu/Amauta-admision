@@ -1,0 +1,90 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Cursos del Sistema de Calificación</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header">
+                <h2>Cursos Asignados</h2>
+
+                <span class="block"><strong>Sistema de Calificación:</strong> <span>SC-004</span></span>
+                <span class="block"><strong>Departamento Academico:</strong> <span>Matematicas</span></span>
+                <span class="block"><strong>Formula:</strong> <span>1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
+                <span class="block"><strong>Sistema de Notas:</strong> <span>0 al 20</span></span>
+                <span class="block m-b"><strong>Nota Base:</strong> <span>20</span></span>
+            </header>
+
+            <section class="panel">
+                <section class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr class=""> 
+                                <th class="col-md-9 v-middle">Curso</th>
+                                <th class="col-md-2 v-middle text-center">Fecha de Inclusión</th>
+                                <th class="col-md-1 v-middle text-center">TPC</th>
+                                <th class=""></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="v-middle">
+                                    <span>Física I</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span>23-06-2017</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span>3-2-4</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <a href="#" class="btn btn-default"><i class="fa fa-times text-danger"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-middle">
+                                    <span>Física Cuántica</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span>23-06-2017</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span>3-2-4</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <a href="#" class="btn btn-default"><i class="fa fa-times text-danger"></i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-middle">
+                                    <span>Cálculos Atómicos</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span>23-06-2017</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span>3-2-4</span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <a href="#" class="btn btn-default"><i class="fa fa-times text-danger"></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="text-center block">
+                        <a href="#" class="btn btn-primary add-tipo-evaluacion">Agregar curso</a>
+                    </div>
+                </section>
+            </section>
+
+            <div th:substituteby="app/templates/modal"/> 
+            <script id="templateNuevoSistema" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/systemcalifica/sistema/templateNuevoSistema"/></script>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:src="@{/app/academico/systemcalifica/sistema/nuevoSistema.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

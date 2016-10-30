@@ -110,6 +110,20 @@ public class SistemaController {
 
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
+    
+    @RequestMapping("{sistema}/cursos")
+    public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/systemcalifica/sistema/cursos";
+    }
+    
+    @RequestMapping("{sistema}/detalleSolicitud")
+    public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/systemcalifica/sistema/detalleSolicitud";
+    }
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
