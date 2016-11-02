@@ -16,7 +16,7 @@
                         <span class="block"><strong>Formula:</strong> <span>1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
                     </div>
                     <form>
-                        <table class="table table-striped">
+                        <table id="tblEvaluaciones" class="table table-striped">
                             <thead>
                                 <tr class=""> 
                                     <th class="col-md-4 v-middle">Tipo evaluación</th>
@@ -32,15 +32,15 @@
                             <tbody id="tbodyEvaluaciones">
                                 <tr>
                                     <td>
-                                        <select class="form-control item-select2">
+                                        <select name="evsPLan[0].tipoEvaluacion.id" class="form-control item-select2">
                                             <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
                                         </select>  
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" />
+                                        <input name="evsPLan[0].cantidadEvaluaciones" type="text" class="form-control" />
                                     </td>    
                                     <td>
-                                        <input type="text" class="form-control" />
+                                        <input  name="evsPLan[0].pesoTotal"  type="text" class="form-control" />
                                     </td>
                                     <td>
                                         <label class="switch">
@@ -49,7 +49,7 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" />
+                                        <input name="evsPLan[0].pesoEvaluacion" type="text" class="form-control" />
                                     </td>
                                     <td>
                                         <label class="switch">
@@ -58,7 +58,7 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <select class="form-control select2">
+                                        <select name="evsPLan[0].tipoSeccion" class="form-control select2">
                                             <option th:each="itemea : ${tiposSeccion}"  
                                                     th:text="${itemea.value}"
                                                     th:value="${itemea.name()}" >yhhh</option>
@@ -72,7 +72,7 @@
                         </table>
 
                         <div class="text-center block">
-                            <a href="#" class="btn btn-primary add-tipo-evaluacion">Agregar item</a>
+                            <a href="#" id="lnkAgregarItem" class="btn btn-primary add-tipo-evaluacion">Agregar item</a>
                         </div>
 
                         <div class="m-t-lg">

@@ -1,16 +1,16 @@
 <tr>
     <td>
-        <select class="form-control item-select2">
+        <select name="evsPLan[{{:index}}].tipoEvaluacion.id" class="form-control item-select2">
             <option>EP - Examen Parcial</option>
             <option>EF - Examen Final</option>
             <option>PC - Practica Calificada</option>
         </select>
     </td>
     <td>
-        <input type="text" class="form-control" />
+        <input name="evsPLan[{{:index}}].cantidadEvaluaciones" type="text" class="form-control" />
     </td>    
     <td>
-        <input type="text" class="form-control" />
+        <input name="evsPLan[{{:index}}].pesoTotal" type="text" class="form-control" />
     </td>
     <td>
         <label class="switch">
@@ -19,7 +19,7 @@
         </label>
     </td>
     <td>
-        <input type="text" class="form-control" />
+        <input name="evsPLan[{{:index}}].pesoEvaluacion" type="text" class="form-control" />
     </td>
     <td>
         <label class="switch">
@@ -28,7 +28,7 @@
         </label>
     </td>
     <td>
-        <select class="form-control item-select2">
+        <select name="evsPLan[{{:index}}].tipoSeccion"  class="form-control item-select2">
             <option value="TEORIA">Teoría</option>
             <option value="PRACTICA">Práctica</option>
         </select>

@@ -4,6 +4,9 @@ $(function () {
         addTipoEvaluacion: function (e) {
             e.preventDefault();
             var record = {};
+
+            var rowCount = $('#tblEvaluaciones tr').length;
+            record.index = rowCount - 1;
             var html = $.templates("#templateNuevoSistema").render(record);
 
             var tbody = $("#tbodyEvaluaciones");
@@ -32,7 +35,7 @@ $(function () {
                 }
             });
         },
-        regresar : function (e){
+        regresar: function (e) {
             e.preventDefault();
             location.href = APP.url("academico/systemcalifica/sistema");
         }
