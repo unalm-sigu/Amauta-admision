@@ -15,7 +15,7 @@
                     <div class="m-b">			
                         <span class="block"><strong>Formula:</strong> <span>1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
                     </div>
-                    <form>
+                    <form id="frmSistemaCalifica" name="frmSistemaCalifica">
                         <table id="tblEvaluaciones" class="table table-striped">
                             <thead>
                                 <tr class=""> 
@@ -32,15 +32,15 @@
                             <tbody id="tbodyEvaluaciones">
                                 <tr>
                                     <td>
-                                        <select name="evsPLan[0].tipoEvaluacion.id" class="form-control item-select2">
+                                        <select name="evaluacionPlan[0].tipoEvaluacion.id" class="form-control item-select2">
                                             <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
                                         </select>  
                                     </td>
                                     <td>
-                                        <input name="evsPLan[0].cantidadEvaluaciones" type="text" class="form-control" />
+                                        <input name="evaluacionPlan[0].cantidadEvaluaciones" type="text" class="form-control" />
                                     </td>    
                                     <td>
-                                        <input  name="evsPLan[0].pesoTotal"  type="text" class="form-control" />
+                                        <input  name="evaluacionPlan[0].pesoTotal"  type="text" class="form-control" />
                                     </td>
                                     <td>
                                         <label class="switch">
@@ -49,7 +49,7 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <input name="evsPLan[0].pesoEvaluacion" type="text" class="form-control" />
+                                        <input name="evaluacionPlan[0].pesoEvaluacion" type="text" class="form-control" />
                                     </td>
                                     <td>
                                         <label class="switch">
@@ -58,7 +58,7 @@
                                         </label>
                                     </td>
                                     <td>
-                                        <select name="evsPLan[0].tipoSeccion" class="form-control select2">
+                                        <select name="evaluacionPlan[0].tipoSeccion" class="form-control select2">
                                             <option th:each="itemea : ${tiposSeccion}"  
                                                     th:text="${itemea.value}"
                                                     th:value="${itemea.name()}" >yhhh</option>
@@ -96,7 +96,7 @@
 
                 <section class="panel-footer pull-right">
                     <a href="#" class="btn btn-link cancelar">Cancelar</a>
-                    <a href="#" class="btn btn-success">Crear Sistema</a>
+                    <a href="#" id="cmbSaveSistema" class="btn btn-success">Crear Sistema</a>
                 </section>
             </section>
 

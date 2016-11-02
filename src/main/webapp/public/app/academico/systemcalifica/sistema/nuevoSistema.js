@@ -38,6 +38,33 @@ $(function () {
         regresar: function (e) {
             e.preventDefault();
             location.href = APP.url("academico/systemcalifica/sistema");
+        },
+        saveSistema: function () {
+            var form = MODAL.getBody().find("[name='frmSistemaCalifica']");
+            /*   form.parsley().destroy();
+             form.parsley();
+             if (!form.parsley().validate()) {
+             return;
+             }*/
+            $.ajax({
+                url: APP.url('academico/systemcalifica/sistema/save'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hide();
+                        notify(response.message, "info");
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         }
 
     };
@@ -52,5 +79,9 @@ $(function () {
 
     $("body").delegate(".cancelar", "click", function (e) {
         NuevoSistema.regresar(e);
+    });
+
+    $("body").delegate("#cmbSaveSistema", "click", function (e) {
+        NuevoSistema.saveSistema();
     });
 });
