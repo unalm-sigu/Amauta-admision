@@ -1,5 +1,4 @@
 $(function () {
-
     NuevoSistema = {
         addTipoEvaluacion: function (e) {
             e.preventDefault();
@@ -13,7 +12,6 @@ $(function () {
             $(".item-select2").each(function () {
                 $(this).removeClass("item-select2");
             });
-
         },
         deleteTipoEvaluacion: function ($this, e) {
             e.preventDefault();
@@ -36,7 +34,6 @@ $(function () {
             e.preventDefault();
             location.href = APP.url("academico/systemcalifica/sistema");
         }
-
     };
 
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {

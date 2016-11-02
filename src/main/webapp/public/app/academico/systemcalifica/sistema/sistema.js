@@ -108,5 +108,4 @@ $(function () {
     $("body").delegate(".asignar-cursos", "click", function (e) {
         Sistema.asignarCursos($(this), e);
     });
-
 });
