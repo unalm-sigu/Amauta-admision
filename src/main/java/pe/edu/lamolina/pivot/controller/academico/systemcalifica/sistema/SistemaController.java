@@ -148,9 +148,9 @@ public class SistemaController {
     @RequestMapping("save")
     public String save(PlanCalificacion planCalificacion,
             RedirectAttributes redirectAttr, HttpSession session) {
-        logger.debug("Plan Califica {}", 1);
-        //  logger.debug("Planes de evaluacion {}", evsPLan.size());
+        logger.debug("Plan Califica {}", planCalificacion.toString());
+        logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
 
-        return "redirect:/sistema";
+        return "redirect:/academico/systemcalifica/sistema/sistema";
     }
 }

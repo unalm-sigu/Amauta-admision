@@ -40,7 +40,8 @@ $(function () {
             location.href = APP.url("academico/systemcalifica/sistema");
         },
         saveSistema: function () {
-            var form = MODAL.getBody().find("[name='frmSistemaCalifica']");
+            var form = $("[id='frmSistemaCalifica']");
+            alert(form.serialize());
             /*   form.parsley().destroy();
              form.parsley();
              if (!form.parsley().validate()) {
