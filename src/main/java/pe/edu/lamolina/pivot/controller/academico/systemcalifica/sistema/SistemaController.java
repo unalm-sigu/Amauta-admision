@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -148,9 +151,23 @@ public class SistemaController {
     @RequestMapping("save")
     public String save(PlanCalificacion planCalificacion,
             RedirectAttributes redirectAttr, HttpSession session) {
-        logger.debug("Plan Califica {}", planCalificacion.toString());
-        logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
 
-        return "redirect:/academico/systemcalifica/sistema/sistema";
+        try {
+            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            logger.debug("Plan Califica {}", planCalificacion.toString());
+            logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
+
+            Notificaciones.crearMsg("Creado exitosamente.", redirectAttr);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, redirectAttr);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+
+        }
+
+        return "redirect:/academico/systemcalifica/sistema";
     }
 }

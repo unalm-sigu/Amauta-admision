@@ -41,31 +41,32 @@ $(function () {
         },
         saveSistema: function () {
             var form = $("[id='frmSistemaCalifica']");
-            alert(form.serialize());
+            form.submit();
             /*   form.parsley().destroy();
              form.parsley();
              if (!form.parsley().validate()) {
              return;
              }*/
-            $.ajax({
-                url: APP.url('academico/systemcalifica/sistema/save'),
-                type: 'POST',
-                async: true,
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        MODAL.hide();
-                        notify(response.message, "info");
-
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-
+            /*
+             $.ajax({
+             url: APP.url('academico/systemcalifica/sistema/save'),
+             type: 'POST',
+             async: true,
+             data: form.serialize(),
+             success: function (response) {
+             if (response.success) {
+             MODAL.hide();
+             notify(response.message, "info");
+             
+             } else {
+             notify(response.message, "error");
+             }
+             },
+             error: function () {
+             notify(MESSAGES.errorComunicacion, "error");
+             }
+             });
+             */
         }
 
     };
