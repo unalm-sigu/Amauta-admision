@@ -11,6 +11,7 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -19,9 +20,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
 @Controller
@@ -29,6 +34,9 @@ import pe.edu.lamolina.pivot.zelper.model.DataSession;
 public class SistemaController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    SistemaService sistemaService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -110,14 +118,14 @@ public class SistemaController {
 
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
-    
+
     @RequestMapping("{sistema}/cursos")
     public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/systemcalifica/sistema/cursos";
     }
-    
+
     @RequestMapping("{sistema}/detalleSolicitud")
     public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -128,7 +136,14 @@ public class SistemaController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        model.addAttribute("tipoEvaluaciones", sistemaService.allTipoEvaluacion());
+        model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
+        model.addAttribute("tiposSeccion", TipoSeccionEnum.values());
         return "app/academico/systemcalifica/sistema/nuevoSistema";
+    }
+
+    @RequestMapping("save")
+    public void save(PlanCalificacion planCalificacion, RedirectAttributes redirectAttr, HttpSession session) {
+
     }
 }

@@ -369,4 +369,3 @@ public class Alumno implements Serializable {
     }
 
 }
-
