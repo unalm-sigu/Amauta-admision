@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -143,7 +146,11 @@ public class SistemaController {
     }
 
     @RequestMapping("save")
-    public void save(PlanCalificacion planCalificacion, RedirectAttributes redirectAttr, HttpSession session) {
-        
+    public String save(PlanCalificacion planCalificacion,
+            RedirectAttributes redirectAttr, HttpSession session) {
+        logger.debug("Plan Califica {}", planCalificacion.toString());
+        logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
+
+        return "redirect:/academico/systemcalifica/sistema/sistema";
     }
 }

@@ -3,6 +3,9 @@ $(function () {
         addTipoEvaluacion: function (e) {
             e.preventDefault();
             var record = {};
+
+            var rowCount = $('#tblEvaluaciones tr').length;
+            record.index = rowCount - 1;
             var html = $.templates("#templateNuevoSistema").render(record);
 
             var tbody = $("#tbodyEvaluaciones");
@@ -30,9 +33,37 @@ $(function () {
                 }
             });
         },
-        regresar : function (e){
+        regresar: function (e) {
             e.preventDefault();
             location.href = APP.url("academico/systemcalifica/sistema");
+        },
+        saveSistema: function () {
+            var form = $("[id='frmSistemaCalifica']");
+            alert(form.serialize());
+            /*   form.parsley().destroy();
+             form.parsley();
+             if (!form.parsley().validate()) {
+             return;
+             }*/
+            $.ajax({
+                url: APP.url('academico/systemcalifica/sistema/save'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hide();
+                        notify(response.message, "info");
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         }
     };
 
@@ -46,5 +77,9 @@ $(function () {
 
     $("body").delegate(".cancelar", "click", function (e) {
         NuevoSistema.regresar(e);
+    });
+
+    $("body").delegate("#cmbSaveSistema", "click", function (e) {
+        NuevoSistema.saveSistema();
     });
 });
