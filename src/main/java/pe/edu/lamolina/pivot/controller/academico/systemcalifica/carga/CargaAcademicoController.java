@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.systemcalifica.carga;
 
-import pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema.*;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -9,7 +8,6 @@ import java.util.Date;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -24,8 +22,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSession;
 public class CargaAcademicoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -58,5 +54,12 @@ public class CargaAcademicoController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/cargaAcademica/cargaAcademica";
+    }
+    
+    @RequestMapping("sistemaCurso")
+    public String sistemaCurso(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+       
+        return "app/academico/docente/cargaAcademica/sistemaCurso";
     }
 }

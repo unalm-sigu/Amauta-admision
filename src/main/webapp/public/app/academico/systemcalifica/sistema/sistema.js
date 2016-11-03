@@ -84,9 +84,7 @@ $(function () {
             var rec = dynatable.settings.dataset.records[idx];
 
             location.href = APP.url('academico/systemcalifica/sistema/' + rec.id + '/cursos');
-
         }
-
     };
 
     $("body").delegate(".nuevo-sistema", "click", function (e) {
