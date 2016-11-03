@@ -37,19 +37,24 @@
                                         </select>  
                                     </td>
                                     <td>
-                                        <input name="evaluacionPlan[0].cantidadEvaluaciones" type="text" class="form-control" />
+                                        <input class="form-control clsCantEvaluaciones" rel="0"  
+                                               name="evaluacionPlan[0].cantidadEvaluaciones" type="text" />
                                     </td>    
                                     <td>
-                                        <input  name="evaluacionPlan[0].pesoTotal"  type="text" class="form-control" />
+                                        <input  name="evaluacionPlan[0].pesoTotal" rel="0"  type="text" 
+                                                class="form-control calcular-peso-eva" />
                                     </td>
                                     <td>
                                         <label class="switch">
-                                            <input type="checkbox" value="1" checked="yes"/>
+                                            <input name="evaluacionPlan[0].esNotaMinimaAnulable"
+                                                   class="calcular-peso-eva-chk" 
+                                                   rel="0" type="checkbox" value="1" />
                                             <span></span>
                                         </label>
                                     </td>
                                     <td>
-                                        <input name="evaluacionPlan[0].pesoEvaluacion" type="text" class="form-control" />
+                                        <input name="evaluacionPlan[0].pesoEvaluacion" rel="0" type="text" 
+                                               class="form-control" />
                                     </td>
                                     <td>
                                         <label class="switch">

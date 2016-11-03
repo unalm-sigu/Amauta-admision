@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 
 @Entity
@@ -42,6 +43,9 @@ public class EvaluacionPlan implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_evaluacion")
     private TipoEvaluacion tipoEvaluacion;
+
+    @Transient
+    private Integer esNotaMinimaAnulable;
 
     public EvaluacionPlan() {
     }
@@ -114,5 +118,12 @@ public class EvaluacionPlan implements Serializable {
         this.tipoSeccion = tipoSeccion;
     }
 
-}
+    public Integer getEsNotaMinimaAnulable() {
+        return esNotaMinimaAnulable;
+    }
 
+    public void setEsNotaMinimaAnulable(Integer esNotaMinimaAnulable) {
+        this.esNotaMinimaAnulable = esNotaMinimaAnulable;
+    }
+
+}
