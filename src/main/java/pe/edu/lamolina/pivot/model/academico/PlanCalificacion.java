@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.model.academico;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Entity
 @Table(name = "aca_plan_calificacion")
@@ -55,7 +57,7 @@ public class PlanCalificacion implements Serializable {
     @OneToMany(mappedBy = "sistemaEvaluacion", fetch = FetchType.LAZY)
     private List<Curso> curso;
 
-    @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<EvaluacionPlan> evaluacionPlan;
 
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
@@ -93,6 +95,17 @@ public class PlanCalificacion implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public EstadoPlanCalificaEnum getEstadoEnum() {
+        if (estado.isEmpty()) {
+            return null;
+        }
+        return EstadoPlanCalificaEnum.valueOf(estado);
+    }
+
+    public void setEstadoEnum(EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        this.estado = estadoPlanCalificaEnum.name();
     }
 
     public Date getFechaAprobacion() {
