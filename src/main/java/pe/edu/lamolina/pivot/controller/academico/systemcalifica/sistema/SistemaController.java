@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,16 +18,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -36,6 +40,7 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
 @Controller
+@SessionAttributes("planCalificacion")
 @RequestMapping("academico/systemcalifica/sistema")
 public class SistemaController {
 
@@ -80,30 +85,25 @@ public class SistemaController {
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+
         DynatableResponse json = new DynatableResponse();
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
         try {
 
+            List<PlanCalificacion> lstPLanCalificacion = sistemaService.allPlanesCalificacionByDynatable(filter);
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            {
+
+            for (PlanCalificacion planCalificacion : lstPLanCalificacion) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-                node.put("id", 5);
-                node.put("codigo", "SC-003");
+                node.put("id", planCalificacion.getId());
+                node.put("codigo", planCalificacion.getSistemaNotas().getCodigo());
                 node.put("formula", "EP(20) EF(25) 5PC(40) 3TA(15)");
-                node.put("origen", "Dpto. Académico");
-                node.put("estado", "ACT");
-                node.put("estadoEnum", "Activo");
-                array.add(node);
-            }
-            {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", 34);
-                node.put("codigo", "SC-103");
-                node.put("formula", "EP(20) EF(25) 5PC(40) 3TA(15)");
-                node.put("origen", "Docente");
-                node.put("estado", "CRE");
-                node.put("estadoEnum", "Creado");
+                node.put("origen", planCalificacion.getDepartamentoAcademico().getCodigo());
+                node.put("estado", planCalificacion.getEstado());
+                node.put("estadoEnum", planCalificacion.getEstadoEnum().name());
                 array.add(node);
             }
 
@@ -142,6 +142,9 @@ public class SistemaController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        PlanCalificacion planCalificacion = new PlanCalificacion();
+
+        model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("tipoEvaluaciones", sistemaService.allTipoEvaluacion());
         model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEnum.values());
@@ -149,7 +152,7 @@ public class SistemaController {
     }
 
     @RequestMapping("save")
-    public String save(PlanCalificacion planCalificacion,
+    public String save(@ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
             RedirectAttributes redirectAttr, HttpSession session) {
 
         try {
@@ -157,9 +160,13 @@ public class SistemaController {
 
             logger.debug("Plan Califica {}", planCalificacion.toString());
             logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
-
-            Notificaciones.crearMsg("Creado exitosamente.", redirectAttr);
-
+            if (planCalificacion.getId() == null) {
+                planCalificacion.setDepartamentoAcademico(new DepartamentoAcademico(1));
+                sistemaService.saveSistemaCalifica(planCalificacion);
+                Notificaciones.crearMsg("Creado exitosamente.", redirectAttr);
+            } else {
+                Notificaciones.crearMsg("Actualizado exitosamente.", redirectAttr);
+            }
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, redirectAttr);
 
