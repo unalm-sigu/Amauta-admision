@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -31,10 +30,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
