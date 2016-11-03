@@ -1,16 +1,14 @@
 <tr>
     <td>
-        <select class="form-control item-select2">
-            <option>EP - Examen Parcial</option>
-            <option>EF - Examen Final</option>
-            <option>PC - Practica Calificada</option>
+        <select name="evaluacionPlan[{{:index}}].tipoEvaluacion.id" class="form-control item-select2">
+            <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </td>
     <td>
-        <input type="text" class="form-control" />
+        <input name="evaluacionPlan[{{:index}}].cantidadEvaluaciones" type="text" class="form-control" />
     </td>    
     <td>
-        <input type="text" class="form-control" />
+        <input name="evaluacionPlan[{{:index}}].pesoTotal" type="text" class="form-control" />
     </td>
     <td>
         <label class="switch">
@@ -19,7 +17,7 @@
         </label>
     </td>
     <td>
-        <input type="text" class="form-control" />
+        <input name="evaluacionPlan[{{:index}}].pesoEvaluacion" type="text" class="form-control" />
     </td>
     <td>
         <label class="switch">
@@ -28,9 +26,10 @@
         </label>
     </td>
     <td>
-        <select class="form-control item-select2">
-            <option value="TEORIA">Teoría</option>
-            <option value="PRACTICA">Práctica</option>
+        <select name="evaluacionPlan[{{:index}}].tipoSeccion"  class="form-control item-select2">
+            <option th:each="itemea : ${tiposSeccion}"  
+                    th:text="${itemea.value}"
+                    th:value="${itemea.name()}" >yhhh</option>
         </select>
     </td>
     <td class="v-middle text-center">

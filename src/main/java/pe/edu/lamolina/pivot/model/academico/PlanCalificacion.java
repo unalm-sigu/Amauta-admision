@@ -175,5 +175,9 @@ public class PlanCalificacion implements Serializable {
         this.loggerPlanCalificacion = loggerPlanCalificacion;
     }
 
-}
+    @Override
+    public String toString() {
+        return "PlanCalificacion{" + "id=" + id + ", estado=" + estado + ", fechaAprobacion=" + fechaAprobacion + ", numero=" + numero + ", notaBase=" + notaBase + ", idUserRegistro=" + idUserRegistro + ", fechaRegistro=" + fechaRegistro + ", departamentoAcademico=" + departamentoAcademico + ", sistemaNotas=" + sistemaNotas + '}';
+    }
 
+}
