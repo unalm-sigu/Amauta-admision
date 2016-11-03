@@ -1,0 +1,20 @@
+<div id="divAddCurso" type="text/x-jsrender" class="hide" >
+    <form data-parsley-validate="true">
+        <div class="form-group">
+            <label class="control-label">Indique que curso que va a ser incluido</label>
+            <input type="hidden" class="form-control buscar-curso" required="yes" name="cicloAcademico.year" />
+        </div>
+    </form>
+</div>
+<div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+    <span class="block bold h5 text-success">{{:nombre}}</span>
+    <span class="block"><strong>Código:</strong> {{:codigo}} - <strong>TPC:</strong> {{:tpc}}</span>
+    <small class="block bold">Sist. Calificación:
+        {{if sistemaCalificacion =="NO TIENE"}}
+        <span class="text-danger">{{:sistemaCalificacion}}</span>
+        {{else}}
+        <span class="text-success">{{:sistemaCalificacion}}</span>
+        {{/if}}
+    </small>
+    <small class="block"><strong>Dpto. Académico:</strong> {{:departamentoAcademico}}</small>
+</div>

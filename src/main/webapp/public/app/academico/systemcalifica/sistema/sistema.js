@@ -59,10 +59,7 @@ $(function () {
 
             MODAL.init("lg");
             MODAL.title('Solicitud de creación: <stron>Sistema de Calificación ' + rec.codigo + '</strong>');
-            MODAL.buttons(
-                    '<a class="btn btn-success">Aprobar</a>' +
-                    '<a class="btn btn-warning">Observar</a>' +
-                    '<a class="btn btn-danger">Rechazar</a>');
+            //MODAL.buttons();
             MODAL.show();
 
             $.ajax({

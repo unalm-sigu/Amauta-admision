@@ -20,15 +20,19 @@
                     <table class="table table-striped">
                         <thead>
                             <tr class=""> 
-                                <th class="col-md-9 v-middle">Curso</th>
+                                <th class="col-md-1 v-middle text-center">Código</th>
+                                <th class="col-md-8 v-middle">Curso</th>
                                 <th class="col-md-2 v-middle text-center">Fecha de Inclusión</th>
                                 <th class="col-md-1 v-middle text-center">TPC</th>
                                 <th class=""></th>
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tbodyCursos">
                             <tr>
+                                <td class="v-middle text-center">
+                                    <span>CC4512</span>
+                                </td>
                                 <td class="v-middle">
                                     <span>Física I</span>
                                 </td>
@@ -43,6 +47,9 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td class="v-middle text-center">
+                                    <span>MT7410</span>
+                                </td>
                                 <td class="v-middle">
                                     <span>Física Cuántica</span>
                                 </td>
@@ -57,6 +64,9 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td class="v-middle text-center">
+                                    <span>FT4005</span>
+                                </td>
                                 <td class="v-middle">
                                     <span>Cálculos Atómicos</span>
                                 </td>
@@ -74,17 +84,18 @@
                     </table>
 
                     <div class="text-center block">
-                        <a href="#" class="btn btn-primary add-tipo-evaluacion">Agregar curso</a>
+                        <a href="#" class="btn btn-primary" id="btnAddCurso">Agregar curso</a>
                     </div>
                 </section>
             </section>
 
             <div th:substituteby="app/templates/modal"/> 
-            <script id="templateNuevoSistema" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/systemcalifica/sistema/templateNuevoSistema"/></script>
+            <div th:substituteby="app/academico/systemcalifica/sistema/modalCursos"/>
+            <script id="templateCursos" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/systemcalifica/sistema/templateCursos"/></script>
         </div>
 
         <div layout:fragment="js">
-            <script th:src="@{/app/academico/systemcalifica/sistema/nuevoSistema.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/systemcalifica/sistema/cursos.js}" charset="utf-8"></script>
         </div>
     </body>
 </html>
