@@ -99,7 +99,7 @@ public class SistemaController {
                 node.put("formula", "EP(20) EF(25) 5PC(40) 3TA(15)");
                 node.put("origen", planCalificacion.getDepartamentoAcademico().getCodigo());
                 node.put("estado", planCalificacion.getEstado());
-                node.put("estadoEnum", planCalificacion.getEstadoEnum().name());
+                node.put("estadoEnum", planCalificacion.getEstadoEnum().getValue());
                 array.add(node);
             }
 
@@ -117,7 +117,8 @@ public class SistemaController {
     @RequestMapping("{sistema}/detalleSistema")
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        model.addAttribute("planCalificacion", planCalificacion);
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
 

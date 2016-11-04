@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 
 @Repository
 public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implements PlanCalificacionDAO {
@@ -40,5 +41,19 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
                 .setPageSize(filter.getPerPage());
 
         return this.all(sqlUtil);
+    }
+
+    @Override
+    public PlanCalificacion find(Long idPlanCalificacion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pc");
+        sqlUtil.parents("sistemaNotas sn", "departamentoAcademico da", "evaluacionPlan ep");
+        sqlUtil.filter("pc.id", idPlanCalificacion);
+
+        PlanCalificacion result = find(sqlUtil);
+        for (EvaluacionPlan evaPlan : result.getEvaluacionPlan()) {
+            evaPlan.getTipoEvaluacion();
+        }
+
+        return result;
     }
 }

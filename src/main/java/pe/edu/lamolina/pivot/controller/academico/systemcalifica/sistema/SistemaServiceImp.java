@@ -61,4 +61,9 @@ public class SistemaServiceImp implements SistemaService {
         return planCalificacionDAO.allByDynatable(dynatableFilter);
     }
 
+    @Override
+    public PlanCalificacion findPlanCalificacion(Long idPlanCalificacion) {
+        return planCalificacionDAO.find(idPlanCalificacion);
+    }
+
 }

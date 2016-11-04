@@ -9,4 +9,6 @@ public interface PlanCalificacionDAO extends Crud<PlanCalificacion> {
 
     List<PlanCalificacion> allByDynatable(DynatableFilter filter);
 
+    PlanCalificacion find(Long idPlanCalificacion);
+
 }
