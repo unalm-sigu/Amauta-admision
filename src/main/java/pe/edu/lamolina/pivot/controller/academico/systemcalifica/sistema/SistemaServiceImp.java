@@ -66,4 +66,12 @@ public class SistemaServiceImp implements SistemaService {
         return planCalificacionDAO.find(idPlanCalificacion);
     }
 
+    @Override
+    @Transactional
+    public void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum) {
+        PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
+        planCalificacion.setEstadoEnum(estadiPlanCalificaEnum);
+        planCalificacionDAO.update(planCalificacion);
+    }
+
 }

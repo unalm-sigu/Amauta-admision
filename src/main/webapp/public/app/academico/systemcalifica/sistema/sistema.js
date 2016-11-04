@@ -13,7 +13,7 @@ $(function () {
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var colorEstado = {ACT: "success", CER: "danger", CRE: "default"};
+        var colorEstado = {APR: "success", CER: "danger", CRE: "default"};
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
 
@@ -84,6 +84,41 @@ $(function () {
             var rec = dynatable.settings.dataset.records[idx];
 
             location.href = APP.url('academico/systemcalifica/sistema/' + rec.id + '/cursos');
+        },
+        aprobar: function (el) {
+            bootbox.confirm({
+                message: MESSAGES.confirmActive,
+                title: 'Activar Grupo',
+                buttons: {
+                    confirm: {label: 'Activar'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+
+                        $.ajax({
+                            url: APP.url('academico/systemcalifica/sistema/aprobar'),
+                            type: 'POST',
+                            async: true,
+                            data: {sistema: el.attr('rel')},
+                            success: function (response) {
+                                MODAL.hideWait();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -107,5 +142,11 @@ $(function () {
         Sistema.asignarCursos($(this), e);
     });
 
+    $("body").delegate(".asignar-cursos", "click", function (e) {
+        Sistema.asignarCursos($(this), e);
+    });
 
+    $("body").delegate(".aprobar", "click", function () {
+        Sistema.aprobar($(this));
+    });
 });

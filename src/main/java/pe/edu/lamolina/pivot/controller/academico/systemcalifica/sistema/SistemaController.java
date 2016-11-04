@@ -21,17 +21,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
@@ -174,4 +178,24 @@ public class SistemaController {
 
         return "redirect:/academico/systemcalifica/sistema";
     }
+
+    @ResponseBody
+    @RequestMapping("aprobar")
+    public JsonResponse aprobar(@RequestParam("sistema") Long sistema) {
+        JsonResponse response = new JsonResponse();
+        try {
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.APR);
+            response.setMessage(Messages.APPROVED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

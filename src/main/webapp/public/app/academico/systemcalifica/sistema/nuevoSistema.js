@@ -38,8 +38,21 @@ $(function () {
             location.href = APP.url("academico/systemcalifica/sistema");
         },
         saveSistema: function () {
-            var form = $("[id='frmSistemaCalifica']");
-            form.submit();
+
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea grabar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        var form = $("[id='frmSistemaCalifica']");
+                        form.submit();
+                    }
+                }
+            });
             /*   form.parsley().destroy();
              form.parsley();
              if (!form.parsley().validate()) {
