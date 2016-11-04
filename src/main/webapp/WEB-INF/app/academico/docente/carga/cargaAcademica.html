@@ -38,11 +38,12 @@
                                     <span class="block">3h</span>
                                 </td>
                                 <td class="text-center v-middle">
-                                    <span class="label label-default">SC - 33</span>
+                                    <a class="label label-default sistema-curso" href="#">SC - 33</a>
                                 </td>
                                 <td class="text-center v-middle">
                                     <span class="label label-default">Sin notas</span>
                                 </td>
+                                
                                 <td class="text-center v-middle">
                                     <div class="dropdown actions">
                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
@@ -73,8 +74,8 @@
                                     <span class="block">2h</span>
                                 </td>
                                 <td class="text-center v-middle">
-                                    <a class="block sistema-curso" href="#">Aceptado</a>
-                                    <a class="block sistema-curso" href="#">Ingresar Notas</a>
+                                    <a class="block sistema-curso-m2" href="#">Aceptado</a>
+                                    <a class="block sistema-curso-m2" href="#">Ingresar Notas</a>
                                 </td>
                                 <td class="text-center v-middle">
                                     <span class="label label-default">Con notas</span>
@@ -109,8 +110,8 @@
                                     <span class="block">4h</span>
                                 </td>
                                 <td class="text-center v-middle">
-                                    <a class="block sistema-curso" href="#">Aceptado</a>
-                                    <a class="block sistema-curso" href="#">Completo</a>
+                                    <a class="block sistema-curso-m2" href="#">Aceptado</a>
+                                    <a class="block sistema-curso-m2" href="#">Completo</a>
                                 </td>
                                 <td class="text-center v-middle">
                                     <span class="label label-default">Cerrado</span>
@@ -133,10 +134,11 @@
                     </table>
                 </section>
             </section>
+            
+        <div th:substituteby="app/templates/modal"/> 
         </div>
-
         <div layout:fragment="js">
-            <script th:src="@{/app/academico/docente/cargaAcademica/cargaAcademica.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/docente/carga/cargaAcademica.js}" charset="utf-8"></script>
         </div>
     </body>
 </html>

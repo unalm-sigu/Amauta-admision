@@ -18,7 +18,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
 @Controller
-@RequestMapping("academico/docente/cargaAcademica")
+@RequestMapping("academico/docente/carga")
 public class CargaAcademicoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -53,13 +53,20 @@ public class CargaAcademicoController {
     public String index(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "app/academico/docente/cargaAcademica/cargaAcademica";
+        return "app/academico/docente/carga/cargaAcademica";
     }
     
     @RequestMapping("sistemaCurso")
     public String sistemaCurso(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
        
-        return "app/academico/docente/cargaAcademica/sistemaCurso";
+        return "app/academico/docente/carga/sistemaCurso";
+    }
+    
+    @RequestMapping("detalleCargaAcademica")
+    public String detalleCargaAca(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+       
+        return "app/academico/docente/carga/detalleCargaAcademica";
     }
 }
