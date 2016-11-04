@@ -5,19 +5,27 @@
         </select>
     </td>
     <td>
-        <input name="evaluacionPlan[{{:index}}].cantidadEvaluaciones" type="text" class="form-control" />
+        <input  name="evaluacionPlan[{{:index}}].cantidadEvaluaciones" type="text"
+                rel="{{:index}}"
+                class="form-control clsCantEvaluaciones" />
     </td>    
     <td>
-        <input name="evaluacionPlan[{{:index}}].pesoTotal" type="text" class="form-control" />
+        <input name="evaluacionPlan[{{:index}}].pesoTotal" type="text"
+               rel="{{:index}}" class="form-control calcular-peso-eva" />
     </td>
     <td>
         <label class="switch"> 
-            <input name="evaluacionPlan[{{:index}}].evaluacionesObligatorias" type="checkbox" value="1" />
+            <input name="evaluacionPlan[{{:index}}].esNotaMinimaAnulable" type="checkbox" value="1" 
+                   class="calcular-peso-eva-chk"
+                   rel="{{:index}}"/>
             <span></span>
         </label>
     </td>
     <td>
-        <input name="evaluacionPlan[{{:index}}].pesoEvaluacion" type="text" class="form-control" />
+        <input name="evaluacionPlan[{{:index}}].pesoEvaluacion" 
+               type="text" class="form-control"
+               readonly="true"
+               rel="{{:index}}"/>
     </td>
     <td>
         <label class="switch">

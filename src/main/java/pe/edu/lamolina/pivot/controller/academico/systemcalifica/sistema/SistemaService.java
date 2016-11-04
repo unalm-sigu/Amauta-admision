@@ -16,4 +16,6 @@ public interface SistemaService {
 
     List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter);
 
+    PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
+
 }

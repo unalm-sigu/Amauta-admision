@@ -50,7 +50,7 @@ public class PlanCalificacion implements Serializable {
     @JoinColumn(name = "id_departamento_academico")
     private DepartamentoAcademico departamentoAcademico;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sistema_notas")
     private SistemaNotas sistemaNotas;
 

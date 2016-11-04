@@ -1,4 +1,5 @@
-<span class="block m-b">Estado: <span class="label label-danger">Activo</span></span>
+<span class="block m-b">Estado: <span class="label label-danger" 
+                                      th:text="${planCalificacion.estadoEnum.value}">Creado</span></span>
 
 <table class="table table-striped">
     <thead>
@@ -12,76 +13,28 @@
     </thead>
 
     <tbody>
-        <tr>
-            <td  class="v-middle"><span>EP</span></td>
+        <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
+            <td  class="v-middle"><span th:text="${evas.tipoEvaluacion.codigo}">EP</span></td>
 
             <td  class="v-middle">
-                <span class="block">Examen Parcial</span>
+                <span th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
             </td>
             <td class="text-center v-middle">
-                <span class="block">1</span>
+                <span class="block" th:text="${evas.cantidadEvaluaciones}" >1</span>
             </td>
             <td class="text-center v-middle">
-                <span class="block">20 %</span>
+                <span class="block"  th:text="${evas.pesoEvaluacion + ' %'}"  >20 %</span>
             </td>
             <td class="text-center v-middle">
-                <span class="">Teoría</span>
+                <span class="label label-default" th:text="${evas.tipoSeccionEnum.value}">Teoria</span>
             </td>
         </tr>
 
-        <tr>
-            <td  class="v-middle"><span>EF</span></td>
-
-            <td  class="v-middle">
-                <span class="block">Examen Final</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">1</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">30 %</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="">Teoría</span>
-            </td>
-        </tr>
-
-        <tr>
-            <td  class="v-middle"><span>PC</span></td>
-            <td  class="v-middle">
-                <span class="block">Prácticas Calificadas</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">5 (1)</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">40 %</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="">Práctica</span>
-            </td>
-        </tr>
-
-        <tr>
-            <td  class="v-middle"><span>TA</span></td>
-            <td  class="v-middle">
-                <span class="block">Tareas</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">3 (1)</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">10 %</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="">Teoria</span>
-            </td>
-        </tr> 
     </tbody>
 </table>
 
 <div class="">			
-    <span class="block"><strong>Nota Base:</strong> <span>100</span></span>
-    <span class="block"><strong>Formula:</strong> <span>1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
-    <span class="block"><strong>Sistema de Notas:</strong> <span>0 al 20</span></span>
+    <span class="block"><strong>Nota Base:</strong> <span th:text="${planCalificacion.notaBase}">100</span></span>
+    <span class="block"><strong>Formula:</strong> <span >1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
+    <span class="block"><strong>Sistema de Notas:</strong> <span th:text="${planCalificacion.sistemaNotas.nombre}">1 al 20</span></span>
 </div>
