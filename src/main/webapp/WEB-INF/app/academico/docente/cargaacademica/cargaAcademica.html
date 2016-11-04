@@ -1,144 +1,41 @@
 <html layout:decorator="zlayout/layout">
     <head>
         <title>Carga Academica</title>
-    </head>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
 
-    <body>
-        <div layout:fragment="main">
-            <header class="page-header">        
-                <h2>Carga Academica - 2016 II</h2>
-            </header>
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">        
+            <h2>Carga Académica - <span>2016-II</span></h2>
+            <span class="block"><strong>Docente:</strong> <span>Juan Perez</span></span>
+            <span class="block"><strong>Departamento Academico:</strong> Matematicas</span>
+        </header>
 
-            <section class="panel">
-                <section class="panel-body">
-                    <table class="table table-striped">
-                        <thead> 
-                            <tr class=""> 
-                                <th class="col-md-2">Curso</th>
-                                <th class="col-md-3 text-center">Clave</th>
-                                <th class="col-md-3 text-center">Carga</th>
-                                <th class="col-md-2 text-center">Sistema Califica</th>
-                                <th class="col-md-2 text-center">Estado</th>
-                                <th class="v-middle"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">Matemática Básica</span>
-                                    <span class="block">TPC : 3 - 2 - 4</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <span class="block">2020</span>
-                                    <span class="block">Teoría</span>
-                                    <span class="block">Aula: 33</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <span class="block">35 alumnos</span>
-                                    <span class="block">3h</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <a class="label label-default sistema-curso" href="#">SC - 33</a>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <span class="label label-default">Sin notas</span>
-                                </td>
-                                
-                                <td class="text-center v-middle">
-                                    <div class="dropdown actions">
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                        <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
-                                                <a class="ver-solicitud" href="#">Ver solicitud</a>
-                                            </li>
-                                            <li role="presentation">
-                                                <a class="detalle-sistema" href="#">Detalle</a>
-                                            </li> 
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">Matemática Básica</span>
-                                    <span class="block">TPC : 3 - 2 - 4</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <span class="block">2022</span>
-                                    <span class="block">Práctica</span>
-                                    <span class="block">Aula: 35</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <span class="block">17 alumnos</span>
-                                    <span class="block">2h</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <a class="block sistema-curso-m2" href="#">Aceptado</a>
-                                    <a class="block sistema-curso-m2" href="#">Ingresar Notas</a>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <span class="label label-default">Con notas</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <div class="dropdown actions">
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                        <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
-                                                <a class="ver-solicitud" href="#">Ver solicitud</a>
-                                            </li>
-                                            <li role="presentation">
-                                                <a class="detalle-sistema" href="#">Detalle</a>
-                                            </li> 
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr> 
-
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">Matemática Avanzada</span>
-                                    <span class="block">TPC : 4 - 0 - 4</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <span class="block">3840</span>
-                                    <span class="block">Teoría</span>
-                                    <span class="block">Aula: 103</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <span class="block">28 alumnos</span>
-                                    <span class="block">4h</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <a class="block sistema-curso-m2" href="#">Aceptado</a>
-                                    <a class="block sistema-curso-m2" href="#">Completo</a>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <span class="label label-default">Cerrado</span>
-                                </td>
-                                <td class="text-center v-middle">
-                                    <div class="dropdown actions">
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                        <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
-                                                <a class="ver-solicitud" href="#">Ver solicitud</a>
-                                            </li>
-                                            <li role="presentation">
-                                                <a class="detalle-sistema" href="#">Detalle</a>
-                                            </li> 
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr> 
-                        </tbody>
-                    </table>
-                </section>
+        <section class="panel">
+            <section class="panel-body">
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-5">Curso</th>
+                            <th class="col-md-2 text-center">Clave</th>
+                            <th class="col-md-2 text-center">Carga</th>
+                            <th class="col-md-2 text-center">Sistema de calificación</th>
+                            <th class="col-md-1 text-center">Estado</th>
+                            <th class="v-middle"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </section>
-            
-        <div th:substituteby="app/templates/modal"/> 
-        </div>
-        <div layout:fragment="js">
-            <script th:src="@{/app/academico/docente/carga/cargaAcademica.js}" charset="utf-8"></script>
-        </div>
-    </body>
+        </section>
+
+        <div th:substituteby="app/templates/modal"/>
+        <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/cargaacademica/cargaAcademica.js}" charset="utf-8"></script>
+    </div>
+</body>
 </html>
