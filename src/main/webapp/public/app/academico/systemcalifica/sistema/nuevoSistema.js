@@ -132,5 +132,4 @@ $(function () {
     $("body").delegate(".calcular-peso-eva-chk", "change", function (e) {
         NuevoSistema.calcularPesoEval($(this));
     });
-
 });
