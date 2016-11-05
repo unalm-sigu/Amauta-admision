@@ -5,6 +5,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 public interface SistemaService {
 
@@ -17,5 +18,7 @@ public interface SistemaService {
     List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter);
 
     PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
+
+    void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
 
 }
