@@ -12,8 +12,10 @@
 
             <section class="panel">
                 <section class="panel-body">
-                    <div class="m-b">			
-                        <span class="block"><strong>Formula:</strong> <span>1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
+                    <div class="m-b">		
+                        <!-- 1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10) -->
+                        <span class="block"><strong>Formula:</strong> <span id="spnFormula"></span></span>
+
                     </div>
                     <form id="frmSistemaCalifica" th:action="@{/academico/systemcalifica/sistema/save}" method="post" >
                         <table id="tblEvaluaciones" class="table table-striped">

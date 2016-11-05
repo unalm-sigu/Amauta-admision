@@ -1,4 +1,5 @@
 $(function () {
+
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/systemcalifica/sistema/list'),
@@ -13,7 +14,7 @@ $(function () {
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var colorEstado = {APR: "success", CER: "danger", CRE: "default"};
+        var colorEstado = {APR: "success", CER: "danger", DES: "danger", CRE: "default"};
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
 
@@ -59,10 +60,7 @@ $(function () {
 
             MODAL.init("lg");
             MODAL.title('Solicitud de creación: <stron>Sistema de Calificación ' + rec.codigo + '</strong>');
-            MODAL.buttons(
-                    '<a class="btn btn-success">Aprobar</a>' +
-                    '<a class="btn btn-warning">Observar</a>' +
-                    '<a class="btn btn-danger">Rechazar</a>');
+            //MODAL.buttons();
             MODAL.show();
 
             $.ajax({
@@ -119,6 +117,76 @@ $(function () {
                     }
                 }
             });
+        },
+        desaprobar: function (el) {
+            bootbox.confirm({
+                message: MESSAGES.confirmActive,
+                title: 'Activar Grupo',
+                buttons: {
+                    confirm: {label: 'Activar'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+
+                        $.ajax({
+                            url: APP.url('academico/systemcalifica/sistema/desaprobar'),
+                            type: 'POST',
+                            async: true,
+                            data: {sistema: el.attr('rel')},
+                            success: function (response) {
+                                MODAL.hideWait();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        anull: function (el) {
+            bootbox.confirm({
+                message: MESSAGES.confirmActive,
+                title: 'Activar Grupo',
+                buttons: {
+                    confirm: {label: 'Activar'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+
+                        $.ajax({
+                            url: APP.url('academico/systemcalifica/sistema/anull'),
+                            type: 'POST',
+                            async: true,
+                            data: {sistema: el.attr('rel')},
+                            success: function (response) {
+                                MODAL.hideWait();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -148,5 +216,13 @@ $(function () {
 
     $("body").delegate(".aprobar", "click", function () {
         Sistema.aprobar($(this));
+    });
+
+    $("body").delegate(".desaprobar", "click", function () {
+        Sistema.desaprobar($(this));
+    });
+
+    $("body").delegate(".anull", "click", function () {
+        Sistema.anull($(this));
     });
 });

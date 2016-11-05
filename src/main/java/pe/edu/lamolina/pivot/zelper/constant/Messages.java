@@ -10,6 +10,10 @@ public interface Messages {
 
     String APPROVED = "Registro aprobado";
 
+    String DISAPPROVE = "Registro desaprobado";
+
+    String ANNULL = "Registro Anulado";
+
     String FORBIDEN = "No se encuentra autorizado para realizar esta operación";
 
     String FK_ERROR = "Imposible eliminar, el registro está relacionado con otros registros.";

@@ -1,0 +1,45 @@
+<tr rel="{{:index}}">
+    <td class="v-middle">
+        <span class="block bold">{{:nombre}}</span>
+        <span class="block">Código: {{:codigo}}</span>
+        <span class="block">TPC: {{:tpc}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <span class="block">{{:seccion}}</span>
+        <span class="block">{{:tipoSeccion}}</span>
+        <span class="block">Aula: {{:aula}}</span>
+    </td>
+    <td class="text-center v-middle">
+        <span class="block">{{:alumnos}} alumnos</span>
+        <span class="block">{{:horasSemanales}}h</span>
+    </td>
+    <td class="text-center v-middle">
+        {{if estadoSistema=="PEND"}}
+        <a href="#" class="label label-warning aceptar-sistema-calificacion">SC - 33</a>
+        {{/if}}
+        {{if estadoSistema=="ACEP"}}
+        <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
+        <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
+        {{/if}}
+        {{if estadoSistema=="CER"}}
+        <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
+        <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
+        {{/if}}
+    </td>
+    <td class="text-center v-middle">
+        <span class="label label-default">Cerrado</span>
+    </td>
+    <td class="text-center v-middle">
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                <li role="presentation">
+                    <a class="aceptar-sistema-calificacion" href="#">Aceptar Sist. Calificación</a>
+                </li>
+                <li role="presentation">
+                    <a class="sistema-calificacion" href="#">Ver Sist. Calificación</a>
+                </li> 
+            </ul>
+        </div>
+    </td>
+</tr>

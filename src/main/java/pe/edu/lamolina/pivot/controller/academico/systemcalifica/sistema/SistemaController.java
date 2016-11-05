@@ -33,6 +33,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -195,6 +196,74 @@ public class SistemaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desaprobar")
+    public JsonResponse desaprobar(@RequestParam("sistema") Long sistema) {
+        JsonResponse response = new JsonResponse();
+        try {
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.DES);
+            response.setMessage(Messages.DISAPPROVE);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("anull")
+    public JsonResponse anull(@RequestParam("sistema") Long sistema) {
+        JsonResponse response = new JsonResponse();
+        try {
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ANU);
+            response.setMessage(Messages.ANNULL);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("tiposEvaluacion")
+    public JsonResponse tiposEvaluacion() {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<TipoEvaluacion> lstTipoEvaluacion = sistemaService.allTipoEvaluacion();
+
+            ObjectNode json = new ObjectNode(jsonFactory);
+
+            for (TipoEvaluacion tipoEvaluacion : lstTipoEvaluacion) {
+                json.put(tipoEvaluacion.getId().toString(), tipoEvaluacion.getCodigo());
+            }
+
+            response.setSuccess(true);
+            response.setData(json);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 
