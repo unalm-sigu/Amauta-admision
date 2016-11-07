@@ -67,7 +67,33 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         var form = $("[id='frmSistemaCalifica']");
-                        form.submit();
+                        // form.submit();
+
+                        form.parsley().destroy();
+                        form.parsley();
+                        if (!form.parsley().validate()) {
+                            return;
+                        }
+                        $.ajax({
+                            url: APP.url('academico/systemcalifica/sistema/save'),
+                            type: 'POST',
+                            async: true,
+                            data: form.serialize(),
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hide();
+                                    notify(response.message, "info");
+                                    location.href = APP.url('academico/systemcalifica/sistema');
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
                     }
                 }
             });

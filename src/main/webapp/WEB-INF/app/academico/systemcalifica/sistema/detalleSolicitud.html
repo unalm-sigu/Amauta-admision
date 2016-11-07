@@ -17,26 +17,28 @@
     </thead>
 
     <tbody>
-        <tr>
-            <td  class="v-middle"><span>EP</span></td>
+        <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
+            <td  class="v-middle">
+                <span th:text="${evas.tipoEvaluacion.codigo}">EP</span>
+            </td>
 
             <td  class="v-middle">
-                <span>Examen Parcial</span>
+                <span class="block text-primary" th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
             </td>
             <td class="text-center v-middle">
-                <span class="block">1</span>
+                <span class="block" th:text="${evas.cantidadEvaluaciones}" >1</span>
             </td>
             <td class="text-center v-middle">
-                <span class="block">20%</span>
+                <span class="block"  th:text="${evas.pesoTotal + ' %'}"  >20 %</span>
             </td>
             <td>
                 <label class="switch">
-                    <input type="checkbox" value="1" disabled="yes" />
+                    <input type="checkbox" th:value="${evas.notaMinimaAnulable}" disabled="yes" />
                     <span></span>
                 </label>
             </td>
             <td class="text-center v-middle">
-                <span class="block">20%</span>
+                <span class="block"  th:text="${evas.pesoEvaluacion + ' %'}"  >20 %</span>
             </td>
             <td>
                 <label class="switch">
@@ -49,105 +51,7 @@
             </td>
         </tr>
 
-        <tr>
-            <td  class="v-middle"><span>EF</span></td>
 
-            <td  class="v-middle">
-                <span class="block text-primary">Examen Final</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">1</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">30 %</span>
-            </td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" disabled="yes"/>
-                    <span></span>
-                </label>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">20%</span>
-            </td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" disabled="yes"/>
-                    <span></span>
-                </label>
-            </td>
-            <td class="text-center v-middle">
-                <span class="label label-default">Teoria</span>
-            </td>
-        </tr>
-
-        <tr>
-            <td  class="v-middle"><span>PC</span></td>
-            <td  class="v-middle">
-                <span class="block text-primary">Practicas Calificadas</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">5</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">40%</span>
-            </td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" checked="yes" disabled="yes"/>
-                    <span></span>
-                </label>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">10%</span>
-            </td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" disabled="yes"/>
-                    <span></span>
-                </label>
-            </td>
-            <td class="text-center v-middle">
-                <span class="label label-default">Práctica</span>
-            </td>
-        </tr>
-
-        <tr>
-            <td  class="v-middle"><span>TA</span></td>
-            <td  class="v-middle">
-                <span class="block text-primary">Tareas</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">3</span>
-            </td>
-
-            <td class="text-center v-middle">
-                <span class="block">10%</span>
-            </td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" checked="yes" disabled="yes"/>
-                    <span></span>
-                </label>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block">
-                    <span class="fa-stack fa-lg text-warning">
-                        <i class="fa fa-circle fa-stack-2x"></i>
-                        <i class="fa fa-question fa-stack-1x fa-inverse"></i>
-                    </span>
-                </span>
-            </td>
-            <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" checked="yes" disabled="yes"/>
-                    <span></span>
-                </label>
-            </td>
-            <td class="text-center v-middle">
-                <span class="label label-default">Teoria</span>
-            </td>
-        </tr> 
     </tbody>
 </table>
 
