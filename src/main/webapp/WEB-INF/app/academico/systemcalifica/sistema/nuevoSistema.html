@@ -15,7 +15,7 @@
                     <div class="m-b">		
                         <!-- 1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10) -->
                         <span class="block"><strong>Formula:</strong> <span id="spnFormula"></span></span>
-
+                        <input type="hidden" id="txtFormula" name="formula"/>
                     </div>
                     <form id="frmSistemaCalifica" th:action="@{/academico/systemcalifica/sistema/save}" method="post" >
                         <table id="tblEvaluaciones" class="table table-striped">
@@ -74,7 +74,7 @@
                                         </select>
                                     </td>
                                     <td class="v-middle text-center">
-                                        <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                                        <a href="#"  rel="0" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
                                     </td>
                                 </tr>
                             </tbody>

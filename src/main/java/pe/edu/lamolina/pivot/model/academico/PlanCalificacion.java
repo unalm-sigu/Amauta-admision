@@ -39,6 +39,9 @@ public class PlanCalificacion implements Serializable {
     @Column(name = "nota_base")
     private Integer notaBase;
 
+    @Column(name = "formula")
+    private String formula;
+
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
@@ -191,6 +194,14 @@ public class PlanCalificacion implements Serializable {
     @Override
     public String toString() {
         return "PlanCalificacion{" + "id=" + id + ", estado=" + estado + ", fechaAprobacion=" + fechaAprobacion + ", numero=" + numero + ", notaBase=" + notaBase + ", idUserRegistro=" + idUserRegistro + ", fechaRegistro=" + fechaRegistro + ", departamentoAcademico=" + departamentoAcademico + ", sistemaNotas=" + sistemaNotas + '}';
+    }
+
+    public String getFormula() {
+        return formula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
     }
 
 }

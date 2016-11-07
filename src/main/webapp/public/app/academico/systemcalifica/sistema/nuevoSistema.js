@@ -48,6 +48,7 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         tr.remove();
+                        NuevoSistema.calcularFormula();
                     }
                 }
             });
@@ -115,7 +116,7 @@ $(function () {
             var i = el.attr('rel');
             var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']");
             var cantEvals = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']");
-            var anularNotMin = $("[name='evaluacionPlan[" + i + "].esNotaMinimaAnulable']");
+            var anularNotMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']");
             var pesoEval = $("[name='evaluacionPlan[" + i + "].pesoEvaluacion']");
 
             if ($.isNumeric(pesoTotal.val()) && $.isNumeric(cantEvals.val())) {
@@ -156,6 +157,7 @@ $(function () {
 
             }
             $("#spnFormula").html(formula);
+            $("#txtFormula").val(formula);
         }
     };
 
