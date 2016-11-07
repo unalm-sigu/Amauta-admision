@@ -67,7 +67,33 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         var form = $("[id='frmSistemaCalifica']");
-                        form.submit();
+                        // form.submit();
+
+                        form.parsley().destroy();
+                        form.parsley();
+                        if (!form.parsley().validate()) {
+                            return;
+                        }
+                        $.ajax({
+                            url: APP.url('academico/systemcalifica/sistema/save'),
+                            type: 'POST',
+                            async: true,
+                            data: form.serialize(),
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hide();
+                                    notify(response.message, "info");
+                                    location.href = APP.url('academico/systemcalifica/sistema');
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
                     }
                 }
             });
@@ -114,12 +140,17 @@ $(function () {
             for (i = 0; i < rowCount; i++) {
                 var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
                 var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
+                var anularNotaMin = $("[name='evaluacionPlan[" + i + "].esNotaMinimaAnulable']").prop('checked');
                 var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
                 var tipoEvaluacionCode = tiposEvaluacion[tipoEvaluacion];
+
                 if (i > 0) {
-                    formula += "+";
+                    formula += " + ";
                 }
                 formula += cantEvaluaciones
+                if (anularNotaMin) {
+                    formula += "(1)";
+                }
                 formula += tipoEvaluacionCode + "(";
                 formula += pesoTotal + ")";
 

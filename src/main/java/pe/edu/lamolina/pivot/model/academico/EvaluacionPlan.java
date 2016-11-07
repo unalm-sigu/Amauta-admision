@@ -45,8 +45,8 @@ public class EvaluacionPlan implements Serializable {
     @JoinColumn(name = "id_tipo_evaluacion")
     private TipoEvaluacion tipoEvaluacion;
 
-    @Transient
-    private Integer esNotaMinimaAnulable;
+    @Column(name = "nota_minima_anulable")
+    private Integer notaMinimaAnulable;
 
     public EvaluacionPlan() {
     }
@@ -123,12 +123,12 @@ public class EvaluacionPlan implements Serializable {
         return TipoSeccionEnum.valueOf(tipoSeccion);
     }
 
-    public Integer getEsNotaMinimaAnulable() {
-        return esNotaMinimaAnulable;
+    public Integer getNotaMinimaAnulable() {
+        return notaMinimaAnulable;
     }
 
-    public void setEsNotaMinimaAnulable(Integer esNotaMinimaAnulable) {
-        this.esNotaMinimaAnulable = esNotaMinimaAnulable;
+    public void setNotaMinimaAnulable(Integer notaMinimaAnulable) {
+        this.notaMinimaAnulable = notaMinimaAnulable;
     }
 
 }

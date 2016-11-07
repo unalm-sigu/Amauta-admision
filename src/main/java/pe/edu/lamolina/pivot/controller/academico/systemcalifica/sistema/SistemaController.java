@@ -131,6 +131,8 @@ public class SistemaController {
     public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
+        PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        model.addAttribute("planCalificacion", planCalificacion);
         return "app/academico/systemcalifica/sistema/cursos";
     }
 
@@ -153,31 +155,39 @@ public class SistemaController {
         return "app/academico/systemcalifica/sistema/nuevoSistema";
     }
 
+    @ResponseBody
     @RequestMapping("save")
-    public String save(@ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
+    public JsonResponse save(@ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
             RedirectAttributes redirectAttr, HttpSession session) {
 
+        JsonResponse response = new JsonResponse();
         try {
             DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
             logger.debug("Plan Califica {}", planCalificacion.toString());
             logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
+
+            String message = "";
             if (planCalificacion.getId() == null) {
                 planCalificacion.setDepartamentoAcademico(new DepartamentoAcademico(1));
                 sistemaService.saveSistemaCalifica(planCalificacion);
-                Notificaciones.crearMsg("Creado exitosamente.", redirectAttr);
+                message = "Creado exitosamente.";
+
             } else {
-                Notificaciones.crearMsg("Actualizado exitosamente.", redirectAttr);
+                message = "Actualizado exitosamente.";
             }
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
         } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, redirectAttr);
-
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-
+            ExceptionHandler.handleException(e, response);
         }
-
-        return "redirect:/academico/systemcalifica/sistema";
+        return response;
     }
 
     @ResponseBody

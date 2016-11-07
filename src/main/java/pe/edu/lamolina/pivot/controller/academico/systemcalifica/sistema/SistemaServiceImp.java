@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SistemaNotasDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
@@ -30,6 +32,9 @@ public class SistemaServiceImp implements SistemaService {
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
 
+    @Autowired
+    CursoDAO cursoDAO;
+
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
         return tipoEvaluacionDAO.all();
@@ -47,11 +52,16 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacion.setFechaRegistro(new Date());
         planCalificacion.setDepartamentoAcademico(new DepartamentoAcademico(1));
 
+        Integer totalWeight = BigDecimal.ZERO.intValue();
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
+            totalWeight = +evaluacionPlan.getPesoTotal();
+        }
+        if (totalWeight != 100) {
+            throw new PhobosException("Pesos total de las evaluaciones incorrecto.");
         }
         planCalificacionDAO.save(planCalificacion);
     }
