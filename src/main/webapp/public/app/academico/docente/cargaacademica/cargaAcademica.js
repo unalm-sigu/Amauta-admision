@@ -71,6 +71,14 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        notasAcademicas: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+
+            location.href = APP.url('academico/docente/cargaacademica/') + rec.id + '/notasAcademicas';
         }
     };
     $("body").delegate(".aceptar-sistema-calificacion", "click", function (e) {
@@ -78,5 +86,8 @@ $(function () {
     });
     $("body").delegate(".sistema-calificacion", "click", function (e) {
         CargaAcademica.verSistemaCalificacion($(this), e);
+    });
+    $("body").delegate(".notas-academicas", "click", function (e) {
+        CargaAcademica.notasAcademicas($(this), e);
     });
 });

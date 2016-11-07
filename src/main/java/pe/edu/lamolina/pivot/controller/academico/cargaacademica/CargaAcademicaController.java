@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
@@ -154,9 +156,28 @@ public class CargaAcademicaController {
     }
 
     @RequestMapping("{sistema}/detalleSistemaCalificacion")
-    public String detalleCargaAca(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
+    public String detalleSistemaCalificacion(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
+    }
+
+    @RequestMapping("{cargaAcademica}/notasAcademicas")
+    public String notasAcademicas(@PathVariable("cargaAcademica") Long idCargaAcademica, Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/notasAcademicas";
+    }
+
+    @RequestMapping("{evaluacion}/evaluacion")
+    public String evaluacion(@PathVariable("evaluacion") Long idEvaluacion, Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Evaluacion eval = new Evaluacion();
+        eval.setTipoEvaluacion(new TipoEvaluacion());
+        eval.getTipoEvaluacion().setCodigo("PC1");
+        model.addAttribute("evaluacion", eval);
+
+        return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 }
