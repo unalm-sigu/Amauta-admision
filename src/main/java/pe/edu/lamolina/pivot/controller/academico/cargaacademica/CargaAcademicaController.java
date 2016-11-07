@@ -162,6 +162,20 @@ public class CargaAcademicaController {
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
 
+    @RequestMapping("expandir")
+    public String expandir(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
+    }
+
+    @RequestMapping("detalleExpandirEvaluacion")
+    public String detalleExapandirEva(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
+    }
+
     @RequestMapping("{cargaAcademica}/notasAcademicas")
     public String notasAcademicas(@PathVariable("cargaAcademica") Long idCargaAcademica, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);

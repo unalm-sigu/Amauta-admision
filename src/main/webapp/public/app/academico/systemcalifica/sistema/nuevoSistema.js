@@ -1,5 +1,24 @@
 $(function () {
+
+    var tiposEvaluacion;
+
     NuevoSistema = {
+        init: function () {
+            $.ajax({
+                url: APP.url('academico/systemcalifica/sistema/tiposEvaluacion'),
+                type: 'POST',
+                async: true,
+                data: {},
+                success: function (response) {
+                    if (response.success) {
+                        tiposEvaluacion = response.data;
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
             var record = {};
@@ -38,33 +57,20 @@ $(function () {
             location.href = APP.url("academico/systemcalifica/sistema");
         },
         saveSistema: function () {
-            var form = $("[id='frmSistemaCalifica']");
-            form.submit();
-            /*   form.parsley().destroy();
-             form.parsley();
-             if (!form.parsley().validate()) {
-             return;
-             }*/
-            /*
-             $.ajax({
-             url: APP.url('academico/systemcalifica/sistema/save'),
-             type: 'POST',
-             async: true,
-             data: form.serialize(),
-             success: function (response) {
-             if (response.success) {
-             MODAL.hide();
-             notify(response.message, "info");
-             
-             } else {
-             notify(response.message, "error");
-             }
-             },
-             error: function () {
-             notify(MESSAGES.errorComunicacion, "error");
-             }
-             });
-             */
+            NuevoSistema.calcularFormula();
+            bootbox.confirm({
+                message: "¿Está seguro que desea grabar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        var form = $("[id='frmSistemaCalifica']");
+                        form.submit();
+                    }
+                }
+            });
         },
         changeCantidadEval: function (el) {
             if ($.isNumeric(el.val())) {
@@ -101,8 +107,28 @@ $(function () {
                 var pesoEvalsNumber = parseInt(pesoTotalNumber) / parseInt(cantEvalsNumber);
                 pesoEval.val(pesoEvalsNumber);
             }
+        },
+        calcularFormula: function () {
+            var rowCount = $('#tblEvaluaciones tr').length - 1;
+            var formula = "";
+            for (i = 0; i < rowCount; i++) {
+                var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
+                var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
+                var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
+                var tipoEvaluacionCode = tiposEvaluacion[tipoEvaluacion];
+                if (i > 0) {
+                    formula += "+";
+                }
+                formula += cantEvaluaciones
+                formula += tipoEvaluacionCode + "(";
+                formula += pesoTotal + ")";
+
+            }
+            $("#spnFormula").html(formula);
         }
     };
+
+    NuevoSistema.init();
 
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
         NuevoSistema.addTipoEvaluacion(e);
@@ -131,6 +157,10 @@ $(function () {
 
     $("body").delegate(".calcular-peso-eva-chk", "change", function (e) {
         NuevoSistema.calcularPesoEval($(this));
+    });
+
+    $("body").change(function () {
+        NuevoSistema.calcularFormula();
     });
 
 });
