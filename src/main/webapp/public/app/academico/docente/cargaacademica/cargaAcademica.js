@@ -1,33 +1,33 @@
 $(function () {
 
-//    var dynatable = $('#dynaTable').dynatable({
-//        dataset: {
-//            ajaxUrl: APP.url('academico/docente/cargaacademica/list'),
-//            perPageDefault: 100
-//        },
-//        writers: {
-//            _rowWriter: ulWriter
-//        },
-//        table: {
-//            bodyRowSelector: 'tbody tr'
-//        }
-//    }).data('dynatable');
-//
-//    function ulWriter(rowIndex, record, columns, cellWriter) {
-//        var colorEstado = {ACT: "success", CER: "danger", CRE: "default"};
-//        record.colorEstado = colorEstado[record.estado];
-//        record.index = rowIndex;
-//
-//        var html = $.templates("#templateCargaAcademica").render(record);
-//        return html;
-//    }
+    var dynatable = $('#dynaTable').dynatable({
+        dataset: {
+            ajaxUrl: APP.url('academico/docente/cargaacademica/list'),
+            perPageDefault: 100
+        },
+        writers: {
+            _rowWriter: ulWriter
+        },
+        table: {
+            bodyRowSelector: 'tbody tr'
+        }
+    }).data('dynatable');
+
+    function ulWriter(rowIndex, record, columns, cellWriter) {
+        var colorEstado = {ACT: "success", CER: "danger", CRE: "default"};
+        record.colorEstado = colorEstado[record.estado];
+        record.index = rowIndex;
+
+        var html = $.templates("#templateCargaAcademica").render(record);
+        return html;
+    }
 
     CargaAcademica = {
         aceptarSistemaCalificacion: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
-//            var rec = dynatable.settings.dataset.records[idx];
+            var rec = dynatable.settings.dataset.records[idx];
 
             MODAL.hide();
             MODAL.init("lg");
@@ -54,7 +54,7 @@ $(function () {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
-            //           var rec = dynatable.settings.dataset.records[idx];
+            var rec = dynatable.settings.dataset.records[idx];
 
             MODAL.hide();
             MODAL.init("lg");
@@ -94,8 +94,8 @@ $(function () {
         },
         expandirEvaluacion: function (e) {
             e.preventDefault();
-//            var tr = e.closest("tr");
-//            var idx = tr.attr("rel");
+            var tr = e.closest("tr");
+            var idx = tr.attr("rel");
 
             MODAL.hide();
             MODAL.init("lg");
