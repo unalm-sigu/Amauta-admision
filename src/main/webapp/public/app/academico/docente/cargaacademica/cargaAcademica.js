@@ -1,5 +1,4 @@
 $(function () {
-
 //    var dynatable = $('#dynaTable').dynatable({
 //        dataset: {
 //            ajaxUrl: APP.url('academico/docente/cargaacademica/list'),
@@ -101,6 +100,8 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Expandir Evaluación");
             MODAL.show();
+            MODAL.buttons(
+                    '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>');
 
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/detalleExpandirEvaluacion'),
