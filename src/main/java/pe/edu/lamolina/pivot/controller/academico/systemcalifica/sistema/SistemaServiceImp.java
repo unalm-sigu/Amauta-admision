@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SistemaNotasDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
@@ -29,6 +30,9 @@ public class SistemaServiceImp implements SistemaService {
 
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
+
+    @Autowired
+    CursoDAO cursoDAO;
 
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {

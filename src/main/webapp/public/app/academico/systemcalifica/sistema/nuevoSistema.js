@@ -114,12 +114,17 @@ $(function () {
             for (i = 0; i < rowCount; i++) {
                 var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
                 var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
+                var anularNotaMin = $("[name='evaluacionPlan[" + i + "].esNotaMinimaAnulable']").prop('checked');
                 var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
                 var tipoEvaluacionCode = tiposEvaluacion[tipoEvaluacion];
+
                 if (i > 0) {
-                    formula += "+";
+                    formula += " + ";
                 }
                 formula += cantEvaluaciones
+                if (anularNotaMin) {
+                    formula += "(1)";
+                }
                 formula += tipoEvaluacionCode + "(";
                 formula += pesoTotal + ")";
 
