@@ -6,7 +6,7 @@ $(function () {
             $this.select2({
                 minimumInputLength: 2,
                 ajax: {
-                    url: APP.url("comun/buscar/cursos"),
+                    url: APP.url("comun/buscar/cursosSCA"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {

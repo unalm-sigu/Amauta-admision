@@ -18,6 +18,33 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+
+            $('#persona_id').select2({
+                minimumInputLength: 1,
+                ajax: {
+                    url: APP.url("general/perfil/searchPersona"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term};
+                    },
+                    results: function (info, page) {
+                        return {results: info.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    //callback({id: element.val(), nombre: $("#alumno_name").val()});
+                },
+                formatResult: function (info) {
+                    return info.nombre;
+                },
+                formatSelection: function (info) {
+                    return info.nombre;
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            });
         },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
