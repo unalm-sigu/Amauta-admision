@@ -45,9 +45,10 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         filter.setFields(fieldsFiltro);
 
         filter.setAlias("c");
-        filter.setParents("planCalificacion pc");
+        filter.setParents("planCalificacion pc", "departamentoAcademico da");
 
         filter.filterFix("pc.id", idPlanCalificacion);
+        // filter.filterFix("da.id", idDepartamentoAcademico);
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));

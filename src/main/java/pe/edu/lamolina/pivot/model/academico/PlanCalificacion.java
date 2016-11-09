@@ -21,6 +21,8 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 @Table(name = "aca_plan_calificacion")
 public class PlanCalificacion implements Serializable {
 
+    private static String PREFIJO_CODIGO = "SC";
+
     @Id
     @GeneratedValue
     @Column(name = "id")
@@ -202,6 +204,13 @@ public class PlanCalificacion implements Serializable {
 
     public void setFormula(String formula) {
         this.formula = formula;
+    }
+
+    public String getCodigo() {
+        StringBuilder codigo = new StringBuilder(PREFIJO_CODIGO);
+        codigo.append(String.format("%05d", numero));
+        codigo.append(this.getDepartamentoAcademico().getCodigo());
+        return codigo.toString();
     }
 
 }

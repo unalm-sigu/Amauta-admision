@@ -15,9 +15,10 @@
                     <div class="m-b">		
                         <!-- 1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10) -->
                         <span class="block"><strong>Formula:</strong> <span id="spnFormula"></span></span>
-                        <input type="hidden" id="txtFormula" name="formula"/>
+
                     </div>
                     <form id="frmSistemaCalifica" th:action="@{/academico/systemcalifica/sistema/save}" method="post" >
+                        <input type="hidden" id="txtFormula" name="formula"/>
                         <table id="tblEvaluaciones" class="table table-striped">
                             <thead>
                                 <tr class=""> 

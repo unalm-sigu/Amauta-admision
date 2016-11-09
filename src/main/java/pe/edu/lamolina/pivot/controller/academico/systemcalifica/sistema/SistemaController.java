@@ -101,8 +101,8 @@ public class SistemaController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
                 node.put("id", planCalificacion.getId());
-                node.put("codigo", planCalificacion.getSistemaNotas().getCodigo());
-                node.put("formula", "EP(20) EF(25) 5PC(40) 3TA(15)");
+                node.put("codigo", planCalificacion.getCodigo());
+                node.put("formula", planCalificacion.getFormula());
                 node.put("origen", planCalificacion.getDepartamentoAcademico().getCodigo());
                 node.put("estado", planCalificacion.getEstado());
                 node.put("estadoEnum", planCalificacion.getEstadoEnum().getValue());
@@ -201,9 +201,6 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         try {
             DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            logger.debug("Plan Califica {}", planCalificacion.toString());
-            logger.debug("Planes de evaluacion {}", planCalificacion.getEvaluacionPlan().size());
 
             String message = "";
             if (planCalificacion.getId() == null) {

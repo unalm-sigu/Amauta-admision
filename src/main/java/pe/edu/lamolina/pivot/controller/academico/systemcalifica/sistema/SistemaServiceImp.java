@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 @Service
 @Transactional(readOnly = true)
 public class SistemaServiceImp implements SistemaService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     TipoEvaluacionDAO tipoEvaluacionDAO;
@@ -50,6 +54,7 @@ public class SistemaServiceImp implements SistemaService {
     @Override
     @Transactional
     public void saveSistemaCalifica(PlanCalificacion planCalificacion) {
+
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
         planCalificacion.setDepartamentoAcademico(new DepartamentoAcademico(1));
@@ -65,6 +70,9 @@ public class SistemaServiceImp implements SistemaService {
         if (totalWeight != 100) {
             throw new PhobosException("Pesos total de las evaluaciones incorrecto.");
         }
+        Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());
+        maxNumeroCorrelativo = maxNumeroCorrelativo + 1;
+        planCalificacion.setNumero(maxNumeroCorrelativo);
         planCalificacionDAO.save(planCalificacion);
     }
 
