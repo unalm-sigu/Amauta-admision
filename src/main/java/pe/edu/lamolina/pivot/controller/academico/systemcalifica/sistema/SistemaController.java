@@ -31,7 +31,6 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -319,13 +318,36 @@ public class SistemaController {
     @ResponseBody
     @RequestMapping("incluirCurso")
     public JsonResponse incluirCurso(@RequestParam("curso") Long curso,
-            @RequestParam("planCalificacion") Long planCalificacion) {
+            @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.asignarCurso(curso, planCalificacion);
+            sistemaService.asignarCurso(curso, planCalificacion, 1L);
             response.setMessage("Curso asignado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desasignarCurso")
+    public JsonResponse desasignarCurso(@RequestParam("curso") Long curso,
+            @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            sistemaService.desasignarCurso(curso, planCalificacion, 1L);
+            response.setMessage("Curso desasignado.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

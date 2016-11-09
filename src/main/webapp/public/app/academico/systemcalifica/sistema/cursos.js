@@ -1,6 +1,6 @@
 $(function () {
 
-    var dynatable = $('#dynatable').dynatable({
+    var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/systemcalifica/sistema/listCursos'),
             perPageDefault: 10,
@@ -16,8 +16,8 @@ $(function () {
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
         /*  var colorEstado = {APR: "success", CER: "danger", DES: "danger", CRE: "default"};
-         record.colorEstado = colorEstado[record.estado];
-         record.index = rowIndex;*/
+         record.colorEstado = colorEstado[record.estado];*/
+        record.index = rowIndex;
 
         var html = $.templates("#templateCursos").render(record);
         return html;
@@ -69,7 +69,6 @@ $(function () {
             var hoy = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
             Cursos.itemElegido.fechaInclusion = hoy;
             var tbody = $("#tbodyCursos");
-            alert('entro');
             $.ajax({
                 url: APP.url('academico/systemcalifica/sistema/incluirCurso'),
                 type: 'POST',
@@ -79,8 +78,9 @@ $(function () {
 
                     if (response.success) {
                         notify(response.message, "info");
-                        dynatable.process();
+
                         MODAL.hide();
+                        dynatable.process();
                     } else {
                         notify(response.message, "error");
                     }
@@ -91,6 +91,43 @@ $(function () {
                 }
             });
 
+        },
+        desasignarCurso: function ($this, e) {
+            e.preventDefault();
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea desasignar este curso?",
+                buttons: {
+                    cancel: {label: "Cancelar", className: "btn-default"},
+                    confirm: {label: "Eliminar", className: "btn-danger"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        var id = $this.attr("rel");
+                        MODAL.showWait("Espere un momento por favor");
+
+                        $.ajax({
+                            url: APP.url('academico/systemcalifica/sistema/desasignarCurso'),
+                            type: 'POST',
+                            async: true,
+                            data: {curso: id, planCalificacion: $('[name="plancalificacion.id"]').val()},
+                            success: function (response) {
+                                MODAL.hideWait();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -100,6 +137,10 @@ $(function () {
 
     $("body").delegate("#btnIncluirCurso", "click", function (e) {
         Cursos.addCurso(e);
+    });
+
+    $("body").delegate(".desasignar-curso", "click", function (e) {
+        Cursos.desasignarCurso($(this), e);
     });
 
 });

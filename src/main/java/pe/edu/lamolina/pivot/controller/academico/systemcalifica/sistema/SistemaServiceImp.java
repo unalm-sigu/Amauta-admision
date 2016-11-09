@@ -18,6 +18,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Service
@@ -92,10 +93,21 @@ public class SistemaServiceImp implements SistemaService {
 
     @Override
     @Transactional
-    public void asignarCurso(Long idCurso, Long idPlanCalificacion) {
+    public void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona) {
         Curso curso = cursoDAO.find(idCurso);
         curso.setPlanCalificacion(new PlanCalificacion(idPlanCalificacion));
         curso.setFechaPlanCalificacion(new Date());
+        curso.setUserPlanCalificacion(new Persona(idPersona));
+        cursoDAO.update(curso);
+    }
+
+    @Override
+    @Transactional
+    public void desasignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona) {
+        Curso curso = cursoDAO.find(idCurso);
+        curso.setPlanCalificacion(null);
+        curso.setFechaPlanCalificacion(null);
+        curso.setUserPlanCalificacion(new Persona(idPersona));
         cursoDAO.update(curso);
     }
 

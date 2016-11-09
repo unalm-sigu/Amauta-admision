@@ -24,6 +24,8 @@ public interface SistemaService {
 
     List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion);
 
-    void asignarCurso(Long idCurso, Long idPlanCalificacion);
+    void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
+
+    void desasignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
 
 }
