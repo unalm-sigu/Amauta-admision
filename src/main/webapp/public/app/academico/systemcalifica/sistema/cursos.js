@@ -69,8 +69,28 @@ $(function () {
             var hoy = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
             Cursos.itemElegido.fechaInclusion = hoy;
             var tbody = $("#tbodyCursos");
-            tbody.append($.templates("#templateCursos").render(Cursos.itemElegido));
-            MODAL.hide();
+            alert('entro');
+            $.ajax({
+                url: APP.url('academico/systemcalifica/sistema/incluirCurso'),
+                type: 'POST',
+                async: true,
+                data: {curso: Cursos.itemElegido.id, planCalificacion: $('[name="plancalificacion.id"]').val()},
+                success: function (response) {
+
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatable.process();
+                        MODAL.hide();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    MODAL.hide();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         }
     };
 

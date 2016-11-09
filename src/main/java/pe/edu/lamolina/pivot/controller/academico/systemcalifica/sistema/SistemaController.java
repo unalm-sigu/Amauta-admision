@@ -316,4 +316,27 @@ public class SistemaController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("incluirCurso")
+    public JsonResponse incluirCurso(@RequestParam("curso") Long curso,
+            @RequestParam("planCalificacion") Long planCalificacion) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            sistemaService.asignarCurso(curso, planCalificacion);
+            response.setMessage("Curso asignado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
 }

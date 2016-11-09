@@ -38,16 +38,16 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allByDynatable(DynatableFilter filter, Long planCalificacion) {
-        List<String> fieldsFiltro = Arrays.asList(
+    public List<Curso> allByDynatable(DynatableFilter filter, Long idPlanCalificacion) {
+        /* List<String> fieldsFiltro = Arrays.asList(
                 "pc.id");
 
-        filter.setFields(fieldsFiltro);
+        filter.setFields(fieldsFiltro);*/
 
         filter.setAlias("c");
         filter.setParents("planCalificacion pc");
 
-        filter.filterFix("c.id", planCalificacion);
+        filter.filterFix("pc.id", idPlanCalificacion);
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));

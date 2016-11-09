@@ -90,4 +90,13 @@ public class SistemaServiceImp implements SistemaService {
         return cursoDAO.allByDynatable(dynatableFilter, planCalificacion);
     }
 
+    @Override
+    @Transactional
+    public void asignarCurso(Long idCurso, Long idPlanCalificacion) {
+        Curso curso = cursoDAO.find(idCurso);
+        curso.setPlanCalificacion(new PlanCalificacion(idPlanCalificacion));
+        curso.setFechaPlanCalificacion(new Date());
+        cursoDAO.update(curso);
+    }
+
 }
