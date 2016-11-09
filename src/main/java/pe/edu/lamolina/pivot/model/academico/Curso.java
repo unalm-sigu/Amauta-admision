@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 
 @Entity
@@ -44,13 +46,19 @@ public class Curso implements Serializable {
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
+    @Column(name = "fecha_plan_calificacion")
+    private Date fechaPlanCalificacion;
+
+    @Column(name = "user_plan_calificacion")
+    private Persona userPlanCalificacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
     private DepartamentoAcademico departamentoAcademico;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sistema_evaluacion")
-    private PlanCalificacion sistemaEvaluacion;
+    @JoinColumn(name = "id_plan_calificacion")
+    private PlanCalificacion planCalificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinador")
@@ -122,12 +130,12 @@ public class Curso implements Serializable {
         this.departamentoAcademico = departamentoAcademico;
     }
 
-    public PlanCalificacion getSistemaEvaluacion() {
-        return sistemaEvaluacion;
+    public PlanCalificacion getPlanCalificacion() {
+        return planCalificacion;
     }
 
-    public void setSistemaEvaluacion(PlanCalificacion sistemaEvaluacion) {
-        this.sistemaEvaluacion = sistemaEvaluacion;
+    public void setPlanCalificacion(PlanCalificacion planCalificacion) {
+        this.planCalificacion = planCalificacion;
     }
 
     public Docente getCoordinador() {
@@ -250,5 +258,20 @@ public class Curso implements Serializable {
         this.retiroCurso = retiroCurso;
     }
 
-}
+    public Date getFechaPlanCalificacion() {
+        return fechaPlanCalificacion;
+    }
 
+    public void setFechaPlanCalificacion(Date fechaPlanCalificacion) {
+        this.fechaPlanCalificacion = fechaPlanCalificacion;
+    }
+
+    public Persona getUserPlanCalificacion() {
+        return userPlanCalificacion;
+    }
+
+    public void setUserPlanCalificacion(Persona userPlanCalificacion) {
+        this.userPlanCalificacion = userPlanCalificacion;
+    }
+
+}

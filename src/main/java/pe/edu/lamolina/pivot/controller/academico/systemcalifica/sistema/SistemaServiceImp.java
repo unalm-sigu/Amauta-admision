@@ -12,6 +12,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SistemaNotasDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -82,6 +83,11 @@ public class SistemaServiceImp implements SistemaService {
         PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
         planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);
         planCalificacionDAO.update(planCalificacion);
+    }
+
+    @Override
+    public List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion) {
+        return cursoDAO.allByDynatable(dynatableFilter, planCalificacion);
     }
 
 }

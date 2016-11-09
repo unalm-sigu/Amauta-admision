@@ -30,7 +30,9 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
@@ -119,6 +121,42 @@ public class SistemaController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("listCursos")
+    public DynatableResponse listCursos(DynatableFilter filter, @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            logger.debug("Plancalificacion {}", planCalificacion);
+
+            List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Curso curso : cursos) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("id", curso.getId());
+                node.put("codigo", curso.getCodigo());
+                node.put("nombre", curso.getNombre());
+                node.put("fechaInclusion", curso.getFechaPlanCalificacion() != null ? TypesUtil.getStringDate(curso.getFechaPlanCalificacion(), "dd/MM/yyyy") : "");
+                node.put("tpc", "tpc");
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
     @RequestMapping("{sistema}/detalleSistema")
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -133,6 +171,7 @@ public class SistemaController {
 
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("planCalificacion", planCalificacion);
+
         return "app/academico/systemcalifica/sistema/cursos";
     }
 

@@ -1,5 +1,28 @@
 $(function () {
 
+    var dynatable = $('#dynatable').dynatable({
+        dataset: {
+            ajaxUrl: APP.url('academico/systemcalifica/sistema/listCursos'),
+            perPageDefault: 10,
+            ajaxData: {planCalificacion: $('[name="plancalificacion.id"]').val()}
+        },
+        writers: {
+            _rowWriter: ulWriter
+        },
+        table: {
+            bodyRowSelector: 'tbody tr'
+        }
+    }).data('dynatable');
+
+    function ulWriter(rowIndex, record, columns, cellWriter) {
+        /*  var colorEstado = {APR: "success", CER: "danger", DES: "danger", CRE: "default"};
+         record.colorEstado = colorEstado[record.estado];
+         record.index = rowIndex;*/
+
+        var html = $.templates("#templateCursos").render(record);
+        return html;
+    }
+
     Cursos = {
         itemElegido: null,
         buscarCurso: function ($this) {

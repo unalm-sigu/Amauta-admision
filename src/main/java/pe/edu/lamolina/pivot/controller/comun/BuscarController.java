@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
@@ -59,13 +60,13 @@ public class BuscarController {
 
     @ResponseBody
     @RequestMapping("cursosSCA")
-    public DynatableResponse cursosSCA(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse cursosSCA(DynatableFilter filter,
+            @RequestParam("nombre") String nombre, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            String noTiene = "NO TIENE";
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            List<Curso> cursos = buscarService.allCursosAutocomplete(noTiene);
+            List<Curso> cursos = buscarService.allCursosAutocomplete(nombre, null);
 
             for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -73,8 +74,8 @@ public class BuscarController {
                 node.put("id", curso.getId());
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
-                node.put("departamentoAcademico", curso.getDepartamentoAcademico().getNombre());
-                node.put("sistemaCalificacion", curso.getSistemaEvaluacion().getNotaBase());
+                node.put("departamentoAcademico", curso.getDepartamentoAcademico() != null ? curso.getDepartamentoAcademico().getNombre() : "");
+                node.put("sistemaCalificacion", curso.getPlanCalificacion() != null ? curso.getPlanCalificacion().getNotaBase().toString() : "");
                 node.put("tpc", curso.getTipoCurso());
                 array.add(node);
             }

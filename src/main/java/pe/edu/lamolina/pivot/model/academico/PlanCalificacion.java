@@ -57,7 +57,7 @@ public class PlanCalificacion implements Serializable {
     @JoinColumn(name = "id_sistema_notas")
     private SistemaNotas sistemaNotas;
 
-    @OneToMany(mappedBy = "sistemaEvaluacion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
     private List<Curso> curso;
 
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

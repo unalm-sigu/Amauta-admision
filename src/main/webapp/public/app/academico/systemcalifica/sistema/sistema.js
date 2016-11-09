@@ -210,10 +210,6 @@ $(function () {
         Sistema.asignarCursos($(this), e);
     });
 
-    $("body").delegate(".asignar-cursos", "click", function (e) {
-        Sistema.asignarCursos($(this), e);
-    });
-
     $("body").delegate(".aprobar", "click", function () {
         Sistema.aprobar($(this));
     });
