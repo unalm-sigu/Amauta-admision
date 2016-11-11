@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 
 public interface CicloAcademicoDAO extends Crud<CicloAcademico> {
 
-}
+    CicloAcademico findActivo();
 
+}

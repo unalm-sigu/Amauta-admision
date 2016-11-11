@@ -106,6 +106,15 @@ public class SistemaController {
                 node.put("origen", planCalificacion.getDepartamentoAcademico().getCodigo());
                 node.put("estado", planCalificacion.getEstado());
                 node.put("estadoEnum", planCalificacion.getEstadoEnum().getValue());
+                node.put("verSolicitud", planCalificacion.isEstadoSolicitado());
+                node.put("verActivar", planCalificacion.isEstadoCreado());
+                node.put("verInactivar", planCalificacion.isEstadoCreado() || planCalificacion.isEstadoActivado());
+                node.put("verAprobar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
+
+                node.put("verRechazar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
+                node.put("verObservar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
+                node.put("verReenviar", planCalificacion.isEstadoObservado());
+                node.put("verAsignarCursos", planCalificacion.isEstadoActivado());
                 array.add(node);
             }
 
@@ -178,6 +187,9 @@ public class SistemaController {
     public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
+        PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        model.addAttribute("planCalificacion", planCalificacion);
+
         return "app/academico/systemcalifica/sistema/detalleSolicitud";
     }
 
@@ -204,7 +216,7 @@ public class SistemaController {
 
             String message = "";
             if (planCalificacion.getId() == null) {
-                planCalificacion.setDepartamentoAcademico(new DepartamentoAcademico(1));
+                planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 sistemaService.saveSistemaCalifica(planCalificacion);
                 message = "Creado exitosamente.";
 
@@ -227,11 +239,74 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("aprobar")
-    public JsonResponse aprobar(@RequestParam("sistema") Long sistema) {
+    public JsonResponse aprobar(@RequestParam("sistema") Long sistema,
+            @RequestParam(value = "comentario", required = false) String comentario) {
         JsonResponse response = new JsonResponse();
         try {
             sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.APR);
             response.setMessage(Messages.APPROVED);
+            response.setSuccess(true);
+            logger.debug("el comentario es {}", comentario);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("rechazar")
+    public JsonResponse rechazar(@RequestParam("sistema") Long sistema,
+            @RequestParam(value = "comentario", required = false) String comentario) {
+        JsonResponse response = new JsonResponse();
+        try {
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.RHZ);
+            response.setMessage(Messages.REJECT);
+            response.setSuccess(true);
+            logger.debug("el comentario es {}", comentario);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("observar")
+    public JsonResponse observar(@RequestParam("sistema") Long sistema,
+            @RequestParam(value = "comentario", required = false) String comentario) {
+        JsonResponse response = new JsonResponse();
+        try {
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.OBS);
+            response.setMessage(Messages.REJECT);
+            response.setSuccess(true);
+            logger.debug("el comentario es {}", comentario);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activar")
+    public JsonResponse activar(@RequestParam("sistema") Long sistema) {
+        JsonResponse response = new JsonResponse();
+        try {
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT);
+            response.setMessage(Messages.ACTIVATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -245,12 +320,12 @@ public class SistemaController {
     }
 
     @ResponseBody
-    @RequestMapping("desaprobar")
-    public JsonResponse desaprobar(@RequestParam("sistema") Long sistema) {
+    @RequestMapping("inactivar")
+    public JsonResponse inactivar(@RequestParam("sistema") Long sistema) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.DES);
-            response.setMessage(Messages.DISAPPROVE);
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
+            response.setMessage(Messages.INACTIVATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -268,7 +343,7 @@ public class SistemaController {
     public JsonResponse anull(@RequestParam("sistema") Long sistema) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ANU);
+            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
             response.setMessage(Messages.ANNULL);
             response.setSuccess(true);
 
@@ -320,7 +395,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.asignarCurso(curso, planCalificacion, 1L);
+            sistemaService.asignarCurso(curso, planCalificacion, ds.getPersona().getId());
             response.setMessage("Curso asignado.");
             response.setSuccess(true);
 
@@ -343,7 +418,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.desasignarCurso(curso, planCalificacion, 1L);
+            sistemaService.desasignarCurso(curso, planCalificacion, ds.getPersona().getId());
             response.setMessage("Curso desasignado.");
             response.setSuccess(true);
 

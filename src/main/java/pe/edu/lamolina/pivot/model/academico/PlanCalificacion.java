@@ -213,4 +213,39 @@ public class PlanCalificacion implements Serializable {
         return codigo.toString();
     }
 
+    public boolean isEstadoSolicitado() {
+        if (EstadoPlanCalificaEnum.SOL.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoReenviado() {
+        if (EstadoPlanCalificaEnum.REE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoCreado() {
+        if (EstadoPlanCalificaEnum.CRE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoActivado() {
+        if (EstadoPlanCalificaEnum.ACT.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoObservado() {
+        if (EstadoPlanCalificaEnum.OBS.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
 }

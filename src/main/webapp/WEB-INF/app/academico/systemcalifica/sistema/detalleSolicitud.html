@@ -1,7 +1,7 @@
 <span class="block"><strong>Departamento Academico:</strong> <span>Matematicas</span></span>
 <span class="block"><strong>Docente:</strong> <span>Juan Perez</span></span>
 <span class="block m-b"><strong>Estado:</strong> <span>Reenvío Solicitud</span></span>
-
+<input  id="txtPlanCalificacion" type="hidden" th:value="${planCalificacion.id}"/>
 <table class="table table-striped">
     <thead>
         <tr class=""> 
@@ -64,6 +64,6 @@
 <form>
     <div class="form-group">
         <label>Motivo de la Observación/Rechazo</label>
-        <textarea class="form-control" rows="2"></textarea>
+        <textarea id="txtComentario" class="form-control" rows="2"></textarea>
     </div>
 </form>

@@ -8,9 +8,15 @@ public interface Messages {
 
     String DELETED = "Registro eliminado";
 
+    String ACTIVATED = "Registro activado";
+
+    String INACTIVATED = "Registro inactivado";
+
     String APPROVED = "Registro aprobado";
 
     String DISAPPROVE = "Registro desaprobado";
+
+    String REJECT = "Registro rechazado";
 
     String ANNULL = "Registro Anulado";
 

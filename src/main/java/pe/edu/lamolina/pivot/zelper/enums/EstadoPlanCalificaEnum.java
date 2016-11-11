@@ -5,10 +5,13 @@ import java.util.Map;
 
 public enum EstadoPlanCalificaEnum {
     CRE("Creado"),
+    ACT("Activo"),
+    INA("Inactivo"),
     APR("Aprobado"),
     DES("Desaprobado"),
+    OBS("Observado"),
     SOL("Solicitado"),
-    ANU("Anulado"),
+    RHZ("Rechazado"),
     REE("Reenviado");
 
     private final String value;
