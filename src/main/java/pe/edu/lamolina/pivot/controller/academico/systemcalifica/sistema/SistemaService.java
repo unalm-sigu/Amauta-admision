@@ -20,6 +20,8 @@ public interface SistemaService {
 
     PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
 
+    void changeStatePlanCalificacion(Long idPLanCalificacion, String observacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
+
     void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
 
     List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion);

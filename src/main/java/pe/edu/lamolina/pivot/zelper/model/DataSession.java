@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.zelper.model;
 import java.io.Serializable;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
@@ -15,6 +16,8 @@ public class DataSession implements Serializable {
     private Persona persona;
 
     private Usuario usuario;
+
+    private Docente docente;
 
     private DepartamentoAcademico departamentoAcademico;
 
@@ -56,6 +59,14 @@ public class DataSession implements Serializable {
 
     public void setDepartamentoAcademico(DepartamentoAcademico departamentoAcademico) {
         this.departamentoAcademico = departamentoAcademico;
+    }
+
+    public Docente getDocente() {
+        return docente;
+    }
+
+    public void setDocente(Docente docente) {
+        this.docente = docente;
     }
 
 }

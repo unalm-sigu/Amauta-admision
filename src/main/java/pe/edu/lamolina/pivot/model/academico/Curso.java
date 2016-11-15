@@ -84,10 +84,10 @@ public class Curso implements Serializable {
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<NombreCurso> nombreCurso;
-
+    /*
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
-
+     */
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<RetiroCurso> retiroCurso;
 
@@ -240,14 +240,6 @@ public class Curso implements Serializable {
 
     public void setNombreCurso(List<NombreCurso> nombreCurso) {
         this.nombreCurso = nombreCurso;
-    }
-
-    public List<Seccion> getSeccion() {
-        return seccion;
-    }
-
-    public void setSeccion(List<Seccion> seccion) {
-        this.seccion = seccion;
     }
 
     public List<RetiroCurso> getRetiroCurso() {

@@ -47,6 +47,9 @@ public class PlanCalificacion implements Serializable {
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
+    @Column(name = "observacion")
+    private String observacion;
+
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaRegistro;
@@ -204,6 +207,14 @@ public class PlanCalificacion implements Serializable {
 
     public void setFormula(String formula) {
         this.formula = formula;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
     }
 
     public String getCodigo() {

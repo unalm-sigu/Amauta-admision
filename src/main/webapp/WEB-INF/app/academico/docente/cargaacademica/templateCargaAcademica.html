@@ -14,9 +14,10 @@
         <span class="block">{{:horasSemanales}}h</span>
     </td>
     <td class="text-center v-middle">
-        {{if estadoSistema=="PEND"}}
+        {{if estadoSistema=="CRE"}}
         <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{/if}}
+
         {{if estadoSistema=="ACEP"}}
         <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
         <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>

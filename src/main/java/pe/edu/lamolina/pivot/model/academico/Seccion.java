@@ -42,14 +42,6 @@ public class Seccion implements Serializable {
     private Integer horasPractica;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_ciclo")
-    private CicloAcademico ciclo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_curso")
-    private Curso curso;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seccion_superior")
     private Seccion seccionSuperior;
 
@@ -60,6 +52,10 @@ public class Seccion implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_grupo_horas")
     private GrupoHoras grupoHoras;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_grupo_seccion")
+    private GrupoSeccion grupoSeccion;
 
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<DocenteSeccion> docenteSeccion;
@@ -98,22 +94,6 @@ public class Seccion implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public CicloAcademico getCiclo() {
-        return ciclo;
-    }
-
-    public void setCiclo(CicloAcademico ciclo) {
-        this.ciclo = ciclo;
-    }
-
-    public Curso getCurso() {
-        return curso;
-    }
-
-    public void setCurso(Curso curso) {
-        this.curso = curso;
     }
 
     public Seccion getSeccionSuperior() {
@@ -244,5 +224,20 @@ public class Seccion implements Serializable {
         this.retiroCurso = retiroCurso;
     }
 
-}
+    public GrupoSeccion getGrupoSeccion() {
+        return grupoSeccion;
+    }
 
+    public void setGrupoSeccion(GrupoSeccion grupoSeccion) {
+        this.grupoSeccion = grupoSeccion;
+    }
+
+    public String getTpc() {
+        StringBuilder tpc = new StringBuilder();
+        tpc.append(horasTeoria).append("-");
+        tpc.append(horasPractica).append("-");
+        tpc.append("creditos");
+        return tpc.toString();
+    }
+
+}

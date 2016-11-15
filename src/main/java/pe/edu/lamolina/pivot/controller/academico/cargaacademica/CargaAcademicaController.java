@@ -8,9 +8,11 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
@@ -31,6 +35,9 @@ import pe.edu.lamolina.pivot.zelper.model.DataSession;
 public class CargaAcademicaController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    CargaAcademicaService cargaAcademicaService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -82,7 +89,29 @@ public class CargaAcademicaController {
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<Seccion> lista = cargaAcademicaService.allByCargaAcademica(filter);
+            logger.debug("Lista {}", lista.size());
+            for (Seccion seccion : lista) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
+                node.put("id", seccion.getId());
+                node.put("idSistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId().toString() : "");
+                node.put("sistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getCodigo() : "");
+                node.put("nombre", seccion.getGrupoSeccion().getCurso().getNombre());
+                node.put("codigo", seccion.getGrupoSeccion().getCurso().getCodigo());
+                node.put("tpc", seccion.getTpc());
+                node.put("seccion", seccion.getCodigo());
+                node.put("aula", seccion.getAula().getNombre());
+                node.put("tipoSeccion", seccion.getTipoSeccion());
+                node.put("alumnos", 35);
+                node.put("horasSemanales", 3);
+                node.put("estado", "DIC");
+                node.put("estadoEnum", "Dictando");
+                node.put("estadoSistema", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getEstado() : "");
+                node.put("estadoSistemaEnum", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getEstadoEnum().getValue() : "");
+                array.add(node);
+            }
+            /*
             {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -142,7 +171,7 @@ public class CargaAcademicaController {
                 node.put("estadoSistema", "CER");
                 node.put("estadoSistemaEnum", "Cerrado");
                 array.add(node);
-            }
+            }*/
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -158,14 +187,14 @@ public class CargaAcademicaController {
     @RequestMapping("{sistema}/detalleSistemaCalificacion")
     public String detalleSistemaCalificacion(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistema);
+        model.addAttribute("planCalificacion", planCalificacion);
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
 
-    @RequestMapping("expandir")
-    public String expandir(Model model, HttpSession session) {
+    @RequestMapping("expandir/{sistema}")
+    public String expandir(Model model, HttpSession session, @PathVariable("sistema") Long idSistema) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
 

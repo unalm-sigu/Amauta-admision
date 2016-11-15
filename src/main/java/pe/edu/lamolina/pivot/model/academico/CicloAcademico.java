@@ -74,10 +74,10 @@ public class CicloAcademico implements Serializable {
 
     @OneToMany(mappedBy = "cicloAcademico", fetch = FetchType.LAZY)
     private List<MatriculaResumen> matriculaResumen;
-
+    /*
     @OneToMany(mappedBy = "ciclo", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
-
+     */
     @OneToMany(mappedBy = "cicloAcademico", fetch = FetchType.LAZY)
     private List<CicloPostula> cicloPostula;
 
@@ -223,14 +223,6 @@ public class CicloAcademico implements Serializable {
 
     public void setMatriculaResumen(List<MatriculaResumen> matriculaResumen) {
         this.matriculaResumen = matriculaResumen;
-    }
-
-    public List<Seccion> getSeccion() {
-        return seccion;
-    }
-
-    public void setSeccion(List<Seccion> seccion) {
-        this.seccion = seccion;
     }
 
     public List<CicloPostula> getCicloPostula() {

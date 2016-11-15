@@ -88,6 +88,15 @@ public class SistemaServiceImp implements SistemaService {
 
     @Override
     @Transactional
+    public void changeStatePlanCalificacion(Long idPLanCalificacion, String observacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
+        planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);
+        planCalificacion.setObservacion(observacion);
+        planCalificacionDAO.update(planCalificacion);
+    }
+
+    @Override
+    @Transactional
     public void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
         planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);

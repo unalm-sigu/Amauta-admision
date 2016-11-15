@@ -31,8 +31,8 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -80,7 +80,8 @@ public class SistemaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        model.addAttribute("ciclo", ciclo);
         return "app/academico/systemcalifica/sistema/sistema";
     }
 
@@ -285,10 +286,9 @@ public class SistemaController {
             @RequestParam(value = "comentario", required = false) String comentario) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.OBS);
+            sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS);
             response.setMessage(Messages.REJECT);
             response.setSuccess(true);
-            logger.debug("el comentario es {}", comentario);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
