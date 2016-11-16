@@ -18,6 +18,33 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+
+            $('#persona_id').select2({
+                minimumInputLength: 1,
+                ajax: {
+                    url: APP.url("general/perfil/searchPersona"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term};
+                    },
+                    results: function (info, page) {
+                        return {results: info.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    //callback({id: element.val(), nombre: $("#alumno_name").val()});
+                },
+                formatResult: function (info) {
+                    return info.nombre;
+                },
+                formatSelection: function (info) {
+                    return info.nombre;
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            });
         },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
@@ -48,6 +75,7 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         tr.remove();
+                        NuevoSistema.calcularFormula();
                     }
                 }
             });
@@ -115,7 +143,7 @@ $(function () {
             var i = el.attr('rel');
             var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']");
             var cantEvals = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']");
-            var anularNotMin = $("[name='evaluacionPlan[" + i + "].esNotaMinimaAnulable']");
+            var anularNotMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']");
             var pesoEval = $("[name='evaluacionPlan[" + i + "].pesoEvaluacion']");
 
             if ($.isNumeric(pesoTotal.val()) && $.isNumeric(cantEvals.val())) {
@@ -156,6 +184,7 @@ $(function () {
 
             }
             $("#spnFormula").html(formula);
+            $("#txtFormula").val(formula);
         }
     };
 

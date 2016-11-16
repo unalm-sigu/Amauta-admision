@@ -21,6 +21,8 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 @Table(name = "aca_plan_calificacion")
 public class PlanCalificacion implements Serializable {
 
+    private static String PREFIJO_CODIGO = "SC";
+
     @Id
     @GeneratedValue
     @Column(name = "id")
@@ -39,8 +41,14 @@ public class PlanCalificacion implements Serializable {
     @Column(name = "nota_base")
     private Integer notaBase;
 
+    @Column(name = "formula")
+    private String formula;
+
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
+
+    @Column(name = "observacion")
+    private String observacion;
 
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -54,7 +62,7 @@ public class PlanCalificacion implements Serializable {
     @JoinColumn(name = "id_sistema_notas")
     private SistemaNotas sistemaNotas;
 
-    @OneToMany(mappedBy = "sistemaEvaluacion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
     private List<Curso> curso;
 
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -191,6 +199,64 @@ public class PlanCalificacion implements Serializable {
     @Override
     public String toString() {
         return "PlanCalificacion{" + "id=" + id + ", estado=" + estado + ", fechaAprobacion=" + fechaAprobacion + ", numero=" + numero + ", notaBase=" + notaBase + ", idUserRegistro=" + idUserRegistro + ", fechaRegistro=" + fechaRegistro + ", departamentoAcademico=" + departamentoAcademico + ", sistemaNotas=" + sistemaNotas + '}';
+    }
+
+    public String getFormula() {
+        return formula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    public String getCodigo() {
+        StringBuilder codigo = new StringBuilder(PREFIJO_CODIGO);
+        codigo.append(String.format("%05d", numero));
+        codigo.append(this.getDepartamentoAcademico().getCodigo());
+        return codigo.toString();
+    }
+
+    public boolean isEstadoSolicitado() {
+        if (EstadoPlanCalificaEnum.SOL.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoReenviado() {
+        if (EstadoPlanCalificaEnum.REE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoCreado() {
+        if (EstadoPlanCalificaEnum.CRE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoActivado() {
+        if (EstadoPlanCalificaEnum.ACT.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoObservado() {
+        if (EstadoPlanCalificaEnum.OBS.name().equals(estado)) {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -1,7 +1,7 @@
 <span class="block"><strong>Departamento Academico:</strong> <span>Matematicas</span></span>
 <span class="block"><strong>Docente:</strong> <span>Juan Perez</span></span>
 <span class="block m-b"><strong>Estado:</strong> <span>Reenvío Solicitud</span></span>
-
+<input  id="txtPlanCalificacion" type="hidden" th:value="${planCalificacion.id}"/>
 <table class="table table-striped">
     <thead>
         <tr class=""> 
@@ -56,14 +56,14 @@
 </table>
 
 <div class="m-b">			
-    <span class="block"><strong>Nota Base:</strong> <span>100</span></span>
-    <span class="block"><strong>Formula:</strong> <span>1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
-    <span class="block"><strong>Sistema de Notas:</strong> <span>0 al 20</span></span>
+    <span class="block"><strong>Nota Base:</strong> <span th:text="${planCalificacion.notaBase}">100</span></span>
+    <span class="block"><strong>Formula:</strong> <span  th:text="${planCalificacion.formula}">1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
+    <span class="block"><strong>Sistema de Notas:</strong> <span th:text="${planCalificacion.sistemaNotas.nombre}">0 al 20</span></span>
 </div>
 
 <form>
     <div class="form-group">
         <label>Motivo de la Observación/Rechazo</label>
-        <textarea class="form-control" rows="2"></textarea>
+        <textarea id="txtComentario" class="form-control" rows="2"></textarea>
     </div>
 </form>

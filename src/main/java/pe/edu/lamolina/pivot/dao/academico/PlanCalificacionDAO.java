@@ -11,4 +11,6 @@ public interface PlanCalificacionDAO extends Crud<PlanCalificacion> {
 
     PlanCalificacion find(Long idPlanCalificacion);
 
+    Long maxNumeroCorrelativoPlanCalifica(Long idDepartamentoAcademico);
+
 }

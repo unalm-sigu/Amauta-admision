@@ -8,22 +8,29 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 
 @Controller
 @RequestMapping("comun/buscar")
 public class BuscarController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    BuscarService buscarService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -52,43 +59,24 @@ public class BuscarController {
     }
 
     @ResponseBody
-    @RequestMapping("cursos")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    @RequestMapping("cursosSCA")
+    public DynatableResponse cursosSCA(DynatableFilter filter,
+            @RequestParam("nombre") String nombre, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            String noTiene = "NO TIENE";
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            {
+
+            List<Curso> cursos = buscarService.allCursosAutocomplete(nombre, null);
+
+            for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-                node.put("id", 5);
-                node.put("codigo", "CC2389");
-                node.put("nombre", "Cálculo Diferencial");
-                node.put("departamentoAcademico", "Matemáticas");
-                node.put("sistemaCalificacion", "SC-0025");
-                node.put("tpc", "2-2-3");
-                array.add(node);
-            }
-            {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", 34);
-                node.put("codigo", "MT5241");
-                node.put("nombre", "Geometría Descriptiva");
-                node.put("departamentoAcademico", "Matemáticas");
-                node.put("sistemaCalificacion", noTiene);
-                node.put("tpc", "2-2-3");
-                array.add(node);
-            }
-            {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", 55);
-                node.put("codigo", "AF7214");
-                node.put("nombre", "Matemáticas III");
-                node.put("departamentoAcademico", "Matemáticas");
-                node.put("sistemaCalificacion", noTiene);
-                node.put("tpc", "3-2-4");
+                node.put("id", curso.getId());
+                node.put("codigo", curso.getCodigo());
+                node.put("nombre", curso.getNombre());
+                node.put("departamentoAcademico", curso.getDepartamentoAcademico() != null ? curso.getDepartamentoAcademico().getNombre() : "");
+                node.put("sistemaCalificacion", curso.getPlanCalificacion() != null ? curso.getPlanCalificacion().getNotaBase().toString() : "");
+                node.put("tpc", curso.getTipoCurso());
                 array.add(node);
             }
 

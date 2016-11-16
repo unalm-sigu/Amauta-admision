@@ -28,7 +28,6 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
-
             MODAL.hide();
             MODAL.init("lg");
             MODAL.title("Sistema de Calificación " + rec.sistemaCalificacion);
@@ -90,7 +89,7 @@ $(function () {
         },
         expandirSistema: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/expandir");
+            location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtPlanCalificacion").val());
         },
         notasAcademicas: function ($this, e) {
             e.preventDefault();
