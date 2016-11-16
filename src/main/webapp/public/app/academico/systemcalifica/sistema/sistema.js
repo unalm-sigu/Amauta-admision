@@ -325,7 +325,11 @@ $(function () {
     $("body").delegate(".inactivar", "click", function () {
         Sistema.inactivar($(this));
     });
+    $("body").delegate(".desaprobar", "click", function () {
+        Sistema.desaprobar($(this));
+    });
     $("body").delegate(".anull", "click", function () {
         Sistema.anull($(this));
     });
 });
+

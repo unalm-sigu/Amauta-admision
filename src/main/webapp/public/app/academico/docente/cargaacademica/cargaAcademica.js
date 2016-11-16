@@ -35,7 +35,7 @@ $(function () {
             MODAL.buttons(
                     '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
                     '<a class="btn btn-warning expandir-sistema" href="#">Expandir</a>' +
-                    '<a class="btn btn-danger">Solicita modificación</a>');
+                    '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
 
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + '/detalleSistemaCalificacion'),
@@ -91,28 +91,6 @@ $(function () {
             e.preventDefault();
             location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtPlanCalificacion").val());
         },
-        expandirEvaluacion: function (e) {
-            e.preventDefault();
-            var tr = e.closest("tr");
-            var idx = tr.attr("rel");
-
-            MODAL.hide();
-            MODAL.init("lg");
-            MODAL.title("Expandir Evaluación");
-            MODAL.show();
-
-            $.ajax({
-                url: APP.url('academico/docente/cargaacademica/detalleExpandirEvaluacion'),
-                type: 'POST',
-                async: false,
-                success: function (response) {
-                    MODAL.body(response);
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
         notasAcademicas: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
@@ -120,9 +98,12 @@ $(function () {
             var rec = dynatable.settings.dataset.records[idx];
 
             location.href = APP.url('academico/docente/cargaacademica/') + rec.id + '/notasAcademicas';
+        },
+        verNuevoSC: function (e) {
+            e.preventDefault();
+            location.href = APP.url("academico/docente/cargaacademica/nuevo");
         }
     };
-
     $("body").delegate(".aceptar-sistema-calificacion", "click", function (e) {
         CargaAcademica.aceptarSistemaCalificacion($(this), e);
     });
@@ -135,10 +116,10 @@ $(function () {
     $("body").delegate(".expandir-sistema", "click", function (e) {
         CargaAcademica.expandirSistema(e);
     });
-    $("body").delegate(".expandir-evaluacion", "click", function (e) {
-        CargaAcademica.expandirEvaluacion(e);
-    });
     $("body").delegate(".notas-academicas", "click", function (e) {
         CargaAcademica.notasAcademicas($(this), e);
+    });
+    $("body").delegate(".new-sis-calificacion", "click", function (e) {
+        CargaAcademica.verNuevoSC(e);
     });
 });

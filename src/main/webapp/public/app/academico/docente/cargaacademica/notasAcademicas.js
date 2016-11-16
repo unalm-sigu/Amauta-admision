@@ -1,5 +1,28 @@
 $(function () {
     NotasAcademicas = {
+        cambioNA: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+
+            MODAL.hide();
+            MODAL.init("lg");
+            MODAL.title("Cambio de nota");
+            MODAL.show();
+            MODAL.buttons('<a class="btn btn-success" id="cmbGuardar">Guardar</a>');
+
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/detalleCambioNota'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    MODAL.body(response);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }
     };
 
     $('.nota-alumno').keyup(function (event) {
@@ -23,5 +46,9 @@ $(function () {
         MODAL.hide();
         var evaluacion = 23;
         location.href = APP.url("academico/docente/cargaacademica/") + evaluacion + "/evaluacion";
+    });
+
+    $("body").delegate(".solicitar-cambio-nota", "click", function (e) {
+        NotasAcademicas.cambioNA($(this), e);
     });
 });
