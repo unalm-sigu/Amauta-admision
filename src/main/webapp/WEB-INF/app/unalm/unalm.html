@@ -1,0 +1,84 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Carga Academica</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">        
+            <h2>Carga Académica - <span>2016-II</span></h2>
+            <span class="block"><strong>Docente:</strong> <span>Juan Perez</span></span>
+            <span class="block"><strong>Departamento Academico:</strong> Matematicas</span>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-5">Curso</th>
+                            <th class="col-md-2 text-center">Clave</th>
+                            <th class="col-md-2 text-center">Carga</th>
+                            <th class="col-md-2 text-center">Sistema de calificación</th>
+                            <th class="col-md-1 text-center">Estado</th>
+                            <th class="v-middle"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <nav class="navbar navbar-default" role="navigation">
+                    <div class="navbar-header titulo">		    
+                        <a class="navbar-brand" href="#"><strong>UNALM</strong></a>
+                    </div>
+
+                    <div class="collapse navbar-collapse navbar-ex1-collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a href="#">Cursos Matriculados</a></li>
+                            <li><a href="#">Avance Academico</a></li>
+                            <li><a href="#">Trámites</a></li>
+
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Otros <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Acción #1</a></li>
+                                    <li><a href="#">Acción #2</a></li>
+                                    <li><a href="#">Acción #3</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Acción #4</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Acción #5</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <span class="glyphicon glyphicon-bell"></span>
+                                    <span class="glyphicon glyphicon-record"></span>
+                                    Alenxander E. <b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Acción #1</a></li>
+                                    <li><a href="#">Acción #2</a></li>
+                                    <li><a href="#">Acción #3</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Acción #4</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </section>
+        </section>
+
+        <div th:substituteby="app/templates/modal"/>
+        <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/cargaacademica/cargaAcademica.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

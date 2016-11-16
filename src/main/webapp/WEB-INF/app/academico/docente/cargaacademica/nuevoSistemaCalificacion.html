@@ -1,0 +1,129 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Solicitud de Nuevo Sistema de Calificación</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header">
+                <h2>Solicitud de Nuevo Sistema de Calificación</h2>
+                <span class="block"><strong>Curso:</strong> <span>Matemática Básica</span></span>
+                <span class="block"><strong>Claves:</strong> <span>2020, 2021, 2022</span></span>
+            </header>
+
+            <section class="panel">
+                <section class="panel-body">
+                    <div class="m-b">		
+                        <span class="block"><strong>Formula:</strong> <span id="spnFormula"></span></span>
+
+                    </div>
+                    <form id="frmSistemaCalifica" th:action="@{/academico/systemcalifica/sistema/save}" method="post" >
+                        <table id="tblEvaluaciones" class="table table-striped">
+                            <thead>
+                                <tr class=""> 
+                                    <th class="col-md-4 v-middle">Tipo evaluación</th>
+                                    <th class="col-md-2 v-middle">Cantidad evaluaciones</th>
+                                    <th class="col-md-1 v-middle text-center">Peso Total</th>
+                                    <th class="col-md-1 text-center">Anular nota min</th>
+                                    <th class="col-md-1 text-center">Peso evaluación</th>
+                                    <th class="col-md-1 text-center">Porc. variable evaluación</th>
+                                    <th class="col-md-2 v-middle text-center">Tipo de profesor</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyEvaluaciones">
+                                <tr>
+                                    <td>
+                                        <select name="evaluacionPlan[0].tipoEvaluacion.id" class="form-control item-select2">
+                                            <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+                                        </select>  
+                                    </td>
+                                    <td>
+                                        <input class="form-control clsCantEvaluaciones" rel="0"  
+                                               name="evaluacionPlan[0].cantidadEvaluaciones" type="text" />
+                                    </td>    
+                                    <td>
+                                        <input  name="evaluacionPlan[0].pesoTotal" rel="0"  type="text" 
+                                                class="form-control calcular-peso-eva" />
+                                    </td>
+                                    <td>
+                                        <label class="switch">
+                                            <input name="evaluacionPlan[0].notaMinimaAnulable"
+                                                   class="calcular-peso-eva-chk" 
+                                                   rel="0" type="checkbox" value="1" />
+                                            <span></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <input name="evaluacionPlan[0].pesoEvaluacion" 
+                                               rel="0" type="text"
+                                               readonly="true"
+                                               class="form-control" />
+                                    </td>
+                                    <td>
+                                        <label class="switch">
+                                            <input type="checkbox" value="1"/>
+                                            <span></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <select name="evaluacionPlan[0].tipoSeccion" class="form-control select2">
+                                            <option th:each="itemea : ${tiposSeccion}"  
+                                                    th:text="${itemea.value}"
+                                                    th:value="${itemea.name()}" >yhhh</option>
+                                        </select>
+                                    </td>
+                                    <td class="v-middle text-center">
+                                        <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="text-center block">
+                            <a href="#" id="lnkAgregarItem" class="btn btn-primary add-tipo-evaluacion">Agregar tipo de evaluación</a>
+                        </div>
+                        
+                        <div class="m-t-lg">
+                            <div class="col-md-6">		
+                                <div class="form-group">
+                                    <label>Nota Base</label>
+                                    <input name="notaBase" type="text" class="form-control" value="100"  />
+                                </div>
+                            </div>
+                            <div class="col-md-6">		
+                                <div class="form-group">
+                                    <label>Sistema de notas</label>
+                                    <select name="sistemaNotas.id" class="form-control select2">
+                                        <option  th:each="item : ${sistemasNotas}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="m-t-md">
+                            <div class="col-md-12">		
+                                <div class="form-group">
+                                    <label><strong>Sustento:</strong></label>
+                                    <textarea class="form-control" rows="5" id="comment"></textarea>
+                                </div>
+                            </div>                           
+                        </div>
+                    </form>
+                </section>
+
+                <section class="panel-footer pull-right">
+                    <a href="#" class="btn btn-link cancelar">Cancelar</a>
+                    <a href="#" id="cmbSaveSistema" class="btn btn-success">Enviar Solicitud</a>
+                </section>
+            </section>
+
+            <div th:substituteby="app/templates/modal"/> 
+            <script id="templateNuevoSistemaCalificacion" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateNuevoSistemaCalificacion"/></script>
+        </div>
+
+        <div layout:fragment="js">
+            <script th:src="@{/app/academico/docente/cargaacademica/cargaAcademica.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

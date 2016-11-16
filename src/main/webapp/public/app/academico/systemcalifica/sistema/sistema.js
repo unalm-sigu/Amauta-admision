@@ -197,31 +197,24 @@ $(function () {
     $("body").delegate(".caso1-sistema", "click", function (e) {
         Sistema.verEditarSistema($(this), e);
     });
-
     $("body").delegate(".detalle-sistema", "click", function (e) {
         Sistema.verDetalleSistema($(this), e);
     });
-
     $("body").delegate(".ver-solicitud", "click", function (e) {
         Sistema.verSolicitud($(this), e);
     });
-
     $("body").delegate(".asignar-cursos", "click", function (e) {
         Sistema.asignarCursos($(this), e);
     });
-
     $("body").delegate(".asignar-cursos", "click", function (e) {
         Sistema.asignarCursos($(this), e);
     });
-
     $("body").delegate(".aprobar", "click", function () {
         Sistema.aprobar($(this));
     });
-
     $("body").delegate(".desaprobar", "click", function () {
         Sistema.desaprobar($(this));
     });
-
     $("body").delegate(".anull", "click", function () {
         Sistema.anull($(this));
     });

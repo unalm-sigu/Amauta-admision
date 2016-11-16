@@ -34,7 +34,6 @@ public class CargaAcademicaController {
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -45,7 +44,6 @@ public class CargaAcademicaController {
                 }
             }
         });
-
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -193,5 +191,25 @@ public class CargaAcademicaController {
         model.addAttribute("evaluacion", eval);
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
+    }
+
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/nuevoSistemaCalificacion";
+    }
+
+    @RequestMapping("detalleCambioNota")
+    public String detalleCambioNota(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/detalleCambioNota";
+    }
+
+    @RequestMapping("unalm")
+    public String unalm() {
+
+        return "app/unalm/unalm";
     }
 }
