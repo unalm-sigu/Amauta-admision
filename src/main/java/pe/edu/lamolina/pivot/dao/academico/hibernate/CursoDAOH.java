@@ -20,6 +20,14 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
+    public Curso find(Long idCurso) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur");
+        sqlUtil.parents("planCalificacion pc");
+        sqlUtil.filter("cur.id", idCurso);
+        return find(sqlUtil);
+    }
+
+    @Override
     public List<Curso> allAutocomplete(String nombre, Long idDepartamentoAca) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         StringBuilder sql = new StringBuilder();

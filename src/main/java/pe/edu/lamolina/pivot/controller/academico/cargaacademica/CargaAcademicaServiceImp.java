@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -22,6 +24,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     SeccionDAO seccionDAO;
 
     @Autowired
+    CursoDAO cursoDAO;
+
+    @Autowired
     PlanCalificacionDAO planCalificacionDAO;
 
     @Override
@@ -32,6 +37,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public PlanCalificacion findPlanCalificacion(Long idPlanCalificacion) {
         return planCalificacionDAO.find(idPlanCalificacion);
+    }
+
+    @Override
+    public Curso findCurso(Long idCurso) {
+        return cursoDAO.find(idCurso);
     }
 
 }

@@ -7,7 +7,7 @@
         <div layout:fragment="main">
             <header class="page-header">        
                 <h2>Expandir  <span th:text="${planCalificacion.codigo}">Sistema de Calificación SC-33</span></h2>
-                <span class="block"><strong>Curso:</strong> <span>Matemática Básica</span></span>
+                <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Matemática Básica</span></span>
                 <span class="block"><strong>Claves:</strong> 2020, 2021, 2022</span>
             </header>
 
@@ -24,169 +24,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
                                 <td class="v-middle">
-                                    <span class="block">EP</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Examen Parcial</span>
+                                    <span class="block" th:text="${evas.tipoEvaluacion.codigo}">EP</span>
                                 </td>
                                 <td class="v-middle">
-                                    <span class="block text-center"></span>
+                                    <span class="block" th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
                                 </td>
                                 <td class="v-middle">
-                                    <span class="block">20%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">EF</span>
+                                    <span class="block text-center" th:text="${evas.cantidadEvaluaciones}"></span>
                                 </td>
                                 <td class="v-middle">
-                                    <span class="block">Examen Final</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center"></span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">30%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">PC1</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Practica Calificada</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">2</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">10%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">PC2</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Practica Calificada</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">3</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">10%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">PC3</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Practica Calificada</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">4</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">10%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">PC4</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Practica Calificada</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">5</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">10%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">PC5</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Practica Calificada</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">5</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">10%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">TA1</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Tarea</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">1</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">5%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">TA2</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Tarea</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">2</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">5%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="v-middle">
-                                    <span class="block">TA3</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">Tarea</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center">3</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block">5%</span>
+                                    <span class="block" th:text="${evas.pesoEvaluacion + ' %'}">20%</span>
                                 </td>
                                 <td class="v-middle text-center">
                                     <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>

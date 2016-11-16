@@ -11,4 +11,5 @@ public interface CursoDAO extends Crud<Curso> {
 
     List<Curso> allByDynatable(DynatableFilter filter, Long planCalificacion);
 
+    Curso find(Long idCurso);
 }

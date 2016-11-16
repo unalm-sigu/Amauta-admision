@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -93,6 +94,7 @@ public class CargaAcademicaController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
                 node.put("id", seccion.getId());
+                node.put("idCurso", seccion.getGrupoSeccion().getCurso().getId());
                 node.put("idSistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId().toString() : "");
                 node.put("sistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getCodigo() : "");
                 node.put("nombre", seccion.getGrupoSeccion().getCurso().getNombre());
@@ -182,19 +184,23 @@ public class CargaAcademicaController {
         return json;
     }
 
-    @RequestMapping("{sistema}/detalleSistemaCalificacion")
-    public String detalleSistemaCalificacion(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
+    @RequestMapping("{curso}/detalleSistemaCalificacion")
+    public String detalleSistemaCalificacion(@PathVariable("curso") Long idCurso, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistema);
-        model.addAttribute("planCalificacion", planCalificacion);
+        logger.debug("curso {}", idCurso);
+        Curso curso = cargaAcademicaService.findCurso(idCurso);
+
+        model.addAttribute("planCalificacion", curso.getPlanCalificacion());
+        model.addAttribute("curso", curso);
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
 
-    @RequestMapping("expandir/{sistema}")
-    public String expandir(Model model, HttpSession session, @PathVariable("sistema") Long idSistema) {
+    @RequestMapping("expandir/{curso}")
+    public String expandir(Model model, HttpSession session, @PathVariable("curso") Long idCurso) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistema);
-        model.addAttribute("planCalificacion", planCalificacion);
+        Curso curso = cargaAcademicaService.findCurso(idCurso);
+        model.addAttribute("planCalificacion", curso.getPlanCalificacion());
+        model.addAttribute("curso", curso);
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
 

@@ -28,6 +28,7 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
+
             MODAL.hide();
             MODAL.init("lg");
             MODAL.title("Sistema de Calificación " + rec.sistemaCalificacion);
@@ -38,7 +39,7 @@ $(function () {
                     '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + rec.idCurso + '/detalleSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
