@@ -99,7 +99,7 @@ public class CargaAcademicaController {
                 node.put("sistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getCodigo() : "");
                 node.put("nombre", seccion.getGrupoSeccion().getCurso().getNombre());
                 node.put("codigo", seccion.getGrupoSeccion().getCurso().getCodigo());
-                node.put("tpc", seccion.getTpc());
+                node.put("tpc", seccion.getGrupoSeccion().getCurso().getTpc());
                 node.put("seccion", seccion.getCodigo());
                 node.put("aula", seccion.getAula().getNombre());
                 node.put("tipoSeccion", seccion.getTipoSeccion());
@@ -195,6 +195,8 @@ public class CargaAcademicaController {
     @RequestMapping("expandir/{sistema}")
     public String expandir(Model model, HttpSession session, @PathVariable("sistema") Long idSistema) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistema);
+        model.addAttribute("planCalificacion", planCalificacion);
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
 

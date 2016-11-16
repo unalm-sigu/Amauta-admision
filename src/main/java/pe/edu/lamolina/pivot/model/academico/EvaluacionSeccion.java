@@ -39,8 +39,8 @@ public class EvaluacionSeccion implements Serializable {
     private PlanCalificacion planCalificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_seccion")
-    private Seccion seccion;
+    @JoinColumn(name = "id_grupo_seccion")
+    private GrupoSeccion grupoSeccion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sistema_notas")
@@ -72,12 +72,12 @@ public class EvaluacionSeccion implements Serializable {
         this.planCalificacion = planCalificacion;
     }
 
-    public Seccion getSeccion() {
-        return seccion;
+    public GrupoSeccion getGrupoSeccion() {
+        return grupoSeccion;
     }
 
-    public void setSeccion(Seccion seccion) {
-        this.seccion = seccion;
+    public void setGrupoSeccion(GrupoSeccion grupoSeccion) {
+        this.grupoSeccion = grupoSeccion;
     }
 
     public SistemaNotas getSistemaNotas() {
@@ -121,4 +121,3 @@ public class EvaluacionSeccion implements Serializable {
     }
 
 }
-

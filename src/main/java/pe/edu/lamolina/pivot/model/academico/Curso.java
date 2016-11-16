@@ -40,6 +40,12 @@ public class Curso implements Serializable {
     @Column(name = "nombre")
     private String nombre;
 
+    @Column(name = "horas_teoria")
+    private Integer horasTeoria;
+
+    @Column(name = "horas_practica")
+    private Integer horasPractica;
+
     @Column(name = "creditos")
     private Integer creditos;
 
@@ -264,6 +270,30 @@ public class Curso implements Serializable {
 
     public void setUserPlanCalificacion(Persona userPlanCalificacion) {
         this.userPlanCalificacion = userPlanCalificacion;
+    }
+
+    public Integer getHorasTeoria() {
+        return horasTeoria;
+    }
+
+    public void setHorasTeoria(Integer horasTeoria) {
+        this.horasTeoria = horasTeoria;
+    }
+
+    public Integer getHorasPractica() {
+        return horasPractica;
+    }
+
+    public void setHorasPractica(Integer horasPractica) {
+        this.horasPractica = horasPractica;
+    }
+
+    public String getTpc() {
+        StringBuilder tpc = new StringBuilder();
+        tpc.append(horasTeoria).append("-");
+        tpc.append(horasPractica).append("-");
+        tpc.append(creditos);
+        return tpc.toString();
     }
 
 }

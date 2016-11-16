@@ -80,8 +80,8 @@ public class SistemaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        model.addAttribute("ciclo", ciclo);
+        // CicloAcademico ciclo = ds.getCicloAcademico();
+        //  model.addAttribute("ciclo", ciclo);
         return "app/academico/systemcalifica/sistema/sistema";
     }
 

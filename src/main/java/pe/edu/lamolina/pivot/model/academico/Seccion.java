@@ -62,10 +62,10 @@ public class Seccion implements Serializable {
 
     @OneToMany(mappedBy = "seccionResponsable", fetch = FetchType.LAZY)
     private List<Evaluacion> evaluacion;
-
+    /*
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<EvaluacionSeccion> evaluacionSeccion;
-
+     */
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<LoggerMatricula> loggerMatricula;
 
@@ -176,14 +176,6 @@ public class Seccion implements Serializable {
         this.evaluacion = evaluacion;
     }
 
-    public List<EvaluacionSeccion> getEvaluacionSeccion() {
-        return evaluacionSeccion;
-    }
-
-    public void setEvaluacionSeccion(List<EvaluacionSeccion> evaluacionSeccion) {
-        this.evaluacionSeccion = evaluacionSeccion;
-    }
-
     public List<LoggerMatricula> getLoggerMatricula() {
         return loggerMatricula;
     }
@@ -230,14 +222,6 @@ public class Seccion implements Serializable {
 
     public void setGrupoSeccion(GrupoSeccion grupoSeccion) {
         this.grupoSeccion = grupoSeccion;
-    }
-
-    public String getTpc() {
-        StringBuilder tpc = new StringBuilder();
-        tpc.append(horasTeoria).append("-");
-        tpc.append(horasPractica).append("-");
-        tpc.append("creditos");
-        return tpc.toString();
     }
 
 }
