@@ -65,7 +65,7 @@ public class SistemaServiceImp implements SistemaService {
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
-            totalWeight = +evaluacionPlan.getPesoTotal();
+            totalWeight += evaluacionPlan.getPesoTotal();
         }
         if (totalWeight != 100) {
             throw new PhobosException("Pesos total de las evaluaciones incorrecto.");

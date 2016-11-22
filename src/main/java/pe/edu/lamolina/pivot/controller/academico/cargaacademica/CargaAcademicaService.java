@@ -6,8 +6,11 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 
 public interface CargaAcademicaService {
+
+    List<TipoEvaluacion> allTipoEvaluacion();
 
     List<Seccion> allByCargaAcademica(DynatableFilter filter);
 

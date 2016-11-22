@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
@@ -110,67 +111,6 @@ public class CargaAcademicaController {
                 node.put("estadoSistemaEnum", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getEstadoEnum().getValue() : "");
                 array.add(node);
             }
-            /*
-            {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", 233);
-                node.put("idSistemaCalificacion", 74002);
-                node.put("sistemaCalificacion", "SC-0025");
-                node.put("nombre", "Fitotecnía Avanzada");
-                node.put("codigo", "FI5210");
-                node.put("tpc", "3-2-4");
-                node.put("seccion", "2030");
-                node.put("aula", "B30");
-                node.put("tipoSeccion", "Teoría");
-                node.put("alumnos", 35);
-                node.put("horasSemanales", 3);
-                node.put("estado", "DIC");
-                node.put("estadoEnum", "Dictando");
-                node.put("estadoSistema", "PEND");
-                node.put("estadoSistemaEnum", "Pendiente");
-                array.add(node);
-            }
-            {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", 552);
-                node.put("idSistemaCalificacion", 20);
-                node.put("sistemaCalificacion", "SC-0512");
-                node.put("nombre", "Genética de Hongos");
-                node.put("codigo", "GE8541");
-                node.put("tpc", "3-0-3");
-                node.put("seccion", "4120");
-                node.put("aula", "S42");
-                node.put("tipoSeccion", "Teoría");
-                node.put("alumnos", 28);
-                node.put("horasSemanales", 3);
-                node.put("estado", "DIC");
-                node.put("estadoEnum", "Dictando");
-                node.put("estadoSistema", "ACEP");
-                node.put("estadoSistemaEnum", "Aceptado");
-                array.add(node);
-            }
-            {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", 8541);
-                node.put("idSistemaCalificacion", 544);
-                node.put("sistemaCalificacion", "SC-0842");
-                node.put("nombre", "Fitopatología");
-                node.put("codigo", "RT8455");
-                node.put("tpc", "0-4-2");
-                node.put("seccion", "8511");
-                node.put("aula", "L88");
-                node.put("tipoSeccion", "Práctica");
-                node.put("alumnos", 28);
-                node.put("horasSemanales", 4);
-                node.put("estado", "DIC");
-                node.put("estadoEnum", "Dictando");
-                node.put("estadoSistema", "CER");
-                node.put("estadoSistemaEnum", "Cerrado");
-                array.add(node);
-            }*/
 
             json.setData(array);
             json.setTotal(filter.getTotal());
@@ -181,6 +121,18 @@ public class CargaAcademicaController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("listEvaluacionPlan")
+    public DynatableResponse listEvaluacionPlan(DynatableFilter filter,
+            @RequestParam("planCalificacion") Long planCalificacion,
+            HttpSession session) {
+        try {
+
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     @RequestMapping("{seccion}/detalleSistemaCalificacion")
@@ -205,6 +157,7 @@ public class CargaAcademicaController {
             claves.append(",");
 
         }
+
         model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion());
         model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
@@ -214,7 +167,7 @@ public class CargaAcademicaController {
     @RequestMapping("detalleExpandirEvaluacion")
     public String detalleExapandirEva(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        model.addAttribute("tipoEvaluaciones", cargaAcademicaService.allTipoEvaluacion());
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
     }
 

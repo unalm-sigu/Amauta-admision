@@ -23,7 +23,7 @@
                                 <th class="v-middle"></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody >
                             <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
                                 <td class="v-middle">
                                     <span class="block" th:text="${evas.tipoEvaluacion.codigo}">EP</span>
@@ -48,6 +48,7 @@
 
             <div th:substituteby="app/templates/modal"/>
             <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>
+           
         </div>
         <div layout:fragment="js">
             <script th:src="@{/app/academico/docente/cargaacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>

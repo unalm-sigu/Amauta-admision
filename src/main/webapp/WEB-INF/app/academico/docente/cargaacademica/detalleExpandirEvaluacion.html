@@ -12,12 +12,11 @@
         </tr>
     </thead>
 
-    <tbody>
+    <tbody id="tbodyEvaluaciones">
         <tr>
             <td  class="v-middle">
                 <select class="form-control item-select2">
-                    <option>Opcion 1</option>
-                    <option>Opcion 2</option>
+                    <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
                 </select>
             </td>
             <td  class="v-middle">
@@ -33,3 +32,5 @@
 <div class="text-center block">
     <a href="#" id="lnkAgregarItem" class="btn btn-primary add-tipo-evaluacion">Agregar</a>
 </div>
+
+<script id="templateExpandirEvaluacion" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateExpandirEvaluacion"/></script>

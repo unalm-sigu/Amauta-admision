@@ -11,10 +11,12 @@ import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,6 +35,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    TipoEvaluacionDAO tipoEvaluacionDAO;
+
+    @Override
+    public List<TipoEvaluacion> allTipoEvaluacion() {
+        return tipoEvaluacionDAO.all();
+    }
 
     @Override
     public List<Seccion> allByCargaAcademica(DynatableFilter filter) {
