@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -13,5 +14,9 @@ public interface CargaAcademicaService {
     PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
 
     Curso findCurso(Long idCurso);
+
+    Seccion findSeccion(Long idGrupoSeccion);
+
+    GrupoSeccion findGrupo(Long idGrupoSeccion);
 
 }

@@ -9,4 +9,6 @@ public interface SeccionDAO extends Crud<Seccion> {
 
     List<Seccion> allByCargaAcademica(DynatableFilter filter);
 
+    public Seccion find(Long idSeccion);
+
 }

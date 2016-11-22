@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -46,6 +45,14 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .setPageSize(filter.getPerPage());
 
         return this.all(sqlUtil);
+    }
+
+    @Override
+    public Seccion find(Long idSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
+                .parents("grupoSeccion gs", "_gs.curso cur", "_cur.planCalificacion pc")
+                .filter("s.id", idSeccion);
+        return find(sqlUtil);
     }
 
 }

@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -29,6 +31,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
 
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+
     @Override
     public List<Seccion> allByCargaAcademica(DynatableFilter filter) {
         return seccionDAO.allByCargaAcademica(filter);
@@ -42,6 +47,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public Curso findCurso(Long idCurso) {
         return cursoDAO.find(idCurso);
+    }
+
+    @Override
+    public Seccion findSeccion(Long idSeccion) {
+        return seccionDAO.find(idSeccion);
+    }
+
+    @Override
+    public GrupoSeccion findGrupo(Long idGrupoSeccion) {
+        return grupoSeccionDAO.find(idGrupoSeccion);
     }
 
 }

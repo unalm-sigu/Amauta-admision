@@ -23,9 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
-import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -184,23 +183,31 @@ public class CargaAcademicaController {
         return json;
     }
 
-    @RequestMapping("{curso}/detalleSistemaCalificacion")
-    public String detalleSistemaCalificacion(@PathVariable("curso") Long idCurso, Model model, HttpSession session) {
+    @RequestMapping("{seccion}/detalleSistemaCalificacion")
+    public String detalleSistemaCalificacion(@PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        logger.debug("curso {}", idCurso);
-        Curso curso = cargaAcademicaService.findCurso(idCurso);
-
-        model.addAttribute("planCalificacion", curso.getPlanCalificacion());
-        model.addAttribute("curso", curso);
+        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion());
+        model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
 
-    @RequestMapping("expandir/{curso}")
-    public String expandir(Model model, HttpSession session, @PathVariable("curso") Long idCurso) {
+    @RequestMapping("expandir/{seccion}")
+    public String expandir(Model model, HttpSession session, @PathVariable("seccion") Long idSeccion) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        Curso curso = cargaAcademicaService.findCurso(idCurso);
-        model.addAttribute("planCalificacion", curso.getPlanCalificacion());
-        model.addAttribute("curso", curso);
+        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+
+        StringBuilder claves = new StringBuilder();
+        for (Seccion sec : grupoSeccion.getSecciones()) {
+            claves.append(sec.getCodigo());
+            claves.append(",");
+
+        }
+        model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion());
+        model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
+        model.addAttribute("claves", claves.substring(0, claves.length() - 1));
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
 

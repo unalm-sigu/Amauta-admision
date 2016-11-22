@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -32,6 +34,9 @@ public class GrupoSeccion implements Serializable {
 
     @Column(name = "orden")
     private Integer orden;
+
+    @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
+    private List<Seccion> secciones;
 
     public GrupoSeccion() {
     }
@@ -74,6 +79,14 @@ public class GrupoSeccion implements Serializable {
 
     public void setOrden(Integer orden) {
         this.orden = orden;
+    }
+
+    public List<Seccion> getSecciones() {
+        return secciones;
+    }
+
+    public void setSecciones(List<Seccion> secciones) {
+        this.secciones = secciones;
     }
 
 }

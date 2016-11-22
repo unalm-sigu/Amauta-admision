@@ -39,7 +39,7 @@ $(function () {
                     '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.idCurso + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + rec.id + '/detalleSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -90,7 +90,7 @@ $(function () {
         },
         expandirSistema: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtPlanCalificacion").val());
+            location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtSeccion").val());
         },
         notasAcademicas: function ($this, e) {
             e.preventDefault();
