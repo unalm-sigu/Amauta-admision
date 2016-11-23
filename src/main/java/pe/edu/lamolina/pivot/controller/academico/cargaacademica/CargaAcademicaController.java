@@ -68,7 +68,7 @@ public class CargaAcademicaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        model.addAttribute("docente", ds.getDocente());
         return "app/academico/docente/cargaacademica/cargaAcademica";
     }
 
