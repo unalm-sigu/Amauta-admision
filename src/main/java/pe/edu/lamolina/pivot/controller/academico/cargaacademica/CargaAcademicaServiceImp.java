@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionPlanDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -38,6 +40,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     TipoEvaluacionDAO tipoEvaluacionDAO;
+
+    @Autowired
+    EvaluacionPlanDAO evaluacionPlanDAO;
 
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
@@ -67,6 +72,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public GrupoSeccion findGrupo(Long idGrupoSeccion) {
         return grupoSeccionDAO.find(idGrupoSeccion);
+    }
+
+    @Override
+    public List<EvaluacionPlan> allEvaluacionPlanByDynatable(DynatableFilter filter, Long idPlanCalificacion) {
+        return evaluacionPlanDAO.allByDynatable(filter, Long.MIN_VALUE);
     }
 
 }

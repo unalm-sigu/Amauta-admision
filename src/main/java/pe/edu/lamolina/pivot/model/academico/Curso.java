@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 
 @Entity
@@ -56,7 +56,7 @@ public class Curso implements Serializable {
     private Date fechaPlanCalificacion;
 
     @Column(name = "user_plan_calificacion")
-    private Persona userPlanCalificacion;
+    private Long userPlanCalificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
@@ -264,11 +264,11 @@ public class Curso implements Serializable {
         this.fechaPlanCalificacion = fechaPlanCalificacion;
     }
 
-    public Persona getUserPlanCalificacion() {
+    public Long getUserPlanCalificacion() {
         return userPlanCalificacion;
     }
 
-    public void setUserPlanCalificacion(Persona userPlanCalificacion) {
+    public void setUserPlanCalificacion(Long userPlanCalificacion) {
         this.userPlanCalificacion = userPlanCalificacion;
     }
 

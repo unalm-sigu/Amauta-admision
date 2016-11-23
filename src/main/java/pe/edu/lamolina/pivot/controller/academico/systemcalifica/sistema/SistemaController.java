@@ -38,6 +38,7 @@ import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
@@ -104,7 +105,8 @@ public class SistemaController {
                 node.put("id", planCalificacion.getId());
                 node.put("codigo", planCalificacion.getCodigo());
                 node.put("formula", planCalificacion.getFormula());
-                node.put("origen", planCalificacion.getDepartamentoAcademico().getCodigo());
+                node.put("origen", planCalificacion.getOrigenEnum().getValue());
+                node.put("fechaReg", TypesUtil.getStringDate(planCalificacion.getFechaRegistro(), "dd/MM/yyyy"));
                 node.put("estado", planCalificacion.getEstado());
                 node.put("estadoEnum", planCalificacion.getEstadoEnum().getValue());
                 node.put("verSolicitud", planCalificacion.isEstadoSolicitado());
@@ -218,6 +220,7 @@ public class SistemaController {
             String message = "";
             if (planCalificacion.getId() == null) {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
+                planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DEP);
                 sistemaService.saveSistemaCalifica(planCalificacion);
                 message = "Creado exitosamente.";
 
@@ -395,7 +398,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.asignarCurso(curso, planCalificacion, ds.getPersona().getId());
+            sistemaService.asignarCurso(curso, planCalificacion, ds.getUsuario().getId());
             response.setMessage("Curso asignado.");
             response.setSuccess(true);
 

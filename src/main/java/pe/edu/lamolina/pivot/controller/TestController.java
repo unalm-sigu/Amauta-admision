@@ -17,24 +17,24 @@ import pe.edu.lamolina.pivot.zelper.model.DataSession;
 @Controller
 @RequestMapping("/test")
 public class TestController {
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
     public String index(HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        if (ds == null) {
-            ds = new DataSession();
-            CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
-            ds.setCicloAcademico(cicloAcademico);
-            ds.setPersona(new Persona(1));
-            ds.setUsuario(new Usuario(1));
-            ds.setDepartamentoAcademico(new DepartamentoAcademico(1));
-            session.setAttribute(Constantine.SESSION_USUARIO, ds);
-        }
+
+        ds = new DataSession();
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
+        ds.setCicloAcademico(cicloAcademico);
+        ds.setPersona(new Persona(1));
+        ds.setUsuario(new Usuario(1));
+        ds.setDepartamentoAcademico(new DepartamentoAcademico(1));
+        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+
         return "rock'n roll bastard allright!";
     }
-    
+
 }

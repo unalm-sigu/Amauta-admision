@@ -36,10 +36,12 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Detalle del Sistema de Calificación " + rec.codigo);
             MODAL.show();
-            MODAL.buttons(
-                    '<a class="btn btn-success">Aprobar</a>' +
-                    '<a class="btn btn-warning">Observar</a>' +
-                    '<a class="btn btn-danger">Rechazar</a>');
+            /*
+             MODAL.buttons(
+             '<a class="btn btn-success">Aprobar</a>' +
+             '<a class="btn btn-warning">Observar</a>' +
+             '<a class="btn btn-danger">Rechazar</a>');
+             */
             $.ajax({
                 url: APP.url('academico/systemcalifica/sistema/' + rec.id + '/detalleSistema'),
                 type: 'POST',

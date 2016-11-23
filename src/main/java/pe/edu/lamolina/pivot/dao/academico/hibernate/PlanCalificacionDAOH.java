@@ -41,6 +41,7 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
         this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
         sqlUtil.setFirstResult(filter.getOffset())
                 .setPageSize(filter.getPerPage());
+        sqlUtil.orderBy("pc.id desc");
 
         return this.all(sqlUtil);
     }

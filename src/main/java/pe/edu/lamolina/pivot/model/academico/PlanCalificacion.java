@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 
 @Entity
 @Table(name = "aca_plan_calificacion")
@@ -49,6 +50,9 @@ public class PlanCalificacion implements Serializable {
 
     @Column(name = "observacion")
     private String observacion;
+
+    @Column(name = "origen")
+    private String origen;
 
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -215,6 +219,22 @@ public class PlanCalificacion implements Serializable {
 
     public void setObservacion(String observacion) {
         this.observacion = observacion;
+    }
+
+    public String getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(String origen) {
+        this.origen = origen;
+    }
+
+    public OrigenPlanCalificaEnum getOrigenEnum() {
+        return OrigenPlanCalificaEnum.valueOf(this.origen);
+    }
+
+    public void setOrigenEnum(OrigenPlanCalificaEnum origenPlanCalificaEnum) {
+        this.origen = origenPlanCalificaEnum.name();
     }
 
     public String getCodigo() {
