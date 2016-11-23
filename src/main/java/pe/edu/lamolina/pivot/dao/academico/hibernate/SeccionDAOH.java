@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 
 @Repository
 public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
@@ -18,9 +19,10 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
     }
 
     @Override
-    public List<Seccion> allByCargaAcademica(DynatableFilter filter) {
+    public List<Seccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
         filter.setAlias("sec");
-        filter.setParents("grupoSeccion gs", "docenteSeccion ds", "aula au", "_gs.curso cur", "left _cur.planCalificacion pc");
+        filter.setParents("grupoSeccion gs", "docenteSeccion ds", "aula au",
+                "_gs.curso cur", "left _cur.planCalificacion pc");
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));

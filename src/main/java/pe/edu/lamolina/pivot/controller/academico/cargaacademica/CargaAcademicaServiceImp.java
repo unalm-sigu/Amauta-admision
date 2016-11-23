@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionPlanDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -44,14 +47,17 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Autowired
     EvaluacionPlanDAO evaluacionPlanDAO;
 
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
+
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
         return tipoEvaluacionDAO.all();
     }
 
     @Override
-    public List<Seccion> allByCargaAcademica(DynatableFilter filter) {
-        return seccionDAO.allByCargaAcademica(filter);
+    public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
+        return docenteSeccionDAO.allByCargaAcademica(filter, docente);
     }
 
     @Override

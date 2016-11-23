@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -88,27 +89,30 @@ public class CargaAcademicaController {
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<Seccion> lista = cargaAcademicaService.allByCargaAcademica(filter);
+            List<DocenteSeccion> lista = cargaAcademicaService.allByCargaAcademica(filter, ds.getDocente());
             logger.debug("Lista {}", lista.size());
-            for (Seccion seccion : lista) {
+            for (DocenteSeccion docSeccion : lista) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-                node.put("id", seccion.getId());
-                node.put("idCurso", seccion.getGrupoSeccion().getCurso().getId());
-                node.put("idSistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId().toString() : "");
-                node.put("sistemaCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getCodigo() : "");
-                node.put("nombre", seccion.getGrupoSeccion().getCurso().getNombre());
-                node.put("codigo", seccion.getGrupoSeccion().getCurso().getCodigo());
-                node.put("tpc", seccion.getGrupoSeccion().getCurso().getTpc());
-                node.put("seccion", seccion.getCodigo());
-                node.put("aula", seccion.getAula().getNombre());
-                node.put("tipoSeccion", seccion.getTipoSeccion());
+                node.put("id", docSeccion.getSeccion().getId());
+                node.put("idCurso", docSeccion.getSeccion().getGrupoSeccion().getCurso().getId());
+                node.put("idSistemaCalificacion", docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion() != null
+                        ? docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion().getId().toString() : "");
+                node.put("sistemaCalificacion", docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion() != null ? docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion().getCodigo() : "");
+                node.put("nombre", docSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
+                node.put("codigo", docSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
+                node.put("tpc", docSeccion.getSeccion().getGrupoSeccion().getCurso().getTpc());
+                node.put("seccion", docSeccion.getSeccion().getCodigo());
+                node.put("aula", docSeccion.getSeccion().getAula().getNombre());
+                node.put("tipoSeccion", docSeccion.getSeccion().getTipoSeccion());
                 node.put("alumnos", 35);
                 node.put("horasSemanales", 3);
                 node.put("estado", "DIC");
                 node.put("estadoEnum", "Dictando");
-                node.put("estadoSistema", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getEstado() : "");
-                node.put("estadoSistemaEnum", seccion.getGrupoSeccion().getCurso().getPlanCalificacion() != null ? seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getEstadoEnum().getValue() : "");
+                node.put("estadoSistema", docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion() != null
+                        ? docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion().getEstado() : "");
+                node.put("estadoSistemaEnum", docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion() != null
+                        ? docSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion().getEstadoEnum().getValue() : "");
                 array.add(node);
             }
 
