@@ -33,7 +33,7 @@ $(function () {
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
-                        return {nombre: term, page: page};
+                        return {nombre: term, planCalificacion: $("[name='plancalificacion.id']").val(), page: page};
                     },
                     results: function (response, page) {
                         return {results: response.data};

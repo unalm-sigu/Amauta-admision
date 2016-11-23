@@ -142,7 +142,7 @@ public class SistemaController {
         try {
             logger.debug("Plancalificacion {}", planCalificacion);
 
-            List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion);
+            List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -153,7 +153,7 @@ public class SistemaController {
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
                 node.put("fechaInclusion", curso.getFechaPlanCalificacion() != null ? TypesUtil.getStringDate(curso.getFechaPlanCalificacion(), "dd/MM/yyyy") : "");
-                node.put("tpc", "tpc");
+                node.put("tpc", curso.getTpc());
                 array.add(node);
             }
 

@@ -28,17 +28,21 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allAutocomplete(String nombre, Long idDepartamentoAca) {
+    public List<Curso> allAutocomplete(String nombre, Long idDepartamentoAca, Long planCalificacion) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         StringBuilder sql = new StringBuilder();
         sql.append("  from ").append(Curso.class.getName()).append(" as cur ");
         sql.append(" left join fetch cur.departamentoAcademico da ");
-        sql.append(" left join fetch cur.planCalificacion se ");
+        sql.append(" left join fetch cur.planCalificacion pc ");
         sql.append(" where 1=1 ");
+        sql.append("  and    pc.id != :PLAN_CAL ");
+        sql.append("  and    da.id = :DEP_ACA ");
         sql.append("  and    cur.nombre like :NOMBRE ");
         sql.append(" order by cur.nombre ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("PLAN_CAL", planCalificacion);
+        query.setParameter("DEP_ACA", idDepartamentoAca);
         query.setString("NOMBRE", nombre);
         query.setMaxResults(15);
 
@@ -46,7 +50,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allByDynatable(DynatableFilter filter, Long idPlanCalificacion) {
+    public List<Curso> allByDynatable(DynatableFilter filter, Long idPlanCalificacion, Long idDepartamentoAcademico) {
         List<String> fieldsFiltro = Arrays.asList(
                 "c.nombre", "c.codigo", "c.fechaPlanCalificacion");
 

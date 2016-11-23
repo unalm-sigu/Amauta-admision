@@ -105,8 +105,8 @@ public class SistemaServiceImp implements SistemaService {
     }
 
     @Override
-    public List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion) {
-        return cursoDAO.allByDynatable(dynatableFilter, planCalificacion);
+    public List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion, Long idDepartamentoAcademico) {
+        return cursoDAO.allByDynatable(dynatableFilter, planCalificacion, idDepartamentoAcademico);
     }
 
     @Override

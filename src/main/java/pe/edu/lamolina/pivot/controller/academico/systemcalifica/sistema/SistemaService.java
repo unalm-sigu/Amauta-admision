@@ -24,7 +24,7 @@ public interface SistemaService {
 
     void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
 
-    List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion);
+    List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion, Long idDepartamentoAcademico);
 
     void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
 

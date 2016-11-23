@@ -7,9 +7,9 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 
 public interface CursoDAO extends Crud<Curso> {
 
-    List<Curso> allAutocomplete(String nombre, Long idDepartamentoAca);
+    List<Curso> allAutocomplete(String nombre, Long idDepartamentoAca, Long planCalificacion);
 
-    List<Curso> allByDynatable(DynatableFilter filter, Long planCalificacion);
+    List<Curso> allByDynatable(DynatableFilter filter, Long planCalificacion, Long idDepartamentoAcademico);
 
     Curso find(Long idCurso);
 }
