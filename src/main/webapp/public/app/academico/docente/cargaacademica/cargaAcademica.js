@@ -103,7 +103,7 @@ $(function () {
         verNuevoSC: function (e) {
             e.preventDefault();
             location.href = APP.url("academico/docente/cargaacademica/nuevo");
-        }
+        },
     };
     $("body").delegate(".aceptar-sistema-calificacion", "click", function (e) {
         CargaAcademica.aceptarSistemaCalificacion($(this), e);

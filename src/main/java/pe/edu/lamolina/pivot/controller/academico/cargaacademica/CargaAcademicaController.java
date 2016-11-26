@@ -181,7 +181,7 @@ public class CargaAcademicaController {
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
-
+   
     @RequestMapping("{evaluacion}/evaluacion")
     public String evaluacion(@PathVariable("evaluacion") Long idEvaluacion, Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -212,5 +212,12 @@ public class CargaAcademicaController {
     public String unalm() {
 
         return "app/unalm/unalm";
+    }
+    
+    @RequestMapping("detalleNotasAcademicas")
+    public String detalleNotasAcademicas(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/detalleNotasAcademicas";
     }
 }
