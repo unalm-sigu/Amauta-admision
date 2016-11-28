@@ -48,4 +48,12 @@ public class EvaluacionPlanDAOH extends AbstractDAO<EvaluacionPlan> implements E
 
         return this.all(sqlUtil);
     }
+
+    @Override
+    public List<EvaluacionPlan> allByFilter(Long idPlanCalificacion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("evap");
+        sqlUtil.parents("tipoEvaluacion te", "planCalificacion pc");
+        sqlUtil.filter("pc.id", idPlanCalificacion);
+        return this.all(sqlUtil);
+    }
 }

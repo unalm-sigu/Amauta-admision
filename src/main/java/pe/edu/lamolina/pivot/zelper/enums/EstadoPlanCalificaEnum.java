@@ -12,7 +12,8 @@ public enum EstadoPlanCalificaEnum {
     OBS("Observado"),
     SOL("Solicitado"),
     RHZ("Rechazado"),
-    REE("Reenviado");
+    REE("Reenviado"),
+    PRO("Propuesto");
 
     private final String value;
     private static final Map<String, EstadoPlanCalificaEnum> lookup = new HashMap<>();

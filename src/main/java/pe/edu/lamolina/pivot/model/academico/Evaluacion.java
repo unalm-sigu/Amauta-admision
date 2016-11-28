@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "aca_evaluacion")
@@ -25,13 +26,14 @@ public class Evaluacion implements Serializable {
     private Long id;
 
     @Column(name = "peso")
-    private String peso;
+    private Integer peso;
 
     @Column(name = "esta_desagregado")
     private Integer estaDesagregado;
 
-    @Column(name = "id_user_desagregar")
-    private Long idUserDesagregar;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_desagregar")
+    private Usuario usuarioDesagregar;
 
     @Column(name = "fecha_desagregar")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -81,7 +83,7 @@ public class Evaluacion implements Serializable {
     private List<AlumnoEvaluacion> alumnoEvaluacion;
 
     @OneToMany(mappedBy = "evaluacionSuperior", fetch = FetchType.LAZY)
-    private List<Evaluacion> evaluacion;
+    private List<Evaluacion> evaluaciones;
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<ReclamoNota> reclamoNota;
@@ -117,11 +119,11 @@ public class Evaluacion implements Serializable {
         this.tipoEvaluacion = tipoEvaluacion;
     }
 
-    public String getPeso() {
+    public Integer getPeso() {
         return peso;
     }
 
-    public void setPeso(String peso) {
+    public void setPeso(Integer peso) {
         this.peso = peso;
     }
 
@@ -141,12 +143,12 @@ public class Evaluacion implements Serializable {
         this.evaluacionSuperior = evaluacionSuperior;
     }
 
-    public Long getIdUserDesagregar() {
-        return idUserDesagregar;
+    public Usuario getUsuarioDesagregar() {
+        return usuarioDesagregar;
     }
 
-    public void setIdUserDesagregar(Long idUserDesagregar) {
-        this.idUserDesagregar = idUserDesagregar;
+    public void setUsuarioDesagregar(Usuario usuarioDesagregar) {
+        this.usuarioDesagregar = usuarioDesagregar;
     }
 
     public Date getFechaDesagregar() {
@@ -229,12 +231,12 @@ public class Evaluacion implements Serializable {
         this.alumnoEvaluacion = alumnoEvaluacion;
     }
 
-    public List<Evaluacion> getEvaluacion() {
-        return evaluacion;
+    public List<Evaluacion> getEvaluaciones() {
+        return evaluaciones;
     }
 
-    public void setEvaluacion(List<Evaluacion> evaluacion) {
-        this.evaluacion = evaluacion;
+    public void setEvaluaciones(List<Evaluacion> evaluaciones) {
+        this.evaluaciones = evaluaciones;
     }
 
     public List<ReclamoNota> getReclamoNota() {
@@ -246,4 +248,3 @@ public class Evaluacion implements Serializable {
     }
 
 }
-

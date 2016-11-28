@@ -8,4 +8,6 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 public interface EvaluacionPlanDAO extends Crud<EvaluacionPlan> {
 
     List<EvaluacionPlan> allByDynatable(DynatableFilter filter, Long idPlanCalificacion);
+
+    List<EvaluacionPlan> allByFilter(Long idPlanCalificacion);
 }

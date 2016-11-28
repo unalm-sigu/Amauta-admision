@@ -5,5 +5,8 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 
 public interface EvaluacionSeccionDAO extends Crud<EvaluacionSeccion> {
 
-}
+    EvaluacionSeccion findByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion);
 
+    EvaluacionSeccion find(Long id);
+
+}

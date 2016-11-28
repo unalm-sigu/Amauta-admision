@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 
 @Entity
 @Table(name = "aca_grupo_seccion")
@@ -39,6 +40,10 @@ public class GrupoSeccion implements Serializable {
     private List<Seccion> secciones;
 
     public GrupoSeccion() {
+    }
+
+    public GrupoSeccion(Object id) {
+        this.id = TypesUtil.getLong(id);
     }
 
     public Long getId() {

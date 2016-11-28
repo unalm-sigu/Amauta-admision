@@ -14,6 +14,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Entity
 @Table(name = "aca_evaluacion_seccion")
@@ -94,6 +95,14 @@ public class EvaluacionSeccion implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public EstadoPlanCalificaEnum getEstadoEnum() {
+        return EstadoPlanCalificaEnum.valueOf(estado);
+    }
+
+    public void setEstadoEnum(EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        this.estado = estadoPlanCalificaEnum.name();
     }
 
     public Date getFechaAceptacion() {
