@@ -395,4 +395,11 @@ public class CargaAcademicaController {
         
         return "app/unalm/unalm";
     }
+    
+    @RequestMapping("detalleNotasAcademicas")
+    public String detalleNotasAcademicas(Model model, HttpSession session) {
+        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "app/academico/docente/cargaacademica/detalleNotasAcademicas";
+    }
 }
