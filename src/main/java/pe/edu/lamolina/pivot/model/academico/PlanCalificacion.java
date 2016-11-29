@@ -48,6 +48,9 @@ public class PlanCalificacion implements Serializable {
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
+    @Column(name = "sustento")
+    private String sustento;
+
     @Column(name = "observacion")
     private String observacion;
 
@@ -277,6 +280,14 @@ public class PlanCalificacion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public String getSustento() {
+        return sustento;
+    }
+
+    public void setSustento(String sustento) {
+        this.sustento = sustento;
     }
 
 }

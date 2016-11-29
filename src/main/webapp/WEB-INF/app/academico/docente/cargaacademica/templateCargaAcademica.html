@@ -1,5 +1,6 @@
 <tr rel="{{:index}}">
-    <td class="v-middle">
+    <td class="v-middle" style="{{:styleHijo}}" >
+
         <span class="block bold">{{:nombre}}</span>
         <span class="block">Código: {{:codigo}}</span>
         <span class="block">TPC: {{:tpc}}</span>
@@ -14,15 +15,15 @@
         <span class="block">{{:horasSemanales}}h</span>
     </td>
     <td class="text-center v-middle">
-        {{if estadoSistema=="CRE"}}
+        {{if estadoSistema=="PRO"}}
         <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{/if}}
 
-        {{if estadoSistema=="ACT"}}
+        {{if estadoSistema=="APR"}}
         <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
         <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
         {{/if}}
-        {{if estadoSistema=="APR"}}
+        {{if estadoSistema=="CER"}}
         <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
         <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
         {{/if}}

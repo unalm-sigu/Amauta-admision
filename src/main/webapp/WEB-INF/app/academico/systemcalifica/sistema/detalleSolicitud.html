@@ -61,9 +61,17 @@
     <span class="block"><strong>Sistema de Notas:</strong> <span th:text="${planCalificacion.sistemaNotas.nombre}">0 al 20</span></span>
 </div>
 
-<form>
-    <div class="form-group">
-        <label>Motivo de la Observación/Rechazo</label>
-        <textarea id="txtComentario" class="form-control" rows="2"></textarea>
-    </div>
-</form>
+<div class="form-group">
+    <label>Sustento</label>
+    <textarea id="txtSustento" name="sustento" 
+              th:text="${planCalificacion.sustento}"
+              readonly="true"
+              class="form-control"
+              rows="2"></textarea>
+</div>
+
+<div class="form-group">
+    <label>Motivo de la Observación/Rechazo</label>
+    <textarea id="txtComentario" name="observacion" th:value="${planCalificacion.observacion}" class="form-control" rows="2"></textarea>
+</div>
+

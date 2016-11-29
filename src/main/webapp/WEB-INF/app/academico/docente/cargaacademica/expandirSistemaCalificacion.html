@@ -1,57 +1,44 @@
 <html layout:decorator="zlayout/layout">
     <head>
         <title>Carga Academica</title>
-    </head>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
 
-    <body> 
-        <div layout:fragment="main">
-            <header class="page-header">        
-                <h2>Expandir  <span th:text="${planCalificacion.codigo}">Sistema de Calificación SC-33</span></h2>
-                <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Matemática Básica</span></span>
-                <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
-            </header>
+<body> 
+    <div layout:fragment="main">
+        <header class="page-header">      
+            <h2>Expandir  <span th:text="${planCalificacion.codigo}">Sistema de Calificación SC-33</span></h2>
+            <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Matemática Básica</span></span>
+            <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
+            <input id="txtPlanCalificaId" type="hidden" th:value="${planCalificacion.id}"/>
+            <input id="txtEvalSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
+        </header>
 
-            <section class="panel">
-                <section class="panel-body">
-                    <table class="table table-striped">
-                        <thead> 
-                            <tr class=""> 
-                                <th class="col-md-2">Código</th>
-                                <th class="col-md-6">Tipo Evaluación</th>
-                                <th class="col-md-3 text-center">Numero</th>
-                                <th class="col-md-1">Peso</th>
-                                <th class="v-middle"></th>
-                            </tr>
-                        </thead>
-                        <tbody >
-                            <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
-                                <td class="v-middle">
-                                    <span class="block" th:text="${evas.tipoEvaluacion.codigo}">EP</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block" th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block text-center" th:text="${evas.cantidadEvaluaciones}"></span>
-                                </td>
-                                <td class="v-middle">
-                                    <span class="block" th:text="${evas.pesoEvaluacion + ' %'}">20%</span>
-                                </td>
-                                <td class="v-middle text-center">
-                                    <a href="#" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
+        <section class="panel">
+            <section class="panel-body">
+                <table id="dynaTable" class="table table-striped">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-2">Código</th>
+                            <th class="col-md-6">Tipo Evaluación</th>
+                            <th class="col-md-3 text-center">Numero</th>
+                            <th class="col-md-1">Peso</th>
+                            <th class="v-middle"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </section>
+        </section>
 
-            <div th:substituteby="app/templates/modal"/>
-            <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>
-           
-        </div>
-        <div layout:fragment="js">
-            <script th:src="@{/app/academico/docente/cargaacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>
-        </div>
-    </body>
+        <div th:substituteby="app/templates/modal"/>
+        <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>
+        <script id="templateEvaluacionPlan" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateEvaluacionPlan"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/cargaacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>
+    </div>
+</body>
 </html>

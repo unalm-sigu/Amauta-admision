@@ -8,11 +8,13 @@ public enum EstadoPlanCalificaEnum {
     ACT("Activo"),
     INA("Inactivo"),
     APR("Aprobado"),
-    DES("Desaprobado"),
+    //DES("Desaprobado"),
     OBS("Observado"),
     SOL("Solicitado"),
     RHZ("Rechazado"),
-    REE("Reenviado");
+    REE("Reenviado"),
+    CER("Cerrado"),
+    PRO("Propuesto");
 
     private final String value;
     private static final Map<String, EstadoPlanCalificaEnum> lookup = new HashMap<>();

@@ -102,8 +102,24 @@ $(function () {
         },
         verNuevoSC: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/nuevo");
+            location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtSeccion").val());
         },
+        addTipoEvaluacion: function (e) {
+            e.preventDefault();
+            var record = {};
+            alert('entro');
+            var rowCount = $('#tblEvaluaciones tr').length;
+            record.index = rowCount - 1;
+            var html = $.templates("#templateNuevoSistemaCalificacion").render(record);
+
+            var tbody = $("#tbodyEvaluaciones");
+            tbody.append(html);
+
+            $(".item-select2").select2();
+            $(".item-select2").each(function () {
+                $(this).removeClass("item-select2");
+            });
+        }
     };
     $("body").delegate(".aceptar-sistema-calificacion", "click", function (e) {
         CargaAcademica.aceptarSistemaCalificacion($(this), e);
@@ -122,5 +138,9 @@ $(function () {
     });
     $("body").delegate(".new-sis-calificacion", "click", function (e) {
         CargaAcademica.verNuevoSC(e);
+    });
+
+    $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
+        CargaAcademica.addTipoEvaluacion(e);
     });
 });

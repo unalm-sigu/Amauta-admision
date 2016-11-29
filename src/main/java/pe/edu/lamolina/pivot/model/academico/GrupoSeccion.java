@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Entity
 @Table(name = "aca_grupo_seccion")
@@ -35,10 +37,17 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "orden")
     private Integer orden;
 
+    @Column(name = "estado_plan")
+    private String estadoPlan;
+
     @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
     private List<Seccion> secciones;
 
     public GrupoSeccion() {
+    }
+
+    public GrupoSeccion(Object id) {
+        this.id = TypesUtil.getLong(id);
     }
 
     public Long getId() {
@@ -87,6 +96,22 @@ public class GrupoSeccion implements Serializable {
 
     public void setSecciones(List<Seccion> secciones) {
         this.secciones = secciones;
+    }
+
+    public String getEstadoPlan() {
+        return estadoPlan;
+    }
+
+    public void setEstadoPlan(String estadoPlan) {
+        this.estadoPlan = estadoPlan;
+    }
+
+    public EstadoPlanCalificaEnum getEstadoPlanEnum() {
+        return EstadoPlanCalificaEnum.valueOf(estadoPlan);
+    }
+
+    public void setEstadoPlanEnum(EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        this.estadoPlan = estadoPlanCalificaEnum.name();
     }
 
 }

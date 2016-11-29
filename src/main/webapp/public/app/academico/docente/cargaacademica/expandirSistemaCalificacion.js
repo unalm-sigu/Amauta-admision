@@ -1,21 +1,46 @@
 $(function () {
 
+    var dynatable = $('#dynaTable').dynatable({
+        dataset: {
+            ajaxUrl: APP.url('academico/docente/cargaacademica/listEvaluacionPlan'),
+            perPageDefault: 10,
+            ajaxData: {evaluacionSeccion: $("#txtEvalSeccionId").val()}
+        },
+        writers: {
+            _rowWriter: ulWriter
+        },
+        table: {
+            bodyRowSelector: 'tbody tr'
+        }
+    }).data('dynatable');
+
+    function ulWriter(rowIndex, record, columns, cellWriter) {
+        var colorEstado = {CRE: "default", ACT: "success", INA: "danger", APR: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
+        record.colorEstado = colorEstado[record.estado];
+        record.index = rowIndex;
+        if (record.esHijo) {
+            record.styleHijo = 'padding-left:90px;';
+        }
+        var html = $.templates("#templateEvaluacionPlan").render(record);
+        return html;
+    }
+
     ExpandirSCN = {
         expandirEvaluacion: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
-
             MODAL.hide();
             MODAL.init("lg");
             MODAL.title("Expandir Evaluación");
             MODAL.show();
-            MODAL.buttons('<a class="btn btn-success" id="cmbAceptar">Aceptar</a>');
+            MODAL.buttons('<a class="btn btn-success grabar-expansion" id="cmbAceptar">Aceptar</a>');
 
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/detalleExpandirEvaluacion'),
                 type: 'POST',
                 async: false,
+                data: {evaluacion: idx},
                 success: function (response) {
                     MODAL.body(response);
                 },
@@ -56,6 +81,45 @@ $(function () {
                     }
                 }
             });
+        }, saveExpandir: function () {
+            bootbox.confirm({
+                message: "¿Está seguro que desea expandir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        var form = $("[id='frmExpandirEvals']");
+
+                        form.parsley().destroy();
+                        form.parsley();
+                        if (!form.parsley().validate()) {
+                            return;
+                        }
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/saveExpandir'),
+                            type: 'POST',
+                            async: true,
+                            data: form.serialize(),
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hide();
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
+                    }
+                }
+            });
         }
     };
 
@@ -71,5 +135,8 @@ $(function () {
         ExpandirSCN.deleteTipoEvaluacion($(this), e);
     });
 
+    $("body").delegate(".grabar-expansion", "click", function (e) {
+        ExpandirSCN.saveExpandir();
+    });
 
 });
