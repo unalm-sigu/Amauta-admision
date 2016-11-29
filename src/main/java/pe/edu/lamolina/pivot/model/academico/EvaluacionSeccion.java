@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.model.academico;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -47,8 +48,8 @@ public class EvaluacionSeccion implements Serializable {
     @JoinColumn(name = "id_sistema_notas")
     private SistemaNotas sistemaNotas;
 
-    @OneToMany(mappedBy = "evaluacionSeccion", fetch = FetchType.LAZY)
-    private List<Evaluacion> evaluacion;
+    @OneToMany(mappedBy = "evaluacionSeccion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Evaluacion> evaluaciones;
 
     public EvaluacionSeccion() {
     }
@@ -121,12 +122,12 @@ public class EvaluacionSeccion implements Serializable {
         this.idUserAceptacion = idUserAceptacion;
     }
 
-    public List<Evaluacion> getEvaluacion() {
-        return evaluacion;
+    public List<Evaluacion> getEvaluaciones() {
+        return evaluaciones;
     }
 
-    public void setEvaluacion(List<Evaluacion> evaluacion) {
-        this.evaluacion = evaluacion;
+    public void setEvaluaciones(List<Evaluacion> evaluaciones) {
+        this.evaluaciones = evaluaciones;
     }
 
 }
