@@ -133,8 +133,23 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("Lista de secciones por docente {}", lstDocenteSeccion.size());
         for (DocenteSeccion docenteSeccion : lstDocenteSeccion) {
 
-            Long idGrupoSeccion = docenteSeccion.getSeccion().getGrupoSeccion().getId();
-            Long idPlanCalificacion = docenteSeccion.getSeccion().getGrupoSeccion().getCurso().getPlanCalificacion().getId();
+            GrupoSeccion grupoSeccion = docenteSeccion.getSeccion().getGrupoSeccion();
+
+            if (grupoSeccion.getEstadoPlan() != null) {
+                continue;
+            }
+
+            Curso curso = docenteSeccion.getSeccion().getGrupoSeccion().getCurso();
+
+            if (curso.getPlanCalificacion() == null) {
+                continue;
+            }
+
+            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PRO);
+            grupoSeccionDAO.update(grupoSeccion);
+
+            Long idGrupoSeccion = grupoSeccion.getId();
+            Long idPlanCalificacion = curso.getPlanCalificacion().getId();
 
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion);
             logger.debug("Encontro la evaluacion seccion : {}", evaluacionSeccion);
@@ -194,7 +209,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void saveSistemaCalifica(PlanCalificacion planCalificacion) {
+    public void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId) {
 
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.SOL);
         planCalificacion.setFechaRegistro(new Date());

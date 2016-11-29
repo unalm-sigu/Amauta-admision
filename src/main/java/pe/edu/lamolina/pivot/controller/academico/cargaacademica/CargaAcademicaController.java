@@ -268,6 +268,7 @@ public class CargaAcademicaController {
         PlanCalificacion planCalificacion = new PlanCalificacion();
         
         model.addAttribute("planCalificacion", planCalificacion);
+        model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("tipoEvaluaciones", cargaAcademicaService.allTipoEvaluacion());
         model.addAttribute("sistemasNotas", cargaAcademicaService.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEnum.values());
@@ -309,18 +310,19 @@ public class CargaAcademicaController {
     
     @ResponseBody
     @RequestMapping("saveSistema")
-    public JsonResponse saveSistema(@ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
+    public JsonResponse saveSistema(@ModelAttribute("grupoSeccionId") Long grupoSeccionId,
+            @ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
             RedirectAttributes redirectAttr, HttpSession session) {
         
         JsonResponse response = new JsonResponse();
         try {
             DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+            logger.debug("Grupo Seccon Id {}", grupoSeccionId);
             String message = "";
             if (planCalificacion.getId() == null) {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
-                cargaAcademicaService.saveSistemaCalifica(planCalificacion);
+                cargaAcademicaService.saveSistemaCalifica(planCalificacion, 1L);
                 message = "Creado exitosamente.";
                 
             } else {
@@ -399,7 +401,7 @@ public class CargaAcademicaController {
     @RequestMapping("detalleNotasAcademicas")
     public String detalleNotasAcademicas(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         return "app/academico/docente/cargaacademica/detalleNotasAcademicas";
     }
 }

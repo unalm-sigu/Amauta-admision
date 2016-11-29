@@ -53,6 +53,6 @@ public interface CargaAcademicaService {
 
     List<SistemaNotas> allSistemasNotas();
 
-    void saveSistemaCalifica(PlanCalificacion planCalificacion);
+    void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId);
 
 }
