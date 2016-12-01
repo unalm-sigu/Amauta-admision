@@ -59,4 +59,12 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
         sqlUtil.filter("doc.id", docente.getId());
         return this.all(sqlUtil);
     }
+
+    @Override
+    public DocenteSeccion find(Long id) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
+        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs");
+        sqlUtil.filter("dc.id", id);
+        return this.find(sqlUtil);
+    }
 }
