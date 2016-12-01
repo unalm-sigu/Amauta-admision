@@ -406,6 +406,7 @@ public class CargaAcademicaController {
         model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", docenteSeccion.getSeccion());
         model.addAttribute("grupoSeccion", docenteSeccion.getSeccion().getGrupoSeccion());
+        model.addAttribute("grupoSeccion",cargaAcademicaService.find);
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }

@@ -63,4 +63,6 @@ public interface CargaAcademicaService {
 
     DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);
 
+    List<Evaluacion> allEvaluacionByGrupoSeccion(Long idGrupoSeccion);
+
 }

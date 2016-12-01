@@ -388,8 +388,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         return docenteSeccionDAO.find(idDocenteSeccion);
     }
 
-    public List<Evaluacion> findByGrupoSeccion(Long idGrupoSeccion) {
-        return null;
+    @Override
+    public List<Evaluacion> allEvaluacionByGrupoSeccion(Long idGrupoSeccion) {
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion);
+        return evaluacionDAO.allByFilter(evaluacionSeccion.getId());
     }
 
     public List<Evaluacion> findBySeccion(Long idSeccion) {
