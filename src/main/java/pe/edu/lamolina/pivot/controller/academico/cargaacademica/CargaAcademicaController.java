@@ -82,6 +82,7 @@ public class CargaAcademicaController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("docente", ds.getDocente());
         cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente());
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/docente/cargaacademica/cargaAcademica";
     }
 

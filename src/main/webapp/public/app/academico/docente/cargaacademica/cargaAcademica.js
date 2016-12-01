@@ -164,6 +164,8 @@ $(function () {
             });
         },
         aceptarRechazo: function (e) {
+
+
             bootbox.confirm({
                 message: "¿Está seguro que desea rechazar?",
                 buttons: {
@@ -227,10 +229,6 @@ $(function () {
 
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
         CargaAcademica.addTipoEvaluacion(e);
-    });
-
-    $("body").delegate("#cmbRechazar", "click", function (e) {
-        CargaAcademica.aceptarRechazo();
     });
 
 
