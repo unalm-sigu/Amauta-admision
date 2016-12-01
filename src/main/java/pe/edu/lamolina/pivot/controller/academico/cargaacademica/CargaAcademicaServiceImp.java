@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -382,6 +381,19 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
         }
 
+    }
+
+    @Override
+    public DocenteSeccion findDocenteSeccion(Long idDocenteSeccion) {
+        return docenteSeccionDAO.find(idDocenteSeccion);
+    }
+
+    public List<Evaluacion> findByGrupoSeccion(Long idGrupoSeccion) {
+        return null;
+    }
+
+    public List<Evaluacion> findBySeccion(Long idSeccion) {
+        return null;
     }
 
 }

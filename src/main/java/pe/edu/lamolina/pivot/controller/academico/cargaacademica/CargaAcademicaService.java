@@ -61,4 +61,6 @@ public interface CargaAcademicaService {
 
     void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSession ds);
 
+    DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);
+
 }

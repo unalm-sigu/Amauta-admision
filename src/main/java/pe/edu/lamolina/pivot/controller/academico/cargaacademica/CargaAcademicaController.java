@@ -30,6 +30,7 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
@@ -111,6 +112,7 @@ public class CargaAcademicaController {
                 PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
 
                 node.put("id", docSeccion.getSeccion().getId());
+                node.put("docenteSeccion", docSeccion.getId());
                 node.put("idCurso", docSeccion.getSeccion().getGrupoSeccion().getCurso().getId());
                 node.put("idSistemaCalificacion", planCalificacion != null ? planCalificacion.getId().toString() : "");
                 node.put("sistemaCalificacion", planCalificacion != null ? planCalificacion.getCodigo() : "");
@@ -388,9 +390,22 @@ public class CargaAcademicaController {
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
     }
 
-    @RequestMapping("{cargaAcademica}/notasAcademicas")
-    public String notasAcademicas(@PathVariable("cargaAcademica") Long idCargaAcademica, Model model, HttpSession session) {
+    @RequestMapping("{docenteSeccion}/{curso}/notasAcademicas")
+    public String notasAcademicas(
+            @PathVariable("docenteSeccion") Long idDocenteSeccion,
+            @PathVariable("curso") Long idCurso,
+            Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        logger.debug("el idDocenteSeccion {}", idDocenteSeccion);
+        logger.debug("el idCurso {}", idCurso);
+
+        Curso curso = cargaAcademicaService.findCurso(idCurso);
+        DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
+
+        model.addAttribute("curso", curso);
+        model.addAttribute("docenteSeccion", docenteSeccion);
+        model.addAttribute("seccion", docenteSeccion.getSeccion());
+        model.addAttribute("grupoSeccion", docenteSeccion.getSeccion().getGrupoSeccion());
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
