@@ -82,11 +82,8 @@ public class SistemaServiceImp implements SistemaService {
     @Transactional
     public void saveSistemaCalifica(PlanCalificacion planCalificacion) {
 
-        DepartamentoAcademico departamentoAcademico = departamentoAcademicoDAO.find(1L);
-
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
-        planCalificacion.setDepartamentoAcademico(departamentoAcademico);
 
         Integer totalWeight = BigDecimal.ZERO.intValue();
         Boolean errorPesoEvaluacion = Boolean.FALSE;
@@ -116,8 +113,8 @@ public class SistemaServiceImp implements SistemaService {
     }
 
     @Override
-    public List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter) {
-        return planCalificacionDAO.allByDynatable(dynatableFilter);
+    public List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DepartamentoAcademico dpto) {
+        return planCalificacionDAO.allByDynatable(dynatableFilter, dpto);
     }
 
     @Override

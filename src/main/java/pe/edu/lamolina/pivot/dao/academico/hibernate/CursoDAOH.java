@@ -35,7 +35,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         sql.append(" left join fetch cur.departamentoAcademico da ");
         sql.append(" left join fetch cur.planCalificacion pc ");
         sql.append(" where 1=1 ");
-        sql.append("  and    pc.id != :PLAN_CAL ");
+        sql.append("  and   ( cur.planCalificacion.id != :PLAN_CAL or cur.planCalificacion is null) ");
         sql.append("  and    da.id = :DEP_ACA ");
         sql.append("  and    cur.nombre like :NOMBRE ");
         sql.append(" order by cur.nombre ");
@@ -60,7 +60,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         filter.setParents("planCalificacion pc", "departamentoAcademico da");
 
         filter.filterFix("pc.id", idPlanCalificacion);
-        // filter.filterFix("da.id", idDepartamentoAcademico);
+        filter.filterFix("da.id", idDepartamentoAcademico);
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));

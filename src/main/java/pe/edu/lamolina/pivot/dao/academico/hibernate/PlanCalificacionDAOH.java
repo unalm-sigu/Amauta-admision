@@ -10,6 +10,7 @@ import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 
 @Repository
@@ -21,13 +22,17 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
     }
 
     @Override
-    public List<PlanCalificacion> allByDynatable(DynatableFilter filter) {
-        filter.setAlias("pc");
+    public List<PlanCalificacion> allByDynatable(DynatableFilter filter, DepartamentoAcademico dpto) {
         filter.setFields(Arrays.asList("pc.formula"));
+        filter.setAlias("pc");
+        filter.setParents("departamentoAcademico da", "left sistemaNotas sn");
+        filter.filterFix("da.id", dpto.getId());
+
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));
 
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
+        sqlUtil.parents(filter.getParents());
 
         Map filtersFix = filter.getFiltersFixed();
         for (Object key : filtersFix.keySet()) {

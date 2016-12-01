@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 public interface UsuarioDAO extends Crud<Usuario> {
 
-}
+    Usuario findByEmail(String email);
 
+}
