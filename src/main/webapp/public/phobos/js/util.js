@@ -426,12 +426,13 @@ APP = {
 
 MESSAGES = {
     errorComunicacion: 'Error de conexión con el servidor.',
-    confirmDelete: '¿Seguro que desea eliminar el registro?',
-    confirmActive: '¿Seguro que desea activar el registro?',
-    confirmDesActive: '¿Seguro que desea desactivar el registro?',
-    confirmReject: '¿Seguro que desea rechazar el registro?',
-    confirmApprove: '¿Seguro que desea aprobar el registro?',
-    confirmObserve: '¿Seguro que desea observar el registro?'
+    confirmDelete: '¿Seguro que desea eliminar?',
+    confirmActive: '¿Seguro que desea activar?',
+    confirmDesActive: '¿Seguro que desea desactivar?',
+    confirmReject: '¿Seguro que desea rechazar?',
+    confirmApprove: '¿Seguro que desea aprobar?',
+    confirmObserve: '¿Seguro que desea observar?',
+    confirmAccept: '¿Seguro que desea aceptar?',
 };
 
 

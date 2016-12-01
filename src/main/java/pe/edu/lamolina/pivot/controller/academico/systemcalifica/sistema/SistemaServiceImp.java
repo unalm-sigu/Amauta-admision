@@ -11,17 +11,25 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionPlanDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SistemaNotasDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Service
@@ -42,6 +50,24 @@ public class SistemaServiceImp implements SistemaService {
     @Autowired
     CursoDAO cursoDAO;
 
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
+
+    @Autowired
+    EvaluacionSeccionDAO evaluacionSeccionDAO;
+
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
+
+    @Autowired
+    EvaluacionPlanDAO evaluacionPlanDAO;
+
+    @Autowired
+    EvaluacionDAO evaluacionDAO;
+
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
         return tipoEvaluacionDAO.all();
@@ -56,9 +82,11 @@ public class SistemaServiceImp implements SistemaService {
     @Transactional
     public void saveSistemaCalifica(PlanCalificacion planCalificacion) {
 
+        DepartamentoAcademico departamentoAcademico = departamentoAcademicoDAO.find(1L);
+
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
-        planCalificacion.setDepartamentoAcademico(new DepartamentoAcademico(1));
+        planCalificacion.setDepartamentoAcademico(departamentoAcademico);
 
         Integer totalWeight = BigDecimal.ZERO.intValue();
         Boolean errorPesoEvaluacion = Boolean.FALSE;
@@ -81,6 +109,9 @@ public class SistemaServiceImp implements SistemaService {
         Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());
         maxNumeroCorrelativo = maxNumeroCorrelativo + 1;
         planCalificacion.setNumero(maxNumeroCorrelativo);
+
+        planCalificacion.generateCodigo();
+
         planCalificacionDAO.save(planCalificacion);
     }
 
@@ -100,15 +131,51 @@ public class SistemaServiceImp implements SistemaService {
         PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
         planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);
         planCalificacion.setObservacion(observacion);
+        if (EstadoPlanCalificaEnum.ACEP.equals(estadoPlanCalificaEnum)) {
+            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null);
+            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+            evaluacionSeccionDAO.update(evaluacionSeccion);
+
+            GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacionSeccion.getGrupoSeccion().getId());
+            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.ACEP);
+            grupoSeccion.setPlanCalificacion(planCalificacion);
+            grupoSeccionDAO.update(grupoSeccion);
+
+            List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
+            logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
+            List<EvaluacionPlan> planEvaluaciones = evaluacionPlanDAO.allByFilter(idPLanCalificacion);
+            logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", idPLanCalificacion, planEvaluaciones.size());
+            for (Seccion seccion : secciones) {
+                for (EvaluacionPlan evaluacionPlan : planEvaluaciones) {
+                    logger.debug("Seccion Tipo {}", seccion.getTipoSeccionEnum().name());
+                    logger.debug("Tipo evaluacion en seccion {}", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+                    logger.debug("Tipo Evaluacion {}", evaluacionPlan.getTipoSeccionEnum().name());
+                    if (seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+                            evaluacionPlan.getTipoSeccionEnum())) {
+                        Evaluacion evaluacion = new Evaluacion();
+                        evaluacion.create(evaluacionSeccion, evaluacionPlan);
+                        evaluacionDAO.save(evaluacion);
+                    }
+                }
+            }
+
+        } else if (EstadoPlanCalificaEnum.RHZ.equals(estadoPlanCalificaEnum)) {
+            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null);
+            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.RHZ);
+            evaluacionSeccionDAO.update(evaluacionSeccion);
+
+            GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacionSeccion.getGrupoSeccion().getId());
+            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.RHZ);
+            grupoSeccion.setPlanCalificacion(planCalificacion);
+            grupoSeccionDAO.update(grupoSeccion);
+        }
         planCalificacionDAO.update(planCalificacion);
     }
 
     @Override
     @Transactional
     public void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
-        PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
-        planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);
-        planCalificacionDAO.update(planCalificacion);
+        changeStatePlanCalificacion(idPLanCalificacion, null, estadoPlanCalificaEnum);
     }
 
     @Override

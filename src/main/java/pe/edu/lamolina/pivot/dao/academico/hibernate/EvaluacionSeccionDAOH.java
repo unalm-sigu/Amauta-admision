@@ -18,8 +18,12 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
     public EvaluacionSeccion findByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es");
         sqlUtil.parents("planCalificacion pc", "grupoSeccion gs");
-        sqlUtil.filter("pc.id", idPlanCalificacion);
-        sqlUtil.filter("gs.id", idGrupoSeccion);
+        if (idPlanCalificacion != null) {
+            sqlUtil.filter("pc.id", idPlanCalificacion);
+        }
+        if (idGrupoSeccion != null) {
+            sqlUtil.filter("gs.id", idGrupoSeccion);
+        }
         return this.find(sqlUtil);
     }
 

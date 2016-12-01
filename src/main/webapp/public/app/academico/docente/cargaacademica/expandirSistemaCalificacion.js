@@ -120,6 +120,40 @@ $(function () {
                     }
                 }
             });
+        }, aceptarExpansion: function (el) {
+            bootbox.confirm({
+                message: MESSAGES.confirmAccept,
+                title: 'Aceptar Expansión',
+                buttons: {
+                    confirm: {label: 'Aceptar'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/aceptarExpansion'),
+                            type: 'POST',
+                            async: true,
+                            data: {evaluacionSeccionId: $("#txtEvalSeccionId").val()},
+                            success: function (response) {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    location.href = APP.url("academico/docente/cargaacademica");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -138,5 +172,11 @@ $(function () {
     $("body").delegate(".grabar-expansion", "click", function (e) {
         ExpandirSCN.saveExpandir();
     });
+
+    $("body").delegate("#btnAceptarExp", "click", function (e) {
+        ExpandirSCN.aceptarExpansion()
+    });
+
+
 
 });

@@ -11,7 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Entity
 @Table(name = "aca_evaluacion_plan")
@@ -119,8 +119,8 @@ public class EvaluacionPlan implements Serializable {
         this.tipoSeccion = tipoSeccion;
     }
 
-    public TipoSeccionEnum getTipoSeccionEnum() {
-        return TipoSeccionEnum.valueOf(tipoSeccion);
+    public TipoSeccionEvalEnum getTipoSeccionEnum() {
+        return TipoSeccionEvalEnum.valueOf(tipoSeccion);
     }
 
     public Integer getNotaMinimaAnulable() {

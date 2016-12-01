@@ -23,7 +23,7 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
         filter.setAlias("dc");
         filter.setParents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc");
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
         filter.filterFix("doc.id", docente.getId());
 
         filter.setTotal(this.count(filter));
@@ -55,7 +55,7 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     public List<DocenteSeccion> allByDocente(Docente docente) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
         sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc");
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
         sqlUtil.filter("doc.id", docente.getId());
         return this.all(sqlUtil);
     }

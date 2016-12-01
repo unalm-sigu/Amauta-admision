@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
@@ -42,6 +43,10 @@ public class GrupoSeccion implements Serializable {
 
     @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
     private List<Seccion> secciones;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_plan_calificacion")
+    private PlanCalificacion planCalificacion;
 
     public GrupoSeccion() {
     }
@@ -107,11 +112,78 @@ public class GrupoSeccion implements Serializable {
     }
 
     public EstadoPlanCalificaEnum getEstadoPlanEnum() {
+        if (StringUtils.isEmpty(estadoPlan)) {
+            return null;
+        }
         return EstadoPlanCalificaEnum.valueOf(estadoPlan);
     }
 
     public void setEstadoPlanEnum(EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         this.estadoPlan = estadoPlanCalificaEnum.name();
+    }
+
+    public PlanCalificacion getPlanCalificacion() {
+        return planCalificacion;
+    }
+
+    public void setPlanCalificacion(PlanCalificacion planCalificacion) {
+        this.planCalificacion = planCalificacion;
+    }
+
+    public boolean isEstadoSolicitado() {
+        if (EstadoPlanCalificaEnum.SOL.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoExpandido() {
+        if (EstadoPlanCalificaEnum.EXP.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoExpandir() {
+        if (EstadoPlanCalificaEnum.EXPR.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoReenviado() {
+        if (EstadoPlanCalificaEnum.REE.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoCreado() {
+        if (EstadoPlanCalificaEnum.CRE.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoPropuesto() {
+        if (EstadoPlanCalificaEnum.PRO.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoActivado() {
+        if (EstadoPlanCalificaEnum.ACT.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoObservado() {
+        if (EstadoPlanCalificaEnum.OBS.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
     }
 
 }

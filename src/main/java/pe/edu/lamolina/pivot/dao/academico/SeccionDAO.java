@@ -12,4 +12,6 @@ public interface SeccionDAO extends Crud<Seccion> {
 
     public Seccion find(Long idSeccion);
 
+    List<Seccion> allByFilter(Long idGrupo);
+
 }

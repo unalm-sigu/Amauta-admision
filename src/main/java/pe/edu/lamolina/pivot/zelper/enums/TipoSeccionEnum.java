@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoSeccionEnum {
-
-    TEO("Teória"), PRAC("Práctica");
+    PRA("Práctica", TipoSeccionEvalEnum.PRAC), PCUR("Práctica Curso", TipoSeccionEvalEnum.PRAC),
+    TCUR("Teoría Curso", TipoSeccionEvalEnum.TEO), TEO("Teoría", TipoSeccionEvalEnum.TEO);
 
     private final String value;
+    private final TipoSeccionEvalEnum tipoSeccionEvalEnum;
     private static final Map<String, TipoSeccionEnum> lookup = new HashMap<>();
 
     static {
@@ -16,12 +17,17 @@ public enum TipoSeccionEnum {
         }
     }
 
-    private TipoSeccionEnum(String value) {
+    private TipoSeccionEnum(String value, TipoSeccionEvalEnum tipoSeccionEvalEnum) {
         this.value = value;
+        this.tipoSeccionEvalEnum = tipoSeccionEvalEnum;
     }
 
     public String getValue() {
         return value;
+    }
+
+    public TipoSeccionEvalEnum getTipoSeccionEvalEnum() {
+        return tipoSeccionEvalEnum;
     }
 
     public static TipoSeccionEnum get(String abbreviation) {
@@ -37,4 +43,5 @@ public enum TipoSeccionEnum {
         }
         return nombre;
     }
+
 }

@@ -55,4 +55,10 @@ public interface CargaAcademicaService {
 
     void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId);
 
+    void aceptarExpansion(Long evaluacionSeccionId, DataSession ds);
+
+    void aceptarRechazo(Long cursoId, Long seccionId, DataSession ds);
+
+    void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSession ds);
+
 }

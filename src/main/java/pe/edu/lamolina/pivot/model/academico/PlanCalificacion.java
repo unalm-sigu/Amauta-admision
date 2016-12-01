@@ -22,7 +22,7 @@ import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 @Table(name = "aca_plan_calificacion")
 public class PlanCalificacion implements Serializable {
 
-    private static String PREFIJO_CODIGO = "SC";
+    public static String PREFIJO_CODIGO = "SC";
 
     @Id
     @GeneratedValue
@@ -41,6 +41,9 @@ public class PlanCalificacion implements Serializable {
 
     @Column(name = "nota_base")
     private Integer notaBase;
+
+    @Column(name = "codigo")
+    private String codigo;
 
     @Column(name = "formula")
     private String formula;
@@ -240,15 +243,22 @@ public class PlanCalificacion implements Serializable {
         this.origen = origenPlanCalificaEnum.name();
     }
 
-    public String getCodigo() {
-        StringBuilder codigo = new StringBuilder(PREFIJO_CODIGO);
-        codigo.append(String.format("%05d", numero));
-        codigo.append(this.getDepartamentoAcademico().getCodigo());
-        return codigo.toString();
-    }
-
     public boolean isEstadoSolicitado() {
         if (EstadoPlanCalificaEnum.SOL.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoExpandido() {
+        if (EstadoPlanCalificaEnum.EXP.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoExpandir() {
+        if (EstadoPlanCalificaEnum.EXPR.name().equals(estado)) {
             return true;
         }
         return false;
@@ -263,6 +273,13 @@ public class PlanCalificacion implements Serializable {
 
     public boolean isEstadoCreado() {
         if (EstadoPlanCalificaEnum.CRE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoPropuesto() {
+        if (EstadoPlanCalificaEnum.PRO.name().equals(estado)) {
             return true;
         }
         return false;
@@ -288,6 +305,21 @@ public class PlanCalificacion implements Serializable {
 
     public void setSustento(String sustento) {
         this.sustento = sustento;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public void generateCodigo() {
+        StringBuilder codigoGen = new StringBuilder(PlanCalificacion.PREFIJO_CODIGO);
+        codigoGen.append(String.format("%05d", this.getNumero()));
+        codigoGen.append(this.getDepartamentoAcademico().getCodigo());
+        this.codigo = codigoGen.toString();
     }
 
 }

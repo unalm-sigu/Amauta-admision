@@ -11,7 +11,7 @@
             <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Matemática Básica</span></span>
             <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
             <input id="txtPlanCalificaId" type="hidden" th:value="${planCalificacion.id}"/>
-            <input id="txtEvalSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
+            <input id="txtEvalSeccionId" name="evaluacionSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
         </header>
 
         <section class="panel">
@@ -31,6 +31,15 @@
                 </table>
             </section>
         </section>
+
+        <div class="line line-dashed b-b line-lg pull-in"></div>
+
+        <div class="form-group">
+            <div class="text-center">
+                <button id="btnAceptarExp" class="btn btn-sm btn-primary">Aceptar</button>
+                <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-link">Regresar</a>
+            </div>
+        </div>
 
         <div th:substituteby="app/templates/modal"/>
         <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>

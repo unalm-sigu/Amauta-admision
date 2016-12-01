@@ -16,6 +16,8 @@ import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Entity
 @Table(name = "aca_seccion")
@@ -118,6 +120,14 @@ public class Seccion implements Serializable {
 
     public void setTipoSeccion(String tipoSeccion) {
         this.tipoSeccion = tipoSeccion;
+    }
+
+    public TipoSeccionEnum getTipoSeccionEnum() {
+        return TipoSeccionEnum.valueOf(tipoSeccion);
+    }
+
+    public void setTipoSeccionEnum(TipoSeccionEnum tipoSeccionEnum) {
+        this.tipoSeccion = tipoSeccionEnum.name();
     }
 
     public Integer getEsPrincipal() {

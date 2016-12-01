@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -245,6 +246,17 @@ public class Evaluacion implements Serializable {
 
     public void setReclamoNota(List<ReclamoNota> reclamoNota) {
         this.reclamoNota = reclamoNota;
+    }
+
+    public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan) {
+        this.setAlumnoEvaluacion(null);
+        this.setEvaluacionSeccion(evalSeccion);
+        this.setTipoEvaluacion(evaluacionPlan.getTipoEvaluacion());
+        this.setEstaDesagregado(BigDecimal.ZERO.intValue());
+        this.setEvaluacionSuperior(null);
+        this.setEvaluaciones(null);
+        this.setEvaluados(BigDecimal.ZERO.intValue());
+        this.setPeso(evaluacionPlan.getPesoTotal());
     }
 
 }

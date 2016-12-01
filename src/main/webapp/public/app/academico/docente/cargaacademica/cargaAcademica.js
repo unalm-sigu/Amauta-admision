@@ -33,10 +33,14 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Sistema de Calificación " + rec.sistemaCalificacion);
             MODAL.show();
-            MODAL.buttons(
-                    '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
-                    '<a class="btn btn-warning expandir-sistema" href="#">Expandir</a>' +
-                    '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
+            if (rec.estadoSistema == 'RHZ') {
+                MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
+            } else {
+                MODAL.buttons(
+                        '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
+                        '<a class="btn btn-warning expandir-sistema" href="#">Expandir</a>' +
+                        '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
+            }
 
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/' + rec.id + '/detalleSistemaCalificacion'),
@@ -81,16 +85,55 @@ $(function () {
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 }, callback: function (result) {
                     if (result) {
-                        alert("gut");
-                    } else {
-                        alert("weas");
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/aceptarPropuesta'),
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                cursoId: $("#txtCurso").val(),
+                                seccionId: $("#txtSeccion").val()
+                            },
+                            success: function (response) {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+
+        },
+        expandirSistema: function (e) {
+            e.preventDefault();
+            bootbox.confirm({
+                message: "¿Está seguro que desea expandir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                }, callback: function (result) {
+                    if (result) {
+                        location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtSeccion").val());
                     }
                 }
             });
         },
-        expandirSistema: function (e) {
+        aceptarExpandirSistema: function ($this, e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/expandir/" + $("#txtSeccion").val());
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+            location.href = APP.url("academico/docente/cargaacademica/expandir/" + rec.idSeccion);
         },
         notasAcademicas: function ($this, e) {
             e.preventDefault();
@@ -107,7 +150,7 @@ $(function () {
         addTipoEvaluacion: function (e) {
             e.preventDefault();
             var record = {};
-            alert('entro');
+
             var rowCount = $('#tblEvaluaciones tr').length;
             record.index = rowCount - 1;
             var html = $.templates("#templateNuevoSistemaCalificacion").render(record);
@@ -118,6 +161,42 @@ $(function () {
             $(".item-select2").select2();
             $(".item-select2").each(function () {
                 $(this).removeClass("item-select2");
+            });
+        },
+        aceptarRechazo: function (e) {
+            bootbox.confirm({
+                message: "¿Está seguro que desea rechazar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                }, callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/aceptarRechazo'),
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                cursoId: $("#txtCurso").val(),
+                                seccionId: $("#txtSeccion").val()
+                            },
+                            success: function (response) {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
             });
         }
     };
@@ -130,8 +209,14 @@ $(function () {
     $("body").delegate("#cmbAceptar", "click", function (e) {
         CargaAcademica.confirmaSistemaCalificacion($(this), e);
     });
+    $("body").delegate("#cmbRechazar", "click", function (e) {
+        CargaAcademica.aceptarRechazo($(this), e);
+    });
     $("body").delegate(".expandir-sistema", "click", function (e) {
         CargaAcademica.expandirSistema(e);
+    });
+    $("body").delegate(".aceptar-expandir-sistema", "click", function (e) {
+        CargaAcademica.aceptarExpandirSistema($(this), e);
     });
     $("body").delegate(".notas-academicas", "click", function (e) {
         CargaAcademica.notasAcademicas($(this), e);
@@ -143,4 +228,10 @@ $(function () {
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
         CargaAcademica.addTipoEvaluacion(e);
     });
+
+    $("body").delegate("#cmbRechazar", "click", function (e) {
+        CargaAcademica.aceptarRechazo();
+    });
+
+
 });

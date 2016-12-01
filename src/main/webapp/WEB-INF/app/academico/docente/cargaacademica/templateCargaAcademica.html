@@ -18,29 +18,44 @@
         {{if estadoSistema=="PRO"}}
         <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{/if}}
+        {{if estadoSistema=="SOL"}}
+        <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
+        {{/if}} 
 
-        {{if estadoSistema=="APR"}}
+        {{if estadoSistema=="ACEP"}}
         <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
         <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
+        {{/if}}
+        {{if estadoSistema=="RHZ"}}
+        <span class="block"><a href="#" class="aceptar-sistema-calificacion">Rechazado</a></span>
         {{/if}}
         {{if estadoSistema=="CER"}}
         <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
         <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
         {{/if}}
+
     </td>
     <td class="text-center v-middle">
-        <span class="label label-default">Cerrado</span>
+        <span class="label label-default">{{:estadoSistemaEnum}}</span>
     </td>
     <td class="text-center v-middle">
         <div class="dropdown actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >
+                {{if estadoSistema=="EXPR"}}
+                <li role="presentation">
+                    <a class="aceptar-expandir-sistema" href="#">Ver Expansión</a>
+                </li>
+                {{/if}}
+                {{if verAceptarSistemaCal}}
                 <li role="presentation">
                     <a class="aceptar-sistema-calificacion" href="#">Aceptar Sist. Calificación</a>
                 </li>
+                {{/if}}
                 <li role="presentation">
                     <a class="sistema-calificacion" href="#">Ver Sist. Calificación</a>
                 </li> 
+
             </ul>
         </div>
     </td>

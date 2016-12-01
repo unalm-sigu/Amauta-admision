@@ -13,7 +13,7 @@ $(function () {
         }
     }).data('dynatable');
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var colorEstado = {CRE: "default", ACT: "success", INA: "danger", APR: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
+        var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
         var html = $.templates("#templateSistema").render(record);
