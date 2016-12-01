@@ -13,7 +13,7 @@ public class TestController {
     @RequestMapping(method = RequestMethod.GET)
     public String index() {
 
-        return "LaMolina Pivot rocks!";
+        return "redirect:/academico/systemcalifica/sistema";
     }
 
 }
