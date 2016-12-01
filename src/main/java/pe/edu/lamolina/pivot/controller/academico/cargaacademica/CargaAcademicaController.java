@@ -226,7 +226,7 @@ public class CargaAcademicaController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         model.addAttribute("seccion", seccion);
-        model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion());
+        model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getPlanCalificacion());
         model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
         logger.debug("La seccion es {}", seccion.getId());
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";

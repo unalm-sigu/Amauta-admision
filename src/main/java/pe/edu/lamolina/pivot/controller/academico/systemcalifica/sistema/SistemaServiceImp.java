@@ -133,11 +133,11 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacion.setObservacion(observacion);
         if (EstadoPlanCalificaEnum.ACEP.equals(estadoPlanCalificaEnum)) {
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null);
-            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+            evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
             evaluacionSeccionDAO.update(evaluacionSeccion);
 
             GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacionSeccion.getGrupoSeccion().getId());
-            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.ACEP);
+            grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
             grupoSeccion.setPlanCalificacion(planCalificacion);
             grupoSeccionDAO.update(grupoSeccion);
 
@@ -159,13 +159,14 @@ public class SistemaServiceImp implements SistemaService {
                 }
             }
 
-        } else if (EstadoPlanCalificaEnum.RHZ.equals(estadoPlanCalificaEnum)) {
+        } else if (EstadoPlanCalificaEnum.RHZ.equals(estadoPlanCalificaEnum)
+                || EstadoPlanCalificaEnum.OBS.equals(estadoPlanCalificaEnum)) {
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null);
-            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.RHZ);
+            evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
             evaluacionSeccionDAO.update(evaluacionSeccion);
 
             GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacionSeccion.getGrupoSeccion().getId());
-            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.RHZ);
+            grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
             grupoSeccion.setPlanCalificacion(planCalificacion);
             grupoSeccionDAO.update(grupoSeccion);
         }

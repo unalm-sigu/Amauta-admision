@@ -299,6 +299,13 @@ public class PlanCalificacion implements Serializable {
         return false;
     }
 
+    public boolean isEstadoRechazado() {
+        if (EstadoPlanCalificaEnum.RHZ.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
     public String getSustento() {
         return sustento;
     }

@@ -20,6 +20,8 @@ public interface Messages {
 
     String ANNULL = "Registro Anulado";
 
+    String OBSERVED = "Registro Observado";
+
     String FORBIDEN = "No se encuentra autorizado para realizar esta operación";
 
     String FK_ERROR = "Imposible eliminar, el registro está relacionado con otros registros.";

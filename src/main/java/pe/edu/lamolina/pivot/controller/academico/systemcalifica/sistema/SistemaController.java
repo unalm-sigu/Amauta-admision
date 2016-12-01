@@ -289,7 +289,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         try {
             sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS);
-            response.setMessage(Messages.REJECT);
+            response.setMessage(Messages.OBSERVED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
