@@ -81,6 +81,7 @@ public class CargaAcademicaController {
     public String index(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("docente", ds.getDocente());
+        logger.debug("el docente logeado es {}", ds.getDocente().getId());
         cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/docente/cargaacademica/cargaAcademica";
@@ -180,8 +181,8 @@ public class CargaAcademicaController {
         logger.debug("evaluacion seccion id {}", evaluacionSeccionId);
         DynatableResponse json = new DynatableResponse();
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvaluacionSeccion(evaluacionSeccionId);
-        logger.debug("la evaluacion seccion {}", evaluacionSeccion.getId());
+
+        logger.debug("la evaluacion seccion {}", evaluacionSeccionId);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -241,6 +242,9 @@ public class CargaAcademicaController {
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
 
+        logger.debug("El grupo seccion es {}", grupoSeccion.getId());
+        logger.debug("La seccion es {}", seccion.getId());
+
         StringBuilder claves = new StringBuilder();
         for (Seccion sec : grupoSeccion.getSecciones()) {
             claves.append(sec.getCodigo());
@@ -248,20 +252,17 @@ public class CargaAcademicaController {
 
         }
 
-        model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion());
+        model.addAttribute("planCalificacion", grupoSeccion.getPlanCalificacion());
         model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
 
-        Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
-        Long idGrupoSeccion = seccion.getGrupoSeccion().getId();
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion);
+        //   Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
+        Long idGrupoSeccion = grupoSeccion.getId();
+        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion);
         model.addAttribute("evaluacionSeccion", evalSeccion);
-
+        logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
         cargaAcademicaService.createEvaluacionPorEvalSeccion(evalSeccion);
-        /*
-        List<Evaluacion> evaluaciones = cargaAcademicaService.allEvaluacionesByEvalSeccion(evalSeccion);
 
-        model.addAttribute("dntEvaluacionPlan", evaluaciones);*/
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
 
@@ -407,7 +408,19 @@ public class CargaAcademicaController {
         model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", docenteSeccion.getSeccion());
         model.addAttribute("grupoSeccion", docenteSeccion.getSeccion().getGrupoSeccion());
-        //    model.addAttribute("grupoSeccion",cargaAcademicaService.find);
+
+        List<Evaluacion> evaluacionesByGrupoSeccion = cargaAcademicaService.allEvaluacionByGrupoSeccion(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+        List<Evaluacion> evaluacionesByTipoSeccion = new ArrayList<>();
+        for (Evaluacion evaluacion : evaluacionesByGrupoSeccion) {
+
+            if (docenteSeccion.getSeccion().getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+                    evaluacion.getTipoSeccionEnum())) {
+                logger.debug("###");
+                logger.debug("El tipo de evaluacion {}", evaluacion.getTipoEvaluacion().getNombre());
+                evaluacionesByTipoSeccion.add(evaluacion);
+            }
+            model.addAttribute("evaluaciones", evaluacionesByTipoSeccion);
+        }
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
