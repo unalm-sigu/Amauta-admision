@@ -16,6 +16,8 @@ import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Entity
 @Table(name = "aca_seccion")
@@ -42,14 +44,6 @@ public class Seccion implements Serializable {
     private Integer horasPractica;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_ciclo")
-    private CicloAcademico ciclo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_curso")
-    private Curso curso;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seccion_superior")
     private Seccion seccionSuperior;
 
@@ -61,15 +55,19 @@ public class Seccion implements Serializable {
     @JoinColumn(name = "id_grupo_horas")
     private GrupoHoras grupoHoras;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_grupo_seccion")
+    private GrupoSeccion grupoSeccion;
+
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<DocenteSeccion> docenteSeccion;
 
     @OneToMany(mappedBy = "seccionResponsable", fetch = FetchType.LAZY)
     private List<Evaluacion> evaluacion;
-
+    /*
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<EvaluacionSeccion> evaluacionSeccion;
-
+     */
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<LoggerMatricula> loggerMatricula;
 
@@ -100,22 +98,6 @@ public class Seccion implements Serializable {
         this.id = id;
     }
 
-    public CicloAcademico getCiclo() {
-        return ciclo;
-    }
-
-    public void setCiclo(CicloAcademico ciclo) {
-        this.ciclo = ciclo;
-    }
-
-    public Curso getCurso() {
-        return curso;
-    }
-
-    public void setCurso(Curso curso) {
-        this.curso = curso;
-    }
-
     public Seccion getSeccionSuperior() {
         return seccionSuperior;
     }
@@ -138,6 +120,14 @@ public class Seccion implements Serializable {
 
     public void setTipoSeccion(String tipoSeccion) {
         this.tipoSeccion = tipoSeccion;
+    }
+
+    public TipoSeccionEnum getTipoSeccionEnum() {
+        return TipoSeccionEnum.valueOf(tipoSeccion);
+    }
+
+    public void setTipoSeccionEnum(TipoSeccionEnum tipoSeccionEnum) {
+        this.tipoSeccion = tipoSeccionEnum.name();
     }
 
     public Integer getEsPrincipal() {
@@ -196,14 +186,6 @@ public class Seccion implements Serializable {
         this.evaluacion = evaluacion;
     }
 
-    public List<EvaluacionSeccion> getEvaluacionSeccion() {
-        return evaluacionSeccion;
-    }
-
-    public void setEvaluacionSeccion(List<EvaluacionSeccion> evaluacionSeccion) {
-        this.evaluacionSeccion = evaluacionSeccion;
-    }
-
     public List<LoggerMatricula> getLoggerMatricula() {
         return loggerMatricula;
     }
@@ -244,5 +226,12 @@ public class Seccion implements Serializable {
         this.retiroCurso = retiroCurso;
     }
 
-}
+    public GrupoSeccion getGrupoSeccion() {
+        return grupoSeccion;
+    }
 
+    public void setGrupoSeccion(GrupoSeccion grupoSeccion) {
+        this.grupoSeccion = grupoSeccion;
+    }
+
+}

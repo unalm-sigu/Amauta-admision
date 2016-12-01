@@ -1,38 +1,42 @@
-<div class="">			
-    <span class="block"><strong>TA1 Tarea:</strong> <span>1</span></span>
-    <span class="block"><strong>Peso:</strong> <span>5%</span></span>
+<form id="frmExpandirEvals" >
+    <div class="m-b">			
+        <span class="block"><strong th:text="${evaluacion.tipoEvaluacion.nombre}">TA1 Tarea:</strong> <span>1</span></span>
+        <span class="block"><strong>Peso:</strong> <span th:text="${evaluacion.peso}">5%</span></span>
+        <input type="hidden" name="id" th:value="${evaluacion.id}"/>
+        <input type="hidden" name="evaluacionSeccion.id" th:value="${evaluacion.evaluacionSeccion.id}"/>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr class=""> 
+                <th class="col-md-8">Tipo evaluación</th>
+                <th class="col-md-4">Peso</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody id="tbodyEvaluaciones">
+            <tr>
+                <td  class="v-middle">
+                    <select name="evaluaciones[0].tipoEvaluacion.id" 
+                            class="form-control item-select2">
+                        <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+                    </select>
+                </td>
+                <td  class="v-middle">
+                    <input name="evaluaciones[0].peso" 
+                           class="form-control" type="text"/>
+                </td>
+                <td class="text-center">
+                    <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+<div class="text-center block">
+    <a href="#" id="lnkAgregarItem" class="btn btn-primary add-tipo-evaluacion">Agregar</a>
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr class=""> 
-            <th class="col-md-8">Tipo evaluación</th>
-            <th class="col-md-4">Peso</th>
-            <th></th>
-        </tr>
-    </thead>
-
-    <tbody>
-        <tr>
-            <td  class="v-middle">
-                <select class="form-control item-select2">
-                    <option>Opcion 1</option>
-                    <option>Opcion 2</option>
-                </select>
-            </td>
-            <td  class="v-middle">
-                <input class="form-control" type="text" />
-            </td>
-            <td class="text-center">
-                <a href="#" class="btn btn-default delete-expandir-evaluacion"><i class="fa fa-times text-danger"></i></a>
-            </td>
-            <td class="text-center">
-                <a href="#" id="lnkAgregarItem" class="btn btn-primary add-tipo-evaluacion">Agregar item</a>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="">			
-    <span class="block"><strong>Nota Base:</strong> <span>100</span></span>
-</div>
+<script id="templateExpandirEvaluacion" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateExpandirEvaluacion"/></script>

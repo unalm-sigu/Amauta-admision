@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
@@ -19,6 +20,14 @@ public interface SistemaService {
 
     PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
 
+    void changeStatePlanCalificacion(Long idPLanCalificacion, String observacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
+
     void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
+
+    List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion, Long idDepartamentoAcademico);
+
+    void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
+
+    void desasignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
 
 }

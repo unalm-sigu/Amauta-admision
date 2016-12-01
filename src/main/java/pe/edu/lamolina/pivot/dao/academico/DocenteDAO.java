@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 
 public interface DocenteDAO extends Crud<Docente> {
 
-}
+    Docente find(Long idDocente);
 
+}

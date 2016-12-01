@@ -32,7 +32,7 @@ public class CicloAcademico implements Serializable {
     private Integer year;
 
     @Column(name = "numero_ciclo")
-    private Integer numeroCiclo;
+    private String numeroCiclo;
 
     @Column(name = "codigo")
     private String codigo;
@@ -74,10 +74,10 @@ public class CicloAcademico implements Serializable {
 
     @OneToMany(mappedBy = "cicloAcademico", fetch = FetchType.LAZY)
     private List<MatriculaResumen> matriculaResumen;
-
+    /*
     @OneToMany(mappedBy = "ciclo", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
-
+     */
     @OneToMany(mappedBy = "cicloAcademico", fetch = FetchType.LAZY)
     private List<CicloPostula> cicloPostula;
 
@@ -121,11 +121,11 @@ public class CicloAcademico implements Serializable {
         this.year = year;
     }
 
-    public Integer getNumeroCiclo() {
+    public String getNumeroCiclo() {
         return numeroCiclo;
     }
 
-    public void setNumeroCiclo(Integer numeroCiclo) {
+    public void setNumeroCiclo(String numeroCiclo) {
         this.numeroCiclo = numeroCiclo;
     }
 
@@ -225,14 +225,6 @@ public class CicloAcademico implements Serializable {
         this.matriculaResumen = matriculaResumen;
     }
 
-    public List<Seccion> getSeccion() {
-        return seccion;
-    }
-
-    public void setSeccion(List<Seccion> seccion) {
-        this.seccion = seccion;
-    }
-
     public List<CicloPostula> getCicloPostula() {
         return cicloPostula;
     }
@@ -266,4 +258,3 @@ public class CicloAcademico implements Serializable {
     }
 
 }
-

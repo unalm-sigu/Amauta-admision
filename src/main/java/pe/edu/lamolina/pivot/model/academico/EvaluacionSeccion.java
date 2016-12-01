@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.model.academico;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Entity
 @Table(name = "aca_evaluacion_seccion")
@@ -39,15 +41,15 @@ public class EvaluacionSeccion implements Serializable {
     private PlanCalificacion planCalificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_seccion")
-    private Seccion seccion;
+    @JoinColumn(name = "id_grupo_seccion")
+    private GrupoSeccion grupoSeccion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sistema_notas")
     private SistemaNotas sistemaNotas;
 
-    @OneToMany(mappedBy = "evaluacionSeccion", fetch = FetchType.LAZY)
-    private List<Evaluacion> evaluacion;
+    @OneToMany(mappedBy = "evaluacionSeccion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Evaluacion> evaluaciones;
 
     public EvaluacionSeccion() {
     }
@@ -72,12 +74,12 @@ public class EvaluacionSeccion implements Serializable {
         this.planCalificacion = planCalificacion;
     }
 
-    public Seccion getSeccion() {
-        return seccion;
+    public GrupoSeccion getGrupoSeccion() {
+        return grupoSeccion;
     }
 
-    public void setSeccion(Seccion seccion) {
-        this.seccion = seccion;
+    public void setGrupoSeccion(GrupoSeccion grupoSeccion) {
+        this.grupoSeccion = grupoSeccion;
     }
 
     public SistemaNotas getSistemaNotas() {
@@ -96,6 +98,14 @@ public class EvaluacionSeccion implements Serializable {
         this.estado = estado;
     }
 
+    public EstadoPlanCalificaEnum getEstadoEnum() {
+        return EstadoPlanCalificaEnum.valueOf(estado);
+    }
+
+    public void setEstadoEnum(EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        this.estado = estadoPlanCalificaEnum.name();
+    }
+
     public Date getFechaAceptacion() {
         return fechaAceptacion;
     }
@@ -112,13 +122,12 @@ public class EvaluacionSeccion implements Serializable {
         this.idUserAceptacion = idUserAceptacion;
     }
 
-    public List<Evaluacion> getEvaluacion() {
-        return evaluacion;
+    public List<Evaluacion> getEvaluaciones() {
+        return evaluaciones;
     }
 
-    public void setEvaluacion(List<Evaluacion> evaluacion) {
-        this.evaluacion = evaluacion;
+    public void setEvaluaciones(List<Evaluacion> evaluaciones) {
+        this.evaluaciones = evaluaciones;
     }
 
 }
-

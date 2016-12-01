@@ -10,30 +10,48 @@
     <td class="text-center v-middle">
         <span class="block">{{:origen}}</span>
     </td>
-
+    <td class="text-center v-middle">
+        <span class="block">{{:fechaReg}}</span>
+    </td>
     <td class="text-center v-middle">
         <span class="label label-{{:colorEstado}}">{{:estadoEnum}}</span>
+
     </td>
 
     <td>
         <div class="dropdown actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >
+                {{if verSolicitud}} 
                 <li role="presentation">
                     <a class="ver-solicitud" href="#">Ver solicitud</a>
                 </li>
+                {{/if}}
                 <li role="presentation">
                     <a class="detalle-sistema" href="#">Detalle</a>
                 </li>
+                {{if verActivar}}
+                <li role="presentation">
+                    <a rel="{{:id}}" class="activar" href="#">Activar</a>
+                </li>
+                {{/if}}
+                {{if verInactivar}}
+                <li role="presentation">
+                    <a rel="{{:id}}" class="inactivar" href="#">Inactivar</a>
+                </li>
+                {{/if}}
+                <!-- 
                 <li role="presentation">
                     <a rel="{{:id}}" class="aprobar" href="#">Aprobar</a>
                 </li>
                 <li role="presentation">
                     <a rel="{{:id}}" class="desaprobar" href="#">Desaprobar</a>
-                </li>
+                </li> -->
+                {{if verAsignarCursos}}
                 <li role="presentation">
                     <a class="asignar-cursos" href="#">Asignar Cursos</a>
                 </li>
+                {{/if}}
             </ul>
         </div>
     </td>

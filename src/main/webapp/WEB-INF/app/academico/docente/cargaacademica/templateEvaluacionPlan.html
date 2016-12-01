@@ -1,0 +1,21 @@
+<tr  rel="{{:evaPlanId}}">
+
+    <td class="v-middle" style="{{:styleHijo}}">
+        <span class="block">{{:tipoEvalCod}}</span>
+    </td>
+    <td class="v-middle">
+        <span class="block" >{{:tipoEvalNombre}}</span>
+    </td>
+    <td class="v-middle">
+        <span class="block text-center">{{:cantEvaluaciones}}</span>
+    </td>
+    <td class="v-middle">
+        <span class="block" >{{:pesoEvaluacion}} %</span>
+    </td>
+    <td class="v-middle text-center">
+        {{if !esHijo}}
+        <a href="#"  rel="{{:evaPlanId}}" 
+           class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
+        {{/if}}
+    </td>
+</tr>

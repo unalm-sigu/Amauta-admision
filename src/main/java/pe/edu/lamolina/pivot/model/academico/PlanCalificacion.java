@@ -16,10 +16,13 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 
 @Entity
 @Table(name = "aca_plan_calificacion")
 public class PlanCalificacion implements Serializable {
+
+    public static String PREFIJO_CODIGO = "SC";
 
     @Id
     @GeneratedValue
@@ -39,8 +42,23 @@ public class PlanCalificacion implements Serializable {
     @Column(name = "nota_base")
     private Integer notaBase;
 
+    @Column(name = "codigo")
+    private String codigo;
+
+    @Column(name = "formula")
+    private String formula;
+
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
+
+    @Column(name = "sustento")
+    private String sustento;
+
+    @Column(name = "observacion")
+    private String observacion;
+
+    @Column(name = "origen")
+    private String origen;
 
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -54,7 +72,7 @@ public class PlanCalificacion implements Serializable {
     @JoinColumn(name = "id_sistema_notas")
     private SistemaNotas sistemaNotas;
 
-    @OneToMany(mappedBy = "sistemaEvaluacion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
     private List<Curso> curso;
 
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -191,6 +209,124 @@ public class PlanCalificacion implements Serializable {
     @Override
     public String toString() {
         return "PlanCalificacion{" + "id=" + id + ", estado=" + estado + ", fechaAprobacion=" + fechaAprobacion + ", numero=" + numero + ", notaBase=" + notaBase + ", idUserRegistro=" + idUserRegistro + ", fechaRegistro=" + fechaRegistro + ", departamentoAcademico=" + departamentoAcademico + ", sistemaNotas=" + sistemaNotas + '}';
+    }
+
+    public String getFormula() {
+        return formula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
+    }
+
+    public String getObservacion() {
+        return observacion;
+    }
+
+    public void setObservacion(String observacion) {
+        this.observacion = observacion;
+    }
+
+    public String getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(String origen) {
+        this.origen = origen;
+    }
+
+    public OrigenPlanCalificaEnum getOrigenEnum() {
+        return OrigenPlanCalificaEnum.valueOf(this.origen);
+    }
+
+    public void setOrigenEnum(OrigenPlanCalificaEnum origenPlanCalificaEnum) {
+        this.origen = origenPlanCalificaEnum.name();
+    }
+
+    public boolean isEstadoSolicitado() {
+        if (EstadoPlanCalificaEnum.SOL.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoExpandido() {
+        if (EstadoPlanCalificaEnum.EXP.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoExpandir() {
+        if (EstadoPlanCalificaEnum.EXPR.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoReenviado() {
+        if (EstadoPlanCalificaEnum.REE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoCreado() {
+        if (EstadoPlanCalificaEnum.CRE.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoPropuesto() {
+        if (EstadoPlanCalificaEnum.PRO.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoActivado() {
+        if (EstadoPlanCalificaEnum.ACT.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoObservado() {
+        if (EstadoPlanCalificaEnum.OBS.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoRechazado() {
+        if (EstadoPlanCalificaEnum.RHZ.name().equals(estado)) {
+            return true;
+        }
+        return false;
+    }
+
+    public String getSustento() {
+        return sustento;
+    }
+
+    public void setSustento(String sustento) {
+        this.sustento = sustento;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public void generateCodigo() {
+        StringBuilder codigoGen = new StringBuilder(PlanCalificacion.PREFIJO_CODIGO);
+        codigoGen.append(String.format("%05d", this.getNumero()));
+        codigoGen.append(this.getDepartamentoAcademico().getCodigo());
+        this.codigo = codigoGen.toString();
     }
 
 }

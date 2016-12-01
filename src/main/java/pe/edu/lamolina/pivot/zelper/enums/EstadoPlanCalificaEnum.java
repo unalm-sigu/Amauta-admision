@@ -5,11 +5,19 @@ import java.util.Map;
 
 public enum EstadoPlanCalificaEnum {
     CRE("Creado"),
-    APR("Aprobado"),
-    DES("Desaprobado"),
+    ACT("Activo"),
+    INA("Inactivo"),
+    //APR("Aprobado"),
+    //DES("Desaprobado"),
+    OBS("Observado"),
     SOL("Solicitado"),
-    ANU("Anulado"),
-    REE("Reenviado");
+    RHZ("Rechazado"),
+    REE("Reenviado"),
+    CER("Cerrado"),
+    PRO("Propuesto"),
+    EXPR("Expandir"),
+    EXP("Epandido"),
+    ACEP("Aceptado");
 
     private final String value;
     private static final Map<String, EstadoPlanCalificaEnum> lookup = new HashMap<>();

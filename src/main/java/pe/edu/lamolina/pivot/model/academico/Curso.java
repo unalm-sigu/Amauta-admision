@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 
 @Entity
@@ -38,19 +40,31 @@ public class Curso implements Serializable {
     @Column(name = "nombre")
     private String nombre;
 
+    @Column(name = "horas_teoria")
+    private Integer horasTeoria;
+
+    @Column(name = "horas_practica")
+    private Integer horasPractica;
+
     @Column(name = "creditos")
     private Integer creditos;
 
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
+    @Column(name = "fecha_plan_calificacion")
+    private Date fechaPlanCalificacion;
+
+    @Column(name = "user_plan_calificacion")
+    private Long userPlanCalificacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
     private DepartamentoAcademico departamentoAcademico;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_sistema_evaluacion")
-    private PlanCalificacion sistemaEvaluacion;
+    @JoinColumn(name = "id_plan_calificacion")
+    private PlanCalificacion planCalificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinador")
@@ -76,10 +90,10 @@ public class Curso implements Serializable {
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<NombreCurso> nombreCurso;
-
+    /*
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
-
+     */
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<RetiroCurso> retiroCurso;
 
@@ -122,12 +136,12 @@ public class Curso implements Serializable {
         this.departamentoAcademico = departamentoAcademico;
     }
 
-    public PlanCalificacion getSistemaEvaluacion() {
-        return sistemaEvaluacion;
+    public PlanCalificacion getPlanCalificacion() {
+        return planCalificacion;
     }
 
-    public void setSistemaEvaluacion(PlanCalificacion sistemaEvaluacion) {
-        this.sistemaEvaluacion = sistemaEvaluacion;
+    public void setPlanCalificacion(PlanCalificacion planCalificacion) {
+        this.planCalificacion = planCalificacion;
     }
 
     public Docente getCoordinador() {
@@ -234,14 +248,6 @@ public class Curso implements Serializable {
         this.nombreCurso = nombreCurso;
     }
 
-    public List<Seccion> getSeccion() {
-        return seccion;
-    }
-
-    public void setSeccion(List<Seccion> seccion) {
-        this.seccion = seccion;
-    }
-
     public List<RetiroCurso> getRetiroCurso() {
         return retiroCurso;
     }
@@ -250,5 +256,44 @@ public class Curso implements Serializable {
         this.retiroCurso = retiroCurso;
     }
 
-}
+    public Date getFechaPlanCalificacion() {
+        return fechaPlanCalificacion;
+    }
 
+    public void setFechaPlanCalificacion(Date fechaPlanCalificacion) {
+        this.fechaPlanCalificacion = fechaPlanCalificacion;
+    }
+
+    public Long getUserPlanCalificacion() {
+        return userPlanCalificacion;
+    }
+
+    public void setUserPlanCalificacion(Long userPlanCalificacion) {
+        this.userPlanCalificacion = userPlanCalificacion;
+    }
+
+    public Integer getHorasTeoria() {
+        return horasTeoria;
+    }
+
+    public void setHorasTeoria(Integer horasTeoria) {
+        this.horasTeoria = horasTeoria;
+    }
+
+    public Integer getHorasPractica() {
+        return horasPractica;
+    }
+
+    public void setHorasPractica(Integer horasPractica) {
+        this.horasPractica = horasPractica;
+    }
+
+    public String getTpc() {
+        StringBuilder tpc = new StringBuilder();
+        tpc.append(horasTeoria).append("-");
+        tpc.append(horasPractica).append("-");
+        tpc.append(creditos);
+        return tpc.toString();
+    }
+
+}
