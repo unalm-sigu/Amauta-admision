@@ -32,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -80,8 +81,7 @@ public class SistemaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
-        // CicloAcademico ciclo = ds.getCicloAcademico();
-        //  model.addAttribute("ciclo", ciclo);
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/systemcalifica/sistema/sistema";
     }
 
@@ -93,8 +93,9 @@ public class SistemaController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
+            DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
 
-            List<PlanCalificacion> lstPLanCalificacion = sistemaService.allPlanesCalificacionByDynatable(filter);
+            List<PlanCalificacion> lstPLanCalificacion = sistemaService.allPlanesCalificacionByDynatable(filter, dpto);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -172,6 +173,7 @@ public class SistemaController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("planCalificacion", planCalificacion);
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
 
@@ -180,6 +182,7 @@ public class SistemaController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
 
         return "app/academico/systemcalifica/sistema/cursos";
@@ -190,6 +193,7 @@ public class SistemaController {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("El sistema califica {}", idSistema);
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
 
         return "app/academico/systemcalifica/sistema/detalleSolicitud";
@@ -204,6 +208,7 @@ public class SistemaController {
         model.addAttribute("tipoEvaluaciones", sistemaService.allTipoEvaluacion());
         model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEvalEnum.values());
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/systemcalifica/sistema/nuevoSistema";
     }
 

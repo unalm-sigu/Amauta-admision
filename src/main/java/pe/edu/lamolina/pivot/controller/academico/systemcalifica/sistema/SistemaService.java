@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
@@ -16,7 +17,7 @@ public interface SistemaService {
 
     void saveSistemaCalifica(PlanCalificacion planCalificacion);
 
-    List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter);
+    List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DepartamentoAcademico dpto);
 
     PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
 
