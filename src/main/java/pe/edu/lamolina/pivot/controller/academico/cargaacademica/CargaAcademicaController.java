@@ -132,17 +132,17 @@ public class CargaAcademicaController {
                 node.put("estadoSistema", docSeccion.getSeccion().getGrupoSeccion() != null
                         ? docSeccion.getSeccion().getGrupoSeccion().getEstadoPlan() : "");
                 String estadoEnum = "";
-                if (docSeccion.getSeccion().getGrupoSeccion() != null
-                        && docSeccion.getSeccion().getGrupoSeccion().getEstadoPlanEnum() != null) {
-                    estadoEnum = docSeccion.getSeccion().getGrupoSeccion().getEstadoPlanEnum().getValue();
+                if (grupoSeccion != null
+                        && grupoSeccion.getEstadoPlanEnum() != null) {
+                    estadoEnum = grupoSeccion.getEstadoPlanEnum().getValue();
                 }
                 node.put("estadoSistemaEnum", estadoEnum);
 
                 node.put("verDetalleSistemaCal", false);
                 if (grupoSeccion != null) {
                     if (grupoSeccion.isEstadoSolicitado()
-                            || planCalificacion.isEstadoExpandido()
-                            || planCalificacion.isEstadoExpandir()) {
+                            || grupoSeccion.isEstadoExpandido()
+                            || grupoSeccion.isEstadoExpandir()) {
                         node.put("verDetalleSistemaCal", true);
                     }
                 }
