@@ -33,6 +33,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
@@ -186,28 +188,28 @@ public class CargaAcademicaController {
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            List<Evaluacion> lstEvaluacionPlan = cargaAcademicaService.allEvaluacionesByEvalSeccion(new EvaluacionSeccion(evaluacionSeccionId));
+            List<EvaluacionExpandida> lstEvaluacionPlan = cargaAcademicaService.allEvaluacionesExpByEvalSeccion(new EvaluacionSeccion(evaluacionSeccionId));
             //  List<Evaluacion> lstEvaluacionPlan = dntEvaluacionPlan;
             logger.debug("Lista {}", lstEvaluacionPlan.size());
 
-            for (Evaluacion evaluacionPlan : lstEvaluacionPlan) {
+            for (EvaluacionExpandida evaluacionPlan : lstEvaluacionPlan) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("evaPlanId", evaluacionPlan.getId());
                 node.put("tipoEvalCod", evaluacionPlan.getTipoEvaluacion().getCodigo());
-                node.put("tipoEvalNombre", evaluacionPlan.getTipoEvaluacion().getNombre());
-                node.put("cantEvaluaciones", "0");
+                node.put("tipoEvalNombre", evaluacionPlan.getTipoEvaluacion().getNombre() + " " + evaluacionPlan.getNumero());
+                node.put("numero", evaluacionPlan.getNumero());
                 node.put("pesoEvaluacion", evaluacionPlan.getPeso());
                 node.put("esHijo", false);
                 array.add(node);
 
-                for (Evaluacion evaluacionHija : evaluacionPlan.getEvaluaciones()) {
+                for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluaciones()) {
                     ObjectNode nodeHijo = new ObjectNode(JsonNodeFactory.instance);
 
-                    logger.debug("Tipo evaluacion {}", evaluacionHija.getTipoEvaluacion().getNombre());
+                    logger.debug("Tipo evaluacion {}", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionPlan.getNumero());
                     nodeHijo.put("evaPlanId", evaluacionHija.getId());
                     nodeHijo.put("tipoEvalCod", evaluacionHija.getTipoEvaluacion().getCodigo());
                     nodeHijo.put("tipoEvalNombre", evaluacionHija.getTipoEvaluacion().getNombre());
-                    nodeHijo.put("cantEvaluaciones", "0");
+                    nodeHijo.put("numero", evaluacionHija.getNumero());
                     nodeHijo.put("pesoEvaluacion", evaluacionHija.getPeso());
                     nodeHijo.put("esHijo", true);
                     array.add(nodeHijo);
@@ -261,7 +263,7 @@ public class CargaAcademicaController {
         EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion);
         model.addAttribute("evaluacionSeccion", evalSeccion);
         logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
-        cargaAcademicaService.createEvaluacionPorEvalSeccion(evalSeccion);
+        cargaAcademicaService.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.EXPR);
 
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
@@ -373,12 +375,12 @@ public class CargaAcademicaController {
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
         DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
+        EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
         List<TipoEvaluacion> lstTipoEvasReal = new ArrayList<>();
         for (TipoEvaluacion tEval : lstTipoEvas) {
             boolean found = false;
-            for (Evaluacion eva : evaluacion.getEvaluaciones()) {
+            for (EvaluacionExpandida eva : evaluacion.getEvaluaciones()) {
                 if (eva.getTipoEvaluacion().getId().equals(tEval.getId())) {
                     found = true;
                 }

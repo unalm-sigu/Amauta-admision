@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
@@ -13,6 +14,7 @@ import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 
 public interface CargaAcademicaService {
@@ -35,13 +37,17 @@ public interface CargaAcademicaService {
 
     List<EvaluacionPlan> allEvaluacionPlanByDynatable(DynatableFilter filter, Long idPlanCalificacion);
 
+    List<EvaluacionExpandida> allEvaluacionesExpByEvalSeccion(EvaluacionSeccion evaluacionSeccion);
+
     EvaluacionPlan findEvaluacionPlan(Long idEvaluacionPlan);
 
     Evaluacion findEvaluacion(Long idEvaluacionPlan);
 
+    EvaluacionExpandida findEvaluacionExpandida(Long idEvaluacionPlan);
+
     void createEvaluacionSeccionPorDocente(Docente docente);
 
-    void createEvaluacionPorEvalSeccion(EvaluacionSeccion evaluacionSeccion);
+    void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum);
 
     void saveExpansionEvaluacion(Evaluacion evaluacion, DataSession ds);
 

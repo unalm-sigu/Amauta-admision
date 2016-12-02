@@ -19,8 +19,8 @@ import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Entity
-@Table(name = "aca_evaluacion")
-public class Evaluacion implements Serializable {
+@Table(name = "aca_evaluacion_expandida")
+public class EvaluacionExpandida implements Serializable {
 
     @Id
     @GeneratedValue
@@ -29,6 +29,9 @@ public class Evaluacion implements Serializable {
 
     @Column(name = "peso")
     private Integer peso;
+
+    @Column(name = "numero")
+    private Integer numero;
 
     @Column(name = "esta_desagregado")
     private Integer estaDesagregado;
@@ -75,7 +78,7 @@ public class Evaluacion implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evaluacion_superior")
-    private Evaluacion evaluacionSuperior;
+    private EvaluacionExpandida evaluacionSuperior;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seccion_responsable")
@@ -85,15 +88,15 @@ public class Evaluacion implements Serializable {
     private List<AlumnoEvaluacion> alumnoEvaluacion;
 
     @OneToMany(mappedBy = "evaluacionSuperior", fetch = FetchType.LAZY)
-    private List<Evaluacion> evaluaciones;
+    private List<EvaluacionExpandida> evaluaciones;
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<ReclamoNota> reclamoNota;
 
-    public Evaluacion() {
+    public EvaluacionExpandida() {
     }
 
-    public Evaluacion(Object id) {
+    public EvaluacionExpandida(Object id) {
         this.id = TypesUtil.getLong(id);
     }
 
@@ -137,11 +140,11 @@ public class Evaluacion implements Serializable {
         this.estaDesagregado = estaDesagregado;
     }
 
-    public Evaluacion getEvaluacionSuperior() {
+    public EvaluacionExpandida getEvaluacionSuperior() {
         return evaluacionSuperior;
     }
 
-    public void setEvaluacionSuperior(Evaluacion evaluacionSuperior) {
+    public void setEvaluacionSuperior(EvaluacionExpandida evaluacionSuperior) {
         this.evaluacionSuperior = evaluacionSuperior;
     }
 
@@ -233,11 +236,11 @@ public class Evaluacion implements Serializable {
         this.alumnoEvaluacion = alumnoEvaluacion;
     }
 
-    public List<Evaluacion> getEvaluaciones() {
+    public List<EvaluacionExpandida> getEvaluaciones() {
         return evaluaciones;
     }
 
-    public void setEvaluaciones(List<Evaluacion> evaluaciones) {
+    public void setEvaluaciones(List<EvaluacionExpandida> evaluaciones) {
         this.evaluaciones = evaluaciones;
     }
 
@@ -257,7 +260,15 @@ public class Evaluacion implements Serializable {
         this.setTipoSeccion(tipoSeccionEvalEnum.name());
     }
 
-    public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan) {
+    public Integer getNumero() {
+        return numero;
+    }
+
+    public void setNumero(Integer numero) {
+        this.numero = numero;
+    }
+
+    public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan, Integer numero) {
         this.setAlumnoEvaluacion(null);
         this.setEvaluacionSeccion(evalSeccion);
         this.setTipoEvaluacion(evaluacionPlan.getTipoEvaluacion());
@@ -266,19 +277,8 @@ public class Evaluacion implements Serializable {
         this.setEvaluacionSuperior(null);
         this.setEvaluaciones(null);
         this.setEvaluados(BigDecimal.ZERO.intValue());
-        this.setPeso(evaluacionPlan.getPesoTotal());
-    }
-
-    public void create(EvaluacionSeccion evalSeccion, EvaluacionExpandida evaluacionExpandida) {
-        this.setAlumnoEvaluacion(null);
-        this.setEvaluacionSeccion(evalSeccion);
-        this.setTipoEvaluacion(evaluacionExpandida.getTipoEvaluacion());
-        this.setTipoSeccion(evaluacionExpandida.getTipoSeccion());
-        this.setEstaDesagregado(BigDecimal.ZERO.intValue());
-        this.setEvaluacionSuperior(null);
-        this.setEvaluaciones(null);
-        this.setEvaluados(BigDecimal.ZERO.intValue());
-        this.setPeso(evaluacionExpandida.getPeso());
+        this.setPeso(evaluacionPlan.getPesoEvaluacion());
+        this.setNumero(numero);
     }
 
 }
