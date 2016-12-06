@@ -54,7 +54,7 @@ $(function () {
             var record = {};
 
             var rowCount = $('#tbodyEvaluaciones tr').length;
-            record.index = rowCount - 1;
+            record.index = rowCount;
 
             var html = $.templates("#templateExpandirEvaluacion").render(record);
             var tbody = $("#tbodyEvaluaciones");

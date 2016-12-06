@@ -209,8 +209,10 @@ public class CargaAcademicaController {
                 node.put("numero", evaluacionPlan.getNumero());
                 node.put("pesoEvaluacion", evaluacionPlan.getPeso());
                 node.put("esHijo", false);
+                node.put("desagregado", evaluacionPlan.isDesagregado());
                 array.add(node);
 
+                int numero = 1;
                 for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluaciones()) {
                     ObjectNode nodeHijo = new ObjectNode(JsonNodeFactory.instance);
 
@@ -218,10 +220,12 @@ public class CargaAcademicaController {
                     nodeHijo.put("evaPlanId", evaluacionHija.getId());
                     nodeHijo.put("tipoEvalCod", evaluacionHija.getTipoEvaluacion().getCodigo());
                     nodeHijo.put("tipoEvalNombre", evaluacionHija.getTipoEvaluacion().getNombre());
-                    nodeHijo.put("numero", evaluacionHija.getNumero());
+                    nodeHijo.put("numero", numero);
                     nodeHijo.put("pesoEvaluacion", evaluacionHija.getPeso());
                     nodeHijo.put("esHijo", true);
+                    nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
                     array.add(nodeHijo);
+                    numero++;
                 }
 
             }
