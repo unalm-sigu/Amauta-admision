@@ -19,6 +19,8 @@ import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 @Table(name = "aca_alumno_evaluacion")
 public class AlumnoEvaluacion implements Serializable {
 
+    public final static String NSP = "NSP";
+
     @Id
     @GeneratedValue
     @Column(name = "id")

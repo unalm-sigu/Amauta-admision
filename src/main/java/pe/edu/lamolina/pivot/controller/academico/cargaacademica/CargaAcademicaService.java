@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
@@ -85,5 +86,7 @@ public interface CargaAcademicaService {
     void saveIngresoNotas(DataSession ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
 
     SistemaNotas findSistemaNotaById(Long id);
+
+    ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idDocenteSeccion);
 
 }

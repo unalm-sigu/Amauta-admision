@@ -1,9 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,7 @@ import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 
 @Service
 @Transactional(readOnly = true)
@@ -471,7 +476,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionParam.getId());
         PlanCalificacion planCalificacion = evaluacion.getEvaluacionSeccion().getPlanCalificacion();
-        SistemaNotas sistemaNotas = evaluacion.getEvaluacionSeccion().getSistemaNotas();
+        SistemaNotas sistemaNotas = sistemaNotasDAO.find(evaluacion.getEvaluacionSeccion().getSistemaNotas().getId());
 
         evaluacion.setFechaIngresoNota(today);
         evaluacion.setEvaluados(alumnosEvaluaciones.length);
@@ -484,9 +489,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacion.setFechaIngresoNota(today);
             alumnoEvaluacion.setNota(alumnoEvaluacionEach.getNota());
             alumnoEvaluacion.setEsIngresoRegular(BigDecimal.ONE.intValue());
-            if (sistemaNotas.isNumerico()) {
+            if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
+                alumnoEvaluacion.setValorNumerico(BigDecimal.ZERO);
+            } else if (sistemaNotas.isNumerico()) {
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
+            } else {
+                NotaLetra notaLetra = sistemaNotas.getNotaLetra(alumnoEvaluacion.getNota());
+                alumnoEvaluacion.setValorNumerico(new BigDecimal(notaLetra.getValor()));
             }
+
             alumnoEvaluacion.setUsuarioIngresoNota(ds.getUsuario());
             alumnoEvaluacion.setEstado("");
             alumnoEvaluacionDAO.save(alumnoEvaluacion);
@@ -496,6 +507,70 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public SistemaNotas findSistemaNotaById(Long id) {
         return sistemaNotasDAO.find(id);
+    }
+
+    @Override
+    public ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idDocenteSeccion) {
+        Evaluacion evaluacion = this.findEvaluacion(idEvaluacion);
+        logger.debug("evaluacion param {}, {}", idEvaluacion, evaluacion == null ? "no encontro" : "si encontro");
+
+        DocenteSeccion docenteSeccion = this.findDocenteSeccion(idDocenteSeccion);
+        List<AlumnoEvaluacion> alumnosEvaluaciones = this.allAlumnoEvaluacionByFilter(null, null, docenteSeccion.getSeccion().getId());
+        GrupoSeccion grupoSeccion = this.findGrupo(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+        EvaluacionSeccion evaluacionSeccion = this.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        SistemaNotas sistemaNotas = evaluacionSeccion.getSistemaNotas();
+
+        BigDecimal notaminima = BigDecimal.valueOf(1000L);
+        BigDecimal notaMaxima = BigDecimal.ZERO;
+        BigDecimal sumatoriaNotas = BigDecimal.ZERO;
+        int cantidadNsp = 0;
+        int cantidadEvaluados = 0;
+
+        for (AlumnoEvaluacion alumnosEvaluacionEach : alumnosEvaluaciones) {
+            if (!alumnosEvaluacionEach.getEvaluacion().getId().equals(evaluacion.getId())) {
+                continue;
+            }
+            if (sistemaNotas.isNumerico()) {
+                if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaminima) < 0) {
+                    notaminima = alumnosEvaluacionEach.getValorNumerico();
+                }
+                if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaMaxima) > 0) {
+                    notaMaxima = alumnosEvaluacionEach.getValorNumerico();
+                }
+                if (alumnosEvaluacionEach.getNota().equalsIgnoreCase(AlumnoEvaluacion.NSP)) {
+                    cantidadNsp++;
+                } else {
+                    cantidadEvaluados++;
+                    sumatoriaNotas = sumatoriaNotas.add(alumnosEvaluacionEach.getValorNumerico());
+                }
+
+            }
+        }
+
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+        if (evaluacion != null) {
+            node.put("evaluacionId", evaluacion.getId());
+            node.put("tEvaluacionNombre", evaluacion.getTipoEvaluacion().getNombre());
+            node.put("tEvaluacionCodigo", evaluacion.getTipoEvaluacion().getCodigo());
+            node.put("numero", evaluacion.getNumero());
+            node.put("evaFechaIngresoNota", evaluacion.getFechaIngresoNota() != null ? new DateTime(evaluacion.getFechaIngresoNota()).toString("dd/MM/yyyy") : "");
+            node.put("evaFechaRealizada", evaluacion.getFechaRealizada() != null ? new DateTime(evaluacion.getFechaRealizada()).toString("dd/MM/yyyy") : "");
+            node.put("notaminima", 0);
+            if (BigDecimal.valueOf(1000L).compareTo(notaminima) != 0) {
+                node.put("notaminima", notaminima);
+            }
+
+            node.put("notaMaxima", notaMaxima);
+            node.put("cantidadEvaluados", cantidadEvaluados);
+            node.put("cantidadNsp", cantidadNsp);
+            node.put("promedioNotas", 0);
+            if (sumatoriaNotas.compareTo(BigDecimal.ZERO) != 0) {
+                node.put("promedioNotas", sumatoriaNotas.divide(new BigDecimal(cantidadEvaluados), 2, RoundingMode.CEILING));
+            }
+        }
+
+        return node;
     }
 
 }

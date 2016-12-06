@@ -142,4 +142,15 @@ public class SistemaNotas implements Serializable {
         return false;
     }
 
+    public NotaLetra getNotaLetra(String letra) {
+        if (this.getNotaLetra() != null && !this.getNotaLetra().isEmpty()) {
+            for (NotaLetra notaLetra : this.getNotaLetra()) {
+                if (notaLetra.getLetra().equals(letra)) {
+                    return notaLetra;
+                }
+            }
+        }
+        return null;
+    }
+
 }

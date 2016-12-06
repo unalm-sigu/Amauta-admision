@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
+import com.amazonaws.util.json.JSONObject;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -395,15 +396,20 @@ public class CargaAcademicaController {
             node.put("valorInicial", sistemaNotas.getValorInicio());
             node.put("valorFinal", sistemaNotas.getValorFinal());
             node.put("minimoAprobatorio", sistemaNotas.getMinimoAprobatorio());
+            node.put("letras", "");
 
+            StringBuilder strbLetras = new StringBuilder();
             if (!sistemaNotas.isNumerico() && (sistemaNotas.getNotaLetra() != null && !sistemaNotas.getNotaLetra().isEmpty())) {
                 for (NotaLetra notaLetra : sistemaNotas.getNotaLetra()) {
-                    ObjectNode nodeLetra = new ObjectNode(JsonNodeFactory.instance);
-                    nodeLetra.put("letra", notaLetra.getLetra());
-                    nodeLetra.put("esProbatoria", notaLetra.isAprobatorio());
-                    nodeLetra.put("valor", notaLetra.getValor());
-                    node.putPOJO("notaLetra", nodeLetra);
+
+                    JSONObject jobj = new JSONObject();
+                    jobj.put("esProbatoria", notaLetra.isAprobatorio());
+                    jobj.put("valor", notaLetra.getValor());
+
+                    node.put(notaLetra.getLetra(), jobj.toString());
+                    strbLetras.append(notaLetra.getLetra()).append(",");
                 }
+                node.put("letras", strbLetras.substring(0, strbLetras.length() - 1));
             }
 
             response.setData(node);
@@ -617,30 +623,19 @@ public class CargaAcademicaController {
     @RequestMapping("getEvaluacion")
     public JsonResponse getEvaluacion(
             Model model,
+            @RequestParam(name = "docenteSeccion", required = true) Long idDocenteSeccion,
             @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-
+        response.setSuccess(false);
         try {
             DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
-            logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
-            response.setSuccess(false);
+            ObjectNode node = cargaAcademicaService.getDetalleEvaluacion(evaluacionId, idDocenteSeccion);
 
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-            if (evaluacion != null) {
-                node.put("evaluacionId", evaluacion.getId());
-                node.put("tEvaluacionNombre", evaluacion.getTipoEvaluacion().getNombre());
-                node.put("tEvaluacionCodigo", evaluacion.getTipoEvaluacion().getCodigo());
-                node.put("numero", evaluacion.getNumero());
-                node.put("evaFechaIngresoNota", evaluacion.getFechaIngresoNota() != null ? new DateTime(evaluacion.getFechaIngresoNota()).toString("dd/MM/yyyy") : "");
-                node.put("evaFechaRealizada", evaluacion.getFechaRealizada() != null ? new DateTime(evaluacion.getFechaRealizada()).toString("dd/MM/yyyy") : "");
-                response.setData(node);
-                response.setSuccess(true);
-            }
+            response.setData(node);
+            response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -657,11 +652,11 @@ public class CargaAcademicaController {
             Model model,
             @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
             @RequestParam(name = "fechaEvaluacion", required = true) Date fechaEvaluacion,
-            @RequestParam(name = "activacion", required = false) boolean activacion,
+            @RequestParam(name = "activacion", required = true) boolean activacion,
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-
+        logger.debug("activacion {}", activacion);
         try {
             DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
