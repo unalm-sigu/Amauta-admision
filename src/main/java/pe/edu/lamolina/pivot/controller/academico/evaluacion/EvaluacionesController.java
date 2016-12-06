@@ -65,7 +65,7 @@ public class EvaluacionesController {
     public String detalleEstadisticaEvaluacion(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "app/academico/docente/evaluacion/detalleEstadisticaEvaluacion";
+        return "app/academico/docente/evaluacion/detalleResumenEvaluacion";
     }
     
     @RequestMapping("resumenEvaluacion2")
