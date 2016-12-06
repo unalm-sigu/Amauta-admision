@@ -3,6 +3,7 @@ $(function () {
     var sistemaNotasValidate = "";
     var letrasNota = "";
     var message = "";
+    var NSP = "NSP";
 
     NotasAcademicas = {
         init: function () {
@@ -17,6 +18,14 @@ $(function () {
                     success: function (response) {
 
                         sistemaNotasValidate = response.data;
+                        if (sistemaNotasValidate.letras != "") {
+                            var letrasArg = sistemaNotasValidate.letras.split(",");
+
+                            for (var i = 0; i < letrasArg.length; i++) {
+                                var letra = letrasArg[i];
+                                sistemaNotasValidate[letra] = JSON.parse(sistemaNotasValidate[letra]);
+                            }
+                        }
                     },
                     error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
@@ -24,37 +33,64 @@ $(function () {
                 });
             }
 
-            window.Parsley.addValidator('sistemaNota', {
+            window.Parsley.addValidator('notaNumerica', {
                 requirementType: 'string',
                 validateString: function (value, requirement) {
                     var nota = value;
-                    console.log(Boolean(sistemaNotasValidate.esNumerico));
-                    if (Boolean(sistemaNotasValidate.esNumerico)) {
-                        console.log("validara");
-                        if (isNaN(value)) {
-                            message = "La nota debe ser numérica."
+                    if (isNaN(value)) {
+                        if (value != NSP) {
                             return false;
                         }
-                        nota = parseFloat(nota);
-                        if (nota < parseFloat(sistemaNotasValidate.valorFinal)) {
-                            message = "La nota no debe ser menor que el valor mínimo."
-                            return false;
-                        }
-                        if (nota > parseFloat(sistemaNotasValidate.valorFinal)) {
-                            message = "La nota no debe ser mayor que el valor máximo."
-                            return false;
-                        }
-                    } else {
-
                     }
                     return true;
                 },
                 messages: {
                     //Cette valeur doit être un multiple de %s
-                    en: message,
-                    es: message
+                    en: "La nota debe ser numérica.",
+                    es: "La nota debe ser numérica."
                 }
             });
+
+            window.Parsley.addValidator('notaMinima', {
+                requirementType: 'string',
+                validateString: function (value, requirement) {
+                    var nota = value;
+                    if (!isNaN(value)) {
+                        nota = parseFloat(nota);
+                        if (nota < parseFloat(requirement)) {
+                            message = "La nota no debe ser menor que el valor mínimo."
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                messages: {
+                    //Cette valeur doit être un multiple de %s
+                    en: "Nota inferior al valor mínimo.",
+                    es: "Nota inferior al valor mínimo."
+                }
+            });
+
+            window.Parsley.addValidator('notaMaxima', {
+                requirementType: 'string',
+                validateString: function (value, requirement) {
+                    var nota = value;
+                    if (!isNaN(value)) {
+                        nota = parseFloat(nota);
+                        if (nota > parseFloat(requirement)) {
+                            message = "La nota no debe ser mayor que el valor máximo."
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                messages: {
+                    //Cette valeur doit être un multiple de %s
+                    en: "Nota superior al valor mínimo.",
+                    es: "Nota superior al valor mínimo."
+                }
+            });
+
         },
         cambioNA: function ($this, e) {
             e.preventDefault();
@@ -92,7 +128,10 @@ $(function () {
                 url: APP.url('academico/docente/cargaacademica/getEvaluacion'),
                 type: 'POST',
                 async: false,
-                data: {evaluacion: $this.attr("rel")},
+                data: {
+                    evaluacion: $this.attr("rel"),
+                    docenteSeccion: $("#txtDocSec").val()
+                },
                 success: function (response) {
                     MODAL.init("md");
                     MODAL.title("Detalle Evaluación " + response.data.tEvaluacionNombre + " " + response.data.numero);
@@ -129,7 +168,8 @@ $(function () {
             });
         },
         activarEvaluacion: function ($this, e) {
-            var activacion = Boolean($this.attr('rel'));
+            var activacion = $this.attr('rel');
+
             var form = $("[id='frmActivate']");
             form.parsley().destroy();
             form.parsley();
@@ -151,9 +191,8 @@ $(function () {
                 },
                 success: function (response) {
                     if (response.success) {
-                        notify(response.message, "info");
-                        if (activacion == true) {
 
+                        if (activacion == "true" || activacion == true) {
                             $("#txtCodeSel").val(response.data.evaSeleccionada);
                             $("span[name='" + response.data.evaSeleccionada + "']").css("display", "none");
                             $("input[name='" + response.data.evaSeleccionada + "']").css("display", "");
@@ -164,7 +203,9 @@ $(function () {
                              class="form-control nota-alumno"
                              readonly="false"/>
                              */
+
                         }
+                        notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
                     }
@@ -177,6 +218,7 @@ $(function () {
             });
         },
         grabarNotas: function () {
+
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
             $("input[name='" + evaluacion + "']").each(function () {
@@ -184,12 +226,23 @@ $(function () {
                 $(this).attr("required", true);
 
                 //  $(this).attr("data-parsley-sistema-nota", "true");
-                if (Boolean(sistemaNotasValidate.esNumerico)) {
-                    $(this).attr("data-parsley-min", sistemaNotasValidate.valorInicial);
-                    $(this).attr("data-parsley-max", sistemaNotasValidate.valorFinal);
-                    $(this).attr("data-parsley-type", "integer");
-                } else {
+                if (sistemaNotasValidate.esNumerico == "true" || sistemaNotasValidate.esNumerico == true) {
+                    //      $(this).attr("data-parsley-min", sistemaNotasValidate.valorInicial);
+                    //      $(this).attr("data-parsley-max", sistemaNotasValidate.valorFinal);
+                    $(this).attr("data-parsley-nota-numerica", "true");
+                    $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                    $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
 
+                    //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
+
+                } else {
+                    var letters = NSP + "|";
+
+                    var letrasArg = sistemaNotasValidate.letras.split(",");
+                    for (var i = 0; i < letrasArg.length; i++) {
+                        letters += letrasArg[i] + "|";
+                    }
+                    $(this).attr("data-parsley-pattern", "(" + letters.substring(0, letters.length - 1) + ")");
                 }
 
                 var alumno = $(this).attr("rel");
@@ -209,7 +262,7 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-
+            MODAL.showWait("Espere un momento por favor");
             if ($("#txtCodeSel").val() != "") {
                 $.ajax({
                     url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
@@ -232,11 +285,15 @@ $(function () {
                                 var evaluacion = $(this).attr("title");
                                 var nota = $(this).val();
 
-                                $(this).removeAttr("data-parsley-min");
-                                $(this).removeAttr("data-parsley-max");
+
+                                $(this).removeAttr("data-parsley-nota-minima");
+                                $(this).removeAttr("data-parsley-nota-maxima");
+                                $(this).removeAttr("data-parsley-nota-numerica");
                                 $(this).removeAttr("data-parsley-type");
                                 $(this).removeAttr("required");
                                 $(this).removeAttr("data-parsley-whitespace");
+                                $(this).removeAttr("data-parsley-pattern");
+
 
                                 $("span[name='" + response.data.evaSeleccionada + "']").each(function () {
                                     var alumnoSpan = $(this).attr("class");
@@ -254,7 +311,9 @@ $(function () {
                         notify(MESSAGES.errorComunicacion, "error");
 
                     }
+
                 });
+                MODAL.hideWait();
             } else {
                 bootbox.alert({
                     message: "Seleccionar evaluación e ingresar notas.",
@@ -295,6 +354,7 @@ $(function () {
     });
 
     $("body").delegate(".activar-eval", "click", function (e) {
+
         NotasAcademicas.activarEvaluacion($(this), e);
     });
 
