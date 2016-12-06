@@ -223,7 +223,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void saveExpansionEvaluacion(Evaluacion evaluacion, DataSessionPivot ds) {
+    public void saveExpansionEvaluacion(EvaluacionExpandida evaluacion, DataSessionPivot ds) {
         logger.debug("La evaluacion es {}", evaluacion.getId());
 
         EvaluacionExpandida evaluacionPadre = evaluacionExpandidaDAO.find(evaluacion.getId());
