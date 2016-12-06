@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Component
 public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -16,7 +16,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authenticated) throws IOException, ServletException {
 
-        DataSession dataSession = new DataSession();
+        DataSessionPivot dataSession = new DataSessionPivot();
         request.getSession().setAttribute(Constantine.SESSION_USUARIO, dataSession);
         setDefaultTargetUrl("/adm");
         super.onAuthenticationSuccess(request, response, authenticated);

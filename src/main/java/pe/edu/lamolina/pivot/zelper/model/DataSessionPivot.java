@@ -7,7 +7,7 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
-public class DataSession implements Serializable {
+public class DataSessionPivot implements Serializable {
 
     private String email;
 

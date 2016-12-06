@@ -52,7 +52,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/docente/cargaacademica")
@@ -89,7 +89,7 @@ public class CargaAcademicaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("docente", ds.getDocente());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
         cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente());
@@ -99,7 +99,7 @@ public class CargaAcademicaController {
 
     @RequestMapping("sistemaCurso")
     public String sistemaCurso(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/cargaacademica/sistemaCurso";
     }
@@ -109,7 +109,7 @@ public class CargaAcademicaController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
@@ -190,7 +190,7 @@ public class CargaAcademicaController {
             HttpSession session) {
         logger.debug("evaluacion seccion id {}", evaluacionSeccionId);
         DynatableResponse json = new DynatableResponse();
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         logger.debug("la evaluacion seccion {}", evaluacionSeccionId);
         try {
@@ -237,7 +237,7 @@ public class CargaAcademicaController {
 
     @RequestMapping("{seccion}/detalleSistemaCalificacion")
     public String detalleSistemaCalificacion(@PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getPlanCalificacion());
@@ -248,7 +248,7 @@ public class CargaAcademicaController {
 
     @RequestMapping("expandir/{seccion}")
     public String expandir(Model model, HttpSession session, @PathVariable("seccion") Long idSeccion) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
 
@@ -278,7 +278,7 @@ public class CargaAcademicaController {
 
     @RequestMapping("nuevo/{seccion}")
     public String nuevo(Model model, HttpSession session, @PathVariable("seccion") Long idSeccion) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
@@ -320,7 +320,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             cargaAcademicaService.saveExpansionEvaluacion(evaluacion, ds);
             logger.debug("La evaluacion seccion es {}", evaluacion.getEvaluacionSeccion().getId());
@@ -352,7 +352,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Grupo Seccon Id {}", grupoSeccionId);
             String message = "";
             if (planCalificacion.getId() == null) {
@@ -385,7 +385,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Sistema Notas {}", idSistemaNotas);
 
             SistemaNotas sistemaNotas = cargaAcademicaService.findSistemaNotaById(idSistemaNotas);
@@ -421,7 +421,7 @@ public class CargaAcademicaController {
     @RequestMapping("detalleExpandirEvaluacion")
     public String detalleExapandirEva(Model model, HttpSession session,
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
@@ -446,7 +446,7 @@ public class CargaAcademicaController {
     public String notasAcademicas(
             @PathVariable("docenteSeccion") Long idDocenteSeccion,
             Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("el idDocenteSeccion {}", idDocenteSeccion);
         // logger.debug("el idCurso {}", idCurso);
 
@@ -496,7 +496,7 @@ public class CargaAcademicaController {
 
     @RequestMapping("{evaluacion}/evaluacion")
     public String evaluacion(@PathVariable("evaluacion") Long idEvaluacion, Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Evaluacion eval = new Evaluacion();
         eval.setTipoEvaluacion(new TipoEvaluacion());
@@ -508,7 +508,7 @@ public class CargaAcademicaController {
 
     @RequestMapping("detalleCambioNota")
     public String detalleCambioNota(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/cargaacademica/detalleCambioNota";
     }
@@ -523,7 +523,7 @@ public class CargaAcademicaController {
     public String detalleNotasAcademicas(Model model,
             @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
             HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("evaluacion {}", evaluacionId);
         Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
 
@@ -537,7 +537,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             String message = "Expandido correctamente.";
             cargaAcademicaService.aceptarExpansion(evaluacionSeccionId, ds);
@@ -564,7 +564,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Curso {}, Seccion {}", cursoId, seccionId);
             String message = "Rechazado correctamente.";
 
@@ -593,7 +593,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Curso {}, Seccion {}", cursoId, seccionId);
             String message = "Aceptado correctamente.";
 
@@ -623,7 +623,7 @@ public class CargaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
             logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
@@ -663,7 +663,7 @@ public class CargaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
             Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
             logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
@@ -699,7 +699,7 @@ public class CargaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Notas {}", alumnoEvaluaciones.length);
 
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());

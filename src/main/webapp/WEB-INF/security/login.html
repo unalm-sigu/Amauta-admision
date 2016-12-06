@@ -7,12 +7,48 @@
     </head>
 
     <body class="login-bg">
-        <section class="login-wrapper">
-            <h2 class="logo">PIVOT - LA MOLINA</h2>
-            <div class="box">
-                <a class="btn btn-info login" th:href="@{/login}">Ingresar con <br/>Correo Electrónico</a>
+
+        <div class="login-header">
+            <span class="text-uppercase"> Universidad Nacional Agraria la Molina </span>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 col-sm-6">
+                <section class="login-wrapper">
+                    <div class="left-box">
+                        <h1 class="title">PIVOT</h1>
+                        <h3 class="subtitle"> GESTIÓN ADMINISTRATIVA UNIVERSITARIA</h3>
+
+                        <p class="description m-t-lg">
+                            La universidad presenta una nueva forma de gestionar los procesos académicos y administrativos con el objetivo de modernizar y llevar a la institución a otro nivel.
+                        </p>
+                    </div>
+                </section>
             </div>
-        </section>
+
+            <div class="col-md-6  col-sm-6">
+                <section class="login-wrapper text-center">
+                    <div class="box">
+                        <div class="m-b-md">
+                            <a href="#"><img th:src="@{/phobos/images/logo.svg}" width="300px"/></a>
+                        </div>
+
+                        <a class="btn btn-success login" th:href="@{/login}">
+                            INGRESAR <span class="text-lg m-l-xs"> 🚀 </span>
+                        </a>
+                        
+                    </div>
+                </section>
+            </div>     
+        </div>
+
+        <div class="login-copyright text-muted">
+            © 2016 UNALM | Desarrollado por Albatross
+        </div>
+
+        <div class="login-footer"></div>
+
         <div th:substituteby="zlayout/includes :: javascript"/>
     </body>
 </html>

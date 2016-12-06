@@ -319,4 +319,19 @@ public class Persona implements Serializable {
         return this.nombres + (StringUtils.isEmpty(this.paterno) ? "" : (" " + this.paterno)) + (StringUtils.isEmpty(this.materno) ? "" : (" " + this.materno));
     }
 
+    public String getAvatar() {
+
+        String avatar = "";
+
+        if (this.nombres != null) {
+            avatar += this.nombres.substring(0, 1).toUpperCase();
+        }
+
+        if (this.paterno != null) {
+            avatar += this.paterno.substring(0, 1).toUpperCase();
+        }
+
+        return avatar;
+    }
+
 }

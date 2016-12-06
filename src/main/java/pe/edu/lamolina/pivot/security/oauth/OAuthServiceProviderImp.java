@@ -17,14 +17,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Autowired
     OAuthServiceConfig config;
+
+    @Autowired
+    UsuarioDAO usuarioDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,13 +48,19 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     @Override
     public void loginManually(String email, HttpSession session) {
 
+        Usuario usuario = usuarioDAO.findByEmail(email);
+
+        if (usuario == null) {
+            throw new PhobosException("Usuario no identificado.");
+        }
+        
         SecurityContext cntx = SecurityContextHolder.getContext();
 
         Collection<GrantedAuthority> authorities = new ArrayList();
         authorities.add(new SimpleGrantedAuthority("USUARIO"));
 
         if (authorities.isEmpty()) {
-            throw new PhobosException("Usuario sin rol asignado");
+            throw new PhobosException("Usuario sin rol asignado.");
         }
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, email, authorities);
@@ -57,8 +68,10 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
 
-        DataSession dataSession = new DataSession();
+        DataSessionPivot dataSession = new DataSessionPivot();
         dataSession.setEmail(email);
+        dataSession.setUsuario(usuario);
+        dataSession.setPersona(usuario.getPersona());
         session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
     }
 

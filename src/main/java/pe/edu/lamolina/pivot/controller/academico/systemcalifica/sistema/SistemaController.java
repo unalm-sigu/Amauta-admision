@@ -40,7 +40,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @SessionAttributes("planCalificacion")
@@ -80,7 +80,7 @@ public class SistemaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/systemcalifica/sistema/sistema";
     }
@@ -90,7 +90,7 @@ public class SistemaController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
             DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
@@ -137,7 +137,7 @@ public class SistemaController {
     public DynatableResponse listCursos(DynatableFilter filter, @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
             logger.debug("Plancalificacion {}", planCalificacion);
@@ -170,7 +170,7 @@ public class SistemaController {
 
     @RequestMapping("{sistema}/detalleSistema")
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
@@ -179,7 +179,7 @@ public class SistemaController {
 
     @RequestMapping("{sistema}/cursos")
     public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
@@ -190,7 +190,7 @@ public class SistemaController {
 
     @RequestMapping("{sistema}/detalleSolicitud")
     public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("El sistema califica {}", idSistema);
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
@@ -201,7 +201,7 @@ public class SistemaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = new PlanCalificacion();
 
         model.addAttribute("planCalificacion", planCalificacion);
@@ -219,7 +219,7 @@ public class SistemaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             String message = "";
             if (planCalificacion.getId() == null) {
@@ -400,7 +400,7 @@ public class SistemaController {
             @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             sistemaService.asignarCurso(curso, planCalificacion, ds.getUsuario().getId());
             response.setMessage("Curso asignado.");
@@ -423,7 +423,7 @@ public class SistemaController {
             @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             sistemaService.desasignarCurso(curso, planCalificacion, ds.getPersona().getId());
             response.setMessage("Curso desasignado.");

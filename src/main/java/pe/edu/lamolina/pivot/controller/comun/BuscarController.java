@@ -23,7 +23,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("comun/buscar")
@@ -69,7 +69,7 @@ public class BuscarController {
         DynatableResponse json = new DynatableResponse();
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("el plan calificacion es " + planCalificacion);
             List<Curso> cursos = buscarService.allCursosAutocomplete(nombre, ds.getDepartamentoAcademico().getId(), planCalificacion);
             

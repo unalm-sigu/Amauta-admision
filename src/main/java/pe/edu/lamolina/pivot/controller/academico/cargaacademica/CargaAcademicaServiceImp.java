@@ -38,7 +38,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
@@ -218,7 +218,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void saveExpansionEvaluacion(Evaluacion evaluacion, DataSession ds) {
+    public void saveExpansionEvaluacion(Evaluacion evaluacion, DataSessionPivot ds) {
         logger.debug("La evaluacion es {}", evaluacion.getId());
 
         Evaluacion evaluacionPadre = evaluacionDAO.find(evaluacion.getId());
@@ -346,7 +346,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void aceptarExpansion(Long evaluacionSeccionId, DataSession ds) {
+    public void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds) {
         logger.debug("La evaluacionSeccionId es {}", evaluacionSeccionId);
 
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.find(evaluacionSeccionId);
@@ -361,7 +361,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void aceptarRechazo(Long cursoId, Long seccionId, DataSession ds) {
+    public void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds) {
         logger.debug("CursoId {}, SeccionId {}", cursoId, seccionId);
 
         Curso curso = cursoDAO.find(cursoId);
@@ -381,7 +381,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSession ds) {
+    public void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSessionPivot ds) {
         logger.debug("CursoId {}, SeccionId {}", cursoId, seccionId);
 
         Curso curso = cursoDAO.find(cursoId);
@@ -466,7 +466,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void saveIngresoNotas(DataSession ds, Evaluacion evaluacionParam, AlumnoEvaluacion[] alumnosEvaluaciones) {
+    public void saveIngresoNotas(DataSessionPivot ds, Evaluacion evaluacionParam, AlumnoEvaluacion[] alumnosEvaluaciones) {
         Date today = new Date();
 
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionParam.getId());

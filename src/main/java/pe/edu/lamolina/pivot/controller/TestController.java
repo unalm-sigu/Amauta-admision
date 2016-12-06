@@ -17,7 +17,7 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("/test")
@@ -37,11 +37,11 @@ public class TestController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(HttpSession session) {
 
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Usuario user = usuarioDAO.findByEmail(ds.getEmail());
 
-        ds = new DataSession();
+        ds = new DataSessionPivot();
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
         ds.setCicloAcademico(cicloAcademico);
         ds.setPersona(user.getPersona());

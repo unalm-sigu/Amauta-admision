@@ -269,21 +269,51 @@ div.pregunta_marco_desempeno:hover{
 
 
 .login-bg {
-    background: url(../images/back.jpg) no-repeat center center fixed;
-    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/back.jpg', sizingMethod = 'scale');
-    -ms-filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='../images/back.jpg', sizingMethod = 'scale');
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
+    background: #192941;
+}
+
+.login-header{
+    height: 50px;
+    background: #02192C;
+    padding: 15px 50px;
+    color: white;
+}
+
+.login-footer{
+    background: #2ECC71;
+    height: 16px;
+    bottom: 0px;
+    width: 100%;
+    position: absolute;
+}
+
+.login-copyright{
+    padding: 50px;
+    color: white;
+    bottom: 0px;
+    width: 100%;
+    position: absolute;
 }
 
 .login-wrapper {
-    position: absolute;
-    top: 90px;
-    left: 0;
-    right: 0;
-    text-align: center;
+    margin-top: 25%;
+}
+
+.login-wrapper .left-box{
+    text-align: left;
+    padding: 50px;
+}
+.login-wrapper .title{
+    color: #2ECC71;
+    line-height: 8px;
+    font-size: 4em;
+}
+.login-wrapper .description{
+    color: white;
+    font-size: 15px;
+}
+.login-wrapper .subtitle{
+    color: #2ECC71; 
 }
 .login-wrapper .logo {
     color: #FFFFFF;
@@ -301,7 +331,8 @@ div.pregunta_marco_desempeno:hover{
     width: 400px;
     box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.40);
+    text-align: center;
 }
 .login-wrapper .box .content-wrap {
     width: 82%;
@@ -368,8 +399,9 @@ div.pregunta_marco_desempeno:hover{
 }
 .login-wrapper .box .login {
     text-transform: uppercase;
-    font-size: 13px;
-    padding: 8px 30px;
+    font-size: 14px;
+    padding: 8px 50px;
+    color: #192941 !important;
 }
 .login-wrapper .no-account {
     margin: 0 auto;
@@ -403,14 +435,25 @@ div.pregunta_marco_desempeno:hover{
 
 /* responsive */
 @media (max-width: 767px) {
+    
+    .login-wrapper {
+        margin-top: 5%;
+    }
+    
     .login-wrapper .box {
         width: 350px;
     }
 }
 @media (max-width: 480px) {
+
+    .login-wrapper {
+        margin-top: 5%;
+    }
+
     .login-wrapper .box {
         width: 90%;
     }
+
 
 }
 
@@ -565,54 +608,54 @@ img.pin {
 
 /* SUB-BAR */
 #subBar {
-  padding-left: 20px;
+    padding-left: 20px;
 }
 .tabbable-panel {
-  border: 1px solid #eee;
-  padding: 10px;
+    border: 1px solid #eee;
+    padding: 10px;
 }
 .tabbable-line > .nav-tabs {
-  margin: 0px;
-  border-bottom: 1px solid #ccc;
+    margin: 0px;
+    border-bottom: 1px solid #ccc;
 }
 .tabbable-line > .nav-tabs > li > a {
-  border: 0;
-  color: #888;
-  font-weight: bold;
-  font-size: 12px;
-  text-transform: uppercase;
+    border: 0;
+    color: #888;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
 }
 .tabbable-line > .nav-tabs > li > a > i {
-  color: #737373;
+    color: #737373;
 }
 .tabbable-line > .nav-tabs > li.open,
 .tabbable-line > .nav-tabs > li:hover {
-  border-bottom: 2px solid #a6a6a6;
+    border-bottom: 2px solid #a6a6a6;
 }
 .tabbable-line > .nav-tabs > li.open > a,
 .tabbable-line > .nav-tabs > li:hover > a {
-  border: 0;
-  background: none !important;
-  color: #666;
-  transition: border-color 500ms;
+    border: 0;
+    background: none !important;
+    color: #666;
+    transition: border-color 500ms;
 }
 .tabbable-line > .nav-tabs > li.open > a > i,
 .tabbable-line > .nav-tabs > li:hover > a > i {
-  color: #333333;
+    color: #333333;
 }
 .tabbable-line > .nav-tabs > li.open .dropdown-menu,
 .tabbable-line > .nav-tabs > li:hover .dropdown-menu {
-  margin-top: 0px;
+    margin-top: 0px;
 }
 .tabbable-line > .nav-tabs > li.active {
-  border-bottom: 2px solid #2ecc71;
-  position: relative;
+    border-bottom: 2px solid #2ecc71;
+    position: relative;
 }
 .tabbable-line > .nav-tabs > li.active > a {
-  border: 0;
-  font-weight: bold;
-  color: #333333;
-  background: none !important;
+    border: 0;
+    font-weight: bold;
+    color: #333333;
+    background: none !important;
 }
 
 /* Cobranza style -start*/
@@ -697,11 +740,11 @@ a.btn-tab-nav
     vertical-align: top;
     width: 90%;
 }	
- 
+
 .table-cobranzas>tbody>tr>td{
     border-top: 0px;
 }
- 
+
 /* Cobranza style end */
 
 
@@ -709,16 +752,16 @@ a.btn-tab-nav
     z-index: 1050!important;
 }
 .bootstrap-timepicker-widget.dropdown-menu.open{
-        position:absolute;
+    position:absolute;
 }
 
 .logo{
     margin-bottom: 0 !important;
 }
-        
-        .contenedor-secciones{
-            position: relative;
-            overflow-y: auto;
-            height: 300px;
-            padding-top: 20px;
-        }
+
+.contenedor-secciones{
+    position: relative;
+    overflow-y: auto;
+    height: 300px;
+    padding-top: 20px;
+}

@@ -4,7 +4,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 public class LoginController {
@@ -12,7 +12,7 @@ public class LoginController {
     @RequestMapping("/")
     public String index(HttpSession session) {
 
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         if (ds != null) {
             return "redirect:/test";

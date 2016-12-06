@@ -18,7 +18,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CargaAcademicaService {
 
@@ -54,7 +54,7 @@ public interface CargaAcademicaService {
 
     void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum);
 
-    void saveExpansionEvaluacion(Evaluacion evaluacion, DataSession ds);
+    void saveExpansionEvaluacion(Evaluacion evaluacion, DataSessionPivot ds);
 
     EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion);
 
@@ -66,11 +66,11 @@ public interface CargaAcademicaService {
 
     void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId);
 
-    void aceptarExpansion(Long evaluacionSeccionId, DataSession ds);
+    void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds);
 
-    void aceptarRechazo(Long cursoId, Long seccionId, DataSession ds);
+    void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds);
 
-    void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSession ds);
+    void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSessionPivot ds);
 
     DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);
 
@@ -82,7 +82,7 @@ public interface CargaAcademicaService {
 
     void updateEvaluacion(Evaluacion evaluacion);
 
-    void saveIngresoNotas(DataSession ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
+    void saveIngresoNotas(DataSessionPivot ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
 
     SistemaNotas findSistemaNotaById(Long id);
 

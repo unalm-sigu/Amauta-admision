@@ -1,139 +1,54 @@
-<header  th:fragment="topBarResponsive"  class="bg-dark nav-bar visible-xs">
-    <a class="btn btn-link sidebar-toggler">
-        <i class="fa fa-bars"></i>
-    </a>
-    <a href="#" class="nav-brand" data-toggle="fullscreen">La Molina</a>
-    <a class="btn btn-link visible-xs" data-toggle="collapse" data-target=".navbar-collapse">
-        <i class="fa fa-comment-o"></i>
-    </a>
-</header>
-
-<header th:fragment="topBar" class="bg-primary header navbar">
-    <div class="collapse navbar-collapse pull-in">
-        <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user user">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle name-role" data-toggle="dropdown">
-                    <span class="thumb-sm avatar pull-left">
-                        <img th:src="@{/phobos/images/avatar.png}" />
-                    </span>
-
-                    <span  class="capitalize" th:text='${ session["SESSION_USUARIO"].email }'>José EA</span>
-                    <b class="fa fa-angle-down"></b>
-                    <span class="role">Administrador</span>
-                </a>
-
-                <ul class="dropdown-menu animated fadeInRight">      
-                    <li class="divider" ></li>
-                    <li><a th:href="@{/logout}">Salir</a></li>
-                </ul>
-            </li>
-        </ul> 
-    </div>
-</header>
-
-<header th:fragment="topBarDos" class="bg-primary header navbar navbar-fixed-top-xs">
-
-    <div class="navbar-header aside-md">
-        <a href="#" class="nav-brand" data-toggle="fullscreen">La Molina</a>
-
-        <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target=".user">
-            <i class="glyphicon glyphicon-cog"></i>
-        </a>
-    </div>
-
-    <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user user">
-        <li class="dropdown">
-            <a href="#" class="dropdown-toggle name-role" data-toggle="dropdown"> 
-
-                <span class="thumb-sm avatar pull-left">
-                    <img th:src="@{/phobos/images/avatar.png}" />
-                </span>
-                <span  class="capitalize" th:text='${ session["SESSION_USUARIO"].email }'>José EA</span>
-                <b class="fa fa-angle-down"></b>
-                <span class="role">Administrador</span>
-            </a>
-
-            <ul class="dropdown-menu animated fadeInRight">      
-                <li class="divider" ></li>
-                <li><a th:href="@{/logout}">Salir</a></li>
-            </ul>
-        </li>
-    </ul> 
-</header>
-
 <aside th:fragment="sideBarFlat" class="aside-lg" id="nav" >
+
     <section class="vbox">
         <div id="sidebar-flat-dark" class="main-sidebar fix-scroll">
 
-            <!--            <div class="logo bg-primary">
-                            <a href="#" class="nav-brand" data-toggle="fullscreen">La Molina</a>
-                        </div>-->
-
-            <div class="logo bg-primary">
-                <a th:href="@{/}" class="navbar-brand">SIPs</a>
+            <div class="logo">
+                <a href="#" class="nav-brand" data-toggle="fullscreen"></a>
             </div>
 
-            <div class="menu-section v-middle">
-                <h3>Sistema de Calificación</h3>
-                <ul>
-                    <li class="option" >
-                        <a th:href="@{/academico/systemcalifica/sistema}">
-                            <i class="fa fa-check-square"></i>
-                            <span>Sist. Calificación</span>
-                        </a>
-                    </li>
-                    <li class="option" >
-                        <a th:href="@{/academico/docente/cargaacademica}">
-                            <i class="fa fa-bar-chart"></i>
-                            <span>Carga Académica</span>
-                        </a>
-                    </li>
-                    <li class="option" >
-                        <a th:href="@{/academico/docente/evaluacion}">
-                            <i class="fa fa-object-ungroup"></i>
-                            <span>Resumen de Evaluaciones</span>
-                        </a>
-                    </li>
+            <div class="current-user">
+                <a href="#" class="name">
+                    <div class="avatar-text" th:inline="text">
+                        [[ ${session.SESSION_USUARIO.persona.avatar} ]] 
+                    </div>
 
+                    <span  class="capitalize" th:inline="text"> 
+                        <div class="elipsis-name inline">
+                            [[ ${session.SESSION_USUARIO.persona.nombreCompleto} ]]
+                        </div>
+                        <b class="fa fa-angle-down inline"></b> 
+                    </span>
+
+                    <span class="role" >Administrador</span>
+                </a>
+
+                <ul class="menu">      
+                    <li><a th:href="@{/logout}">Salir</a></li>
                 </ul>
             </div>
-            <!--  
-            <div class="menu-section">
-                <h3>Sistema de Calificacion</h3>
-                <ul>
-                    <li class="option" >
-                        <a th:href="@{/calificacion/tema}">
-                            <i class="fa fa-object-ungroup"></i>
-                            <span>Opcion 1</span>
-                        </a>
-                    </li>
-                    <li class="option" >
-                        <a th:href="@{/calificacion/tema}">
-                            <i class="fa fa-object-ungroup"></i>
-                            <span>Opcion 2</span>
-                        </a>
-                    </li>
-                    <li class="option" >
-                        <a th:href="@{/calificacion/tema}">
-                            <i class="fa fa-object-ungroup"></i>
-                            <span>Opcion 3</span>
-                        </a>
-                    </li>
-                    <li class="option" >
-                        <a th:href="@{/calificacion/tema}">
-                            <i class="fa fa-object-ungroup"></i>
-                            <span>Opcion 4</span>
-                        </a>
-                    </li>
-                    <li class="option" >
-                        <a th:href="@{/calificacion/tema}">
-                            <i class="fa fa-object-ungroup"></i>
-                            <span>Opcion 5</span>
-                        </a>
-                    </li>
-                </ul>
+
+            <div class="contenedor-secciones">
+                <div class="menu-section">
+                    <ul>
+                        <li class="option" >
+                            <a th:href="@{/academico/systemcalifica/sistema}">
+                                <i class="fa fa-check-square"></i><span>Sist. Calificación</span>
+                            </a>
+                        </li>
+                        <li class="option" >
+                            <a th:href="@{/academico/docente/cargaacademica}">
+                                <i class="fa fa-bar-chart"></i><span>Carga Académica</span>
+                            </a>
+                        </li>
+                        <li class="option" >
+                            <a th:href="@{/academico/docente/evaluacion}">
+                                <i class="fa fa-object-ungroup"></i><span>Resumen de Evaluaciones</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            -->
         </div>
 
         <footer class="footer hidden-xs no-padder text-center-nav-xs">
@@ -143,3 +58,7 @@
         </footer>
     </section>
 </aside>
+
+
+
+

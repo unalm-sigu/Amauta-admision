@@ -1,14 +1,9 @@
-.clear-celda {
-    padding: 1px !important;
-    border-top: 0px !important;
-}
-
 html {
   background-color: #f2f4f8;
   overflow-x: hidden;
 }
 body {
-  font-family: "Helvetica Neue", "Open Sans", Helvetica, Arial, sans-serif;
+  font-family: "Helvetica Neue", "Roboto", Helvetica, Arial, sans-serif;
   font-size: 13px;
   color: #3c4043;
   background-color: transparent;
@@ -38,8 +33,8 @@ h6,
 .h4,
 .h5,
 h6 {
-  font-family: "Helvetica Neue", "Open Sans", Helvetica, Arial, sans-serif;
-  font-weight: 200;
+  font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
 }
 a {
   color: #2CA8FF;
@@ -157,7 +152,7 @@ a:hover .caret-white {
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
 }
 .alert .close i {
-  font-size: 8px;
+  font-size: 12px;
   font-weight: normal;
   display: block;
 }
@@ -650,7 +645,7 @@ a.list-group-item:focus {
   margin-bottom: 0;
   padding: 0;
   position: relative;
-  z-index: 1;
+  z-index: 1000;
 }
 body.container {
   padding: 0;
@@ -865,8 +860,8 @@ body.container {
   text-decoration: none;
 }
 .navbar-brand img {
-  max-height: 25px;
-  margin-top: 10px;
+  max-height: 20px;
+  margin-top: -4px;
   vertical-align: middle;
 }
 .nav-primary li > a > i {
@@ -2091,7 +2086,7 @@ fieldset[disabled] .btn-dark.active {
   margin: 0;
   padding: 0;
   list-style: none;
-  /*margin-top: 6px; RETIDADO PARA LEGAL*/
+  margin-top: 6px;
   font-size: 11px;
   color: #e74c3c;
 }

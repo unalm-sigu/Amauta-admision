@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/docente/evaluacion")
@@ -49,28 +49,28 @@ public class EvaluacionesController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/evaluacion/resumenEvaluacion";
     }
 
     @RequestMapping("detalleResumenEvaluacion")
     public String detalleResumenEvaluacion(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/evaluacion/detalleResumenEvaluacion";
     }
     
     @RequestMapping("detalleEstadisticaEvaluacion")
     public String detalleEstadisticaEvaluacion(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/evaluacion/detalleEstadisticaEvaluacion";
     }
     
     @RequestMapping("resumenEvaluacion2")
     public String resumenEvaluacion2(Model model, HttpSession session) {
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         return "app/academico/docente/evaluacion/resumenEvaluacion2";
     }

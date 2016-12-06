@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSession;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 public class OAuthController {
@@ -71,7 +71,7 @@ public class OAuthController {
     @RequestMapping(value = "lagunas/{email:.*}", method = RequestMethod.GET)
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model) {
 
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         serviceProvider.loginManually(email, session);
         return "redirect:/route66";
     }
@@ -79,7 +79,7 @@ public class OAuthController {
     @RequestMapping("route66")
     public String route66(HttpSession session, Model model) {
 
-        DataSession ds = (DataSession) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         if (ds == null) {
             return "redirect:/login";
         }
