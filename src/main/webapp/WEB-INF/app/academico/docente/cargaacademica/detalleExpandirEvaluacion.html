@@ -4,6 +4,7 @@
         <span class="block"><strong>Peso:</strong> <span th:text="${evaluacion.peso}">5%</span></span>
         <input type="hidden" name="id" th:value="${evaluacion.id}"/>
         <input type="hidden" name="evaluacionSeccion.id" th:value="${evaluacion.evaluacionSeccion.id}"/>
+        <input type="hidden" name="peso" th:value="${evaluacion.peso}"/>
     </div>
 
     <table class="table table-striped">

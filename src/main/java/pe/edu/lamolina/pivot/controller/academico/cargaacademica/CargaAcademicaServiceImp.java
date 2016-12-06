@@ -223,14 +223,22 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void saveExpansionEvaluacion(Evaluacion evaluacion, DataSession ds) {
+    public void saveExpansionEvaluacion(EvaluacionExpandida evaluacion, DataSession ds) {
         logger.debug("La evaluacion es {}", evaluacion.getId());
 
-        Evaluacion evaluacionPadre = evaluacionDAO.find(evaluacion.getId());
+        EvaluacionExpandida evaluacionPadre = evaluacionExpandidaDAO.find(evaluacion.getId());
 
-        for (Evaluacion evaluacionHija : evaluacion.getEvaluaciones()) {
+        Integer newPesoTotal = 0;
+        for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
+            newPesoTotal += evaluacionHija.getPeso();
+        }
+        if (newPesoTotal != evaluacionPadre.getPeso()) {
+            throw new PhobosException("El peso de las evaluaciones debe ser igual a " + evaluacionPadre.getPeso());
+        }
+
+        for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
             evaluacionHija.setAlumnoEvaluacion(null);
-            evaluacionHija.setEstaDesagregado(BigDecimal.ZERO.intValue());
+            evaluacionHija.setEstaDesagregado(BigDecimal.ONE.intValue());
             evaluacionHija.setEvaluacionSeccion(evaluacionPadre.getEvaluacionSeccion());
             evaluacionHija.setEvaluacionSuperior(evaluacionPadre);
             evaluacionHija.setEvaluaciones(null);
@@ -247,7 +255,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             //las evaluaciones por tantas claves exista
             //en el recorrido identificar que evaluaciones le pertenecen a la clave en actualmente recorrida
 
-            evaluacionDAO.save(evaluacionHija);
+            evaluacionExpandidaDAO.save(evaluacionHija);
         }
     }
 

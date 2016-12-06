@@ -316,7 +316,7 @@ public class CargaAcademicaController {
     @ResponseBody
     @RequestMapping("saveExpandir")
     public JsonResponse saveExpandir(Model model,
-            @ModelAttribute("evaluacion") Evaluacion evaluacion,
+            @ModelAttribute EvaluacionExpandida evaluacion,
             RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
