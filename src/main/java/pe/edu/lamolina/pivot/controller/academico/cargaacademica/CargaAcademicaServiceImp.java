@@ -530,21 +530,21 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             if (!alumnosEvaluacionEach.getEvaluacion().getId().equals(evaluacion.getId())) {
                 continue;
             }
-            if (sistemaNotas.isNumerico()) {
-                if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaminima) < 0) {
-                    notaminima = alumnosEvaluacionEach.getValorNumerico();
-                }
-                if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaMaxima) > 0) {
-                    notaMaxima = alumnosEvaluacionEach.getValorNumerico();
-                }
-                if (alumnosEvaluacionEach.getNota().equalsIgnoreCase(AlumnoEvaluacion.NSP)) {
-                    cantidadNsp++;
-                } else {
-                    cantidadEvaluados++;
-                    sumatoriaNotas = sumatoriaNotas.add(alumnosEvaluacionEach.getValorNumerico());
-                }
-
+            //  if (sistemaNotas.isNumerico()) {
+            if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaminima) < 0) {
+                notaminima = alumnosEvaluacionEach.getValorNumerico();
             }
+            if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaMaxima) > 0) {
+                notaMaxima = alumnosEvaluacionEach.getValorNumerico();
+            }
+            if (alumnosEvaluacionEach.getNota().equalsIgnoreCase(AlumnoEvaluacion.NSP)) {
+                cantidadNsp++;
+            } else {
+                cantidadEvaluados++;
+                sumatoriaNotas = sumatoriaNotas.add(alumnosEvaluacionEach.getValorNumerico());
+            }
+
+            //  }
         }
 
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);

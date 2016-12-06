@@ -218,7 +218,7 @@ $(function () {
             });
         },
         grabarNotas: function () {
-            MODAL.showWait("Espere un momento por favor");
+
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
             $("input[name='" + evaluacion + "']").each(function () {
@@ -262,7 +262,7 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-
+            MODAL.showWait("Espere un momento por favor");
             if ($("#txtCodeSel").val() != "") {
                 $.ajax({
                     url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
