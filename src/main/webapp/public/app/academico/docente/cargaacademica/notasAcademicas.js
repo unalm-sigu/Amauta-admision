@@ -1,6 +1,19 @@
 $(function () {
 
     NotasAcademicas = {
+        init: function () {
+            window.Parsley.addValidator('sistemaNota', {
+                requirementType: 'integer',
+                validateString: function (value, requirement) {
+                    console.log("adadad");
+                    return false;
+                },
+                messages: {
+                    en: 'This value should be a multiple of %s',
+                    es: 'Cette valeur doit être un multiple de %s'
+                }
+            });
+        },
         cambioNA: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
@@ -115,6 +128,9 @@ $(function () {
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
             $("input[name='" + evaluacion + "']").each(function () {
+                $(this).attr("data-parsley-whitespace", "trim");
+                $(this).attr("required", true);
+                $(this).attr("data-parsley-sistema-nota", "true");
 
                 var alumno = $(this).attr("rel");
                 var evaluacion = $(this).attr("title");
@@ -127,6 +143,15 @@ $(function () {
                 item["evaluacion"] = {id: evaluacion};
                 jsonObj.push(item);
             });
+            var form = $("[id='frmNotas']");
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+            if (true) {
+                return;
+            }
             if ($("#txtCodeSel").val() != "") {
                 $.ajax({
                     url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
@@ -173,6 +198,9 @@ $(function () {
             }
         }
     };
+
+    NotasAcademicas.init();
+
     $('.nota-alumno').keyup(function (event) {
         var keyCode = (event.keyCode ? event.keyCode : event.which);
         if (keyCode == 13) {

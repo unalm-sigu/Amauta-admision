@@ -20,19 +20,22 @@
 
             </span>
             <span class="block"><strong>Clave:</strong> <span th:text="${seccion.codigo}">2130</span></span>
+
+
         </header>
 
         <section class="panel">
             <section class="panel-body">
                 <input id="txtCodeSel" type="hidden"/>
                 <input id="txtDocSec" type="hidden" th:value='${docenteSeccion.id}'/>
-                <form>
+                <form id="frmNotas">
                     <table class="table table-striped">
                         <thead> 
                             <tr class=""> 
                                 <th class="col-md-3"></th>
 
-                                <th class="text-center v-middle"  th:each="evaluacion:${evaluacionesByTipoSeccion}" >
+                                <th class="text-center v-middle"  th:each="evaluacion:${evaluacionesByTipoSeccion}" 
+                                    style="width: 100px;">
                                     <a href="#" class="detalle-reporte" 
                                        style="color: black !important;"
                                        th:rel="${evaluacion.id}"
@@ -61,10 +64,10 @@
                                     </div>
                                     <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
                                            th:rel="${matSeccion.matriculaResumen.alumno.id}"
-                                           th:title="${evaluacion.id}"
+                                           th:title="${evaluacion.id}" 
                                            type="text" 
                                            class="form-control nota-alumno"
-                                           style="display: none"
+                                           style="display: none;padding: 6px !important;"
                                            size="3"/>
 
                                 </td>
@@ -85,11 +88,17 @@
                         </tbody>
                     </table>
                 </form>
+
+
             </section>
             <section class="panel-footer pull-right">
                 <a href="#" class="btn btn-link cancelar">Cancelar</a>
                 <a href="#" id="cmbSaveNotas" class="btn btn-success">Grabar Notas</a>
+
+
             </section>
+
+
         </section>
 
         <div th:substituteby="app/templates/modal"/>
@@ -101,5 +110,7 @@
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/docente/cargaacademica/notasAcademicas.js}" charset="utf-8"></script>
     </div>
+
+
 </body>
 </html>
