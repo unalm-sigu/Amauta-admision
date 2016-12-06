@@ -84,4 +84,6 @@ public interface CargaAcademicaService {
 
     void saveIngresoNotas(DataSession ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
 
+    SistemaNotas findSistemaNotaById(Long id);
+
 }

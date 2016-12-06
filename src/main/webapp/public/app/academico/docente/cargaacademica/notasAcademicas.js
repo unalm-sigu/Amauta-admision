@@ -1,16 +1,58 @@
 $(function () {
 
+    var sistemaNotasValidate = "";
+    var letrasNota = "";
+    var message = "";
+
     NotasAcademicas = {
         init: function () {
+
+
+            if (sistemaNotasValidate == "") {
+                $.ajax({
+                    url: APP.url('academico/docente/cargaacademica/getSistemaNotas'),
+                    type: 'POST',
+                    async: false,
+                    data: {sistemaNotas: $("#txtSistemaNotas").val()},
+                    success: function (response) {
+
+                        sistemaNotasValidate = response.data;
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+            }
+
             window.Parsley.addValidator('sistemaNota', {
-                requirementType: 'integer',
+                requirementType: 'string',
                 validateString: function (value, requirement) {
-                    console.log("adadad");
-                    return false;
+                    var nota = value;
+                    console.log(Boolean(sistemaNotasValidate.esNumerico));
+                    if (Boolean(sistemaNotasValidate.esNumerico)) {
+                        console.log("validara");
+                        if (isNaN(value)) {
+                            message = "La nota debe ser numérica."
+                            return false;
+                        }
+                        nota = parseFloat(nota);
+                        if (nota < parseFloat(sistemaNotasValidate.valorFinal)) {
+                            message = "La nota no debe ser menor que el valor mínimo."
+                            return false;
+                        }
+                        if (nota > parseFloat(sistemaNotasValidate.valorFinal)) {
+                            message = "La nota no debe ser mayor que el valor máximo."
+                            return false;
+                        }
+                    } else {
+
+                    }
+                    return true;
                 },
                 messages: {
-                    en: 'This value should be a multiple of %s',
-                    es: 'Cette valeur doit être un multiple de %s'
+                    //Cette valeur doit être un multiple de %s
+                    en: message,
+                    es: message
                 }
             });
         },
@@ -54,7 +96,7 @@ $(function () {
                 success: function (response) {
                     MODAL.init("md");
                     MODAL.title("Detalle Evaluación " + response.data.tEvaluacionNombre + " " + response.data.numero);
-
+                    response.data.form = "frmActivate";
                     MODAL.body($.templates("#divEvaluacion").render(response.data));
                     MODAL.show();
                     var today = new Date();
@@ -88,6 +130,16 @@ $(function () {
         },
         activarEvaluacion: function ($this, e) {
             var activacion = Boolean($this.attr('rel'));
+            var form = $("[id='frmActivate']");
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+            if ($("#txtCodeSel").val() != "") {
+                bootbox.alert("Tiene una evaluacion pendiente, verifique.");
+                return;
+            }
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/activarEvaluacion'),
                 type: 'POST',
@@ -130,7 +182,15 @@ $(function () {
             $("input[name='" + evaluacion + "']").each(function () {
                 $(this).attr("data-parsley-whitespace", "trim");
                 $(this).attr("required", true);
+
                 //  $(this).attr("data-parsley-sistema-nota", "true");
+                if (Boolean(sistemaNotasValidate.esNumerico)) {
+                    $(this).attr("data-parsley-min", sistemaNotasValidate.valorInicial);
+                    $(this).attr("data-parsley-max", sistemaNotasValidate.valorFinal);
+                    $(this).attr("data-parsley-type", "integer");
+                } else {
+
+                }
 
                 var alumno = $(this).attr("rel");
                 var evaluacion = $(this).attr("title");
@@ -149,9 +209,7 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-            if (true) {
-                return;
-            }
+
             if ($("#txtCodeSel").val() != "") {
                 $.ajax({
                     url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
@@ -173,6 +231,13 @@ $(function () {
                                 var alumno = $(this).attr("rel");
                                 var evaluacion = $(this).attr("title");
                                 var nota = $(this).val();
+
+                                $(this).removeAttr("data-parsley-min");
+                                $(this).removeAttr("data-parsley-max");
+                                $(this).removeAttr("data-parsley-type");
+                                $(this).removeAttr("required");
+                                $(this).removeAttr("data-parsley-whitespace");
+
                                 $("span[name='" + response.data.evaSeleccionada + "']").each(function () {
                                     var alumnoSpan = $(this).attr("class");
                                     if (parseInt(alumno) == parseInt(alumnoSpan)) {

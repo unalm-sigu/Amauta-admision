@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -80,5 +81,11 @@ public class NotaLetra implements Serializable {
         this.valor = valor;
     }
 
-}
+    public boolean isAprobatorio() {
+        if (BigDecimal.ONE.intValue() == this.esAprobatorio) {
+            return true;
+        }
+        return false;
+    }
 
+}

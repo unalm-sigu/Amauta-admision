@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 
 public interface SistemaNotasDAO extends Crud<SistemaNotas> {
 
-}
+    SistemaNotas find(Long id);
 
+}

@@ -493,4 +493,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
     }
 
+    @Override
+    public SistemaNotas findSistemaNotaById(Long id) {
+        return sistemaNotasDAO.find(id);
+    }
+
 }
