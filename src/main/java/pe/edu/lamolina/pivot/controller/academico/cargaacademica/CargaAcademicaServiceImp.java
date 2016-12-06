@@ -227,28 +227,32 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("La evaluacion es {}", evaluacion.getId());
 
         EvaluacionExpandida evaluacionPadre = evaluacionExpandidaDAO.find(evaluacion.getId());
+        evaluacionPadre.setEstaDesagregado(BigDecimal.ONE.intValue());
+        evaluacionPadre.setFechaDesagregar(new Date());
+        evaluacionPadre.setUsuarioDesagregar(ds.getUsuario());
 
         Integer newPesoTotal = 0;
         for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
-            newPesoTotal += evaluacionHija.getPeso();
+            newPesoTotal = newPesoTotal + evaluacionHija.getPeso();
         }
+        logger.debug("new peso total {}, eva padre peso {}", newPesoTotal, evaluacionPadre.getPeso());
         if (newPesoTotal != evaluacionPadre.getPeso()) {
             throw new PhobosException("El peso de las evaluaciones debe ser igual a " + evaluacionPadre.getPeso());
         }
 
         for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
             evaluacionHija.setAlumnoEvaluacion(null);
-            evaluacionHija.setEstaDesagregado(BigDecimal.ONE.intValue());
+            evaluacionHija.setEstaDesagregado(BigDecimal.ZERO.intValue());
             evaluacionHija.setEvaluacionSeccion(evaluacionPadre.getEvaluacionSeccion());
             evaluacionHija.setEvaluacionSuperior(evaluacionPadre);
             evaluacionHija.setEvaluaciones(null);
             evaluacionHija.setEvaluados(BigDecimal.ZERO.intValue());
             evaluacionHija.setExtemporaneos(BigDecimal.ZERO.intValue());
-            evaluacionHija.setFechaDesagregar(new Date());
+            evaluacionHija.setFechaDesagregar(null);
             evaluacionHija.setPeso(evaluacionHija.getPeso());
             evaluacionHija.setTipoEvaluacion(evaluacionHija.getTipoEvaluacion());
             evaluacionHija.setTipoSeccion(evaluacionPadre.getTipoSeccion());
-            evaluacionHija.setUsuarioDesagregar(ds.getUsuario());
+            evaluacionHija.setUsuarioDesagregar(null);
 
             evaluacionHija.getEvaluacionSeccion().getGrupoSeccion();
             //traer claves,
@@ -257,6 +261,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             evaluacionExpandidaDAO.save(evaluacionHija);
         }
+        evaluacionExpandidaDAO.update(evaluacionPadre);
     }
 
     @Override
@@ -359,21 +364,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds) {
-        logger.debug("La evaluacionSeccionId es {}", evaluacionSeccionId);
-
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.find(evaluacionSeccionId);
-        evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.EXP);
-        evaluacionSeccionDAO.update(evaluacionSeccion);
-
-        GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
-        grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.EXP);
-        grupoSeccionDAO.update(grupoSeccion);
-
-    }
-
-    @Override
-    @Transactional
     public void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds) {
         logger.debug("CursoId {}, SeccionId {}", cursoId, seccionId);
 
@@ -415,6 +405,50 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
         List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
         logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", seccion.getGrupoSeccion().getPlanCalificacion().getId(), planEvaluaciones.size());
+        for (Seccion seccionEach : secciones) {
+            for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
+                logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
+                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
+                if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+                        evaluacionExpandida.getTipoSeccionEnum())) {
+
+                    Evaluacion evaluacion = new Evaluacion();
+                    evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
+                    if (evaluacionExpandida.getEvaluaciones() != null && !evaluacionExpandida.getEvaluaciones().isEmpty()) {
+                        evaluacion.setEvaluaciones(new ArrayList<>());
+                        for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluaciones()) {
+                            Evaluacion evaluacionChild = new Evaluacion();
+                            evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
+                            evaluacionChild.setEvaluacionSuperior(evaluacion);
+                            evaluacion.getEvaluaciones().add(evaluacionChild);
+                        }
+                    }
+                    evaluacionDAO.save(evaluacion);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds) {
+        logger.debug("La evaluacionSeccionId es {}", evaluacionSeccionId);
+
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.find(evaluacionSeccionId);
+        evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.EXP);
+        evaluacionSeccionDAO.update(evaluacionSeccion);
+
+        GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
+        grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.EXP);
+        grupoSeccionDAO.update(grupoSeccion);
+
+        /////
+        List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
+        logger.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
+        List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", grupoSeccion.getPlanCalificacion().getId(), planEvaluaciones.size());
         for (Seccion seccionEach : secciones) {
             for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
                 logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());

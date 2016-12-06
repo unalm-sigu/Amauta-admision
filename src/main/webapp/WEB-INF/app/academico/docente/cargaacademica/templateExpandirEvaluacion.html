@@ -1,11 +1,13 @@
 <tr >
     <td  class="v-middle">
-        <select class="form-control item-select2">
+        <select name="evaluaciones[{{:index}}].tipoEvaluacion.id"  
+                class="form-control item-select2">
             <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </td>
     <td  class="v-middle">
-        <input class="form-control" type="text" />
+        <input name="evaluaciones[{{:index}}].peso" 
+               class="form-control" type="text" />
     </td>
     <td class="text-center">
         <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
