@@ -130,7 +130,7 @@ $(function () {
             $("input[name='" + evaluacion + "']").each(function () {
                 $(this).attr("data-parsley-whitespace", "trim");
                 $(this).attr("required", true);
-                $(this).attr("data-parsley-sistema-nota", "true");
+                //  $(this).attr("data-parsley-sistema-nota", "true");
 
                 var alumno = $(this).attr("rel");
                 var evaluacion = $(this).attr("title");
