@@ -111,7 +111,7 @@ $(function () {
                                 if (response.success) {
                                     MODAL.hide();
                                     notify(response.message, "info");
-                                    location.href = APP.url('academico/systemcalifica/sistema');
+                                   // location.href = APP.url('academico/systemcalifica/sistema');
                                 } else {
                                     notify(response.message, "error");
                                 }

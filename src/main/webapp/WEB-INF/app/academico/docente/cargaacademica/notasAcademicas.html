@@ -8,7 +8,9 @@
     <div layout:fragment="main">
         <header class="page-header">        
             <div class="pull-right" >
+                <!--
                 <a class="btn btn-primary activar-evaluacion" href="#" >Activar evaluación</a>
+                -->
             </div>
 
             <h2>Ingreso de Notas Académica - <span>2016-II</span></h2>
@@ -22,149 +24,50 @@
 
         <section class="panel">
             <section class="panel-body">
+                <input id="txtCodeSel" type="hidden"/>
+                <input id="txtDocSec" type="hidden" th:value='${docenteSeccion.id}'/>
                 <form>
                     <table class="table table-striped">
                         <thead> 
                             <tr class=""> 
                                 <th class="col-md-3"></th>
-                                <th th:if="${evaluacion}" 
-                                    class="text-center text-danger v-middle">PC1</th>
 
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">EP</a>		
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">EF</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">PC2</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">PC3</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">PC4</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">PC5</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">TA1</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">TA2</a>
-                                </th>
-                                <th class="text-center v-middle">
-                                    <a href="#" class="detalle-reporte">TA3</a>
+                                <th class="text-center v-middle"  th:each="evaluacion:${evaluacionesByTipoSeccion}" >
+                                    <a href="#" class="detalle-reporte" 
+                                       style="color: black !important;"
+                                       th:rel="${evaluacion.id}"
+                                       th:text="${evaluacion.tipoEvaluacion.codigo} +' '+${evaluacion.numero}">EP</a>	
+
                                 </th>
                                 <th class="text-center v-middle">Avance NF</th>
                                 <th class="text-center v-middle">NF</th>
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Alvarez Perez Juan</td>
-                                <td th:if="${evaluacion}" 
-                                    class="text-center">
-                                    <input type="text" class="form-control nota-alumno"/>
-                                </td>
-                                <td class="text-center">09.25</td>
-                                <td class="text-center">15.89</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center">05.23</td>
-                                <td class="text-center">11.53</td>
+                        <tbody> 
+                            <tr th:each="matSeccion:${matriculasSeccion}" >
+                                <td th:text="${matSeccion.matriculaResumen.alumno.persona.nombreCompleto}">Alvarez Perez Juan</td>
+                                <td class="text-center v-middle" th:each="evaluacion:${evaluacionesByTipoSeccion}" >
 
-                                <td class="text-center">
-                                    <div class="dropdown actions">
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                        <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
-                                                <a class="solicitar-cambio-nota" href="#">Cambio nota</a>
-                                            </li>
-                                        </ul>
+                                    <div th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
+                                        <span style="display: ''" 
+                                              th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                                              th:class="${matSeccion.matriculaResumen.alumno.id}"
+                                              >
+                                            <span  th:if="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}" >
+                                                <span th:text="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}" > dada </span>
+                                            </span>
+                                        </span>
                                     </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Alvarez Perez Juan</td>
-                                <td th:if="${evaluacion}" 
-                                    class="text-center">
-                                    <input type="text" class="form-control nota-alumno"/>
-                                </td>
-                                <td class="text-center">09.25</td>
-                                <td class="text-center">15.89</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center">05.23</td>
-                                <td class="text-center">11.53</td>
+                                    <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                                           th:rel="${matSeccion.matriculaResumen.alumno.id}"
+                                           th:title="${evaluacion.id}"
+                                           type="text" 
+                                           class="form-control nota-alumno"
+                                           style="display: none"
+                                           size="3"/>
 
-                                <td class="text-center">
-                                    <div class="dropdown actions">
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                        <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
-                                                <a class="solicitar-cambio-nota" href="#">Cambio nota</a>
-                                            </li>
-                                        </ul>
-                                    </div>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>Alvarez Perez Juan</td>
-                                <td th:if="${evaluacion}" 
-                                    class="text-center">
-                                    <input type="text" class="form-control nota-alumno"/>
-                                </td>
-                                <td class="text-center">09.25</td>
-                                <td class="text-center">15.89</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center">05.23</td>
-                                <td class="text-center">11.53</td>
-
-                                <td class="text-center">
-                                    <div class="dropdown actions">
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                                        <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
-                                                <a class="solicitar-cambio-nota" href="#">Cambio nota</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Alvarez Perez Juan</td>
-                                <td th:if="${evaluacion}" 
-                                    class="text-center">
-                                    <input type="text" class="form-control nota-alumno"/>
-                                </td>
-                                <td class="text-center">09.25</td>
-                                <td class="text-center">15.89</td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
-                                <td class="text-center"></td>
                                 <td class="text-center">05.23</td>
                                 <td class="text-center">11.53</td>
 
@@ -183,9 +86,14 @@
                     </table>
                 </form>
             </section>
+            <section class="panel-footer pull-right">
+                <a href="#" class="btn btn-link cancelar">Cancelar</a>
+                <a href="#" id="cmbSaveNotas" class="btn btn-success">Grabar Notas</a>
+            </section>
         </section>
 
         <div th:substituteby="app/templates/modal"/>
+        <div th:substituteby="app/academico/docente/cargaacademica/detalleNotasAcademicas"/>
         <div th:substituteby="app/academico/docente/cargaacademica/modalNotasAcademicas"/>
         <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/docente/cargaacademica/templateCargaAcademica"/></script>
     </div>

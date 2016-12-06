@@ -21,7 +21,8 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
 
     public Evaluacion find(Long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te");
+        sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr");
+        sqlUtil.parents("_es.planCalificacion pc", "_es.sistemaNotas sn");
         sqlUtil.filter("eva.id", id);
         Evaluacion evaluacion = this.find(sqlUtil);
         if (evaluacion.getEvaluaciones() != null) {
@@ -49,9 +50,9 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
             sqlUtil.filter("sr.id", idGrupoSeccion);
         }
         sqlUtil.filterIsNull("esup.id");
-
+        //sqlUtil.orderBy("te.nombre", "eva.numero");
         List<Evaluacion> lstEvaluaciones = this.all(sqlUtil);
-        if (!lstEvaluaciones.isEmpty()) {
+        if (lstEvaluaciones != null && !lstEvaluaciones.isEmpty()) {
             for (Evaluacion objEvaluacion : lstEvaluaciones) {
                 for (Evaluacion eva : objEvaluacion.getEvaluaciones()) {
                     eva.getId();

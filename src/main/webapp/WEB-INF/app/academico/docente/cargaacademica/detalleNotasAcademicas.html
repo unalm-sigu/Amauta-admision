@@ -1,9 +1,70 @@
-<div class="">			
-    <span class="block"><strong>Nota Mínima:</strong> <span>100</span></span>
-    <span class="block"><strong>Nota Máxima:</strong> <span>20</span></span>
-    <span class="block"><strong>Cántidad NSP:</strong> <span>20</span></span>
-    <span class="block"><strong>Cántidad Evaluados:</strong> <span>1</span></span>
-    <span class="block"><strong>Promedio Nota:</strong> <span>20</span></span>
-    <span class="block"><strong>Desv Estandar:</strong> <span>20</span></span>
-</div>
+<div id="divEvaluacion" type="text/x-jsrender" class="hide">
+    <div class="row">
+        <div class="form-group">
+            <label  class="col-sm-4  bold">Evaluacion: </label>
+            <div class="col-sm-8">
 
+                <span>{{:tEvaluacionCodigo}} {{:numero}}</span>
+                <input id="txtEvaluacionId" type="hidden" value="{{:evaluacionId}}"/>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <label  class="col-sm-4  bold">Nota Mínima: </label>
+            <div class="col-sm-2">
+
+                <span >10</span>
+            </div>
+
+            <label  class="col-sm-4  bold">Nota Máxima:</label>
+            <div class="col-sm-2">
+                <span >10</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <label  class="col-sm-4  bold">Cántidad NSP: </label>
+            <div class="col-sm-2">
+
+                <span >10</span>
+            </div>
+
+            <label  class="col-sm-4  bold">Cántidad Evaluados:</label>
+            <div class="col-sm-2">
+                <span >10</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <label  class="col-sm-4 bold">Promedio Nota: </label>
+            <div class="col-sm-2">
+
+                <span >10</span>
+            </div>
+
+            <label  class="col-sm-4 bold">Desv Estandar:</label>
+            <div class="col-sm-2">
+                <span >10</span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <label  class="col-sm-4 bold">Fecha de la evaluación: </label>
+            <div class="col-sm-8">
+
+                <input id="calFechaEval"
+                       type="text" 
+                       required="true"
+                       name="fechaInicio"
+                       style="width: 100px;"
+                       class="form-control datepicker" 
+                       data-parsley-errors-container="#errorFechaInicio"/>
+            </div>
+        </div>
+    </div>
+</div>

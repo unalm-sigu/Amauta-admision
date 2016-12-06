@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -39,6 +40,9 @@ import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSession;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 
 @Service
 @Transactional(readOnly = true)
@@ -81,6 +85,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    AlumnoEvaluacionDAO alumnoEvaluacionDAO;
 
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
@@ -160,14 +170,17 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             if (evaluacionSeccion != null) {
                 logger.debug("el grupo ya cuenta con evaluacion seccion");
             } else {
+                PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
+
                 logger.debug("se le creara una evaluacion seccion al grupo");
                 EvaluacionSeccion evaluacionSeccionCreate = new EvaluacionSeccion();
-                evaluacionSeccionCreate.setPlanCalificacion(new PlanCalificacion(idPlanCalificacion));
+                evaluacionSeccionCreate.setPlanCalificacion(planCalificacion);
+                evaluacionSeccionCreate.setSistemaNotas(planCalificacion.getSistemaNotas());
                 evaluacionSeccionCreate.setGrupoSeccion(new GrupoSeccion(idGrupoSeccion));
                 evaluacionSeccionCreate.setEstadoEnum(EstadoPlanCalificaEnum.PRO);
                 evaluacionSeccionDAO.save(evaluacionSeccionCreate);
 
-                grupoSeccion.setPlanCalificacion(new PlanCalificacion(idPlanCalificacion));
+                grupoSeccion.setPlanCalificacion(planCalificacion);
                 grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PRO);
                 grupoSeccionDAO.update(grupoSeccion);
             }
@@ -398,12 +411,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                         evaluacionExpandida.getTipoSeccionEnum())) {
 
                     Evaluacion evaluacion = new Evaluacion();
-                    evaluacion.create(evaluacionSeccion, evaluacionExpandida);
+                    evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
                     if (evaluacionExpandida.getEvaluaciones() != null && !evaluacionExpandida.getEvaluaciones().isEmpty()) {
                         evaluacion.setEvaluaciones(new ArrayList<>());
                         for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluaciones()) {
                             Evaluacion evaluacionChild = new Evaluacion();
-                            evaluacionChild.create(evaluacionSeccion, evalExp);
+                            evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
                             evaluacionChild.setEvaluacionSuperior(evaluacion);
                             evaluacion.getEvaluaciones().add(evaluacionChild);
                         }
@@ -421,8 +434,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public List<Evaluacion> allEvaluacionByGrupoSeccion(Long idGrupoSeccion) {
+    public List<Evaluacion> allEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
         return evaluacionDAO.allByFilter(null, idGrupoSeccion, null);
+    }
+
+    @Override
+    public List<AlumnoEvaluacion> allAlumnoEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
+        return alumnoEvaluacionDAO.allByFilter(null, idGrupoSeccion, null);
     }
 
     @Override
@@ -433,6 +451,46 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public EvaluacionExpandida findEvaluacionExpandida(Long idEvaluacionPlan) {
         return evaluacionExpandidaDAO.find(idEvaluacionPlan);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allMatriculaSeccionByFilters(Seccion seccion) {
+        return matriculaSeccionDAO.allByFilters(seccion);
+    }
+
+    @Override
+    @Transactional
+    public void updateEvaluacion(Evaluacion evaluacion) {
+        evaluacionDAO.update(evaluacion);
+    }
+
+    @Override
+    @Transactional
+    public void saveIngresoNotas(DataSession ds, Evaluacion evaluacionParam, AlumnoEvaluacion[] alumnosEvaluaciones) {
+        Date today = new Date();
+
+        Evaluacion evaluacion = evaluacionDAO.find(evaluacionParam.getId());
+        PlanCalificacion planCalificacion = evaluacion.getEvaluacionSeccion().getPlanCalificacion();
+        SistemaNotas sistemaNotas = evaluacion.getEvaluacionSeccion().getSistemaNotas();
+
+        evaluacion.setFechaIngresoNota(today);
+        evaluacion.setEvaluados(alumnosEvaluaciones.length);
+        evaluacionDAO.update(evaluacion);
+
+        for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
+            AlumnoEvaluacion alumnoEvaluacion = new AlumnoEvaluacion();
+            alumnoEvaluacion.setAlumno(alumnoEvaluacionEach.getAlumno());
+            alumnoEvaluacion.setEvaluacion(alumnoEvaluacionEach.getEvaluacion());
+            alumnoEvaluacion.setFechaIngresoNota(today);
+            alumnoEvaluacion.setNota(alumnoEvaluacionEach.getNota());
+            alumnoEvaluacion.setEsIngresoRegular(BigDecimal.ONE.intValue());
+            if (sistemaNotas.isNumerico()) {
+                alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
+            }
+            alumnoEvaluacion.setUsuarioIngresoNota(ds.getUsuario());
+            alumnoEvaluacion.setEstado("");
+            alumnoEvaluacionDAO.save(alumnoEvaluacion);
+        }
     }
 
 }

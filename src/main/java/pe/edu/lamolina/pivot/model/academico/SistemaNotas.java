@@ -135,5 +135,11 @@ public class SistemaNotas implements Serializable {
         this.planCalificacion = planCalificacion;
     }
 
-}
+    public boolean isNumerico() {
+        if (BigDecimal.ONE.intValue() == esNumerico) {
+            return true;
+        }
+        return false;
+    }
 
+}

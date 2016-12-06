@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
+import java.util.Date;
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
@@ -10,6 +12,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
@@ -38,6 +41,8 @@ public interface CargaAcademicaService {
     List<EvaluacionPlan> allEvaluacionPlanByDynatable(DynatableFilter filter, Long idPlanCalificacion);
 
     List<EvaluacionExpandida> allEvaluacionesExpByEvalSeccion(EvaluacionSeccion evaluacionSeccion);
+
+    List<AlumnoEvaluacion> allAlumnoEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
 
     EvaluacionPlan findEvaluacionPlan(Long idEvaluacionPlan);
 
@@ -69,8 +74,14 @@ public interface CargaAcademicaService {
 
     DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);
 
-    List<Evaluacion> allEvaluacionByGrupoSeccion(Long idGrupoSeccion);
+    List<Evaluacion> allEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
 
     List<Evaluacion> findBySeccion(Long idSeccion);
+
+    List<MatriculaSeccion> allMatriculaSeccionByFilters(Seccion seccion);
+
+    void updateEvaluacion(Evaluacion evaluacion);
+
+    void saveIngresoNotas(DataSession ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
 
 }

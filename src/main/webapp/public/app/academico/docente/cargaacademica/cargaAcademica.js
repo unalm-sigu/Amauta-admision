@@ -141,7 +141,7 @@ $(function () {
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
 
-            location.href = APP.url('academico/docente/cargaacademica/') + rec.docenteSeccion + '/' + rec.idCurso + '/notasAcademicas';
+            location.href = APP.url('academico/docente/cargaacademica/') + rec.docenteSeccion + '/notasAcademicas';
         },
         verNuevoSC: function (e) {
             e.preventDefault();
