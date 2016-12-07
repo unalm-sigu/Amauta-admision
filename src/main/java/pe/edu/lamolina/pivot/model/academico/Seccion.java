@@ -43,6 +43,18 @@ public class Seccion implements Serializable {
     @Column(name = "horas_practica")
     private Integer horasPractica;
 
+    @Column(name = "horas_semanales")
+    private Integer horasSemanales;
+
+    @Column(name = "vacantes")
+    private Integer vacantes;
+
+    @Column(name = "matriculados")
+    private Integer matriculados;
+
+    @Column(name = "retirados")
+    private Integer retirados;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seccion_superior")
     private Seccion seccionSuperior;
@@ -232,6 +244,38 @@ public class Seccion implements Serializable {
 
     public void setGrupoSeccion(GrupoSeccion grupoSeccion) {
         this.grupoSeccion = grupoSeccion;
+    }
+
+    public Integer getVacantes() {
+        return vacantes;
+    }
+
+    public void setVacantes(Integer vacantes) {
+        this.vacantes = vacantes;
+    }
+
+    public Integer getMatriculados() {
+        return matriculados;
+    }
+
+    public void setMatriculados(Integer matriculados) {
+        this.matriculados = matriculados;
+    }
+
+    public Integer getRetirados() {
+        return retirados;
+    }
+
+    public void setRetirados(Integer retirados) {
+        this.retirados = retirados;
+    }
+
+    public Integer getHorasSemanales() {
+        return horasSemanales;
+    }
+
+    public void setHorasSemanales(Integer horasSemanales) {
+        this.horasSemanales = horasSemanales;
     }
 
 }

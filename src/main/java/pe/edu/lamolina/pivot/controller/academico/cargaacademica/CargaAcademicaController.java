@@ -135,8 +135,8 @@ public class CargaAcademicaController {
                 node.put("idSeccion", docSeccion.getSeccion().getId());
                 node.put("aula", docSeccion.getSeccion().getAula().getNombre());
                 node.put("tipoSeccion", docSeccion.getSeccion().getTipoSeccion());
-                node.put("alumnos", 35);
-                node.put("horasSemanales", 3);
+                node.put("alumnos", docSeccion.getSeccion().getMatriculados());
+                node.put("horasSemanales", docSeccion.getSeccion().getHorasSemanales());
                 node.put("estado", "DIC");
                 node.put("estadoEnum", "Dictando");
                 node.put("estadoSistema", docSeccion.getSeccion().getGrupoSeccion() != null

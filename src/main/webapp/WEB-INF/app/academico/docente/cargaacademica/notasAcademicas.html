@@ -54,7 +54,10 @@
                         </thead>
                         <tbody> 
                             <tr th:each="matSeccion : ${matriculasSeccion}" >
-                                <td th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</td>
+                                <td class="v-middle">
+                                    <span class="block text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
+                                    <span class="block" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
+                                </td>
                                 <td class="text-center v-middle" th:each="evaluacion : ${evaluacionesByTipoSeccion}" >
 
                                     <div th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
@@ -76,10 +79,10 @@
                                            size="3"/>
 
                                 </td>
-                                <td class="text-center">05.23</td>
-                                <td class="text-center">11.53</td>
+                                <td class="text-center v-middle">05.23</td>
+                                <td class="text-center v-middle">11.53</td>
 
-                                <td class="text-center">
+                                <td class="text-center v-middle">
                                     <div class="dropdown actions">
                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                         <ul class="dropdown-menu pull-right" >
