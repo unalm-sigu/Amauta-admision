@@ -47,8 +47,12 @@ import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 
@@ -96,6 +100,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
 
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
@@ -521,6 +528,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionParam.getId());
         PlanCalificacion planCalificacion = evaluacion.getEvaluacionSeccion().getPlanCalificacion();
+        CicloAcademico ciclo = evaluacion.getSeccionResponsable().getGrupoSeccion().getCicloAcademico();
         SistemaNotas sistemaNotas = sistemaNotasDAO.find(evaluacion.getEvaluacionSeccion().getSistemaNotas().getId());
 
         evaluacion.setFechaIngresoNota(today);
@@ -549,6 +557,41 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacion.setUsuarioIngresoNota(ds.getUsuario());
             alumnoEvaluacion.setEstado("");
             alumnoEvaluacionDAO.save(alumnoEvaluacion);
+        }
+
+        System.out.println("ddd " + evaluacion.getId());
+        System.out.println("ppp " + evaluacion.getPeso());
+
+        BigDecimal bd100 = new BigDecimal("100");
+        for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
+            Alumno alumno = alumnoEvaluacionEach.getAlumno();
+            Curso curso = evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso();
+            List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
+            MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
+
+            BigDecimal pesoTotal = BigDecimal.ZERO;
+            BigDecimal ponderado = BigDecimal.ZERO;
+            for (AlumnoEvaluacion ae : evaluacionesAlumno) {
+                BigDecimal peso = null;
+                if (ae.getEvaluacion().getId() == evaluacion.getId().longValue()) {
+                    peso = new BigDecimal(evaluacion.getPeso());
+                } else {
+                    peso = new BigDecimal(ae.getEvaluacion().getPeso());
+                }
+                pesoTotal = pesoTotal.add(peso);
+                ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+            }
+            ponderado = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
+            BigDecimal avance = ponderado.divide(bd100, 2, RoundingMode.HALF_UP);
+            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal(ponderado));
+            matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(avance));
+            matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
+
+            if (pesoTotal.compareTo(bd100) == 0) {
+                BigDecimal nf = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
+                matriculaCurso.setNotaFinal(NumberFormat.nota(nf));
+            }
+            matriculaCursoDAO.update(matriculaCurso);
         }
     }
 

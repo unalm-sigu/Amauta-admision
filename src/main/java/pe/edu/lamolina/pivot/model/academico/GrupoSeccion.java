@@ -24,14 +24,6 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_ciclo")
-    private CicloAcademico cicloAcademico;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_curso")
-    private Curso curso;
-
     @Column(name = "codigo")
     String codigo;
 
@@ -43,6 +35,14 @@ public class GrupoSeccion implements Serializable {
 
     @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
     private List<Seccion> secciones;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ciclo")
+    private CicloAcademico cicloAcademico;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_curso")
+    private Curso curso;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plan_calificacion")
