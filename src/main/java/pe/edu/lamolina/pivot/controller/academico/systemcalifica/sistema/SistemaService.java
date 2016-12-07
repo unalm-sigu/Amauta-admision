@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 
+import com.amazonaws.util.json.JSONException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -12,6 +14,8 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 public interface SistemaService {
 
     List<TipoEvaluacion> allTipoEvaluacion();
+
+    ObjectNode allTipoEvaluacionJson() throws JSONException;
 
     List<SistemaNotas> allSistemasNotas();
 

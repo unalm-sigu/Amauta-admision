@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +34,12 @@ public class TipoEvaluacion implements Serializable {
 
     @Column(name = "es_divisible")
     private Integer esDivisible;
+
+    @Column(name = "cantidad_maxima")
+    private Integer cantidadMaxima;
+
+    @Column(name = "ind_nota_minima_anulable")
+    private Integer indNotaMinimaAnulable;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evaluacion_superior")
@@ -124,6 +131,29 @@ public class TipoEvaluacion implements Serializable {
 
     public void setTipoEvaluacion(List<TipoEvaluacion> tipoEvaluacion) {
         this.tipoEvaluacion = tipoEvaluacion;
+    }
+
+    public Integer getCantidadMaxima() {
+        return cantidadMaxima;
+    }
+
+    public void setCantidadMaxima(Integer cantidadMaxima) {
+        this.cantidadMaxima = cantidadMaxima;
+    }
+
+    public Integer getIndNotaMinimaAnulable() {
+        return indNotaMinimaAnulable;
+    }
+
+    public void setIndNotaMinimaAnulable(Integer indNotaMinimaAnulable) {
+        this.indNotaMinimaAnulable = indNotaMinimaAnulable;
+    }
+
+    public boolean isNotaMinimaAnulable() {
+        if (BigDecimal.ONE.intValue() == this.indNotaMinimaAnulable) {
+            return true;
+        }
+        return false;
     }
 
 }

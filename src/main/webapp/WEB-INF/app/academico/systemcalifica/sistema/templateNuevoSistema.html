@@ -1,16 +1,24 @@
 <tr>
     <td>
-        <select name="evaluacionPlan[{{:index}}].tipoEvaluacion.id" class="form-control item-select2">
+        <select name="evaluacionPlan[{{:index}}].tipoEvaluacion.id"
+                class="form-control item-select2"
+                required="">
+            <option value="">Seleccionar..</option>
             <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </td>
     <td>
-        <input  name="evaluacionPlan[{{:index}}].cantidadEvaluaciones" type="text"
+        <input  name="evaluacionPlan[{{:index}}].cantidadEvaluaciones"
+                type="text"
                 rel="{{:index}}"
-                class="form-control clsCantEvaluaciones" />
+                class="form-control clsCantEvaluaciones" 
+                data-parsley-min="1"
+                required="true"/>
     </td>    
     <td>
-        <input name="evaluacionPlan[{{:index}}].pesoTotal" type="text"
+        <input name="evaluacionPlan[{{:index}}].pesoTotal"
+               required="true"
+               type="text"
                rel="{{:index}}" class="form-control calcular-peso-eva" />
     </td>
     <td>

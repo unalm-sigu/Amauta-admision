@@ -1,8 +1,8 @@
 $(function () {
 
-    var tiposEvaluacion;
 
-    var tiposEvaluacion;
+    var evaluacionCnf;
+
     NuevoSistema = {
         init: function () {
             $.ajax({
@@ -12,7 +12,7 @@ $(function () {
                 data: {},
                 success: function (response) {
                     if (response.success) {
-                        tiposEvaluacion = response.data;
+                        evaluacionCnf = response.data;
                     }
                 },
                 error: function () {
@@ -78,7 +78,7 @@ $(function () {
                 var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
                 var anularNotaMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']").prop('checked');
                 var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
-                var tipoEvaluacionCode = tiposEvaluacion[tipoEvaluacion];
+                var tipoEvaluacionCode = evaluacionCnf[tipoEvaluacion].codigo;
 
                 if (i > 0) {
                     formula += " + ";

@@ -34,7 +34,6 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -372,13 +371,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            List<TipoEvaluacion> lstTipoEvaluacion = sistemaService.allTipoEvaluacion();
-
-            ObjectNode json = new ObjectNode(jsonFactory);
-
-            for (TipoEvaluacion tipoEvaluacion : lstTipoEvaluacion) {
-                json.put(tipoEvaluacion.getId().toString(), tipoEvaluacion.getCodigo());
-            }
+            ObjectNode json = sistemaService.allTipoEvaluacionJson();
 
             response.setSuccess(true);
             response.setData(json);
