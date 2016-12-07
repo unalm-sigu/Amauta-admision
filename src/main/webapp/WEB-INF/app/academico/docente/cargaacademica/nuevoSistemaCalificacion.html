@@ -39,16 +39,24 @@
                             <tbody id="tbodyEvaluaciones">
                                 <tr>
                                     <td>
-                                        <select name="evaluacionPlan[0].tipoEvaluacion.id" class="form-control item-select2">
+                                        <select name="evaluacionPlan[0].tipoEvaluacion.id" 
+                                                class="form-control item-select2 cbo-tipo-evaluacion"
+                                                required="">
+                                            <option value="">Seleccionar..</option>
                                             <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
                                         </select>  
                                     </td>
                                     <td>
                                         <input class="form-control clsCantEvaluaciones" rel="0"  
-                                               name="evaluacionPlan[0].cantidadEvaluaciones" type="text" />
+                                               name="evaluacionPlan[0].cantidadEvaluaciones"
+                                               required="true"
+                                               type="text"
+                                               data-parsley-min="1"/>
                                     </td>    
                                     <td>
-                                        <input  name="evaluacionPlan[0].pesoTotal" rel="0"  type="text" 
+                                        <input  name="evaluacionPlan[0].pesoTotal" rel="0"  
+                                                type="text" 
+                                                required="true"
                                                 class="form-control calcular-peso-eva" />
                                     </td>
                                     <td>

@@ -13,6 +13,9 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         evaluacionCnf = response.data;
+                        $.each(evaluacionCnf, function (key, value) {
+                            evaluacionCnf[key] = JSON.parse(value);
+                        });
                     }
                 },
                 error: function () {
@@ -78,8 +81,10 @@ $(function () {
                 var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
                 var anularNotaMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']").prop('checked');
                 var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
+                if (tipoEvaluacion == null || tipoEvaluacion == "") {
+                    continue;
+                }
                 var tipoEvaluacionCode = evaluacionCnf[tipoEvaluacion].codigo;
-
                 if (i > 0) {
                     formula += " + ";
                 }
@@ -112,6 +117,14 @@ $(function () {
                 }
             });
         }, saveSistema: function () {
+            var form = $("[id='frmSistemaCalifica']");
+            // form.submit();
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
             NuevoSistema.calcularFormula();
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
@@ -121,14 +134,7 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
-                        var form = $("[id='frmSistemaCalifica']");
-                        // form.submit();
 
-                        form.parsley().destroy();
-                        form.parsley();
-                        if (!form.parsley().validate()) {
-                            return;
-                        }
                         $.ajax({
                             url: APP.url('academico/docente/cargaacademica/saveSistema'),
                             type: 'POST',
@@ -152,6 +158,24 @@ $(function () {
                     }
                 }
             });
+        },
+        cambiarTipoEvaluacion: function ($this, e) {
+            var tr = $this.closest("tr");
+            var cantidadEval = tr.find("[name$='cantidadEvaluaciones']");
+            var notaMinimaAnulable = tr.find("[name$='notaMinimaAnulable']");
+            var tEval = $this.val();
+            cantidadEval.removeAttr("data-parsley-max");
+            if (tEval != null && tEval != "") {
+                var tipoEvaluacion = evaluacionCnf[tEval];
+                // cantidadMaxima   esNotaMinimaAnulable
+                cantidadEval.attr("data-parsley-max", tipoEvaluacion.cantidadMaxima);
+                if (tipoEvaluacion.esNotaMinimaAnulable == true || tipoEvaluacion.esNotaMinimaAnulable == "true") {
+                    notaMinimaAnulable.removeAttr("disabled");
+                } else {
+                    notaMinimaAnulable.attr("disabled", true);
+                    notaMinimaAnulable.prop("checked", false);
+                }
+            }
         }
     }
 
@@ -184,6 +208,10 @@ $(function () {
 
     $("body").change(function () {
         NuevoSistema.calcularFormula();
+    });
+
+    $("body").delegate(".cbo-tipo-evaluacion", "change", function (e) {
+        NuevoSistema.cambiarTipoEvaluacion($(this), e);
     });
 
 });

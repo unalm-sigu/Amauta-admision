@@ -1,7 +1,7 @@
 <tr>
     <td>
         <select name="evaluacionPlan[{{:index}}].tipoEvaluacion.id"
-                class="form-control item-select2"
+                class="form-control item-select2 cbo-tipo-evaluacion"
                 required="">
             <option value="">Seleccionar..</option>
             <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
