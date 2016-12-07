@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -79,7 +80,7 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> findBySeccion(Long idSeccion);
 
-    List<MatriculaSeccion> allMatriculaSeccionByFilters(Seccion seccion);
+    List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion);
 
     void updateEvaluacion(Evaluacion evaluacion);
 
@@ -88,5 +89,9 @@ public interface CargaAcademicaService {
     SistemaNotas findSistemaNotaById(Long id);
 
     ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idDocenteSeccion);
+
+    List<Evaluacion> allEvaluacionBySecciones(List<Seccion> secciones);
+
+    Map<String, String> allAlumnoEvaluacionBySeccion(Long idSeccion);
 
 }

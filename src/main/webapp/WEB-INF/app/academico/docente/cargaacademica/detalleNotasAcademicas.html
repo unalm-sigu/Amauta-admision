@@ -1,18 +1,18 @@
 
 <div id="divEvaluacion" type="text/x-jsrender" class="hide">
     <form id="{{:form}}">
-        <div class="row">
+        <input id="txtEvaluacionId" type="hidden" value="{{:evaluacionId}}"/>
+        {{if estado=="ABIERTA"}}
+        <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4  bold">Evaluacion: </label>
                 <div class="col-sm-8">
-
                     <span>{{:tEvaluacionCodigo}} {{:numero}}</span>
-                    <input id="txtEvaluacionId" type="hidden" value="{{:evaluacionId}}"/>
                 </div>
 
             </div>
         </div>
-        <div class="row">
+        <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4  bold">Nota Mínima: </label>
                 <div class="col-sm-2">
@@ -26,7 +26,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4  bold">Cántidad NSP: </label>
                 <div class="col-sm-2">
@@ -40,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4 bold">Promedio Nota: </label>
                 <div class="col-sm-2">
@@ -54,16 +54,16 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        {{/if}}
+        <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4 bold">Fecha de la evaluación: </label>
-                <div class="col-sm-8">
+                <div class="col-sm-6">
 
                     <input id="calFechaEval"
                            type="text" 
                            required="true"
                            name="fechaInicio"
-                           style="width: 100px;"
                            class="form-control datepicker" 
                            data-parsley-errors-container="#errorFechaInicio"/>
 

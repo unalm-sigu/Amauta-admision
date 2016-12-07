@@ -8,6 +8,6 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 public interface MatriculaSeccionDAO extends Crud<MatriculaSeccion> {
 
-    List<MatriculaSeccion> allByFilters(Seccion seccion);
+    List<MatriculaSeccion> allBySeccion(Seccion seccion);
 
 }

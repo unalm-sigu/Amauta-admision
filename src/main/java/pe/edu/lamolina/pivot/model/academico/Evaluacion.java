@@ -33,10 +33,6 @@ public class Evaluacion implements Serializable {
     @Column(name = "esta_desagregado")
     private Integer estaDesagregado;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user_desagregar")
-    private Usuario usuarioDesagregar;
-
     @Column(name = "fecha_desagregar")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaDesagregar;
@@ -83,6 +79,10 @@ public class Evaluacion implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seccion_responsable")
     private Seccion seccionResponsable;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_desagregar")
+    private Usuario usuarioDesagregar;
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<AlumnoEvaluacion> alumnoEvaluacion;

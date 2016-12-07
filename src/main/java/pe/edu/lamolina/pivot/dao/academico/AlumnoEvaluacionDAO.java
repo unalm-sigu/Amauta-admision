@@ -8,4 +8,6 @@ public interface AlumnoEvaluacionDAO extends Crud<AlumnoEvaluacion> {
 
     List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
 
+    List<AlumnoEvaluacion> allBySeccion(Long idSeccion);
+
 }

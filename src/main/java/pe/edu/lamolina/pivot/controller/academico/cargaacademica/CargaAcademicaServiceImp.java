@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -501,8 +504,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public List<MatriculaSeccion> allMatriculaSeccionByFilters(Seccion seccion) {
-        return matriculaSeccionDAO.allByFilters(seccion);
+    public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion) {
+        return matriculaSeccionDAO.allBySeccion(seccion);
     }
 
     @Override
@@ -531,10 +534,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacion.setFechaIngresoNota(today);
             alumnoEvaluacion.setNota(alumnoEvaluacionEach.getNota());
             alumnoEvaluacion.setEsIngresoRegular(BigDecimal.ONE.intValue());
+
             if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
                 alumnoEvaluacion.setValorNumerico(BigDecimal.ZERO);
             } else if (sistemaNotas.isNumerico()) {
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
+                String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
+                alumnoEvaluacion.setNota(notax);
             } else {
                 NotaLetra notaLetra = sistemaNotas.getNotaLetra(alumnoEvaluacion.getNota());
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(notaLetra.getValor()));
@@ -593,6 +599,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         if (evaluacion != null) {
             node.put("evaluacionId", evaluacion.getId());
+            node.put("estado", evaluacion.getFechaIngresoNota() == null ? "CERRADA" : "ABIERTA");
             node.put("tEvaluacionNombre", evaluacion.getTipoEvaluacion().getNombre());
             node.put("tEvaluacionCodigo", evaluacion.getTipoEvaluacion().getCodigo());
             node.put("numero", evaluacion.getNumero());
@@ -613,6 +620,21 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         return node;
+    }
+
+    @Override
+    public List<Evaluacion> allEvaluacionBySecciones(List<Seccion> secciones) {
+        return evaluacionDAO.allBySecciones(secciones);
+    }
+
+    @Override
+    public Map<String, String> allAlumnoEvaluacionBySeccion(Long idSeccion) {
+        List<AlumnoEvaluacion> alumnosEvaluaciones = alumnoEvaluacionDAO.allBySeccion(idSeccion);
+        Map<String, String> mapNotas = new HashMap();
+        for (AlumnoEvaluacion alumnosEvaluacion : alumnosEvaluaciones) {
+            mapNotas.put(alumnosEvaluacion.getAlumno().getId() + "-" + alumnosEvaluacion.getEvaluacion().getId(), alumnosEvaluacion.getNota());
+        }
+        return mapNotas;
     }
 
 }

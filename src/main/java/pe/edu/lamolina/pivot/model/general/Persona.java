@@ -319,6 +319,32 @@ public class Persona implements Serializable {
         return this.nombres + (StringUtils.isEmpty(this.paterno) ? "" : (" " + this.paterno)) + (StringUtils.isEmpty(this.materno) ? "" : (" " + this.materno));
     }
 
+    public String getApellidosNombres() {
+        return (StringUtils.isEmpty(this.paterno) ? "" : this.paterno) + (StringUtils.isEmpty(this.materno) ? "" : (" " + this.materno)) + ", " + this.nombres;
+    }
+
+    public String getPaternoNombre() {
+        String nom = (StringUtils.isEmpty(this.paterno) ? "" : this.paterno);
+        if (StringUtils.isEmpty(nom)) {
+            nom = (StringUtils.isEmpty(this.materno) ? "" : this.materno);
+        }
+
+        return this.nombres.split(" ")[0] + " " + nom;
+    }
+
+    public String getNombrePaterno() {
+        String pat = (StringUtils.isEmpty(this.paterno) ? "" : this.paterno);
+        if (StringUtils.isEmpty(pat)) {
+            pat = (StringUtils.isEmpty(this.materno) ? "" : this.materno);
+        }
+
+        return this.nombres.split(" ")[0] + " " + pat;
+    }
+
+    public String getApellidos() {
+        return (StringUtils.isEmpty(this.paterno) ? "" : this.paterno) + (StringUtils.isEmpty(this.materno) ? "" : " " + this.materno);
+    }
+
     public String getAvatar() {
 
         String avatar = "";

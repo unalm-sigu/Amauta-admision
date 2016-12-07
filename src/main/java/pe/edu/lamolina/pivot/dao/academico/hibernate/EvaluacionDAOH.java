@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
 public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements EvaluacionDAO {
@@ -19,7 +20,8 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         setClazz(Evaluacion.class);
     }
 
-    public Evaluacion find(Long id) {
+    @Override
+    public Evaluacion find(long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
         sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr");
         sqlUtil.parents("_es.planCalificacion pc", "_es.sistemaNotas sn");
@@ -62,4 +64,13 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         }
         return lstEvaluaciones;
     }
+
+    @Override
+    public List<Evaluacion> allBySecciones(List<Seccion> secciones) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
+                .parents("evaluacionSeccion", "tipoEvaluacion", "left evaluacionSuperior", "seccionResponsable sr")
+                .filterIn("sr.id", secciones);
+        return all(sqlUtil);
+    }
+
 }

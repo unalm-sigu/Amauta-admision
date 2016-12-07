@@ -22,7 +22,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     @Override
     public Curso find(Long idCurso) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur");
-        sqlUtil.parents("planCalificacion pc");
+        sqlUtil.parents("left planCalificacion pc", "left departamentoAcademico");
         sqlUtil.filter("cur.id", idCurso);
         return find(sqlUtil);
     }

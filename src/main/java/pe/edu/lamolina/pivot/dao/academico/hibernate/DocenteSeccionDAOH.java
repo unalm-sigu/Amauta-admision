@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -17,6 +16,14 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     public DocenteSeccionDAOH() {
         super();
         setClazz(DocenteSeccion.class);
+    }
+
+    @Override
+    public DocenteSeccion find(long id) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
+        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.seccionSuperior");
+        sqlUtil.filter("dc.id", id);
+        return this.find(sqlUtil);
     }
 
     @Override
@@ -60,11 +67,4 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
         return this.all(sqlUtil);
     }
 
-    @Override
-    public DocenteSeccion find(Long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs");
-        sqlUtil.filter("dc.id", id);
-        return this.find(sqlUtil);
-    }
 }

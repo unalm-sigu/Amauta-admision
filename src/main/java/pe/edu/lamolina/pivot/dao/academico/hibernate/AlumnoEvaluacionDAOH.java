@@ -23,7 +23,7 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva");
         sqlUtil.parents("evaluacion eva");
-        sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr", "left _eva.seccionResponsable sr");
+        sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr");
         sqlUtil.parents("_es.grupoSeccion gs");
         if (idEvaluacionSeccion != null) {
             sqlUtil.filter("es.id", idEvaluacionSeccion);
@@ -36,5 +36,16 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         }
         List<AlumnoEvaluacion> lstEvaluaciones = this.all(sqlUtil);
         return lstEvaluaciones;
+    }
+
+    @Override
+    public List<AlumnoEvaluacion> allBySeccion(Long idSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
+                .parents("evaluacion eva", "alumno alu")
+                .parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr")
+                .parents("_es.grupoSeccion gs")
+                .filter("sr.id", idSeccion);
+
+        return all(sqlUtil);
     }
 }
