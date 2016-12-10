@@ -10,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -211,7 +210,6 @@ public class CargaAcademicaController {
                 node.put("desagregado", evaluacionPlan.isDesagregado());
                 array.add(node);
 
-                int numero = 1;
                 for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluaciones()) {
                     ObjectNode nodeHijo = new ObjectNode(JsonNodeFactory.instance);
 
@@ -219,12 +217,11 @@ public class CargaAcademicaController {
                     nodeHijo.put("evaPlanId", evaluacionHija.getId());
                     nodeHijo.put("tipoEvalCod", evaluacionHija.getTipoEvaluacion().getCodigo());
                     nodeHijo.put("tipoEvalNombre", evaluacionHija.getTipoEvaluacion().getNombre());
-                    nodeHijo.put("numero", numero);
+                    nodeHijo.put("numero", evaluacionHija.getNumero());
                     nodeHijo.put("pesoEvaluacion", evaluacionHija.getPeso());
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
                     array.add(nodeHijo);
-                    numero++;
                 }
 
             }
@@ -493,15 +490,49 @@ public class CargaAcademicaController {
 //                evaluacionesByTipoSeccion.add(evaluacion);
 //            }
 //        }
+        List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
+        for (Evaluacion eva : evaluacionesBySeccion) {
+            if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
+                logger.debug("no esta desagregado");
+                evaluacionesBySeccionFinal.add(eva);
+            }
+            if (eva.isDesagregado()) {
+                logger.debug("esta desagregado");
+                if (eva.getEvaluaciones() == null || eva.getEvaluaciones().isEmpty()) {
+                    continue;
+                }
+                logger.debug("hijos {}", eva.getEvaluaciones().size());
+                for (Evaluacion evaChild : eva.getEvaluaciones()) {
+
+                    StringBuilder codigo = new StringBuilder();
+                    codigo.append("(");
+                    codigo.append(eva.getTipoEvaluacion().getCodigo());
+                    codigo.append(")");
+                    codigo.append(evaChild.getTipoEvaluacion().getCodigo());
+                    logger.debug("nombre {}", codigo);
+
+                    TipoEvaluacion tipoEvaluacion = new TipoEvaluacion(evaChild.getTipoEvaluacion().getId());
+                    tipoEvaluacion.setNombre(evaChild.getTipoEvaluacion().getNombre());
+                    tipoEvaluacion.setCodigo(codigo.toString());
+                    evaChild.setTipoEvaluacion(tipoEvaluacion);
+
+                    evaluacionesBySeccionFinal.add(evaChild);
+
+                }
+            }
+        }
+        logger.debug("cantidad de evaluaciones final {}", evaluacionesBySeccionFinal.size());
+
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
         logger.debug("matriculas seccion size {}", matriculasSeccionByFilter.size());
 
         Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
 
         //model.addAttribute("evaluacionesByTipoSeccion", evaluacionesByTipoSeccion);
-        model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccion);
+        model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
+
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 
@@ -673,6 +704,7 @@ public class CargaAcademicaController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
+            node.put("evaId", evaluacion.getId());
             response.setData(node);
             if (activacion) {
                 response.setMessage("Evaluación activada.");
@@ -707,6 +739,7 @@ public class CargaAcademicaController {
             cargaAcademicaService.saveIngresoNotas(ds, evaluacion, alumnoEvaluaciones);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
+            node.put("evaId", evaluacion.getId());
             response.setData(node);
             response.setMessage("Notas ingresadas.");
             response.setSuccess(true);

@@ -202,11 +202,11 @@ $(function () {
                     if (response.success) {
 
                         if (activacion == "true" || activacion == true) {
-                            $("#txtCodeSel").val(response.data.evaSeleccionada);
-                            $("span[name='" + response.data.evaSeleccionada + "']").css("display", "none");
-                            $("input[name='" + response.data.evaSeleccionada + "']").css("display", "");
-                            $("input[name='" + response.data.evaSeleccionada + "']").addClass("nota-alumno");
-                            $("input[name='" + response.data.evaSeleccionada + "']").val("");
+                            $("#txtCodeSel").val(response.data.evaId);
+                            $("span[name='" + response.data.evaId + "']").css("display", "none");
+                            $("input[title='" + response.data.evaId + "']").css("display", "");
+                            $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
+                            $("input[title='" + response.data.evaId + "']").val("");
                             /*
                              <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
                              type="text" 
@@ -231,7 +231,7 @@ $(function () {
 
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
-            $("input[name='" + evaluacion + "']").each(function () {
+            $("input[title='" + evaluacion + "']").each(function () {
                 $(this).attr("data-parsley-whitespace", "trim");
                 $(this).attr("required", true);
 
@@ -282,17 +282,15 @@ $(function () {
                     dataType: "json",
                     contentType: "application/json",
                     success: function (response) {
-                        console.dir(response);
                         if (response.success) {
                             notify(response.message, "info");
                             $("#txtCodeSel").val("");
-                            $("span[name='" + response.data.evaSeleccionada + "']").css("display", "");
-                            $("input[name='" + response.data.evaSeleccionada + "']").css("display", "none");
+                            $("span[name='" + response.data.evaId + "']").css("display", "");
+                            $("input[title='" + response.data.evaId + "']").css("display", "none");
                             // $("input[name='" + response.data.evaSeleccionada + "']").val("");
 
-                            $("input[name='" + response.data.evaSeleccionada + "']").each(function () {
+                            $("input[title='" + response.data.evaId + "']").each(function () {
                                 var alumno = $(this).attr("rel");
-                                var evaluacion = $(this).attr("title");
                                 var nota = $(this).val();
 
 
@@ -306,7 +304,7 @@ $(function () {
                                 $(this).removeClass("nota-alumno");
 
 
-                                $("span[name='" + response.data.evaSeleccionada + "']").each(function () {
+                                $("span[name='" + response.data.evaId + "']").each(function () {
                                     var alumnoSpan = $(this).attr("class");
                                     if (parseInt(alumno) == parseInt(alumnoSpan)) {
                                         $(this).html('<span class="nota-academica">' + nota + '</span>');

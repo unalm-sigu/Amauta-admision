@@ -249,7 +249,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         if (newPesoTotal != evaluacionPadre.getPeso()) {
             throw new PhobosException("El peso de las evaluaciones debe ser igual a " + evaluacionPadre.getPeso());
         }
-
+        int numero = 1;
         for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
             evaluacionHija.setAlumnoEvaluacion(null);
             evaluacionHija.setEstaDesagregado(BigDecimal.ZERO.intValue());
@@ -263,12 +263,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionHija.setTipoEvaluacion(evaluacionHija.getTipoEvaluacion());
             evaluacionHija.setTipoSeccion(evaluacionPadre.getTipoSeccion());
             evaluacionHija.setUsuarioDesagregar(null);
-
+            evaluacionHija.setNumero(numero);
             evaluacionHija.getEvaluacionSeccion().getGrupoSeccion();
-            //traer claves,
-            //las evaluaciones por tantas claves exista
-            //en el recorrido identificar que evaluaciones le pertenecen a la clave en actualmente recorrida
-
+            numero++;
             evaluacionExpandidaDAO.save(evaluacionHija);
         }
         evaluacionExpandidaDAO.update(evaluacionPadre);

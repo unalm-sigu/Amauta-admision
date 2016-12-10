@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -87,7 +88,7 @@ public class Evaluacion implements Serializable {
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<AlumnoEvaluacion> alumnoEvaluacion;
 
-    @OneToMany(mappedBy = "evaluacionSuperior", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "evaluacionSuperior", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Evaluacion> evaluaciones;
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
@@ -266,6 +267,13 @@ public class Evaluacion implements Serializable {
 
     public void setNumero(Integer numero) {
         this.numero = numero;
+    }
+
+    public boolean isDesagregado() {
+        if (BigDecimal.ONE.intValue() == this.getEstaDesagregado().intValue()) {
+            return true;
+        }
+        return false;
     }
 
     public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan) {

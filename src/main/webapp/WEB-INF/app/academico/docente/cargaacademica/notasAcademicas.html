@@ -62,7 +62,7 @@
 
                                     <div th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
                                         <span style="display: ''" 
-                                              th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                                              th:name="${evaluacion.id}" 
                                               th:class="${matSeccion.matriculaResumen.alumno.id}"
                                               >
                                             <span  th:if="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}" >
