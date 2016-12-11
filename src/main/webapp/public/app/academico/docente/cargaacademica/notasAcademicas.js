@@ -242,6 +242,7 @@ $(function () {
                     $(this).attr("data-parsley-nota-numerica", "true");
                     $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                     $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                    $(this).attr("data-parsley-pattern", "[0-9]{0,3}\.?[0-9]{0,2}");//^ $
 
                     //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
 
@@ -358,12 +359,15 @@ $(function () {
     NotasAcademicas.init();
 
     $("body").delegate('.nota-alumno', 'keyup', function (event) {
-        console.log("sdfkjsfkjshkjdshskjd")
         var keyCode = (event.keyCode ? event.keyCode : event.which);
         if (keyCode == 13) {
             var index = $('.nota-alumno').index(this) + 1;
             $('.nota-alumno').eq(index).focus();
             $('.nota-alumno').eq(index).select();
+
+            var nota = $(this);
+            var notaFloat = parseFloat(nota.val());
+            nota.val(notaFloat.toFixed(2));
         }
     });
 
