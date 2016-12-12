@@ -99,16 +99,18 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
 
+
             MODAL.hide();
             MODAL.init("lg");
             MODAL.title("Cambio de nota");
             MODAL.show();
-            MODAL.buttons('<a class="btn btn-success" id="cmbGuardar">Guardar</a>');
+            MODAL.buttons('<a class="btn btn-success" id="cmbGuardarCambio">Guardar</a>');
 
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/detalleCambioNota'),
                 type: 'POST',
                 async: false,
+                data: {matriculaSeccion: $this.attr("rel")},
                 success: function (response) {
                     MODAL.body(response);
                 },
@@ -332,6 +334,33 @@ $(function () {
                 });
             }
         },
+        solicitarCambio: function () {
+            var form = $("[id='frmCambioNota']");
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/solicitarCambio'),
+                type: 'POST',
+                async: false,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        MODAL.hide();
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+
+                }
+
+            });
+            MODAL.hideWait();
+        },
         revisarNotas: function () {
             $(".nota-academica").each(function (i, v) {
                 $(this).removeClass();
@@ -353,9 +382,32 @@ $(function () {
                     }
                 }
             });
+        },
+        cambiarTipoEvalForChange: function ($this, e) {
+            var evaluacion = $this.val();
+            var alumno = $("#txtAlumnoCambiarNota").val();
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/cambiarEvaluacion'),
+                type: 'POST',
+                async: false,
+                data: {
+                    evaluacion: evaluacion,
+                    alumno: alumno
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $("#txtNotaAnterior").val(response.data.nota);
+                        $("[name='notaInicial']").val(response.data.nota);
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+
+            }
+            );
         }
     };
-
     NotasAcademicas.init();
 
     $("body").delegate('.nota-alumno', 'keyup', function (event) {
@@ -403,4 +455,11 @@ $(function () {
         NotasAcademicas.grabarNotas();
     });
 
+    $("body").delegate("#cmbGuardarCambio", "click", function (e) {
+        NotasAcademicas.solicitarCambio();
+    });
+
+    $("body").delegate("#cboTipoEvalForChange", "change", function (e) {
+        NotasAcademicas.cambiarTipoEvalForChange($(this), e);
+    });
 });

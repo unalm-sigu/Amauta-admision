@@ -2,29 +2,51 @@
     <h3>Registro de cambio de Nota</h3>
 </div>
 <div class="m-b">			
-    <span class="block"><strong>Alumno:</strong> <span>Juan Perez</span></span>
-    <span class="block"><strong>Código:</strong> <span>20110338</span></span>
-    <span class="block"><strong>Curso:</strong> <span>Matemáticas</span></span>
-    <span class="block"><strong>Clave:</strong> <span>3221 (Práctica)</span></span>
+    <span class="block"><strong>Alumno:</strong> <span th:text="${alumnoPer.nombreCompleto}">Juan Perez</span></span>
+    <span class="block"><strong>Código:</strong> <span th:text="${alumno.codigo}">20110338</span></span>
+    <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Matemáticas</span></span>
+    <span class="block"><strong>Clave:</strong> <span th:text="${seccion.codigo +' ('+ seccion.tipoSeccionEnum.value +')'}">3221 (Práctica)</span></span>
     <span class="block"><strong>Evaluación:</strong> <span>Práctica Calificada - II</span></span>
 </div>
 
-<form class="form-horizontal">
+<form id="frmCambioNota" class="form-horizontal">
+    <div class="form-group">
+        <div class="col-md-12">
+            <label>Evaluación:</label>
+            <input id="txtAlumnoCambiarNota" name="alumno.id" type="hidden"  th:value="${alumno.id}"/>
+            <select id="cboTipoEvalForChange" class="select2single form-control" 
+                    name="evaluacion.id" 
+                    required="">
+                <option value="">Seleccionar..</option> 
+                <option  th:each="item : ${evaluacionesDisp}" th:value="${item.id}" th:text="${item.tipoEvaluacion.codigo+' '+item.numero +' - '+ item.tipoEvaluacion.nombre}"></option>
+            </select>
+        </div>
+    </div>
     <div class="form-group">
         <div class="col-md-6">
             <label>Nota anterior:</label>
-            <input class="form-control" type="text" />
+            <input id="txtNotaAnterior"
+                   class="form-control"
+                   type="text"
+                   disabled="true"/>
+
+            <input name="notaInicial"
+                   class="form-control"
+                   type="hidden"/>
         </div>
         <div class="col-md-6">
             <label>Nota nueva:</label>
-            <input class="form-control" type="text" />
+            <input class="form-control" 
+                   name="notaFinal"
+                   required="true"
+                   type="text" />
         </div>
     </div>
 
     <div class="form-group">
         <div class="col-md-12">
             <label for="comment">Motivo:</label>
-            <textarea class="form-control"></textarea>
+            <textarea name="motivo" class="form-control"></textarea>
         </div>
     </div>
 </form>

@@ -33,7 +33,9 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.controller.academico.evaluacion.EvaluacionesController;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
@@ -43,11 +45,13 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
@@ -549,8 +553,29 @@ public class CargaAcademicaController {
     }
 
     @RequestMapping("detalleCambioNota")
-    public String detalleCambioNota(Model model, HttpSession session) {
+    public String detalleCambioNota(Model model, HttpSession session,
+            @RequestParam(name = "matriculaSeccion") Long matriculaSeccionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        logger.debug("matricula seccion {}", matriculaSeccionId);
+        MatriculaSeccion matriculaSeccion = cargaAcademicaService.findMatriculaSeccion(matriculaSeccionId);
+        logger.debug("alumno {}", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getNombreCompleto());
+        logger.debug("curso {}", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
+
+        model.addAttribute("alumno", matriculaSeccion.getMatriculaResumen().getAlumno());
+        model.addAttribute("alumnoPer", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona());
+        model.addAttribute("curso", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso());
+        model.addAttribute("seccion", matriculaSeccion.getSeccion());
+
+        List<AlumnoEvaluacion> alumnosEvaluaciones = cargaAcademicaService.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
+                matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico);
+        List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
+
+        for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {
+            evaluacionesDisponibles.add(alumnoEvaluacion.getEvaluacion());
+        }
+        model.addAttribute("evaluacionesDisp", evaluacionesDisponibles);
 
         return "app/academico/docente/cargaacademica/detalleCambioNota";
     }
@@ -742,6 +767,71 @@ public class CargaAcademicaController {
             node.put("evaId", evaluacion.getId());
             response.setData(node);
             response.setMessage("Notas ingresadas.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("solicitarCambio")
+    public JsonResponse solicitarCambio(
+            ReclamoNota reclamoNota,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            logger.debug("Alumno {}", reclamoNota.getAlumno().getId());
+            logger.debug("Evaluacion {}", reclamoNota.getEvaluacion().getId());
+            logger.debug("Motivo {}", reclamoNota.getMotivo());
+            logger.debug("nota inicial {}, nota final {}", reclamoNota.getNotaInicial(), reclamoNota.getNotaFinal());
+
+            cargaAcademicaService.saveReclamoNota(reclamoNota, ds);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            response.setData(node);
+            response.setMessage("Modificación ingresada.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarEvaluacion")
+    public JsonResponse cambiarEvaluacion(
+            @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
+            @RequestParam(name = "alumno", required = true) Long alumnoId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            logger.debug("la evaluacion es {}", evaluacionId);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            if (evaluacionId != null && alumnoId != null) {
+                AlumnoEvaluacion alumnoEvaluacion = cargaAcademicaService.findAlumnoEvaluacion(null, evaluacionId, alumnoId);
+                node.put("nota", alumnoEvaluacion.getNota());
+                node.put("notaNumerica", alumnoEvaluacion.getValorNumerico());
+            } else {
+                node.put("nota", "");
+                node.put("notaNumerica", "");
+            }
+
+            response.setData(node);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

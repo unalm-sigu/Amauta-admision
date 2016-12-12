@@ -15,4 +15,6 @@ public interface AlumnoEvaluacionDAO extends Crud<AlumnoEvaluacion> {
 
     List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo);
 
+    AlumnoEvaluacion findByFilter(Long id, Long idEvaluacion, Long idAlumno);
+
 }

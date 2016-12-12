@@ -27,4 +27,14 @@ public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implemen
         return this.all(sqlUtil);
     }
 
+    @Override
+    public MatriculaSeccion find(Long id) {
+        SqlUtil sqlUtil = new SqlUtil("ms")
+                .parents("matriculaResumen mr", "seccion s")
+                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
+                .parents("_gs.curso cur", "_alu.persona per")
+                .filter("ms.id", id);
+        return this.find(sqlUtil);
+    }
+
 }

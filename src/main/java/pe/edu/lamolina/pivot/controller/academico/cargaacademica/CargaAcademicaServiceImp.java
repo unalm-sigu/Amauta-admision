@@ -49,12 +49,15 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
+import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -106,6 +109,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
+
+    @Autowired
+    ReclamoNotaDAO reclamoNotaDAO;
 
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
@@ -675,6 +681,30 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             mapNotas.put(alumnosEvaluacion.getAlumno().getId() + "-" + alumnosEvaluacion.getEvaluacion().getId(), alumnosEvaluacion.getNota());
         }
         return mapNotas;
+    }
+
+    @Override
+    public MatriculaSeccion findMatriculaSeccion(Long id) {
+        return matriculaSeccionDAO.find(id);
+    }
+
+    @Override
+    public List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico) {
+        return alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, cicloAcademico);
+    }
+
+    @Override
+    public AlumnoEvaluacion findAlumnoEvaluacion(Long id, Long idEvaluacion, Long idAlumno) {
+        return alumnoEvaluacionDAO.findByFilter(id, idEvaluacion, idAlumno);
+    }
+
+    @Override
+    @Transactional
+    public void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds) {
+        reclamoNota.setEstado(EstadoEnum.CRE.name());
+        reclamoNota.setFechaReclamo(new Date());
+        reclamoNota.setUserReclamo(ds.getUsuario());
+        reclamoNotaDAO.save(reclamoNota);
     }
 
 }

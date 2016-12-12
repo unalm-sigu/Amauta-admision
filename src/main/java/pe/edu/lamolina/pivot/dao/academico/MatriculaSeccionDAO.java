@@ -9,4 +9,6 @@ public interface MatriculaSeccionDAO extends Crud<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySeccion(Seccion seccion);
 
+    MatriculaSeccion find(Long id);
+
 }

@@ -250,7 +250,7 @@ $(function () {
     });
 
     $("body").delegate(".cbo-tipo-evaluacion", "change", function (e) {
-        NuevoSistema.cambiarTipoEvaluacion($(this), e);
+        NuevoSistema.cambiarTipoEvalForChange($(this), e);
     });
 
 });

@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "aca_reclamo_nota")
@@ -37,8 +38,9 @@ public class ReclamoNota implements Serializable {
     @Column(name = "respuesta")
     private String respuesta;
 
-    @Column(name = "id_user_reclamo")
-    private Long idUserReclamo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_reclamo")
+    private Usuario userReclamo;
 
     @Column(name = "fecha_reclamo")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -136,12 +138,12 @@ public class ReclamoNota implements Serializable {
         this.respuesta = respuesta;
     }
 
-    public Long getIdUserReclamo() {
-        return idUserReclamo;
+    public Usuario getUserReclamo() {
+        return userReclamo;
     }
 
-    public void setIdUserReclamo(Long idUserReclamo) {
-        this.idUserReclamo = idUserReclamo;
+    public void setUserReclamo(Usuario userReclamo) {
+        this.userReclamo = userReclamo;
     }
 
     public Date getFechaReclamo() {
@@ -185,4 +187,3 @@ public class ReclamoNota implements Serializable {
     }
 
 }
-
