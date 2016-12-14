@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Entity
 @Table(name = "gen_persona_perfil")
@@ -143,5 +144,21 @@ public class PersonaPerfil implements Serializable {
         this.fechaRegistro = fechaRegistro;
     }
 
-}
+    public EstadoEnum getEstadoEnum() {
+        return EstadoEnum.valueOf(estado);
+    }
+    
+      public void setEstadoEnum(EstadoEnum estadoEnum) {
+        this.estado = estadoEnum.name();
+    }
 
+    public boolean isEstadoLike(EstadoEnum estado) {
+        if (this.getEstadoEnum() == estado) {
+            return true;
+        }
+        return false;
+    }
+
+  
+
+}

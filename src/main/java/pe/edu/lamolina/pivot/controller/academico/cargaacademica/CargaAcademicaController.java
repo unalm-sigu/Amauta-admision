@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
-import com.amazonaws.util.json.JSONObject;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,7 +32,6 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.controller.academico.evaluacion.EvaluacionesController;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -51,7 +49,6 @@ import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
@@ -406,7 +403,7 @@ public class CargaAcademicaController {
             if (!sistemaNotas.isNumerico() && (sistemaNotas.getNotaLetra() != null && !sistemaNotas.getNotaLetra().isEmpty())) {
                 for (NotaLetra notaLetra : sistemaNotas.getNotaLetra()) {
 
-                    JSONObject jobj = new JSONObject();
+                    ObjectNode jobj = new ObjectNode(JsonNodeFactory.instance);
                     jobj.put("esProbatoria", notaLetra.isAprobatorio());
                     jobj.put("valor", notaLetra.getValor());
 

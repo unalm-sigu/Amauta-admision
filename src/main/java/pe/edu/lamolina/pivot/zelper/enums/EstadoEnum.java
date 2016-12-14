@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum EstadoEnum {
 
-    ACT("Activo"), CER("Cerrado"), CRE("Creado");
+    ACT("Activo"), CER("Cerrado"), CRE("Creado"), INA("Inactivo");
 
     private final String value;
     private static final Map<String, EstadoEnum> lookup = new HashMap<>();

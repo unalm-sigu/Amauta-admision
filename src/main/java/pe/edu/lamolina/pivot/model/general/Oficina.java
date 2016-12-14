@@ -43,9 +43,6 @@ public class Oficina implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaInicioJefatura;
 
-    @Column(name = "titulo_jefe")
-    private String tituloJefe;
-
     @Column(name = "es_jefe_encargado")
     private Integer esJefeEncargado;
 
@@ -173,14 +170,6 @@ public class Oficina implements Serializable {
 
     public void setFechaInicioJefatura(Date fechaInicioJefatura) {
         this.fechaInicioJefatura = fechaInicioJefatura;
-    }
-
-    public String getTituloJefe() {
-        return tituloJefe;
-    }
-
-    public void setTituloJefe(String tituloJefe) {
-        this.tituloJefe = tituloJefe;
     }
 
     public Integer getEsJefeEncargado() {

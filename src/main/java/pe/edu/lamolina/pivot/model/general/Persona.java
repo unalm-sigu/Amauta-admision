@@ -49,6 +49,9 @@ public class Persona implements Serializable {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "email_compania")
+    private String emailCompania;
+
     @Column(name = "celular")
     private String celular;
 
@@ -60,6 +63,9 @@ public class Persona implements Serializable {
 
     @Column(name = "direccion")
     private String direccion;
+
+    @Column(name = "titulo_academico")
+    private String tituloAcademico;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ubicacion_nacer")
@@ -313,6 +319,22 @@ public class Persona implements Serializable {
 
     public void setTramite(List<Tramite> tramite) {
         this.tramite = tramite;
+    }
+
+    public String getTituloAcademico() {
+        return tituloAcademico;
+    }
+
+    public void setTituloAcademico(String tituloAcademico) {
+        this.tituloAcademico = tituloAcademico;
+    }
+
+    public String getEmailCompania() {
+        return emailCompania;
+    }
+
+    public void setEmailCompania(String emailCompania) {
+        this.emailCompania = emailCompania;
     }
 
     public String getNombreCompleto() {

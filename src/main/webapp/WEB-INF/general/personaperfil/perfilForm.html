@@ -1,0 +1,129 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title th:if="${personaPerfil.id !=null}" th:text="| ${personaPerfil.persona.apellidosNombres} - ${personaPerfil.perfilCompania.nombre} |"> Juan Perez - Director Administrativo</title>
+        <title th:unless="${personaPerfil.id !=null}">Asignar Cargo a Colaborador</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <header class="panel-header m-b-xl text-center">
+                <h2 th:if="${personaPerfil.id !=null}" th:text="${personaPerfil.persona.apellidosNombres}">Puesto: Juan Perez </h2>
+                <h2 th:unless="${personaPerfil.id !=null}">Asignar Nuevo Puesto</h2>
+            </header>
+
+
+            <div class="col-md-8 col-md-offset-2">
+
+                <section class="panel">
+                    <form  id="formPerfilEdit"
+                           th:action="@{/general/personaperfil/save}" method="post" data-parsley-validate="true">
+
+                        <div class="panel-body">
+
+                            <input type="hidden" id="cid"  th:value="${personaPerfil.persona.id}" />
+
+                            <div class="form-group" th:if="${personaPerfil.id == null}">
+                                <label for="idPersona" class="control-label">Persona</label>
+
+                                <input id="idPersona"
+                                       name="persona.id"
+                                       th:value="${personaPerfil.persona.id}"
+                                       type="text" class="input-s-full"  required="true"
+                                       data-parsley-errors-container="#errorPerson" 
+                                       th:if="${personaPerfil.id==null}"/>
+
+                                <span id="errorPerson"></span>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="idPerfil" class="control-label">Cargo</label>
+
+
+                                <select id="idPerfil"
+                                        name="perfilCompania.id"
+                                        th:rel="${personaPerfil.perfilCompania.id}" 
+                                        class="cboCargo form-control select2 input-s-full" 
+                                        title = "Selecciona el cargo"
+                                        required="true"
+                                        data-parsley-errors-container="#errorCargo"
+                                        th:disabled="${personaPerfil.id != null}" >
+
+                                    <option th:each="x : ${perfiles}"  
+                                            th:text="${x.nombre}"
+                                            th:value="${x.id}" 
+                                            th:selected="${personaPerfil.perfilCompania.id != null} ? ${personaPerfil.perfilCompania.id== x.id}">
+                                        Cargo XYZ
+                                    </option>
+                                </select>
+                                <span id="errorCargo"></span>
+
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="compania" class="control-label">Compañia</label>
+
+                                <select id="compania"  
+                                        name="compania.id"
+                                        th:rel="${personaPerfil.compania.id}" 
+                                        class="form-control select2 input-s-full" 
+                                        title = "Selecciona la compañia"
+                                        data-parsley-errors-container="#errorCompania">
+
+                                    <option th:each="x : ${companias}"  
+                                            th:text="${x.nombre}"
+                                            th:value="${x.id}"
+                                            th:selected="${personaPerfil.compania.id != null} ? ${personaPerfil.compania.id == x.id}">
+                                        Compañia XYZ
+                                    </option>
+                                </select>
+
+                                <span id="errorCompania"></span>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fechaInicio" class="control-label">F. Ingreso</label>
+
+
+                                <input id="fechaInicio"
+                                       type="txtFechaIngreso" 
+                                       name="fechaInicio"
+                                       th:value="${personaPerfil.fechaInicio != null} ? ${#dates.format(personaPerfil.fechaInicio,'dd/MM/yyyy')}" 
+                                       class="form-control datepicker input-s-lg" 
+                                       data-parsley-errors-container="#errorFechaIngreso"/>
+                                <span id="errorFechaIngreso"></span>
+
+
+                            </div>
+
+                        </div>
+
+                        <div class="panel-footer">
+                            <div class="text-center">
+                                <button id="btnSaveGroup" type="submit" class="btn btn-success">Guardar</button>
+                                <a th:href="@{/general/personaperfil}" class="btn btn-link">Cancelar</a>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </section>
+
+
+
+            </div>
+
+
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:src="@{/app/general/personaperfil/perfilForm.js}" charset="utf-8"></script>
+
+        </div>
+
+    </body>
+</html>
