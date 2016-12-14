@@ -1,10 +1,14 @@
 package pe.edu.lamolina.pivot.zelper.model;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 public class DataSessionPivot implements Serializable {
@@ -20,6 +24,10 @@ public class DataSessionPivot implements Serializable {
     private Docente docente;
 
     private DepartamentoAcademico departamentoAcademico;
+
+    private List<Rol> roles;
+
+    private Rol rolActivo;
 
     public String getEmail() {
         return email;
@@ -67,6 +75,28 @@ public class DataSessionPivot implements Serializable {
 
     public void setDocente(Docente docente) {
         this.docente = docente;
+    }
+
+    public List<Rol> getRoles() {
+        return roles;
+    }
+
+    public Map<Long, Rol> getMapRoles() {
+
+        return roles.stream()
+                .collect(Collectors.toMap(x -> x.getId(), x -> x));
+    }
+
+    public void setRoles(List<Rol> roles) {
+        this.roles = roles;
+    }
+
+    public Rol getRolActivo() {
+        return rolActivo;
+    }
+
+    public void setRolActivo(Rol rolActivo) {
+        this.rolActivo = rolActivo;
     }
 
 }

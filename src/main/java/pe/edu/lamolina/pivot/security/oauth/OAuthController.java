@@ -19,7 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -30,6 +33,13 @@ public class OAuthController {
     OAuthServiceProvider serviceProvider;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String login() {
+
+        return "security/login";
+
+    }
 
     @RequestMapping(value = "login", method = RequestMethod.GET)
     public String loginGoogle() {
@@ -84,7 +94,62 @@ public class OAuthController {
             return "redirect:/login";
         }
 
-        return "redirect:/";
+        logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRoles().size(), ds.getRolActivo());
+
+        if (ds.getRoles().size() > 1 && ds.getRolActivo() == null) {
+            return "security/rolland";
+
+        } else if (ds.getRoles().size() == 1) {
+            Rol rolActivo = ds.getRoles().get(0);
+            ds.setRolActivo(rolActivo);
+
+            session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        }
+
+        String redirect = this.getRedirect(ds);
+
+        return redirect;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "rolland", method = RequestMethod.POST)
+    public void rolesLanding(HttpSession session, @RequestParam("rol") Long rol) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Rol asignar = ds.getMapRoles().get(rol);
+        
+        ds.setRolActivo(asignar);
+
+        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+    }
+
+    private String getRedirect(DataSessionPivot ds) {
+
+        String redirect = "redirect:/logout";
+
+        switch (ds.getRolActivo().getCodigo()) {
+            case "DPTO":
+                redirect = "redirect:/academico/systemcalifica/sistema";
+                break;
+
+            case "DOC":
+                Docente docente = ds.getDocente();
+                if (docente != null) {
+                    redirect = "redirect:/academico/docente/cargaacademica";
+                }
+                break;
+
+            case "IOREA":
+                redirect = "redirect:/general/personaperfil";
+                break;
+
+            default:
+                logger.debug("No se identifica acceso para el rol: {} ", ds.getRolActivo().getCodigo());
+                break;
+
+        }
+
+        return redirect;
 
     }
 

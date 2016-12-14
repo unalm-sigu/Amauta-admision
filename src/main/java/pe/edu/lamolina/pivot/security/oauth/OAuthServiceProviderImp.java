@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.security.oauth;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
 import org.scribe.builder.ServiceBuilder;
@@ -17,7 +18,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -30,6 +37,15 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Autowired
     UsuarioDAO usuarioDAO;
+
+    @Autowired
+    RolDAO rolDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    DocenteDAO docenteDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,16 +64,23 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     @Override
     public void loginManually(String email, HttpSession session) {
 
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
+
         Usuario usuario = usuarioDAO.findByEmail(email);
 
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
         }
-        
+
+        List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
+
         SecurityContext cntx = SecurityContextHolder.getContext();
 
         Collection<GrantedAuthority> authorities = new ArrayList();
-        authorities.add(new SimpleGrantedAuthority("USUARIO"));
+
+        for (Rol rol : roles) {
+            authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
+        }
 
         if (authorities.isEmpty()) {
             throw new PhobosException("Usuario sin rol asignado.");
@@ -72,6 +95,14 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         dataSession.setEmail(email);
         dataSession.setUsuario(usuario);
         dataSession.setPersona(usuario.getPersona());
+        dataSession.setRoles(roles);
+        dataSession.setCicloAcademico(cicloAcademico);
+
+        Docente docente = docenteDAO.findPersona(usuario.getPersona());
+        if (docente != null) {
+            dataSession.setDocente(docente);
+            dataSession.setDepartamentoAcademico(docente.getDepartamentoAcademico());
+        }
         session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
     }
 
