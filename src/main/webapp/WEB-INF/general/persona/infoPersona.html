@@ -1,0 +1,59 @@
+<div class="row m-l m-r m-t">
+    <div class="col-md-3">
+
+        <a href="#" class="thumb-lg">
+            <img th:src="${fotoHelper.getRutaFoto(null,persona.sexo)}" alt="..." class="img-circle"/>
+        </a>
+
+    </div>
+
+    <div class="col-md-9">
+        <div class="m-l">
+            <span class="block h3 text-info-dk bold" th:text="${persona.apellidosNombres}">Juancito Terrible</span>
+            <hr class="m-t-xs m-b-xs"/>
+            <div class="row">
+                <div class="col-md-6">
+                    <span class="block">
+                        <span class="bold" th:text="${persona.tipoDocumento.simbolo}">DNI</span>: <span th:text="${persona.numeroDocIdentidad}"></span>
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <span class="block" th:if="${persona.fechaNacer}">
+                        <span class="bold">Fecha nac.</span> <span th:text="${#dates.format(persona.fechaNacer,'dd/MM/yyyy')}">28/07/1821</span>
+                    </span>
+                </div>
+            </div>
+
+
+
+            <hr class="m-t-xs m-b-xs"/>
+            <div class="row">
+                <div class="clear col-md-3">
+                    <small class="block text-muted">
+                        <i class="fa fa-mobile"></i>
+                        <span th:text="${persona.celular}">34343434</span>
+                    </small>
+                </div>
+                <div class="clear col-md-3">
+                    <small class="block text-muted">
+                        <i class="fa fa-phone"></i>
+                        <span th:text="${persona.telefono}">34343434</span>
+                    </small>
+                </div>
+            </div>
+            <div class="row">
+                <div class="clear col-md-12">
+                    <small class="block text-muted">
+                        <i class="fa fa-envelope"></i>
+                        <span th:text="${persona.emailCompania}">34343434</span>
+                    </small>
+                    <small class="block text-muted">
+                        <i class="fa fa-envelope"></i>
+                        <span th:text="${persona.email}">34343434</span>
+                    </small>             
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

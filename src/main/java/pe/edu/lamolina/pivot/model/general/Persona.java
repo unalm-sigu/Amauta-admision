@@ -121,6 +121,11 @@ public class Persona implements Serializable {
         this.id = TypesUtil.getLong(id);
     }
 
+    public Persona(TipoDocIdentidad tipo, String numeroDocIdentidad) {
+        this.tipoDocumento = tipo;
+        this.numeroDocIdentidad = numeroDocIdentidad;
+    }
+
     public Long getId() {
         return id;
     }

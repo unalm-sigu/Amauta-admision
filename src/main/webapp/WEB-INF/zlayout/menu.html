@@ -55,6 +55,12 @@
                                 <i class="fa fa-users"></i><span>Colaboradores</span>
                             </a>
                         </li>
+
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/general/persona}">
+                                <i class="fa fa-users"></i><span>Personas</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
