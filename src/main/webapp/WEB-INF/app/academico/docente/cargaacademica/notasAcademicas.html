@@ -22,6 +22,7 @@
             <span class="block"><strong>Sistema Notas:</strong> <span th:text="${sistemaNotas.nombre}">2130</span></span>
             <input id="txtSistemaNotas" type="hidden" th:value="${sistemaNotas.id}"/>
 
+            <button href="#" id="cmbReporteNotas" >Reporte</button>
 
             <style>
                 body    {overflow-x:scroll;}
@@ -100,8 +101,20 @@
                                                size="3"/>
 
                                     </td>
-                                    <td class="text-center v-middle">05.23 </td>
-                                    <td class="text-center v-middle">11.53 </td>
+                                    <td class="text-center v-middle">
+
+                                        <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
+                                            <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaAcumulada}" > 04.18 </span>
+                                        </span>
+
+                                    </td>
+                                    <td class="text-center v-middle">
+
+                                        <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
+                                            <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}" > 04.18 </span>
+                                        </span>
+
+                                    </td>
 
                                     <td class="text-center v-middle">
                                         <div class="dropdown actions">

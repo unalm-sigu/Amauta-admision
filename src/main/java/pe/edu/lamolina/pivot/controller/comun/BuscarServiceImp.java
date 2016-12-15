@@ -15,8 +15,8 @@ public class BuscarServiceImp implements BuscarService {
     CursoDAO cursoDAO;
 
     @Override
-    public List<Curso> allCursosAutocomplete(String nombre, Long idDepartamentoAca, Long planCalificacion) {
-        return cursoDAO.allAutocomplete(nombre, idDepartamentoAca, planCalificacion);
+    public List<Curso> allCursosSCA(String nombre, Long idDepartamentoAca, Long planCalificacion, Long idCiclo) {
+        return cursoDAO.allForSistemaCalificacion(nombre, idDepartamentoAca, planCalificacion, idCiclo);
     }
 
 }

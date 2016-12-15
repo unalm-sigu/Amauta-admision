@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
@@ -84,6 +85,36 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
             }
         }
         return evaluaciones;
+    }
+
+    @Override
+    public List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
+                .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior evaSup", "seccionResponsable sr")
+                .filter("es.id", evaluacionSeccion.getId());
+        sqlUtil.filterIsNull("evaSup");
+
+        List<Evaluacion> evaluaciones = this.all(sqlUtil);
+        for (Evaluacion evaluacion : evaluaciones) {
+            if (evaluacion.getEvaluaciones() != null) {
+                for (Evaluacion eva : evaluacion.getEvaluaciones()) {
+                    eva.getId();
+                    eva.getTipoEvaluacion().getId();
+                    eva.getTipoEvaluacion().getNombre();
+                }
+            }
+        }
+        return evaluaciones;
+    }
+
+    @Override
+    public Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaCountSql("ev");
+        sqlUtil.parents("seccionResponsable sr");
+        sqlUtil.parents("_sr.grupoSeccion gs");
+        sqlUtil.filter("gs.id", idGrupoSeccion);
+        sqlUtil.filterIsNull("ev.fechaIngresoNota");
+        return this.count(sqlUtil);
     }
 
 }

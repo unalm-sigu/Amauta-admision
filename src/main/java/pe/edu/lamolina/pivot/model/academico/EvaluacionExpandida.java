@@ -28,7 +28,7 @@ public class EvaluacionExpandida implements Serializable {
     private Long id;
 
     @Column(name = "peso")
-    private Integer peso;
+    private BigDecimal peso;
 
     @Column(name = "numero")
     private Integer numero;
@@ -124,11 +124,11 @@ public class EvaluacionExpandida implements Serializable {
         this.tipoEvaluacion = tipoEvaluacion;
     }
 
-    public Integer getPeso() {
+    public BigDecimal getPeso() {
         return peso;
     }
 
-    public void setPeso(Integer peso) {
+    public void setPeso(BigDecimal peso) {
         this.peso = peso;
     }
 
@@ -282,7 +282,7 @@ public class EvaluacionExpandida implements Serializable {
     }
 
     public boolean isDesagregado() {
-        if (BigDecimal.ONE.equals(this.getEstaDesagregado())) {
+        if (BigDecimal.ONE.intValue() == this.getEstaDesagregado()) {
             return true;
         }
         return false;

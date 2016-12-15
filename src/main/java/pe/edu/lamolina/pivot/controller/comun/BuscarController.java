@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -28,15 +29,15 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("comun/buscar")
 public class BuscarController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     BuscarService buscarService;
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -47,7 +48,7 @@ public class BuscarController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -59,7 +60,7 @@ public class BuscarController {
             }
         });
     }
-    
+
     @ResponseBody
     @RequestMapping("cursosSCA")
     public DynatableResponse cursosSCA(DynatableFilter filter,
@@ -71,11 +72,13 @@ public class BuscarController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("el plan calificacion es " + planCalificacion);
-            List<Curso> cursos = buscarService.allCursosAutocomplete(nombre, ds.getDepartamentoAcademico().getId(), planCalificacion);
-            
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            List<Curso> cursos = buscarService.allCursosSCA(nombre, ds.getDepartamentoAcademico().getId(), planCalificacion, ciclo.getId());
+
             for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                
+
                 node.put("id", curso.getId());
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
@@ -84,11 +87,11 @@ public class BuscarController {
                 node.put("tpc", curso.getTipoCurso());
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);

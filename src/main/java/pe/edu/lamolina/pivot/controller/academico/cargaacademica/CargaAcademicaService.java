@@ -16,6 +16,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
@@ -29,7 +30,7 @@ public interface CargaAcademicaService {
 
     List<TipoEvaluacion> allTipoEvaluacion();
 
-    List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente);
+    List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico ciclo);
 
     List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente);
 
@@ -83,6 +84,8 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> findBySeccion(Long idSeccion);
 
+    List<Evaluacion> allEvaluacionByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion);
+
     List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion);
 
     void updateEvaluacion(Evaluacion evaluacion);
@@ -105,4 +108,5 @@ public interface CargaAcademicaService {
 
     void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds);
 
+    Map<Long, MatriculaCurso> getMapMatriculasCursoByCicloCurso(CicloAcademico ciclo, Curso curso);
 }
