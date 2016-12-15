@@ -29,7 +29,7 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     @Override
     public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
         filter.setAlias("dc");
-        filter.setParents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_sec.aula au",
+        filter.setParents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
                 "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
         filter.filterFix("doc.id", docente.getId());
 

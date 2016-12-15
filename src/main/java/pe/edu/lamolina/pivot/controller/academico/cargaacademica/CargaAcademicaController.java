@@ -31,6 +31,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -133,7 +134,7 @@ public class CargaAcademicaController {
                 node.put("tpc", docSeccion.getSeccion().getGrupoSeccion().getCurso().getTpc());
                 node.put("seccion", docSeccion.getSeccion().getCodigo());
                 node.put("idSeccion", docSeccion.getSeccion().getId());
-                node.put("aula", docSeccion.getSeccion().getAula().getNombre());
+                node.put("aula", (String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre"));
                 node.put("tipoSeccion", docSeccion.getSeccion().getTipoSeccion());
                 node.put("alumnos", docSeccion.getSeccion().getMatriculados());
                 node.put("horasSemanales", docSeccion.getSeccion().getHorasSemanales());
