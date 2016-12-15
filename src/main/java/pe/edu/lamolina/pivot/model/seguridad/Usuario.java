@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Entity
 @Table(name = "seg_usuario")
@@ -25,6 +26,9 @@ public class Usuario implements Serializable {
 
     @Column(name = "usuario")
     private String usuario;
+
+    @Column(name = "estado")
+    private String estado;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona")
@@ -72,5 +76,19 @@ public class Usuario implements Serializable {
         this.usuarioRol = usuarioRol;
     }
 
-}
+    public EstadoEnum getEstadoEnum() {
+        return EstadoEnum.valueOf(estado);
+    }
 
+    public void setEstadoEnum(EstadoEnum estadoEnum) {
+        this.estado = estadoEnum.name();
+    }
+
+    public boolean isEstadoLike(EstadoEnum estado) {
+        if (this.getEstadoEnum() == estado) {
+            return true;
+        }
+        return false;
+    }
+
+}

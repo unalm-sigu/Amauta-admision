@@ -1,7 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
@@ -78,11 +76,11 @@ public class SistemaServiceImp implements SistemaService {
     }
 
     @Override
-    public ObjectNode allTipoEvaluacionJson() throws JSONException {
+    public ObjectNode allTipoEvaluacionJson() {
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         List<TipoEvaluacion> lstTipoEvaluacion = tipoEvaluacionDAO.all();
         for (TipoEvaluacion tipoEvaluacion : lstTipoEvaluacion) {
-            JSONObject jobj = new JSONObject();
+            ObjectNode jobj = new ObjectNode(JsonNodeFactory.instance);
             jobj.put("codigo", tipoEvaluacion.getCodigo());
             jobj.put("esDivisible", tipoEvaluacion.getEsDivisible());
             jobj.put("esNotaMinimaAnulable", tipoEvaluacion.isNotaMinimaAnulable());

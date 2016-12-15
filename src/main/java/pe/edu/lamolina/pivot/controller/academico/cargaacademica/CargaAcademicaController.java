@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
-import com.amazonaws.util.json.JSONObject;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -418,7 +417,7 @@ public class CargaAcademicaController {
             if (!sistemaNotas.isNumerico() && (sistemaNotas.getNotaLetra() != null && !sistemaNotas.getNotaLetra().isEmpty())) {
                 for (NotaLetra notaLetra : sistemaNotas.getNotaLetra()) {
 
-                    JSONObject jobj = new JSONObject();
+                    ObjectNode jobj = new ObjectNode(JsonNodeFactory.instance);
                     jobj.put("esProbatoria", notaLetra.isAprobatorio());
                     jobj.put("valor", notaLetra.getValor());
 
