@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
@@ -52,6 +53,7 @@ public class Curso implements Serializable {
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "fecha_plan_calificacion")
     private Date fechaPlanCalificacion;
 

@@ -94,6 +94,7 @@ public class CargaAcademicaController {
         model.addAttribute("docente", ds.getDocente());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
         cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente());
+        
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/docente/cargaacademica/cargaAcademica";
     }

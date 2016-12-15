@@ -61,7 +61,7 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     @Override
     public List<DocenteSeccion> allByDocente(Docente docente) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_sec.aula au",
+        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
                 "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
         sqlUtil.filter("doc.id", docente.getId());
         return this.all(sqlUtil);
