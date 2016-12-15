@@ -3,18 +3,21 @@ package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionPlanDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
@@ -25,6 +28,7 @@ import pe.edu.lamolina.pivot.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
@@ -69,6 +73,9 @@ public class SistemaServiceImp implements SistemaService {
 
     @Autowired
     EvaluacionDAO evaluacionDAO;
+
+    @Autowired
+    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
@@ -155,19 +162,31 @@ public class SistemaServiceImp implements SistemaService {
             grupoSeccion.setPlanCalificacion(planCalificacion);
             grupoSeccionDAO.update(grupoSeccion);
 
+            this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
+
             List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
             logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
-            List<EvaluacionPlan> planEvaluaciones = evaluacionPlanDAO.allByFilter(idPLanCalificacion);
+            List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
             logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", idPLanCalificacion, planEvaluaciones.size());
-            for (Seccion seccion : secciones) {
-                for (EvaluacionPlan evaluacionPlan : planEvaluaciones) {
-                    logger.debug("Seccion Tipo {}", seccion.getTipoSeccionEnum().name());
-                    logger.debug("Tipo evaluacion en seccion {}", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-                    logger.debug("Tipo Evaluacion {}", evaluacionPlan.getTipoSeccionEnum().name());
-                    if (seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-                            evaluacionPlan.getTipoSeccionEnum())) {
+            for (Seccion seccionEach : secciones) {
+                for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
+                    logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
+                    logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+                    logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
+                    if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+                            evaluacionExpandida.getTipoSeccionEnum())) {
+
                         Evaluacion evaluacion = new Evaluacion();
-                        evaluacion.create(evaluacionSeccion, evaluacionPlan);
+                        evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
+                        if (evaluacionExpandida.getEvaluaciones() != null && !evaluacionExpandida.getEvaluaciones().isEmpty()) {
+                            evaluacion.setEvaluaciones(new ArrayList<>());
+                            for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluaciones()) {
+                                Evaluacion evaluacionChild = new Evaluacion();
+                                evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
+                                evaluacionChild.setEvaluacionSuperior(evaluacion);
+                                evaluacion.getEvaluaciones().add(evaluacionChild);
+                            }
+                        }
                         evaluacionDAO.save(evaluacion);
                     }
                 }
@@ -185,6 +204,34 @@ public class SistemaServiceImp implements SistemaService {
             grupoSeccionDAO.update(grupoSeccion);
         }
         planCalificacionDAO.update(planCalificacion);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
+        evaluacionSeccionDAO.update(evaluacionSeccion);
+
+        List<EvaluacionExpandida> evaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        logger.debug("Evaluacion seccion {}, cantidad de pensiones expandidadas {}", evaluacionSeccion.getId(), evaluaciones.size());
+        if (evaluaciones.isEmpty()) {
+            logger.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());
+
+            List<EvaluacionPlan> evaluacionesPlanes = evaluacionPlanDAO.allByFilter(evaluacionSeccion.getPlanCalificacion().getId());
+            logger.debug("Plan Calificacion {}, Cantidad de evaluaciones para el plan {} ", evaluacionSeccion.getPlanCalificacion().getId(), evaluacionesPlanes.size());
+            for (EvaluacionPlan evaluacionPlan : evaluacionesPlanes) {
+                for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones().intValue(); i++) {
+                    EvaluacionExpandida evaluacion = new EvaluacionExpandida();
+                    evaluacion.setAlumnoEvaluacion(null);
+                    evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
+                    evaluacionExpandidaDAO.save(evaluacion);
+                }
+            }
+        }
+
+        GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
+        grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
+        grupoSeccion.setPlanCalificacion(evaluacionSeccion.getPlanCalificacion());
+        grupoSeccionDAO.update(grupoSeccion);
     }
 
     @Override

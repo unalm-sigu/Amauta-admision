@@ -42,5 +42,8 @@
     <span class="block" th:if="${planCalificacion.estadoObservado || planCalificacion.estadoRechazado}">
         <strong>Observación:</strong> <span  th:text="${planCalificacion.observacion}">1 al 20</span>
     </span>
+    <span class="block" th:if="${planCalificacion.estadoSolicitado}">
+        <strong>Sustento</strong> <span  th:text="${planCalificacion.sustento}">1 al 20</span>
+    </span>
 </div>
 

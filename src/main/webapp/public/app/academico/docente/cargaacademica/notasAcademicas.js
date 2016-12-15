@@ -275,8 +275,9 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-            MODAL.showWait("Espere un momento por favor");
+
             if ($("#txtCodeSel").val() != "") {
+                MODAL.showWait("Espere un momento por favor");
                 $.ajax({
                     url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
                     type: 'POST',

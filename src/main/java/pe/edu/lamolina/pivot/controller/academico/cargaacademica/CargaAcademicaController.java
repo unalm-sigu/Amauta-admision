@@ -106,7 +106,7 @@ public class CargaAcademicaController {
         model.addAttribute("docente", ds.getDocente());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
         cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente());
-        
+
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/docente/cargaacademica/cargaAcademica";
     }
@@ -255,6 +255,7 @@ public class CargaAcademicaController {
     @RequestMapping("{seccion}/detalleSistemaCalificacion")
     public String detalleSistemaCalificacion(@PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        logger.debug("la seccion es {}", idSeccion);
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getPlanCalificacion());
@@ -548,6 +549,9 @@ public class CargaAcademicaController {
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
+
+        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+        model.addAttribute("matriculaCursoMap", matriculaCursoMap);
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }

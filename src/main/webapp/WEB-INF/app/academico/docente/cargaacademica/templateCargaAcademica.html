@@ -15,6 +15,7 @@
         <span class="block">{{:horasSemanales}}h</span>
     </td>
     <td class="text-center v-middle">
+        <input type="hidden" value="{{:idSistemaCalificacion}}"/>
         {{if estadoSistema=="PRO"}}
         <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{/if}}
@@ -42,6 +43,7 @@
     </td>
     <td class="text-center v-middle">
         <div class="dropdown actions">
+            {{if idSistemaCalificacion!=""}}
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >
                 {{if estadoSistema=="EXPR"}}
@@ -59,6 +61,7 @@
                 </li> 
 
             </ul>
+            {{/if}}
         </div>
     </td>
 </tr>

@@ -171,7 +171,12 @@ $(function () {
                 var tipoEvaluacion = evaluacionCnf[tEval];
 
                 if (formula.indexOf(tipoEvaluacion.codigo) > -1) {
-                    bootbox.alert("Seleccione una evaluación distinta.");
+                    bootbox.alert(
+                            {
+                                message: "Seleccione una evaluación distinta.",
+                                size: 'small'
+                            }
+                    );
                     $this.select2("val", "CAC");
                     return false;
                 }
