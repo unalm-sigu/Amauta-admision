@@ -694,6 +694,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
+    public List<Evaluacion> allEvaluacionByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion) {
+        return evaluacionDAO.allByEvaluacionSeccion(evaluacionSeccion);
+    }
+
+    @Override
     public Map<String, String> allAlumnoEvaluacionBySeccion(Long idSeccion) {
         List<AlumnoEvaluacion> alumnosEvaluaciones = alumnoEvaluacionDAO.allBySeccion(idSeccion);
         Map<String, String> mapNotas = new HashMap();

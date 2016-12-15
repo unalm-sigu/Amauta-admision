@@ -84,6 +84,8 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> findBySeccion(Long idSeccion);
 
+    List<Evaluacion> allEvaluacionByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion);
+
     List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion);
 
     void updateEvaluacion(Evaluacion evaluacion);

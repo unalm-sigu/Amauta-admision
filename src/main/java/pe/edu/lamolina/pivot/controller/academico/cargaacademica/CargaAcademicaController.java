@@ -493,7 +493,7 @@ public class CargaAcademicaController {
         if (seccion.getSeccionSuperior() != null) {
             secciones.add(seccion.getSeccionSuperior());
         }
-        List<Evaluacion> evaluacionesBySeccion = cargaAcademicaService.allEvaluacionBySecciones(secciones);
+        List<Evaluacion> evaluacionesBySeccion = cargaAcademicaService.allEvaluacionByEvaluacionSeccion(evaluacionSeccion);
         logger.debug("Grupo Seccion {}, Cantidad de Evaluaciones {}", docenteSeccion.getSeccion().getGrupoSeccion().getId(), evaluacionesBySeccion.size());
         //List<Evaluacion> evaluacionesByTipoSeccion = new ArrayList<>();
 //        for (Evaluacion evaluacion : evaluacionesBySeccion) {

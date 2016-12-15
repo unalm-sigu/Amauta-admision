@@ -276,64 +276,79 @@ $(function () {
                 return;
             }
 
-            if ($("#txtCodeSel").val() != "") {
-                MODAL.showWait("Espere un momento por favor");
-                $.ajax({
-                    url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
-                    type: 'POST',
-                    async: false,
-                    data: JSON.stringify(jsonObj),
-                    dataType: "json",
-                    contentType: "application/json",
-                    success: function (response) {
-                        if (response.success) {
-                            notify(response.message, "info");
-                            $("#txtCodeSel").val("");
-                            $("span[name='" + response.data.evaId + "']").css("display", "");
-                            $("input[title='" + response.data.evaId + "']").css("display", "none");
-                            // $("input[name='" + response.data.evaSeleccionada + "']").val("");
-
-                            $("input[title='" + response.data.evaId + "']").each(function () {
-                                var alumno = $(this).attr("rel");
-                                var nota = $(this).val();
-
-
-                                $(this).removeAttr("data-parsley-nota-minima");
-                                $(this).removeAttr("data-parsley-nota-maxima");
-                                $(this).removeAttr("data-parsley-nota-numerica");
-                                $(this).removeAttr("data-parsley-type");
-                                $(this).removeAttr("required");
-                                $(this).removeAttr("data-parsley-whitespace");
-                                $(this).removeAttr("data-parsley-pattern");
-                                $(this).removeClass("nota-alumno");
-
-
-                                $("span[name='" + response.data.evaId + "']").each(function () {
-                                    var alumnoSpan = $(this).attr("class");
-                                    if (parseInt(alumno) == parseInt(alumnoSpan)) {
-                                        $(this).html('<span class="nota-academica">' + nota + '</span>');
-                                    }
-                                });
-                            });
-                            NotasAcademicas.revisarNotas();
-                        } else {
-                            notify(response.message, "error");
-                        }
-
-                    },
-                    error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
-
-                    }
-
-                });
-                MODAL.hideWait();
-            } else {
+            if ($("#txtCodeSel").val() == "") {
                 bootbox.alert({
                     message: "Seleccionar evaluación e ingresar notas.",
                     size: 'small'
                 });
+                return;
             }
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea registrar las notas, de la evaluación?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
+                            type: 'POST',
+                            async: false,
+                            data: JSON.stringify(jsonObj),
+                            dataType: "json",
+                            contentType: "application/json",
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $("#txtCodeSel").val("");
+                                    $("span[name='" + response.data.evaId + "']").css("display", "");
+                                    $("input[title='" + response.data.evaId + "']").css("display", "none");
+                                    // $("input[name='" + response.data.evaSeleccionada + "']").val("");
+
+                                    $("input[title='" + response.data.evaId + "']").each(function () {
+                                        var alumno = $(this).attr("rel");
+                                        var nota = $(this).val();
+
+
+                                        $(this).removeAttr("data-parsley-nota-minima");
+                                        $(this).removeAttr("data-parsley-nota-maxima");
+                                        $(this).removeAttr("data-parsley-nota-numerica");
+                                        $(this).removeAttr("data-parsley-type");
+                                        $(this).removeAttr("required");
+                                        $(this).removeAttr("data-parsley-whitespace");
+                                        $(this).removeAttr("data-parsley-pattern");
+                                        $(this).removeClass("nota-alumno");
+
+
+                                        $("span[name='" + response.data.evaId + "']").each(function () {
+                                            var alumnoSpan = $(this).attr("class");
+                                            if (parseInt(alumno) == parseInt(alumnoSpan)) {
+                                                $(this).html('<span class="nota-academica">' + nota + '</span>');
+                                            }
+                                        });
+                                    });
+                                    NotasAcademicas.revisarNotas();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+
+                            }
+
+                        });
+                        MODAL.hideWait();
+
+                    }
+                }
+            });
+
         },
         solicitarCambio: function () {
             var form = $("[id='frmCambioNota']");
