@@ -222,10 +222,18 @@ public class SistemaServiceImp implements SistemaService {
             List<EvaluacionPlan> evaluacionesPlanes = evaluacionPlanDAO.allByFilter(evaluacionSeccion.getPlanCalificacion().getId());
             logger.debug("Plan Calificacion {}, Cantidad de evaluaciones para el plan {} ", evaluacionSeccion.getPlanCalificacion().getId(), evaluacionesPlanes.size());
             for (EvaluacionPlan evaluacionPlan : evaluacionesPlanes) {
+
+                BigDecimal peso = BigDecimal.ZERO;
                 for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones().intValue(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
                     evaluacion.setAlumnoEvaluacion(null);
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
+
+                    if (i == evaluacionPlan.getCantidadEvaluaciones().intValue()) {
+                        BigDecimal pesoFinal = new BigDecimal(evaluacionPlan.getPesoTotal()).subtract(peso);
+                        evaluacion.setPeso(pesoFinal);
+                    }
+                    peso = peso.add(evaluacionPlan.getPesoEvaluacion());
                     evaluacionExpandidaDAO.save(evaluacion);
                 }
             }
