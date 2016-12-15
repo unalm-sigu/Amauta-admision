@@ -31,6 +31,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -140,6 +141,7 @@ public class SistemaController {
 
         try {
             logger.debug("Plancalificacion {}", planCalificacion);
+            CicloAcademico ciclo = ds.getCicloAcademico();
 
             List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
 

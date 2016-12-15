@@ -5,6 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 
 public interface BuscarService {
 
-    List<Curso> allCursosAutocomplete(String nombre, Long idDepartamentoAca, Long planCalificacion);
+    List<Curso> allCursosSCA(String nombre, Long idDepartamentoAca, Long planCalificacion, Long idCiclo);
 
 }
