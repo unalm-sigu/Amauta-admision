@@ -406,6 +406,12 @@ $(function () {
 
             }
             );
+        },
+        reporteActaNotas: function ($this, e) {
+
+            var alumno = $("#txtAlumnoCambiarNota").val();
+            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?docenteSeccion=') + $("#txtDocSec").val();
+
         }
     };
     NotasAcademicas.init();
@@ -461,5 +467,9 @@ $(function () {
 
     $("body").delegate("#cboTipoEvalForChange", "change", function (e) {
         NotasAcademicas.cambiarTipoEvalForChange($(this), e);
+    });
+
+    $("body").delegate("#cmbReporteNotas", "click", function (e) {
+        NotasAcademicas.reporteActaNotas($(this), e);
     });
 });

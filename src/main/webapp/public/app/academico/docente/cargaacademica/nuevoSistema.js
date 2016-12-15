@@ -39,14 +39,14 @@ $(function () {
                 $(this).removeClass("item-select2");
             });
         },
-        changeCantidadEval: function (el) {
-            if ($.isNumeric(el.val())) {
-                var i = el.attr('rel');
-                var elem = "evaluacionPlan[" + i + "].anulaNotaMinima";
+        changeCantidadEval: function ($this) {
+            if ($.isNumeric($this.val())) {
+                var i = $this.attr('rel');
+                var elem = "evaluacionPlan[" + i + "].notaMinimaAnulable";
                 $("[name='" + elem + "']").attr("disabled", true);
                 $("[name='" + elem + "']").val(0);
                 $("[name='" + elem + "']").attr("checked", false);
-                if (parseInt(el.val()) > 1) {
+                if (parseInt($this.val()) > 1) {
                     $("[name='" + elem + "']").removeAttr("disabled");
                 }
 

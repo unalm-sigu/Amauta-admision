@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 
 public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
 
-}
+    DepartamentoAcademico find(Long id);
 
+}

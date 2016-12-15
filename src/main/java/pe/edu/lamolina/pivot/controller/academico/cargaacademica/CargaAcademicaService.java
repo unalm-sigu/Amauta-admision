@@ -29,7 +29,7 @@ public interface CargaAcademicaService {
 
     List<TipoEvaluacion> allTipoEvaluacion();
 
-    List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente);
+    List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico ciclo);
 
     List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente);
 

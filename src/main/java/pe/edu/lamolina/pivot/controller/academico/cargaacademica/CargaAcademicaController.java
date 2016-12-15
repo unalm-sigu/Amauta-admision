@@ -3,7 +3,13 @@ package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import static com.helger.commons.io.stream.StreamHelper.close;
 import java.beans.PropertyEditorSupport;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +62,7 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 
 @Controller
 @RequestMapping("academico/docente/cargaacademica")
@@ -63,6 +72,9 @@ public class CargaAcademicaController {
 
     @Autowired
     CargaAcademicaService cargaAcademicaService;
+
+    @Autowired
+    PdfService pdfService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -116,8 +128,9 @@ public class CargaAcademicaController {
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<DocenteSeccion> lista = cargaAcademicaService.allByCargaAcademica(filter, ds.getDocente());
+            List<DocenteSeccion> lista = cargaAcademicaService.allByCargaAcademica(filter, ds.getDocente(), ciclo);
             logger.debug("Lista {}", lista.size());
             for (DocenteSeccion docSeccion : lista) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -537,6 +550,48 @@ public class CargaAcademicaController {
         model.addAttribute("notas", mapNotas);
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
+    }
+
+    @RequestMapping("reporteDeActas")
+    public void reporteDeActas(HttpServletResponse response,
+            @RequestParam("docenteSeccion") Long idDocenteSeccion,
+            Model model,
+            HttpSession session) throws IOException {
+
+        logger.debug("docente seccion {}", idDocenteSeccion);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        List<String> lstPdfFiles = pdfService.reporteDeActaDeNotas(idDocenteSeccion, ds);
+
+        String fileNameRoot = pdfService.concatPDFs(lstPdfFiles, "resultado.pdf", false);
+        if (!fileNameRoot.isEmpty()) {
+            File filex = new File(fileNameRoot);
+            if (!filex.exists()) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            response.reset();
+            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + fileNameRoot + "\"");
+
+            BufferedInputStream input = null;
+            BufferedOutputStream output = null;
+
+            try {
+                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                IOUtils.copy(input, output);
+                response.flushBuffer();
+
+            } finally {
+
+                close(output);
+                close(input);
+
+            }
+        }
     }
 
     @RequestMapping("{evaluacion}/evaluacion")

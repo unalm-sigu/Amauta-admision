@@ -17,7 +17,7 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     @Override
     public GrupoSeccion find(Long idGrupoSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
-                .parents("secciones s", "planCalificacion pc")
+                .parents("secciones s", "planCalificacion pc", "curso cur")
                 .filter("gp.id", idGrupoSeccion);
         return find(sqlUtil);
     }

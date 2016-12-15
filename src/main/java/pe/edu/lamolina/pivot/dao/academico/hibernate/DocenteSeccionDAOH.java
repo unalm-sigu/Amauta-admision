@@ -8,7 +8,9 @@ import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -27,11 +29,12 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     }
 
     @Override
-    public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
+    public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico cicloAcademico) {
         filter.setAlias("dc");
         filter.setParents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2", "_gs.cicloAcademico ca");
         filter.filterFix("doc.id", docente.getId());
+        filter.filterFix("ca.id", cicloAcademico.getId());
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));
@@ -64,6 +67,15 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
         sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
                 "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
         sqlUtil.filter("doc.id", docente.getId());
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allBySeccion(Seccion seccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
+        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
+        sqlUtil.filter("sec.id", seccion.getId());
         return this.all(sqlUtil);
     }
 
