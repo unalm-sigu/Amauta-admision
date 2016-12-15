@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -96,5 +97,11 @@ public class DocenteSeccion implements Serializable {
         this.fechaFin = fechaFin;
     }
 
-}
+    public boolean esDocentePrincipal() {
+        if (BigDecimal.ONE.intValue() == principal) {
+            return true;
+        }
+        return false;
+    }
 
+}

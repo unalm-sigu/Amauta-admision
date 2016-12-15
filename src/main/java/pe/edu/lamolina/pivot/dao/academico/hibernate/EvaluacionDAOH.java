@@ -86,4 +86,14 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         return evaluaciones;
     }
 
+    @Override
+    public Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaCountSql("ev");
+        sqlUtil.parents("seccionResponsable sr");
+        sqlUtil.parents("_sr.grupoSeccion gs");
+        sqlUtil.filter("gs.id", idGrupoSeccion);
+        sqlUtil.filterIsNull("ev.fechaIngresoNota");
+        return this.count(sqlUtil);
+    }
+
 }
