@@ -160,6 +160,8 @@ $(function () {
             });
         },
         cambiarTipoEvaluacion: function ($this, e) {
+            var formula = $("#txtFormula").val();
+
             var tr = $this.closest("tr");
             var cantidadEval = tr.find("[name$='cantidadEvaluaciones']");
             var notaMinimaAnulable = tr.find("[name$='notaMinimaAnulable']");
@@ -167,6 +169,13 @@ $(function () {
             cantidadEval.removeAttr("data-parsley-max");
             if (tEval != null && tEval != "") {
                 var tipoEvaluacion = evaluacionCnf[tEval];
+
+                if (formula.indexOf(tipoEvaluacion.codigo) > -1) {
+                    bootbox.alert("Seleccione una evaluación distinta.");
+                    $this.select2("val", "CAC");
+                    return false;
+                }
+
                 // cantidadMaxima   esNotaMinimaAnulable
                 cantidadEval.attr("data-parsley-max", tipoEvaluacion.cantidadMaxima);
                 if (tipoEvaluacion.esNotaMinimaAnulable == true || tipoEvaluacion.esNotaMinimaAnulable == "true") {
