@@ -49,7 +49,7 @@
                                     <td>
                                         <input class="form-control clsCantEvaluaciones" rel="0"  
                                                name="evaluacionPlan[0].cantidadEvaluaciones"
-                                               data-parsley-pattern="[0-9]"
+                                               data-parsley-pattern="[0-9]{0,3}"
                                                required="true"
                                                type="text"
                                                data-parsley-min="1"/>
@@ -57,7 +57,7 @@
                                     <td>
                                         <input  name="evaluacionPlan[0].pesoTotal" 
                                                 rel="0"
-                                                data-parsley-pattern="[0-9]"
+                                                data-parsley-pattern="[0-9]{0,3}"
                                                 type="text" 
                                                 required="true"
                                                 class="form-control calcular-peso-eva" />
