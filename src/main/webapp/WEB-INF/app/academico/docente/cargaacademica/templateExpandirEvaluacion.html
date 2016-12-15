@@ -7,7 +7,12 @@
     </td>
     <td  class="v-middle">
         <input name="evaluaciones[{{:index}}].peso" 
-               class="form-control" type="text" />
+               class="form-control" type="text"
+               required="true"
+               data-parsley-pattern="[0-9]{0,3}\.?[0-9]{0,2}"
+               max="{{:max}}"
+               data-parsley-max-message="El total de pesos no debe ser mayor que %s"
+               />
     </td>
     <td class="text-center">
         <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>

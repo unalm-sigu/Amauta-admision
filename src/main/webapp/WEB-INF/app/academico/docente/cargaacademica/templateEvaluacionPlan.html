@@ -13,9 +13,11 @@
         <span class="block" >{{:pesoEvaluacion}} %</span>
     </td>
     <td class="v-middle text-center">
-        {{if !esHijo and !desagregado}}
+        {{if esHijo==false}}
+        {{if desagregado==false}}
         <a href="#"  rel="{{:evaPlanId}}" 
            class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
+        {{/if}}
         {{/if}}
     </td>
 </tr>

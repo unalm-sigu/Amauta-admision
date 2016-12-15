@@ -282,7 +282,7 @@ public class EvaluacionExpandida implements Serializable {
     }
 
     public boolean isDesagregado() {
-        if (BigDecimal.ONE.equals(this.getEstaDesagregado())) {
+        if (BigDecimal.ONE.intValue() == this.getEstaDesagregado()) {
             return true;
         }
         return false;

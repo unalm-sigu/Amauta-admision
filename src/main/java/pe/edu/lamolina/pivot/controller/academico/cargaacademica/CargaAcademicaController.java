@@ -445,7 +445,7 @@ public class CargaAcademicaController {
     public String detalleExapandirEva(Model model, HttpSession session,
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        logger.debug("la evaluacion es {}", evaluacionId);
         EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
         List<TipoEvaluacion> lstTipoEvasReal = new ArrayList<>();

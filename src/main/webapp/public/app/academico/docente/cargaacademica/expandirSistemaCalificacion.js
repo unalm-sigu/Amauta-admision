@@ -55,6 +55,7 @@ $(function () {
 
             var rowCount = $('#tbodyEvaluaciones tr').length;
             record.index = rowCount;
+            record.max = $("#txtPesoEvalForExp").val();
 
             var html = $.templates("#templateExpandirEvaluacion").render(record);
             var tbody = $("#tbodyEvaluaciones");
@@ -82,6 +83,15 @@ $(function () {
                 }
             });
         }, saveExpandir: function () {
+
+            var form = $("#frmExpandirEvals");
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+
             bootbox.confirm({
                 message: "¿Está seguro que desea expandir?",
                 buttons: {
@@ -90,13 +100,7 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
-                        var form = $("[id='frmExpandirEvals']");
 
-                        form.parsley().destroy();
-                        form.parsley();
-                        if (!form.parsley().validate()) {
-                            return;
-                        }
                         $.ajax({
                             url: APP.url('academico/docente/cargaacademica/saveExpandir'),
                             type: 'POST',

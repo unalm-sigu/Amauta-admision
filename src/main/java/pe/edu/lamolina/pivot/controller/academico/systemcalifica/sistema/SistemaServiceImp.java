@@ -110,14 +110,11 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacion.setFechaRegistro(new Date());
 
         Integer totalWeight = BigDecimal.ZERO.intValue();
-        Boolean errorPesoEvaluacion = Boolean.FALSE;
 
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().intValue() == 0) {
-                if (errorPesoEvaluacion) {
-                    throw new PhobosException("Peso evaluacion incorrecto..");
-                }
+                throw new PhobosException("Peso evaluacion incorrecto..");
             }
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
