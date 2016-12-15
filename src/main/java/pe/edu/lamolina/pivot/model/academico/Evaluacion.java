@@ -29,7 +29,7 @@ public class Evaluacion implements Serializable {
     private Long id;
 
     @Column(name = "peso")
-    private Integer peso;
+    private BigDecimal peso;
 
     @Column(name = "esta_desagregado")
     private Integer estaDesagregado;
@@ -125,11 +125,11 @@ public class Evaluacion implements Serializable {
         this.tipoEvaluacion = tipoEvaluacion;
     }
 
-    public Integer getPeso() {
+    public BigDecimal getPeso() {
         return peso;
     }
 
-    public void setPeso(Integer peso) {
+    public void setPeso(BigDecimal peso) {
         this.peso = peso;
     }
 
@@ -276,6 +276,7 @@ public class Evaluacion implements Serializable {
         return false;
     }
 
+    /*
     public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan) {
         this.setAlumnoEvaluacion(null);
         this.setEvaluacionSeccion(evalSeccion);
@@ -285,9 +286,9 @@ public class Evaluacion implements Serializable {
         this.setEvaluacionSuperior(null);
         this.setEvaluaciones(null);
         this.setEvaluados(BigDecimal.ZERO.intValue());
-        this.setPeso(evaluacionPlan.getPesoTotal());
+        this.setPeso(evaluacionPlan.getPesoEvaluacion());
     }
-
+     */
     public void create(EvaluacionSeccion evalSeccion, Seccion seccion, EvaluacionExpandida evaluacionExpandida) {
         this.setAlumnoEvaluacion(null);
         this.setEvaluacionSeccion(evalSeccion);

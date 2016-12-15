@@ -111,22 +111,25 @@ public class SistemaServiceImp implements SistemaService {
 
         Integer totalWeight = BigDecimal.ZERO.intValue();
         Boolean errorPesoEvaluacion = Boolean.FALSE;
+
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().intValue() == 0) {
-                errorPesoEvaluacion = true;
+                if (errorPesoEvaluacion) {
+                    throw new PhobosException("Peso evaluacion incorrecto..");
+                }
             }
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
+
             totalWeight += evaluacionPlan.getPesoTotal();
         }
+
         if (totalWeight != 100) {
             throw new PhobosException("Pesos total de las evaluaciones incorrecto.");
         }
-        if (errorPesoEvaluacion) {
-            throw new PhobosException("Peso evaluacion incorrecto..");
-        }
+
         Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());
         maxNumeroCorrelativo = maxNumeroCorrelativo + 1;
         planCalificacion.setNumero(maxNumeroCorrelativo);

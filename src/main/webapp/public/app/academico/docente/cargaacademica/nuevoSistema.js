@@ -58,6 +58,7 @@ $(function () {
             var cantEvals = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']");
             var anularNotMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']");
             var pesoEval = $("[name='evaluacionPlan[" + i + "].pesoEvaluacion']");
+
             if ($.isNumeric(pesoTotal.val()) && $.isNumeric(cantEvals.val())) {
                 var pesoTotalNumber = parseInt(pesoTotal.val())
                 var cantEvalsNumber = parseInt(cantEvals.val());
@@ -65,15 +66,17 @@ $(function () {
                 if (anularNotMin.prop('checked')) {
                     cantEvalsNumber--;
                 }
-                if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
-                    pesoEval.val("");
-                    return;
-                }
-
+                /*
+                 if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
+                 pesoEval.val("");
+                 return;
+                 }
+                 */
                 var pesoEvalsNumber = parseInt(pesoTotalNumber) / parseInt(cantEvalsNumber);
-                pesoEval.val(pesoEvalsNumber);
+                pesoEval.val(pesoEvalsNumber.toFixed(2));
             }
-        }, calcularFormula: function () {
+        },
+        calcularFormula: function () {
             var rowCount = $('#tblEvaluaciones tr').length - 1;
             var formula = "";
             for (i = 0; i < rowCount; i++) {

@@ -247,12 +247,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionPadre.setFechaDesagregar(new Date());
         evaluacionPadre.setUsuarioDesagregar(ds.getUsuario());
 
-        Integer newPesoTotal = 0;
+        BigDecimal newPesoTotal = BigDecimal.ZERO;
         for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
-            newPesoTotal = newPesoTotal + evaluacionHija.getPeso();
+            newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
         }
         logger.debug("new peso total {}, eva padre peso {}", newPesoTotal, evaluacionPadre.getPeso());
-        if (newPesoTotal != evaluacionPadre.getPeso()) {
+        if (newPesoTotal.compareTo(evaluacionPadre.getPeso()) != 0) {
             throw new PhobosException("El peso de las evaluaciones debe ser igual a " + evaluacionPadre.getPeso());
         }
         int numero = 1;
@@ -577,9 +577,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             for (AlumnoEvaluacion ae : evaluacionesAlumno) {
                 BigDecimal peso = null;
                 if (ae.getEvaluacion().getId() == evaluacion.getId().longValue()) {
-                    peso = new BigDecimal(evaluacion.getPeso());
+                    peso = evaluacion.getPeso();
                 } else {
-                    peso = new BigDecimal(ae.getEvaluacion().getPeso());
+                    peso = ae.getEvaluacion().getPeso();
                 }
                 pesoTotal = pesoTotal.add(peso);
                 ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));

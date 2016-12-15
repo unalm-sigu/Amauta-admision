@@ -158,13 +158,14 @@ $(function () {
                 if (anularNotMin.prop('checked')) {
                     cantEvalsNumber--;
                 }
-                if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
-                    pesoEval.val("");
-                    return;
-                }
-
+                /*
+                 if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
+                 pesoEval.val("");
+                 return;
+                 }
+                 */
                 var pesoEvalsNumber = parseInt(pesoTotalNumber) / parseInt(cantEvalsNumber);
-                pesoEval.val(pesoEvalsNumber);
+                pesoEval.val(pesoEvalsNumber.toFixed(2));
             }
         },
         calcularFormula: function () {
