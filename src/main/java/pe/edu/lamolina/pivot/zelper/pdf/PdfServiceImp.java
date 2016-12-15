@@ -1,8 +1,7 @@
 package pe.edu.lamolina.pivot.zelper.pdf;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -22,7 +21,8 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
-import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
+import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
@@ -34,7 +34,9 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.DocumentoPdfEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -76,6 +78,8 @@ public class PdfServiceImp implements PdfService {
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
 
     public List<String> reporteDeActaDeNotas(Long idDocenteSeccion, DataSessionPivot ds) {
         //47
@@ -97,7 +101,10 @@ public class PdfServiceImp implements PdfService {
 
         List< MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
         logger.debug("matriculas seccion size {}", matriculasSeccionByFilter.size());
-        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
+        //Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
+
+        List<ResumenAlumnoEvaluacion> resumenesAlumnos = resumenAlumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccion);
+        Map<String, ResumenAlumnoEvaluacion> mapNotas = mapearNotas(resumenesAlumnos);
 
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccion);
         logger.debug("Seccion {}, Cantidad Docentes Seccion {}", seccion.getId(), docentesSeccion.size());
@@ -175,6 +182,16 @@ public class PdfServiceImp implements PdfService {
     @Override
     public String concatPDFs(List<String> pdfFilesStr, String outputStreamStr, boolean paginate) {
         return pdfGenerator.concatPDFs(pdfFilesStr, outputStreamStr, paginate);
+    }
+
+    private Map<String, ResumenAlumnoEvaluacion> mapearNotas(List<ResumenAlumnoEvaluacion> resumenesAlumnos) {
+        Map<String, ResumenAlumnoEvaluacion> mapNotas = new LinkedHashMap();
+        for (ResumenAlumnoEvaluacion rae : resumenesAlumnos) {
+            Alumno alumno = rae.getAlumno();
+            TipoEvaluacion tipo = rae.getTipoEvaluacion();
+            mapNotas.put(alumno.getId() + "-" + tipo.getId(), rae);
+        }
+        return mapNotas;
     }
 
 }

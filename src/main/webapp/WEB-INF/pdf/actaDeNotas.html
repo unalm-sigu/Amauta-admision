@@ -196,7 +196,9 @@
                 <td th:text="${matSec.matriculaResumen.alumno.persona.apellidosNombres}">nombre
                 </td>  
                 <td  th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
-                    12
+                    <span class="nota-academica" 
+                          th:if="${notas[matSec.matriculaResumen.alumno.id+evalPlan.tipoEvaluacion.id]}"
+                          th:text="${notas[matSec.matriculaResumen.alumno.id+evalPlan.tipoEvaluacion.id].nota}" > 04.18 </span>
                 </td>
                 <td>
 
