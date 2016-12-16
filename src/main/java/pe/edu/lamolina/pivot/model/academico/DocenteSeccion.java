@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Entity
 @Table(name = "aca_docente_seccion")
@@ -25,6 +26,9 @@ public class DocenteSeccion implements Serializable {
 
     @Column(name = "principal")
     private Integer principal;
+
+    @Column(name = "estado")
+    private String estado;
 
     @Column(name = "fecha_inicio")
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -102,6 +106,21 @@ public class DocenteSeccion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public EstadoEnum getEstadoEnum() {
+        if (estado == null) {
+            return null;
+        }
+        return EstadoEnum.valueOf(estado);
     }
 
 }

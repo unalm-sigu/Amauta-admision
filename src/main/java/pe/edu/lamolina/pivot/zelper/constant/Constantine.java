@@ -12,6 +12,7 @@ public interface Constantine {
 
     Integer DEFAULT_BUFFER_SIZE_DOWNLOAD = 1024;
 
-    String ADMISION_DIR = OSValidator.isWindows() ? "D:/dxtr/tmp/" : "/PIVOT/notas/";
+    //String ADMISION_DIR = OSValidator.isWindows() ? "D:/dxtr/tmp/" : "/PIVOT/notas/";
+    String ADMISION_DIR = OSValidator.isWindows() ? "D:/dxtr/tmp/" : "/tmp/";
 
 }

@@ -152,8 +152,8 @@ public class CargaAcademicaController {
                 node.put("tipoSeccion", docSeccion.getSeccion().getTipoSeccion());
                 node.put("alumnos", docSeccion.getSeccion().getMatriculados());
                 node.put("horasSemanales", docSeccion.getSeccion().getHorasSemanales());
-                node.put("estado", "DIC");
-                node.put("estadoEnum", "Dictando");
+                node.put("estado", docSeccion.getEstado());
+                node.put("estadoEnum", docSeccion.getEstadoEnum().getValue());
                 node.put("estadoSistema", docSeccion.getSeccion().getGrupoSeccion() != null
                         ? docSeccion.getSeccion().getGrupoSeccion().getEstadoPlan() : "");
                 String estadoEnum = "";
