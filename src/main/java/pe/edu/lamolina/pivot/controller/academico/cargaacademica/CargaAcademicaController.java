@@ -465,6 +465,31 @@ public class CargaAcademicaController {
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
     }
 
+    @ResponseBody
+    @RequestMapping("deleteExpansionHija")
+    public JsonResponse deleteExpansionHija(@RequestParam("evaluacion") Long evaluacion,
+            RedirectAttributes redirectAttr, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            String message = "Evaluación eliminada exitosamente.";
+            cargaAcademicaService.deleteEvaluacionExpandida(evaluacion);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("{docenteSeccion}/notasAcademicas")
     public String notasAcademicas(
             @PathVariable("docenteSeccion") Long idDocenteSeccion,

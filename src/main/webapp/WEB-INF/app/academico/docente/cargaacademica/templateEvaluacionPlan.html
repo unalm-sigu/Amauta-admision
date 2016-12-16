@@ -14,10 +14,11 @@
     </td>
     <td class="v-middle text-center">
         {{if esHijo==false}}
-        {{if desagregado==false}}
         <a href="#"  rel="{{:evaPlanId}}" 
            class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
         {{/if}}
+        {{if esHijo==true}}
+        <a href="#" rel="{{:evaPlanId}}"  class="btn btn-default delete-expansion"><i class="fa fa-times text-danger"></i></a>
         {{/if}}
     </td>
 </tr>

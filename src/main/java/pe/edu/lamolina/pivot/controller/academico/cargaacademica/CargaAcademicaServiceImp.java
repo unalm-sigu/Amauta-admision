@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.controller.academico.evaluacion.EvaluacionesController;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -257,12 +258,18 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionPadre.setUsuarioDesagregar(ds.getUsuario());
 
         BigDecimal newPesoTotal = BigDecimal.ZERO;
+
+        //Evaluaciones previamente expandidas
+        for (EvaluacionExpandida evaChilds : evaluacionPadre.getEvaluaciones()) {
+            newPesoTotal = newPesoTotal.add(evaChilds.getPeso());
+        }
+        //Evaluaciones que actualmente se expanderan
         for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluaciones()) {
             newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
         }
         logger.debug("new peso total {}, eva padre peso {}", newPesoTotal, evaluacionPadre.getPeso());
-        if (newPesoTotal.compareTo(evaluacionPadre.getPeso()) != 0) {
-            throw new PhobosException("El peso de las evaluaciones debe ser igual a " + evaluacionPadre.getPeso());
+        if (newPesoTotal.compareTo(evaluacionPadre.getPeso()) > 0) {
+            throw new PhobosException("El peso de las evaluaciones expandidas no debe ser mayor al peso de la evaluacion padre, verifique ");
         }
         int numero = 1;
         StringBuilder strb = new StringBuilder();
@@ -477,6 +484,26 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
         List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
         logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", grupoSeccion.getPlanCalificacion().getId(), planEvaluaciones.size());
+
+        for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
+            BigDecimal pesoTotal = evaluacionExpandida.getPeso();
+            BigDecimal pesoAcum = BigDecimal.ZERO;
+            if (evaluacionExpandida.getEvaluaciones() != null && !evaluacionExpandida.getEvaluaciones().isEmpty()) {
+
+                for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluaciones()) {
+                    pesoAcum = pesoAcum.add(evalExp.getPeso());
+                }
+            }
+            if (pesoTotal.compareTo(pesoAcum) != 0) {
+                String msg = "Pesos de las subevaluaciones de la evaluación {1} {2} incorrectos, verifique";
+                msg = msg.replace("{1}", evaluacionExpandida.getTipoEvaluacion().getNombre());
+                msg = msg.replace("{2}", evaluacionExpandida.getNumero().toString());
+                throw new PhobosException(msg);
+            }
+        }
+        if (true) {
+            throw new PhobosException("aadad");
+        }
         for (Seccion seccionEach : secciones) {
             for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
                 logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
@@ -526,6 +553,35 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public EvaluacionExpandida findEvaluacionExpandida(Long idEvaluacionPlan) {
         return evaluacionExpandidaDAO.find(idEvaluacionPlan);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEvaluacionExpandida(Long id) {
+
+        EvaluacionExpandida evaluacion = evaluacionExpandidaDAO.find(id);
+        EvaluacionExpandida evalSuperior = evaluacion.getEvaluacionSuperior();
+        logger.debug("Evaluacion expandida a eliminar {}, Evaluacion Padre {}", id, evalSuperior.getId());
+        evaluacionExpandidaDAO.delete(evaluacion);
+
+        if (evalSuperior != null) {
+            evalSuperior = evaluacionExpandidaDAO.find(evalSuperior.getId());
+            if (evalSuperior.getEvaluaciones() == null || evalSuperior.getEvaluaciones().isEmpty()) {
+                evalSuperior.setEstaDesagregado(BigDecimal.ZERO.intValue());
+                evaluacionExpandidaDAO.update(evalSuperior);
+            } else {
+                logger.debug("Cantidad de evaluaciones hijas del padre {}", evalSuperior.getEvaluaciones().size());
+                if (evalSuperior.getEvaluaciones().size() == 1) {
+                    for (EvaluacionExpandida eva : evalSuperior.getEvaluaciones()) {
+                        if (eva.getId().equals(id)) {
+                            evalSuperior.setEstaDesagregado(BigDecimal.ZERO.intValue());
+                            evaluacionExpandidaDAO.update(evalSuperior);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @Override
