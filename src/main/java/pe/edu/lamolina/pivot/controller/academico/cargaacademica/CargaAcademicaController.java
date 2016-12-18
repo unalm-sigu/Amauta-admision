@@ -448,6 +448,7 @@ public class CargaAcademicaController {
         logger.debug("la evaluacion es {}", evaluacionId);
         EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
+        /*
         List<TipoEvaluacion> lstTipoEvasReal = new ArrayList<>();
         for (TipoEvaluacion tEval : lstTipoEvas) {
             boolean found = false;
@@ -459,9 +460,12 @@ public class CargaAcademicaController {
             if (!found) {
                 lstTipoEvasReal.add(tEval);
             }
-        }
-        model.addAttribute("tipoEvaluaciones", lstTipoEvasReal);
+        }*/
+
+        model.addAttribute("tipoEvaluaciones", lstTipoEvas);
         model.addAttribute("evaluacion", evaluacion);
+        model.addAttribute("evaluaciones", evaluacion.getEvaluaciones());
+        model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluaciones() != null && !evaluacion.getEvaluaciones().isEmpty() ? true : false);
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
     }
 

@@ -16,7 +16,30 @@
             </tr>
         </thead>
 
-        <tbody id="tbodyEvaluaciones">
+        <tbody id="tbodyEvaluaciones" th:if="${tieneEvaluaciones}">
+            <tr  th:each="eval,iterStat : ${evaluaciones}">
+                <td  class="v-middle">
+                    <select name="evaluaciones[${iterStat.index}].tipoEvaluacion.id" 
+                            class="form-control item-select2">
+                        <option  th:each="item : ${tipoEvaluaciones}" 
+                                 th:selected="${item.id==eval.tipoEvaluacion.id}"
+                                 th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+                    </select>
+                </td>
+                <td  class="v-middle">
+                    <input name="evaluaciones[${iterStat.index}].peso" 
+                           th:value="${eval.peso}"
+                           class="form-control"
+                           type="text"
+                           data-parsley-pattern="[0-9]{0,3}\.?[0-9]{0,2}"
+                           required="true"/>
+                </td>
+                <td class="text-center">
+                    <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="tbodyEvaluaciones"  th:if="${!tieneEvaluaciones}">
             <tr>
                 <td  class="v-middle">
                     <select name="evaluaciones[0].tipoEvaluacion.id" 
