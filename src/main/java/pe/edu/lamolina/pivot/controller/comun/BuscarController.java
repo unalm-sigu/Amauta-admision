@@ -21,8 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.general.Ubicacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -97,5 +101,44 @@ public class BuscarController {
             json.setTotal(0);
         }
         return json;
+    }
+    
+    @ResponseBody
+    @RequestMapping("allDistritos")
+    public JsonResponse allDistritos(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Ubicacion> ubicaciones = buscarService.allDistritosByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Ubicacion ubicacion : ubicaciones) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", ubicacion.getId());
+                Ubicacion provincia = ubicacion.getUbicacionSuperior();
+                Ubicacion departamento = provincia.getUbicacionSuperior();
+
+                json.put("distrito", ubicacion.getNombre());
+                json.put("provincia", provincia.getNombre());
+                json.put("departamento", departamento.getNombre());
+                json.put("nombre", ubicacion.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 }

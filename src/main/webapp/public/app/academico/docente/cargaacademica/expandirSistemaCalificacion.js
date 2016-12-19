@@ -49,6 +49,41 @@ $(function () {
                 }
             });
         },
+        deleteEvaluacion: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar este registro?",
+                buttons: {
+                    cancel: {label: "Cancelar", className: "btn-default"},
+                    confirm: {label: "Eliminar", className: "btn-danger"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/deleteExpansionHija'),
+                            type: 'POST',
+                            async: false,
+                            data: {
+                                evaluacion: idx
+                            },
+                            success: function (response) {
+                                dynatable.process();
+                                notify(response.message, "info");
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
+                    }
+                }
+            });
+        },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
             var record = {};
@@ -163,6 +198,10 @@ $(function () {
 
     $("body").delegate(".expandir-evaluacion", "click", function (e) {
         ExpandirSCN.expandirEvaluacion($(this), e);
+    });
+
+    $("body").delegate(".delete-expansion", "click", function (e) {
+        ExpandirSCN.deleteEvaluacion($(this), e);
     });
 
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {

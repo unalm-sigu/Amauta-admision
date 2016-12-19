@@ -15,7 +15,7 @@
 
                 <section class="panel-body bg-white b">
 
-                    
+
                     <form th:action="@{/general/persona/save}" method="post" id="formPersonaEdit" class="form-horizontal m-t-lg" data-parsley-validate="true">
 
                         <input type="hidden" name="persona.id" id="personaId"  th:value="${persona}? ${persona.id}"/>
@@ -103,6 +103,15 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label for="distrito" class="col-sm-2 control-label">Distrito</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control input-s-full buscar-distrito" id="buscarDistrito" name="ubicacionDomicilio.id" data-trigger="change" 
+                                       th:rel="${persona.ubicacionDomicilio != null}? ${persona.ubicacionDomicilio.distrito}"
+                                       th:value="${persona.ubicacionDomicilio != null}? ${persona.ubicacionDomicilio.id}"
+                                       required="true" />
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label for="direccion" class="col-sm-2 control-label">Dirección</label>

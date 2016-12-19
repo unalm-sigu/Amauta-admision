@@ -8,6 +8,35 @@ $(function () {
         iniciar: function () {
             PersonaForm.tipoDNI = $("#tipoDNI").val();
             PersonaForm.numeroDNI = $("#numeroDocIdentidad").val();
+
+            $("#buscarDistrito").select2({
+                minimumInputLength: 2,
+                ajax: {
+                    url: APP.url("comun/buscar/allDistritos"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function (response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    if (element.val() != "") {
+                        callback({id: element.val(), nombre: element.attr("rel")});
+                    }
+                },
+                formatResult: function (info) {
+                    return info.nombre;
+                },
+                formatSelection: function (info) {
+                    return info.nombre;
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            });
         },
         save: function () {
             var form = $("#formPersonaEdit");

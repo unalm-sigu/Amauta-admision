@@ -56,6 +56,8 @@ public interface CargaAcademicaService {
 
     EvaluacionExpandida findEvaluacionExpandida(Long idEvaluacionPlan);
 
+    void deleteEvaluacionExpandida(Long id);
+
     void createEvaluacionSeccionPorDocente(Docente docente);
 
     void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum);

@@ -20,7 +20,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -449,6 +448,7 @@ public class CargaAcademicaController {
         logger.debug("la evaluacion es {}", evaluacionId);
         EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
+        /*
         List<TipoEvaluacion> lstTipoEvasReal = new ArrayList<>();
         for (TipoEvaluacion tEval : lstTipoEvas) {
             boolean found = false;
@@ -460,10 +460,38 @@ public class CargaAcademicaController {
             if (!found) {
                 lstTipoEvasReal.add(tEval);
             }
-        }
-        model.addAttribute("tipoEvaluaciones", lstTipoEvasReal);
+        }*/
+
+        model.addAttribute("tipoEvaluaciones", lstTipoEvas);
         model.addAttribute("evaluacion", evaluacion);
+        model.addAttribute("evaluaciones", evaluacion.getEvaluaciones());
+        model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluaciones() != null && !evaluacion.getEvaluaciones().isEmpty() ? true : false);
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteExpansionHija")
+    public JsonResponse deleteExpansionHija(@RequestParam("evaluacion") Long evaluacion,
+            RedirectAttributes redirectAttr, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            String message = "Evaluación eliminada exitosamente.";
+            cargaAcademicaService.deleteEvaluacionExpandida(evaluacion);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @RequestMapping("{docenteSeccion}/notasAcademicas")
