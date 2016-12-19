@@ -668,9 +668,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 pesoTotal = pesoTotal.add(peso);
                 ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
             }
+
             BigDecimal avance = ponderado.divide(bd100, 2, RoundingMode.HALF_UP);
-            ponderado = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
-            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal(ponderado));
+            BigDecimal prom = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
+            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal(prom));
             matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(avance));
             matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
 
