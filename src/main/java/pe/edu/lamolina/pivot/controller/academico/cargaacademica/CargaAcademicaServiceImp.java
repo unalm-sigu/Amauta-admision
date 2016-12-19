@@ -444,10 +444,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
-
+        /* 
         GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
-        /*   grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.ACEP);
-        grupoSeccionDAO.update(grupoSeccion);*/
+         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.ACEP);
+        grupoSeccionDAO.update(grupoSeccion);
 
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
         logger.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
@@ -475,7 +475,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     evaluacionDAO.save(evaluacion);
                 }
             }
-        }
+        }*/
 
     }
 
