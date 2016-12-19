@@ -38,6 +38,7 @@ import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.DocumentoPdfEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -87,66 +88,45 @@ public class PdfServiceImp implements PdfService {
         List<String> pdfs = new ArrayList<>();
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        logger.debug("ciclo academico {}", cicloAcademico.getId());
-
         DocenteSeccion docenteSeccion = docenteSeccionDAO.find(idDocenteSeccion);
 
-        GrupoSeccion grupoSeccion = grupoSeccionDAO.find(docenteSeccion.getSeccion().getGrupoSeccion().getId());
-        Curso curso = cursoDAO.find(grupoSeccion.getCurso().getId());
-        logger.debug("el curso {}", curso.getId());
-        Seccion seccion = docenteSeccion.getSeccion();
-        PlanCalificacion planCalificacion = planCalificacionDAO.find(grupoSeccion.getPlanCalificacion().getId());
-        DepartamentoAcademico departamentoAcademico = departamentoAcademicoDAO.find(curso.getDepartamentoAcademico().getId());
-        Facultad facultad = facultadDAO.find(departamentoAcademico.getId());
+        GrupoSeccion grupoSeccion = docenteSeccion.getSeccion().getGrupoSeccion();
+        Curso curso = grupoSeccion.getCurso();
+        PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
+        DepartamentoAcademico departamentoAcademico = curso.getDepartamentoAcademico();
+        Facultad facultad = departamentoAcademico.getFacultad();
 
-        List< MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
-        logger.debug("matriculas seccion size {}", matriculasSeccionByFilter.size());
-        //Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
-
-        List<ResumenAlumnoEvaluacion> resumenesAlumnos = resumenAlumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccion);
-        Map<String, ResumenAlumnoEvaluacion> mapNotas = mapearNotas(resumenesAlumnos);
-
-        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccion);
-        logger.debug("Seccion {}, Cantidad Docentes Seccion {}", seccion.getId(), docentesSeccion.size());
+        Seccion seccion = null;
         Docente docentePrincipal = null;
-        if (docentesSeccion.size() == 1) {
-            docentePrincipal = docenteDAO.find(docentesSeccion.get(0).getDocente().getId());
-        } else {
-            for (DocenteSeccion docenteSeccion1 : docentesSeccion) {
-                if (docenteSeccion1.esDocentePrincipal()) {
-                    docentePrincipal = docenteDAO.find(docenteSeccion1.getDocente().getId());
-                }
+        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByGrupoSeccion(grupoSeccion);
+        for (DocenteSeccion docSecc : docentesSeccion) {
+            Seccion secc = docSecc.getSeccion();
+            if (secc.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+            seccion = secc;
+            docentePrincipal = docSecc.getDocente();
+            if (docSecc.esDocentePrincipal()) {
+                docentePrincipal = docSecc.getDocente();
+                break;
             }
         }
+
+        List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+        List<ResumenAlumnoEvaluacion> resumenesAlumnos = resumenAlumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccion);
+        Map<String, ResumenAlumnoEvaluacion> mapNotas = mapearNotas(resumenesAlumnos);
 
         int cantReg = 38;
         int ind = 0;
         List<MatriculaSeccion> lstMatriculaSeccion = new ArrayList<>();
 
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
-        logger.debug("cantidad de matriculas cursos {}", matriculaCursoMap.size());
 
         for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
-            String matricula = matriculaSeccion.getMatriculaResumen().getAlumno().getCodigo();
-            String alumno = matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getApellidosNombres();
-            // String notaFinal=matriculaSeccion.getMatriculaResumen().getMatriculaCurso().
-
-            StringBuilder strb = new StringBuilder();
-            for (EvaluacionPlan evaPlan : planCalificacion.getEvaluacionPlan()) {
-                strb.append(evaPlan.getTipoEvaluacion().getNombre()).append(",");
-            }
-            String notafinal = "";
-            if (matriculaCursoMap.get(matriculaSeccion.getMatriculaResumen().getAlumno().getId()) != null) {
-                MatriculaCurso matriculaCurso = (MatriculaCurso) matriculaCursoMap.get(matriculaSeccion.getMatriculaResumen().getAlumno().getId());
-                notafinal = matriculaCurso.getNotaFinal();
-            }
-            strb.append(", nota final ").append(notafinal);
-            logger.debug("Matricula {}, Alumno {}, Evaluaciones {}", matricula,
-                    matriculaSeccion.getMatriculaResumen().getAlumno().getId(), strb.toString());
             ind++;
             lstMatriculaSeccion.add(matriculaSeccion);
             if ((ind % cantReg == 0) || ind == matriculasSeccionByFilter.size()) {
-                logger.debug("el docente es {}, {}", docentePrincipal.getCodigo(), docentePrincipal.getPersona().getApellidosNombres());
+
                 Context ctx = new Context();
                 ctx.setVariable("planCalificacion", planCalificacion);
                 ctx.setVariable("lstMatriculasSeccion", lstMatriculaSeccion);

@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -471,89 +472,53 @@ public class CargaAcademicaController {
             Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        logger.debug("el idDocenteSeccion {}", idDocenteSeccion);
-        // logger.debug("el idCurso {}", idCurso);
-
         DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
-
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(docenteSeccion.getSeccion().getGrupoSeccion().getId());
-        Curso curso = grupoSeccion.getCurso();
         EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(evaluacionSeccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
+        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
+
+        Curso curso = grupoSeccion.getCurso();
         Seccion seccion = docenteSeccion.getSeccion();
+        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
         model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
         model.addAttribute("sistemaNotas", evaluacionSeccion.getSistemaNotas());
-
-        //List<Evaluacion> evaluacionesByGrupoSeccion = cargaAcademicaService.allEvaluacionByFilter(null, null, docenteSeccion.getSeccion().getId());
-        List<Seccion> secciones = new ArrayList();
-        secciones.add(seccion);
-        if (seccion.getSeccionSuperior() != null) {
-            secciones.add(seccion.getSeccionSuperior());
-        }
-        List<Evaluacion> evaluacionesBySeccion = cargaAcademicaService.allEvaluacionByEvaluacionSeccion(evaluacionSeccion);
-        logger.debug("Grupo Seccion {}, Cantidad de Evaluaciones {}", docenteSeccion.getSeccion().getGrupoSeccion().getId(), evaluacionesBySeccion.size());
-        //List<Evaluacion> evaluacionesByTipoSeccion = new ArrayList<>();
-//        for (Evaluacion evaluacion : evaluacionesBySeccion) {
-//            logger.debug("El tipo seccion del docente es {}, el tipo seccion de la evaluacion es {}",
-//                    docenteSeccion.getSeccion().getTipoSeccionEnum().name(),
-//                    evaluacion.getTipoSeccionEnum().name());
-//
-//            if (docenteSeccion.getSeccion().getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-//                    evaluacion.getTipoSeccionEnum())) {
-//                logger.debug("El tipo de evaluacion {}", evaluacion.getTipoEvaluacion().getNombre());
-//                evaluacionesByTipoSeccion.add(evaluacion);
-//            }
-//        }
-        List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
-        for (Evaluacion eva : evaluacionesBySeccion) {
-            if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
-                logger.debug("no esta desagregado");
-                evaluacionesBySeccionFinal.add(eva);
-            }
-            if (eva.isDesagregado()) {
-                logger.debug("esta desagregado");
-                if (eva.getEvaluaciones() == null || eva.getEvaluaciones().isEmpty()) {
-                    continue;
-                }
-                logger.debug("hijos {}", eva.getEvaluaciones().size());
-                for (Evaluacion evaChild : eva.getEvaluaciones()) {
-
-                    StringBuilder codigo = new StringBuilder();
-                    codigo.append("(");
-                    codigo.append(eva.getTipoEvaluacion().getCodigo());
-                    codigo.append(")");
-                    codigo.append(evaChild.getTipoEvaluacion().getCodigo());
-                    logger.debug("nombre {}", codigo);
-
-                    TipoEvaluacion tipoEvaluacion = new TipoEvaluacion(evaChild.getTipoEvaluacion().getId());
-                    tipoEvaluacion.setNombre(evaChild.getTipoEvaluacion().getNombre());
-                    tipoEvaluacion.setCodigo(codigo.toString());
-                    evaChild.setTipoEvaluacion(tipoEvaluacion);
-
-                    evaluacionesBySeccionFinal.add(evaChild);
-
-                }
-            }
-        }
-        logger.debug("cantidad de evaluaciones final {}", evaluacionesBySeccionFinal.size());
-
-        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
-        logger.debug("matriculas seccion size {}", matriculasSeccionByFilter.size());
-
-        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
-
-        //model.addAttribute("evaluacionesByTipoSeccion", evaluacionesByTipoSeccion);
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
-
-        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
 
         return "app/academico/docente/cargaacademica/notasAcademicas";
+    }
+
+    @RequestMapping("{docenteSeccion}/notasAcademicasReload")
+    public String notasAcademicasReload(
+            @PathVariable("docenteSeccion") Long idDocenteSeccion,
+            Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
+
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+        Curso curso = grupoSeccion.getCurso();
+        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(evaluacionSeccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
+        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
+        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+
+        model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
+        model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
+        model.addAttribute("notas", mapNotas);
+        model.addAttribute("matriculaCursoMap", matriculaCursoMap);
+
+        return "app/academico/docente/cargaacademica/notasAcademicasReload";
     }
 
     @RequestMapping("reporteDeActas")
@@ -565,9 +530,14 @@ public class CargaAcademicaController {
         logger.debug("docente seccion {}", idDocenteSeccion);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
+        DocenteSeccion docSecc = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
+        Seccion secc = docSecc.getSeccion();
+        Curso cur = docSecc.getSeccion().getGrupoSeccion().getCurso();
+        String nom = "ActaNotas_" + cur.getCodigo() + "_" + secc.getCodigo();
+
         List<String> lstPdfFiles = pdfService.reporteDeActaDeNotas(idDocenteSeccion, ds);
 
-        String fileNameRoot = pdfService.concatPDFs(lstPdfFiles, "resultado.pdf", false);
+        String fileNameRoot = pdfService.concatPDFs(lstPdfFiles, nom, false);
         if (!fileNameRoot.isEmpty()) {
             File filex = new File(fileNameRoot);
             if (!filex.exists()) {
@@ -578,7 +548,7 @@ public class CargaAcademicaController {
             response.reset();
             response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + fileNameRoot + "\"");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + nom + ".pdf\"");
 
             BufferedInputStream input = null;
             BufferedOutputStream output = null;
@@ -823,6 +793,7 @@ public class CargaAcademicaController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());
+
             response.setData(node);
             response.setMessage("Notas ingresadas.");
             response.setSuccess(true);

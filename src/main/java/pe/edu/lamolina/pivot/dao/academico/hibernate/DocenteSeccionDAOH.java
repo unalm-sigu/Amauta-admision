@@ -10,6 +10,7 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
@@ -22,9 +23,12 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
 
     @Override
     public DocenteSeccion find(long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.seccionSuperior");
-        sqlUtil.filter("dc.id", id);
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("docente doc", "left _sec.seccionSuperior")
+                .parents("left _gs.planCalificacion pc")
+                .parents("left _cur.departamentoAcademico da", "left _da.facultad")
+                .filter("dc.id", id);
         return this.find(sqlUtil);
     }
 
@@ -72,10 +76,21 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
 
     @Override
     public List<DocenteSeccion> allBySeccion(Seccion seccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
-        sqlUtil.filter("sec.id", seccion.getId());
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
+                .parents("docente doc", "left _doc.persona")
+                .filter("sec.id", seccion.getId());
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
+                .parents("docente doc", "left _doc.persona")
+                .filter("gs.id", grupoSeccion.getId());
         return this.all(sqlUtil);
     }
 
