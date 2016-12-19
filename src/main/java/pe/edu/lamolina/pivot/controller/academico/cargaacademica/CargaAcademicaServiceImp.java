@@ -254,6 +254,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             this.aceptarExpansion(evaluacionSeccion.getId(), null);
         }
 
+        GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
+        grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
+        grupoSeccion.setPlanCalificacion(evaluacionSeccion.getPlanCalificacion());
+        grupoSeccionDAO.update(grupoSeccion);
     }
 
     @Override
@@ -660,12 +664,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             BigDecimal pesoTotal = BigDecimal.ZERO;
             BigDecimal ponderado = BigDecimal.ZERO;
             for (AlumnoEvaluacion ae : evaluacionesAlumno) {
-                BigDecimal peso = null;
-                if (ae.getEvaluacion().getId() == evaluacion.getId().longValue()) {
-                    peso = evaluacion.getPeso();
-                } else {
-                    peso = ae.getEvaluacion().getPeso();
-                }
+                BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                 pesoTotal = pesoTotal.add(peso);
                 ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
             }
@@ -691,7 +690,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             ponderado = BigDecimal.ZERO;
             for (EvaluacionPlan ep : evaluacionesPlan) {
                 TipoEvaluacion tipo = ep.getTipoEvaluacion();
-                List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno);
+                List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
                 ResumenAlumnoEvaluacion rae = mapResumenAluEval.get(tipo.getId());
                 if (rae == null) {
                     rae = new ResumenAlumnoEvaluacion();
@@ -703,12 +702,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
                 for (AlumnoEvaluacion ae : evalsTipo) {
 
-                    BigDecimal peso = null;
-                    if (ae.getEvaluacion().getId() == evaluacion.getId().longValue()) {
-                        peso = evaluacion.getPeso();
-                    } else {
-                        peso = ae.getEvaluacion().getPeso();
-                    }
+                    BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
 
@@ -731,24 +725,37 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
     }
 
-    private List<AlumnoEvaluacion> allEvaluacionesByTipoEvaluacion(TipoEvaluacion tipo, List<AlumnoEvaluacion> evaluacionesAlumno) {
+    private List<AlumnoEvaluacion> allEvaluacionesByTipoEvaluacion(TipoEvaluacion tipo, List<AlumnoEvaluacion> evaluacionesAlumno, Evaluacion evaluacion) {
         List<AlumnoEvaluacion> evalsTipo = new ArrayList();
         for (AlumnoEvaluacion aluEval : evaluacionesAlumno) {
-            Evaluacion eval = aluEval.getEvaluacion();
+            Evaluacion eval = choiceEvaluacion(aluEval.getEvaluacion(), evaluacion);
+
             if (eval.getEvaluacionSuperior() != null) {
-                Evaluacion evalSup = eval.getEvaluacionSuperior();
+                Evaluacion evalSup = choiceEvaluacion(eval.getEvaluacionSuperior(), evaluacion);
+
                 TipoEvaluacion tipoEvalSup = evalSup.getTipoEvaluacion();
+                System.out.println("qq tipoEvalSup.getId() ==" + tipoEvalSup.getId());
+                System.out.println("qq tipo.getId().longValue() ==" + tipo.getId().longValue());
                 if (tipoEvalSup.getId() == tipo.getId().longValue()) {
                     evalsTipo.add(aluEval);
                     continue;
                 }
             }
             TipoEvaluacion tipoEval = eval.getTipoEvaluacion();
+            System.out.println("ww tipo.getId().longValue() ==" + tipo.getId().longValue());
+            System.out.println("ww tipoEval.getId() ==" + tipoEval.getId());
             if (tipoEval.getId() == tipo.getId().longValue()) {
                 evalsTipo.add(aluEval);
             }
         }
         return evalsTipo;
+    }
+
+    private Evaluacion choiceEvaluacion(Evaluacion evaluacion, Evaluacion evaluacionMain) {
+        if (evaluacion.getId().longValue() == evaluacionMain.getId()) {
+            return evaluacionMain;
+        }
+        return evaluacion;
     }
 
     @Override
@@ -873,6 +880,43 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             resultMap.put(matriculaCurso.getMatriculaResumen().getAlumno().getId(), matriculaCurso);
         }
         return resultMap;
+    }
+
+    @Override
+    public List<Evaluacion> allEvaluacionesByTipoSeccion(EvaluacionSeccion evaluacionSeccion) {
+        List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allByEvaluacionSeccion(evaluacionSeccion);
+        List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
+        for (Evaluacion eva : evaluacionesBySeccion) {
+            if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
+                logger.debug("no esta desagregado");
+                evaluacionesBySeccionFinal.add(eva);
+            }
+            if (eva.isDesagregado()) {
+                logger.debug("esta desagregado");
+                if (eva.getEvaluaciones() == null || eva.getEvaluaciones().isEmpty()) {
+                    continue;
+                }
+                logger.debug("hijos {}", eva.getEvaluaciones().size());
+                for (Evaluacion evaChild : eva.getEvaluaciones()) {
+
+                    StringBuilder codigo = new StringBuilder();
+                    codigo.append("(");
+                    codigo.append(eva.getTipoEvaluacion().getCodigo());
+                    codigo.append(")");
+                    codigo.append(evaChild.getTipoEvaluacion().getCodigo());
+                    logger.debug("nombre {}", codigo);
+
+                    TipoEvaluacion tipoEvaluacion = new TipoEvaluacion(evaChild.getTipoEvaluacion().getId());
+                    tipoEvaluacion.setNombre(evaChild.getTipoEvaluacion().getNombre());
+                    tipoEvaluacion.setCodigo(codigo.toString());
+                    evaChild.setTipoEvaluacion(tipoEvaluacion);
+
+                    evaluacionesBySeccionFinal.add(evaChild);
+
+                }
+            }
+        }
+        return evaluacionesBySeccionFinal;
     }
 
 }

@@ -111,4 +111,6 @@ public interface CargaAcademicaService {
     void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds);
 
     Map<Long, MatriculaCurso> getMapMatriculasCursoByCicloCurso(CicloAcademico ciclo, Curso curso);
+
+    List<Evaluacion> allEvaluacionesByTipoSeccion(EvaluacionSeccion evaluacionSeccion);
 }

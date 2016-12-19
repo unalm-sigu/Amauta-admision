@@ -178,8 +178,12 @@
 
                 </td>
                 <td  th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
-                    <div style="white-space: nowrap;"  
-                         th:text="${evalPlan.tipoEvaluacion.nombre}">a</div>
+                    <!--div th:text="${evalPlan.tipoEvaluacion.nombre}">a</div-->
+                    <svg style='width: 24px; height: 160px; border:1px solid red' xmlns='http://www.w3.org/2000/svg'>
+                    <text transform='rotate(-90)' style='font-size:15px;'>
+                    text
+                    </text>
+                    </svg>
                 </td>
                 <td>
                     <div style="white-space: nowrap;">
@@ -197,8 +201,8 @@
                 </td>  
                 <td  th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
                     <span class="nota-academica" 
-                          th:if="${notas[matSec.matriculaResumen.alumno.id+evalPlan.tipoEvaluacion.id]}"
-                          th:text="${notas[matSec.matriculaResumen.alumno.id+evalPlan.tipoEvaluacion.id].nota}" > 04.18 </span>
+                          th:if="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id]}"
+                          th:text="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id].nota}" > 04.18 </span>
                 </td>
                 <td>
 
