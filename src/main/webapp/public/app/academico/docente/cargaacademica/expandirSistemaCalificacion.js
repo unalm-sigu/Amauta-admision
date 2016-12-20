@@ -40,7 +40,9 @@ $(function () {
                 url: APP.url('academico/docente/cargaacademica/detalleExpandirEvaluacion'),
                 type: 'POST',
                 async: false,
-                data: {evaluacion: idx},
+                data: {
+                    evaluacion: idx
+                },
                 success: function (response) {
                     MODAL.body(response);
                 },

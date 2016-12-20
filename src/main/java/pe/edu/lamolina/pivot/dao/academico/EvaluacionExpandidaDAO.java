@@ -8,4 +8,6 @@ public interface EvaluacionExpandidaDAO extends Crud<EvaluacionExpandida> {
 
     List<EvaluacionExpandida> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion);
 
+    void deleteByEvaluacionParent(Long idEvaluacionParent);
+
 }

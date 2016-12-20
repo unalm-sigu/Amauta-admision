@@ -224,9 +224,10 @@ public class CargaAcademicaController {
                 node.put("pesoEvaluacion", evaluacionPlan.getPeso());
                 node.put("esHijo", false);
                 node.put("desagregado", evaluacionPlan.isDesagregado());
+                node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
                 array.add(node);
 
-                for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluaciones()) {
+                for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluacionesExpandidas()) {
                     ObjectNode nodeHijo = new ObjectNode(JsonNodeFactory.instance);
 
                     logger.debug("Tipo evaluacion {}", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionPlan.getNumero());
@@ -237,6 +238,7 @@ public class CargaAcademicaController {
                     nodeHijo.put("pesoEvaluacion", evaluacionHija.getPeso());
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
+                    node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
                     array.add(nodeHijo);
                 }
 
@@ -445,7 +447,7 @@ public class CargaAcademicaController {
     public String detalleExapandirEva(Model model, HttpSession session,
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        logger.debug("la evaluacion es {}", evaluacionId);
+        logger.debug("la evaluacion expandida es {}", evaluacionId);
         EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
         /*
@@ -464,8 +466,8 @@ public class CargaAcademicaController {
 
         model.addAttribute("tipoEvaluaciones", lstTipoEvas);
         model.addAttribute("evaluacion", evaluacion);
-        model.addAttribute("evaluaciones", evaluacion.getEvaluaciones());
-        model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluaciones() != null && !evaluacion.getEvaluaciones().isEmpty() ? true : false);
+        model.addAttribute("evaluaciones", evaluacion.getEvaluacionesExpandidas());
+        model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluacionesExpandidas() != null && !evaluacion.getEvaluacionesExpandidas().isEmpty() ? true : false);
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
     }
 
