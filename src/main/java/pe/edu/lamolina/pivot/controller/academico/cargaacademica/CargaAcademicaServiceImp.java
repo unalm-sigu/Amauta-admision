@@ -795,8 +795,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
                 }
 
-                ponderado = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
-                rae.setNota(NumberFormat.notaDecimal(ponderado));
+                BigDecimal notaFinal = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
+                rae.setNota(NumberFormat.notaDecimal(notaFinal));
                 if (rae.getId() == null) {
                     resumenAlumnoEvaluacionDAO.save(rae);
                 } else {
