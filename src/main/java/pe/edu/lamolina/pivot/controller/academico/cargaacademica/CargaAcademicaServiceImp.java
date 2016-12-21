@@ -830,7 +830,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
                 }
-
+                
                 ponderado = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
                 rae.setNota(NumberFormat.notaDecimal(ponderado));
                 if (rae.getId() == null) {
