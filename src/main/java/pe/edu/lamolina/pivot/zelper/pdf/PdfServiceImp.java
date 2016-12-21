@@ -1,8 +1,11 @@
 package pe.edu.lamolina.pivot.zelper.pdf;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -142,6 +145,16 @@ public class PdfServiceImp implements PdfService {
                 ctx.setVariable("pagina", pdfs.size() + 1);
 
                 ctx.setVariable("matriculaCurso", matriculaCursoMap);
+
+                if (matriculasSeccionByFilter.size() <= cantReg
+                        || (matriculasSeccionByFilter.size() - cantReg) >= ind) {
+                    ctx.setVariable("ultimaPagina", true);
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("'Lima, ' dd 'de' MMMMM 'del' yyyy", new Locale("es", "ES"));
+                    String fecha = sdf.format(today.toDate());
+                    ctx.setVariable("fechaCompleta", fecha);
+
+                }
 
                 PdfContent pdfContent = new PdfContent();
                 pdfContent.setDocumentPdfEnum(DocumentoPdfEnum.ACTA_NOTAS);

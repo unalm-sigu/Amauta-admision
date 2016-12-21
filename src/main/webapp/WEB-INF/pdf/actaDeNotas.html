@@ -211,9 +211,22 @@
             </tr>
 
         </table>
+        <div th:if="${ultimaPagina}">
+            <br/>  <br/>
+        </div>
+        <table   width="100%" th:if="${ultimaPagina}">
+            <tr>
+                <td style="text-align: center;padding: 1px !important;border-top: 1px;padding-top: 5px;" width="40%">
+                    FIRMA DEL PROFESOR
+                </td>
+                <td width="20%">
 
-
-
+                </td>
+                <td style="text-align: center;padding: 1px !important;" width="40%">
+                    <span th:text="${fechaCompleta}">11/11/1111</span>
+                </td>
+            </tr>
+        </table>
 
 
     </body>
