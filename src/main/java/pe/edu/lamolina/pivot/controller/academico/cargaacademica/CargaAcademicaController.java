@@ -354,12 +354,12 @@ public class CargaAcademicaController {
         return "app/academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
 
-    @RequestMapping("nuevo/{seccion}")
-    public String nuevo(Model model, HttpSession session, @PathVariable("seccion") Long idSeccion) {
+    @RequestMapping("nuevo/{grupo}")
+    public String nuevo(Model model, HttpSession session, @PathVariable("grupo") Long idGrupo) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupo);
+        // PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idPlanCalificacion);
 
         StringBuilder claves = new StringBuilder();
         for (Seccion sec : grupoSeccion.getSecciones()) {
@@ -368,14 +368,10 @@ public class CargaAcademicaController {
 
         }
 
-        model.addAttribute("planCalificacion", seccion.getGrupoSeccion().getCurso().getPlanCalificacion());
-        model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
+        model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
 
-        Long idPlanCalificacion = seccion.getGrupoSeccion().getPlanCalificacion().getId();
-        Long idGrupoSeccion = seccion.getGrupoSeccion().getId();
-        logger.debug("EL plan calificacion es {}, el grupo seccion es {}", idPlanCalificacion, idGrupoSeccion);
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion);
+        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
         logger.debug("La evaluacion seccion es {}", evalSeccion != null ? evalSeccion.getId().toString() : "no se encontro");
         model.addAttribute("evaluacionSeccion", evalSeccion);
 

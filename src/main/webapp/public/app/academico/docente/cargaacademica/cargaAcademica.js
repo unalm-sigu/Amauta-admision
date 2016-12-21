@@ -154,7 +154,7 @@ $(function () {
         },
         verNuevoSC: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtSeccion").val());
+            location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtGrupo").val());
         },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
