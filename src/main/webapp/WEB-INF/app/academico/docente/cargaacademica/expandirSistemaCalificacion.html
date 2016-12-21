@@ -12,23 +12,50 @@
             <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
             <input id="txtPlanCalificaId" type="hidden" th:value="${planCalificacion.id}"/>
             <input id="txtEvalSeccionId" name="evaluacionSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
+            <input id="txtGrupoSeccionId" type="hidden" th:value="${grupoSeccion.id}"/>
+
         </header>
 
         <section class="panel">
             <section class="panel-body">
-                <table id="dynaTable" class="table table-striped">
-                    <thead> 
-                        <tr class=""> 
-                            <th class="col-md-2">Código</th>
-                            <th class="col-md-6">Tipo Evaluación</th>
-                            <th class="col-md-3 text-center">Numero</th>
-                            <th class="col-md-1">Peso</th>
-                            <th class="v-middle"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+
+                <ul class="nav nav-tabs" id="tabPanel">
+                    <li class="active"><a href="#eva1" data-toggle="tab">Evaluacion</a></li>
+                    <li  id="tabPerfil"><a href="#eva2" data-toggle="tab">Evaluacion 2</a></li>
+                </ul>
+
+                <div class="panel-body bg-white b">
+                    <div class="tab-content">
+                        <!-- DATOS GENERALES -->
+                        <div class="tab-pane active" id="eva1">
+
+                            <table id="dynaTable" class="table table-striped">
+                                <thead> 
+                                    <tr class=""> 
+                                        <th class="col-md-2">Código</th>
+                                        <th class="col-md-6">Tipo Evaluación</th>
+                                        <th class="col-md-6">Tipo Sección</th>
+                                        <th class="col-md-3 text-center">Numero</th>
+                                        <th class="col-md-1">Peso</th>
+                                        <th class="v-middle">Asign Doc</th>
+                                        <th class="v-middle">Expandir</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                        <div class="tab-pane" id="eva2">
+                            <div th:substituteby="app/academico/docente/cargaacademica/evaluacionesExtendidas"/>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
             </section>
         </section>
 

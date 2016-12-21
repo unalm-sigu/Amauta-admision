@@ -7,4 +7,5 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
 
     GrupoSeccion find(Long idGrupoSeccion);
+
 }

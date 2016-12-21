@@ -44,6 +44,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
@@ -60,6 +61,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
@@ -225,6 +227,7 @@ public class CargaAcademicaController {
                 node.put("esHijo", false);
                 node.put("desagregado", evaluacionPlan.isDesagregado());
                 node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
+                node.put("tipoSeccion", evaluacionPlan.getTipoSeccionEnum().getValue());
                 array.add(node);
 
                 for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluacionesExpandidas()) {
@@ -238,7 +241,8 @@ public class CargaAcademicaController {
                     nodeHijo.put("pesoEvaluacion", evaluacionHija.getPeso());
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
-                    node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
+                    nodeHijo.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
+                    nodeHijo.put("tipoSeccion", evaluacionPlan.getTipoSeccionEnum().getValue());
                     array.add(nodeHijo);
                 }
 
@@ -285,6 +289,7 @@ public class CargaAcademicaController {
         model.addAttribute("planCalificacion", grupoSeccion.getPlanCalificacion());
         model.addAttribute("curso", seccion.getGrupoSeccion().getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
+        model.addAttribute("grupoSeccion", grupoSeccion);
 
         //   Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
         Long idGrupoSeccion = grupoSeccion.getId();
@@ -354,6 +359,37 @@ public class CargaAcademicaController {
             response.setData(node);
             response.setSuccess(true);
             response.setMessage("Evaluacion Expandida");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAsignarDocente")
+    public JsonResponse saveAsignarDocente(Model model,
+            @ModelAttribute EvaluacionExpandida evaluacionExpandida,
+            RedirectAttributes redirectAttr, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            cargaAcademicaService.saveAsignacionDocentes(evaluacionExpandida, ds);
+
+            /*
+            List<Evaluacion> evaluaciones = cargaAcademicaService.allEvaluacionesByEvalSeccion(evaluacion.getEvaluacionSeccion());
+            model.addAttribute("dntEvaluacionPlan", evaluaciones);
+            session.setAttribute("dntEvaluacionPlan", evaluaciones);
+             */
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage("Docentes Asignados");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -469,6 +505,56 @@ public class CargaAcademicaController {
         model.addAttribute("evaluaciones", evaluacion.getEvaluacionesExpandidas());
         model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluacionesExpandidas() != null && !evaluacion.getEvaluacionesExpandidas().isEmpty() ? true : false);
         return "app/academico/docente/cargaacademica/detalleExpandirEvaluacion";
+    }
+
+    @RequestMapping("detalleAsignarDocente")
+    public String detalleAsignarDocente(Model model, HttpSession session,
+            @RequestParam(value = "evaluacion", required = false) Long evaluacionId,
+            @RequestParam(value = "grupoSeccionId", required = false) Long grupoSeccionId) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        logger.debug("detalleAsignarDocente, evaluacion expandida es {}", evaluacionId);
+
+        EvaluacionExpandida evaluacionExpandida = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
+
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(grupoSeccionId);
+
+        List<Evaluacion> evaluacionByEvalExp = cargaAcademicaService.allEvaluacionesByEvalExpandida(evaluacionExpandida);
+        logger.debug("Cantidad de evaluaciones {}", evaluacionByEvalExp.size());
+
+        List<DocenteSeccion> allDocenteSeccionByGrupo = cargaAcademicaService.allDocenteSeccionByGrupo(grupoSeccion);
+
+        DocenteSeccion docenteSeccionTCUR = null;
+
+        for (DocenteSeccion docenteSeccion1 : allDocenteSeccionByGrupo) {
+            if (docenteSeccion1.getSeccion().getTipoSeccionEnum().equals(TipoSeccionEnum.TCUR)) {
+                docenteSeccionTCUR = docenteSeccion1;
+            }
+        }
+
+        for (Evaluacion evaluacion1 : evaluacionByEvalExp) {
+            evaluacion1.setDocentesSeccion(new ArrayList<>());
+
+            evaluacion1.setNotasIngresadas(false);
+            if (evaluacion1.getFechaIngresoNota() != null) {
+                evaluacion1.setNotasIngresadas(true);
+            }
+
+            if (evaluacion1.getDocenteEvaluador() == null) {
+                evaluacion1.setDocenteEvaluador(new Docente());
+            }
+            if (evaluacion1.getTipoSeccionEnum().equals(TipoSeccionEvalEnum.PRAC)) {
+                evaluacion1.getDocentesSeccion().add(docenteSeccionTCUR);
+            }
+            for (DocenteSeccion docenteSeccion : allDocenteSeccionByGrupo) {
+                if (docenteSeccion.getSeccion().getId().equals(evaluacion1.getSeccionResponsable().getId())) {
+                    evaluacion1.getDocentesSeccion().add(docenteSeccion);
+                }
+            }
+        }
+        evaluacionExpandida.setEvaluaciones(evaluacionByEvalExp);
+        model.addAttribute("evaluacionExpandida", evaluacionExpandida);
+        return "app/academico/docente/cargaacademica/detalleAsignarDocente";
     }
 
     @ResponseBody
@@ -779,11 +865,8 @@ public class CargaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
-            Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
-            logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
 
-            evaluacion.setFechaRealizada(fechaEvaluacion);
-            cargaAcademicaService.updateEvaluacion(evaluacion);
+            Evaluacion evaluacion = cargaAcademicaService.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());

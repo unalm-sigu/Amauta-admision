@@ -44,9 +44,13 @@ public interface CargaAcademicaService {
 
     GrupoSeccion findGrupo(Long idGrupoSeccion);
 
+    List<DocenteSeccion> allDocenteSeccionByGrupo(GrupoSeccion grupoSeccion);
+
     List<EvaluacionPlan> allEvaluacionPlanByDynatable(DynatableFilter filter, Long idPlanCalificacion);
 
     List<EvaluacionExpandida> allEvaluacionesExpByEvalSeccion(EvaluacionSeccion evaluacionSeccion);
+
+    List<Evaluacion> allEvaluacionesByEvalExpandida(EvaluacionExpandida evaluacionExpandida);
 
     List<AlumnoEvaluacion> allAlumnoEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
 
@@ -90,6 +94,8 @@ public interface CargaAcademicaService {
 
     List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion);
 
+    Evaluacion activarEvaluacion(Long evaluacionId, Date fechaRealizada, DataSessionPivot ds);
+
     void updateEvaluacion(Evaluacion evaluacion);
 
     void saveIngresoNotas(DataSessionPivot ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
@@ -113,4 +119,6 @@ public interface CargaAcademicaService {
     Map<Long, MatriculaCurso> getMapMatriculasCursoByCicloCurso(CicloAcademico ciclo, Curso curso);
 
     List<Evaluacion> allEvaluacionesByTipoSeccion(EvaluacionSeccion evaluacionSeccion);
+
+    void saveAsignacionDocentes(EvaluacionExpandida evaluacion, DataSessionPivot ds);
 }
