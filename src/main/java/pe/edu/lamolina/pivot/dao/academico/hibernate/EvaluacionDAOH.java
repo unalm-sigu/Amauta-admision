@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
+import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -24,7 +26,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     @Override
     public Evaluacion find(long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "left evaluacionSuperior esup");
+        sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "left evaluacionSuperior esup", "evaluacionExpandida eex");
         sqlUtil.parents("_es.planCalificacion pc", "_es.sistemaNotas sn");
         sqlUtil.parents("seccionResponsable sec", "_sec.grupoSeccion gs", "_gs.curso", "_gs.cicloAcademico", "left _esup.tipoEvaluacion tesupe");
         sqlUtil.filter("eva.id", id);
@@ -117,4 +119,33 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         return this.count(sqlUtil);
     }
 
+    @Override
+    public void deleteByEvaluacionExpandida(Long idEvaluacionExpandida) {
+        String strQuery = "delete from Evaluacion eva where eva.evaluacionExpandida.id=:prm_evaluacion_exp";
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("prm_evaluacion_exp", idEvaluacionExpandida);
+        query.executeUpdate();
+    }
+
+    public void updateEvaluacionByEvalExp(Long idEvalExpandida, Long idTipoEvaluacion, BigDecimal peso) {
+        String strQuery = "update  evaluacion eva where eva.evaluacionExpandida.id=:prm_evaluacion_exp";
+    }
+
+    @Override
+    public Evaluacion findByEvalExpSeccion(Long evaluacionExpansion, Long seccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
+        sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "left evaluacionSuperior esup", "evaluacionExpandida eex");
+        sqlUtil.filter("eex.id", evaluacionExpansion);
+        sqlUtil.filter("sr.id", seccion);
+        Evaluacion evaluacion = this.find(sqlUtil);
+        if (evaluacion != null) {
+            if (evaluacion.getEvaluaciones() != null) {
+                for (Evaluacion eva : evaluacion.getEvaluaciones()) {
+                    eva.getId();
+                    eva.getTipoEvaluacion().getId();
+                }
+            }
+        }
+        return evaluacion;
+    }
 }

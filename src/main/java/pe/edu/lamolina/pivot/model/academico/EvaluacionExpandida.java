@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -68,6 +69,9 @@ public class EvaluacionExpandida implements Serializable {
     @Column(name = "extemporaneos")
     private Integer extemporaneos;
 
+    @Column(name = " ind_notas_ingresadas")
+    private Integer indNotasIngresadas;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evaluacion_seccion")
     private EvaluacionSeccion evaluacionSeccion;
@@ -88,12 +92,16 @@ public class EvaluacionExpandida implements Serializable {
     private List<AlumnoEvaluacion> alumnoEvaluacion;
 
     @OneToMany(mappedBy = "evaluacionSuperior", fetch = FetchType.LAZY)
-    private List<EvaluacionExpandida> evaluaciones;
+    private List<EvaluacionExpandida> evaluacionesExpandidas;
+
+    @OneToMany(mappedBy = "evaluacionExpandida", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Evaluacion> evaluaciones;
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<ReclamoNota> reclamoNota;
 
     public EvaluacionExpandida() {
+        this.setIndNotasIngresadas(BigDecimal.ZERO.intValue());
     }
 
     public EvaluacionExpandida(Object id) {
@@ -236,12 +244,12 @@ public class EvaluacionExpandida implements Serializable {
         this.alumnoEvaluacion = alumnoEvaluacion;
     }
 
-    public List<EvaluacionExpandida> getEvaluaciones() {
-        return evaluaciones;
+    public List<EvaluacionExpandida> getEvaluacionesExpandidas() {
+        return evaluacionesExpandidas;
     }
 
-    public void setEvaluaciones(List<EvaluacionExpandida> evaluaciones) {
-        this.evaluaciones = evaluaciones;
+    public void setEvaluacionesExpandidas(List<EvaluacionExpandida> evaluacionesExpandidas) {
+        this.evaluacionesExpandidas = evaluacionesExpandidas;
     }
 
     public List<ReclamoNota> getReclamoNota() {
@@ -268,6 +276,22 @@ public class EvaluacionExpandida implements Serializable {
         this.numero = numero;
     }
 
+    public List<Evaluacion> getEvaluaciones() {
+        return evaluaciones;
+    }
+
+    public void setEvaluaciones(List<Evaluacion> evaluaciones) {
+        this.evaluaciones = evaluaciones;
+    }
+
+    public Integer getIndNotasIngresadas() {
+        return indNotasIngresadas;
+    }
+
+    public void setIndNotasIngresadas(Integer indNotasIngresadas) {
+        this.indNotasIngresadas = indNotasIngresadas;
+    }
+
     public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan, Integer numero) {
         this.setAlumnoEvaluacion(null);
         this.setEvaluacionSeccion(evalSeccion);
@@ -275,7 +299,7 @@ public class EvaluacionExpandida implements Serializable {
         this.setTipoSeccion(evaluacionPlan.getTipoSeccion());
         this.setEstaDesagregado(BigDecimal.ZERO.intValue());
         this.setEvaluacionSuperior(null);
-        this.setEvaluaciones(null);
+        this.setEvaluacionesExpandidas(null);
         this.setEvaluados(BigDecimal.ZERO.intValue());
         this.setPeso(evaluacionPlan.getPesoEvaluacion());
         this.setNumero(numero);
@@ -283,6 +307,16 @@ public class EvaluacionExpandida implements Serializable {
 
     public boolean isDesagregado() {
         if (BigDecimal.ONE.intValue() == this.getEstaDesagregado()) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isNotasIngresadas() {
+        if (this.getIndNotasIngresadas() == null) {
+            return false;
+        }
+        if (BigDecimal.ONE.intValue() == this.getIndNotasIngresadas()) {
             return true;
         }
         return false;

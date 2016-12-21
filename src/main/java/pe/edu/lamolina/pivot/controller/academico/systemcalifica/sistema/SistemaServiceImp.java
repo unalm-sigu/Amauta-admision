@@ -178,9 +178,9 @@ public class SistemaServiceImp implements SistemaService {
 
                         Evaluacion evaluacion = new Evaluacion();
                         evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
-                        if (evaluacionExpandida.getEvaluaciones() != null && !evaluacionExpandida.getEvaluaciones().isEmpty()) {
+                        if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
                             evaluacion.setEvaluaciones(new ArrayList<>());
-                            for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluaciones()) {
+                            for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluacionesExpandidas()) {
                                 Evaluacion evaluacionChild = new Evaluacion();
                                 evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
                                 evaluacionChild.setEvaluacionSuperior(evaluacion);

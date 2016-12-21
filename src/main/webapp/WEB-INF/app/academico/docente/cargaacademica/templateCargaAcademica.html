@@ -23,7 +23,7 @@
         <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{/if}} 
 
-        {{if estadoSistema=="ACEP" || estadoSistema=="EXP"}}
+        {{if estadoSistema=="ACEP" || estadoSistema=="EXP" || estadoSistema=="EXPR"}}
         <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
         <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
         {{/if}}
@@ -35,7 +35,9 @@
         <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
         {{/if}}
         {{if estadoSistema=="EXPR"}}
+        <!-- 
         <a href="#" class="label label-warning aceptar-expandir-sistema">{{:sistemaCalificacion}}</a>
+        -->
         {{/if}}
     </td>
     <td class="text-center v-middle">
