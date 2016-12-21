@@ -800,8 +800,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
 
             if (pesoTotal.compareTo(bd100) == 0) {
-                BigDecimal nf = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
-                matriculaCurso.setNotaFinal(NumberFormat.nota(nf));
+                //sBigDecimal notaFinal = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
+                BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
+                matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
             }
             matriculaCursoDAO.update(matriculaCurso);
 
@@ -831,8 +832,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
                 }
 
-                BigDecimal notaFinal = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
-                rae.setNota(NumberFormat.notaDecimal(notaFinal));
+                BigDecimal nota = calularNota(ponderado, pesoTotal, 2);
+                rae.setNota(NumberFormat.notaDecimal(nota));
                 if (rae.getId() == null) {
                     resumenAlumnoEvaluacionDAO.save(rae);
                 } else {
@@ -846,6 +847,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
             grupoSeccionDAO.update(seccion.getGrupoSeccion());
         }
+    }
+
+    private BigDecimal calularNota(BigDecimal ponderado, BigDecimal pesoTotal, int redondeo) {
+        if (pesoTotal.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal nota = ponderado.divide(pesoTotal, redondeo, RoundingMode.HALF_UP);
+        return nota;
     }
 
     private List<AlumnoEvaluacion> allEvaluacionesByTipoEvaluacion(TipoEvaluacion tipo, List<AlumnoEvaluacion> evaluacionesAlumno, Evaluacion evaluacion) {
