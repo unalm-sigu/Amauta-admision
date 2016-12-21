@@ -701,11 +701,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 rae.setEvaluaciones(evalsTipo.size());
 
                 for (AlumnoEvaluacion ae : evalsTipo) {
-
                     BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-
                 }
 
                 ponderado = ponderado.divide(pesoTotal, 2, RoundingMode.HALF_UP);
