@@ -80,15 +80,15 @@ public class PdfServiceImp implements PdfService {
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
 
-    public List<String> reporteDeActaDeNotas(Long idDocenteSeccion, DataSessionPivot ds) {
+    @Override
+    public List<String> reporteDeActaDeNotas(Long idGrupoSeccion, DataSessionPivot ds) {
         //47
 
         List<String> pdfs = new ArrayList<>();
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        DocenteSeccion docenteSeccion = docenteSeccionDAO.find(idDocenteSeccion);
 
-        GrupoSeccion grupoSeccion = docenteSeccion.getSeccion().getGrupoSeccion();
+        GrupoSeccion grupoSeccion = grupoSeccionDAO.find(idGrupoSeccion);
         Curso curso = grupoSeccion.getCurso();
         PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
         DepartamentoAcademico departamentoAcademico = curso.getDepartamentoAcademico();

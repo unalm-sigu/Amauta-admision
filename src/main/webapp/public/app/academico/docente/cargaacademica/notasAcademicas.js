@@ -441,7 +441,7 @@ $(function () {
         reporteActaNotas: function ($this, e) {
 
             var alumno = $("#txtAlumnoCambiarNota").val();
-            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?docenteSeccion=') + $("#txtDocSec").val();
+            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
 
         }
     };

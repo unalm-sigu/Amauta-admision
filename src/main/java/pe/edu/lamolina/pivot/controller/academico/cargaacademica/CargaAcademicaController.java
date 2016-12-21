@@ -689,19 +689,18 @@ public class CargaAcademicaController {
 
     @RequestMapping("reporteDeActas")
     public void reporteDeActas(HttpServletResponse response,
-            @RequestParam("docenteSeccion") Long idDocenteSeccion,
+            @RequestParam("seccion") Long idSeccion,
             Model model,
             HttpSession session) throws IOException {
 
-        logger.debug("docente seccion {}", idDocenteSeccion);
+        logger.debug("docente seccion {}", idSeccion);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        DocenteSeccion docSecc = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
-        Seccion secc = docSecc.getSeccion();
-        Curso cur = docSecc.getSeccion().getGrupoSeccion().getCurso();
+        Seccion secc = cargaAcademicaService.findSeccion(idSeccion);
+        Curso cur = secc.getGrupoSeccion().getCurso();
         String nom = "ActaNotas_" + cur.getCodigo() + "_" + secc.getCodigo();
 
-        List<String> lstPdfFiles = pdfService.reporteDeActaDeNotas(idDocenteSeccion, ds);
+        List<String> lstPdfFiles = pdfService.reporteDeActaDeNotas(secc.getGrupoSeccion().getId(), ds);
 
         String fileNameRoot = pdfService.concatPDFs(lstPdfFiles, nom, false);
         if (!fileNameRoot.isEmpty()) {
