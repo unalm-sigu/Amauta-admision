@@ -22,7 +22,7 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     public EvaluacionExpandida find(Long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te", "seccionResponsable sr", "left evaluacionSuperior es");
+        sqlUtil.parents("tipoEvaluacion te", "left evaluacionSuperior es");
         sqlUtil.filter("eva.id", id);
         EvaluacionExpandida evaluacion = this.find(sqlUtil);
         if (evaluacion.getEvaluacionesExpandidas() != null) {
@@ -37,8 +37,8 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
     @Override
     public List<EvaluacionExpandida> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te", "left seccionResponsable sr");
-        sqlUtil.parents("_es.grupoSeccion gs", "left seccionResponsable");
+        sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te");
+        sqlUtil.parents("_es.grupoSeccion gs");
         sqlUtil.parents("left evaluacionSuperior esup");
         if (idEvaluacionSeccion != null) {
             sqlUtil.filter("es.id", idEvaluacionSeccion);

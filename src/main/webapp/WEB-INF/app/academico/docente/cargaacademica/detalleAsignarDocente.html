@@ -1,0 +1,48 @@
+<form id="frmAsignarDocente" >
+    <div class="m-b">			
+
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr class=""> 
+                <th class="col-md-3">Tipo evaluación</th>
+                <th class="col-md-2">Seccion</th>
+                <th class="col-md-3">Tipo Seccion</th>
+                <th class="col-md-4">Docente</th>
+            </tr>
+        </thead>
+
+        <tbody >
+            <tr  th:each="eval,iterStat : ${evaluacionExpandida.evaluaciones}">
+                <td  class="v-middle">
+                    <input th:value="${eval.id}"
+                           th:name="${'evaluaciones['+iterStat.index +'].id'}"
+                           type="hidden"/>
+                    <input th:value="${eval.notasIngresadas}"
+                           th:name="${'evaluaciones['+iterStat.index +'].notasIngresadas'}"
+                           type="hidden"/>
+                    <span th:text="${eval.tipoEvaluacion.nombre}"></span>
+
+                </td>
+                <td  class="v-middle">
+                    <span th:text="${eval.seccionResponsable.codigo}"></span>
+                </td>
+                <td  class="v-middle">
+                    <span th:text="${eval.tipoSeccionEnum.value}"></span>
+                </td>
+                <td class="text-center">
+                    <select  th:name="${'evaluaciones['+iterStat.index +'].docenteEvaluador.id'}"
+                             class="form-control item-select2"
+                             th:disabled="${eval.notasIngresadas==true}"
+                             required="">
+                        <option value=""></option>
+                        <option  th:each="item : ${eval.docentesSeccion}" 
+                                 th:selected="${item.docente.id==eval.docenteEvaluador.id}"
+                                 th:value="${item.docente.id}" th:text="${item.docente.persona.apellidosNombres}"></option>
+                    </select>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>

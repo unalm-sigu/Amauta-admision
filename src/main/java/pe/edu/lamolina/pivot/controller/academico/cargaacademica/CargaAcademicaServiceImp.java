@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.controller.academico.evaluacion.EvaluacionesController;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -62,7 +61,6 @@ import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import sun.nio.cs.ext.Big5;
 
 @Service
 @Transactional(readOnly = true)
@@ -401,6 +399,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
+    public void saveAsignacionDocentes(EvaluacionExpandida evaluacionExpandida, DataSessionPivot ds) {
+        for (Evaluacion evaluacion : evaluacionExpandida.getEvaluaciones()) {
+            if (!evaluacion.isNotasIngresadas()) {
+                evaluacionDAO.updateDocenteEvaluador(evaluacion, evaluacion.getDocenteEvaluador());
+            }
+        }
+    }
+
+    @Override
+    @Transactional
     public void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId) {
 
         GrupoSeccion grupoSeccion = grupoSeccionDAO.find(grupoSeccionId);
@@ -481,7 +489,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<Evaluacion> allEvaluacionesByEvalSeccion(EvaluacionSeccion evaluacionSeccion) {
-        return evaluacionDAO.allByFilter(evaluacionSeccion.getId(), null, null);
+        return evaluacionDAO.allByFilter(evaluacionSeccion.getId(), null, null, null);
+    }
+
+    @Override
+    public List<Evaluacion> allEvaluacionesByEvalExpandida(EvaluacionExpandida evaluacionExpandida) {
+        return evaluacionDAO.allByFilter(null, null, null, evaluacionExpandida.getId());
     }
 
     @Override
@@ -630,8 +643,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
+    public List<DocenteSeccion> allDocenteSeccionByGrupo(GrupoSeccion grupoSeccion) {
+        return docenteSeccionDAO.allByGrupoSeccion(grupoSeccion);
+    }
+
+    @Override
     public List<Evaluacion> allEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
-        return evaluacionDAO.allByFilter(null, idGrupoSeccion, null);
+        return evaluacionDAO.allByFilter(null, idGrupoSeccion, null, null);
     }
 
     @Override
@@ -641,7 +659,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<Evaluacion> findBySeccion(Long idSeccion) {
-        return evaluacionDAO.allByFilter(null, null, idSeccion);
+        return evaluacionDAO.allByFilter(null, null, idSeccion, null);
     }
 
     @Override
@@ -687,6 +705,24 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional
     public void updateEvaluacion(Evaluacion evaluacion) {
         evaluacionDAO.update(evaluacion);
+    }
+
+    @Override
+    @Transactional
+    public Evaluacion activarEvaluacion(Long evaluacionId, Date fechaRealizada, DataSessionPivot ds) {
+        Evaluacion evaluacion = evaluacionDAO.find(evaluacionId);
+        logger.debug("evaluacion param {}, {}", evaluacionId, evaluacion == null ? "no encontro" : "si encontro");
+
+        if (evaluacion.getDocenteEvaluador() == null) {
+            throw new PhobosException("La evaluación no cuenta con evaluador, verifique");
+        }
+        if (!evaluacion.getDocenteEvaluador().getId().equals(ds.getDocente().getId())) {
+            throw new PhobosException("Docente evaluador incorrecto, verifique");
+        }
+
+        evaluacion.setFechaRealizada(fechaRealizada);
+        evaluacionDAO.update(evaluacion);
+        return evaluacion;
     }
 
     @Override
