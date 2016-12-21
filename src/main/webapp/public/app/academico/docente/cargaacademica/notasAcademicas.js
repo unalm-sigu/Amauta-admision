@@ -134,7 +134,7 @@ $(function () {
                 async: false,
                 data: {
                     evaluacion: $this.attr("rel"),
-                    docenteSeccion: $("#txtDocSec").val()
+                    seccion: $("#txtSeccion").val()
                 },
                 success: function (response) {
                     var data = response.data;

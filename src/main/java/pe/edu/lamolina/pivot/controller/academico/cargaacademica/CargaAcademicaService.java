@@ -28,6 +28,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CargaAcademicaService {
 
+    List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico cicloAcademico);
+
     List<TipoEvaluacion> allTipoEvaluacion();
 
     List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico ciclo);
@@ -40,7 +42,7 @@ public interface CargaAcademicaService {
 
     Curso findCurso(Long idCurso);
 
-    Seccion findSeccion(Long idGrupoSeccion);
+    Seccion findSeccion(Long idSeccion);
 
     GrupoSeccion findGrupo(Long idGrupoSeccion);
 
@@ -82,7 +84,7 @@ public interface CargaAcademicaService {
 
     void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds);
 
-    void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSessionPivot ds);
+    void aceptarPlanCalificacion(Long cursoId, Long grupoId, DataSessionPivot ds);
 
     DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);
 
@@ -102,7 +104,7 @@ public interface CargaAcademicaService {
 
     SistemaNotas findSistemaNotaById(Long id);
 
-    ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idDocenteSeccion);
+    ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idSeccion);
 
     List<Evaluacion> allEvaluacionBySecciones(List<Seccion> secciones);
 

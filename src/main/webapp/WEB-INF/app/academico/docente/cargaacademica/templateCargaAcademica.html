@@ -6,16 +6,16 @@
         <span class="block">TPC: {{:tpc}}</span>
     </td>
     <td class="v-middle text-center">
-        <span class="block">{{:seccion}}</span>
-        <span class="block">{{:tipoSeccion}}</span>
-        <span class="block">Aula: {{:aula}}</span>
+        {{:secciones}}
     </td>
     <td class="text-center v-middle">
         <span class="block">{{:alumnos}} alumnos</span>
         <span class="block">{{:horasSemanales}}h</span>
     </td>
     <td class="text-center v-middle">
+        <input type="hidden" value="{{:id}}"/>
         <input type="hidden" value="{{:idSistemaCalificacion}}"/>
+        <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{if estadoSistema=="PRO"}}
         <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{/if}}
@@ -41,14 +41,14 @@
         {{/if}}
     </td>
     <td class="text-center v-middle">
-        <span class="label label-default">{{:estadoSistemaEnum}}</span>
+        <span class="label label-default">{{:estadoEnum}}</span>
     </td>
     <td class="text-center v-middle">
         <div class="dropdown actions">
             {{if idSistemaCalificacion!=""}}
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >
-                {{if estadoSistema=="EXPR"}}
+                {{if estado=="EXPR" }}
                 <li role="presentation">
                     <a class="aceptar-expandir-sistema" href="#">Ver Expansión</a>
                 </li>

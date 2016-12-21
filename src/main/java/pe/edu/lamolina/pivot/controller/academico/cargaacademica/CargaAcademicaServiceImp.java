@@ -120,6 +120,19 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
 
     @Override
+    public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico cicloAcademico) {
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente);
+        List<Long> lstIds = new ArrayList<>();
+        for (DocenteSeccion docenteSeccion : docentesSecciones) {
+            lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+            logger.debug("seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
+        }
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico);
+
+        return gruposSeccion;
+    }
+
+    @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
         return tipoEvaluacionDAO.all();
     }
@@ -529,13 +542,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSessionPivot ds) {
-        logger.debug("CursoId {}, SeccionId {}", cursoId, seccionId);
+    public void aceptarPlanCalificacion(Long cursoId, Long grupoId, DataSessionPivot ds) {
+        logger.debug("CursoId {}, grupoId {}", cursoId, grupoId);
 
         Curso curso = cursoDAO.find(cursoId);
-        Seccion seccion = seccionDAO.find(seccionId);
+        GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, seccion.getGrupoSeccion().getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId());
         logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -897,13 +910,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idDocenteSeccion) {
+    public ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idSeccion) {
         Evaluacion evaluacion = this.findEvaluacion(idEvaluacion);
         logger.debug("evaluacion param {}, {}", idEvaluacion, evaluacion == null ? "no encontro" : "si encontro");
 
-        DocenteSeccion docenteSeccion = this.findDocenteSeccion(idDocenteSeccion);
-        List<AlumnoEvaluacion> alumnosEvaluaciones = this.allAlumnoEvaluacionByFilter(null, null, docenteSeccion.getSeccion().getId());
-        GrupoSeccion grupoSeccion = this.findGrupo(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+        Seccion seccion = seccionDAO.find(idSeccion);
+        GrupoSeccion grupoSeccion = this.findGrupo(seccion.getGrupoSeccion().getId());
+        List<AlumnoEvaluacion> alumnosEvaluaciones = this.allAlumnoEvaluacionByFilter(null, null, seccion.getId());
+
         EvaluacionSeccion evaluacionSeccion = this.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
         SistemaNotas sistemaNotas = evaluacionSeccion.getSistemaNotas();
 
