@@ -82,7 +82,7 @@ public interface CargaAcademicaService {
 
     void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds);
 
-    void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds);
+    void aceptarRechazo(Long cursoId, Long grupoId, DataSessionPivot ds);
 
     void aceptarPlanCalificacion(Long cursoId, Long grupoId, DataSessionPivot ds);
 

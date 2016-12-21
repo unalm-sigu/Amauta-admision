@@ -820,16 +820,16 @@ public class CargaAcademicaController {
     @RequestMapping("aceptarRechazo")
     public JsonResponse aceptarRechazo(
             @RequestParam("cursoId") Long cursoId,
-            @RequestParam("seccionId") Long seccionId,
+            @RequestParam("grupoId") Long grupoId,
             RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            logger.debug("Curso {}, Seccion {}", cursoId, seccionId);
+            logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Rechazado correctamente.";
 
-            cargaAcademicaService.aceptarRechazo(cursoId, seccionId, ds);
+            cargaAcademicaService.aceptarRechazo(cursoId, grupoId, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);

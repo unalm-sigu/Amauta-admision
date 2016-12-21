@@ -43,12 +43,11 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Sistema de Calificación " + rec.sistemaCalificacion);
             MODAL.show();
-            if (rec.estadoSistema == 'RHZ') {
+            if (rec.estado == 'RHZ') {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
             } else {
                 MODAL.buttons(
                         '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
-                        '<a class="btn btn-warning expandir-sistema" href="#">Expandir</a>' +
                         '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
             }
 
@@ -74,7 +73,9 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Detalle del Sistema de Calificación - " + rec.sistemaCalificacion);
             MODAL.show();
-
+            if (rec.estado == 'RHZ') {
+                MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
+            }
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/detalleSistemaCalificacion'),
                 type: 'POST',
@@ -189,7 +190,7 @@ $(function () {
                             async: true,
                             data: {
                                 cursoId: $("#txtCurso").val(),
-                                seccionId: $("#txtSeccion").val()
+                                grupoId: $("#txtGrupo").val()
                             },
                             success: function (response) {
                                 MODAL.hideWait();

@@ -522,13 +522,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds) {
-        logger.debug("CursoId {}, SeccionId {}", cursoId, seccionId);
+    public void aceptarRechazo(Long cursoId, Long grupoId, DataSessionPivot ds) {
+        logger.debug("CursoId {}, GrupoId {}", cursoId, grupoId);
 
         Curso curso = cursoDAO.find(cursoId);
-        Seccion seccion = seccionDAO.find(seccionId);
+        GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, seccion.getGrupoSeccion().getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId());
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.PRO);
         evaluacionSeccion.setPlanCalificacion(curso.getPlanCalificacion());
         evaluacionSeccionDAO.update(evaluacionSeccion);
