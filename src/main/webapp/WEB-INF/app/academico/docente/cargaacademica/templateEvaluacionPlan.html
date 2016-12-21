@@ -22,9 +22,11 @@
         {{/if}}
     </td>
     <td class="v-middle text-center">
-        {{if esHijo==false and notasIngresadas==false}}
+        {{if esHijo==false}}
+        {{if notasIngresadas==false}}
         <a href="#"  rel="{{:evaPlanId}}" 
            class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
+        {{/if}}
         {{/if}}
         {{if esHijo==true}}
         <!--

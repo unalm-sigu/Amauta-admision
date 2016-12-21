@@ -16,7 +16,7 @@ public interface EvaluacionDAO extends Crud<Evaluacion> {
 
     Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion);
 
-    List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion);
+    List<Evaluacion> allByEvaluacionSeccion(Seccion seccion);
 
     void deleteByEvaluacionExpandida(Long idEvaluacionExpandida);
 

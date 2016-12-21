@@ -967,8 +967,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public List<Evaluacion> allEvaluacionByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion) {
-        return evaluacionDAO.allByEvaluacionSeccion(evaluacionSeccion);
+    public List<Evaluacion> allEvaluacionByEvaluacionSeccion(Seccion seccion) {
+        return evaluacionDAO.allByEvaluacionSeccion(seccion);
     }
 
     @Override
@@ -1016,12 +1016,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public List<Evaluacion> allEvaluacionesByTipoSeccion(EvaluacionSeccion evaluacionSeccion) {
-        List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allByEvaluacionSeccion(evaluacionSeccion);
+    public List<Evaluacion> allEvaluacionesByTipoSeccion(Seccion seccion) {
+
+        List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allByEvaluacionSeccion(seccion);
         List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
         for (Evaluacion eva : evaluacionesBySeccion) {
             if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
-                logger.debug("no esta desagregado");
                 evaluacionesBySeccionFinal.add(eva);
             }
             if (eva.isDesagregado()) {

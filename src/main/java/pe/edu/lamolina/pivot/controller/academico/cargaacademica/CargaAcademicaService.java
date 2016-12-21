@@ -90,7 +90,7 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> findBySeccion(Long idSeccion);
 
-    List<Evaluacion> allEvaluacionByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion);
+    List<Evaluacion> allEvaluacionByEvaluacionSeccion(Seccion seccion);
 
     List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion);
 
@@ -118,7 +118,7 @@ public interface CargaAcademicaService {
 
     Map<Long, MatriculaCurso> getMapMatriculasCursoByCicloCurso(CicloAcademico ciclo, Curso curso);
 
-    List<Evaluacion> allEvaluacionesByTipoSeccion(EvaluacionSeccion evaluacionSeccion);
+    List<Evaluacion> allEvaluacionesByTipoSeccion(Seccion seccion);
 
     void saveAsignacionDocentes(EvaluacionExpandida evaluacion, DataSessionPivot ds);
 }

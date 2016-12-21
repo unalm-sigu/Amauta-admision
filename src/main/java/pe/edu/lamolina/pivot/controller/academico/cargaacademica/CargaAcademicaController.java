@@ -591,7 +591,7 @@ public class CargaAcademicaController {
         DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(docenteSeccion.getSeccion().getGrupoSeccion().getId());
         EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(evaluacionSeccion);
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(docenteSeccion.getSeccion());
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
         Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
 
@@ -624,7 +624,7 @@ public class CargaAcademicaController {
         Curso curso = grupoSeccion.getCurso();
         EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
 
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(evaluacionSeccion);
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(docenteSeccion.getSeccion());
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
         Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
