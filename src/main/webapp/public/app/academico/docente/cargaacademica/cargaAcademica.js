@@ -21,7 +21,7 @@ $(function () {
         var seccionesResult = "";
         for (var i = 0; i < secciones.length; i++) {
             seccionesResult += '<div class="col-md-4"><a href="#" ';
-            if (record.tienePlanCalificacion) {
+            if (record.estado == 'ACEP') {
                 seccionesResult += 'class="notas-academicas"';
             }
             seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + '</a></div>';
