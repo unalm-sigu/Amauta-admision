@@ -120,7 +120,7 @@ $(function () {
                 }
             });
         }, saveSistema: function () {
-            var form = $("[id='frmSistemaCalifica']");
+            var form = $("[id='frmTramite']");
             // form.submit();
 
             form.parsley().destroy();
@@ -128,7 +128,7 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-            NuevoSistema.calcularFormula();
+
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
                 buttons: {
