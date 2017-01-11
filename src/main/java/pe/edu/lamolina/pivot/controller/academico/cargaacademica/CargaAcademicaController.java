@@ -57,6 +57,7 @@ import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -604,14 +605,18 @@ public class CargaAcademicaController {
                         docenteSeccion.getSeccion().getId(), evaluacion1.getSeccionResponsable().getId());
                 if (docenteSeccion.getSeccion().getId().equals(evaluacion1.getSeccionResponsable().getId())) {
                     evaluacion1.getDocentesSeccion().add(docenteSeccion);
-                } else {
+                }
+                /*else {
 
                     DocenteSeccion docenteSeccion1 = new DocenteSeccion();
-                    docenteSeccion1.setDocente(new Docente());
+                    Docente docente = new Docente();
+                    docente.setPersona(new Persona());
+                    docenteSeccion1.setDocente(docente);
                     evaluacion1.getDocentesSeccion().add(docenteSeccion1);
-                }
+                }*/
             }
         }
+
         evaluacionExpandida.setEvaluaciones(evaluacionByEvalExp);
         model.addAttribute("evaluacionExpandida", evaluacionExpandida);
         return "app/academico/docente/cargaacademica/detalleAsignarDocente";
