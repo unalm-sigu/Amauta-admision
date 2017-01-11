@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -29,7 +30,7 @@ public class EvaluacionPlan implements Serializable {
     private Integer evaluacionesObligatorias;
 
     @Column(name = "peso_evaluacion")
-    private Integer pesoEvaluacion;
+    private BigDecimal pesoEvaluacion;
 
     @Column(name = "peso_total")
     private Integer pesoTotal;
@@ -95,11 +96,11 @@ public class EvaluacionPlan implements Serializable {
         this.evaluacionesObligatorias = evaluacionesObligatorias;
     }
 
-    public Integer getPesoEvaluacion() {
+    public BigDecimal getPesoEvaluacion() {
         return pesoEvaluacion;
     }
 
-    public void setPesoEvaluacion(Integer pesoEvaluacion) {
+    public void setPesoEvaluacion(BigDecimal pesoEvaluacion) {
         this.pesoEvaluacion = pesoEvaluacion;
     }
 

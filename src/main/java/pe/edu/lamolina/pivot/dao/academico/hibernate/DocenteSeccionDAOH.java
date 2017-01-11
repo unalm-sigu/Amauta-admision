@@ -8,7 +8,10 @@ import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -20,18 +23,22 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
 
     @Override
     public DocenteSeccion find(long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.seccionSuperior");
-        sqlUtil.filter("dc.id", id);
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("docente doc", "left _sec.seccionSuperior")
+                .parents("left _gs.planCalificacion pc")
+                .parents("left _cur.departamentoAcademico da", "left _da.facultad")
+                .filter("dc.id", id);
         return this.find(sqlUtil);
     }
 
     @Override
-    public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
+    public List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico cicloAcademico) {
         filter.setAlias("dc");
-        filter.setParents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
+        filter.setParents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2", "_gs.cicloAcademico ca");
         filter.filterFix("doc.id", docente.getId());
+        filter.filterFix("ca.id", cicloAcademico.getId());
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));
@@ -61,9 +68,30 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     @Override
     public List<DocenteSeccion> allByDocente(Docente docente) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_sec.aula au",
+        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
                 "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
         sqlUtil.filter("doc.id", docente.getId());
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allBySeccion(Seccion seccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
+                .parents("docente doc", "left _doc.persona")
+                .filter("sec.id", seccion.getId());
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
+                .parents("docente doc", "left _doc.persona dper")
+                .filter("gs.id", grupoSeccion.getId());
+        sqlUtil.orderBy("dper.paterno");
         return this.all(sqlUtil);
     }
 

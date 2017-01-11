@@ -42,6 +42,37 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
     }
 
     @Override
+    public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idALumno, Long idCurso, Long idCicloAcademico, String orderBy) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva");
+        sqlUtil.parents("evaluacion eva", "alumno alu", "usuarioIngresoNota ureg");
+        sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr");
+        sqlUtil.parents("_es.grupoSeccion gs", "_ureg.persona per", "_gs.curso cur", "_gs.cicloAcademico cic");
+        if (orderBy != null) {
+            sqlUtil.orderBy(orderBy);
+        }
+        if (idEvaluacionSeccion != null) {
+            sqlUtil.filter("es.id", idEvaluacionSeccion);
+        }
+        if (idGrupoSeccion != null) {
+            sqlUtil.filter("gs.id", idGrupoSeccion);
+        }
+        if (idSeccion != null) {
+            sqlUtil.filter("sr.id", idSeccion);
+        }
+        if (idALumno != null) {
+            sqlUtil.filter("alu.id", idALumno);
+        }
+        if (idCurso != null) {
+            sqlUtil.filter("cur.id", idCurso);
+        }
+        if (idCicloAcademico != null) {
+            sqlUtil.filter("cic.id", idCicloAcademico);
+        }
+        List<AlumnoEvaluacion> lstEvaluaciones = this.all(sqlUtil);
+        return lstEvaluaciones;
+    }
+
+    @Override
     public List<AlumnoEvaluacion> allBySeccion(Long idSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
                 .parents("evaluacion eva", "alumno alu")
@@ -56,7 +87,8 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
     public List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
                 .parents("evaluacion eva", "_eva.tipoEvaluacion tEva", "alumno alu",
-                        "_eva.seccionResponsable sec", "_sec.grupoSeccion gs", "_gs.curso cur", "_gs.cicloAcademico ca")
+                        "_eva.seccionResponsable sec", "_sec.grupoSeccion gs", "_gs.curso cur", "_gs.cicloAcademico ca",
+                        "left _eva.evaluacionSuperior evaSup", "left _evaSup.tipoEvaluacion")
                 .filter("ca.id", ciclo)
                 .filter("cur.id", curso)
                 .filter("alu.id", alumno);

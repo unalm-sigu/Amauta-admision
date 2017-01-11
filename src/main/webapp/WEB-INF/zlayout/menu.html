@@ -24,6 +24,8 @@
                 </a>
 
                 <ul class="menu">      
+                    <li><a th:href="@{/changerol}">Cambiar de Rol</a></li>
+                    <li class="divider"> </li>
                     <li><a th:href="@{/logout}">Salir</a></li>
                 </ul>
             </div>
@@ -31,19 +33,19 @@
             <div class="contenedor-secciones">
                 <div class="menu-section">
                     <ul>
-                       <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
-                           
+                        <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+
                             <a th:href="@{/academico/systemcalifica/sistema}">
                                 <i class="fa fa-check-square"></i><span>Sist. Calificación</span>
                             </a>
                         </li>
-                        
+
                         <li class="option" th:if='${ T(java.util.Arrays).asList("DOC").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a th:href="@{/academico/docente/cargaacademica}">
                                 <i class="fa fa-bar-chart"></i><span>Carga Académica</span>
                             </a>
                         </li>
-                        
+
                         <li class="hide">
                             <a th:href="@{/academico/docente/evaluacion}">
                                 <i class="fa fa-object-ungroup"></i><span>Resumen de Evaluaciones</span>
@@ -53,6 +55,12 @@
                         <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a th:href="@{/general/personaperfil}">
                                 <i class="fa fa-users"></i><span>Colaboradores</span>
+                            </a>
+                        </li>
+
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/general/persona}">
+                                <i class="fa fa-users"></i><span>Personas</span>
                             </a>
                         </li>
                     </ul>

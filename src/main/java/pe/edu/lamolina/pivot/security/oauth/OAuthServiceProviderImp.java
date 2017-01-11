@@ -19,11 +19,15 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -31,24 +35,30 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
-
+    
     @Autowired
     OAuthServiceConfig config;
-
+    
     @Autowired
     UsuarioDAO usuarioDAO;
-
+    
     @Autowired
     RolDAO rolDAO;
-
+    
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
+    
     @Autowired
     DocenteDAO docenteDAO;
-
+    
+    @Autowired
+    OficinaDAO oficinaDAO;
+    
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     public OAuthService getService() {
         return new ServiceBuilder()
@@ -60,50 +70,59 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                         + "https://www.googleapis.com/auth/userinfo.profile")
                 .build();
     }
-
+    
     @Override
     public void loginManually(String email, HttpSession session) {
-
+        
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
-
+        
         Usuario usuario = usuarioDAO.findByEmail(email);
-
+        
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
         }
-
+        
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
-
+        
         SecurityContext cntx = SecurityContextHolder.getContext();
-
+        
         Collection<GrantedAuthority> authorities = new ArrayList();
-
+        
         for (Rol rol : roles) {
             authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
         }
-
+        
         if (authorities.isEmpty()) {
             throw new PhobosException("Usuario sin rol asignado.");
         }
-
+        
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, email, authorities);
         cntx.setAuthentication(authentication);
-
+        
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
-
+        
         DataSessionPivot dataSession = new DataSessionPivot();
         dataSession.setEmail(email);
         dataSession.setUsuario(usuario);
         dataSession.setPersona(usuario.getPersona());
         dataSession.setRoles(roles);
         dataSession.setCicloAcademico(cicloAcademico);
-
+        
         Docente docente = docenteDAO.findPersona(usuario.getPersona());
         if (docente != null) {
             dataSession.setDocente(docente);
             dataSession.setDepartamentoAcademico(docente.getDepartamentoAcademico());
         }
+        
+        List<Oficina> oficinas = oficinaDAO.allByJefe(usuario.getPersona());
+        for (Oficina oficina : oficinas) {
+            if (oficina.getTipoOficina().equals("DPTO")) {
+                DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
+                dataSession.setDepartamentoAcademico(dpto);
+            }
+        }
+        
         session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
     }
-
+    
 }

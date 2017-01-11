@@ -16,6 +16,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
@@ -27,9 +28,11 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CargaAcademicaService {
 
+    List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico cicloAcademico);
+
     List<TipoEvaluacion> allTipoEvaluacion();
 
-    List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente);
+    List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico ciclo);
 
     List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente);
 
@@ -39,13 +42,17 @@ public interface CargaAcademicaService {
 
     Curso findCurso(Long idCurso);
 
-    Seccion findSeccion(Long idGrupoSeccion);
+    Seccion findSeccion(Long idSeccion);
 
     GrupoSeccion findGrupo(Long idGrupoSeccion);
+
+    List<DocenteSeccion> allDocenteSeccionByGrupo(GrupoSeccion grupoSeccion);
 
     List<EvaluacionPlan> allEvaluacionPlanByDynatable(DynatableFilter filter, Long idPlanCalificacion);
 
     List<EvaluacionExpandida> allEvaluacionesExpByEvalSeccion(EvaluacionSeccion evaluacionSeccion);
+
+    List<Evaluacion> allEvaluacionesByEvalExpandida(EvaluacionExpandida evaluacionExpandida);
 
     List<AlumnoEvaluacion> allAlumnoEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
 
@@ -54,6 +61,8 @@ public interface CargaAcademicaService {
     Evaluacion findEvaluacion(Long idEvaluacionPlan);
 
     EvaluacionExpandida findEvaluacionExpandida(Long idEvaluacionPlan);
+
+    void deleteEvaluacionExpandida(Long id);
 
     void createEvaluacionSeccionPorDocente(Docente docente);
 
@@ -73,9 +82,9 @@ public interface CargaAcademicaService {
 
     void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds);
 
-    void aceptarRechazo(Long cursoId, Long seccionId, DataSessionPivot ds);
+    void aceptarRechazo(Long cursoId, Long grupoId, DataSessionPivot ds);
 
-    void aceptarPlanCalificacion(Long cursoId, Long seccionId, DataSessionPivot ds);
+    void aceptarPlanCalificacion(Long cursoId, Long grupoId, DataSessionPivot ds);
 
     DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);
 
@@ -83,7 +92,11 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> findBySeccion(Long idSeccion);
 
+    List<Evaluacion> allEvaluacionByEvaluacionSeccion(Seccion seccion);
+
     List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion);
+
+    Evaluacion activarEvaluacion(Long evaluacionId, Date fechaRealizada, DataSessionPivot ds);
 
     void updateEvaluacion(Evaluacion evaluacion);
 
@@ -91,7 +104,7 @@ public interface CargaAcademicaService {
 
     SistemaNotas findSistemaNotaById(Long id);
 
-    ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idDocenteSeccion);
+    ObjectNode getDetalleEvaluacion(Long idEvaluacion, Long idSeccion);
 
     List<Evaluacion> allEvaluacionBySecciones(List<Seccion> secciones);
 
@@ -105,4 +118,9 @@ public interface CargaAcademicaService {
 
     void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds);
 
+    Map<Long, MatriculaCurso> getMapMatriculasCursoByCicloCurso(CicloAcademico ciclo, Curso curso);
+
+    List<Evaluacion> allEvaluacionesByTipoSeccion(Seccion seccion);
+
+    void saveAsignacionDocentes(EvaluacionExpandida evaluacion, DataSessionPivot ds);
 }

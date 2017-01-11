@@ -10,6 +10,7 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 
 @Repository
 public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
@@ -21,14 +22,14 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
 
     @Override
     public Curso find(Long idCurso) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur");
-        sqlUtil.parents("left planCalificacion pc", "left departamentoAcademico");
-        sqlUtil.filter("cur.id", idCurso);
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
+                .parents("left planCalificacion pc", "left departamentoAcademico da", "left _da.facultad")
+                .filter("cur.id", idCurso);
         return find(sqlUtil);
     }
 
     @Override
-    public List<Curso> allAutocomplete(String nombre, Long idDepartamentoAca, Long planCalificacion) {
+    public List<Curso> allForSistemaCalificacion(String nombre, Long idDepartamentoAca, Long planCalificacion, Long idCiclo) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         StringBuilder sql = new StringBuilder();
         sql.append("  from ").append(Curso.class.getName()).append(" as cur ");
@@ -36,6 +37,11 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         sql.append(" left join fetch cur.planCalificacion pc ");
         sql.append(" where 1=1 ");
         sql.append("  and   ( cur.planCalificacion.id != :PLAN_CAL or cur.planCalificacion is null) ");
+        sql.append("  and    cur.id in ( select cu.id ");
+        sql.append("                       from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
+        sql.append("                      inner join gs.curso cu ");
+        sql.append("                      inner join gs.cicloAcademico ca ");
+        sql.append("                      where ca.id = :CICLO ) ");
         sql.append("  and    da.id = :DEP_ACA ");
         sql.append("  and    cur.nombre like :NOMBRE ");
         sql.append(" order by cur.nombre ");
@@ -43,6 +49,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("PLAN_CAL", planCalificacion);
         query.setParameter("DEP_ACA", idDepartamentoAca);
+        query.setParameter("CICLO", idCiclo);
         query.setString("NOMBRE", nombre);
         query.setMaxResults(15);
 

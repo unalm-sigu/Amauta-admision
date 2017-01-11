@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 
 @Repository
 public class EvaluacionPlanDAOH extends AbstractDAO<EvaluacionPlan> implements EvaluacionPlanDAO {
@@ -54,6 +55,14 @@ public class EvaluacionPlanDAOH extends AbstractDAO<EvaluacionPlan> implements E
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("evap");
         sqlUtil.parents("tipoEvaluacion te", "planCalificacion pc");
         sqlUtil.filter("pc.id", idPlanCalificacion);
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<EvaluacionPlan> allByPlan(PlanCalificacion planCalificacion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("evap");
+        sqlUtil.parents("tipoEvaluacion te", "planCalificacion pc");
+        sqlUtil.filter("pc.id", planCalificacion);
         return this.all(sqlUtil);
     }
 }

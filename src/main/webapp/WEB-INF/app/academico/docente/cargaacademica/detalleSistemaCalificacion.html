@@ -1,6 +1,7 @@
 <input  id="txtPlanCalificacion" type="hidden" th:value="${planCalificacion.id}"/>
 <input  id="txtCurso" type="hidden" th:value="${curso.id}"/>
-<input  id="txtSeccion" type="hidden" th:value="${seccion.id}"/>
+<input  id="txtGrupo" type="hidden" th:value="${grupoSeccion.id}"/>
+
 
 <table class="table table-striped">
     <thead>
@@ -41,6 +42,9 @@
 
     <span class="block" th:if="${planCalificacion.estadoObservado || planCalificacion.estadoRechazado}">
         <strong>Observación:</strong> <span  th:text="${planCalificacion.observacion}">1 al 20</span>
+    </span>
+    <span class="block" th:if="${planCalificacion.estadoSolicitado}">
+        <strong>Sustento</strong> <span  th:text="${planCalificacion.sustento}">1 al 20</span>
     </span>
 </div>
 

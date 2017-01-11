@@ -117,10 +117,21 @@ public class OAuthController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Rol asignar = ds.getMapRoles().get(rol);
-        
+
         ds.setRolActivo(asignar);
 
         session.setAttribute(Constantine.SESSION_USUARIO, ds);
+    }
+
+    @RequestMapping("changerol")
+    public String chnageRol(HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setRolActivo(null);
+
+        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+
+        return "security/rolland";
     }
 
     private String getRedirect(DataSessionPivot ds) {

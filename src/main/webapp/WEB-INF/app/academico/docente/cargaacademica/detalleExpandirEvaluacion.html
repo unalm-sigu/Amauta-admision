@@ -1,10 +1,10 @@
 <form id="frmExpandirEvals" >
     <div class="m-b">			
-        <span class="block"><strong th:text="${evaluacion.tipoEvaluacion.nombre}">TA1 Tarea:</strong> <span>1</span></span>
+        <span class="block"><strong th:text="${evaluacion.tipoEvaluacion.nombre}">TA1 Tarea:</strong> <span  th:text="${evaluacion.numero}">1</span></span>
         <span class="block"><strong>Peso:</strong> <span th:text="${evaluacion.peso}">5%</span></span>
         <input type="hidden" name="id" th:value="${evaluacion.id}"/>
-        <input type="hidden" name="evaluacionSeccion.id" th:value="${evaluacion.evaluacionSeccion.id}"/>
-        <input type="hidden" name="peso" th:value="${evaluacion.peso}"/>
+        <input type="hidden" id="txtEvalSeccionId" name="evaluacionSeccion.id" th:value="${evaluacion.evaluacionSeccion.id}"/>
+        <input type="hidden" id="txtPesoEvalForExp" name="peso" th:value="${evaluacion.peso}"/>
     </div>
 
     <table class="table table-striped">
@@ -16,17 +16,62 @@
             </tr>
         </thead>
 
-        <tbody id="tbodyEvaluaciones">
+        <tbody id="tbodyEvaluaciones" th:if="${tieneEvaluaciones}">
+            <tr  th:each="eval,iterStat : ${evaluaciones}">
+                <td  class="v-middle">
+                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].id'}" 
+                           th:value="${eval.id}" type="hidden"
+                           />
+
+                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].indNotasIngresadas'}" 
+                           th:value="${eval.indNotasIngresadas}" type="hidden"/>
+
+                    <select th:name="${'evaluacionesExpandidas['+iterStat.index +'].tipoEvaluacion.id'}" 
+                            class="form-control item-select2"
+                            th:disabled="${eval.notasIngresadas}">
+                        <option  th:each="item : ${tipoEvaluaciones}" 
+                                 th:selected="${item.id==eval.tipoEvaluacion.id}"
+                                 th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+                    </select>
+
+
+                </td>
+                <td  class="v-middle">
+                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
+                           th:value="${eval.peso}"
+                           class="form-control"
+                           type="text"
+                           data-parsley-pattern="[0-9]{0,3}\.?[0-9]{0,2}"
+                           required="true"
+                           th:disabled="${eval.notasIngresadas}"/>
+
+                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
+                           th:if="${eval.notasIngresadas}"
+                           th:value="${eval.peso}" type="hidden"/>
+                </td>
+                <td class="text-center">
+                    <a href="#" 
+                       class="btn btn-default delete-tipo-evaluacion"
+                       th:if="${!eval.notasIngresadas}">
+                        <i class="fa fa-times text-danger"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+        <tbody id="tbodyEvaluaciones"  th:if="${!tieneEvaluaciones}">
             <tr>
                 <td  class="v-middle">
-                    <select name="evaluaciones[0].tipoEvaluacion.id" 
+                    <select name="evaluacionesExpandidas[0].tipoEvaluacion.id" 
                             class="form-control item-select2">
                         <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
                     </select>
                 </td>
                 <td  class="v-middle">
-                    <input name="evaluaciones[0].peso" 
-                           class="form-control" type="text"/>
+                    <input name="evaluacionesExpandidas[0].peso" 
+                           class="form-control"
+                           type="text"
+                           data-parsley-pattern="[0-9]{0,3}\.?[0-9]{0,2}"
+                           required="true"/>
                 </td>
                 <td class="text-center">
                     <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>

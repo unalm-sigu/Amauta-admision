@@ -12,23 +12,34 @@
             <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
             <input id="txtPlanCalificaId" type="hidden" th:value="${planCalificacion.id}"/>
             <input id="txtEvalSeccionId" name="evaluacionSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
+            <input id="txtGrupoSeccionId" type="hidden" th:value="${grupoSeccion.id}"/>
+
         </header>
 
         <section class="panel">
             <section class="panel-body">
+
+
+
                 <table id="dynaTable" class="table table-striped">
                     <thead> 
                         <tr class=""> 
                             <th class="col-md-2">Código</th>
                             <th class="col-md-6">Tipo Evaluación</th>
+                            <th class="col-md-6">Tipo Sección</th>
                             <th class="col-md-3 text-center">Numero</th>
                             <th class="col-md-1">Peso</th>
-                            <th class="v-middle"></th>
+                            <th class="v-middle">Asign Doc</th>
+                            <th class="v-middle">Expandir</th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
+
+
+
+
             </section>
         </section>
 
@@ -36,7 +47,9 @@
 
         <div class="form-group">
             <div class="text-center">
-                <button id="btnAceptarExp" class="btn btn-sm btn-primary">Aceptar</button>
+
+                <button id="btnAceptarExp" class="btn btn-sm btn-primary" style="display:none;">Aceptar</button>
+
                 <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-link">Regresar</a>
             </div>
         </div>

@@ -21,22 +21,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.general.Ubicacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("comun/buscar")
 public class BuscarController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     BuscarService buscarService;
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -47,7 +52,7 @@ public class BuscarController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -59,7 +64,7 @@ public class BuscarController {
             }
         });
     }
-    
+
     @ResponseBody
     @RequestMapping("cursosSCA")
     public DynatableResponse cursosSCA(DynatableFilter filter,
@@ -71,11 +76,13 @@ public class BuscarController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("el plan calificacion es " + planCalificacion);
-            List<Curso> cursos = buscarService.allCursosAutocomplete(nombre, ds.getDepartamentoAcademico().getId(), planCalificacion);
-            
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            List<Curso> cursos = buscarService.allCursosSCA(nombre, ds.getDepartamentoAcademico().getId(), planCalificacion, ciclo.getId());
+
             for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                
+
                 node.put("id", curso.getId());
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
@@ -84,15 +91,54 @@ public class BuscarController {
                 node.put("tpc", curso.getTipoCurso());
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
+    }
+    
+    @ResponseBody
+    @RequestMapping("allDistritos")
+    public JsonResponse allDistritos(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Ubicacion> ubicaciones = buscarService.allDistritosByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Ubicacion ubicacion : ubicaciones) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", ubicacion.getId());
+                Ubicacion provincia = ubicacion.getUbicacionSuperior();
+                Ubicacion departamento = provincia.getUbicacionSuperior();
+
+                json.put("distrito", ubicacion.getNombre());
+                json.put("provincia", provincia.getNombre());
+                json.put("departamento", departamento.getNombre());
+                json.put("nombre", ubicacion.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 }

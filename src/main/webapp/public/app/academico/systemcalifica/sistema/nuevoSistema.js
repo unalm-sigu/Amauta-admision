@@ -131,14 +131,14 @@ $(function () {
                 }
             });
         },
-        changeCantidadEval: function (el) {
-            if ($.isNumeric(el.val())) {
-                var i = el.attr('rel');
-                var elem = "evaluacionPlan[" + i + "].anulaNotaMinima";
+        changeCantidadEval: function ($this) {
+            if ($.isNumeric($this.val())) {
+                var i = $this.attr('rel');
+                var elem = "evaluacionPlan[" + i + "].notaMinimaAnulable";
                 $("[name='" + elem + "']").attr("disabled", true);
                 $("[name='" + elem + "']").val(0);
                 $("[name='" + elem + "']").attr("checked", false);
-                if (parseInt(el.val()) > 1) {
+                if (parseInt($this.val()) > 1) {
                     $("[name='" + elem + "']").removeAttr("disabled");
                 }
 
@@ -158,13 +158,14 @@ $(function () {
                 if (anularNotMin.prop('checked')) {
                     cantEvalsNumber--;
                 }
-                if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
-                    pesoEval.val("");
-                    return;
-                }
-
+                /*
+                 if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
+                 pesoEval.val("");
+                 return;
+                 }
+                 */
                 var pesoEvalsNumber = parseInt(pesoTotalNumber) / parseInt(cantEvalsNumber);
-                pesoEval.val(pesoEvalsNumber);
+                pesoEval.val(pesoEvalsNumber.toFixed(2));
             }
         },
         calcularFormula: function () {
@@ -195,6 +196,8 @@ $(function () {
             $("#txtFormula").val(formula);
         },
         cambiarTipoEvaluacion: function ($this, e) {
+            var formula = $("#txtFormula").val();
+
             var tr = $this.closest("tr");
             var cantidadEval = tr.find("[name$='cantidadEvaluaciones']");
             var notaMinimaAnulable = tr.find("[name$='notaMinimaAnulable']");
@@ -202,6 +205,18 @@ $(function () {
             cantidadEval.removeAttr("data-parsley-max");
             if (tEval != null && tEval != "") {
                 var tipoEvaluacion = evaluacionCnf[tEval];
+
+                if (formula.indexOf(tipoEvaluacion.codigo) > -1) {
+                    bootbox.alert(
+                            {
+                                message: "Seleccione una evaluación distinta.",
+                                size: 'small'
+                            }
+                    );
+                    $this.select2("val", "CAC");
+                    return false;
+                }
+
                 // cantidadMaxima   esNotaMinimaAnulable
                 cantidadEval.attr("data-parsley-max", tipoEvaluacion.cantidadMaxima);
                 if (tipoEvaluacion.esNotaMinimaAnulable == true || tipoEvaluacion.esNotaMinimaAnulable == "true") {
@@ -250,7 +265,7 @@ $(function () {
     });
 
     $("body").delegate(".cbo-tipo-evaluacion", "change", function (e) {
-        NuevoSistema.cambiarTipoEvalForChange($(this), e);
+        NuevoSistema.cambiarTipoEvaluacion($(this), e);
     });
 
 });

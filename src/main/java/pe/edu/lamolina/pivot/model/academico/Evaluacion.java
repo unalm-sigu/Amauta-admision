@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
@@ -29,7 +30,7 @@ public class Evaluacion implements Serializable {
     private Long id;
 
     @Column(name = "peso")
-    private Integer peso;
+    private BigDecimal peso;
 
     @Column(name = "esta_desagregado")
     private Integer estaDesagregado;
@@ -48,9 +49,6 @@ public class Evaluacion implements Serializable {
     @Column(name = "fecha_realizada")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaRealizada;
-
-    @Column(name = "id_evaluador")
-    private Long idEvaluador;
 
     @Column(name = "fecha_ingreso_nota")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -82,8 +80,16 @@ public class Evaluacion implements Serializable {
     private Seccion seccionResponsable;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_evaluacion_expandida")
+    private EvaluacionExpandida evaluacionExpandida;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user_desagregar")
     private Usuario usuarioDesagregar;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_evaluador")
+    private Docente docenteEvaluador;
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<AlumnoEvaluacion> alumnoEvaluacion;
@@ -93,6 +99,12 @@ public class Evaluacion implements Serializable {
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<ReclamoNota> reclamoNota;
+
+    @Transient
+    private List<DocenteSeccion> docentesSeccion;
+
+    @Transient
+    private boolean notasIngresadas;
 
     public Evaluacion() {
     }
@@ -125,11 +137,11 @@ public class Evaluacion implements Serializable {
         this.tipoEvaluacion = tipoEvaluacion;
     }
 
-    public Integer getPeso() {
+    public BigDecimal getPeso() {
         return peso;
     }
 
-    public void setPeso(Integer peso) {
+    public void setPeso(BigDecimal peso) {
         this.peso = peso;
     }
 
@@ -195,14 +207,6 @@ public class Evaluacion implements Serializable {
 
     public void setFechaRealizada(Date fechaRealizada) {
         this.fechaRealizada = fechaRealizada;
-    }
-
-    public Long getIdEvaluador() {
-        return idEvaluador;
-    }
-
-    public void setIdEvaluador(Long idEvaluador) {
-        this.idEvaluador = idEvaluador;
     }
 
     public Date getFechaIngresoNota() {
@@ -276,6 +280,39 @@ public class Evaluacion implements Serializable {
         return false;
     }
 
+    public EvaluacionExpandida getEvaluacionExpandida() {
+        return evaluacionExpandida;
+    }
+
+    public void setEvaluacionExpandida(EvaluacionExpandida evaluacionExpandida) {
+        this.evaluacionExpandida = evaluacionExpandida;
+    }
+
+    public List<DocenteSeccion> getDocentesSeccion() {
+        return docentesSeccion;
+    }
+
+    public void setDocentesSeccion(List<DocenteSeccion> docentesSeccion) {
+        this.docentesSeccion = docentesSeccion;
+    }
+
+    public Docente getDocenteEvaluador() {
+        return docenteEvaluador;
+    }
+
+    public void setDocenteEvaluador(Docente docenteEvaluador) {
+        this.docenteEvaluador = docenteEvaluador;
+    }
+
+    public boolean isNotasIngresadas() {
+        return notasIngresadas;
+    }
+
+    public void setNotasIngresadas(boolean notasIngresadas) {
+        this.notasIngresadas = notasIngresadas;
+    }
+
+    /*
     public void create(EvaluacionSeccion evalSeccion, EvaluacionPlan evaluacionPlan) {
         this.setAlumnoEvaluacion(null);
         this.setEvaluacionSeccion(evalSeccion);
@@ -285,9 +322,9 @@ public class Evaluacion implements Serializable {
         this.setEvaluacionSuperior(null);
         this.setEvaluaciones(null);
         this.setEvaluados(BigDecimal.ZERO.intValue());
-        this.setPeso(evaluacionPlan.getPesoTotal());
+        this.setPeso(evaluacionPlan.getPesoEvaluacion());
     }
-
+     */
     public void create(EvaluacionSeccion evalSeccion, Seccion seccion, EvaluacionExpandida evaluacionExpandida) {
         this.setAlumnoEvaluacion(null);
         this.setEvaluacionSeccion(evalSeccion);
@@ -303,6 +340,7 @@ public class Evaluacion implements Serializable {
         this.setEstaDesagregado(evaluacionExpandida.getEstaDesagregado());
         this.setFechaDesagregar(evaluacionExpandida.getFechaDesagregar());
         this.setUsuarioDesagregar(evaluacionExpandida.getUsuarioDesagregar());
+        this.setEvaluacionExpandida(evaluacionExpandida);
     }
 
 }

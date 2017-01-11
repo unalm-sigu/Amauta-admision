@@ -7,15 +7,30 @@
         <span class="block" >{{:tipoEvalNombre}}</span>
     </td>
     <td class="v-middle">
+        <span class="block" >{{:tipoSeccion}}</span>
+    </td>
+    <td class="v-middle">
         <span class="block text-center">{{:numero}}</span>
     </td>
     <td class="v-middle">
         <span class="block" >{{:pesoEvaluacion}} %</span>
     </td>
     <td class="v-middle text-center">
-        {{if !esHijo and !desagregado}}
+        {{if desagregado==false}}
+        <a href="#"  rel="{{:evaPlanId}}" 
+           class="btn btn-default asignar-docente"><i class="fa fa-paperclip text-primary"></i></a>
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">
+        {{if esHijo==false}}
+        {{if notasIngresadas==false}}
         <a href="#"  rel="{{:evaPlanId}}" 
            class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
+        {{/if}}
+        {{/if}}
+        {{if esHijo==true}}
+        <!--
+        <a href="#" rel="{{:evaPlanId}}"  class="btn btn-default delete-expansion"><i class="fa fa-times text-danger"></i></a> -->
         {{/if}}
     </td>
 </tr>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF8" />
+        <title>ACTA DE NOTAS</title>
+        <style>
+            body{
+                font-size:8px !important;	
+            }
+            .tblNotas td, .tblNotas th {
+                border: solid 1px;
+                font-size:10px !important;
+            }
+            table{
+                border-collapse: collapse;
+                font-size:10px !important;
+            }
+            table td{
+                padding: 3px;
+            }
+
+            .vertical-text {
+                transform: rotate(90deg);
+                transform-origin: left top 0;
+            }
+
+            .vertical-text {
+                float: left;
+            }
+
+            .min-table td{
+                padding: 1px !important;
+                font-size: 6px !important;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div>
+            <table width="100%">
+                <tr>
+                    <td width="70">
+                        <img 
+                            width="60px" 
+                            height= "58px" 
+                            src="logo-min.png" />
+                    </td>
+                    <td width="100%">
+                        <div  style="font-size: 10px;font-weight: bold;width: 100%;">UNIVERSIDAD NACIONAL AGRARIA LA MOLINA</div>
+                        <div style="font-size: 8px;width: 100%;">Oficina Académica de Estudios</div>
+                    </td>
+                    <td width="65">
+                        <table class="min-table">
+                            <tr>
+                                <td >
+                                    Fecha:
+                                </td>
+                                <td >
+                                    <span th:text="${fecha}">xxx</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Hora:
+                                </td>
+                                <td >
+                                    <span th:text="${hora}">xxx</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Página:
+                                </td>
+                                <td >
+                                    <span th:text="${pagina}">xxx</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Periodo:
+                                </td>
+                                <td >
+                                    <span th:text="${cicloAcademico.codigo}">2015-1</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <p style="text-align: center;"><b><span>ACTA DE NOTAS</span></b></p>
+
+
+        <table width="100%">
+            <tr>
+                <td>
+
+                    <table>
+                        <tr>
+                            <td style="width: 80px;">
+                                Facultad:
+                            </td>
+                            <td>
+                                <span th:text="${facultad.nombre}">xxx</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                Departamento:
+                            </td>
+                            <td>
+                                <span th:text="${departamentoAcademico.nombre}">xxx</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                Curso:
+                            </td>
+                            <td>
+                                <span th:text="${curso.codigo +' - '+curso.nombre}">xx</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td  >
+                                Pofesor:
+                            </td>
+                            <td>
+                                <span th:text="${docente.codigo +' '+ docente.persona.apellidosNombres}">xxx</span>
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+                <td>
+                    <table style="width: 200px;">
+                        <tr>
+                            <td >
+                                Semestre:
+                            </td>
+                            <td >
+                                <span th:text="${cicloAcademico.descripcion}">2015-1</span>
+                            </td>
+                            <td>
+                                Clave:
+                            </td>
+                            <td >
+                                <span th:text="${seccion.codigo}">2015-1</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Creditos:
+                            </td>
+                            <td >
+                                <span th:text="${curso.creditos}">xxx</span>
+                            </td>
+                            <td >
+
+                            </td>
+                            <td >
+
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <table id="tblNotas" class="tblNotas" width="100%">
+            <tr>
+                <td style="width:30px; text-align: center;">
+                    MATRICULA
+                </td>
+                <td>
+
+                    APELLIDOS Y NOMBRES
+
+                </td>
+                <td style="width:20px; text-align: center; w"
+                    th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
+                    <span th:if="${evalPlan.cantidadEvaluaciones != 1}"
+                          th:text="${evalPlan.cantidadEvaluaciones}">ee</span>
+                    <span th:text="${evalPlan.tipoEvaluacion.codigo}">ee</span>
+                </td>
+                <td style="width:20px; text-align: center;">
+                    PROM. FINAL
+                </td>
+            </tr>
+
+            <tr th:each="matSec,itrStat : ${lstMatriculasSeccion}" >
+
+                <td style="text-align: center;" 
+                    th:text="${matSec.matriculaResumen.alumno.codigo}">
+                    matricula
+                </td>  
+                <td style="" 
+                    th:text="${matSec.matriculaResumen.alumno.persona.apellidosNombres}">nombre
+                </td>  
+                <td style="text-align: center;"
+                    th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
+                    <span class="nota-academica" 
+                          th:if="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id]}"
+                          th:text="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id].nota}" > 04.18 </span>
+                </td>
+                <td style="text-align: center;">
+                    <span  th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id]}" >
+                        <span class="nota-academica" th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}" > 04.18 </span>
+                    </span>
+                </td>
+            </tr>
+
+        </table>
+        <div th:if="${ultimaPagina}">
+            <br/>  <br/>
+        </div>
+        <table   width="100%" th:if="${ultimaPagina}">
+            <tr>
+                <td style="text-align: center;padding: 1px !important;border-top: 1px;padding-top: 5px;" width="40%">
+                    FIRMA DEL PROFESOR
+                </td>
+                <td width="20%">
+
+                </td>
+                <td style="text-align: center;padding: 1px !important;" width="40%">
+                    <span th:text="${fechaCompleta}">11/11/1111</span>
+                </td>
+            </tr>
+        </table>
+
+
+    </body>
+</html>

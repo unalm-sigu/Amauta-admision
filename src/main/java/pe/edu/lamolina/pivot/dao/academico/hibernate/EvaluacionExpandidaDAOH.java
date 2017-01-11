@@ -1,11 +1,10 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.dao.AbstractDAO;
-import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
@@ -23,11 +22,11 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     public EvaluacionExpandida find(Long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te");
+        sqlUtil.parents("tipoEvaluacion te", "left evaluacionSuperior es");
         sqlUtil.filter("eva.id", id);
         EvaluacionExpandida evaluacion = this.find(sqlUtil);
-        if (evaluacion.getEvaluaciones() != null) {
-            for (EvaluacionExpandida eva : evaluacion.getEvaluaciones()) {
+        if (evaluacion.getEvaluacionesExpandidas() != null) {
+            for (EvaluacionExpandida eva : evaluacion.getEvaluacionesExpandidas()) {
                 eva.getId();
                 eva.getTipoEvaluacion().getId();
             }
@@ -38,8 +37,8 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
     @Override
     public List<EvaluacionExpandida> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te", "left seccionResponsable sr");
-        sqlUtil.parents("_es.grupoSeccion gs", "left seccionResponsable");
+        sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te");
+        sqlUtil.parents("_es.grupoSeccion gs");
         sqlUtil.parents("left evaluacionSuperior esup");
         if (idEvaluacionSeccion != null) {
             sqlUtil.filter("es.id", idEvaluacionSeccion);
@@ -52,8 +51,8 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
         List<EvaluacionExpandida> lstEvaluaciones = this.all(sqlUtil);
         if (!lstEvaluaciones.isEmpty()) {
             for (EvaluacionExpandida objEvaluacion : lstEvaluaciones) {
-                if (objEvaluacion.getEvaluaciones() != null && !objEvaluacion.getEvaluaciones().isEmpty()) {
-                    for (EvaluacionExpandida eva : objEvaluacion.getEvaluaciones()) {
+                if (objEvaluacion.getEvaluacionesExpandidas() != null && !objEvaluacion.getEvaluacionesExpandidas().isEmpty()) {
+                    for (EvaluacionExpandida eva : objEvaluacion.getEvaluacionesExpandidas()) {
                         eva.getId();
                         eva.getTipoEvaluacion().getId();
                     }
@@ -61,5 +60,14 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
             }
         }
         return lstEvaluaciones;
+    }
+
+    @Override
+    public void deleteByEvaluacionParent(Long idEvaluacionParent) {
+        String strQuery = "delete from EvaluacionExpandida eva where eva.evaluacionSuperior.id=:prm_evaluacion_exp and eva.indNotasIngresadas=0";
+
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("prm_evaluacion_exp", idEvaluacionParent);
+        query.executeUpdate();
     }
 }

@@ -17,7 +17,17 @@ $(function () {
         var colorEstado = {ACT: "success", CER: "danger", CRE: "default"};
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
+        var secciones = record.secciones.split(",");
+        var seccionesResult = "";
+        for (var i = 0; i < secciones.length; i++) {
+            seccionesResult += '<div class="col-md-4"><a href="#" ';
+            if (record.estado == 'ACEP') {
+                seccionesResult += 'class="notas-academicas"';
+            }
+            seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + '</a></div>';
 
+        }
+        record.secciones = seccionesResult;
         var html = $.templates("#templateCargaAcademica").render(record);
         return html;
     }
@@ -33,17 +43,16 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Sistema de Calificación " + rec.sistemaCalificacion);
             MODAL.show();
-            if (rec.estadoSistema == 'RHZ') {
+            if (rec.estado == 'RHZ') {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
             } else {
                 MODAL.buttons(
                         '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
-                        '<a class="btn btn-warning expandir-sistema" href="#">Expandir</a>' +
                         '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
             }
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.id + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/detalleSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -64,9 +73,11 @@ $(function () {
             MODAL.init("lg");
             MODAL.title("Detalle del Sistema de Calificación - " + rec.sistemaCalificacion);
             MODAL.show();
-
+            if (rec.estado == 'RHZ') {
+                MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
+            }
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.id + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/detalleSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -92,7 +103,7 @@ $(function () {
                             async: true,
                             data: {
                                 cursoId: $("#txtCurso").val(),
-                                seccionId: $("#txtSeccion").val()
+                                grupoId: $("#txtGrupo").val()
                             },
                             success: function (response) {
                                 MODAL.hideWait();
@@ -133,19 +144,18 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
-            location.href = APP.url("academico/docente/cargaacademica/expandir/" + rec.idSeccion);
+            location.href = APP.url("academico/docente/cargaacademica/expandir/" + rec.id);
         },
         notasAcademicas: function ($this, e) {
-            e.preventDefault();
             var tr = $this.closest("tr");
-            var idx = tr.attr("rel");
+            var idx = $this.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
 
-            location.href = APP.url('academico/docente/cargaacademica/') + rec.docenteSeccion + '/notasAcademicas';
+            location.href = APP.url('academico/docente/cargaacademica/') + idx + '/notasAcademicas';
         },
         verNuevoSC: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtSeccion").val());
+            location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtGrupo").val());
         },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
@@ -180,7 +190,7 @@ $(function () {
                             async: true,
                             data: {
                                 cursoId: $("#txtCurso").val(),
-                                seccionId: $("#txtSeccion").val()
+                                grupoId: $("#txtGrupo").val()
                             },
                             success: function (response) {
                                 MODAL.hideWait();

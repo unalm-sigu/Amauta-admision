@@ -134,7 +134,7 @@ $(function () {
                 async: false,
                 data: {
                     evaluacion: $this.attr("rel"),
-                    docenteSeccion: $("#txtDocSec").val()
+                    seccion: $("#txtSeccion").val()
                 },
                 success: function (response) {
                     var data = response.data;
@@ -229,7 +229,7 @@ $(function () {
                 }
             });
         },
-        grabarNotas: function () {
+        verGrabarNotas: function () {
 
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
@@ -244,7 +244,7 @@ $(function () {
                     $(this).attr("data-parsley-nota-numerica", "true");
                     $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                     $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                    $(this).attr("data-parsley-pattern", "[0-9]{0,3}\.?[0-9]{0,2}");//^ $
+                    $(this).attr("data-parsley-pattern", "(NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
 
                     //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
 
@@ -275,64 +275,95 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-            MODAL.showWait("Espere un momento por favor");
-            if ($("#txtCodeSel").val() != "") {
-                $.ajax({
-                    url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
-                    type: 'POST',
-                    async: false,
-                    data: JSON.stringify(jsonObj),
-                    dataType: "json",
-                    contentType: "application/json",
-                    success: function (response) {
-                        if (response.success) {
-                            notify(response.message, "info");
-                            $("#txtCodeSel").val("");
-                            $("span[name='" + response.data.evaId + "']").css("display", "");
-                            $("input[title='" + response.data.evaId + "']").css("display", "none");
-                            // $("input[name='" + response.data.evaSeleccionada + "']").val("");
 
-                            $("input[title='" + response.data.evaId + "']").each(function () {
-                                var alumno = $(this).attr("rel");
-                                var nota = $(this).val();
-
-
-                                $(this).removeAttr("data-parsley-nota-minima");
-                                $(this).removeAttr("data-parsley-nota-maxima");
-                                $(this).removeAttr("data-parsley-nota-numerica");
-                                $(this).removeAttr("data-parsley-type");
-                                $(this).removeAttr("required");
-                                $(this).removeAttr("data-parsley-whitespace");
-                                $(this).removeAttr("data-parsley-pattern");
-                                $(this).removeClass("nota-alumno");
-
-
-                                $("span[name='" + response.data.evaId + "']").each(function () {
-                                    var alumnoSpan = $(this).attr("class");
-                                    if (parseInt(alumno) == parseInt(alumnoSpan)) {
-                                        $(this).html('<span class="nota-academica">' + nota + '</span>');
-                                    }
-                                });
-                            });
-                            NotasAcademicas.revisarNotas();
-                        } else {
-                            notify(response.message, "error");
-                        }
-
-                    },
-                    error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
-
-                    }
-
-                });
-                MODAL.hideWait();
-            } else {
+            if ($("#txtCodeSel").val() == "") {
                 bootbox.alert({
                     message: "Seleccionar evaluación e ingresar notas.",
                     size: 'small'
                 });
+                return;
             }
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea registrar las notas de la evaluación?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        NotasAcademicas.grabarNotas(jsonObj);
+                    }
+                }
+            });
+
+        },
+        grabarNotas: function (jsonObj) {
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/saveIngresoNotas'),
+                type: 'POST',
+                async: false,
+                data: JSON.stringify(jsonObj),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $("#txtCodeSel").val("");
+                        $("span[name='" + response.data.evaId + "']").css("display", "");
+                        $("input[title='" + response.data.evaId + "']").css("display", "none");
+                        $("input[title='" + response.data.evaId + "']").each(function () {
+                            var alumno = $(this).attr("rel");
+                            var nota = $(this).val();
+
+
+                            $(this).removeAttr("data-parsley-nota-minima");
+                            $(this).removeAttr("data-parsley-nota-maxima");
+                            $(this).removeAttr("data-parsley-nota-numerica");
+                            $(this).removeAttr("data-parsley-type");
+                            $(this).removeAttr("required");
+                            $(this).removeAttr("data-parsley-whitespace");
+                            $(this).removeAttr("data-parsley-pattern");
+                            $(this).removeClass("nota-alumno");
+
+
+                            $("span[name='" + response.data.evaId + "']").each(function () {
+                                var alumnoSpan = $(this).attr("class");
+                                if (parseInt(alumno) == parseInt(alumnoSpan)) {
+                                    $(this).html('<span class="nota-academica">' + nota + '</span>');
+                                }
+                            });
+                        });
+                        NotasAcademicas.reloadNotas();
+                    } else {
+                        notify(response.message, "error");
+                    }
+
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+
+                }
+
+            });
+            MODAL.hideWait();
+        },
+        reloadNotas: function () {
+            var idDocSecc = $("#txtDocSec").val();
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/' + idDocSecc + '/notasAcademicasReload'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    $("#tableNotas").find("tbody").html(response);
+                    NotasAcademicas.revisarNotas();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+
+            });
         },
         solicitarCambio: function () {
             var form = $("[id='frmCambioNota']");
@@ -406,6 +437,12 @@ $(function () {
 
             }
             );
+        },
+        reporteActaNotas: function ($this, e) {
+
+            var alumno = $("#txtAlumnoCambiarNota").val();
+            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
+
         }
     };
     NotasAcademicas.init();
@@ -413,13 +450,39 @@ $(function () {
     $("body").delegate('.nota-alumno', 'keyup', function (event) {
         var keyCode = (event.keyCode ? event.keyCode : event.which);
         if (keyCode == 13) {
+            var idx = $('.nota-alumno').index(this);
+            console.log(idx)
             var index = $('.nota-alumno').index(this) + 1;
+            //console.log(index)
             $('.nota-alumno').eq(index).focus();
             $('.nota-alumno').eq(index).select();
 
+            var idx2 = $('.nota-alumno').index($('.nota-alumno').eq(index));
+            if (idx2 == -1) {
+                bootbox.alert({
+                    message: "Ya llegó al último estudiante",
+                    buttons: {
+                        ok: {label: "Aceptar"}
+                    }
+                });
+            }
+
             var nota = $(this);
-            var notaFloat = parseFloat(nota.val());
-            nota.val(notaFloat.toFixed(2));
+            if (nota.val() == "") {
+                nota.val("NSP");
+            } else {
+                nota.val(nota.val().toUpperCase());
+            }
+
+            if (nota.val() != "NSP") {
+                var notaFloat = parseFloat(nota.val());
+                if (notaFloat >= sistemaNotasValidate.minimoAprobatorio) {
+                    nota.addClass("text-primary");
+                } else {
+                    nota.addClass("text-danger");
+                }
+                nota.val(notaFloat.toFixed(2));
+            }
         }
     });
 
@@ -452,7 +515,7 @@ $(function () {
     });
 
     $("body").delegate("#cmbSaveNotas", "click", function (e) {
-        NotasAcademicas.grabarNotas();
+        NotasAcademicas.verGrabarNotas();
     });
 
     $("body").delegate("#cmbGuardarCambio", "click", function (e) {
@@ -461,5 +524,9 @@ $(function () {
 
     $("body").delegate("#cboTipoEvalForChange", "change", function (e) {
         NotasAcademicas.cambiarTipoEvalForChange($(this), e);
+    });
+
+    $("body").delegate("#cmbReporteNotas", "click", function (e) {
+        NotasAcademicas.reporteActaNotas($(this), e);
     });
 });
