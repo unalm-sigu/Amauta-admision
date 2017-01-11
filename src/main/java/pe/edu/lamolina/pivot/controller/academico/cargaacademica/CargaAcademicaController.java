@@ -567,11 +567,13 @@ public class CargaAcademicaController {
         EvaluacionExpandida evaluacionExpandida = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
 
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(grupoSeccionId);
+        logger.debug("Grupo Seccion {}", grupoSeccion.getId());
 
         List<Evaluacion> evaluacionByEvalExp = cargaAcademicaService.allEvaluacionesByEvalExpandida(evaluacionExpandida);
         logger.debug("Cantidad de evaluaciones {}", evaluacionByEvalExp.size());
 
         List<DocenteSeccion> allDocenteSeccionByGrupo = cargaAcademicaService.allDocenteSeccionByGrupo(grupoSeccion);
+        logger.debug("cantidad de docentes seccion por grupo {}", allDocenteSeccionByGrupo.size());
 
         DocenteSeccion docenteSeccionTCUR = null;
 
@@ -593,11 +595,20 @@ public class CargaAcademicaController {
                 evaluacion1.setDocenteEvaluador(new Docente());
             }
             if (evaluacion1.getTipoSeccionEnum().equals(TipoSeccionEvalEnum.PRAC)) {
-                evaluacion1.getDocentesSeccion().add(docenteSeccionTCUR);
+                if (docenteSeccionTCUR != null) {
+                    evaluacion1.getDocentesSeccion().add(docenteSeccionTCUR);
+                }
             }
             for (DocenteSeccion docenteSeccion : allDocenteSeccionByGrupo) {
+                logger.debug("Docente Seccion, Seccion {}, Evaluacion SEccion Responsable {}",
+                        docenteSeccion.getSeccion().getId(), evaluacion1.getSeccionResponsable().getId());
                 if (docenteSeccion.getSeccion().getId().equals(evaluacion1.getSeccionResponsable().getId())) {
                     evaluacion1.getDocentesSeccion().add(docenteSeccion);
+                } else {
+
+                    DocenteSeccion docenteSeccion1 = new DocenteSeccion();
+                    docenteSeccion1.setDocente(new Docente());
+                    evaluacion1.getDocentesSeccion().add(docenteSeccion1);
                 }
             }
         }
