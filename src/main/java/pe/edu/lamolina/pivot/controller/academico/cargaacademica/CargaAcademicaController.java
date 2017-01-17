@@ -659,6 +659,8 @@ public class CargaAcademicaController {
         EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
+
+        logger.debug("Consultara notas por seccion");
         Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
 
         Curso curso = grupoSeccion.getCurso();
@@ -678,25 +680,34 @@ public class CargaAcademicaController {
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 
-    @RequestMapping("{docenteSeccion}/notasAcademicasReload")
+    @RequestMapping("{seccion}/notasAcademicasReload")
     public String notasAcademicasReload(
-            @PathVariable("docenteSeccion") Long idDocenteSeccion,
+            @PathVariable("seccion") Long idSeccion,
             Model model, HttpSession session) {
 
+        logger.debug("la seccion es {}", idSeccion);
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccion(idDocenteSeccion);
-
-        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(docenteSeccion.getSeccion().getGrupoSeccion().getId());
-        Curso curso = grupoSeccion.getCurso();
+        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
-        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(docenteSeccion.getSeccion());
-        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(docenteSeccion.getSeccion());
-        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(docenteSeccion.getSeccion().getId());
+        logger.debug("Consultara notas por seccion");
+        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+
+        Curso curso = grupoSeccion.getCurso();
+
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
-        model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
+        //     model.addAttribute("docenteSeccion", docenteSeccion);
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("grupoSeccion", grupoSeccion);
+        model.addAttribute("curso", curso);
+        model.addAttribute("sistemaNotas", evaluacionSeccion.getSistemaNotas());
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
+        model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
 

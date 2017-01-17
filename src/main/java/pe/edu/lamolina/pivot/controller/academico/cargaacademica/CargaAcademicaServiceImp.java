@@ -406,7 +406,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         }
          */
-        logger.debug("333333333333333333333333333");
         evaluacionExpandidaDAO.update(evaluacionPadre);
     }
 
@@ -763,14 +762,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Map<Long, Alumno> mapAlumno = new LinkedHashMap();
 
         for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
-            Alumno alumno = alumnoEvaluacionEach.getAlumno();
+            Alumno alumnoEach = alumnoEvaluacionEach.getAlumno();
+            Evaluacion evaluacionEach = alumnoEvaluacionEach.getEvaluacion();
+
             AlumnoEvaluacion alumnoEvaluacion = new AlumnoEvaluacion();
-            alumnoEvaluacion.setAlumno(alumno);
-            alumnoEvaluacion.setEvaluacion(alumnoEvaluacionEach.getEvaluacion());
+            alumnoEvaluacion.setAlumno(alumnoEach);
+            alumnoEvaluacion.setEvaluacion(evaluacionEach);
             alumnoEvaluacion.setFechaIngresoNota(today);
             alumnoEvaluacion.setNota(alumnoEvaluacionEach.getNota());
             alumnoEvaluacion.setEsIngresoRegular(BigDecimal.ONE.intValue());
-            mapAlumno.put(alumno.getId(), alumno);
+            mapAlumno.put(alumnoEach.getId(), alumnoEach);
 
             if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
                 alumnoEvaluacion.setValorNumerico(BigDecimal.ZERO);
@@ -795,6 +796,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Alumno alumno = alumnoEvaluacionEach.getAlumno();
             GrupoSeccion gpoSeccion = evaluacion.getSeccionResponsable().getGrupoSeccion();
             Curso curso = gpoSeccion.getCurso();
+
             List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 
@@ -820,6 +822,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             matriculaCursoDAO.update(matriculaCurso);
 
             Map<Long, ResumenAlumnoEvaluacion> mapResumenAluEval = new LinkedHashMap();
+
             List<ResumenAlumnoEvaluacion> resumenTipoEVal = resumenAlumnoEvaluacionDAO.allByAlumnoGrupoSeccion(alumno, gpoSeccion);
             for (ResumenAlumnoEvaluacion rae : resumenTipoEVal) {
                 mapResumenAluEval.put(rae.getTipoEvaluacion().getId(), rae);
@@ -830,6 +833,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             for (EvaluacionPlan ep : evaluacionesPlan) {
                 TipoEvaluacion tipo = ep.getTipoEvaluacion();
                 List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
+                if (evalsTipo.isEmpty()) {
+                    continue;
+                }
                 ResumenAlumnoEvaluacion rae = mapResumenAluEval.get(tipo.getId());
                 if (rae == null) {
                     rae = new ResumenAlumnoEvaluacion();
@@ -880,17 +886,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 Evaluacion evalSup = choiceEvaluacion(eval.getEvaluacionSuperior(), evaluacion);
 
                 TipoEvaluacion tipoEvalSup = evalSup.getTipoEvaluacion();
-                System.out.println("qq tipoEvalSup.getId() ==" + tipoEvalSup.getId());
-                System.out.println("qq tipo.getId().longValue() ==" + tipo.getId().longValue());
-                if (tipoEvalSup.getId() == tipo.getId().longValue()) {
+
+                if (tipoEvalSup.getId().equals(tipo.getId())) {
                     evalsTipo.add(aluEval);
                     continue;
                 }
             }
             TipoEvaluacion tipoEval = eval.getTipoEvaluacion();
-            System.out.println("ww tipo.getId().longValue() ==" + tipo.getId().longValue());
-            System.out.println("ww tipoEval.getId() ==" + tipoEval.getId());
-            if (tipoEval.getId() == tipo.getId().longValue()) {
+
+            if (tipoEval.getId().equals(tipo.getId())) {
                 evalsTipo.add(aluEval);
             }
         }

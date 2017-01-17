@@ -336,6 +336,8 @@ $(function () {
                             });
                         });
                         NotasAcademicas.reloadNotas();
+
+                        //  location.href = APP.url('academico/docente/cargaacademica/') + $("#txtSeccion").val() + '/notasAcademicas';
                     } else {
                         notify(response.message, "error");
                     }
@@ -350,9 +352,9 @@ $(function () {
             MODAL.hideWait();
         },
         reloadNotas: function () {
-            var idDocSecc = $("#txtDocSec").val();
+            var idSeccion = $("#txtSeccion").val();
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + idDocSecc + '/notasAcademicasReload'),
+                url: APP.url('academico/docente/cargaacademica/' + idSeccion + '/notasAcademicasReload'),
                 type: 'POST',
                 async: false,
                 success: function (response) {

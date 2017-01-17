@@ -202,6 +202,10 @@
                     <span class="nota-academica" 
                           th:if="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id]}"
                           th:text="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id].nota}" > 04.18 </span>
+
+                    <span class="nota-academica" 
+                          th:unless="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id]}"
+                          >  </span>
                 </td>
                 <td style="text-align: center;">
                     <span  th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id]}" >
