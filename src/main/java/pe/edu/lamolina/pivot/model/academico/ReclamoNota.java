@@ -18,6 +18,8 @@ import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 @Table(name = "aca_reclamo_nota")
 public class ReclamoNota implements Serializable {
 
+    public static Integer MAXIMO_DIAS_RECLAMO = 15;
+
     @Id
     @GeneratedValue
     @Column(name = "id")

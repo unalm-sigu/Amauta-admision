@@ -763,12 +763,14 @@ public class CargaAcademicaController {
     @RequestMapping("{evaluacion}/evaluacion")
     public String evaluacion(@PathVariable("evaluacion") Long idEvaluacion, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        /*
         Evaluacion eval = new Evaluacion();
         eval.setTipoEvaluacion(new TipoEvaluacion());
         eval.getTipoEvaluacion().setCodigo("PC1");
-        model.addAttribute("evaluacion", eval);
+         */
 
+        Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(idEvaluacion);
+        model.addAttribute("evaluacion", evaluacion);
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 

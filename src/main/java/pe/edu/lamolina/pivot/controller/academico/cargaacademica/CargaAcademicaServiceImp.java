@@ -1017,6 +1017,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     @Transactional
     public void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds) {
+        Evaluacion evaluacion = evaluacionDAO.find(reclamoNota.getEvaluacion().getId());
+
+        DateTime fechaRealizada = new DateTime(evaluacion.getFechaRealizada());
+        DateTime fechaVencimiento = fechaRealizada.plusDays(ReclamoNota.MAXIMO_DIAS_RECLAMO);
+        if (fechaVencimiento.toLocalDate().isBefore(new DateTime().toLocalDate())) {
+            new PhobosException("Superó la fecha limite para cambiar la nota.");
+        }
+
         reclamoNota.setEstado(EstadoEnum.CRE.name());
         reclamoNota.setFechaReclamo(new Date());
         reclamoNota.setUserReclamo(ds.getUsuario());
