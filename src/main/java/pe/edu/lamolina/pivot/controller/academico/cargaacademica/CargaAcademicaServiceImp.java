@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -1019,11 +1020,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     public void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds) {
         Evaluacion evaluacion = evaluacionDAO.find(reclamoNota.getEvaluacion().getId());
 
-        if (!AlumnoEvaluacion.NSP.equals(reclamoNota.getNotaFinal())) {
+        if (!AlumnoEvaluacion.NSP.equals(reclamoNota.getNotaInicial())) {
             DateTime fechaRealizada = new DateTime(evaluacion.getFechaRealizada());
             DateTime fechaVencimiento = fechaRealizada.plusDays(ReclamoNota.MAXIMO_DIAS_RECLAMO);
+            logger.debug("Fecha limite camio de nota {}", fechaVencimiento.toString("dd/MM/yyyy"));
             if (fechaVencimiento.toLocalDate().isBefore(new DateTime().toLocalDate())) {
-                new PhobosException("Superó la fecha limite para cambiar la nota.");
+                throw new PhobosException("Superó la fecha limite para cambiar la nota.");
             }
         }
         reclamoNota.setEstado(EstadoEnum.CRE.name());

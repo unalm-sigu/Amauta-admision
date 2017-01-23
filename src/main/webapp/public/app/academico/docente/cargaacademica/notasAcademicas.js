@@ -112,7 +112,10 @@ $(function () {
                 url: APP.url('academico/docente/cargaacademica/detalleCambioNota'),
                 type: 'POST',
                 async: false,
-                data: {matriculaSeccion: $this.attr("rel")},
+                data: {
+                    matriculaSeccion: $this.attr("rel"),
+                    nsp: $this.attr("title")
+                },
                 success: function (response) {
                     MODAL.body(response);
 
@@ -390,6 +393,9 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        MODAL.hide();
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
                         MODAL.hide();
                     }
                 },
