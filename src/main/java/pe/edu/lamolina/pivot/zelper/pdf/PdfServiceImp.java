@@ -181,6 +181,7 @@ public class PdfServiceImp implements PdfService {
             Alumno alumno = rae.getAlumno();
             TipoEvaluacion tipo = rae.getTipoEvaluacion();
             mapNotas.put(alumno.getId() + "-" + tipo.getId(), rae);
+
         }
         return mapNotas;
     }

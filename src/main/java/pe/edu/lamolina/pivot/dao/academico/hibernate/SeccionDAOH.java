@@ -52,7 +52,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
     @Override
     public Seccion find(Long idSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "left _gs.curso cur", "left _cur.planCalificacion pc", "_gs.planCalificacion pc2")
+                .parents("grupoSeccion gs", "_gs.curso cur", "_cur.planCalificacion pc", "_gs.planCalificacion pc2")
                 .filter("s.id", idSeccion);
         return find(sqlUtil);
     }

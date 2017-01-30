@@ -193,6 +193,10 @@ $(function () {
                     notaMinimaAnulable.prop("checked", false);
                 }
             }
+        },
+        regresar: function (e) {
+            e.preventDefault();
+            location.href = APP.url("academico/docente/cargaacademica");
         }
     }
 
@@ -231,4 +235,7 @@ $(function () {
         NuevoSistema.cambiarTipoEvaluacion($(this), e);
     });
 
+    $("body").delegate(".cancelar", "click", function (e) {
+        NuevoSistema.regresar(e);
+    });
 });

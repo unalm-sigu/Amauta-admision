@@ -23,6 +23,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -87,7 +88,7 @@ public class BuscarController {
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
                 node.put("departamentoAcademico", curso.getDepartamentoAcademico() != null ? curso.getDepartamentoAcademico().getNombre() : "");
-                node.put("sistemaCalificacion", curso.getPlanCalificacion() != null ? curso.getPlanCalificacion().getNotaBase().toString() : "");
+                node.put("sistemaCalificacion", (String) ObjectUtil.getParentTree(curso, "planCalificacion.codigo"));
                 node.put("tpc", curso.getTipoCurso());
                 array.add(node);
             }
@@ -102,7 +103,7 @@ public class BuscarController {
         }
         return json;
     }
-    
+
     @ResponseBody
     @RequestMapping("allDistritos")
     public JsonResponse allDistritos(@RequestParam("nombre") String nombre, HttpSession session) {

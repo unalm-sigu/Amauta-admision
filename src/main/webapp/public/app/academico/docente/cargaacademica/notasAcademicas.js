@@ -99,6 +99,8 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
 
+            //
+
 
             MODAL.hide();
             MODAL.init("lg");
@@ -110,9 +112,17 @@ $(function () {
                 url: APP.url('academico/docente/cargaacademica/detalleCambioNota'),
                 type: 'POST',
                 async: false,
-                data: {matriculaSeccion: $this.attr("rel")},
+                data: {
+                    matriculaSeccion: $this.attr("rel"),
+                    nsp: $this.attr("title")
+                },
                 success: function (response) {
                     MODAL.body(response);
+
+                    $("#txtNotaNueva").attr("data-parsley-nota-numerica", "true");
+                    $("#txtNotaNueva").attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                    $("#txtNotaNueva").attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                    $("#txtNotaNueva").attr("data-parsley-pattern", "(NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -336,6 +346,8 @@ $(function () {
                             });
                         });
                         NotasAcademicas.reloadNotas();
+
+                        //  location.href = APP.url('academico/docente/cargaacademica/') + $("#txtSeccion").val() + '/notasAcademicas';
                     } else {
                         notify(response.message, "error");
                     }
@@ -350,9 +362,9 @@ $(function () {
             MODAL.hideWait();
         },
         reloadNotas: function () {
-            var idDocSecc = $("#txtDocSec").val();
+            var idSeccion = $("#txtSeccion").val();
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + idDocSecc + '/notasAcademicasReload'),
+                url: APP.url('academico/docente/cargaacademica/' + idSeccion + '/notasAcademicasReload'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -381,6 +393,9 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        MODAL.hide();
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
                         MODAL.hide();
                     }
                 },
@@ -497,7 +512,8 @@ $(function () {
 
     $("body").delegate("#btnActivarEvaluacion", "click", function (e) {
         MODAL.hide();
-        var evaluacion = 23;
+        //    var evaluacion = 23;
+        var evaluacion = $('#txtEvaluacionId').val();
         location.href = APP.url("academico/docente/cargaacademica/") + evaluacion + "/evaluacion";
     });
 
