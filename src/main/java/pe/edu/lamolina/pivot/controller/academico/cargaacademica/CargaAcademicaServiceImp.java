@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
@@ -199,7 +200,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             GrupoSeccion grupoSeccion = docenteSeccion.getSeccion().getGrupoSeccion();
             Curso curso = docenteSeccion.getSeccion().getGrupoSeccion().getCurso();
 
-            if (curso.getPlanCalificacion() == null || curso.getPlanCalificacion().getId() == null) {
+            if (ObjectUtil.getParentTree(curso, "planCalificacion.id") == null) {
                 logger.debug("el curso {} no cuenta con plan calificacion", curso.getId());
                 continue;
             }
