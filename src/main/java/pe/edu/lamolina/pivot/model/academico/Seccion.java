@@ -278,4 +278,25 @@ public class Seccion implements Serializable {
         this.horasSemanales = horasSemanales;
     }
 
+    public boolean isTipoSeccionTCUR() {
+        if (TipoSeccionEnum.TCUR.equals(this.getTipoSeccionEnum())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTipoSeccionTEO() {
+        if (TipoSeccionEnum.TEO.equals(this.getTipoSeccionEnum())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTipoSeccionPRA() {
+        if (TipoSeccionEnum.PRA.equals(this.getTipoSeccionEnum())) {
+            return true;
+        }
+        return false;
+    }
+
 }

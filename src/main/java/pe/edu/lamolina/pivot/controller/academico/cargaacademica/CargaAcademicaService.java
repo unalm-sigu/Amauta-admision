@@ -123,4 +123,6 @@ public interface CargaAcademicaService {
     List<Evaluacion> allEvaluacionesByTipoSeccion(Seccion seccion);
 
     void saveAsignacionDocentes(EvaluacionExpandida evaluacion, DataSessionPivot ds);
+
+    DocenteSeccion findDocenteSeccionByFilter(Docente docente, Seccion seccion);
 }

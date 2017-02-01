@@ -120,7 +120,7 @@ $(function () {
                 }
             });
         }, saveSistema: function () {
-            var form = $("[id='frmTramite']");
+            var form = $("[id='frmSistemaCalifica']");
             // form.submit();
 
             form.parsley().destroy();

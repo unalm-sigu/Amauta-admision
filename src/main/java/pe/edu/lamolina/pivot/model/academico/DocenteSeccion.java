@@ -102,8 +102,10 @@ public class DocenteSeccion implements Serializable {
     }
 
     public boolean esDocentePrincipal() {
-        if (BigDecimal.ONE.intValue() == principal) {
-            return true;
+        if (principal != null) {
+            if (BigDecimal.ONE.intValue() == principal.intValue()) {
+                return true;
+            }
         }
         return false;
     }

@@ -1,5 +1,7 @@
 $(function () {
 
+    var permiteAsig = $("#txtPermiteAsig").val();
+
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/docente/cargaacademica/listEvaluacionPlan'),
@@ -18,6 +20,7 @@ $(function () {
         var colorEstado = {CRE: "default", ACT: "success", INA: "danger", APR: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
+        record.permiteAsign = (permiteAsig == "true");
         if (record.esHijo) {
             record.styleHijo = 'padding-left:90px;';
         }
