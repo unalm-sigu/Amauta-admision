@@ -398,6 +398,7 @@ $(function () {
                         notify(MESSAGES.errorComunicacion, "error");
                         MODAL.hide();
                     }
+                    NotasAcademicas.reloadNotas();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");

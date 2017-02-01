@@ -1038,6 +1038,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         reclamoNota.setFechaReclamo(new Date());
         reclamoNota.setUserReclamo(ds.getUsuario());
         reclamoNotaDAO.save(reclamoNota);
+
+        AlumnoEvaluacion alumnoEvaluacion = alumnoEvaluacionDAO.findByFilter(null, evaluacion.getId(), reclamoNota.getAlumno().getId());
+        alumnoEvaluacion.setNota(reclamoNota.getNotaFinal());
+        alumnoEvaluacion.setValorNumerico(new BigDecimal(reclamoNota.getNotaFinal()));
+        alumnoEvaluacionDAO.update(alumnoEvaluacion);
     }
 
     @Override
