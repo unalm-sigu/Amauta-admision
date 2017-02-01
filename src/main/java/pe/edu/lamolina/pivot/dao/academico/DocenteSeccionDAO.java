@@ -19,4 +19,6 @@ public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     List<DocenteSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion);
 
+    DocenteSeccion findByFilter(Docente docente, Seccion seccion);
+
 }

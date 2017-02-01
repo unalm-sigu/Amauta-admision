@@ -333,12 +333,24 @@ public class CargaAcademicaController {
         logger.debug("El grupo seccion es {}", grupoSeccion.getId());
 
         StringBuilder claves = new StringBuilder();
+        boolean permiteAisgnar = false;
+        DocenteSeccion docenteSeccion = null;
+
         for (Seccion sec : grupoSeccion.getSecciones()) {
             claves.append(sec.getCodigo());
             claves.append(",");
+            if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                if (docenteSeccion != null) {
+                    if (docenteSeccion.esDocentePrincipal()) {
+                        permiteAisgnar = true;
+                    }
+                }
+            }
 
         }
 
+        model.addAttribute("permiteAsignar", permiteAisgnar);
         model.addAttribute("planCalificacion", grupoSeccion.getPlanCalificacion());
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));

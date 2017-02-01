@@ -155,6 +155,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
+    public DocenteSeccion findDocenteSeccionByFilter(Docente docente, Seccion seccion) {
+        return docenteSeccionDAO.findByFilter(docente, seccion);
+    }
+
+    @Override
     public Curso findCurso(Long idCurso) {
         return cursoDAO.find(idCurso);
     }
