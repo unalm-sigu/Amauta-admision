@@ -13,7 +13,7 @@
                 -->
             </div>
 
-            <h2>Registro de Notas - <span>2016-II</span></h2>
+            <h2>Registro de Notas - <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
             <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Fitomejoramiento Genético</span></span>
             <span class="block"><strong>Tipo sección:</strong>
                 <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
