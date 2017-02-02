@@ -48,6 +48,9 @@ public class GrupoSeccion implements Serializable {
     @JoinColumn(name = "id_plan_calificacion")
     private PlanCalificacion planCalificacion;
 
+    @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
+    private List<EvaluacionSeccion> evaluacionSecciones;
+
     public GrupoSeccion() {
     }
 
@@ -184,6 +187,14 @@ public class GrupoSeccion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public List<EvaluacionSeccion> getEvaluacionSecciones() {
+        return evaluacionSecciones;
+    }
+
+    public void setEvaluacionSecciones(List<EvaluacionSeccion> evaluacionSecciones) {
+        this.evaluacionSecciones = evaluacionSecciones;
     }
 
 }
