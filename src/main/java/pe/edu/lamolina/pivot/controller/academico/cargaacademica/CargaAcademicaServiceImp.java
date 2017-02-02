@@ -171,7 +171,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public GrupoSeccion findGrupo(Long idGrupoSeccion) {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(idGrupoSeccion);
+        logger.debug("GpoSeccion {}", gpoSecc.getId());
         List<EvaluacionSeccion> evalSeccs = evaluacionSeccionDAO.allByGrupoSeccion(gpoSecc);
+        logger.debug("evaluacionSeccion son {}", evalSeccs.size());
         gpoSecc.setEvaluacionSecciones(evalSeccs);
         return gpoSecc;
     }
