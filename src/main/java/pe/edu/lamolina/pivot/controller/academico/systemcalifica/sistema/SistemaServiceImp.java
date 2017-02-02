@@ -206,7 +206,6 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacionDAO.update(planCalificacion);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
         evaluacionSeccionDAO.update(evaluacionSeccion);
