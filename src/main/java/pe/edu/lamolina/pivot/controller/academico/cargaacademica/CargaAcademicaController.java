@@ -282,6 +282,12 @@ public class CargaAcademicaController {
                 node.put("desagregado", evaluacionPlan.isDesagregado());
                 node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
                 node.put("tipoSeccion", evaluacionPlan.getTipoSeccionEnum().getValue());
+                
+                List<Evaluacion> evals = evaluacionPlan.getEvaluaciones();
+                for (Evaluacion eval : evals) {
+                    
+                }
+                
                 array.add(node);
 
                 for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluacionesExpandidas()) {
