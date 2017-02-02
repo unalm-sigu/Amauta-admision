@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionPlanDAO;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
@@ -65,4 +66,17 @@ public class EvaluacionPlanDAOH extends AbstractDAO<EvaluacionPlan> implements E
         sqlUtil.filter("pc.id", planCalificacion);
         return this.all(sqlUtil);
     }
+
+    @Override
+    public void deleleByPlan(PlanCalificacion plan) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" delete from ").append(EvaluacionPlan.class.getName()).append(" ep ");
+        sql.append("  where ep.planCalificacion.id = :PLAN ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("PLAN", plan.getId());
+
+        query.executeUpdate();
+    }
+
 }

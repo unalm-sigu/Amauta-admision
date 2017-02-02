@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.math.BigDecimal;
 import java.util.List;
 import org.hibernate.Query;
 import org.slf4j.Logger;
@@ -11,7 +10,6 @@ import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -97,7 +95,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     }
 
     @Override
-    public List<Evaluacion> allByEvaluacionSeccion(Seccion seccion) {
+    public List<Evaluacion> allBySeccion(Seccion seccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
                 .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior evaSup", "seccionResponsable sr")
                 .filter("sr.id", seccion.getId());
@@ -160,4 +158,14 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         }
         return evaluacion;
     }
+
+    @Override
+    public List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evalSecc) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev");
+        sqlUtil.parents("evaluacionSeccion es");
+        sqlUtil.filter("es.id", evalSecc);
+
+        return all(sqlUtil);
+    }
+
 }

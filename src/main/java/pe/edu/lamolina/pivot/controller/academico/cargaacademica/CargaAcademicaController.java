@@ -39,6 +39,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
@@ -276,7 +277,7 @@ public class CargaAcademicaController {
                 node.put("tipoEvalCod", evaluacionPlan.getTipoEvaluacion().getCodigo());
                 node.put("tipoEvalNombre", evaluacionPlan.getTipoEvaluacion().getNombre() + " " + evaluacionPlan.getNumero());
                 node.put("numero", evaluacionPlan.getNumero());
-                node.put("pesoEvaluacion", evaluacionPlan.getPeso());
+                node.put("pesoEvaluacion", NumberFormat.precio(evaluacionPlan.getPeso()));
                 node.put("esHijo", false);
                 node.put("desagregado", evaluacionPlan.isDesagregado());
                 node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
@@ -291,7 +292,7 @@ public class CargaAcademicaController {
                     nodeHijo.put("tipoEvalCod", evaluacionHija.getTipoEvaluacion().getCodigo());
                     nodeHijo.put("tipoEvalNombre", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionHija.getNumero());
                     nodeHijo.put("numero", evaluacionHija.getNumero());
-                    nodeHijo.put("pesoEvaluacion", evaluacionHija.getPeso());
+                    nodeHijo.put("pesoEvaluacion", NumberFormat.precio(evaluacionHija.getPeso()));
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
                     nodeHijo.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
@@ -335,7 +336,7 @@ public class CargaAcademicaController {
         logger.debug("El grupo seccion es {}", grupoSeccion.getId());
 
         StringBuilder claves = new StringBuilder();
-        boolean permiteAisgnar = false;
+        boolean permiteAsignar = false;
         DocenteSeccion docenteSeccion = null;
 
         for (Seccion sec : grupoSeccion.getSecciones()) {
@@ -345,18 +346,19 @@ public class CargaAcademicaController {
                 docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
                 if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
                     if (docenteSeccion.esDocentePrincipal()) {
-                        permiteAisgnar = true;
+                        permiteAsignar = true;
                     }
                 }
             }
 
         }
 
-        model.addAttribute("permiteAsignar", permiteAisgnar);
+        model.addAttribute("permiteAsignar", permiteAsignar);
         model.addAttribute("planCalificacion", grupoSeccion.getPlanCalificacion());
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
         model.addAttribute("grupoSeccion", grupoSeccion);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
 
         //   Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
         Long idGrupoSeccion = grupoSeccion.getId();
@@ -1076,6 +1078,30 @@ public class CargaAcademicaController {
             }
 
             response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("deletePlanCalifica")
+    public JsonResponse deletePlanCalifica(
+            @RequestParam("idPlanCalifica") Long idPlanCalifica,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            cargaAcademicaService.deletePlanCalificacion(idPlanCalifica, ds);
+
+            response.setMessage("Plan de Calificacion eliminado satisfactoriamente");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

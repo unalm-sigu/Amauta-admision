@@ -13,4 +13,6 @@ public interface EvaluacionPlanDAO extends Crud<EvaluacionPlan> {
     List<EvaluacionPlan> allByFilter(Long idPlanCalificacion);
 
     List<EvaluacionPlan> allByPlan(PlanCalificacion planCalificacion);
+
+    void deleleByPlan(PlanCalificacion plan);
 }
