@@ -126,5 +126,7 @@ public interface CargaAcademicaService {
 
     DocenteSeccion findDocenteSeccionByFilter(Docente docente, Seccion seccion);
 
+    public void saveEvaluacion(Evaluacion evaluacion);
+
     void deletePlanCalificacion(Long idPlanCalifica, DataSessionPivot ds);
 }

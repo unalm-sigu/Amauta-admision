@@ -56,9 +56,6 @@ public class EvaluacionExpandida implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaRealizada;
 
-    @Column(name = "id_evaluador")
-    private Long idEvaluador;
-
     @Column(name = "fecha_ingreso_nota")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaIngresoNota;
@@ -202,14 +199,6 @@ public class EvaluacionExpandida implements Serializable {
 
     public void setFechaRealizada(Date fechaRealizada) {
         this.fechaRealizada = fechaRealizada;
-    }
-
-    public Long getIdEvaluador() {
-        return idEvaluador;
-    }
-
-    public void setIdEvaluador(Long idEvaluador) {
-        this.idEvaluador = idEvaluador;
     }
 
     public Date getFechaIngresoNota() {
