@@ -21,7 +21,6 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -251,12 +250,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             for (EvaluacionPlan evaluacionPlan : evaluacionesPlanes) {
 
                 BigDecimal peso = BigDecimal.ZERO;
-                for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones().intValue(); i++) {
+                for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
                     evaluacion.setAlumnoEvaluacion(null);
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
 
-                    if (i == evaluacionPlan.getCantidadEvaluaciones().intValue()) {
+                    if (i == evaluacionPlan.getCantidadEvaluaciones()) {
                         BigDecimal pesoFinal = new BigDecimal(evaluacionPlan.getPesoTotal()).subtract(peso);
                         evaluacion.setPeso(pesoFinal);
                     }
@@ -518,7 +517,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<EvaluacionExpandida> allEvaluacionesExpByEvalSeccion(EvaluacionSeccion evaluacionSeccion) {
-        return evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        List<EvaluacionExpandida> evaluacionesExp = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        return evaluacionesExp;
     }
 
     @Override
@@ -1002,7 +1002,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<Evaluacion> allEvaluacionByEvaluacionSeccion(Seccion seccion) {
-        return evaluacionDAO.allByEvaluacionSeccion(seccion);
+        return evaluacionDAO.allBySeccion(seccion);
     }
 
     @Override
@@ -1076,7 +1076,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public List<Evaluacion> allEvaluacionesByTipoSeccion(Seccion seccion) {
 
-        List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allByEvaluacionSeccion(seccion);
+        List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allBySeccion(seccion);
         List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
         for (Evaluacion eva : evaluacionesBySeccion) {
             if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
@@ -1114,6 +1114,45 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public void saveEvaluacion(Evaluacion evaluacion) {
         evaluacionDAO.save(evaluacion);
+    }
+
+    @Transactional
+    public void deletePlanCalificacion(Long idPlanCalifica, DataSessionPivot ds) {
+        PlanCalificacion plan = planCalificacionDAO.find(idPlanCalifica);
+
+        List<EvaluacionSeccion> evalSeccs = evaluacionSeccionDAO.allByPlan(plan);
+        for (EvaluacionSeccion evalSecc : evalSeccs) {
+            List<Evaluacion> evaluaciones = evaluacionDAO.allByEvaluacionSeccion(evalSecc);
+            for (Evaluacion eval : evaluaciones) {
+                evaluacionDAO.delete(eval);
+            }
+
+            List<EvaluacionExpandida> evalExpans = evaluacionExpandidaDAO.allByEvaluacionSeccion(evalSecc);
+            for (EvaluacionExpandida evalExpan : evalExpans) {
+                evaluacionExpandidaDAO.delete(evalExpan);
+            }
+            evaluacionSeccionDAO.delete(evalSecc);
+        }
+
+        List<GrupoSeccion> gpoSeccs = grupoSeccionDAO.allByPlan(plan);
+        for (GrupoSeccion gpoSecc : gpoSeccs) {
+            gpoSecc.setPlanCalificacion(null);
+            gpoSecc.setEstadoPlan(null);
+            grupoSeccionDAO.update(gpoSecc);
+        }
+
+        List<Curso> cursos = cursoDAO.allByPlan(plan);
+        for (Curso curso : cursos) {
+            curso.setPlanCalificacion(null);
+            cursoDAO.update(curso);
+        }
+
+        List<EvaluacionPlan> evalPlans = evaluacionPlanDAO.allByPlan(plan);
+        for (EvaluacionPlan evalPlan : evalPlans) {
+            evaluacionPlanDAO.delete(evalPlan);
+        }
+        planCalificacionDAO.delete(plan);
+
     }
 
 }

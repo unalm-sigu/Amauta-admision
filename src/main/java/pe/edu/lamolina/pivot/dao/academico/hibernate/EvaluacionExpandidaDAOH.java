@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 
 @Repository
 public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> implements EvaluacionExpandidaDAO {
@@ -36,26 +37,25 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     @Override
     public List<EvaluacionExpandida> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te");
-        sqlUtil.parents("_es.grupoSeccion gs");
-        sqlUtil.parents("left evaluacionSuperior esup");
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva")
+                .parents("evaluacionSeccion es", "tipoEvaluacion te")
+                .parents("_es.grupoSeccion gs")
+                .parents("left evaluacionSuperior esup")
+                .filterIsNull("esup.id");
+
         if (idEvaluacionSeccion != null) {
             sqlUtil.filter("es.id", idEvaluacionSeccion);
         }
         if (idGrupoSeccion != null) {
             sqlUtil.filter("gs.id", idGrupoSeccion);
         }
-        sqlUtil.filterIsNull("esup.id");
 
         List<EvaluacionExpandida> lstEvaluaciones = this.all(sqlUtil);
-        if (!lstEvaluaciones.isEmpty()) {
-            for (EvaluacionExpandida objEvaluacion : lstEvaluaciones) {
-                if (objEvaluacion.getEvaluacionesExpandidas() != null && !objEvaluacion.getEvaluacionesExpandidas().isEmpty()) {
-                    for (EvaluacionExpandida eva : objEvaluacion.getEvaluacionesExpandidas()) {
-                        eva.getId();
-                        eva.getTipoEvaluacion().getId();
-                    }
+        for (EvaluacionExpandida objEvaluacion : lstEvaluaciones) {
+            if (objEvaluacion.getEvaluacionesExpandidas() != null) {
+                for (EvaluacionExpandida eva : objEvaluacion.getEvaluacionesExpandidas()) {
+                    eva.getId();
+                    eva.getTipoEvaluacion().getId();
                 }
             }
         }
@@ -70,4 +70,14 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
         query.setLong("prm_evaluacion_exp", idEvaluacionParent);
         query.executeUpdate();
     }
+
+    @Override
+    public List<EvaluacionExpandida> allByEvaluacionSeccion(EvaluacionSeccion evalSecc) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev");
+        sqlUtil.parents("evaluacionSeccion es");
+        sqlUtil.filter("es.id", evalSecc);
+
+        return all(sqlUtil);
+    }
+
 }

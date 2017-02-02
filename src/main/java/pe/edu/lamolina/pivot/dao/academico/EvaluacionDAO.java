@@ -4,7 +4,6 @@ import java.util.List;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -16,11 +15,14 @@ public interface EvaluacionDAO extends Crud<Evaluacion> {
 
     Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion);
 
-    List<Evaluacion> allByEvaluacionSeccion(Seccion seccion);
+    List<Evaluacion> allBySeccion(Seccion seccion);
 
     void deleteByEvaluacionExpandida(Long idEvaluacionExpandida);
 
     Evaluacion findByEvalExpSeccion(Long evaluacionExpansion, Long seccion);
 
     void updateDocenteEvaluador(Evaluacion evaluacion, Docente docente);
+
+    List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evalSecc);
+    
 }

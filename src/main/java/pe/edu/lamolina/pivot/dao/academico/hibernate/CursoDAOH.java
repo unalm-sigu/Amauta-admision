@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 
 @Repository
 public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
@@ -92,6 +93,14 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
                 .setPageSize(filter.getPerPage());
 
         return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<Curso> allByPlan(PlanCalificacion plan) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
+                .parents("planCalificacion pc")
+                .filter("pc.id", plan);
+        return all(sqlUtil);
     }
 
 }

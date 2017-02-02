@@ -1,18 +1,18 @@
 <tr  rel="{{:evaPlanId}}">
 
-    <td class="v-middle" style="{{:styleHijo}}">
+    <!--td class="v-middle" style="{{:styleHijo}}">
         <span class="block">{{:tipoEvalCod}}</span>
+    </td-->
+    <td class="v-middle">
+        <span class="block" >{{:tipoEvalCod}} -{{:tipoEvalNombre}}</span>
     </td>
     <td class="v-middle">
-        <span class="block" >{{:tipoEvalNombre}}</span>
-    </td>
-    <td class="v-middle">
-        <span class="block" >{{:tipoSeccion}}</span>
+        <span class="block text-center" >{{:tipoSeccion}}</span>
     </td>
     <td class="v-middle">
         <span class="block text-center">{{:numero}}</span>
     </td>
-    <td class="v-middle">
+    <td class="v-middle text-center">
         <span class="block" >{{:pesoEvaluacion}} %</span>
     </td>
     {{if permiteAsign==true}}
