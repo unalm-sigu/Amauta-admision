@@ -66,8 +66,7 @@ public class TestController {
                 if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                         evaluacionExpandida.getTipoSeccionEnum())) {
 
-                    Evaluacion evaluacion = new Evaluacion();
-                    evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
+                    Evaluacion evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
                     if (evaluacion != null) {
                         continue;
                     }

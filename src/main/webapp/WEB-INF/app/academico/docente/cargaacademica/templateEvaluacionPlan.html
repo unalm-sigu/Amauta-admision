@@ -4,7 +4,8 @@
         <span class="block">{{:tipoEvalCod}}</span>
     </td-->
     <td class="v-middle" style="{{:styleHijo}}">
-        <span class="block" >{{:tipoEvalCod}} -{{:tipoEvalNombre}}</span>
+        <span class="block text-primary" >{{:tipoEvalCod}} - {{:tipoEvalNombre}}</span>
+        {{:docentes}}
     </td>
     <td class="v-middle">
         <span class="block text-center" >{{:tipoSeccion}}</span>
@@ -22,7 +23,6 @@
            class="btn btn-default asignar-docente"><i class="fa fa-paperclip text-primary"></i></a>
         {{/if}}
     </td>
-    {{/if}}
     <td class="v-middle text-center">
         {{if esHijo==false}}
         {{if notasIngresadas==false}}
@@ -35,4 +35,6 @@
         <a href="#" rel="{{:evaPlanId}}"  class="btn btn-default delete-expansion"><i class="fa fa-times text-danger"></i></a> -->
         {{/if}}
     </td>
+    {{/if}}
+
 </tr>
