@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
@@ -39,11 +40,19 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
-    public String crearEvaluacionByExp() {
+    public String crearEvaluacionByExp(@RequestParam("idGrupoSeccion") Long idGpoSecc) {
 
-        GrupoSeccion grupoSeccion = new GrupoSeccion(161741);
-        EvaluacionSeccion evaluacionSeccion = new EvaluacionSeccion(44);
-        PlanCalificacion planCalificacion = new PlanCalificacion(86);
+        //GrupoSeccion grupoSeccion = new GrupoSeccion(161741);
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGpoSecc);
+        if (grupoSeccion.getEvaluacionSecciones().isEmpty()) {
+            return "No tiene evaluacionSeccion";
+        }
+        if (grupoSeccion.getEvaluacionSecciones().size() > 1) {
+            return "No tiene varias evaluacionSecciones";
+        }
+
+        EvaluacionSeccion evaluacionSeccion = grupoSeccion.getEvaluacionSecciones().get(0);
+        PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
 
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
         logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
@@ -57,8 +66,7 @@ public class TestController {
                 if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                         evaluacionExpandida.getTipoSeccionEnum())) {
 
-                    Evaluacion evaluacion = new Evaluacion();
-                    evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
+                    Evaluacion evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
                     if (evaluacion != null) {
                         continue;
                     }

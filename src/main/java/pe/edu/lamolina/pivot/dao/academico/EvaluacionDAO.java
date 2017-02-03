@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -24,5 +25,7 @@ public interface EvaluacionDAO extends Crud<Evaluacion> {
     void updateDocenteEvaluador(Evaluacion evaluacion, Docente docente);
 
     List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evalSecc);
-    
+
+    List<Evaluacion> allByEvaluacionesExpandidas(List<EvaluacionExpandida> evaluacionesExp);
+
 }

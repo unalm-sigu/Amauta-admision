@@ -170,7 +170,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public GrupoSeccion findGrupo(Long idGrupoSeccion) {
-        return grupoSeccionDAO.find(idGrupoSeccion);
+        GrupoSeccion gpoSecc = grupoSeccionDAO.find(idGrupoSeccion);
+        List<EvaluacionSeccion> evalSeccs = evaluacionSeccionDAO.allByGrupoSeccion(gpoSecc);
+        gpoSecc.setEvaluacionSecciones(evalSeccs);
+
+        return gpoSecc;
     }
 
     @Override
@@ -517,7 +521,33 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<EvaluacionExpandida> allEvaluacionesExpByEvalSeccion(EvaluacionSeccion evaluacionSeccion) {
+        Map<Long, EvaluacionExpandida> mapEvaluacionesExp = new LinkedHashMap();
+        Map<Long, EvaluacionExpandida> mapEvaluacionesExpHijas = new LinkedHashMap();
         List<EvaluacionExpandida> evaluacionesExp = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        for (EvaluacionExpandida evalExp : evaluacionesExp) {
+            evalExp.setEvaluaciones(new ArrayList());
+            mapEvaluacionesExp.put(evalExp.getId(), evalExp);
+
+            List<EvaluacionExpandida> evalExpansHijas = evalExp.getEvaluacionesExpandidas();
+            for (EvaluacionExpandida evalExpHija : evalExpansHijas) {
+                evalExpHija.setEvaluaciones(new ArrayList());
+                mapEvaluacionesExpHijas.put(evalExpHija.getId(), evalExpHija);
+            }
+        }
+
+        List<EvaluacionExpandida> evalsExpsQuery = new ArrayList();
+        evalsExpsQuery.addAll(mapEvaluacionesExpHijas.values());
+        evalsExpsQuery.addAll(evaluacionesExp);
+
+        List<Evaluacion> evals = evaluacionDAO.allByEvaluacionesExpandidas(evalsExpsQuery);
+        for (Evaluacion eval : evals) {
+            EvaluacionExpandida evalExp = mapEvaluacionesExp.get(eval.getEvaluacionExpandida().getId());
+            if (evalExp == null) {
+                evalExp = mapEvaluacionesExpHijas.get(eval.getEvaluacionExpandida().getId());
+            }
+            evalExp.getEvaluaciones().add(eval);
+        }
+
         return evaluacionesExp;
     }
 

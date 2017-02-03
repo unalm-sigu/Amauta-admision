@@ -279,9 +279,26 @@ public class CargaAcademicaController {
                 node.put("numero", evaluacionPlan.getNumero());
                 node.put("pesoEvaluacion", NumberFormat.precio(evaluacionPlan.getPeso()));
                 node.put("esHijo", false);
+                node.put("esPadre", !evaluacionPlan.getEvaluacionesExpandidas().isEmpty());
                 node.put("desagregado", evaluacionPlan.isDesagregado());
                 node.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
                 node.put("tipoSeccion", evaluacionPlan.getTipoSeccionEnum().getValue());
+
+                {
+                    ArrayNode evaluadores = new ArrayNode(JsonNodeFactory.instance);
+                    List<Evaluacion> evals = evaluacionPlan.getEvaluaciones();
+                    for (Evaluacion eval : evals) {
+                        Seccion seccion = eval.getSeccionResponsable();
+                        Docente profe = eval.getDocenteEvaluador();
+
+                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+                        nodeDoc.put("seccion", seccion.getCodigo());
+                        nodeDoc.put("docente", profe == null ? "" : (profe.getPersona().getApellidosNombres()));
+                        evaluadores.add(nodeDoc);
+                    }
+                    node.put("evaluadores", evaluadores);
+                }
+
                 array.add(node);
 
                 for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluacionesExpandidas()) {
@@ -294,10 +311,27 @@ public class CargaAcademicaController {
                     nodeHijo.put("numero", evaluacionHija.getNumero());
                     nodeHijo.put("pesoEvaluacion", NumberFormat.precio(evaluacionHija.getPeso()));
                     nodeHijo.put("esHijo", true);
+                    nodeHijo.put("esPadre", false);
                     nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
                     nodeHijo.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
                     nodeHijo.put("tipoSeccion", evaluacionPlan.getTipoSeccionEnum().getValue());
-                    array.add(nodeHijo);
+
+                    {
+                        ArrayNode evaluadores = new ArrayNode(JsonNodeFactory.instance);
+                        List<Evaluacion> evals = evaluacionHija.getEvaluaciones();
+                        for (Evaluacion eval : evals) {
+                            Seccion seccion = eval.getSeccionResponsable();
+                            Docente profe = eval.getDocenteEvaluador();
+
+                            ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+                            nodeDoc.put("seccion", seccion.getCodigo());
+                            nodeDoc.put("docente", profe == null ? "" : (profe.getPersona().getApellidosNombres()));
+                            evaluadores.add(nodeDoc);
+                        }
+
+                        nodeHijo.put("evaluadores", evaluadores);
+                        array.add(nodeHijo);
+                    }
                 }
 
             }

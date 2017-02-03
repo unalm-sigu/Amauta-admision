@@ -30,7 +30,7 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
                 .parents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc")
                 .filterIn("gp.id", ids)
-                .filter("ca.id", cicloAcademico.getId());
+                .filter("ca.id", cicloAcademico);
         return all(sqlUtil);
     }
 

@@ -24,6 +24,17 @@ $(function () {
         if (record.esHijo) {
             record.styleHijo = 'padding-left:90px;';
         }
+        var docentes = "";
+        if (!record.esPadre) {
+            $.each(record.evaluadores, function (i, item) {
+                docentes += '<span class="block">';
+                docentes += '<span class="label label-' + (item.docente == "" ? "danger" : "success") + '">' + item.seccion + '</span> ';
+                docentes += '<small>' + item.docente + '</small>';
+                docentes += '</span>';
+            });
+        }
+        record.docentes = docentes;
+
         var html = $.templates("#templateEvaluacionPlan").render(record);
         return html;
     }
@@ -216,7 +227,7 @@ $(function () {
                                 if (response.success) {
                                     MODAL.hide();
                                     notify(response.message, "info");
-                                    //   dynatable.process();
+                                    dynatable.process();
                                 } else {
                                     notify(response.message, "error");
                                 }
