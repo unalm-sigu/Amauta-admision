@@ -618,8 +618,11 @@ public class CargaAcademicaController {
             for (DocenteSeccion docenteSeccion : allDocenteSeccionByGrupo) {
                 logger.debug("Docente Seccion, Seccion {}, Evaluacion SEccion Responsable {}",
                         docenteSeccion.getSeccion().getId(), evaluacion1.getSeccionResponsable().getId());
+
                 if (docenteSeccion.getSeccion().getId().equals(evaluacion1.getSeccionResponsable().getId())) {
-                    evaluacion1.getDocentesSeccion().add(docenteSeccion);
+                    if (!evaluacion1.getDocentesSeccion().contains(docenteSeccion)) {
+                        evaluacion1.getDocentesSeccion().add(docenteSeccion);
+                    }
                 }
                 /*else {
 

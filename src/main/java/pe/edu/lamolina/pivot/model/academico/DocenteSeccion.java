@@ -125,4 +125,21 @@ public class DocenteSeccion implements Serializable {
         return EstadoEnum.valueOf(estado);
     }
 
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof DocenteSeccion)) {
+            return false;
+        }
+        DocenteSeccion other = (DocenteSeccion) obj;
+        if (id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
 }
