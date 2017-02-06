@@ -24,6 +24,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CargaAcademicaService {
@@ -129,4 +130,7 @@ public interface CargaAcademicaService {
     public void saveEvaluacion(Evaluacion evaluacion);
 
     void deletePlanCalificacion(Long idPlanCalifica, DataSessionPivot ds);
+
+    void cambiarTipoSeccionEvaluacion(EvaluacionExpandida evaluacionExpandida, TipoSeccionEvalEnum tipoSeccionEvalEnum);
+
 }

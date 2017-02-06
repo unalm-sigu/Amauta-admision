@@ -62,6 +62,7 @@ import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -1144,6 +1145,46 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public void saveEvaluacion(Evaluacion evaluacion) {
         evaluacionDAO.save(evaluacion);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarTipoSeccionEvaluacion(EvaluacionExpandida evaluacionExpandida, TipoSeccionEvalEnum tipoSeccionEvalEnum) {
+        logger.debug("Evaluacion Exp {}, Tipo Seccion {}", evaluacionExpandida.getId(), tipoSeccionEvalEnum.name());
+        List<Evaluacion> evaluaciones = evaluacionDAO.allByFilter(null, null, null, evaluacionExpandida.getId());
+        for (Evaluacion eva : evaluaciones) {
+            if (eva.getFechaRealizada() != null) {
+                throw new PhobosException("No se puede cambiar el tipo de sección, ya que cuenta con evaluaciones realizadas.");
+            }
+        }
+
+        evaluacionDAO.deleteByEvaluacionExpandida(evaluacionExpandida.getId());
+
+        evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
+        evaluacionExpandida.setTipoSeccionEnum(tipoSeccionEvalEnum);
+        evaluacionExpandidaDAO.update(evaluacionExpandida);
+        logger.debug("Evaluacion expandida {}", evaluacionExpandida.getId());
+
+        GrupoSeccion grupoSeccion = evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion();
+
+        List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
+        logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
+
+        for (Seccion seccionEach : secciones) {
+            logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
+            logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+            logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
+
+            if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+                    evaluacionExpandida.getTipoSeccionEnum())) {
+
+                Evaluacion evaluacion = new Evaluacion();
+                evaluacion.create(evaluacionExpandida.getEvaluacionSeccion(), seccionEach, evaluacionExpandida);
+                this.saveEvaluacion(evaluacion);
+            }
+
+        }
+
     }
 
     @Transactional

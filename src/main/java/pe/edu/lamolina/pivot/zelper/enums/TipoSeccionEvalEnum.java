@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.zelper.enums;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum TipoSeccionEvalEnum {
@@ -9,10 +11,12 @@ public enum TipoSeccionEvalEnum {
 
     private final String value;
     private static final Map<String, TipoSeccionEvalEnum> lookup = new HashMap<>();
+    public static List<TipoSeccionEvalEnum> list = new ArrayList<TipoSeccionEvalEnum>();
 
     static {
         for (TipoSeccionEvalEnum d : TipoSeccionEvalEnum.values()) {
             lookup.put(d.getValue(), d);
+            list.add(d);
         }
     }
 

@@ -39,6 +39,10 @@ $(function () {
         return html;
     }
 
+    $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
+        $('select').select2();
+    });
+
     ExpandirSCN = {
         expandirEvaluacion: function ($this, e) {
             e.preventDefault();
@@ -242,7 +246,6 @@ $(function () {
                 }
             });
         }
-
         , aceptarExpansion: function (el) {
             bootbox.confirm({
                 message: MESSAGES.confirmAccept,
@@ -275,6 +278,30 @@ $(function () {
                             }
                         });
                     }
+                }
+            });
+        }
+        , cambiarTipoSecEval: function ($this) {
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/cambiarTipoSecEval'),
+                type: 'POST',
+                async: true,
+                data: {
+                    tipoSeccionEval: $this.val(),
+                    evaluacionExp: $this.attr("rel")
+                }
+                ,
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hide();
+                        notify(response.message, "info");
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         }
@@ -313,5 +340,8 @@ $(function () {
     });
 
 
+    $("body").delegate(".cboTipoSecEval", "change", function () {
+        ExpandirSCN.cambiarTipoSecEval($(this));
+    });
 
 });

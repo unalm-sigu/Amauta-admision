@@ -23,7 +23,8 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     public EvaluacionExpandida find(Long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te", "left evaluacionSuperior es");
+        sqlUtil.parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc");
+        sqlUtil.parents("_sc.grupoSeccion gs");
         sqlUtil.filter("eva.id", id);
         EvaluacionExpandida evaluacion = this.find(sqlUtil);
         if (evaluacion.getEvaluacionesExpandidas() != null) {

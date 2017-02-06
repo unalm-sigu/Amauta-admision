@@ -299,6 +299,20 @@ public class CargaAcademicaController {
                     node.put("evaluadores", evaluadores);
                 }
 
+                {
+                    ArrayNode tipoSeccionesEval = new ArrayNode(JsonNodeFactory.instance);
+                    List<TipoSeccionEvalEnum> tipos = TipoSeccionEvalEnum.list;
+                    for (TipoSeccionEvalEnum sec : tipos) {
+
+                        ObjectNode nodeSec = new ObjectNode(JsonNodeFactory.instance);
+                        nodeSec.put("codigo", sec.name());
+                        nodeSec.put("nombre", sec.getValue());
+                        nodeSec.put("selected", (sec.name().equals(evaluacionPlan.getTipoSeccionEnum().name())));
+                        tipoSeccionesEval.add(nodeSec);
+                    }
+                    node.put("tipoSeccionesEval", tipoSeccionesEval);
+                }
+
                 array.add(node);
 
                 for (EvaluacionExpandida evaluacionHija : evaluacionPlan.getEvaluacionesExpandidas()) {
@@ -313,8 +327,8 @@ public class CargaAcademicaController {
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("esPadre", false);
                     nodeHijo.put("desagregado", evaluacionHija.isDesagregado());
-                    nodeHijo.put("notasIngresadas", evaluacionPlan.isNotasIngresadas());
-                    nodeHijo.put("tipoSeccion", evaluacionPlan.getTipoSeccionEnum().getValue());
+                    nodeHijo.put("notasIngresadas", evaluacionHija.isNotasIngresadas());
+                    nodeHijo.put("tipoSeccion", evaluacionHija.getTipoSeccionEnum().getValue());
 
                     {
                         ArrayNode evaluadores = new ArrayNode(JsonNodeFactory.instance);
@@ -329,9 +343,23 @@ public class CargaAcademicaController {
                             evaluadores.add(nodeDoc);
                         }
 
-                        nodeHijo.put("evaluadores", evaluadores);
+                        nodeHijo.set("evaluadores", evaluadores);
+
+                        ArrayNode tipoSeccionesEval = new ArrayNode(JsonNodeFactory.instance);
+                        List<TipoSeccionEvalEnum> tipos = TipoSeccionEvalEnum.list;
+                        for (TipoSeccionEvalEnum sec : tipos) {
+
+                            ObjectNode nodeSec = new ObjectNode(JsonNodeFactory.instance);
+                            nodeSec.put("codigo", sec.name());
+                            nodeSec.put("nombre", sec.getValue());
+                            nodeSec.put("selected", (sec.name().equals(evaluacionHija.getTipoSeccionEnum().name())));
+                            tipoSeccionesEval.add(nodeSec);
+                        }
+                        nodeHijo.set("tipoSeccionesEval", tipoSeccionesEval);
+
                         array.add(nodeHijo);
                     }
+
                 }
 
             }
@@ -572,6 +600,27 @@ public class CargaAcademicaController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarTipoSecEval")
+    public JsonResponse cambiarTipoSecEval(Model model,
+            @RequestParam(value = "tipoSeccionEval", required = true) String tipoSeccionEval,
+            @RequestParam(value = "evaluacionExp", required = true) Long evaluacionExp,
+            RedirectAttributes redirectAttr, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            cargaAcademicaService.cambiarTipoSeccionEvaluacion(new EvaluacionExpandida(evaluacionExp), TipoSeccionEvalEnum.valueOf(tipoSeccionEval));
+            response.setMessage("Cambio de sección, correcto.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

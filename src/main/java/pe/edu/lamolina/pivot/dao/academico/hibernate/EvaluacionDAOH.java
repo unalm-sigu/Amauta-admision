@@ -29,7 +29,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
         sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "left evaluacionSuperior esup", "evaluacionExpandida eex", "left docenteEvaluador de");
         sqlUtil.parents("_es.planCalificacion pc", "_es.sistemaNotas sn");
-        sqlUtil.parents("seccionResponsable sec", "_sec.grupoSeccion gs", "_gs.curso", "_gs.cicloAcademico", "left _esup.tipoEvaluacion tesupe");
+        sqlUtil.parents("_sr.grupoSeccion gs", "_gs.curso", "_gs.cicloAcademico", "left _esup.tipoEvaluacion tesupe");
         sqlUtil.filter("eva.id", id);
         Evaluacion evaluacion = this.find(sqlUtil);
         if (evaluacion.getEvaluaciones() != null) {

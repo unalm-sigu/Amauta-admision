@@ -8,7 +8,20 @@
         {{:docentes}}
     </td>
     <td class="v-middle">
-        <span class="block text-center" >{{:tipoSeccion}}</span>
+
+        {{if desagregado==false}}
+        <select class="select2 cboTipoSecEval"
+                rel="{{:evaPlanId}}">
+            {{for tipoSeccionesEval}}
+            {{if #data.selected==true}}
+            <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+            {{/if}}
+            {{if #data.selected==false}}
+            <option  value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+            {{/if}}
+            {{/for}}
+            {{/if}}
+        </select>
     </td>
     <td class="v-middle">
         <span class="block text-center">{{:numero}}</span>

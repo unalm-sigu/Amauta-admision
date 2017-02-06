@@ -26,7 +26,7 @@ public interface Messages {
 
     String FK_ERROR = "Imposible eliminar, el registro está relacionado con otros registros.";
 
-    String ERROR_GENERAL = "Esto es inoportuno pero se ha generado un problema desconocido. Por favor reporte al correo helpdesk@colegiosperuanos.edu.pe.";
+    String ERROR_GENERAL = "Esto es inoportuno pero se ha generado un problema desconocido. Por favor comuníquese con el administrador.";
 
     String FK_ERROR_UPDATE = "Imposible modificar, el registro está  relacionado con otros registros.";
 
