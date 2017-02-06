@@ -261,7 +261,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
 
                     if (i == evaluacionPlan.getCantidadEvaluaciones()) {
-                        BigDecimal pesoFinal = new BigDecimal(evaluacionPlan.getPesoTotal()).subtract(peso);
+                        BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
                         evaluacion.setPeso(pesoFinal);
                     }
                     peso = peso.add(evaluacionPlan.getPesoEvaluacion());
@@ -443,7 +443,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         planCalificacion.setFechaRegistro(new Date());
         planCalificacion.setDepartamentoAcademico(departamentoAcademico);
 
-        Integer totalWeight = BigDecimal.ZERO.intValue();
+        BigDecimal totalWeight = BigDecimal.ZERO;
 
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             evaluacionPlan.setPlanCalificacion(planCalificacion);
@@ -454,9 +454,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
 
-            totalWeight += evaluacionPlan.getPesoTotal();
+            totalWeight = totalWeight.add(evaluacionPlan.getPesoTotal());
         }
-        if (totalWeight != 100) {
+        if (totalWeight.compareTo(new BigDecimal("100")) != 0) {
             throw new PhobosException("Pesos total de las evaluaciones incorrecto.");
         }
         Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());

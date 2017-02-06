@@ -109,22 +109,22 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
 
-        Integer totalWeight = BigDecimal.ZERO.intValue();
+        BigDecimal totalWeight = BigDecimal.ZERO;
 
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             evaluacionPlan.setPlanCalificacion(planCalificacion);
-            if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().intValue() == 0) {
+            if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().compareTo(BigDecimal.ZERO) == 0) {
                 throw new PhobosException("Peso evaluacion incorrecto..");
             }
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
 
-            totalWeight += evaluacionPlan.getPesoTotal();
+            totalWeight = totalWeight.add(evaluacionPlan.getPesoTotal());
         }
 
-        if (totalWeight != 100) {
-            throw new PhobosException("Pesos total de las evaluaciones incorrecto.");
+        if (totalWeight.compareTo(new BigDecimal("100")) != 0) {
+            throw new PhobosException("Pesos total (" + totalWeight.toString() + ") de las evaluaciones incorrecto.");
         }
 
         Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());
@@ -226,7 +226,7 @@ public class SistemaServiceImp implements SistemaService {
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
 
                     if (i == evaluacionPlan.getCantidadEvaluaciones().intValue()) {
-                        BigDecimal pesoFinal = new BigDecimal(evaluacionPlan.getPesoTotal()).subtract(peso);
+                        BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
                         evaluacion.setPeso(pesoFinal);
                     }
                     peso = peso.add(evaluacionPlan.getPesoEvaluacion());

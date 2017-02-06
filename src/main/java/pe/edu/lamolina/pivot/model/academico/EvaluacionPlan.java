@@ -33,7 +33,7 @@ public class EvaluacionPlan implements Serializable {
     private BigDecimal pesoEvaluacion;
 
     @Column(name = "peso_total")
-    private Integer pesoTotal;
+    private BigDecimal pesoTotal;
 
     @Column(name = "tipo_seccion")
     private String tipoSeccion;
@@ -104,11 +104,11 @@ public class EvaluacionPlan implements Serializable {
         this.pesoEvaluacion = pesoEvaluacion;
     }
 
-    public Integer getPesoTotal() {
+    public BigDecimal getPesoTotal() {
         return pesoTotal;
     }
 
-    public void setPesoTotal(Integer pesoTotal) {
+    public void setPesoTotal(BigDecimal pesoTotal) {
         this.pesoTotal = pesoTotal;
     }
 

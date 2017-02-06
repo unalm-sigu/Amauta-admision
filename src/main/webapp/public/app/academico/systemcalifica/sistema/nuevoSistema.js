@@ -152,8 +152,8 @@ $(function () {
             var pesoEval = $("[name='evaluacionPlan[" + i + "].pesoEvaluacion']");
 
             if ($.isNumeric(pesoTotal.val()) && $.isNumeric(cantEvals.val())) {
-                var pesoTotalNumber = parseInt(pesoTotal.val())
-                var cantEvalsNumber = parseInt(cantEvals.val());
+                var pesoTotalNumber = parseFloat(pesoTotal.val())
+                var cantEvalsNumber = parseFloat(cantEvals.val());
 
                 if (anularNotMin.prop('checked')) {
                     cantEvalsNumber--;
@@ -164,7 +164,7 @@ $(function () {
                  return;
                  }
                  */
-                var pesoEvalsNumber = parseInt(pesoTotalNumber) / parseInt(cantEvalsNumber);
+                var pesoEvalsNumber = parseFloat(pesoTotalNumber) / parseFloat(cantEvalsNumber);
                 pesoEval.val(pesoEvalsNumber.toFixed(2));
             }
         },
