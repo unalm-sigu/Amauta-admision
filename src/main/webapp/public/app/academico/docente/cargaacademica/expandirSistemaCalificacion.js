@@ -282,28 +282,43 @@ $(function () {
             });
         }
         , cambiarTipoSecEval: function ($this) {
-            $.ajax({
-                url: APP.url('academico/docente/cargaacademica/cambiarTipoSecEval'),
-                type: 'POST',
-                async: true,
-                data: {
-                    tipoSeccionEval: $this.val(),
-                    evaluacionExp: $this.attr("rel")
-                }
-                ,
-                success: function (response) {
-                    if (response.success) {
-                        MODAL.hide();
-                        notify(response.message, "info");
-                        dynatable.process();
-                    } else {
-                        notify(response.message, "error");
-                    }
+            bootbox.confirm({
+                message: MESSAGES.confirmAccept,
+                title: 'Aceptar Cambio Seccion',
+                buttons: {
+                    confirm: {label: 'Aceptar'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/cambiarTipoSecEval'),
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                tipoSeccionEval: $this.val(),
+                                evaluacionExp: $this.attr("rel")
+                            }
+                            ,
+                            success: function (response) {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
                 }
             });
+
         }
     };
 
