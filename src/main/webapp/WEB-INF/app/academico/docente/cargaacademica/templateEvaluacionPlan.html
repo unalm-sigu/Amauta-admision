@@ -8,7 +8,10 @@
         {{:docentes}}
     </td>
     <td class="v-middle">
-
+        {{if permiteAsign==false}}
+        {{:tipoSeccion}}
+        {{/if}}
+        {{if permiteAsign==true}}
         {{if desagregado==false}}
         <select class="select2 cboTipoSecEval"
                 rel="{{:evaPlanId}}">
@@ -20,6 +23,7 @@
             <option  value="{{:#data.codigo}}">{{:#data.nombre}}</option>
             {{/if}}
             {{/for}}
+            {{/if}}
             {{/if}}
         </select>
     </td>
