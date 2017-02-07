@@ -10,8 +10,9 @@
     <table class="table table-striped">
         <thead>
             <tr class=""> 
-                <th class="col-md-8">Tipo evaluación</th>
-                <th class="col-md-4">Peso</th>
+                <th class="col-md-6">Tipo evaluación</th>
+                <th class="col-md-3">Número Evaluación</th>
+                <th class="col-md-3">Peso</th>
                 <th></th>
             </tr>
         </thead>
@@ -23,9 +24,6 @@
                            th:value="${eval.id}" type="hidden"
                            />
 
-                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].indNotasIngresadas'}" 
-                           th:value="${eval.indNotasIngresadas}" type="hidden"/>
-
                     <select th:name="${'evaluacionesExpandidas['+iterStat.index +'].tipoEvaluacion.id'}" 
                             class="form-control item-select2"
                             th:disabled="${eval.notasIngresadas}">
@@ -35,6 +33,13 @@
                     </select>
 
 
+                </td>
+                <td class="v-middle">
+                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].numero'}" 
+                           data-parsley-type="digits"
+                           class="form-control"  type="text"
+                           th:value="${eval.numero}" 
+                           required="true"/>
                 </td>
                 <td  class="v-middle">
                     <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
