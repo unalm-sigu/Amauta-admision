@@ -218,10 +218,22 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Long idPlanCalificacion = curso.getPlanCalificacion().getId();
             logger.debug("Grupo seccion {}, plan calificacion {}", idGrupoSeccion, idPlanCalificacion);
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion);
+            PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
+
             if (evaluacionSeccion != null) {
                 logger.debug("el grupo ya cuenta con evaluacion seccion");
+                if (evaluacionSeccion.isEstadoPro()) {
+                    evaluacionSeccion.setPlanCalificacion(planCalificacion);
+                    evaluacionSeccion.setSistemaNotas(planCalificacion.getSistemaNotas());
+                    evaluacionSeccion.setGrupoSeccion(new GrupoSeccion(idGrupoSeccion));
+                    evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.PRO);
+                    evaluacionSeccionDAO.update(evaluacionSeccion);
+
+                    grupoSeccion.setPlanCalificacion(planCalificacion);
+                    grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PRO);
+                    grupoSeccionDAO.update(grupoSeccion);
+                }
             } else {
-                PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
 
                 logger.debug("se le creara una evaluacion seccion al grupo");
                 EvaluacionSeccion evaluacionSeccionCreate = new EvaluacionSeccion();

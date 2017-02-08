@@ -130,4 +130,11 @@ public class EvaluacionSeccion implements Serializable {
         this.evaluaciones = evaluaciones;
     }
 
+    public boolean isEstadoPro() {
+        if (EstadoPlanCalificaEnum.PRO.equals(this.getEstadoEnum())) {
+            return true;
+        }
+        return false;
+    }
+
 }
