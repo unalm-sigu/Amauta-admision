@@ -71,6 +71,13 @@
                         <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
                     </select>
                 </td>
+                <td class="v-middle">
+                    <input name="evaluacionesExpandidas[0].numero" 
+                           data-parsley-type="digits"
+                           class="form-control"  
+                           type="text"
+                           required="true"/>
+                </td>
                 <td  class="v-middle">
                     <input name="evaluacionesExpandidas[0].peso" 
                            class="form-control"
