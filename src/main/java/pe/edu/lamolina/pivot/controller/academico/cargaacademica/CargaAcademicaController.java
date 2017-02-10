@@ -155,6 +155,7 @@ public class CargaAcademicaController {
                 }
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
                 node.put("tienePlanCalificacion", false);
+                Long idSistemaCalificacion = null;
                 if (grupoSeccion.getPlanCalificacion() == null) {
                     node.put("idSistemaCalificacion", "");
                     node.put("sistemaCalificacion", "");
@@ -167,6 +168,8 @@ public class CargaAcademicaController {
 
                         node.put("estado", EstadoPlanCalificaEnum.PRO.name());
                         node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
+                        idSistemaCalificacion = grupoSeccion.getCurso().getPlanCalificacion().getId();
+
                     }
                 } else {
                     node.put("idSistemaCalificacion", grupoSeccion.getPlanCalificacion().getId().toString());
@@ -175,6 +178,16 @@ public class CargaAcademicaController {
                     node.put("estado", grupoSeccion.getEstadoPlan());
                     node.put("estadoEnum", grupoSeccion.getEstadoPlanEnum().getValue());
                     node.put("tienePlanCalificacion", true);
+                    idSistemaCalificacion = grupoSeccion.getPlanCalificacion().getId();
+                }
+                List<Curso> cursos = null;
+                if (idSistemaCalificacion != null) {
+                    cursos = cargaAcademicaService.allActiveCursosByPlan(new PlanCalificacion(idSistemaCalificacion));
+                }
+
+                node.put("cantidadCursos", 0);
+                if (cursos != null && !cursos.isEmpty()) {
+                    node.put("cantidadCursos", cursos.size());
                 }
 
                 node.put("verDetalleSistemaCal", false);
@@ -366,10 +379,12 @@ public class CargaAcademicaController {
         logger.debug("plan calificacion {}, grupo seccion {}", idSistemaCalificacion, idGrupoSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
         PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistemaCalificacion);
+        List<Curso> cursosByPlan = cargaAcademicaService.allActiveCursosByPlan(planCalificacion);
         // model.addAttribute("seccion", seccion);
         model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("grupoSeccion", grupoSeccion);
+        model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
 

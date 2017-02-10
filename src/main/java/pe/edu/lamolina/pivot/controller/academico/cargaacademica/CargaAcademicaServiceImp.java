@@ -1280,4 +1280,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     }
 
+    @Override
+    public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
+        return cursoDAO.allActiveByPlan(planCalificacion);
+    }
+
 }
