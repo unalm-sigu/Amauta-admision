@@ -12,6 +12,7 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
@@ -99,6 +100,15 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     public List<Curso> allByPlan(PlanCalificacion plan) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
                 .parents("planCalificacion pc")
+                .filter("pc.id", plan);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<Curso> allActiveByPlan(PlanCalificacion plan) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
+                .parents("planCalificacion pc")
+                .filter("pc.estado", EstadoEnum.ACT.name())
                 .filter("pc.id", plan);
         return all(sqlUtil);
     }

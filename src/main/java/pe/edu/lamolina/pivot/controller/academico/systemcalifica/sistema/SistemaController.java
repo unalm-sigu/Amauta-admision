@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -29,6 +30,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -105,6 +107,7 @@ public class SistemaController {
                 node.put("id", planCalificacion.getId());
                 node.put("codigo", planCalificacion.getCodigo());
                 node.put("formula", planCalificacion.getFormula());
+                node.put("descripcion", planCalificacion.getDescripcion());
                 node.put("origen", planCalificacion.getOrigenEnum().getValue());
                 node.put("fechaReg", TypesUtil.getStringDate(planCalificacion.getFechaRegistro(), "dd/MM/yyyy"));
                 node.put("estado", planCalificacion.getEstado());
@@ -118,6 +121,15 @@ public class SistemaController {
                 node.put("verObservar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
                 node.put("verReenviar", planCalificacion.isEstadoObservado());
                 node.put("verAsignarCursos", planCalificacion.isEstadoActivado());
+                List<Curso> cursos = new ArrayList<>();
+                if (ObjectUtil.getParentTree(planCalificacion, "curso") != null) {
+                    for (Curso cur : planCalificacion.getCurso()) {
+                        if (cur.isEstadoActive()) {
+                            cursos.add(cur);
+                        }
+                    }
+                }
+                node.put("cantidadCursos", cursos.size());
                 array.add(node);
             }
 
@@ -173,8 +185,10 @@ public class SistemaController {
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        List<Curso> cursosByPlan = sistemaService.allActiveCursosByPlan(planCalificacion);
         model.addAttribute("planCalificacion", planCalificacion);
-        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        model.addAttribute("cursosByPlan", cursosByPlan);
+        model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
 

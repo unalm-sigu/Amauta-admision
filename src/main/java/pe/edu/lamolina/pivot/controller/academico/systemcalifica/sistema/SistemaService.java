@@ -34,4 +34,6 @@ public interface SistemaService {
 
     void desasignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
 
+    List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
+
 }

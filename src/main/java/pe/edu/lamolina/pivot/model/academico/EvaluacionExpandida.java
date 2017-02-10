@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.validation.constraints.NotNull;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
@@ -96,6 +97,10 @@ public class EvaluacionExpandida implements Serializable {
 
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<ReclamoNota> reclamoNota;
+
+    @Column(name = "ind_porcentaje_variable")
+    @NotNull
+    private Integer indPorcentajeVariable;
 
     public EvaluacionExpandida() {
         this.setIndNotasIngresadas(BigDecimal.ZERO.intValue());
@@ -292,6 +297,7 @@ public class EvaluacionExpandida implements Serializable {
         this.setEvaluados(BigDecimal.ZERO.intValue());
         this.setPeso(evaluacionPlan.getPesoEvaluacion());
         this.setNumero(numero);
+        this.setIndPorcentajeVariable(evaluacionPlan.getIndPorcentajeVariable());
     }
 
     public boolean isDesagregado() {
@@ -310,4 +316,20 @@ public class EvaluacionExpandida implements Serializable {
         }
         return false;
     }
+
+    public Integer getIndPorcentajeVariable() {
+        return indPorcentajeVariable;
+    }
+
+    public void setIndPorcentajeVariable(Integer indPorcentajeVariable) {
+        this.indPorcentajeVariable = indPorcentajeVariable;
+    }
+
+    public boolean isPorcentajeVariable() {
+        if (BigDecimal.ONE.intValue() == this.getIndPorcentajeVariable().intValue()) {
+            return true;
+        }
+        return false;
+    }
+
 }

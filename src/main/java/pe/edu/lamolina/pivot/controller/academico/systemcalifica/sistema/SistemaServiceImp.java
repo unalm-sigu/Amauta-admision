@@ -272,4 +272,9 @@ public class SistemaServiceImp implements SistemaService {
         cursoDAO.update(curso);
     }
 
+    @Override
+    public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
+        return cursoDAO.allActiveByPlan(planCalificacion);
+    }
+
 }

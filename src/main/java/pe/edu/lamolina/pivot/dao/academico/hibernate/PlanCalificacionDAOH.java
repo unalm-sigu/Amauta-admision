@@ -25,7 +25,7 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
     public List<PlanCalificacion> allByDynatable(DynatableFilter filter, DepartamentoAcademico dpto) {
         filter.setFields(Arrays.asList("pc.formula", "pc.codigo"));
         filter.setAlias("pc");
-        filter.setParents("departamentoAcademico da", "left sistemaNotas sn");
+        filter.setParents("departamentoAcademico da", "left sistemaNotas sn", "left curso cur");
         filter.filterFix("da.id", dpto.getId());
 
         filter.setTotal(this.count(filter));

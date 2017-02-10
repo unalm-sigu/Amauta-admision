@@ -133,4 +133,6 @@ public interface CargaAcademicaService {
 
     void cambiarTipoSeccionEvaluacion(EvaluacionExpandida evaluacionExpandida, TipoSeccionEvalEnum tipoSeccionEvalEnum);
 
+    void saveAceptarExpandir(EvaluacionExpandida[] evaluacionesExpandidas);
+
 }

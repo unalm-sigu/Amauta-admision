@@ -18,6 +18,21 @@
 
                     </div>
                     <form id="frmSistemaCalifica" th:action="@{/academico/systemcalifica/sistema/save}" method="post" >
+
+                        <div class="m-t-lg">
+                            <div class="col-md-6">		
+                                <div class="form-group">
+                                    <label>Descripción</label>
+                                    <input name="descripcion" 
+                                           type="text"
+                                           required="true"
+                                           class="form-control"
+                                           maxlength="100"  />
+                                </div>
+                            </div>
+                        </div>
+
+
                         <input type="hidden" id="txtFormula" name="formula"/>
                         <table id="tblEvaluaciones" class="table table-striped">
                             <thead>
@@ -73,7 +88,7 @@
                                     </td>
                                     <td>
                                         <label class="switch">
-                                            <input type="checkbox" value="1"/>
+                                            <input name="evaluacionPlan[0].indPorcentajeVariable" type="checkbox" value="1"/>
                                             <span></span>
                                         </label>
                                     </td>

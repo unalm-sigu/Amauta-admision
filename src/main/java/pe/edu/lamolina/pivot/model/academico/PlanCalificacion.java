@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import org.hibernate.validator.constraints.Length;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
@@ -63,6 +64,10 @@ public class PlanCalificacion implements Serializable {
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaRegistro;
+
+    @Length(max = 100)
+    @Column(name = "descripcion")
+    private String descripcion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
@@ -320,6 +325,22 @@ public class PlanCalificacion implements Serializable {
 
     public void setCodigo(String codigo) {
         this.codigo = codigo;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public static String getPREFIJO_CODIGO() {
+        return PREFIJO_CODIGO;
+    }
+
+    public static void setPREFIJO_CODIGO(String PREFIJO_CODIGO) {
+        PlanCalificacion.PREFIJO_CODIGO = PREFIJO_CODIGO;
     }
 
     public void generateCodigo() {

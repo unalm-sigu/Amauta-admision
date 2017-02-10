@@ -16,6 +16,7 @@ import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Entity
 @Table(name = "aca_curso")
@@ -296,6 +297,13 @@ public class Curso implements Serializable {
         tpc.append(horasPractica).append("-");
         tpc.append(creditos);
         return tpc.toString();
+    }
+
+    public boolean isEstadoActive() {
+        if (this.getEstado().equals(EstadoEnum.ACT.name())) {
+            return true;
+        }
+        return false;
     }
 
 }
