@@ -112,6 +112,12 @@ public class Evaluacion implements Serializable {
     @NotNull
     private Integer indPorcentajeVariable;
 
+    @Transient
+    private String nombreCorto;
+
+    @Transient
+    private String nombreLargo;
+
     public Evaluacion() {
     }
 
@@ -363,6 +369,22 @@ public class Evaluacion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public String getNombreCorto() {
+        return nombreCorto;
+    }
+
+    public void setNombreCorto(String nombreCorto) {
+        this.nombreCorto = nombreCorto;
+    }
+
+    public String getNombreLargo() {
+        return nombreLargo;
+    }
+
+    public void setNombreLargo(String nombreLargo) {
+        this.nombreLargo = nombreLargo;
     }
 
 }
