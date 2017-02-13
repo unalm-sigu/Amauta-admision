@@ -74,9 +74,10 @@
                                         -->
                                         <a href="#" class="detalle-reporte" 
                                            style="color: #3366ff !important;"
-
+                                    
                                            th:rel="${evaluacion.id}"
                                            th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}">EP</a>	
+                                   
 
                                     </th>
                                     <th class="text-center v-middle">Avance NF</th>
@@ -99,6 +100,7 @@
                                                   >
                                                 <span  th:if="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}" >
                                                     <span class="nota-academica" th:text="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}" > 04.18 </span>
+
                                                 </span>
                                             </span>
                                         </div>
