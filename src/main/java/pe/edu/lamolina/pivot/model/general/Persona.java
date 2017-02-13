@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
@@ -114,7 +115,18 @@ public class Persona implements Serializable {
     @OneToMany(mappedBy = "persona", fetch = FetchType.LAZY)
     private List<Tramite> tramite;
 
+    @Transient
+    private String codigoTipoDocumento;
+
     public Persona() {
+    }
+
+    public Persona(String paterno, String materno, String nombres, String numeroDocIdentidad, String codigoTipoDocumento) {
+        this.paterno = paterno;
+        this.materno = materno;
+        this.nombres = nombres;
+        this.numeroDocIdentidad = numeroDocIdentidad;
+        this.codigoTipoDocumento = codigoTipoDocumento;
     }
 
     public Persona(Object id) {
@@ -340,6 +352,14 @@ public class Persona implements Serializable {
 
     public void setEmailCompania(String emailCompania) {
         this.emailCompania = emailCompania;
+    }
+
+    public String getCodigoTipoDocumento() {
+        return codigoTipoDocumento;
+    }
+
+    public void setCodigoTipoDocumento(String codigoTipoDocumento) {
+        this.codigoTipoDocumento = codigoTipoDocumento;
     }
 
     public String getNombreCompleto() {

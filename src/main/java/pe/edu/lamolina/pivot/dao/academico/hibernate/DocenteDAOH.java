@@ -30,4 +30,12 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
                 .filter("per.id", persona);
         return find(sqlUtil);
     }
+
+    @Override
+    public Docente findByCode(String codigo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("doc")
+                .parents("left persona per", "left modalidadEstudio", "left departamentoAcademico")
+                .filter("doc.codigo", codigo);
+        return find(sqlUtil);
+    }
 }

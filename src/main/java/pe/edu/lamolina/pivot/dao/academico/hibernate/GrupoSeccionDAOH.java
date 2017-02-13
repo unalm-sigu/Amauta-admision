@@ -43,4 +43,21 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
         return all(sqlUtil);
     }
 
+    @Override
+    public GrupoSeccion findByCodeCiclo(String codigo, CicloAcademico ciclo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
+                .parents("secciones s", "left planCalificacion pc", "curso cur", "cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .filter("gp.codigo", codigo);
+        return find(sqlUtil);
+    }
+
+    @Override
+    public List<GrupoSeccion> allByCiclo(CicloAcademico ciclo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
+                .parents("secciones s", "left planCalificacion pc", "curso cur", "cicloAcademico ca")
+                .filter("ca.id", ciclo);
+        return all(sqlUtil);
+    }
+
 }

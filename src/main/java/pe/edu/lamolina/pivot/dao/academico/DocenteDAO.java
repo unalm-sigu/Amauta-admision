@@ -10,4 +10,6 @@ public interface DocenteDAO extends Crud<Docente> {
 
     Docente findPersona(Persona persona);
 
+    Docente findByCode(String codigo);
+
 }

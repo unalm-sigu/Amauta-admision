@@ -1,0 +1,126 @@
+<html layout:decorator="zlayout/layout2">
+    <head>
+        <title>Contactos</title>
+    <div th:substituteby="zlayout/includes :: styles-upload"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+
+        <section class="panel-body">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <div class="panel panel-primary">
+
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Carga de programación de horarios</h3>
+                        </div>
+
+                        <div class="panel-body" id="divForm">
+                            <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/academico/loadprogramacion/uploadFiles}">
+
+                                <div class="row m-b-md">
+                                    <div class="col-md-3 bold">Grupo Secciones:</div>
+                                    <div class="col-md-9"> 
+                                        <span class="block underline">(queryGrupoClaves.xls) </span>
+
+                                        <div class="form-group">
+                                            <span class="btn bg-gradient">
+                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row m-b-md">
+                                    <div class="col-md-3 bold">Secciones:</div>
+                                    <div class="col-md-9"> 
+                                        <span class="block underline">(queryClaves.xls) </span>
+
+                                        <div class="form-group">
+                                            <span class="btn bg-gradient">
+                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row m-b-md">
+                                    <div class="col-md-3 bold">Personas:</div>
+                                    <div class="col-md-9"> 
+                                        <span class="block underline">(queryPersonas.xls) </span>
+
+                                        <div class="form-group">
+                                            <span class="btn bg-gradient">
+                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row m-b-md">
+                                    <div class="col-md-3 bold">Docentes:</div>
+                                    <div class="col-md-9"> 
+                                        <span class="block underline">(queryProfesor.xls) </span>
+
+                                        <div class="form-group">
+                                            <span class="btn bg-gradient">
+                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row m-b-md">
+                                    <div class="col-md-3 bold">Docentes Secciones:</div>
+                                    <div class="col-md-9"> 
+                                        <span class="block underline">(queryProClaves.xls) </span>
+
+                                        <div class="form-group">
+                                            <span class="btn bg-gradient">
+                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row m-b-md">
+                                    <div class="col-md-3 bold">Alumnos Secciones:</div>
+                                    <div class="col-md-9"> 
+                                        <span class="block underline">(queryDefinitivo.xls) </span>
+
+                                        <div class="form-group">
+                                            <span class="btn bg-gradient">
+                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="progress" id="progress">
+                                    <div class="progress-bar progress-bar-success"></div>
+                                </div>
+
+                                <span class="col-md-12 text-center">
+                                    <a class="btn btn-info" id="btnLoadHorario">Cargar Horarios</a>
+                                </span>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+    </div>
+
+    <div layout:fragment="js">
+        <script th:src="@{/jquery-form/jquery.form.min.js}" charset="utf-8"></script>
+        <div th:substituteby="zlayout/includes :: javascript-upload"></div>
+        <script th:src="@{/app/academico/loadprogramacion/loadProgramacion.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

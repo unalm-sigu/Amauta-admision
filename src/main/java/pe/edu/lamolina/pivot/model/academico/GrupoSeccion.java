@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -51,7 +52,15 @@ public class GrupoSeccion implements Serializable {
     @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
     private List<EvaluacionSeccion> evaluacionSecciones;
 
+    @Transient
+    private String codigoCurso;
+
     public GrupoSeccion() {
+    }
+
+    public GrupoSeccion(String codigo, String codigoCurso) {
+        this.codigo = codigo;
+        this.codigoCurso = codigoCurso;
     }
 
     public GrupoSeccion(Object id) {
@@ -195,6 +204,14 @@ public class GrupoSeccion implements Serializable {
 
     public void setEvaluacionSecciones(List<EvaluacionSeccion> evaluacionSecciones) {
         this.evaluacionSecciones = evaluacionSecciones;
+    }
+
+    public String getCodigoCurso() {
+        return codigoCurso;
+    }
+
+    public void setCodigoCurso(String codigoCurso) {
+        this.codigoCurso = codigoCurso;
     }
 
 }

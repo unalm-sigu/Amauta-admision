@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 @Repository
@@ -34,6 +35,17 @@ public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implemen
                 .parents("_mr.alumno alu", "_s.grupoSeccion gs")
                 .parents("_gs.curso cur", "_alu.persona per")
                 .filter("ms.id", id);
+        return this.find(sqlUtil);
+    }
+
+    @Override
+    public MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion) {
+        SqlUtil sqlUtil = new SqlUtil("ms")
+                .parents("matriculaResumen mr", "seccion s")
+                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
+                .parents("_gs.curso cur", "_alu.persona per")
+                .filter("s.id", seccion)
+                .filter("alu.id", alumno);
         return this.find(sqlUtil);
     }
 

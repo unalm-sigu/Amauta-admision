@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.general.Aula;
 
 public interface AulaDAO extends Crud<Aula> {
 
-}
+    Aula findByCode(String codigo);
 
+}
