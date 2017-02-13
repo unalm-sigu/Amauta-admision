@@ -98,8 +98,9 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     @Override
     public List<Evaluacion> allBySeccion(Seccion seccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior evaSup", "seccionResponsable sr")
-                .filter("sr.id", seccion.getId());
+                .parents("evaluacionSeccion es", "tipoEvaluacion te", "left evaluacionSuperior evaSup", "seccionResponsable sr")
+                .filter("sr.id", seccion.getId())
+                .orderBy("te.orden");
         sqlUtil.filterIsNull("evaSup");
 
         List<Evaluacion> evaluaciones = this.all(sqlUtil);

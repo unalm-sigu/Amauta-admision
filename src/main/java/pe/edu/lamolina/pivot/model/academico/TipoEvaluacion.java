@@ -41,6 +41,9 @@ public class TipoEvaluacion implements Serializable {
     @Column(name = "ind_nota_minima_anulable")
     private Integer indNotaMinimaAnulable;
 
+    @Column(name = "orden")
+    private Integer orden;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evaluacion_superior")
     private TipoEvaluacion evaluacionSuperior;
@@ -147,6 +150,14 @@ public class TipoEvaluacion implements Serializable {
 
     public void setIndNotaMinimaAnulable(Integer indNotaMinimaAnulable) {
         this.indNotaMinimaAnulable = indNotaMinimaAnulable;
+    }
+
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Integer orden) {
+        this.orden = orden;
     }
 
     public boolean isNotaMinimaAnulable() {
