@@ -30,26 +30,6 @@
                 table { 
                     border-collapse: separate; 
                 }
-                div.notas { 
-                    width: auto; 
-                    overflow-x:scroll;  
-                    margin-left:195px; 
-                    overflow-y:visible;
-                }
-                .headcol {
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    overflow: hidden;
-                    position:absolute; 
-                    width: 236px;
-                    left:30px;
-                }
-                .headcolNumber{
-                    padding: 0px 15px;
-                    position:absolute; 
-                    width: 25px;
-                    left:8px;
-                }
             </style>
 
         </header>
@@ -69,7 +49,6 @@
                         <table class="table table-striped" id="tableNotas">
                             <thead> 
                                 <tr class=""> 
-                                    <th class="col-md-3 headcol"></th>
 
                                     <th class="text-center v-middle"  
                                         th:each="evaluacion : ${evaluacionesByTipoSeccion}" 
@@ -101,13 +80,7 @@
                             <tbody> 
                                 <tr th:each="matSeccion,itrStat : ${matriculasSeccion}" style="height: 50px;">
 
-                                    <td class="v-middle headcolNumber">
-                                        <span class="block text-primary" th:text="${(itrStat.index+1) + ')'}"></span>
-                                    </td>
-                                    <td class="v-middle headcol">
-                                        <span class="block text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
-                                        <span class="block" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
-                                    </td>
+
                                     <td class="text-center v-middle" th:each="evaluacion : ${evaluacionesByTipoSeccion}" >
 
                                         <div th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
@@ -163,6 +136,13 @@
                                                 </li>
                                             </ul>
                                         </div>
+                                    </td>
+                                    <td class="v-middle headcolNumber">
+                                        <span class="small text-muted" th:text="${(itrStat.index+1) + ')'}"></span>
+                                    </td>
+                                    <td class="v-middle headcol">
+                                        <span class="text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
+                                        <span class="block small text-muted" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
                                     </td>
                                 </tr>
                             </tbody>
