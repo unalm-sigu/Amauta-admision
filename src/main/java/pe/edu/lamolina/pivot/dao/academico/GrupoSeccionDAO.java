@@ -14,4 +14,8 @@ public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
 
     List<GrupoSeccion> allByPlan(PlanCalificacion plan);
 
+    GrupoSeccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
+
+    List<GrupoSeccion> allByCiclo(CicloAcademico ciclo);
+
 }

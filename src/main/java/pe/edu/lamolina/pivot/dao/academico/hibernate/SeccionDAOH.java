@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 
 @Repository
@@ -63,6 +64,15 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .parents("grupoSeccion gs", "_gs.curso cur", "_cur.planCalificacion pc", "_gs.planCalificacion pc2")
                 .filter("gs.id", idGrupo);
         return all(sqlUtil);
+    }
+
+    @Override
+    public Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
+                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
+                .filter("s.codigo", codigo)
+                .filter("ca.id", ciclo);
+        return find(sqlUtil);
     }
 
 }

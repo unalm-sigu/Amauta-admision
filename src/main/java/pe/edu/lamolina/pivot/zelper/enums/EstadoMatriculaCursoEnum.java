@@ -5,6 +5,7 @@ import java.util.Map;
 
 public enum EstadoMatriculaCursoEnum {
     MAT("Mariculado"),
+    RET("Retirado"),
     RCU("Ret. Curso"),
     RCI("Ret. Ciclo");
 

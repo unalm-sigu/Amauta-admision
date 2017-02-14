@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
 
@@ -47,7 +48,21 @@ public class Docente implements Serializable {
     @OneToMany(mappedBy = "docente", fetch = FetchType.LAZY)
     private List<DocenteSeccion> docenteSeccion;
 
+    @Transient
+    private String codigoTipoDocumento;
+    @Transient
+    private String numeroDocumento;
+    @Transient
+    private String codigoDepartamento;
+
     public Docente() {
+    }
+
+    public Docente(String codigo, String codigoTipoDocumento, String numeroDocumento, String codigoDepartamento) {
+        this.codigo = codigo;
+        this.codigoTipoDocumento = codigoTipoDocumento;
+        this.numeroDocumento = numeroDocumento;
+        this.codigoDepartamento = codigoDepartamento;
     }
 
     public Docente(Object id) {
@@ -118,5 +133,28 @@ public class Docente implements Serializable {
         this.docenteSeccion = docenteSeccion;
     }
 
-}
+    public String getCodigoTipoDocumento() {
+        return codigoTipoDocumento;
+    }
 
+    public void setCodigoTipoDocumento(String codigoTipoDocumento) {
+        this.codigoTipoDocumento = codigoTipoDocumento;
+    }
+
+    public String getNumeroDocumento() {
+        return numeroDocumento;
+    }
+
+    public void setNumeroDocumento(String numeroDocumento) {
+        this.numeroDocumento = numeroDocumento;
+    }
+
+    public String getCodigoDepartamento() {
+        return codigoDepartamento;
+    }
+
+    public void setCodigoDepartamento(String codigoDepartamento) {
+        this.codigoDepartamento = codigoDepartamento;
+    }
+
+}

@@ -113,4 +113,12 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         return all(sqlUtil);
     }
 
+    @Override
+    public Curso findByCode(String codigo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
+                .parents("left planCalificacion pc", "left departamentoAcademico da", "left _da.facultad")
+                .filter("cur.codigo", codigo);
+        return find(sqlUtil);
+    }
+
 }

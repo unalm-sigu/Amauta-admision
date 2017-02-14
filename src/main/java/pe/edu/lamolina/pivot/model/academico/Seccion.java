@@ -11,13 +11,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Entity
 @Table(name = "aca_seccion")
@@ -76,10 +76,7 @@ public class Seccion implements Serializable {
 
     @OneToMany(mappedBy = "seccionResponsable", fetch = FetchType.LAZY)
     private List<Evaluacion> evaluacion;
-    /*
-    @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
-    private List<EvaluacionSeccion> evaluacionSeccion;
-     */
+
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<LoggerMatricula> loggerMatricula;
 
@@ -95,7 +92,24 @@ public class Seccion implements Serializable {
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<RetiroCurso> retiroCurso;
 
+    @Transient
+    private String codigoGrupoHorario;
+    @Transient
+    private String codigoAula;
+    @Transient
+    private String codigoGrupoSeccion;
+    @Transient
+    private String codigoTipoSeccion;
+
     public Seccion() {
+    }
+
+    public Seccion(String codigo, String codigoGrupoHorario, String codigoAula, String codigoGrupoSeccion, String codigoTipoSeccion) {
+        this.codigo = codigo;
+        this.codigoGrupoHorario = codigoGrupoHorario;
+        this.codigoAula = codigoAula;
+        this.codigoGrupoSeccion = codigoGrupoSeccion;
+        this.codigoTipoSeccion = codigoTipoSeccion;
     }
 
     public Seccion(Object id) {
@@ -297,6 +311,38 @@ public class Seccion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public String getCodigoGrupoHorario() {
+        return codigoGrupoHorario;
+    }
+
+    public void setCodigoGrupoHorario(String codigoGrupoHorario) {
+        this.codigoGrupoHorario = codigoGrupoHorario;
+    }
+
+    public String getCodigoAula() {
+        return codigoAula;
+    }
+
+    public void setCodigoAula(String codigoAula) {
+        this.codigoAula = codigoAula;
+    }
+
+    public String getCodigoGrupoSeccion() {
+        return codigoGrupoSeccion;
+    }
+
+    public void setCodigoGrupoSeccion(String codigoGrupoSeccion) {
+        this.codigoGrupoSeccion = codigoGrupoSeccion;
+    }
+
+    public String getCodigoTipoSeccion() {
+        return codigoTipoSeccion;
+    }
+
+    public void setCodigoTipoSeccion(String codigoTipoSeccion) {
+        this.codigoTipoSeccion = codigoTipoSeccion;
     }
 
 }

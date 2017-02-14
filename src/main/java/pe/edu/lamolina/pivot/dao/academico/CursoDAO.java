@@ -17,4 +17,6 @@ public interface CursoDAO extends Crud<Curso> {
     List<Curso> allByPlan(PlanCalificacion plan);
 
     List<Curso> allActiveByPlan(PlanCalificacion plan);
+
+    Curso findByCode(String codigo);
 }

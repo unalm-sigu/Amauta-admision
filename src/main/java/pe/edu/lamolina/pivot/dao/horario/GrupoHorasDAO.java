@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 
 public interface GrupoHorasDAO extends Crud<GrupoHoras> {
 
-}
+    GrupoHoras findByCode(String codigo);
 
+}

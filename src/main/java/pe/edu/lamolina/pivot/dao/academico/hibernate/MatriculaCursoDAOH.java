@@ -9,6 +9,7 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 
 @Repository
 public class MatriculaCursoDAOH extends AbstractDAO<MatriculaCurso> implements MatriculaCursoDAO {
@@ -34,6 +35,14 @@ public class MatriculaCursoDAOH extends AbstractDAO<MatriculaCurso> implements M
                 .parents("matriculaResumen mr", "_mr.alumno alu", "_mr.cicloAcademico ca", "curso cu")
                 .filter("ca.id", ciclo)
                 .filter("cu.id", curso);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<MatriculaCurso> allByMatriculaResumen(MatriculaResumen resumen) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("mc")
+                .parents("matriculaResumen mr", "_mr.alumno alu", "_mr.cicloAcademico ca", "curso cu")
+                .filter("mr.id", resumen);
         return all(sqlUtil);
     }
 }

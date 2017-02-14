@@ -6,11 +6,14 @@ import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
+import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 
 public interface MatriculaCursoDAO extends Crud<MatriculaCurso> {
 
     MatriculaCurso findByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo);
 
     List<MatriculaCurso> findByCursoCiclo(Curso curso, CicloAcademico ciclo);
+
+    List<MatriculaCurso> allByMatriculaResumen(MatriculaResumen resumen);
 
 }
