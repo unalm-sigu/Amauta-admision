@@ -30,17 +30,6 @@
                 table { 
                     border-collapse: separate; 
                 }
-                div.notas { 
-                    width: auto; 
-                    overflow-x:scroll;  
-                    margin-left:195px; 
-                    overflow-y:visible;
-                }
-                .headcol {
-                    position:absolute; 
-                    width: 236px;
-                    left:15px;
-                }
             </style>
 
         </header>
@@ -60,24 +49,21 @@
                         <table class="table table-striped" id="tableNotas">
                             <thead> 
                                 <tr class=""> 
-                                    <th class="col-md-3 headcol"></th>
 
                                     <th class="text-center v-middle"  
                                         th:each="evaluacion : ${evaluacionesByTipoSeccion}" 
                                         style="width: 100px;">
-                                        <!-- 
+
+
                                         <span href="#" vclass="detalle-reporte"
                                               th:unless="${seccion.id==evaluacion.seccionResponsable.id}"
                                               th:rel="${evaluacion.id}"
-                                              th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}">EP</span>	
-                                          th:if="${seccion.id==evaluacion.seccionResponsable.id}"
-                                        -->
-                                        <a href="#" class="detalle-reporte" 
-                                           style="color: #3366ff !important;"
-                                           th:rel="${evaluacion.id}"
-                                           th:text="${evaluacion.nombreCorto}"
-                                           th:unless='${evaluacion.esHijo}'
-                                           >EP</a>	
+                                              th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}"
+                                              data-toggle="tooltip" 
+                                              th:title="${evaluacion.nombreLargo}">EP</span>	
+
+
+
 
                                         <a href="#" class="detalle-reporte" 
                                            style="color: #3366ff !important;"
@@ -85,7 +71,7 @@
                                            th:title="${evaluacion.nombreLargo}"
                                            th:rel="${evaluacion.id}"
                                            th:text="${evaluacion.nombreCorto}"
-                                           th:if='${evaluacion.esHijo}'
+                                           th:if="${seccion.id==evaluacion.seccionResponsable.id}"
                                            >EP</a>
 
                                     </th>
@@ -95,11 +81,9 @@
                                 </tr>
                             </thead>
                             <tbody> 
-                                <tr th:each="matSeccion : ${matriculasSeccion}" style="height: 50px;">
-                                    <td class="v-middle headcol">
-                                        <span class="block text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
-                                        <span class="block" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
-                                    </td>
+                                <tr th:each="matSeccion,itrStat : ${matriculasSeccion}" style="height: 50px;">
+
+
                                     <td class="text-center v-middle" th:each="evaluacion : ${evaluacionesByTipoSeccion}" >
 
                                         <div th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
@@ -155,6 +139,13 @@
                                                 </li>
                                             </ul>
                                         </div>
+                                    </td>
+                                    <td class="v-middle headcolNumber">
+                                        <span class="small text-muted" th:text="${(itrStat.index+1) + ')'}"></span>
+                                    </td>
+                                    <td class="v-middle headcol">
+                                        <span class="text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
+                                        <span class="block small text-muted" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
                                     </td>
                                 </tr>
                             </tbody>

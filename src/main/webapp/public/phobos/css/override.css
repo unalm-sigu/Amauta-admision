@@ -435,11 +435,11 @@ div.pregunta_marco_desempeno:hover{
 
 /* responsive */
 @media (max-width: 767px) {
-    
+
     .login-wrapper {
         margin-top: 5%;
     }
-    
+
     .login-wrapper .box {
         width: 350px;
     }
@@ -764,4 +764,32 @@ a.btn-tab-nav
     overflow-y: auto;
     height: 300px;
     padding-top: 20px;
+}
+
+.headcolNumber{
+    position: absolute;
+    max-width: 36px;
+    width: 35px;
+    left: 15px;
+    padding-left: 10px !important;
+    height: 50px;
+    /*padding-bottom: 8px !important;*/
+    text-align: center;
+}
+div.notas { 
+    width: auto; 
+    overflow-x:scroll;  
+    margin-left:253px; 
+    overflow-y:visible;
+}
+.headcol {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position:absolute; 
+    max-width: 235px;
+    width: 234px;
+    left:50px;
+    padding: 8px 14px 8px 4px !important;
+    /*margin-right: 10px;*/
 }
