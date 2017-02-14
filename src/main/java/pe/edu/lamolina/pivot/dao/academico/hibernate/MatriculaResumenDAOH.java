@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
@@ -23,6 +24,14 @@ public class MatriculaResumenDAOH extends AbstractDAO<MatriculaResumen> implemen
                 .filter("alu.id", alumno)
                 .filter("ca.id", ciclo);
         return find(sqlUtil);
+    }
+
+    @Override
+    public List<MatriculaResumen> allByCiclo(CicloAcademico ciclo) {
+        SqlUtil sqlUtil = new SqlUtil("mr")
+                .parents("alumno alu", "cicloAcademico ca")
+                .filter("ca.id", ciclo);
+        return all(sqlUtil);
     }
 
 }

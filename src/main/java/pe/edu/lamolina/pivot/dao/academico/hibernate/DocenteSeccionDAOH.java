@@ -12,6 +12,7 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -69,8 +70,9 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     public List<DocenteSeccion> allByDocente(Docente docente) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
         sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2");
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _gs.planCalificacion pc2", "_sec.grupoHoras gh");
         sqlUtil.filter("doc.id", docente.getId());
+        sqlUtil.filter("dc.estado", EstadoEnum.ACT.name());
         return this.all(sqlUtil);
     }
 

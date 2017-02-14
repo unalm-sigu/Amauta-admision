@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
@@ -48,6 +50,16 @@ public class EvaluacionPlan implements Serializable {
 
     @Column(name = "nota_minima_anulable")
     private Integer notaMinimaAnulable;
+
+    @Column(name = "ind_porcentaje_variable")
+    @NotNull
+    private Integer indPorcentajeVariable;
+
+    @Transient
+    private boolean validarPesoTotal;
+
+    @Transient
+    private List<EvaluacionExpandida> evaluacionesExpandidas;
 
     public EvaluacionPlan() {
     }
@@ -130,6 +142,30 @@ public class EvaluacionPlan implements Serializable {
 
     public void setNotaMinimaAnulable(Integer notaMinimaAnulable) {
         this.notaMinimaAnulable = notaMinimaAnulable;
+    }
+
+    public Integer getIndPorcentajeVariable() {
+        return indPorcentajeVariable;
+    }
+
+    public void setIndPorcentajeVariable(Integer indPorcentajeVariable) {
+        this.indPorcentajeVariable = indPorcentajeVariable;
+    }
+
+    public boolean isValidarPesoTotal() {
+        return validarPesoTotal;
+    }
+
+    public void setValidarPesoTotal(boolean validarPesoTotal) {
+        this.validarPesoTotal = validarPesoTotal;
+    }
+
+    public List<EvaluacionExpandida> getEvaluacionesExpandidas() {
+        return evaluacionesExpandidas;
+    }
+
+    public void setEvaluacionesExpandidas(List<EvaluacionExpandida> evaluacionesExpandidas) {
+        this.evaluacionesExpandidas = evaluacionesExpandidas;
     }
 
 }

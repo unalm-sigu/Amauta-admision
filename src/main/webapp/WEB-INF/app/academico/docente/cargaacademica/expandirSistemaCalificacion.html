@@ -12,40 +12,46 @@
             <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
             <span class="block"><strong>Sist. Calificación:</strong > <span th:text="${planCalificacion.codigo}">2020, 2021, 2022</span></span>
             <span class="block"><strong>Fórmula:</strong > <span th:text="${planCalificacion.formula}">2020, 2021, 2022</span></span>
-            
+
             <input id="txtPlanCalificaId" type="hidden" th:value="${planCalificacion.id}"/>
             <input id="txtEvalSeccionId" name="evaluacionSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
             <input id="txtGrupoSeccionId" type="hidden" th:value="${grupoSeccion.id}"/>
             <input id="txtPermiteAsig" type="hidden" th:value="${permiteAsignar}"/>
+            <input type="hidden" id="txtEvalPlan" th:value="${evalPlanJson}"/>
 
         </header>
+        <form id="frmExpansion">
+            <section class="panel">
+                <section class="panel-body">
 
-        <section class="panel">
-            <section class="panel-body">
-                <table id="dynaTable" class="table table-striped">
-                    <thead> 
-                        <tr class=""> 
-                            <!--th class="col-md-1">Código</th-->
-                            <th class="col-md-6">Evaluación</th>
-                            <th class="col-md-3 text-center">Tipo</th>
-                            <th class="col-md-1 text-center">Numero</th>
-                            <th class="col-md-2 text-center">Peso</th>
-                            <th th:if="${permiteAsignar}" class="v-middle">Asign Doc</th>
-                            <th th:if="${permiteAsignar}" class="v-middle">Expandir</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                    <table id="dynaTable" class="table table-striped">
+                        <thead> 
+                            <tr class=""> 
+                                <!--th class="col-md-1">Código</th-->
+                                <th class="col-md-6">Evaluación</th>
+                                <th class="col-md-3 text-center">Tipo</th>
+                                <th class="col-md-1 text-center">Numero</th>
+                                <th class="col-md-2 text-center">Peso</th>
+                                <th th:if="${permiteAsignar}" class="v-middle">Asign Doc</th>
+                                <th th:if="${permiteAsignar}" class="v-middle">Expandir</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </section>
+                <section class="panel-footer pull-right">
+                    <a href="#" class="btn btn-link cancelarExpansion">Cancelar</a>
+                    <a href="#" id="btnAceptarExpandir" class="btn btn-success">Grabar</a>
+                </section>
             </section>
-        </section>
-
+        </form>
         <div class="line line-dashed b-b line-lg pull-in"></div>
 
         <div class="form-group">
             <div class="text-center">
 
-                <button id="btnAceptarExp" class="btn btn-sm btn-primary" style="display:none;">Aceptar</button>
 
                 <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-link">Regresar</a>
             </div>

@@ -16,6 +16,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
@@ -105,6 +107,10 @@ public class Evaluacion implements Serializable {
 
     @Transient
     private boolean notasIngresadas;
+
+    @Column(name = "ind_porcentaje_variable")
+    @NotNull
+    private Integer indPorcentajeVariable;
 
     public Evaluacion() {
     }
@@ -341,6 +347,22 @@ public class Evaluacion implements Serializable {
         this.setFechaDesagregar(evaluacionExpandida.getFechaDesagregar());
         this.setUsuarioDesagregar(evaluacionExpandida.getUsuarioDesagregar());
         this.setEvaluacionExpandida(evaluacionExpandida);
+        this.setIndPorcentajeVariable(evaluacionExpandida.getIndPorcentajeVariable());
+    }
+
+    public Integer getIndPorcentajeVariable() {
+        return indPorcentajeVariable;
+    }
+
+    public void setIndPorcentajeVariable(Integer indPorcentajeVariable) {
+        this.indPorcentajeVariable = indPorcentajeVariable;
+    }
+
+    public boolean getEsHijo() {
+        if (ObjectUtil.getParentTree(this, "evaluacionSuperior.id") != null) {
+            return true;
+        }
+        return false;
     }
 
 }

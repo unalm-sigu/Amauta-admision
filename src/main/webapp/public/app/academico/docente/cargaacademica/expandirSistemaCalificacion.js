@@ -1,6 +1,7 @@
 $(function () {
 
     var permiteAsig = $("#txtPermiteAsig").val();
+    var evaluacionPlanes;
 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
@@ -21,6 +22,8 @@ $(function () {
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
         record.permiteAsign = (permiteAsig == "true");
+        record.evaluacionPlan = evaluacionPlanes[record.tipoEvalCod];
+        record.classArg = 'porcentajes-variables';
         if (record.esHijo) {
             record.styleHijo = 'padding-left:90px;';
         }
@@ -34,7 +37,9 @@ $(function () {
             });
         }
         record.docentes = docentes;
-
+        if (record.editarPorcentaje == true) {
+            $("#btnAceptarExpandir").css("display", "");
+        }
         var html = $.templates("#templateEvaluacionPlan").render(record);
         return html;
     }
@@ -44,7 +49,13 @@ $(function () {
     });
 
     ExpandirSCN = {
-        expandirEvaluacion: function ($this, e) {
+        init: function () {
+            evaluacionPlanes = JSON.parse($("#txtEvalPlan").val());
+            $.each(evaluacionPlanes, function (key, value) {
+                evaluacionPlanes[key] = JSON.parse(value);
+            });
+            $("#btnAceptarExpandir").css("display", "none");
+        }, expandirEvaluacion: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
@@ -319,8 +330,64 @@ $(function () {
                 }
             });
 
+        },
+        cancelarExpansion: function (e) {
+            e.preventDefault();
+            location.href = APP.url("academico/docente/cargaacademica");
+        },
+        aceptarExpandir: function (e) {
+            var form = $("#frmExpansion");
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            var jsonObj = [];
+            $("input[name='porcentajes-variables']").each(function () {
+                $(this).attr("data-parsley-whitespace", "trim");
+                $(this).attr("required", true);
+
+                var id = $(this).attr("rel");
+                var peso = $(this).val();
+
+                var item = {};
+
+                item["id"] = id;
+                item["peso"] = peso;
+                item["evaluacionSeccion"] = {
+                    id: $("#txtEvalSeccionId").val()
+                };
+
+                jsonObj.push(item);
+            });
+            console.dir(jsonObj)
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/aceptarExpandir'),
+                type: 'POST',
+                async: false,
+                data: JSON.stringify(jsonObj),
+                dataType: "json",
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         }
     };
+
+    ExpandirSCN.init();
 
     $("body").delegate(".expandir-evaluacion", "click", function (e) {
         ExpandirSCN.expandirEvaluacion($(this), e);
@@ -358,5 +425,14 @@ $(function () {
     $("body").delegate(".cboTipoSecEval", "change", function () {
         ExpandirSCN.cambiarTipoSecEval($(this));
     });
+
+    $("body").delegate(".cancelarExpansion", "click", function (e) {
+        ExpandirSCN.cancelarExpansion(e);
+    });
+
+    $("body").delegate("#btnAceptarExpandir", "click", function (e) {
+        ExpandirSCN.aceptarExpandir(e);
+    });
+
 
 });

@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 
 @Entity
 @Table(name = "aca_matricula_resumen")
@@ -106,8 +107,15 @@ public class MatriculaResumen implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public EstadoMatriculaCursoEnum getEstadoEnum() {
+        if (estado == null) {
+            return null;
+        }
+        return EstadoMatriculaCursoEnum.valueOf(estado);
+    }
+
+    public void setEstadoEnum(EstadoMatriculaCursoEnum estado) {
+        this.estado = estado.name();
     }
 
     public Integer getCursosMatriculados() {
@@ -207,4 +215,3 @@ public class MatriculaResumen implements Serializable {
     }
 
 }
-

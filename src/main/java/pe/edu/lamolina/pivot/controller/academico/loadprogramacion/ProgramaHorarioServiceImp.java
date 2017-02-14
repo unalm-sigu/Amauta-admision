@@ -29,6 +29,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -48,6 +50,7 @@ import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -75,6 +78,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     AlumnoDAO alumnoDAO;
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -101,10 +106,97 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         Map<String, DocenteSeccion> mapDocenteSecciones = loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
 
         revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
+        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+
+        revisarAlumnosMatriculados(ciclo, mapResumenes);
+        revisarSecciones(secciones);
+        revisarGrupoSecciones(gruposSecciones);
 
     }
 
-    private void loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
+    private void revisarSecciones(List<Seccion> secciones) {
+        for (Seccion seccion : secciones) {
+            seccion.setMatriculados(seccion.getMatriculaSeccion().size());
+            seccionDAO.update(seccion);
+        }
+    }
+
+    private void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones) {
+        for (GrupoSeccion gpoSecc : gruposSecciones) {
+            Seccion seccSuperior = null;
+            List<Seccion> secciones = gpoSecc.getSecciones();
+            for (Seccion secc : secciones) {
+                if (secc.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                    continue;
+                }
+                seccSuperior = secc;
+                break;
+            }
+            for (Seccion secc : secciones) {
+                if (secc == seccSuperior) {
+                    continue;
+                }
+                secc.setSeccionSuperior(seccSuperior);
+                seccionDAO.update(secc);
+            }
+        }
+    }
+
+    private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes) {
+        List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
+        for (MatriculaResumen aluResumen : alumnosResumen) {
+            Alumno alumno = aluResumen.getAlumno();
+            MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
+            if (resumen == null) {
+                aluResumen.setEstadoEnum(EstadoMatriculaCursoEnum.RCI);
+                aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
+                aluResumen.setCreditosMatriculados(0);
+                aluResumen.setCursosRetirados(aluResumen.getCursosRetirados() + aluResumen.getCursosMatriculados());
+                aluResumen.setCursosMatriculados(0);
+                matriculaResumenDAO.update(aluResumen);
+
+                List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(aluResumen);
+                for (MatriculaCurso alumnoCurso : alumnoCursos) {
+                    alumnoCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaCursoDAO.update(alumnoCurso);
+                }
+
+                List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(aluResumen);
+                for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
+                    alumnoSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaSeccionDAO.update(alumnoSeccion);
+                }
+                continue;
+            }
+
+            List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(resumen);
+            for (MatriculaCurso aluCurso : alumnoCursos) {
+                Curso curso = aluCurso.getCurso();
+                if (!existeCurso(alumnoCursos, curso)) {
+                    resumen.setCursosRetirados(resumen.getCursosRetirados() + 1);
+                    resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
+                    resumen.setCreditosRetirados(resumen.getCursosRetirados() + curso.getCreditos());
+                    resumen.setCreditosMatriculados(resumen.getCursosMatriculados() - curso.getCreditos());
+
+                    aluCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaCursoDAO.update(aluCurso);
+                }
+            }
+
+            List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(resumen);
+            for (MatriculaSeccion aluSeccion : alumnoSecciones) {
+                Seccion secc = aluSeccion.getSeccion();
+                if (!existeSeccion(alumnoSecciones, secc)) {
+                    aluSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaSeccionDAO.update(aluSeccion);
+                }
+            }
+
+            matriculaResumenDAO.update(resumen);
+        }
+    }
+
+    private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
         Map<String, MatriculaResumen> mapResumenes = new LinkedHashMap();
         for (MatriculaSeccion mat : matriculasSecciones) {
             Seccion seccion = mapSecciones.get(mat.getCodigoSeccion());
@@ -124,7 +216,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
             if (resumen == null) {
                 resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+                if (resumen != null) {
+                    mapResumenes.put(alumno.getCodigo(), resumen);
+                }
             }
+
             if (resumen == null) {
                 resumen = new MatriculaResumen();
                 resumen.setAlumno(alumno);
@@ -133,21 +229,90 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 resumen.setCreditosRetirados(0);
                 resumen.setCursosMatriculados(0);
                 resumen.setCursosRetirados(0);
-                resumen.setEstado("MAT");
-            }
-            
-            MatriculaSeccion matBD = matriculaSeccionDAO.findByAlumnoSeccion(alumno, seccion);
-            if (matBD == null) {
-                matBD = new MatriculaSeccion();
-                matBD.setEstado(EstadoEnum.ACT.name());
-                matBD.setFechaRegistro(new Date());
-                matBD.setUserRegistro(ds.getUsuario());
-                matBD.setSeccion(seccion);
-                matBD.setMatriculaResumen(null);
-                matriculaSeccionDAO.save(matBD);
+                resumen.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+                resumen.setNotaAcumulada("0");
+                resumen.setNotaAvance("0");
+                resumen.setNotaFinal("0");
+                resumen.setPorcentajeAvance(0);
+                matriculaResumenDAO.save(resumen);
+
+                resumen.setMatriculaSeccion(new ArrayList());
+                resumen.setMatriculaCurso(new ArrayList());
+                mapResumenes.put(alumno.getCodigo(), resumen);
             }
 
+            resumen.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            matriculaResumenDAO.update(resumen);
+
+            MatriculaSeccion matriSeccBD = matriculaSeccionDAO.findByAlumnoSeccion(alumno, seccion);
+            if (matriSeccBD == null) {
+                matriSeccBD = new MatriculaSeccion();
+                matriSeccBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+                matriSeccBD.setFechaRegistro(new Date());
+                matriSeccBD.setUserRegistro(ds.getUsuario());
+                matriSeccBD.setSeccion(seccion);
+                matriSeccBD.setMatriculaResumen(resumen);
+                matriculaSeccionDAO.save(matriSeccBD);
+
+                resumen.getMatriculaSeccion().add(matriSeccBD);
+            }
+
+            if (!existeSeccion(matriculasSecciones, seccion)) {
+                resumen.getMatriculaSeccion().add(matriSeccBD);
+            }
+
+            matriSeccBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            matriculaSeccionDAO.update(matriSeccBD);
+
+            Curso curso = seccion.getGrupoSeccion().getCurso();
+            MatriculaCurso matriCursoBD = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
+            if (matriCursoBD == null) {
+                matriCursoBD = new MatriculaCurso();
+                matriCursoBD.setCreditos(curso.getCreditos());
+                matriCursoBD.setCurso(curso);
+                matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+                matriCursoBD.setMatriculaResumen(resumen);
+                matriCursoBD.setNotaAcumulada("0");
+                matriCursoBD.setNotaAvance("0");
+                matriCursoBD.setNotaFinal("0");
+                matriCursoBD.setPorcentajeAvanceNota(0);
+                matriculaCursoDAO.save(matriCursoBD);
+
+                resumen.getMatriculaCurso().add(matriCursoBD);
+            }
+
+            if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
+                resumen.getMatriculaCurso().add(matriCursoBD);
+                resumen.setCursosMatriculados(resumen.getCursosMatriculados() + 1);
+                resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() + curso.getCreditos());
+                matriculaResumenDAO.update(resumen);
+            }
+
+            matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            matriculaCursoDAO.update(matriCursoBD);
         }
+
+        return mapResumenes;
+    }
+
+    private boolean existeCurso(List<MatriculaCurso> alumnoCursos, Curso curso) {
+        for (MatriculaCurso alumnoCurso : alumnoCursos) {
+            Curso cur = alumnoCurso.getCurso();
+            if (cur.getId().longValue() == curso.getId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean existeSeccion(List<MatriculaSeccion> alumnoSecciones, Seccion seccion) {
+        for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
+            Seccion secc = alumnoSeccion.getSeccion();
+            if (secc.getId().longValue() == seccion.getId()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void revisarDocenteSecciones(Map<String, DocenteSeccion> mapDocenteSecciones, CicloAcademico ciclo, DataSessionPivot ds) {

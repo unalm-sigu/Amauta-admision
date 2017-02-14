@@ -31,7 +31,28 @@
         <span class="block text-center">{{:numero}}</span>
     </td>
     <td class="v-middle text-center">
-        <span class="block" >{{:pesoEvaluacion}} %</span>
+
+        {{if editarPorcentaje==true}}
+        <input value="{{:pesoEvaluacion}}"
+               rel="{{:evaPlanId}}"
+               name="{{:classArg}}"
+               class="form-control"
+               required="true"
+               data-parsley-type="number"
+               data-parsley-max="{{:evaluacionPlan.pesoTotal}}"/>
+        (de {{:evaluacionPlan.pesoTotal}}%)
+        {{/if}}
+
+        {{if editarPorcentaje==false}}
+        <div>
+            <span class="block" >{{:pesoEvaluacion}}%</span>
+
+        </div>
+        {{/if}}
+        {{if esPadre==true}}
+        (de {{:evaluacionPlan.pesoTotal}}%)
+        {{/if}}
+
     </td>
     {{if permiteAsign==true}}
     <td class="v-middle text-center">

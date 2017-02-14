@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -361,6 +363,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionHija.setUsuarioDesagregar(null);
             //  evaluacionHija.setNumero(numero);
             evaluacionHija.getEvaluacionSeccion().getGrupoSeccion();
+            evaluacionHija.setIndPorcentajeVariable(evaluacionPadre.getIndPorcentajeVariable());
 
             Date today = new Date();
             evaluacionHija.setEvaluaciones(new ArrayList<>());
@@ -603,38 +606,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
-        /* 
-        GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
-         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.ACEP);
-        grupoSeccionDAO.update(grupoSeccion);
-
-        List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
-        logger.debug("la cantidad de secciones para el grupo {}, es {}", grupoSeccion.getId(), secciones.size());
-        List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
-        logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", seccion.getGrupoSeccion().getPlanCalificacion().getId(), planEvaluaciones.size());
-        for (Seccion seccionEach : secciones) {
-            for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
-                logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
-                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
-                if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-                        evaluacionExpandida.getTipoSeccionEnum())) {
-
-                    Evaluacion evaluacion = new Evaluacion();
-                    evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
-                    if (evaluacionExpandida.getEvaluaciones() != null && !evaluacionExpandida.getEvaluaciones().isEmpty()) {
-                        evaluacion.setEvaluaciones(new ArrayList<>());
-                        for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluaciones()) {
-                            Evaluacion evaluacionChild = new Evaluacion();
-                            evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
-                            evaluacionChild.setEvaluacionSuperior(evaluacion);
-                            evaluacion.getEvaluaciones().add(evaluacionChild);
-                        }
-                    }
-                    evaluacionDAO.save(evaluacion);
-                }
-            }
-        }*/
 
     }
 
@@ -1200,6 +1171,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Transactional
+    @Override
     public void deletePlanCalificacion(Long idPlanCalifica, DataSessionPivot ds) {
         PlanCalificacion plan = planCalificacionDAO.find(idPlanCalifica);
 
@@ -1236,6 +1208,81 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         planCalificacionDAO.delete(plan);
 
+    }
+
+    @Transactional
+    @Override
+    public void saveAceptarExpandir(EvaluacionExpandida[] evaluacionesExpandidas) {
+        EvaluacionSeccion evaluacionSeccion = evaluacionesExpandidas[0].getEvaluacionSeccion();
+        evaluacionSeccion = evaluacionSeccionDAO.find(evaluacionSeccion.getId());
+        List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByFilter(evaluacionSeccion.getPlanCalificacion().getId());
+        List<EvaluacionExpandida> evaluacionExpandidasDB = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+
+        for (EvaluacionExpandida evaluacionExpandida : evaluacionesExpandidas) {
+            List<Evaluacion> evaluacionesPorExp = evaluacionDAO.allByFilter(null, null, null, evaluacionExpandida.getId());
+            for (Evaluacion evaluacion : evaluacionesPorExp) {
+                if (evaluacion.getFechaIngresoNota() != null) {
+                    throw new PhobosException(String.format("Error, la evaluación %s %s ya cuenta con notas ingresadas.",
+                            evaluacion.getTipoEvaluacion().getCodigo(),
+                            evaluacion.getNumero()));
+                }
+            }
+        }
+
+        for (EvaluacionPlan evaluacionPlan : evaluacionesPlan) {
+            if (evaluacionPlan.getEvaluacionesExpandidas() == null) {
+                evaluacionPlan.setEvaluacionesExpandidas(new ArrayList<>());
+            }
+            for (EvaluacionExpandida evaluacionExpandida : evaluacionExpandidasDB) {
+                if (evaluacionPlan.getTipoEvaluacion().getId().equals(
+                        evaluacionExpandida.getTipoEvaluacion().getId())) {
+                    evaluacionPlan.getEvaluacionesExpandidas().add(evaluacionExpandida);
+                }
+            }
+        }
+
+        for (EvaluacionPlan evaluacionPlan : evaluacionesPlan) {
+            for (EvaluacionExpandida evaluacionExpPlan : evaluacionPlan.getEvaluacionesExpandidas()) {
+                for (EvaluacionExpandida evalExp : evaluacionesExpandidas) {
+                    if (evaluacionExpPlan.getId().equals(evalExp.getId())) {
+                        evaluacionExpPlan.setPeso(evalExp.getPeso());
+                        evaluacionPlan.setValidarPesoTotal(true);
+                        break;
+                    }
+                }
+            }
+        }
+        List<String> errores = new ArrayList<>();
+        for (EvaluacionPlan evaluacionPlan : evaluacionesPlan) {
+            if (evaluacionPlan.isValidarPesoTotal()) {
+
+                BigDecimal pesoTotal = evaluacionPlan.getPesoTotal();
+                BigDecimal pesoEvals = BigDecimal.ZERO;
+                for (EvaluacionExpandida evaluacionExpandida : evaluacionPlan.getEvaluacionesExpandidas()) {
+                    pesoEvals = pesoEvals.add(evaluacionExpandida.getPeso());
+                }
+                if (pesoTotal.compareTo(pesoEvals) != 0) {
+                    errores.add(evaluacionPlan.getTipoEvaluacion().getNombre());
+                }
+            }
+        }
+        if (!errores.isEmpty()) {
+            throw new PhobosException("Error en el porcentaje total de las siguientes evaluaciones : " + StringUtils.join(errores, ", "));
+        }
+
+        logger.debug("Evaluacion Seccion {}", evaluacionSeccion.getId());
+        for (EvaluacionExpandida evaluacionesExpandida : evaluacionesExpandidas) {
+            logger.debug("Id {}, Peso {}", evaluacionesExpandida.getId(), evaluacionesExpandida.getPeso());
+            EvaluacionExpandida evaluacionesExpandidaDB = evaluacionExpandidaDAO.find(evaluacionesExpandida.getId());
+            evaluacionesExpandidaDB.setPeso(evaluacionesExpandida.getPeso());
+            evaluacionExpandidaDAO.update(evaluacionesExpandidaDB);
+        }
+
+    }
+
+    @Override
+    public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
+        return cursoDAO.allActiveByPlan(planCalificacion);
     }
 
 }

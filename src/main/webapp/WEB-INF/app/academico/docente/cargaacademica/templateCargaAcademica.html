@@ -14,10 +14,20 @@
         <input type="hidden" value="{{:idSistemaCalificacion}}"/>
         <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
         {{if estadoSistema=="PRO"}}
-        <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
+        <span class="block">
+            <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
+        </span>
+        <span class="block text-primary" >
+            <a href="#" class="aceptar-sistema-calificacion"> Cursos : {{:cantidadCursos}} </a>	
+        </span>
         {{/if}}
         {{if estadoSistema=="SOL" || estadoSistema=="OBS"}}
-        <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
+        <span class="block">
+            <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
+        </span>
+        <span class="block text-primary" >
+            <a href="#" class="sistema-calificacion"> Cursos : {{:cantidadCursos}} </a>	
+        </span>
         {{/if}} 
 
         {{if estadoSistema=="ACEP" || estadoSistema=="EXP" || estadoSistema=="EXPR"}}
