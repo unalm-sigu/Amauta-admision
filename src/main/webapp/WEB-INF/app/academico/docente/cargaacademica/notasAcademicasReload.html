@@ -1,9 +1,6 @@
  
 <tr th:each="matSeccion : ${matriculasSeccion}" style="height: 50px;">
-    <td class="v-middle headcol">
-        <span class="block text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
-        <span class="block" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
-    </td>
+
     <td class="text-center v-middle" th:each="evaluacion : ${evaluacionesByTipoSeccion}" >
 
         <div th:class="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" >
@@ -60,5 +57,12 @@
 
             </ul>
         </div>
+    </td>
+    <td class="v-middle headcolNumber">
+        <!--<span class="block text-primary" th:text="${(itrStat.index+1) + ')'}"></span>-->
+    </td>
+    <td class="v-middle headcol">
+        <span class="block text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
+        <span class="block" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
     </td>
 </tr>
