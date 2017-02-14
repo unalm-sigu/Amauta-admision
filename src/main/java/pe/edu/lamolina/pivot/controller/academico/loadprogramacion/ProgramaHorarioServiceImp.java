@@ -175,8 +175,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 if (!existeCurso(alumnoCursos, curso)) {
                     resumen.setCursosRetirados(resumen.getCursosRetirados() + 1);
                     resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
-                    resumen.setCreditosRetirados(resumen.getCursosRetirados() + curso.getCreditos());
-                    resumen.setCreditosMatriculados(resumen.getCursosMatriculados() - curso.getCreditos());
+                    resumen.setCreditosRetirados(resumen.getCreditosRetirados() + curso.getCreditos());
+                    resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() - curso.getCreditos());
 
                     aluCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
                     matriculaCursoDAO.update(aluCurso);
@@ -257,7 +257,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 resumen.getMatriculaSeccion().add(matriSeccBD);
             }
 
-            if (!existeSeccion(matriculasSecciones, seccion)) {
+            //if (!existeSeccion(matriculasSecciones, seccion)) {
+            if (!existeSeccion(resumen.getMatriculaSeccion(), seccion)) {
                 resumen.getMatriculaSeccion().add(matriSeccBD);
             }
 
@@ -609,12 +610,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
+                String nro = getCellValue(0, row);
                 String tipoDocumento = getCellValue(1, row);
                 String numeroDoc = getCellValue(2, row);
                 String codigo = getCellValue(3, row);
                 String dpto = getCellValue(4, row);
 
-                if (StringUtils.isEmpty(tipoDocumento)) {
+                if (StringUtils.isEmpty(nro)) {
                     break;
                 }
 

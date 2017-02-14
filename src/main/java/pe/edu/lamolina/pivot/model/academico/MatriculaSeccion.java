@@ -28,12 +28,13 @@ public class MatriculaSeccion implements Serializable {
     @Column(name = "estado")
     private String estado;
 
-    @Column(name = "id_user_registro")
-    private Usuario userRegistro;
-
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaRegistro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_matricula_resumen")
