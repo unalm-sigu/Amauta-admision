@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1095,7 +1096,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         for (Evaluacion eva : evaluacionesBySeccion) {
             if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
                 eva.setNombreCorto(eva.getTipoEvaluacion().getCodigo() + eva.getNumero());
-
+                eva.setNombreLargo(eva.getTipoEvaluacion().getNombre() + " " + eva.getNumero());
                 evaluacionesBySeccionFinal.add(eva);
             }
             if (eva.isDesagregado()) {
@@ -1103,6 +1104,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 if (eva.getEvaluaciones() == null || eva.getEvaluaciones().isEmpty()) {
                     continue;
                 }
+                //    Collections.sort(eva.getEvaluaciones(), (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+                Collections.sort(eva.getEvaluaciones(), (Evaluacion p1, Evaluacion p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
                 logger.debug("hijos {}", eva.getEvaluaciones().size());
                 for (Evaluacion evaChild : eva.getEvaluaciones()) {
 

@@ -37,9 +37,18 @@
                     overflow-y:visible;
                 }
                 .headcol {
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
                     position:absolute; 
                     width: 236px;
-                    left:15px;
+                    left:30px;
+                }
+                .headcolNumber{
+                    padding: 0px 15px;
+                    position:absolute; 
+                    width: 25px;
+                    left:8px;
                 }
             </style>
 
@@ -72,12 +81,7 @@
                                               th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}">EP</span>	
                                           th:if="${seccion.id==evaluacion.seccionResponsable.id}"
                                         -->
-                                        <a href="#" class="detalle-reporte" 
-                                           style="color: #3366ff !important;"
-                                           th:rel="${evaluacion.id}"
-                                           th:text="${evaluacion.nombreCorto}"
-                                           th:unless='${evaluacion.esHijo}'
-                                           >EP</a>	
+
 
                                         <a href="#" class="detalle-reporte" 
                                            style="color: #3366ff !important;"
@@ -85,7 +89,7 @@
                                            th:title="${evaluacion.nombreLargo}"
                                            th:rel="${evaluacion.id}"
                                            th:text="${evaluacion.nombreCorto}"
-                                           th:if='${evaluacion.esHijo}'
+
                                            >EP</a>
 
                                     </th>
@@ -95,7 +99,11 @@
                                 </tr>
                             </thead>
                             <tbody> 
-                                <tr th:each="matSeccion : ${matriculasSeccion}" style="height: 50px;">
+                                <tr th:each="matSeccion,itrStat : ${matriculasSeccion}" style="height: 50px;">
+
+                                    <td class="v-middle headcolNumber">
+                                        <span class="block text-primary" th:text="${(itrStat.index+1) + ')'}"></span>
+                                    </td>
                                     <td class="v-middle headcol">
                                         <span class="block text-primary" th:text="${matSeccion.matriculaResumen.alumno.persona.apellidosNombres}">Alvarez Perez Juan</span>
                                         <span class="block" th:text="${matSeccion.matriculaResumen.alumno.codigo}">Alvarez Perez Juan</span>
