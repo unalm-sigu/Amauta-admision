@@ -762,6 +762,8 @@ public class CargaAcademicaController {
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
         
+        logger.debug("El docente es {}", ds.getDocente().getId());
+        
         logger.debug("Consultara notas por seccion");
         Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
         

@@ -74,13 +74,16 @@
                                     <th class="text-center v-middle"  
                                         th:each="evaluacion : ${evaluacionesByTipoSeccion}" 
                                         style="width: 100px;">
-                                        <!-- 
+
+
                                         <span href="#" vclass="detalle-reporte"
                                               th:unless="${seccion.id==evaluacion.seccionResponsable.id}"
                                               th:rel="${evaluacion.id}"
-                                              th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}">EP</span>	
-                                          th:if="${seccion.id==evaluacion.seccionResponsable.id}"
-                                        -->
+                                              th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}"
+                                              data-toggle="tooltip" 
+                                              th:title="${evaluacion.nombreLargo}">EP</span>	
+
+
 
 
                                         <a href="#" class="detalle-reporte" 
@@ -89,7 +92,7 @@
                                            th:title="${evaluacion.nombreLargo}"
                                            th:rel="${evaluacion.id}"
                                            th:text="${evaluacion.nombreCorto}"
-
+                                           th:if="${seccion.id==evaluacion.seccionResponsable.id}"
                                            >EP</a>
 
                                     </th>
