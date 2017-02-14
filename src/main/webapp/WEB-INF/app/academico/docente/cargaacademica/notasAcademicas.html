@@ -74,10 +74,19 @@
                                         -->
                                         <a href="#" class="detalle-reporte" 
                                            style="color: #3366ff !important;"
-                                    
                                            th:rel="${evaluacion.id}"
-                                           th:text="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}">EP</a>	
-                                   
+                                           th:text="${evaluacion.nombreCorto}"
+                                           th:unless='${evaluacion.esHijo}'
+                                           >EP</a>	
+
+                                        <a href="#" class="detalle-reporte" 
+                                           style="color: #3366ff !important;"
+                                           data-toggle="tooltip" 
+                                           th:title="${evaluacion.nombreLargo}"
+                                           th:rel="${evaluacion.id}"
+                                           th:text="${evaluacion.nombreCorto}"
+                                           th:if='${evaluacion.esHijo}'
+                                           >EP</a>
 
                                     </th>
                                     <th class="text-center v-middle">Avance NF</th>

@@ -1094,6 +1094,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
         for (Evaluacion eva : evaluacionesBySeccion) {
             if (!eva.isDesagregado() && eva.getEvaluacionSuperior() == null) {
+                eva.setNombreCorto(eva.getTipoEvaluacion().getCodigo() + eva.getNumero());
+
                 evaluacionesBySeccionFinal.add(eva);
             }
             if (eva.isDesagregado()) {
@@ -1104,19 +1106,25 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 logger.debug("hijos {}", eva.getEvaluaciones().size());
                 for (Evaluacion evaChild : eva.getEvaluaciones()) {
 
-                    StringBuilder codigo = new StringBuilder();
-                    codigo.append("(");
-                    codigo.append(eva.getTipoEvaluacion().getCodigo());
-                    codigo.append(eva.getNumero());
-                    codigo.append(")");
-                    codigo.append(evaChild.getTipoEvaluacion().getCodigo());
-                    logger.debug("nombre {}", codigo);
+                    StringBuilder codigoPadre = new StringBuilder();
+                    StringBuilder codigoHijo = new StringBuilder();
+                    StringBuilder nombreHijo = new StringBuilder();
+                    StringBuilder nombrePadre = new StringBuilder();
 
+                    codigoPadre.append(eva.getTipoEvaluacion().getCodigo()).append(eva.getNumero());
+                    nombrePadre.append(eva.getTipoEvaluacion().getNombre()).append(" ").append(eva.getNumero());
+
+                    codigoHijo.append(evaChild.getTipoEvaluacion().getCodigo()).append(evaChild.getNumero());
+                    nombreHijo.append(evaChild.getTipoEvaluacion().getNombre()).append(" ").append(evaChild.getNumero());
+
+                    evaChild.setNombreCorto("(" + codigoPadre + ")" + codigoHijo);
+                    evaChild.setNombreLargo(String.format("%s expandido de %s", nombreHijo, nombrePadre));
+                    /*
                     TipoEvaluacion tipoEvaluacion = new TipoEvaluacion(evaChild.getTipoEvaluacion().getId());
                     tipoEvaluacion.setNombre(evaChild.getTipoEvaluacion().getNombre());
                     tipoEvaluacion.setCodigo(codigo.toString());
                     evaChild.setTipoEvaluacion(tipoEvaluacion);
-
+                     */
                     evaluacionesBySeccionFinal.add(evaChild);
 
                 }
