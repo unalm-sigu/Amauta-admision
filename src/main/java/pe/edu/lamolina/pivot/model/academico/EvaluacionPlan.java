@@ -62,10 +62,12 @@ public class EvaluacionPlan implements Serializable {
     private List<EvaluacionExpandida> evaluacionesExpandidas;
 
     public EvaluacionPlan() {
+        indPorcentajeVariable = 0;
     }
 
     public EvaluacionPlan(Object id) {
         this.id = TypesUtil.getLong(id);
+        this.indPorcentajeVariable = 0;
     }
 
     public Long getId() {
