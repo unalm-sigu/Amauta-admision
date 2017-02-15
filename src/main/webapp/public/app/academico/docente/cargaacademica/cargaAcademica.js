@@ -18,7 +18,11 @@ $(function () {
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
         var secciones = record.secciones.split(",");
-        var grupoHoras = record.grupoHoras != "" ? record.grupoHoras.split(", ") : "";
+
+        var grupoHoras = "";
+        if (record.grupoHoras != "") {
+            grupoHoras = record.grupoHoras.toString().split(",")
+        }
         var seccionesResult = "";
 
         for (var i = 0; i < secciones.length; i++) {
@@ -26,7 +30,11 @@ $(function () {
             if (record.estado == 'ACEP') {
                 seccionesResult += 'class="notas-academicas"';
             }
-            var grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
+            var grupoText = "";
+            if (grupoHoras[i] != null) {
+                grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
+            }
+
             seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + grupoText + '</a></div>';
 
         }
