@@ -100,22 +100,32 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
+        logger.debug("loadDataGpoSecciones");
         Map<String, GrupoSeccion> mapGpoSecciones = loadDataGpoSecciones(gruposSecciones, ciclo);
+        logger.debug("loadDataSecciones");
         Map<String, Seccion> mapSecciones = loadDataSecciones(secciones, ciclo, mapGpoSecciones);
+        logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = loadDataDocentes(docentes, ciclo);
+        logger.debug("loadDataDocentesSecciones");
         Map<String, DocenteSeccion> mapDocenteSecciones = loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
 
+        logger.debug("revisarDocenteSecciones");
         revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
+        logger.debug("loadDataMatriculados");
         Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
 
+        logger.debug("revisarAlumnosMatriculados");
         revisarAlumnosMatriculados(ciclo, mapResumenes);
+        logger.debug("revisarSecciones");
         revisarSecciones(secciones);
+        logger.debug("revisarGrupoSecciones");
         revisarGrupoSecciones(gruposSecciones);
 
     }
 
     private void revisarSecciones(List<Seccion> secciones) {
         for (Seccion seccion : secciones) {
+            logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             seccion.setMatriculados(seccion.getMatriculaSeccion().size());
             seccionDAO.update(seccion);
         }
@@ -123,6 +133,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     private void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones) {
         for (GrupoSeccion gpoSecc : gruposSecciones) {
+            logger.debug("\tprocesando el gpo-seccion {}", gpoSecc.getCodigo());
             Seccion seccSuperior = null;
             List<Seccion> secciones = gpoSecc.getSecciones();
             for (Seccion secc : secciones) {
@@ -146,8 +157,23 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
         for (MatriculaResumen aluResumen : alumnosResumen) {
             Alumno alumno = aluResumen.getAlumno();
+            logger.debug("\tprocesando el alumno {}", alumno.getCodigo());
+            boolean gue = alumno.getCodigo().equals("20120023");
+            if (!gue) {
+                //continue;
+            }
             MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
+            if (gue) {
+                System.out.println("**************************");
+                List<MatriculaSeccion> mmss = resumen.getMatriculaSeccion();
+                for (MatriculaSeccion mms : mmss) {
+                    System.out.println("   secc " + mms.getSeccion().getCodigo());
+                }
+            }
             if (resumen == null) {
+                if (gue) {
+                    System.out.println(" no existe resumen");
+                }
                 aluResumen.setEstadoEnum(EstadoMatriculaCursoEnum.RCI);
                 aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
                 aluResumen.setCreditosMatriculados(0);
@@ -169,10 +195,15 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 continue;
             }
 
+            if (gue) {
+                System.out.println(" existe resumen");
+            }
+
             List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(resumen);
             for (MatriculaCurso aluCurso : alumnoCursos) {
                 Curso curso = aluCurso.getCurso();
-                if (!existeCurso(alumnoCursos, curso)) {
+
+                if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
                     resumen.setCursosRetirados(resumen.getCursosRetirados() + 1);
                     resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
                     resumen.setCreditosRetirados(resumen.getCreditosRetirados() + curso.getCreditos());
@@ -186,7 +217,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(resumen);
             for (MatriculaSeccion aluSeccion : alumnoSecciones) {
                 Seccion secc = aluSeccion.getSeccion();
-                if (!existeSeccion(alumnoSecciones, secc)) {
+                if (gue) {
+                    System.out.println(" revisando seccion " + secc.getCodigo());
+                }
+                if (!existeSeccion(resumen.getMatriculaSeccion(), secc)) {
+                    if (gue) {
+                        System.out.println(" se retira de la seccion " + secc.getCodigo());
+                    }
                     aluSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
                     matriculaSeccionDAO.update(aluSeccion);
                 }
@@ -198,18 +235,19 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
         Map<String, MatriculaResumen> mapResumenes = new LinkedHashMap();
-        for (MatriculaSeccion mat : matriculasSecciones) {
-            Seccion seccion = mapSecciones.get(mat.getCodigoSeccion());
+        for (MatriculaSeccion matriSecc : matriculasSecciones) {
+            logger.debug("\tprocesando el seccion-alumno {}-{}", matriSecc.getCodigoSeccion(), matriSecc.getCodigoAlumno());
+            Seccion seccion = mapSecciones.get(matriSecc.getCodigoSeccion());
             if (seccion == null) {
                 String msg = String.format("La seccion %s no existe para se incluida en matricula-seccion",
-                        mat.getCodigoSeccion());
+                        matriSecc.getCodigoSeccion());
                 throw new PhobosException(msg);
             }
 
-            Alumno alumno = alumnoDAO.findByCodigo(mat.getCodigoAlumno());
+            Alumno alumno = alumnoDAO.findByCodigo(matriSecc.getCodigoAlumno());
             if (alumno == null) {
                 String msg = String.format("El alumno %s no existe para se incluida en matricula-seccion",
-                        mat.getCodigoAlumno());
+                        matriSecc.getCodigoAlumno());
                 throw new PhobosException(msg);
             }
 
@@ -217,6 +255,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             if (resumen == null) {
                 resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
                 if (resumen != null) {
+                    resumen.setMatriculaSeccion(new ArrayList());
+                    resumen.setMatriculaCurso(new ArrayList());
                     mapResumenes.put(alumno.getCodigo(), resumen);
                 }
             }
@@ -257,7 +297,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 resumen.getMatriculaSeccion().add(matriSeccBD);
             }
 
-            //if (!existeSeccion(matriculasSecciones, seccion)) {
+            // if (!existeSeccion(matriculasSecciones, seccion)) {
+            seccion.getMatriculaSeccion().add(matriSeccBD);
             if (!existeSeccion(resumen.getMatriculaSeccion(), seccion)) {
                 resumen.getMatriculaSeccion().add(matriSeccBD);
             }
@@ -321,6 +362,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         for (DocenteSeccion profeSeccBD : profeSecciones) {
             Seccion secc = profeSeccBD.getSeccion();
             Docente profe = profeSeccBD.getDocente();
+            logger.debug("\tprocesando el profe-seccion {}-{}", profe.getCodigo(), secc.getCodigo());
 
             DocenteSeccion profeSecc = mapDocenteSecciones.get(profe.getCodigo() + "-" + secc.getCodigo());
             if (profeSecc != null) {
@@ -339,6 +381,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         int loop = 0;
         Map<String, DocenteSeccion> mapDocenteSecciones = new LinkedHashMap();
         for (DocenteSeccion profeSecc : docentesSecciones) {
+            logger.debug("\tprocesando el profe-seccion {}-{}", profeSecc.getCodigoDocente(), profeSecc.getCodigoSeccion());
             Seccion seccion = mapSecciones.get(profeSecc.getCodigoSeccion());
             Docente profe = mapDocentes.get(profeSecc.getCodigoDocente());
             if (seccion == null) {
@@ -383,6 +426,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         int loop = 0;
         Map<String, Docente> mapDocentes = new LinkedHashMap();
         for (Docente profe : docentes) {
+            logger.debug("\tprocesando el profesor {}", profe.getCodigo());
             Docente profeBD = docenteDAO.findByCode(profe.getCodigo());
             if (profeBD == null) {
                 String msg = String.format("No existe en base de datos el docente de codigo %s", profe.getCodigo());
@@ -401,6 +445,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         int loop = 0;
         Map<String, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
+            logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
             if (gpoSecc == null) {
                 String msg = String.format("La seccion %s no tiene su padre grupo-seccion %s",
@@ -481,6 +526,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         int loop = 0;
         Map<String, GrupoSeccion> mapGpoSecciones = new LinkedHashMap();
         for (GrupoSeccion gpoSecc : gruposSecciones) {
+            logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
             GrupoSeccion gpoSeccBD = grupoSeccionDAO.findByCodeCiclo(gpoSecc.getCodigo(), ciclo);
             Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
             if (gpoSeccBD == null) {
