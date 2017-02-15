@@ -50,6 +50,7 @@ import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -535,6 +536,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 gpoSeccBD.setCicloAcademico(ciclo);
                 gpoSeccBD.setCodigo(gpoSecc.getCodigo());
                 gpoSeccBD.setCurso(curso);
+                gpoSeccBD.setVersion(1);
+                gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
 
                 grupoSeccionDAO.save(gpoSeccBD);
 
