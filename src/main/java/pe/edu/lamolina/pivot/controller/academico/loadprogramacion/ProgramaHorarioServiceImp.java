@@ -504,7 +504,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     codigo, seccion.getCodigo());
             throw new PhobosException(msg);
         }
-        return null;
+        return gpoHoras;
     }
 
     private Aula findAula(Seccion seccion) {
@@ -519,7 +519,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     codigo, seccion.getCodigo());
             throw new PhobosException(msg);
         }
-        return null;
+        return aula;
     }
 
     private Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
