@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum EstadoPlanCalificaEnum {
+    PEND("Pendiente"),
     CRE("Creado"),
     ACT("Activo"),
     INA("Inactivo"),

@@ -40,6 +40,7 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "estado_plan")
     private String estadoPlan;
 
+    @NotNull
     @Column(name = "estado_grupo")
     private String estadoGrupo;
 

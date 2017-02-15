@@ -50,7 +50,9 @@ import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -535,10 +537,18 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 gpoSeccBD.setCicloAcademico(ciclo);
                 gpoSeccBD.setCodigo(gpoSecc.getCodigo());
                 gpoSeccBD.setCurso(curso);
+                gpoSeccBD.setVersion(1);
+                gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+                gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
 
                 grupoSeccionDAO.save(gpoSeccBD);
 
             } else {
+                gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? 1 : gpoSeccBD.getVersion());
+                gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
+                gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
+                grupoSeccionDAO.update(gpoSeccBD);
+
                 Curso cursoBD = gpoSeccBD.getCurso();
                 if (curso.getId() != cursoBD.getId().longValue()) {
                     String msg = String.format("El curso del grupo-seccion %s está relacionado al curso %s pero en la base de datos es %s",
