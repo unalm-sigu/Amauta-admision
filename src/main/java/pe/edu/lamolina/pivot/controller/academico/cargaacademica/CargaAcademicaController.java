@@ -151,12 +151,18 @@ public class CargaAcademicaController {
                 //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
                 String secciones = "";
                 String grupoHoras = "";
+
                 for (Seccion seccion : grupoSeccion.getSecciones()) {
                     secciones += seccion.getId() + "|" + seccion.getCodigo() + ",";
-                    grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
+                    if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
+                        grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
+                    }
                 }
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
-                node.put("grupoHoras", grupoHoras.substring(0, grupoHoras.length() - 1));
+                if (grupoHoras != "") {
+                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
+                }
+                node.put("grupoHoras", grupoHoras);
 
                 node.put("tienePlanCalificacion", false);
                 Long idSistemaCalificacion = null;

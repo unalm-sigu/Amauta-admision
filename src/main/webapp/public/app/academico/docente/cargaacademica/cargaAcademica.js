@@ -18,15 +18,16 @@ $(function () {
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
         var secciones = record.secciones.split(",");
-        var grupoHoras = record.grupoHoras.split(",");
+        var grupoHoras = record.grupoHoras != "" ? record.grupoHoras.split(", ") : "";
         var seccionesResult = "";
-        var grupoHorasResult = "";
+
         for (var i = 0; i < secciones.length; i++) {
             seccionesResult += '<div class="col-md-4"><a href="#" ';
             if (record.estado == 'ACEP') {
                 seccionesResult += 'class="notas-academicas"';
             }
-            seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + ' - ' + grupoHoras[i].split("|")[1] + '</a></div>';
+            var grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
+            seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + grupoText + '</a></div>';
 
         }
         record.secciones = seccionesResult;
