@@ -6,6 +6,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 
@@ -26,11 +27,17 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     }
 
     @Override
-    public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico) {
+    public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
                 .parents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc")
-                .filterIn("gp.id", ids)
+                .parents("_cur.departamentoAcademico da")
                 .filter("ca.id", cicloAcademico);
+        if (departamentoAcademico != null) {
+            sqlUtil.filter("da.id", departamentoAcademico.getId());
+        }
+        if (ids != null) {
+            sqlUtil.filterIn("gp.id", ids);
+        }
         return all(sqlUtil);
     }
 

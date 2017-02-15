@@ -27,18 +27,19 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/acta")
 public class ActaController {
-
+    
     @Autowired
     ActaService actaService;
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
@@ -62,7 +63,7 @@ public class ActaController {
             }
         });
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -71,54 +72,57 @@ public class ActaController {
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/acta/acta";
     }
-
+    
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-
+        
         DynatableResponse json = new DynatableResponse();
-
+        
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico periodo = ds.getCicloAcademico();
-
+            
             List<DepartamentoAcademico> departamentosAcaActivos = actaService.allActiveDepartamentosAcademicos(filter);
-
+            
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (DepartamentoAcademico dep : departamentosAcaActivos) {
-
+                
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+                
                 node.put("idDep", dep.getId());
                 node.put("nombreDep", dep.getNombre());
                 array.add(node);
             }
-
+            
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             json.setTotal(0);
         }
-
+        
         return json;
     }
-
+    
     @RequestMapping("{departamento}/departamento")
     public String departamento(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session, RedirectAttributes redirect) {
-
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DepartamentoAcademico depAcademico = actaService.findDepartamento(idDepartamento);
-
+        logger.debug("departamento academico id {}", depAcademico.getId());
+        List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento));
+        logger.debug("cantidad de grupos secciones {}", allGruposSeccion.size());
+        
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
-
-        logger.debug("departamento academico {}", idDepartamento);
+        model.addAttribute("departamentoAcademico", depAcademico);
+        model.addAttribute("gruposSecciones", allGruposSeccion);
+        
         return "app/academico/acta/actaDepartamento";
-
+        
     }
-
+    
 }

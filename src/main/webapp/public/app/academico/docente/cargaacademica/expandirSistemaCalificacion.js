@@ -54,6 +54,7 @@ $(function () {
             $.each(evaluacionPlanes, function (key, value) {
                 evaluacionPlanes[key] = JSON.parse(value);
             });
+
             $("#btnAceptarExpandir").css("display", "none");
         }, expandirEvaluacion: function ($this, e) {
             e.preventDefault();

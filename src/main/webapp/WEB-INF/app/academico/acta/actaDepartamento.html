@@ -8,8 +8,30 @@
         <header class="page-header">        
             <h2>Acta de Notas - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
             <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>
-            <span class="block"><strong >Departamento Academico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+            <span class="block"><strong >Departamento Academico:</strong> <span th:text="${departamentoAcademico.nombre}">Matematicas</span></span>
         </header>
+
+        <div class="tabbable-line m-b-lg" id="subBar">
+            <ul class="nav nav-tabs">
+
+                <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
+                <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
+                    <a href="#"
+                       th:text="${grupo.codigo}">grupo</a>
+                </li>
+
+            </ul>
+        </div>
+
+
+
     </div>
+
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/acta/actaDepartamento.js}" charset="utf-8"></script>
+    </div>
+
 </body>
 </html>

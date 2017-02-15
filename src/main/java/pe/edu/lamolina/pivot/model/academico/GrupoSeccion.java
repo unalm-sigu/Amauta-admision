@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -31,8 +32,16 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "orden")
     private Integer orden;
 
+    @NotNull
+    @Column(name = "version")
+    private Integer version;
+
+    @NotNull
     @Column(name = "estado_plan")
     private String estadoPlan;
+
+    @Column(name = "estado_grupo")
+    private String estadoGrupo;
 
     @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
     private List<Seccion> secciones;
@@ -212,6 +221,22 @@ public class GrupoSeccion implements Serializable {
 
     public void setCodigoCurso(String codigoCurso) {
         this.codigoCurso = codigoCurso;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
+
+    public String getEstadoGrupo() {
+        return estadoGrupo;
+    }
+
+    public void setEstadoGrupo(String estadoGrupo) {
+        this.estadoGrupo = estadoGrupo;
     }
 
 }
