@@ -11,18 +11,37 @@
             <span class="block"><strong >Departamento Academico:</strong> <span th:text="${departamentoAcademico.nombre}">Matematicas</span></span>
         </header>
 
-        <div class="tabbable-line m-b-lg" id="subBar">
-            <ul class="nav nav-tabs">
-
-                <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
-                <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
-                    <a href="#"
-                       th:text="${grupo.codigo}">grupo</a>
-                </li>
-
-            </ul>
-        </div>
-
+        <section class="panel">
+            <section class="panel-body">
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-2">Grupo</th>
+                            <th class="col-md-3 text-center">Curso</th>
+                            <th class="col-md-3 text-center">Docente</th>
+                            <th class="col-md-3 text-center">Versión</th>
+                            <th class="col-md-3 text-center">Estado Plan</th>
+                            <th class="col-md-1 text-center">Estado Grupo</th>
+                            <th class=""></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+        <!-- 
+               <div class="tabbable-line m-b-lg" id="subBar">
+                   <ul class="nav nav-tabs">
+       
+                       <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
+                       <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
+                           <a href="#"
+                              th:text="${grupo.codigo}">grupo</a>
+                       </li>
+       
+                   </ul>
+               </div>
+        -->
 
 
     </div>

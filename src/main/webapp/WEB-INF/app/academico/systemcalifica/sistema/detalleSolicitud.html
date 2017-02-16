@@ -32,19 +32,15 @@
                 <span class="block"  th:text="${evas.pesoTotal + ' %'}"  >20 %</span>
             </td>
             <td>
-                <label class="switch">
-                    <input type="checkbox" th:value="${evas.notaMinimaAnulable}" disabled="yes" />
-                    <span></span>
-                </label>
+                <span class="block"  th:if='${evas.notaMinimaAnulable==1}'>Si</span>
+                <span class="block"  th:if='${evas.notaMinimaAnulable==0}'>No</span>
             </td>
             <td class="text-center v-middle">
                 <span class="block"  th:text="${evas.pesoEvaluacion + ' %'}"  >20 %</span>
             </td>
             <td>
-                <label class="switch">
-                    <input type="checkbox" value="1" disabled="yes"/>
-                    <span></span>
-                </label>
+                <span class="block"  th:if='${evas.indPorcentajeVariable==1}'>Si</span>
+                <span class="block"  th:if='${evas.indPorcentajeVariable==0}'>No</span>
             </td>
             <td class="text-center v-middle">
                 <span class="label label-default">Teoria</span>
