@@ -1,9 +1,12 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
@@ -39,6 +42,39 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
             sqlUtil.filterIn("gp.id", ids);
         }
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<GrupoSeccion> allByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter filter) {
+
+        // List<String> fieldsFiltro = Arrays.asList("da.nombre", "da.codigo");
+        filter.setAlias("gp");
+        //   filter.setFields(fieldsFiltro);
+        filter.setParents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc", "_cur.departamentoAcademico da");
+
+        filter.filterFix("ca.id", cicloAcademico.getId());
+        filter.filterFix("da.id", departamentoAcademico.getId());
+
+        filter.setTotal(this.count(filter));
+        filter.setFiltered(this.countByFilter(filter));
+
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
+        sqlUtil.parents(filter.getParents());
+
+        Map filtersFix = filter.getFiltersFixed();
+        for (Object key : filtersFix.keySet()) {
+            this.filterFixed(sqlUtil, (String) key, filtersFix.get(key));
+        }
+
+        Map filtersInFix = filter.getFiltersInFixed();
+        for (Object key : filtersInFix.keySet()) {
+            this.filterInFixed(sqlUtil, (String) key, (List) filtersInFix.get(key));
+        }
+        this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
+        sqlUtil.setFirstResult(filter.getOffset())
+                .setPageSize(filter.getPerPage());
+
+        return this.all(sqlUtil);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -443,7 +442,7 @@ public class CargaAcademicaController {
 
         //   Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
         Long idGrupoSeccion = grupoSeccion.getId();
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion);
+        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion, null);
         model.addAttribute("evaluacionSeccion", evalSeccion);
         logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
         cargaAcademicaService.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP);
@@ -468,7 +467,7 @@ public class CargaAcademicaController {
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
 
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         logger.debug("La evaluacion seccion es {}", evalSeccion != null ? evalSeccion.getId().toString() : "no se encontro");
         model.addAttribute("evaluacionSeccion", evalSeccion);
 
@@ -764,7 +763,7 @@ public class CargaAcademicaController {
 
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
@@ -800,7 +799,7 @@ public class CargaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
@@ -1054,7 +1053,7 @@ public class CargaAcademicaController {
     public JsonResponse activarEvaluacion(
             Model model,
             @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
-            @RequestParam(name = "fechaEvaluacion", required = true) Date fechaEvaluacion,
+            @RequestParam(name = "fechaEvaluacion", required = false) Date fechaEvaluacion,
             @RequestParam(name = "activacion", required = true) boolean activacion,
             HttpSession session) {
 
@@ -1063,9 +1062,12 @@ public class CargaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
-
-            Evaluacion evaluacion = cargaAcademicaService.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
-
+            Evaluacion evaluacion = null;
+            if (fechaEvaluacion != null) {
+                evaluacion = cargaAcademicaService.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
+            } else {
+                evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
+            }
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());

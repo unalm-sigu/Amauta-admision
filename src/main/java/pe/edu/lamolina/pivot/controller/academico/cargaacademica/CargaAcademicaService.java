@@ -71,7 +71,7 @@ public interface CargaAcademicaService {
 
     void saveExpansionEvaluacion(EvaluacionExpandida evaluacion, DataSessionPivot ds);
 
-    EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion);
+    EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum);
 
     EvaluacionSeccion findEvaluacionSeccion(Long id);
 

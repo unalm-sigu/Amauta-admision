@@ -150,7 +150,7 @@ $(function () {
                     var data = response.data;
                     MODAL.init("md");
 
-                    if (data.estado == "CERRADA") {
+                    if (data.estaAbierto == true || data.estaReabierto) {
                         MODAL.title("Activar evaluación: " + data.tEvaluacionNombre + " " + data.numero);
                     } else {
                         MODAL.title("Resumen estadístico de " + data.tEvaluacionNombre + " " + data.numero);
@@ -173,12 +173,14 @@ $(function () {
                     checkin.setDate(data.evaFechaRealizada);
                     var buttons = "";
 
-
-                    if (data.estado == "CERRADA") {
-                        buttons = buttons + '<a href="#" class="btn btn-warning activar-eval" rel="true">Activar</a>';
-                        checkin.setDate("");
-                    } else {
-                        buttons = '<a class="btn btn-success activar-eval"  rel="false">Modificar Fecha Eva.</a>';
+                    if (data.estaAbierto == true || data.estaReabierto) {
+                        if (data.evaFechaIngresoNota == "") {
+                            buttons = buttons + '<a href="#" class="btn btn-warning activar-eval" rel="true">Activar</a>';
+                            checkin.setDate("");
+                        } else {
+                            buttons = '<a class="btn btn-success adicionar-evals"  >Adicionar Notas</a>';
+                            buttons += '<a class="btn btn-success activar-eval"  rel="false">Modificar Fecha Eva.</a>';
+                        }
                     }
                     MODAL.buttons(buttons);
 
@@ -214,11 +216,14 @@ $(function () {
                     if (response.success) {
 
                         if (activacion == "true" || activacion == true) {
-                            $("#txtCodeSel").val(response.data.evaId);
-                            $("span[name='" + response.data.evaId + "']").css("display", "none");
-                            $("input[title='" + response.data.evaId + "']").css("display", "");
-                            $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
-                            $("input[title='" + response.data.evaId + "']").val("");
+                            var input = $("input[title='" + response.data.evaId + "']");
+                            if (input != null && input != undefined) {
+                                $("#txtCodeSel").val(response.data.evaId);
+                                $("span[name='" + response.data.evaId + "']").css("display", "none");
+                                $("input[title='" + response.data.evaId + "']").css("display", "");
+                                $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
+                                $("input[title='" + response.data.evaId + "']").val("");
+                            }
                             /*
                              <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
                              type="text" 
@@ -238,6 +243,63 @@ $(function () {
                     MODAL.hide();
                 }
             });
+        }, adicionarEvals: function ($this, e) {
+
+            if ($("#txtCodeSel").val() != "") {
+                bootbox.alert("Tiene una evaluacion pendiente, verifique.");
+                return;
+            }
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/activarEvaluacion'),
+                type: 'POST',
+                async: false,
+                data: {
+                    evaluacion: $("#txtEvaluacionId").val(),
+                    activacion: false
+                },
+                success: function (response) {
+                    if (response.success) {
+
+
+                        var input = $("input[title='" + response.data.evaId + "']");
+                        var found = false;
+                        if (input != null && input != undefined) {
+                            $("#txtCodeSel").val(response.data.evaId);
+                            //    $("span[name='" + response.data.evaId + "']").css("display", "none");
+                            $("input[title='" + response.data.evaId + "']").css("display", "");
+                            $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
+                            $("input[title='" + response.data.evaId + "']").val("");
+
+                        }
+                        $("input[title='" + response.data.evaId + "']").each(function () {
+                            found = true;
+                        });
+                        if (!found) {
+                            $("#txtEvaluacionId").val("");
+                            $("#txtCodeSel").val("");
+                            bootbox.alert("No se encontraron alumnos sin notas, para esta evaluación.");
+
+                        }
+                        /*
+                         <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                         type="text" 
+                         class="form-control nota-alumno"
+                         readonly="false"/>
+                         */
+
+
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    MODAL.hide();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hide();
+                }
+            });
+
         },
         verGrabarNotas: function () {
 
@@ -527,8 +589,11 @@ $(function () {
     });
 
     $("body").delegate(".activar-eval", "click", function (e) {
-
         NotasAcademicas.activarEvaluacion($(this), e);
+    });
+
+    $("body").delegate(".adicionar-evals", "click", function (e) {
+        NotasAcademicas.adicionarEvals($(this), e);
     });
 
     $("body").delegate("#cmbSaveNotas", "click", function (e) {

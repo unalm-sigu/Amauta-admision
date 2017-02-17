@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.acta;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,18 +22,28 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -128,10 +139,10 @@ public class ActaController {
         return "app/academico/acta/actaDepartamento";
 
     }
-    /*
+
     @ResponseBody
     @RequestMapping("listGrupo")
-    public DynatableResponse listGrupo(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse listGrupo(DynatableFilter filter, @RequestParam("departamento") Long idDepartamento, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -139,39 +150,50 @@ public class ActaController {
         try {
             DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
 
-        //    List<PlanCalificacion> lstPLanCalificacion = sistemaService.allPlanesCalificacionByDynatable(filter, dpto);
-
+            List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (PlanCalificacion planCalificacion : lstPLanCalificacion) {
+            for (GrupoSeccion grupo : allGruposSeccion) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
-                node.put("id", planCalificacion.getId());
-                node.put("codigo", planCalificacion.getCodigo());
-                node.put("formula", planCalificacion.getFormula());
-                node.put("descripcion", planCalificacion.getDescripcion());
-                node.put("origen", planCalificacion.getOrigenEnum().getValue());
-                node.put("fechaReg", TypesUtil.getStringDate(planCalificacion.getFechaRegistro(), "dd/MM/yyyy"));
-                node.put("estado", planCalificacion.getEstado());
-                node.put("estadoEnum", planCalificacion.getEstadoEnum().getValue());
-                node.put("verSolicitud", planCalificacion.isEstadoSolicitado());
-                node.put("verActivar", planCalificacion.isEstadoCreado());
-                node.put("verInactivar", planCalificacion.isEstadoCreado() || planCalificacion.isEstadoActivado());
-                node.put("verAprobar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
+                node.put("idGrupo", grupo.getId());
+                node.put("codigoGrupo", grupo.getCodigo());
 
-                node.put("verRechazar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
-                node.put("verObservar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
-                node.put("verReenviar", planCalificacion.isEstadoObservado());
-                node.put("verAsignarCursos", planCalificacion.isEstadoActivado());
-                List<Curso> cursos = new ArrayList<>();
-                if (ObjectUtil.getParentTree(planCalificacion, "curso") != null) {
-                    for (Curso cur : planCalificacion.getCurso()) {
-                        if (cur.isEstadoActive()) {
-                            cursos.add(cur);
+                node.put("idCurso", grupo.getCurso().getId());
+                node.put("nombreCurso", grupo.getCurso().getNombre());
+
+                node.put("version", grupo.getVersion());
+                node.put("estadoPlan", grupo.getEstadoPlanEnum().name());
+                node.put("estadoPlanValue", grupo.getEstadoPlanEnum().getValue());
+                node.put("estadoGrupo", grupo.getEstadoGrupoEnum().name());
+                node.put("estadoGrupoValue", grupo.getEstadoGrupoEnum().getValue());
+
+                node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
+
+                StringBuilder secciones = new StringBuilder();
+                DocenteSeccion docenteSeccion = null;
+                Docente docentePrincipal = null;
+
+                for (Seccion sec : grupo.getSecciones()) {
+                    secciones.append(sec.getCodigo());
+                    secciones.append(",");
+
+                    if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                        docenteSeccion = actaService.findDocenteSeccionByFilter(null, sec);
+                        if (docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                            if (docenteSeccion.esDocentePrincipal()) {
+                                docentePrincipal = docenteSeccion.getDocente();
+                            }
                         }
                     }
+
                 }
-                node.put("cantidadCursos", cursos.size());
+                node.put("docenteNombre", "");
+                node.put("idDocente", "");
+                if (docentePrincipal != null) {
+                    node.put("docenteNombre", docentePrincipal.getPersona().getApellidosNombres());
+                    node.put("idDocente", docentePrincipal.getId());
+                }
                 array.add(node);
             }
 
@@ -184,6 +206,26 @@ public class ActaController {
             json.setTotal(0);
         }
         return json;
-    }*/
+    }
+
+    @ResponseBody
+    @RequestMapping("reabrir")
+    public JsonResponse reabrir(@RequestParam("grupo") Long idGrupo) {
+        JsonResponse response = new JsonResponse();
+        try {
+            logger.debug("El grupo seleccionado es {}", idGrupo);
+
+            response.setMessage(Messages.APPROVED);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 
 }

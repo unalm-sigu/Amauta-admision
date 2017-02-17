@@ -220,7 +220,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Long idGrupoSeccion = grupoSeccion.getId();
             Long idPlanCalificacion = curso.getPlanCalificacion().getId();
             logger.debug("Grupo seccion {}, plan calificacion {}", idGrupoSeccion, idPlanCalificacion);
-            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion);
+            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion, null);
             PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
 
             if (evaluacionSeccion != null) {
@@ -483,34 +483,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         planCalificacion.generateCodigo();
 
         planCalificacionDAO.save(planCalificacion);
-        /*
-        EvaluacionSeccion evaluacionSeccion = new EvaluacionSeccion();
-        evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.SOL);
-        evaluacionSeccion.setGrupoSeccion(grupoSeccion);
-        evaluacionSeccion.setPlanCalificacion(planCalificacion);
-        evaluacionSeccion.setEvaluaciones(new ArrayList<Evaluacion>());
 
-        for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
-
-            Evaluacion evaluacion = new Evaluacion();
-            evaluacion.setEvaluacionSeccion(evaluacionSeccion);
-            evaluacion.setAlumnoEvaluacion(null);
-            evaluacion.setEvaluacionSeccion(evaluacionSeccion);
-            evaluacion.setTipoEvaluacion(evaluacionPlan.getTipoEvaluacion());
-            evaluacion.setEstaDesagregado(BigDecimal.ZERO.intValue());
-            evaluacion.setEvaluacionSuperior(null);
-            evaluacion.setEvaluaciones(null);
-            evaluacion.setEvaluados(BigDecimal.ZERO.intValue());
-            evaluacion.setPeso(evaluacionPlan.getPesoTotal());
-            evaluacionSeccion.getEvaluaciones().add(evaluacion);
-        }
-        evaluacionSeccionDAO.save(evaluacionSeccion);
-         */
         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.SOL);
         grupoSeccion.setPlanCalificacion(planCalificacion);
         grupoSeccionDAO.update(grupoSeccion);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.SOL);
         evaluacionSeccion.setPlanCalificacion(planCalificacion);
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -518,8 +496,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion) {
-        return evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion);
+    public EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        return evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion, estadoPlanCalificaEnum);
     }
 
     @Override
@@ -582,7 +560,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Curso curso = cursoDAO.find(cursoId);
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.PRO);
         evaluacionSeccion.setPlanCalificacion(curso.getPlanCalificacion());
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -602,7 +580,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Curso curso = cursoDAO.find(cursoId);
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
         logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -954,7 +932,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         GrupoSeccion grupoSeccion = this.findGrupo(seccion.getGrupoSeccion().getId());
         List<AlumnoEvaluacion> alumnosEvaluaciones = this.allAlumnoEvaluacionByFilter(null, null, seccion.getId());
 
-        EvaluacionSeccion evaluacionSeccion = this.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = this.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         SistemaNotas sistemaNotas = evaluacionSeccion.getSistemaNotas();
 
         BigDecimal notaminima = BigDecimal.valueOf(1000L);
@@ -988,7 +966,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         if (evaluacion != null) {
             node.put("evaluacionId", evaluacion.getId());
-            node.put("estado", evaluacion.getFechaIngresoNota() == null ? "CERRADA" : "ABIERTA");
+            //      node.put("estado", evaluacion.getFechaIngresoNota() == null ? "CERRADA" : "ABIERTA");
+            node.put("estaAbierto", grupoSeccion.isEstadoGrupoAbierto());
+            node.put("estaCerrado", grupoSeccion.isEstadoGrupoCerrado());
+            node.put("estaReabierto", grupoSeccion.isEstadoGrupoReabierto());
+
             node.put("tEvaluacionNombre", evaluacion.getTipoEvaluacion().getNombre());
             node.put("tEvaluacionCodigo", evaluacion.getTipoEvaluacion().getCodigo());
             node.put("numero", evaluacion.getNumero());

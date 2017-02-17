@@ -153,7 +153,7 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);
         planCalificacion.setObservacion(observacion);
         if (EstadoPlanCalificaEnum.ACEP.equals(estadoPlanCalificaEnum)) {
-            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null);
+            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null, null);
             evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
             evaluacionSeccionDAO.update(evaluacionSeccion);
 
@@ -194,7 +194,7 @@ public class SistemaServiceImp implements SistemaService {
 
         } else if (EstadoPlanCalificaEnum.RHZ.equals(estadoPlanCalificaEnum)
                 || EstadoPlanCalificaEnum.OBS.equals(estadoPlanCalificaEnum)) {
-            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null);
+            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null, null);
             evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
             evaluacionSeccionDAO.update(evaluacionSeccion);
 

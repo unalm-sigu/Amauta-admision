@@ -2,7 +2,7 @@
 <div id="divEvaluacion" type="text/x-jsrender" class="hide">
     <form id="{{:form}}">
         <input id="txtEvaluacionId" type="hidden" value="{{:evaluacionId}}"/>
-        {{if estado=="ABIERTA"}}
+
         <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4  bold">Evaluacion: </label>
@@ -54,7 +54,8 @@
                 </div>
             </div>
         </div>
-        {{/if}}
+
+        {{if estaAbierto==true || estaReabierto==true}}  
         <div class="row m-b-xs">
             <div class="form-group">
                 <label  class="col-sm-4 bold">Fecha de la evaluación: </label>
@@ -71,5 +72,6 @@
                 </div>
             </div>
         </div>
+        {{/if}}
     </form>
 </div>

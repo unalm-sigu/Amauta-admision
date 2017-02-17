@@ -537,14 +537,14 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 gpoSeccBD.setCicloAcademico(ciclo);
                 gpoSeccBD.setCodigo(gpoSecc.getCodigo());
                 gpoSeccBD.setCurso(curso);
-                gpoSeccBD.setVersion(1);
+                gpoSeccBD.setVersion("1");
                 gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
 
                 grupoSeccionDAO.save(gpoSeccBD);
 
             } else {
-                gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? 1 : gpoSeccBD.getVersion());
+                gpoSeccBD.setVersion(StringUtils.isEmpty(gpoSeccBD.getVersion()) ? "1" : gpoSeccBD.getVersion());
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
                 grupoSeccionDAO.update(gpoSeccBD);
