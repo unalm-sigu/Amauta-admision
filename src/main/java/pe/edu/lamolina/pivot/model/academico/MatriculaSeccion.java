@@ -48,6 +48,8 @@ public class MatriculaSeccion implements Serializable {
     private String codigoAlumno;
     @Transient
     private String codigoSeccion;
+    @Transient
+    private Integer procesado;
 
     public MatriculaSeccion() {
     }
@@ -55,6 +57,7 @@ public class MatriculaSeccion implements Serializable {
     public MatriculaSeccion(String codigoAlumno, String codigoSeccion) {
         this.codigoAlumno = codigoAlumno;
         this.codigoSeccion = codigoSeccion;
+        this.procesado = 0;
     }
 
     public MatriculaSeccion(Object id) {
@@ -130,6 +133,14 @@ public class MatriculaSeccion implements Serializable {
 
     public void setCodigoSeccion(String codigoSeccion) {
         this.codigoSeccion = codigoSeccion;
+    }
+
+    public Integer getProcesado() {
+        return procesado;
+    }
+
+    public void setProcesado(Integer procesado) {
+        this.procesado = procesado;
     }
 
 }
