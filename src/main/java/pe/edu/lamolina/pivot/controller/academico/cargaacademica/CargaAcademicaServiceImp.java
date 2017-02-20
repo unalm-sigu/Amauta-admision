@@ -1038,7 +1038,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             DateTime fechaVencimiento = fechaRealizada.plusDays(ReclamoNota.MAXIMO_DIAS_RECLAMO);
             logger.debug("Fecha limite camio de nota {}", fechaVencimiento.toString("dd/MM/yyyy"));
             if (fechaVencimiento.toLocalDate().isBefore(new DateTime().toLocalDate())) {
-                throw new PhobosException("Superó la fecha limite para cambiar la nota.");
+                throw new PhobosException("Error, Superó la fecha limite para cambiar la nota.");
             }
         }
         reclamoNota.setEstado(EstadoEnum.CRE.name());

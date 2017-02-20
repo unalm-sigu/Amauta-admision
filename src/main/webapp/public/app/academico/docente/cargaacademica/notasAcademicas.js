@@ -457,12 +457,12 @@ $(function () {
                         notify(response.message, "info");
                         MODAL.hide();
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(response.message, "error");
                         MODAL.hide();
                     }
                     NotasAcademicas.reloadNotas();
                 },
-                error: function () {
+                error: function (error) {
                     notify(MESSAGES.errorComunicacion, "error");
 
                 }
