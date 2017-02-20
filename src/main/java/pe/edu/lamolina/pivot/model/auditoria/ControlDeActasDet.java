@@ -34,7 +34,6 @@ public class ControlDeActasDet implements Serializable {
     @JoinColumn(name = "id_evaluacion")
     private Evaluacion evaluacion;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evaluacion_superior")
     private Evaluacion evaluacionSuperior;
