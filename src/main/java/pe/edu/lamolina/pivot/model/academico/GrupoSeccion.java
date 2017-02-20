@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,10 +12,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
@@ -65,6 +68,14 @@ public class GrupoSeccion implements Serializable {
 
     @Transient
     private String codigoCurso;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_cierre_acta")
+    private Usuario usuarioCierraActa;
+
+    @Column(name = "fecha_cierre_acta")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaCierreActa;
 
     public GrupoSeccion() {
     }
@@ -209,6 +220,13 @@ public class GrupoSeccion implements Serializable {
         return false;
     }
 
+    public boolean isEstadoAceptado() {
+        if (EstadoPlanCalificaEnum.ACEP.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
     public List<EvaluacionSeccion> getEvaluacionSecciones() {
         return evaluacionSecciones;
     }
@@ -248,6 +266,22 @@ public class GrupoSeccion implements Serializable {
 
     public void setEstadoGrupoEnum(EstadoGrupoSeccionEnum estadoGrupoEnum) {
         this.estadoGrupo = estadoGrupoEnum.name();
+    }
+
+    public Usuario getUsuarioCierraActa() {
+        return usuarioCierraActa;
+    }
+
+    public void setUsuarioCierraActa(Usuario usuarioCierraActa) {
+        this.usuarioCierraActa = usuarioCierraActa;
+    }
+
+    public Date getFechaCierreActa() {
+        return fechaCierreActa;
+    }
+
+    public void setFechaCierreActa(Date fechaCierreActa) {
+        this.fechaCierreActa = fechaCierreActa;
     }
 
     public boolean isEstadoGrupoAbierto() {

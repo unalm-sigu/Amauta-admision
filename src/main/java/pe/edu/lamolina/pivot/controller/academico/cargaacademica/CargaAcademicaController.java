@@ -14,12 +14,14 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.groovy.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -776,6 +778,20 @@ public class CargaAcademicaController {
 
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
+        boolean esDocentePrincipal = false;
+        for (Seccion sec : grupoSeccion.getSecciones()) {
+
+            if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                    if (docenteSeccion.esDocentePrincipal()) {
+                        esDocentePrincipal = true;
+                    }
+                }
+            }
+
+        }
+
         //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("grupoSeccion", grupoSeccion);
@@ -785,7 +801,7 @@ public class CargaAcademicaController {
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
-
+        model.addAttribute("esDocentePrincipal", esDocentePrincipal);
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 
@@ -1232,6 +1248,22 @@ public class CargaAcademicaController {
         } finally {
             return response;
         }
+    }
+
+    @ResponseBody
+    @RequestMapping("cerrarActa")
+    public JsonResponse cerrarActa(
+            @RequestParam(name = "grupo", required = true) Long grupoId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        //    cargaAcademicaService.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
+        String message = "Acta cerrada correctamente";
+        response.setMessage(message);
+        response.setSuccess(true);
+
+        return response;
     }
 
 }

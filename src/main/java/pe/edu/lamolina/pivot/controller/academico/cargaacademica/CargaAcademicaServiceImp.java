@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -64,7 +62,9 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Service
@@ -662,7 +662,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<Evaluacion> allEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
-        return evaluacionDAO.allByFilter(null, idGrupoSeccion, null, null);
+        return evaluacionDAO.allByFilter(null, idGrupoSeccion, idSeccion, null);
     }
 
     @Override
@@ -1088,7 +1088,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     continue;
                 }
                 //    Collections.sort(eva.getEvaluaciones(), (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
-                Collections.sort(eva.getEvaluaciones(), (Evaluacion p1, Evaluacion p2) -> p1.getNumero().compareTo(p2.getNumero()));
+                //       Collections.sort(eva.getEvaluaciones(), (Evaluacion p1, Evaluacion p2) -> p1.getNumero().compareTo(p2.getNumero()));
 
                 logger.debug("hijos {}", eva.getEvaluaciones().size());
                 for (Evaluacion evaChild : eva.getEvaluaciones()) {
@@ -1278,6 +1278,38 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
         return cursoDAO.allActiveByPlan(planCalificacion);
+    }
+
+    @Override
+    @Transactional
+    public void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario) {
+        grupoSeccion = this.findGrupo(grupoSeccion.getId());
+
+        boolean evaluactionsComplete = true;
+        List<String> lstSeccion = new ArrayList<String>();
+        for (Seccion seccion : grupoSeccion.getSecciones()) {
+            List<Evaluacion> evaluacionesBySeccion = this.allEvaluacionByFilter(null, null, seccion.getId());
+
+            for (Evaluacion evaluacion : evaluacionesBySeccion) {
+                if (!evaluacion.isDesagregado()) {
+                    if (evaluacion.getFechaIngresoNota() == null) {
+                        logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
+                        evaluactionsComplete = false;
+                        break;
+                    }
+                }
+            }
+            if (!evaluactionsComplete) {
+                lstSeccion.add(seccion.getCodigo());
+            }
+        }
+        if (!evaluactionsComplete) {
+            throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(",", lstSeccion)));
+        }
+        grupoSeccion.setUsuarioCierraActa(usuario);
+        grupoSeccion.setFechaCierreActa(new DateTime().toDate());
+        grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
+        grupoSeccionDAO.update(grupoSeccion);
     }
 
 }

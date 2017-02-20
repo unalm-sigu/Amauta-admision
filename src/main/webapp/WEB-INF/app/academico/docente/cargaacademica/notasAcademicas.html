@@ -8,9 +8,9 @@
     <div layout:fragment="main">
         <header class="page-header">        
             <div class="pull-right" >
-                <!--
-                <a class="btn btn-primary activar-evaluacion" href="#" >Activar evaluación</a>
-                -->
+
+                <a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-primary cerrar-acta" href="#" >Cerrrar Actan</a>
+                <a class="btn btn-primary" href="#" id="cmbReporteNotas" >Reporte</a>
             </div>
 
             <h2>Registro de Notas - <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
@@ -21,9 +21,8 @@
             <span class="block"><strong>Clave:</strong> <span th:text="${seccion.codigo}">2130</span></span>
             <span class="block"><strong>Sistema Notas:</strong> <span th:text="${sistemaNotas.nombre}">2130</span></span>
             <input id="txtSistemaNotas" type="hidden" th:value="${sistemaNotas.id}"/>
+            <span class="block"><strong>Estado del Acta:</strong> <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span></span>
 
-
-            <button href="#" id="cmbReporteNotas" >Reporte</button>
 
             <style>
                 body    {overflow-x:scroll;}

@@ -43,11 +43,19 @@ public class ControlDeActas implements Serializable {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaRegistro;
 
-    @NotNull
-    @Column(name = "id_user_registro")
-    private Usuario usuario;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario usuarioRegistro;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idControlDeActas", fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_cierre_acta")
+    private Usuario usuarioCierraActa;
+
+    @Column(name = "fecha_cierre_acta")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaCierreActa;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "controlDeActas", fetch = FetchType.LAZY)
     private List<ControlDeActasDet> controlDeActasDets;
 
     public ControlDeActas() {
@@ -89,12 +97,12 @@ public class ControlDeActas implements Serializable {
         this.grupoSeccion = grupoSeccion;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Usuario getUsuarioRegistro() {
+        return usuarioRegistro;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setUsuarioRegistro(Usuario usuarioRegistro) {
+        this.usuarioRegistro = usuarioRegistro;
     }
 
     public List<ControlDeActasDet> getControlDeActasDets() {
@@ -103,6 +111,22 @@ public class ControlDeActas implements Serializable {
 
     public void setControlDeActasDets(List<ControlDeActasDet> controlDeActasDets) {
         this.controlDeActasDets = controlDeActasDets;
+    }
+
+    public Usuario getUsuarioCierraActa() {
+        return usuarioCierraActa;
+    }
+
+    public void setUsuarioCierraActa(Usuario usuarioCierraActa) {
+        this.usuarioCierraActa = usuarioCierraActa;
+    }
+
+    public Date getFechaCierreActa() {
+        return fechaCierreActa;
+    }
+
+    public void setFechaCierreActa(Date fechaCierreActa) {
+        this.fechaCierreActa = fechaCierreActa;
     }
 
     @Override

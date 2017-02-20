@@ -521,6 +521,27 @@ $(function () {
             var alumno = $("#txtAlumnoCambiarNota").val();
             location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
 
+        },
+        cerrarActa: function ($this, e) {
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/cerrarActa'),
+                type: 'POST',
+                async: false,
+                data: {
+                    grupo: $("#txtGrupo").val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function (response) {
+                    notify(response.responseJSON.message, "error");
+                }
+
+            });
         }
     };
     NotasAcademicas.init();
@@ -611,4 +632,9 @@ $(function () {
     $("body").delegate("#cmbReporteNotas", "click", function (e) {
         NotasAcademicas.reporteActaNotas($(this), e);
     });
+
+    $("body").delegate(".cerrar-acta", "click", function (e) {
+        NotasAcademicas.cerrarActa($(this), e);
+    });
+
 });

@@ -15,6 +15,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "aud_control_de_actas_det")
@@ -27,20 +30,23 @@ public class ControlDeActasDet implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "id_evaluacion")
-    private Long idEvaluacion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_evaluacion")
+    private Evaluacion evaluacion;
 
     @NotNull
-    @Column(name = "id_evaluacion_superior")
-    private long idEvaluacionSuperior;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_evaluacion_superior")
+    private Evaluacion evaluacionSuperior;
 
     @NotNull
-    @Column(name = "id_seccion")
-    private long idSeccion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_seccion")
+    private Seccion seccion;
 
     @NotNull
     @Column(name = "numero")
-    private int numero;
+    private int numeroEvaluacion;
 
     @NotNull
     @Column(name = "tipo_seccion")
@@ -56,20 +62,20 @@ public class ControlDeActasDet implements Serializable {
 
     @NotNull
     @Column(name = "valor_numerico")
-    private BigDecimal valorNumerico;
+    private BigDecimal notaNumerica;
 
     @NotNull
     @Column(name = "fecha_ingreso_nota")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaIngresoNota;
 
-    @NotNull
-    @Column(name = "id_user_ingreso_nota")
-    private long idUserIngresoNota;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_ingreso_nota")
+    private Usuario usuarioIngresoNota;
 
-    @JoinColumn(name = "id_control_de_actas", referencedColumnName = "id")
+    @JoinColumn(name = "id_control_de_actas")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ControlDeActas idControlDeActas;
+    private ControlDeActas controlDeActas;
 
     public ControlDeActasDet() {
     }
@@ -86,36 +92,28 @@ public class ControlDeActasDet implements Serializable {
         this.id = id;
     }
 
-    public long getIdEvaluacion() {
-        return idEvaluacion;
+    public Evaluacion getEvaluacion() {
+        return evaluacion;
     }
 
-    public void setIdEvaluacion(long idEvaluacion) {
-        this.idEvaluacion = idEvaluacion;
+    public void setEvaluacion(Evaluacion evaluacion) {
+        this.evaluacion = evaluacion;
     }
 
-    public long getIdEvaluacionSuperior() {
-        return idEvaluacionSuperior;
+    public Evaluacion getEvaluacionSuperior() {
+        return evaluacionSuperior;
     }
 
-    public void setIdEvaluacionSuperior(long idEvaluacionSuperior) {
-        this.idEvaluacionSuperior = idEvaluacionSuperior;
+    public void setEvaluacionSuperior(Evaluacion evaluacionSuperior) {
+        this.evaluacionSuperior = evaluacionSuperior;
     }
 
-    public long getIdSeccion() {
-        return idSeccion;
+    public Seccion getSeccion() {
+        return seccion;
     }
 
-    public void setIdSeccion(long idSeccion) {
-        this.idSeccion = idSeccion;
-    }
-
-    public int getNumero() {
-        return numero;
-    }
-
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public void setSeccion(Seccion seccion) {
+        this.seccion = seccion;
     }
 
     public String getTipoSeccion() {
@@ -142,12 +140,20 @@ public class ControlDeActasDet implements Serializable {
         this.nota = nota;
     }
 
-    public BigDecimal getValorNumerico() {
-        return valorNumerico;
+    public int getNumeroEvaluacion() {
+        return numeroEvaluacion;
     }
 
-    public void setValorNumerico(BigDecimal valorNumerico) {
-        this.valorNumerico = valorNumerico;
+    public void setNumeroEvaluacion(int numeroEvaluacion) {
+        this.numeroEvaluacion = numeroEvaluacion;
+    }
+
+    public BigDecimal getNotaNumerica() {
+        return notaNumerica;
+    }
+
+    public void setNotaNumerica(BigDecimal notaNumerica) {
+        this.notaNumerica = notaNumerica;
     }
 
     public Date getFechaIngresoNota() {
@@ -158,20 +164,20 @@ public class ControlDeActasDet implements Serializable {
         this.fechaIngresoNota = fechaIngresoNota;
     }
 
-    public long getIdUserIngresoNota() {
-        return idUserIngresoNota;
+    public Usuario getUsuarioIngresoNota() {
+        return usuarioIngresoNota;
     }
 
-    public void setIdUserIngresoNota(long idUserIngresoNota) {
-        this.idUserIngresoNota = idUserIngresoNota;
+    public void setUsuarioIngresoNota(Usuario usuarioIngresoNota) {
+        this.usuarioIngresoNota = usuarioIngresoNota;
     }
 
-    public ControlDeActas getIdControlDeActas() {
-        return idControlDeActas;
+    public ControlDeActas getControlDeActas() {
+        return controlDeActas;
     }
 
-    public void setIdControlDeActas(ControlDeActas idControlDeActas) {
-        this.idControlDeActas = idControlDeActas;
+    public void setControlDeActas(ControlDeActas controlDeActas) {
+        this.controlDeActas = controlDeActas;
     }
 
     @Override

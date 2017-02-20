@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 public interface ActaService {
 
@@ -22,5 +23,7 @@ public interface ActaService {
     DocenteSeccion findDocenteSeccionByFilter(Docente docente, Seccion seccion);
 
     List<DocenteSeccion> allDocenteSeccionByGrupo(GrupoSeccion grupoSeccion);
+
+    void reabrirGrupo(GrupoSeccion grupoSeccion, Usuario usuario);
 
 }

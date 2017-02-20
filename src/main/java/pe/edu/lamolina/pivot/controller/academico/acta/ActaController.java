@@ -169,6 +169,7 @@ public class ActaController {
                 node.put("estadoGrupoValue", grupo.getEstadoGrupoEnum().getValue());
 
                 node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
+                node.put("estadoPlanAceptado", grupo.isEstadoAceptado());
 
                 StringBuilder secciones = new StringBuilder();
                 DocenteSeccion docenteSeccion = null;
@@ -210,12 +211,15 @@ public class ActaController {
 
     @ResponseBody
     @RequestMapping("reabrir")
-    public JsonResponse reabrir(@RequestParam("grupo") Long idGrupo) {
+    public JsonResponse reabrir(@RequestParam("grupo") Long idGrupo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("El grupo seleccionado es {}", idGrupo);
 
-            response.setMessage(Messages.APPROVED);
+            actaService.reabrirGrupo(new GrupoSeccion(idGrupo), ds.getUsuario());
+
+            response.setMessage("Registro reabierto");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
