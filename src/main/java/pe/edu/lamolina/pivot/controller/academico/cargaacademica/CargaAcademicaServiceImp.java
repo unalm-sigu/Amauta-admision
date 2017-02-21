@@ -809,7 +809,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }*/
     }
 
-    @Transactional()
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Async
     @Override
     public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion) {
@@ -885,7 +885,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                 pesoTotal = pesoTotal.add(peso);
                 ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-                logger.debug("Evaluacion {} {}, numero {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), peso.toString(), ponderado.toString());
+                //    logger.debug("Evaluacion {} {}, numero {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), peso.toString(), ponderado.toString());
             }
 
             BigDecimal nota = calularNota(ponderado, pesoTotal, 2);

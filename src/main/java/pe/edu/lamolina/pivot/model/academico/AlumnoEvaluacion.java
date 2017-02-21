@@ -12,11 +12,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.UniqueConstraint;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
-@Table(name = "aca_alumno_evaluacion")
+@Table(name = "aca_alumno_evaluacion", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"id_alumno", "id_evaluacion"})
+})
 public class AlumnoEvaluacion implements Serializable {
 
     public final static String NSP = "NSP";
