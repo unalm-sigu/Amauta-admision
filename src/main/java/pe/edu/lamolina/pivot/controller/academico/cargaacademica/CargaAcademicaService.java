@@ -139,4 +139,6 @@ public interface CargaAcademicaService {
     List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
 
     void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario);
+
+    void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion);
 }

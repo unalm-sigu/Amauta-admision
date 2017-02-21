@@ -88,10 +88,16 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
                 .parents("evaluacion eva", "_eva.tipoEvaluacion tEva", "alumno alu",
                         "_eva.seccionResponsable sec", "_sec.grupoSeccion gs", "_gs.curso cur", "_gs.cicloAcademico ca",
-                        "left _eva.evaluacionSuperior evaSup", "left _evaSup.tipoEvaluacion")
-                .filter("ca.id", ciclo)
-                .filter("cur.id", curso)
-                .filter("alu.id", alumno);
+                        "left _eva.evaluacionSuperior evaSup", "left _evaSup.tipoEvaluacion");
+        if (ciclo != null) {
+            sqlUtil.filter("ca.id", ciclo);
+        }
+        if (curso != null) {
+            sqlUtil.filter("cur.id", curso);
+        }
+        if (alumno != null) {
+            sqlUtil.filter("alu.id", alumno);
+        }
 
         return all(sqlUtil);
     }
