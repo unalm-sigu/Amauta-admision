@@ -4,6 +4,7 @@ $(function () {
     var letrasNota = "";
     var message = "";
     var NSP = "NSP";
+    var NCV = "NCV";
 
     NotasAcademicas = {
         init: function () {
@@ -38,7 +39,7 @@ $(function () {
                 validateString: function (value, requirement) {
                     var nota = value;
                     if (isNaN(value)) {
-                        if (value != NSP) {
+                        if (value != NSP && value != NCV) {
                             return false;
                         }
                     }
@@ -122,7 +123,7 @@ $(function () {
                     $("#txtNotaNueva").attr("data-parsley-nota-numerica", "true");
                     $("#txtNotaNueva").attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                     $("#txtNotaNueva").attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                    $("#txtNotaNueva").attr("data-parsley-pattern", "(NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
+                    $("#txtNotaNueva").attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
