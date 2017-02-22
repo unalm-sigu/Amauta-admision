@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 
@@ -72,11 +73,16 @@ public class MatriculaResumen implements Serializable {
     @OneToMany(mappedBy = "matriculaResumen", fetch = FetchType.LAZY)
     private List<MatriculaSeccion> matriculaSeccion;
 
+    @Transient
+    private Integer procesado;
+
     public MatriculaResumen() {
+        procesado = 0;
     }
 
     public MatriculaResumen(Object id) {
         this.id = TypesUtil.getLong(id);
+        procesado = 0;
     }
 
     public Long getId() {
@@ -212,6 +218,14 @@ public class MatriculaResumen implements Serializable {
 
     public void setMatriculaSeccion(List<MatriculaSeccion> matriculaSeccion) {
         this.matriculaSeccion = matriculaSeccion;
+    }
+
+    public Integer getProcesado() {
+        return procesado;
+    }
+
+    public void setProcesado(Integer procesado) {
+        this.procesado = procesado;
     }
 
 }

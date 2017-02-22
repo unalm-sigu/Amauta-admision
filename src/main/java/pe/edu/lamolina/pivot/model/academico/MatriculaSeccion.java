@@ -52,6 +52,7 @@ public class MatriculaSeccion implements Serializable {
     private Integer procesado;
 
     public MatriculaSeccion() {
+        this.procesado = 0;
     }
 
     public MatriculaSeccion(String codigoAlumno, String codigoSeccion) {
@@ -62,6 +63,7 @@ public class MatriculaSeccion implements Serializable {
 
     public MatriculaSeccion(Object id) {
         this.id = TypesUtil.getLong(id);
+        procesado = 0;
     }
 
     public Long getId() {
