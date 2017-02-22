@@ -101,8 +101,7 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("  join fetch gs.cicloAcademico ca ");
         sql.append("  left join fetch eva.evaluacionSuperior evaSup ");
         sql.append("  left join fetch evaSup.tipoEvaluacion ");
-        sql.append(" where alu.id = :ALUMNO ");
-        sql.append("   and ca.id = :CICLO ");
+        sql.append(" where ca.id = :CICLO ");
         sql.append("   and exists ( ");
         sql.append("       select ms.id ");
         sql.append("         from ").append(MatriculaSeccion.class.getName()).append(" ms ");
@@ -122,17 +121,22 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("          and mc.estado = :ESTADO ");
         sql.append("   ) ");
 
+        if (alumno != null) {
+            sql.append("   and alu.id = :ALUMNO ");
+        }
         if (curso != null) {
             sql.append("   and cur.id = :CURSO ");
         }
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
-        query.setLong("ALUMNO", alumno.getId());
         query.setString("ESTADO", MAT.name());
 
+        if (alumno != null) {
+            query.setLong("CURSO", alumno.getId());
+        }
         if (curso != null) {
-            query.setLong("CURSO", curso.getId());
+            query.setLong("ALUMNO", curso.getId());
         }
 
         return query.list();

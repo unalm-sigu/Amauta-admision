@@ -810,9 +810,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }*/
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Async
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion) {
 
         Curso curso = grupoSeccion.getCurso();
