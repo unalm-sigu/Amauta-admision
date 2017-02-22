@@ -101,14 +101,13 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("  join fetch gs.cicloAcademico ca ");
         sql.append("  left join fetch eva.evaluacionSuperior evaSup ");
         sql.append("  left join fetch evaSup.tipoEvaluacion ");
-        sql.append(" where alu.id = :ALUMNO ");
-        sql.append("   and ca.id = :CICLO ");
+        sql.append(" where ca.id = :CICLO ");
         sql.append("   and exists ( ");
         sql.append("       select ms.id ");
         sql.append("         from ").append(MatriculaSeccion.class.getName()).append(" ms ");
         sql.append("         join ms.matriculaResumen mr ");
-        sql.append("        where mr.alumno.id = :ALUMNO ");
-        sql.append("          and mr.cicloAcademico.id = :CICLO ");
+        sql.append("        where mr.alumno.id = alu.id ");
+        sql.append("          and mr.cicloAcademico.id = ca.id ");
         sql.append("          and ms.seccion.id = sec.id ");
         sql.append("          and ms.estado = :ESTADO ");
         sql.append("   ) ");
@@ -116,23 +115,28 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("       select mc.id ");
         sql.append("         from ").append(MatriculaCurso.class.getName()).append(" mc ");
         sql.append("         join mc.matriculaResumen mr ");
-        sql.append("        where mr.alumno.id = :ALUMNO ");
-        sql.append("          and mr.cicloAcademico.id = :CICLO ");
+        sql.append("        where mr.alumno.id = alu.id ");
+        sql.append("          and mr.cicloAcademico.id = ca.id ");
         sql.append("          and mc.curso.id = cur.id ");
         sql.append("          and mc.estado = :ESTADO ");
         sql.append("   ) ");
 
+        if (alumno != null) {
+            sql.append("   and alu.id = :ALUMNO ");
+        }
         if (curso != null) {
             sql.append("   and cur.id = :CURSO ");
         }
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
-        query.setLong("ALUMNO", alumno.getId());
         query.setString("ESTADO", MAT.name());
 
+        if (alumno != null) {
+            query.setLong("CURSO", alumno.getId());
+        }
         if (curso != null) {
-            query.setLong("CURSO", curso.getId());
+            query.setLong("ALUMNO", curso.getId());
         }
 
         return query.list();

@@ -7,4 +7,6 @@ public interface AlumnoDAO extends Crud<Alumno> {
 
     Alumno findByCodigo(String codigoAlumno);
 
+    Alumno findLock(Long id);
+
 }

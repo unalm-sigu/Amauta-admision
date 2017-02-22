@@ -28,6 +28,7 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -113,7 +114,12 @@ public class TestController {
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
         for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
             Alumno alumno = alumnoEvaluacion.getAlumno();
-            GrupoSeccion grupoSeccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion();
+            Seccion seccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable();
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+            
+            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
             if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
                 continue;
             }
