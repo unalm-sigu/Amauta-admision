@@ -1256,7 +1256,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        //    cargaAcademicaService.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
+        cargaAcademicaService.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
         String message = "Acta cerrada correctamente";
         response.setMessage(message);
         response.setSuccess(true);

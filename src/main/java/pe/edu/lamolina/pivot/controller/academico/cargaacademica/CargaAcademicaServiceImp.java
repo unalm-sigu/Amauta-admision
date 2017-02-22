@@ -66,6 +66,7 @@ import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Service
@@ -830,16 +831,18 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("Calcular nota");
         BigDecimal bd100 = new BigDecimal("100");
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
-        logger.debug("Evaluaciones del alumno {}", evaluacionesAlumno.size());
+        logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 
         BigDecimal pesoTotal = BigDecimal.ZERO;
         BigDecimal ponderado = BigDecimal.ZERO;
         for (AlumnoEvaluacion ae : evaluacionesAlumno) {
             BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-            pesoTotal = pesoTotal.add(peso);
-            ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-            // logger.debug("Evaluacion {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), peso.toString(), ponderado.toString());
+            if (!ae.isNCV()) {
+                pesoTotal = pesoTotal.add(peso);
+                ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+                // logger.debug("Evaluacion {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), peso.toString(), ponderado.toString());
+            }
         }
 
         BigDecimal avance = ponderado.divide(bd100, 2, RoundingMode.HALF_UP);
@@ -848,9 +851,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(avance));
         matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
 
+        logger.debug("### pesoTotal {}", pesoTotal);
         if (pesoTotal.compareTo(bd100) == 0) {
             //sBigDecimal notaFinal = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
             BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
+
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
         }
         matriculaCursoDAO.update(matriculaCurso);
@@ -877,15 +882,23 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
             rae.setEvaluaciones(evalsTipo.size());
 
+            int cantidadEvaluacionesTotales = ep.getCantidadEvaluaciones();
+            int cantidadEvaluacionesActuales = evalsTipo.size();
+
             pesoTotal = BigDecimal.ZERO;
             ponderado = BigDecimal.ZERO;
 
             for (AlumnoEvaluacion ae : evalsTipo) {
-
-                BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-                pesoTotal = pesoTotal.add(peso);
-                ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-                //    logger.debug("Evaluacion {} {}, numero {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), peso.toString(), ponderado.toString());
+                if (ae.isNCV()) {
+                    ae.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_CONV.name());
+                    ae.setIndNotaAnulada(BigDecimal.ONE.intValue());
+                    alumnoEvaluacionDAO.update(ae);
+                } else {
+                    BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
+                    pesoTotal = pesoTotal.add(peso);
+                    ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+                    //    logger.debug("Evaluacion {} {}, numero {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), peso.toString(), ponderado.toString());
+                }
             }
 
             BigDecimal nota = calularNota(ponderado, pesoTotal, 2);
@@ -1308,6 +1321,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional
     public void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario) {
         grupoSeccion = this.findGrupo(grupoSeccion.getId());
+
+        if (grupoSeccion.isEstadoGrupoCerrado()) {
+            throw new PhobosException("No se puede cerrar el acta debido a que el acta ya se encuentra cerrada.");
+        }
 
         boolean evaluactionsComplete = true;
         List<String> lstSeccion = new ArrayList<String>();

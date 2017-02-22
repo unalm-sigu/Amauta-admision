@@ -40,6 +40,7 @@ $(function () {
                     var nota = value;
                     if (isNaN(value)) {
                         if (value != NSP && value != NCV) {
+
                             return false;
                         }
                     }
@@ -317,12 +318,12 @@ $(function () {
                     $(this).attr("data-parsley-nota-numerica", "true");
                     $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                     $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                    $(this).attr("data-parsley-pattern", "(NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
+                    $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
 
                     //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
 
                 } else {
-                    var letters = NSP + "|";
+                    var letters = NSP + "|" + NCV + "|";
 
                     var letrasArg = sistemaNotasValidate.letras.split(",");
                     for (var i = 0; i < letrasArg.length; i++) {
@@ -479,7 +480,7 @@ $(function () {
             $(".nota-academica").each(function (i, v) {
                 var $this = $(this);
                 var val = $this.text();
-                if (val == "NSP") {
+                if (val == "NSP" || val == "NCV") {
                     $this.addClass("label label-warning");
                 } else if (sistemaNotasValidate.letras != "") {
 
@@ -524,25 +525,55 @@ $(function () {
 
         },
         cerrarActa: function ($this, e) {
-            $.ajax({
-                url: APP.url('academico/docente/cargaacademica/cerrarActa'),
-                type: 'POST',
-                async: false,
-                data: {
-                    grupo: $("#txtGrupo").val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, "info");
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function (response) {
-                    notify(response.responseJSON.message, "error");
-                }
 
+            bootbox.prompt({
+                title: "Entregar acta",
+                message: "adad",
+                inputType: 'checkbox',
+                buttons: {
+                    confirm: {label: 'Entregar', className: "btn-success"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                closeButton: false,
+                inputOptions: [
+                    {
+                        text: 'Entiendo que al entregar el acta ya no podré modificar las notas de los estudiantes',
+                        value: '1',
+                    }
+                ],
+                callback: function (result) {
+
+                    if (result) {
+                        if (result.toString() == "1") {
+                            $.ajax({
+                                url: APP.url('academico/docente/cargaacademica/cerrarActa'),
+                                type: 'POST',
+                                async: false,
+                                data: {
+                                    grupo: $("#txtGrupo").val()
+                                },
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, "info");
+                                        $(".cerrar-acta").css("display", "none");
+                                    } else {
+                                        notify(response.message, "error");
+                                    }
+                                },
+                                error: function (response) {
+                                    notify(response.responseJSON.message, "error");
+                                }
+
+                            });
+                        } else {
+                            bootbox.alert("El acta no seré entrgada hasta que acepte la validación.");
+                        }
+
+                    }
+                }
             });
+
+
         }
     };
     NotasAcademicas.init();
@@ -574,7 +605,7 @@ $(function () {
                 nota.val(nota.val().toUpperCase());
             }
 
-            if (nota.val() != "NSP") {
+            if (nota.val() != "NSP" && nota.val() != "NCV") {
                 var notaFloat = parseFloat(nota.val());
                 if (notaFloat >= sistemaNotasValidate.minimoAprobatorio) {
                     nota.addClass("text-primary");

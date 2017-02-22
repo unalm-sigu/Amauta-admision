@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -11,6 +12,9 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
+import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
+import static pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum.MAT;
 
 @Repository
 public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implements AlumnoEvaluacionDAO {
@@ -85,21 +89,54 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
 
     @Override
     public List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
-                .parents("evaluacion eva", "_eva.tipoEvaluacion tEva", "alumno alu",
-                        "_eva.seccionResponsable sec", "_sec.grupoSeccion gs", "_gs.curso cur", "_gs.cicloAcademico ca",
-                        "left _eva.evaluacionSuperior evaSup", "left _evaSup.tipoEvaluacion");
-        if (ciclo != null) {
-            sqlUtil.filter("ca.id", ciclo);
-        }
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  from ").append(AlumnoEvaluacion.class.getName()).append(" as ae ");
+        sql.append("  join fetch ae.evaluacion eva ");
+        sql.append("  join fetch eva.tipoEvaluacion tEva ");
+        sql.append("  join fetch ae.alumno alu ");
+        sql.append("  join fetch eva.seccionResponsable sec ");
+        sql.append("  join fetch sec.grupoSeccion gs ");
+        sql.append("  join fetch gs.curso cur ");
+        sql.append("  join fetch gs.cicloAcademico ca ");
+        sql.append("  left join fetch eva.evaluacionSuperior evaSup ");
+        sql.append("  left join fetch evaSup.tipoEvaluacion ");
+        sql.append(" where alu.id = :ALUMNO ");
+        sql.append("   and ca.id = :CICLO ");
+        sql.append("   and exists ( ");
+        sql.append("       select ms.id ");
+        sql.append("         from ").append(MatriculaSeccion.class.getName()).append(" ms ");
+        sql.append("         join ms.matriculaResumen mr ");
+        sql.append("        where mr.alumno.id = :ALUMNO ");
+        sql.append("          and mr.cicloAcademico.id = :CICLO ");
+        sql.append("          and ms.seccion.id = sec.id ");
+        sql.append("          and ms.estado = :ESTADO ");
+        sql.append("   ) ");
+        sql.append("   and exists ( ");
+        sql.append("       select mc.id ");
+        sql.append("         from ").append(MatriculaCurso.class.getName()).append(" mc ");
+        sql.append("         join mc.matriculaResumen mr ");
+        sql.append("        where mr.alumno.id = :ALUMNO ");
+        sql.append("          and mr.cicloAcademico.id = :CICLO ");
+        sql.append("          and mc.curso.id = cur.id ");
+        sql.append("          and mc.estado = :ESTADO ");
+        sql.append("   ) ");
+
         if (curso != null) {
-            sqlUtil.filter("cur.id", curso);
-        }
-        if (alumno != null) {
-            sqlUtil.filter("alu.id", alumno);
+            sql.append("   and cur.id = :CURSO ");
         }
 
-        return all(sqlUtil);
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
+        query.setLong("ALUMNO", alumno.getId());
+        query.setString("ESTADO", MAT.name());
+
+        if (curso != null) {
+            query.setLong("CURSO", curso.getId());
+        }
+
+        return query.list();
+
     }
 
     @Override
