@@ -13,7 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
-import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
@@ -185,7 +184,7 @@ public class AlumnoEvaluacion implements Serializable {
     }
 
     public boolean isNotaAnulada() {
-        if (!StringUtils.isEmpty(this.getMotivoAnulacion())) {
+        if (this.getMotivoAnulacion() != null && !this.getMotivoAnulacion().trim().isEmpty()) {
             return true;
         }
         return false;

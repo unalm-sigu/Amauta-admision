@@ -834,6 +834,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("Calcular nota");
         BigDecimal bd100 = new BigDecimal("100");
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
+        if (evaluacionesAlumno.isEmpty()) {
+            return;
+        }
         logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 

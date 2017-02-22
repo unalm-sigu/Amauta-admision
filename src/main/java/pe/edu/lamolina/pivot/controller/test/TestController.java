@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,24 +35,24 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("test")
 public class TestController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
-
+    
     @Autowired
     EvaluacionDAO evaluacionDAO;
-
+    
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
-
+    
     @Autowired
     CargaAcademicaService cargaAcademicaService;
-
+    
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
     public String crearEvaluacionByExp(@RequestParam("idGrupoSeccion") Long idGpoSecc) {
@@ -64,10 +65,10 @@ public class TestController {
         if (grupoSeccion.getEvaluacionSecciones().size() > 1) {
             return "No tiene varias evaluacionSecciones";
         }
-
+        
         EvaluacionSeccion evaluacionSeccion = grupoSeccion.getEvaluacionSecciones().get(0);
         PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
-
+        
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
         logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
         List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
@@ -79,12 +80,12 @@ public class TestController {
                 logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
                 if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                         evaluacionExpandida.getTipoSeccionEnum())) {
-
+                    
                     Evaluacion evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
                     if (evaluacion != null) {
                         continue;
                     }
-
+                    
                     evaluacion = new Evaluacion();
                     evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
                     if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
@@ -97,15 +98,39 @@ public class TestController {
                         }
                     }
                     cargaAcademicaService.saveEvaluacion(evaluacion);
-
+                    
                 }
             }
         }
-
+        
         return "YEAH";
-
+        
     }
-
+    
+    @ResponseBody
+    @RequestMapping("calcularAllResumenEvaluacion/{grupoSeccion}")
+    public String calcularAllResumenEvaluacion(@PathVariable("grupoSeccion") Long grupoSeccionId, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
+        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
+            Alumno alumno = alumnoEvaluacion.getAlumno();
+            Seccion seccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable();
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+            
+            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+            if (grupoSeccionId.equals(grupoSeccion.getId())) {
+                if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
+                    continue;
+                }
+                cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion);
+            }
+        }
+        return "yeah";
+    }
+    
     @ResponseBody
     @RequestMapping("calcularAllResumenEvaluacion")
     public String calcularAllResumenEvaluacion(HttpSession session) {
@@ -127,5 +152,5 @@ public class TestController {
         }
         return "yeah";
     }
-
+    
 }
