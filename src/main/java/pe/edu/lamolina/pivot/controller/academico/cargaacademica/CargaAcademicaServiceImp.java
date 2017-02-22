@@ -836,6 +836,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         BigDecimal pesoTotal = BigDecimal.ZERO;
         BigDecimal ponderado = BigDecimal.ZERO;
+
+        if (evaluacionesAlumno.isEmpty()) {
+            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal(ponderado));
+            matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(ponderado));
+            matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
+            matriculaCurso.setNotaFinal("0");
+            matriculaCursoDAO.update(matriculaCurso);
+            return;
+        }
+
         for (AlumnoEvaluacion ae : evaluacionesAlumno) {
             BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
             if (!ae.isNCV()) {
@@ -855,7 +865,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         if (pesoTotal.compareTo(bd100) == 0) {
             //sBigDecimal notaFinal = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
             BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
-
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
         }
         matriculaCursoDAO.update(matriculaCurso);
