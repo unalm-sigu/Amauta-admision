@@ -23,6 +23,7 @@ import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -71,7 +72,7 @@ public interface CargaAcademicaService {
 
     void saveExpansionEvaluacion(EvaluacionExpandida evaluacion, DataSessionPivot ds);
 
-    EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion);
+    EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum);
 
     EvaluacionSeccion findEvaluacionSeccion(Long id);
 
@@ -137,4 +138,7 @@ public interface CargaAcademicaService {
 
     List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
 
+    void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario);
+
+    void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion);
 }

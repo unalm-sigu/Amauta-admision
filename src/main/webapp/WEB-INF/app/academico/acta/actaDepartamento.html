@@ -9,6 +9,7 @@
             <h2>Acta de Notas - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
             <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>
             <span class="block"><strong >Departamento Academico:</strong> <span th:text="${departamentoAcademico.nombre}">Matematicas</span></span>
+            <input id="txtDepartamentoAcademico" type="hidden" th:value="${departamentoAcademico.id}"/>
         </header>
 
         <section class="panel">
@@ -16,13 +17,13 @@
                 <table class="table table-striped" id="dynaTable">
                     <thead> 
                         <tr class=""> 
-                            <th class="col-md-2">Grupo</th>
-                            <th class="col-md-3 text-center">Curso</th>
-                            <th class="col-md-3 text-center">Docente</th>
-                            <th class="col-md-3 text-center">Versión</th>
-                            <th class="col-md-3 text-center">Estado Plan</th>
-                            <th class="col-md-1 text-center">Estado Grupo</th>
-                            <th class=""></th>
+                            <th class="col-md-2 text-center">Grupo</th>
+                            <th class="col-md-2 text-center">Curso</th>
+                            <th class="col-md-2 text-center">Docente Prin.</th>
+                            <th class="col-md-1 text-center">Versión</th>
+                            <th class="col-md-2 text-center">Estado Plan</th>
+                            <th class="col-md-2 text-center">Estado Grupo</th>
+                            <th class="col-md-1 text-center"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -43,7 +44,9 @@
                </div>
         -->
 
-
+        <div th:substituteby="app/templates/modal"/> 
+        <div th:substituteby="app/academico/systemcalifica/sistema/modalSistema"/>
+        <script id="templateGrupos" type="text/x-jsrender" class="hide"><div th:substituteby="app/academico/acta/templateActasDepartamento"/></script>
     </div>
 
 

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,10 +12,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Entity
@@ -34,7 +38,7 @@ public class GrupoSeccion implements Serializable {
 
     @NotNull
     @Column(name = "version")
-    private Integer version;
+    private String version;
 
     @NotNull
     @Column(name = "estado_plan")
@@ -64,6 +68,14 @@ public class GrupoSeccion implements Serializable {
 
     @Transient
     private String codigoCurso;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_cierre_acta")
+    private Usuario usuarioCierraActa;
+
+    @Column(name = "fecha_cierre_acta")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaCierreActa;
 
     public GrupoSeccion() {
     }
@@ -208,6 +220,13 @@ public class GrupoSeccion implements Serializable {
         return false;
     }
 
+    public boolean isEstadoAceptado() {
+        if (EstadoPlanCalificaEnum.ACEP.name().equals(estadoPlan)) {
+            return true;
+        }
+        return false;
+    }
+
     public List<EvaluacionSeccion> getEvaluacionSecciones() {
         return evaluacionSecciones;
     }
@@ -224,11 +243,11 @@ public class GrupoSeccion implements Serializable {
         this.codigoCurso = codigoCurso;
     }
 
-    public Integer getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(String version) {
         this.version = version;
     }
 
@@ -238,6 +257,52 @@ public class GrupoSeccion implements Serializable {
 
     public void setEstadoGrupo(String estadoGrupo) {
         this.estadoGrupo = estadoGrupo;
+    }
+
+    public EstadoGrupoSeccionEnum getEstadoGrupoEnum() {
+
+        return EstadoGrupoSeccionEnum.valueOf(estadoGrupo);
+    }
+
+    public void setEstadoGrupoEnum(EstadoGrupoSeccionEnum estadoGrupoEnum) {
+        this.estadoGrupo = estadoGrupoEnum.name();
+    }
+
+    public Usuario getUsuarioCierraActa() {
+        return usuarioCierraActa;
+    }
+
+    public void setUsuarioCierraActa(Usuario usuarioCierraActa) {
+        this.usuarioCierraActa = usuarioCierraActa;
+    }
+
+    public Date getFechaCierreActa() {
+        return fechaCierreActa;
+    }
+
+    public void setFechaCierreActa(Date fechaCierreActa) {
+        this.fechaCierreActa = fechaCierreActa;
+    }
+
+    public boolean isEstadoGrupoAbierto() {
+        if (EstadoGrupoSeccionEnum.ABI.equals(this.getEstadoGrupoEnum())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoGrupoCerrado() {
+        if (EstadoGrupoSeccionEnum.CER.equals(this.getEstadoGrupoEnum())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isEstadoGrupoReabierto() {
+        if (EstadoGrupoSeccionEnum.RAB.equals(this.getEstadoGrupoEnum())) {
+            return true;
+        }
+        return false;
     }
 
 }

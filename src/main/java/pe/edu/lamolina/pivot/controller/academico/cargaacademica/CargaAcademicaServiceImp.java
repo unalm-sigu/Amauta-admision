@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,6 +15,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +63,10 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Service
@@ -220,7 +222,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Long idGrupoSeccion = grupoSeccion.getId();
             Long idPlanCalificacion = curso.getPlanCalificacion().getId();
             logger.debug("Grupo seccion {}, plan calificacion {}", idGrupoSeccion, idPlanCalificacion);
-            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion);
+            EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, idGrupoSeccion, null);
             PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
 
             if (evaluacionSeccion != null) {
@@ -483,34 +485,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         planCalificacion.generateCodigo();
 
         planCalificacionDAO.save(planCalificacion);
-        /*
-        EvaluacionSeccion evaluacionSeccion = new EvaluacionSeccion();
-        evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.SOL);
-        evaluacionSeccion.setGrupoSeccion(grupoSeccion);
-        evaluacionSeccion.setPlanCalificacion(planCalificacion);
-        evaluacionSeccion.setEvaluaciones(new ArrayList<Evaluacion>());
 
-        for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
-
-            Evaluacion evaluacion = new Evaluacion();
-            evaluacion.setEvaluacionSeccion(evaluacionSeccion);
-            evaluacion.setAlumnoEvaluacion(null);
-            evaluacion.setEvaluacionSeccion(evaluacionSeccion);
-            evaluacion.setTipoEvaluacion(evaluacionPlan.getTipoEvaluacion());
-            evaluacion.setEstaDesagregado(BigDecimal.ZERO.intValue());
-            evaluacion.setEvaluacionSuperior(null);
-            evaluacion.setEvaluaciones(null);
-            evaluacion.setEvaluados(BigDecimal.ZERO.intValue());
-            evaluacion.setPeso(evaluacionPlan.getPesoTotal());
-            evaluacionSeccion.getEvaluaciones().add(evaluacion);
-        }
-        evaluacionSeccionDAO.save(evaluacionSeccion);
-         */
         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.SOL);
         grupoSeccion.setPlanCalificacion(planCalificacion);
         grupoSeccionDAO.update(grupoSeccion);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.SOL);
         evaluacionSeccion.setPlanCalificacion(planCalificacion);
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -518,8 +498,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion) {
-        return evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion);
+    public EvaluacionSeccion findEvalSeccByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+        return evaluacionSeccionDAO.findByPlanCalGrupoSec(idPlanCalificacion, idGrupoSeccion, estadoPlanCalificaEnum);
     }
 
     @Override
@@ -582,7 +562,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Curso curso = cursoDAO.find(cursoId);
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.PRO);
         evaluacionSeccion.setPlanCalificacion(curso.getPlanCalificacion());
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -602,7 +582,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Curso curso = cursoDAO.find(cursoId);
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
 
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
         logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -684,7 +664,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     public List<Evaluacion> allEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
-        return evaluacionDAO.allByFilter(null, idGrupoSeccion, null, null);
+        return evaluacionDAO.allByFilter(null, idGrupoSeccion, idSeccion, null);
     }
 
     @Override
@@ -814,7 +794,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(planCalificacion);
 
-        BigDecimal bd100 = new BigDecimal("100");
+        //     BigDecimal bd100 = new BigDecimal("100");
         for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
             Alumno alumno = alumnoEvaluacionEach.getAlumno();
             GrupoSeccion gpoSeccion = evaluacion.getSeccionResponsable().getGrupoSeccion();
@@ -823,27 +803,46 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             calcularNotasAlumno(alumno, evaluacion, grupoSeccion, curso, ciclo, evaluacionesPlan);
         }
-
+        /*
         if (evaluacionDAO.countEvaluacionesFaltantesByGrupo(grupoSeccion.getId()).intValue() == 0) {
             grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
             grupoSeccionDAO.update(seccion.getGrupoSeccion());
+        }*/
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @Override
+    public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion) {
+
+        Curso curso = grupoSeccion.getCurso();
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, grupoSeccion.getCicloAcademico());
+
+        List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(grupoSeccion.getPlanCalificacion());
+
+        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
+            calcularNotasAlumno(alumno, alumnoEvaluacion.getEvaluacion(), grupoSeccion, curso, grupoSeccion.getCicloAcademico(), evaluacionesPlan);
         }
     }
 
     public void calcularNotasAlumno(Alumno alumno, Evaluacion evaluacion,
             GrupoSeccion grupoSeccion, Curso curso,
             CicloAcademico ciclo, List<EvaluacionPlan> evaluacionesPlan) {
-
+        logger.debug("Calcular nota");
         BigDecimal bd100 = new BigDecimal("100");
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
+        logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 
         BigDecimal pesoTotal = BigDecimal.ZERO;
         BigDecimal ponderado = BigDecimal.ZERO;
         for (AlumnoEvaluacion ae : evaluacionesAlumno) {
             BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-            pesoTotal = pesoTotal.add(peso);
-            ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+            if (!ae.isNCV()) {
+                pesoTotal = pesoTotal.add(peso);
+                ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+                // logger.debug("Evaluacion {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), peso.toString(), ponderado.toString());
+            }
         }
 
         BigDecimal avance = ponderado.divide(bd100, 2, RoundingMode.HALF_UP);
@@ -852,9 +851,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(avance));
         matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
 
+        logger.debug("### pesoTotal {}", pesoTotal);
         if (pesoTotal.compareTo(bd100) == 0) {
             //sBigDecimal notaFinal = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
             BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
+
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
         }
         matriculaCursoDAO.update(matriculaCurso);
@@ -866,8 +867,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             mapResumenAluEval.put(rae.getTipoEvaluacion().getId(), rae);
         }
 
-        pesoTotal = BigDecimal.ZERO;
-        ponderado = BigDecimal.ZERO;
         for (EvaluacionPlan ep : evaluacionesPlan) {
             TipoEvaluacion tipo = ep.getTipoEvaluacion();
             List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
@@ -883,15 +882,28 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
             rae.setEvaluaciones(evalsTipo.size());
 
+            int cantidadEvaluacionesTotales = ep.getCantidadEvaluaciones();
+            int cantidadEvaluacionesActuales = evalsTipo.size();
+
+            pesoTotal = BigDecimal.ZERO;
+            ponderado = BigDecimal.ZERO;
+
             for (AlumnoEvaluacion ae : evalsTipo) {
-                BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-                pesoTotal = pesoTotal.add(peso);
-                ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+                if (ae.isNCV()) {
+                    ae.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_CONV.name());
+                    ae.setIndNotaAnulada(BigDecimal.ONE.intValue());
+                    alumnoEvaluacionDAO.update(ae);
+                } else {
+                    BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
+                    pesoTotal = pesoTotal.add(peso);
+                    ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
+                    //    logger.debug("Evaluacion {} {}, numero {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), peso.toString(), ponderado.toString());
+                }
             }
 
             BigDecimal nota = calularNota(ponderado, pesoTotal, 2);
             rae.setNota(NumberFormat.notaDecimal(nota));
-            if (rae.getId() == null) {
+            if (ObjectUtil.getParentTree(rae, "id") == null) {
                 resumenAlumnoEvaluacionDAO.save(rae);
             } else {
                 resumenAlumnoEvaluacionDAO.update(rae);
@@ -954,7 +966,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         GrupoSeccion grupoSeccion = this.findGrupo(seccion.getGrupoSeccion().getId());
         List<AlumnoEvaluacion> alumnosEvaluaciones = this.allAlumnoEvaluacionByFilter(null, null, seccion.getId());
 
-        EvaluacionSeccion evaluacionSeccion = this.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = this.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         SistemaNotas sistemaNotas = evaluacionSeccion.getSistemaNotas();
 
         BigDecimal notaminima = BigDecimal.valueOf(1000L);
@@ -988,7 +1000,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         if (evaluacion != null) {
             node.put("evaluacionId", evaluacion.getId());
-            node.put("estado", evaluacion.getFechaIngresoNota() == null ? "CERRADA" : "ABIERTA");
+            //      node.put("estado", evaluacion.getFechaIngresoNota() == null ? "CERRADA" : "ABIERTA");
+            node.put("estaAbierto", grupoSeccion.isEstadoGrupoAbierto());
+            node.put("estaCerrado", grupoSeccion.isEstadoGrupoCerrado());
+            node.put("estaReabierto", grupoSeccion.isEstadoGrupoReabierto());
+
             node.put("tEvaluacionNombre", evaluacion.getTipoEvaluacion().getNombre());
             node.put("tEvaluacionCodigo", evaluacion.getTipoEvaluacion().getCodigo());
             node.put("numero", evaluacion.getNumero());
@@ -1050,15 +1066,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional
     public void saveReclamoNota(ReclamoNota reclamoNota, DataSessionPivot ds) {
         Evaluacion evaluacion = evaluacionDAO.find(reclamoNota.getEvaluacion().getId());
-
+        /*
         if (!AlumnoEvaluacion.NSP.equals(reclamoNota.getNotaInicial())) {
             DateTime fechaRealizada = new DateTime(evaluacion.getFechaRealizada());
             DateTime fechaVencimiento = fechaRealizada.plusDays(ReclamoNota.MAXIMO_DIAS_RECLAMO);
+            logger.debug("Fecha evaluacion {}", fechaRealizada.toString("dd/MM/yyyy"));
             logger.debug("Fecha limite camio de nota {}", fechaVencimiento.toString("dd/MM/yyyy"));
             if (fechaVencimiento.toLocalDate().isBefore(new DateTime().toLocalDate())) {
-                throw new PhobosException("Superó la fecha limite para cambiar la nota.");
+                throw new PhobosException("Error, Superó la fecha limite para cambiar la nota.");
             }
-        }
+        }*/
         reclamoNota.setEstado(EstadoEnum.CRE.name());
         reclamoNota.setFechaReclamo(new Date());
         reclamoNota.setUserReclamo(ds.getUsuario());
@@ -1071,7 +1088,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         //evaluacion.getEvaluacionSeccion().getPlanCalificacion()
         List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(evaluacion.getEvaluacionSeccion().getPlanCalificacion());
-
+        logger.debug("Plan calificacion, id {} codigo {}",
+                evaluacion.getEvaluacionSeccion().getPlanCalificacion().getId().toString(), evaluacion.getEvaluacionSeccion().getPlanCalificacion().getCodigo().toString()
+        );
         this.calcularNotasAlumno(reclamoNota.getAlumno(), evaluacion,
                 evaluacion.getSeccionResponsable().getGrupoSeccion(),
                 evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso(),
@@ -1106,7 +1125,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     continue;
                 }
                 //    Collections.sort(eva.getEvaluaciones(), (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
-                Collections.sort(eva.getEvaluaciones(), (Evaluacion p1, Evaluacion p2) -> p1.getNumero().compareTo(p2.getNumero()));
+                //       Collections.sort(eva.getEvaluaciones(), (Evaluacion p1, Evaluacion p2) -> p1.getNumero().compareTo(p2.getNumero()));
 
                 logger.debug("hijos {}", eva.getEvaluaciones().size());
                 for (Evaluacion evaChild : eva.getEvaluaciones()) {
@@ -1296,6 +1315,42 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
         return cursoDAO.allActiveByPlan(planCalificacion);
+    }
+
+    @Override
+    @Transactional
+    public void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario) {
+        grupoSeccion = this.findGrupo(grupoSeccion.getId());
+
+        if (grupoSeccion.isEstadoGrupoCerrado()) {
+            throw new PhobosException("No se puede cerrar el acta debido a que el acta ya se encuentra cerrada.");
+        }
+
+        boolean evaluactionsComplete = true;
+        List<String> lstSeccion = new ArrayList<String>();
+        for (Seccion seccion : grupoSeccion.getSecciones()) {
+            List<Evaluacion> evaluacionesBySeccion = this.allEvaluacionByFilter(null, null, seccion.getId());
+
+            for (Evaluacion evaluacion : evaluacionesBySeccion) {
+                if (!evaluacion.isDesagregado()) {
+                    if (evaluacion.getFechaIngresoNota() == null) {
+                        logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
+                        evaluactionsComplete = false;
+                        break;
+                    }
+                }
+            }
+            if (!evaluactionsComplete) {
+                lstSeccion.add(seccion.getCodigo());
+            }
+        }
+        if (!evaluactionsComplete) {
+            throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(",", lstSeccion)));
+        }
+        grupoSeccion.setUsuarioCierraActa(usuario);
+        grupoSeccion.setFechaCierreActa(new DateTime().toDate());
+        grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
+        grupoSeccionDAO.update(grupoSeccion);
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 
 @Repository
 public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implements EvaluacionSeccionDAO {
@@ -18,7 +19,7 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
     }
 
     @Override
-    public EvaluacionSeccion findByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion) {
+    public EvaluacionSeccion findByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es");
         sqlUtil.parents("planCalificacion pc", "grupoSeccion gs", "sistemaNotas sn");
 
@@ -27,6 +28,9 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
         }
         if (idGrupoSeccion != null) {
             sqlUtil.filter("gs.id", idGrupoSeccion);
+        }
+        if (estadoPlanCalificaEnum != null) {
+            sqlUtil.filter("es.estado", estadoPlanCalificaEnum.name());
         }
 
         return this.find(sqlUtil);

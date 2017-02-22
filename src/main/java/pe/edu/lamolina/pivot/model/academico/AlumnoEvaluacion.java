@@ -12,14 +12,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.UniqueConstraint;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
-@Table(name = "aca_alumno_evaluacion")
+@Table(name = "aca_alumno_evaluacion", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"id_alumno", "id_evaluacion"})
+})
 public class AlumnoEvaluacion implements Serializable {
 
     public final static String NSP = "NSP";
+
+    public final static String NCV = "NCV";
 
     @Id
     @GeneratedValue
@@ -63,6 +68,12 @@ public class AlumnoEvaluacion implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_alumno")
     private Alumno alumno;
+
+    @Column(name = "ind_nota_anulada")
+    private Integer indNotaAnulada;
+
+    @Column(name = "motivo_anulacion")
+    private String motivoAnulacion;
 
     public AlumnoEvaluacion() {
     }
@@ -165,6 +176,29 @@ public class AlumnoEvaluacion implements Serializable {
 
     public void setFechaAnulacion(Date fechaAnulacion) {
         this.fechaAnulacion = fechaAnulacion;
+    }
+
+    public Integer getIndNotaAnulada() {
+        return indNotaAnulada;
+    }
+
+    public void setIndNotaAnulada(Integer indNotaAnulada) {
+        this.indNotaAnulada = indNotaAnulada;
+    }
+
+    public String getMotivoAnulacion() {
+        return motivoAnulacion;
+    }
+
+    public void setMotivoAnulacion(String motivoAnulacion) {
+        this.motivoAnulacion = motivoAnulacion;
+    }
+
+    public boolean isNCV() {
+        if (NCV.equals(this.getNota())) {
+            return true;
+        }
+        return false;
     }
 
 }

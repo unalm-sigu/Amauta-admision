@@ -54,7 +54,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
             sqlUtil.filter("gs.id", idGrupoSeccion);
         }
         if (idSeccion != null) {
-            sqlUtil.filter("sr.id", idGrupoSeccion);
+            sqlUtil.filter("sr.id", idSeccion);
         }
         if (idEvaluacionExpandida != null) {
             sqlUtil.filter("exx.id", idEvaluacionExpandida);

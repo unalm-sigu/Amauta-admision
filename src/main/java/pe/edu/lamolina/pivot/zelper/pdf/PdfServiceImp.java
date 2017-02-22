@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.zelper.pdf;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -96,6 +97,8 @@ public class PdfServiceImp implements PdfService {
         PlanCalificacion planCalificacion = grupoSeccion.getPlanCalificacion();
         DepartamentoAcademico departamentoAcademico = curso.getDepartamentoAcademico();
         Facultad facultad = departamentoAcademico.getFacultad();
+
+        Collections.sort(planCalificacion.getEvaluacionPlan(), (p1, p2) -> p1.getTipoEvaluacion().getOrden().compareTo(p2.getTipoEvaluacion().getOrden()));
 
         Seccion seccion = null;
         Docente docentePrincipal = null;

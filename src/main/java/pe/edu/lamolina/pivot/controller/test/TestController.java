@@ -5,14 +5,21 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
@@ -34,6 +41,9 @@ public class TestController {
 
     @Autowired
     EvaluacionDAO evaluacionDAO;
+
+    @Autowired
+    AlumnoEvaluacionDAO alumnoEvaluacionDAO;
 
     @Autowired
     CargaAcademicaService cargaAcademicaService;
@@ -90,6 +100,22 @@ public class TestController {
 
         return "YEAH";
 
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularAllResumenEvaluacion")
+    public String calcularAllResumenEvaluacion() {
+        CicloAcademico ciclo = new CicloAcademico();
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, null);
+        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
+            Alumno alumno = alumnoEvaluacion.getAlumno();
+            GrupoSeccion grupoSeccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion();
+            if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
+                continue;
+            }
+            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion);
+        }
+        return "yeah";
     }
 
 }

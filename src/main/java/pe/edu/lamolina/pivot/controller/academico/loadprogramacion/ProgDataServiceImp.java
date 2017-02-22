@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -91,14 +90,14 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setCicloAcademico(ciclo);
                 gpoSeccBD.setCodigo(gpoSecc.getCodigo());
                 gpoSeccBD.setCurso(curso);
-                gpoSeccBD.setVersion(1);
+                gpoSeccBD.setVersion("1");
                 gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
 
                 grupoSeccionDAO.save(gpoSeccBD);
 
             } else {
-                gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? 1 : gpoSeccBD.getVersion());
+                gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? "1" : gpoSeccBD.getVersion());
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
                 grupoSeccionDAO.update(gpoSeccBD);

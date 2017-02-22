@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -443,7 +442,7 @@ public class CargaAcademicaController {
 
         //   Long idPlanCalificacion = seccion.getGrupoSeccion().getCurso().getPlanCalificacion().getId();
         Long idGrupoSeccion = grupoSeccion.getId();
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion);
+        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion, null);
         model.addAttribute("evaluacionSeccion", evalSeccion);
         logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
         cargaAcademicaService.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP);
@@ -468,7 +467,7 @@ public class CargaAcademicaController {
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("claves", claves.substring(0, claves.length() - 1));
 
-        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         logger.debug("La evaluacion seccion es {}", evalSeccion != null ? evalSeccion.getId().toString() : "no se encontro");
         model.addAttribute("evaluacionSeccion", evalSeccion);
 
@@ -764,7 +763,7 @@ public class CargaAcademicaController {
 
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
@@ -777,6 +776,20 @@ public class CargaAcademicaController {
 
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
+        boolean esDocentePrincipal = false;
+        for (Seccion sec : grupoSeccion.getSecciones()) {
+
+            if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                    if (docenteSeccion.esDocentePrincipal()) {
+                        esDocentePrincipal = true;
+                    }
+                }
+            }
+
+        }
+
         //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
         model.addAttribute("grupoSeccion", grupoSeccion);
@@ -786,7 +799,7 @@ public class CargaAcademicaController {
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
-
+        model.addAttribute("esDocentePrincipal", esDocentePrincipal);
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 
@@ -800,7 +813,7 @@ public class CargaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
-        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId());
+        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
@@ -1054,7 +1067,7 @@ public class CargaAcademicaController {
     public JsonResponse activarEvaluacion(
             Model model,
             @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
-            @RequestParam(name = "fechaEvaluacion", required = true) Date fechaEvaluacion,
+            @RequestParam(name = "fechaEvaluacion", required = false) Date fechaEvaluacion,
             @RequestParam(name = "activacion", required = true) boolean activacion,
             HttpSession session) {
 
@@ -1063,9 +1076,12 @@ public class CargaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
-
-            Evaluacion evaluacion = cargaAcademicaService.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
-
+            Evaluacion evaluacion = null;
+            if (fechaEvaluacion != null) {
+                evaluacion = cargaAcademicaService.activarEvaluacion(evaluacionId, fechaEvaluacion, ds);
+            } else {
+                evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
+            }
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());
@@ -1230,6 +1246,22 @@ public class CargaAcademicaController {
         } finally {
             return response;
         }
+    }
+
+    @ResponseBody
+    @RequestMapping("cerrarActa")
+    public JsonResponse cerrarActa(
+            @RequestParam(name = "grupo", required = true) Long grupoId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        cargaAcademicaService.saveCerrarActa(new GrupoSeccion(grupoId), ds.getUsuario());
+        String message = "Acta cerrada correctamente";
+        response.setMessage(message);
+        response.setSuccess(true);
+
+        return response;
     }
 
 }
