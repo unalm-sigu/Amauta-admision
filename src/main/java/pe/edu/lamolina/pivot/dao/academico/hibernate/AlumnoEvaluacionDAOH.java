@@ -106,8 +106,8 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("       select ms.id ");
         sql.append("         from ").append(MatriculaSeccion.class.getName()).append(" ms ");
         sql.append("         join ms.matriculaResumen mr ");
-        sql.append("        where mr.alumno.id = :ALUMNO ");
-        sql.append("          and mr.cicloAcademico.id = :CICLO ");
+        sql.append("        where mr.alumno.id = alu.id ");
+        sql.append("          and mr.cicloAcademico.id = ca.id ");
         sql.append("          and ms.seccion.id = sec.id ");
         sql.append("          and ms.estado = :ESTADO ");
         sql.append("   ) ");
@@ -115,8 +115,8 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("       select mc.id ");
         sql.append("         from ").append(MatriculaCurso.class.getName()).append(" mc ");
         sql.append("         join mc.matriculaResumen mr ");
-        sql.append("        where mr.alumno.id = :ALUMNO ");
-        sql.append("          and mr.cicloAcademico.id = :CICLO ");
+        sql.append("        where mr.alumno.id = alu.id ");
+        sql.append("          and mr.cicloAcademico.id = ca.id ");
         sql.append("          and mc.curso.id = cur.id ");
         sql.append("          and mc.estado = :ESTADO ");
         sql.append("   ) ");
