@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
+import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
@@ -68,18 +69,23 @@ public class AlumnoEvaluacion implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_alumno")
     private Alumno alumno;
-
+    /*
     @Column(name = "ind_nota_anulada")
     private Integer indNotaAnulada;
-
+     */
     @Column(name = "motivo_anulacion")
     private String motivoAnulacion;
 
     public AlumnoEvaluacion() {
+        //  this.indNotaAnulada = BigDecimal.ZERO.intValue();
+        this.setMotivoAnulacion("");
+
     }
 
     public AlumnoEvaluacion(Object id) {
         this.id = TypesUtil.getLong(id);
+        //    this.indNotaAnulada = BigDecimal.ZERO.intValue();
+        this.setMotivoAnulacion("");
     }
 
     public Long getId() {
@@ -178,12 +184,11 @@ public class AlumnoEvaluacion implements Serializable {
         this.fechaAnulacion = fechaAnulacion;
     }
 
-    public Integer getIndNotaAnulada() {
-        return indNotaAnulada;
-    }
-
-    public void setIndNotaAnulada(Integer indNotaAnulada) {
-        this.indNotaAnulada = indNotaAnulada;
+    public boolean isNotaAnulada() {
+        if (!StringUtils.isEmpty(this.getMotivoAnulacion())) {
+            return true;
+        }
+        return false;
     }
 
     public String getMotivoAnulacion() {
