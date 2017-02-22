@@ -24,6 +24,8 @@ public class AlumnoEvaluacion implements Serializable {
 
     public final static String NSP = "NSP";
 
+    public final static String NCV = "NCV";
+
     @Id
     @GeneratedValue
     @Column(name = "id")
@@ -168,6 +170,13 @@ public class AlumnoEvaluacion implements Serializable {
 
     public void setFechaAnulacion(Date fechaAnulacion) {
         this.fechaAnulacion = fechaAnulacion;
+    }
+
+    public boolean isNCV() {
+        if (NCV.equals(this.getNota())) {
+            return true;
+        }
+        return false;
     }
 
 }
