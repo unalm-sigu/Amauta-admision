@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("test")
@@ -104,9 +107,10 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("calcularAllResumenEvaluacion")
-    public String calcularAllResumenEvaluacion() {
-        CicloAcademico ciclo = new CicloAcademico();
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, null);
+    public String calcularAllResumenEvaluacion(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
         for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
             Alumno alumno = alumnoEvaluacion.getAlumno();
             GrupoSeccion grupoSeccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion();
