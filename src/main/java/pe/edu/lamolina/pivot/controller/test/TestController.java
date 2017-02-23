@@ -6,7 +6,6 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +19,6 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
@@ -109,6 +107,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("calcularAllResumenEvaluacion")
     public String calcularAllResumenEvaluacion(HttpSession session) {
+        int loop = 1;
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
@@ -118,12 +117,14 @@ public class TestController {
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;
             }
-            
+
             GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
             if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
                 continue;
             }
-            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion);
+            logger.info("{}.- recalculando notas del alumno {} curso {}", loop, alumno.getCodigo(), grupoSeccion.getCurso().getId());
+            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion, loop);
+            loop++;
         }
         return "yeah";
     }

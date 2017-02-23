@@ -813,16 +813,17 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion) {
+    public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio) {
 
         Curso curso = grupoSeccion.getCurso();
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, grupoSeccion.getCicloAcademico());
+        //List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, grupoSeccion.getCicloAcademico());
 
         List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(grupoSeccion.getPlanCalificacion());
 
-        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
-            calcularNotasAlumno(alumno, alumnoEvaluacion.getEvaluacion(), grupoSeccion, curso, grupoSeccion.getCicloAcademico(), evaluacionesPlan);
-        }
+        //for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
+        calcularNotasAlumno(alumno, null, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), evaluacionesPlan);
+        //}
+
     }
 
     public void calcularNotasAlumno(Alumno alumno, Evaluacion evaluacion,
@@ -831,7 +832,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("Calcular nota");
         BigDecimal bd100 = new BigDecimal("100");
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
-        logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
+        //logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 
         BigDecimal pesoTotal = BigDecimal.ZERO;
@@ -955,6 +956,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     private Evaluacion choiceEvaluacion(Evaluacion evaluacion, Evaluacion evaluacionMain) {
+        if (evaluacionMain == null) {
+            return evaluacion;
+        }
         if (evaluacion.getId().longValue() == evaluacionMain.getId()) {
             return evaluacionMain;
         }

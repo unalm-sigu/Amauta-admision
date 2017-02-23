@@ -140,5 +140,5 @@ public interface CargaAcademicaService {
 
     void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario);
 
-    void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion);
+    void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio);
 }
