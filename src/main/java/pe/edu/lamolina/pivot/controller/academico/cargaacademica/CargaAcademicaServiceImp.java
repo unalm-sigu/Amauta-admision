@@ -281,7 +281,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     evaluacion.setAlumnoEvaluacion(null);
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
 
-                    if (i == evaluacionPlan.getCantidadEvaluaciones()) {
+                    if (i == evaluacionPlan.getCantidadEvaluaciones() && evaluacionPlan.getNotaMinimaAnulable() == 0) {
                         BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
                         evaluacion.setPeso(pesoFinal);
                     }
@@ -830,7 +830,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         calcularNotasAlumno(alumno, null, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), evaluacionesPlan);
         logger.info("final del proceso {}", envio);
-        
+
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
 
@@ -1271,7 +1271,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         List<GrupoSeccion> gpoSeccs = grupoSeccionDAO.allByPlan(plan);
         for (GrupoSeccion gpoSecc : gpoSeccs) {
             gpoSecc.setPlanCalificacion(null);
-            gpoSecc.setEstadoPlan(null);
+            gpoSecc.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
             grupoSeccionDAO.update(gpoSecc);
         }
 

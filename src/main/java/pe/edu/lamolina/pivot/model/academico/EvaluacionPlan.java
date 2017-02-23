@@ -40,6 +40,13 @@ public class EvaluacionPlan implements Serializable {
     @Column(name = "tipo_seccion")
     private String tipoSeccion;
 
+    @Column(name = "nota_minima_anulable")
+    private Integer notaMinimaAnulable;
+
+    @Column(name = "ind_porcentaje_variable")
+    @NotNull
+    private Integer indPorcentajeVariable;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plan_calificacion")
     private PlanCalificacion planCalificacion;
@@ -47,13 +54,6 @@ public class EvaluacionPlan implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_evaluacion")
     private TipoEvaluacion tipoEvaluacion;
-
-    @Column(name = "nota_minima_anulable")
-    private Integer notaMinimaAnulable;
-
-    @Column(name = "ind_porcentaje_variable")
-    @NotNull
-    private Integer indPorcentajeVariable;
 
     @Transient
     private boolean validarPesoTotal;
