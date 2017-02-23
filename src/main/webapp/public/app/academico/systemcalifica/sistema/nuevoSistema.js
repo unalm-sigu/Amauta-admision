@@ -106,6 +106,23 @@ $(function () {
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
+
+                    var formula = "";
+                    /*
+                     var rowCount = $('#tblEvaluaciones tr').length;
+                     console.dir(JSON.stringify(form.serializeArray()));
+                     for (i = 0; i < rowCount; i++) {
+                     var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
+                     var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
+                     var anularNotaMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']").prop('checked');
+                     var porcentajeVariable = $("[name='evaluacionPlan[" + i + "].indPorcentajeVariable']").prop('checked');
+                     alert('anularNotaMin ' + anularNotaMin + ' porcentajeVariable' + porcentajeVariable);
+                     
+                     }
+                     
+                     console.dir(JSON.stringify(form.serializeArray()));
+                     return true;
+                     */
                     if (result) {
                         $.ajax({
                             url: APP.url('academico/systemcalifica/sistema/save'),
@@ -133,6 +150,7 @@ $(function () {
         },
         changeCantidadEval: function ($this) {
             if ($.isNumeric($this.val())) {
+                console.log("Entro a changeCantidadEval");
                 var i = $this.attr('rel');
                 var elem = "evaluacionPlan[" + i + "].notaMinimaAnulable";
                 $("[name='" + elem + "']").attr("disabled", true);
@@ -175,6 +193,7 @@ $(function () {
                 var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
                 var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
                 var anularNotaMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']").prop('checked');
+
                 var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
                 if (tipoEvaluacion == null || tipoEvaluacion == "") {
                     continue;

@@ -916,6 +916,7 @@ public class CargaAcademicaController {
 
         List<AlumnoEvaluacion> alumnosEvaluaciones = cargaAcademicaService.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
                 matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico);
+        //evaluacionesDisponibles se muestra en el modal
         List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
 
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {

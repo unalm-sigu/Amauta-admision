@@ -41,47 +41,47 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 @Service
 @Transactional(readOnly = true)
 public class SistemaServiceImp implements SistemaService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     TipoEvaluacionDAO tipoEvaluacionDAO;
-
+    
     @Autowired
     SistemaNotasDAO sistemaNotasDAO;
-
+    
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
-
+    
     @Autowired
     CursoDAO cursoDAO;
-
+    
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
+    
     @Autowired
     EvaluacionSeccionDAO evaluacionSeccionDAO;
-
+    
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Autowired
     EvaluacionPlanDAO evaluacionPlanDAO;
-
+    
     @Autowired
     EvaluacionDAO evaluacionDAO;
-
+    
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
-
+    
     @Override
     public List<TipoEvaluacion> allTipoEvaluacion() {
         return tipoEvaluacionDAO.all();
     }
-
+    
     @Override
     public ObjectNode allTipoEvaluacionJson() {
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
@@ -96,22 +96,23 @@ public class SistemaServiceImp implements SistemaService {
         }
         return json;
     }
-
+    
     @Override
     public List<SistemaNotas> allSistemasNotas() {
         return sistemaNotasDAO.all();
     }
-
+    
     @Override
     @Transactional
     public void saveSistemaCalifica(PlanCalificacion planCalificacion) {
-
+        
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
-
+        
         BigDecimal totalWeight = BigDecimal.ZERO;
-
+        
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
+            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().compareTo(BigDecimal.ZERO) == 0) {
                 throw new PhobosException("Peso evaluacion incorrecto..");
@@ -119,33 +120,33 @@ public class SistemaServiceImp implements SistemaService {
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
-
+            
             totalWeight = totalWeight.add(evaluacionPlan.getPesoTotal());
         }
-
+        
         if (totalWeight.compareTo(new BigDecimal("100")) != 0) {
             throw new PhobosException("Pesos total (" + totalWeight.toString() + ") de las evaluaciones incorrecto.");
         }
-
+        
         Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());
         maxNumeroCorrelativo = maxNumeroCorrelativo + 1;
         planCalificacion.setNumero(maxNumeroCorrelativo);
-
+        
         planCalificacion.generateCodigo();
-
+        
         planCalificacionDAO.save(planCalificacion);
     }
-
+    
     @Override
     public List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DepartamentoAcademico dpto) {
         return planCalificacionDAO.allByDynatable(dynatableFilter, dpto);
     }
-
+    
     @Override
     public PlanCalificacion findPlanCalificacion(Long idPlanCalificacion) {
         return planCalificacionDAO.find(idPlanCalificacion);
     }
-
+    
     @Override
     @Transactional
     public void changeStatePlanCalificacion(Long idPLanCalificacion, String observacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
@@ -156,14 +157,14 @@ public class SistemaServiceImp implements SistemaService {
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null, null);
             evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
             evaluacionSeccionDAO.update(evaluacionSeccion);
-
+            
             GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacionSeccion.getGrupoSeccion().getId());
             grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
             grupoSeccion.setPlanCalificacion(planCalificacion);
             grupoSeccionDAO.update(grupoSeccion);
-
+            
             this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
-
+            
             List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
             logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
             List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
@@ -175,7 +176,7 @@ public class SistemaServiceImp implements SistemaService {
                     logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
                     if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
                             evaluacionExpandida.getTipoSeccionEnum())) {
-
+                        
                         Evaluacion evaluacion = new Evaluacion();
                         evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
                         if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
@@ -191,13 +192,13 @@ public class SistemaServiceImp implements SistemaService {
                     }
                 }
             }
-
+            
         } else if (EstadoPlanCalificaEnum.RHZ.equals(estadoPlanCalificaEnum)
                 || EstadoPlanCalificaEnum.OBS.equals(estadoPlanCalificaEnum)) {
             EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(idPLanCalificacion, null, null);
             evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
             evaluacionSeccionDAO.update(evaluacionSeccion);
-
+            
             GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacionSeccion.getGrupoSeccion().getId());
             grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
             grupoSeccion.setPlanCalificacion(planCalificacion);
@@ -205,26 +206,26 @@ public class SistemaServiceImp implements SistemaService {
         }
         planCalificacionDAO.update(planCalificacion);
     }
-
+    
     private void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
         evaluacionSeccionDAO.update(evaluacionSeccion);
-
+        
         List<EvaluacionExpandida> evaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
         logger.debug("Evaluacion seccion {}, cantidad de pensiones expandidadas {}", evaluacionSeccion.getId(), evaluaciones.size());
         if (evaluaciones.isEmpty()) {
             logger.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());
-
+            
             List<EvaluacionPlan> evaluacionesPlanes = evaluacionPlanDAO.allByFilter(evaluacionSeccion.getPlanCalificacion().getId());
             logger.debug("Plan Calificacion {}, Cantidad de evaluaciones para el plan {} ", evaluacionSeccion.getPlanCalificacion().getId(), evaluacionesPlanes.size());
             for (EvaluacionPlan evaluacionPlan : evaluacionesPlanes) {
-
+                
                 BigDecimal peso = BigDecimal.ZERO;
                 for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones().intValue(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
                     evaluacion.setAlumnoEvaluacion(null);
                     evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
-
+                    
                     if (i == evaluacionPlan.getCantidadEvaluaciones().intValue()) {
                         BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
                         evaluacion.setPeso(pesoFinal);
@@ -234,24 +235,24 @@ public class SistemaServiceImp implements SistemaService {
                 }
             }
         }
-
+        
         GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
         grupoSeccion.setEstadoPlanEnum(estadoPlanCalificaEnum);
         grupoSeccion.setPlanCalificacion(evaluacionSeccion.getPlanCalificacion());
         grupoSeccionDAO.update(grupoSeccion);
     }
-
+    
     @Override
     @Transactional
     public void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         changeStatePlanCalificacion(idPLanCalificacion, null, estadoPlanCalificaEnum);
     }
-
+    
     @Override
     public List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion, Long idDepartamentoAcademico) {
         return cursoDAO.allByDynatable(dynatableFilter, planCalificacion, idDepartamentoAcademico);
     }
-
+    
     @Override
     @Transactional
     public void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idUsuario) {
@@ -261,7 +262,7 @@ public class SistemaServiceImp implements SistemaService {
         curso.setUserPlanCalificacion(idUsuario);
         cursoDAO.update(curso);
     }
-
+    
     @Override
     @Transactional
     public void desasignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona) {
@@ -271,10 +272,10 @@ public class SistemaServiceImp implements SistemaService {
         curso.setUserPlanCalificacion(idPersona);
         cursoDAO.update(curso);
     }
-
+    
     @Override
     public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
         return cursoDAO.allActiveByPlan(planCalificacion);
     }
-
+    
 }

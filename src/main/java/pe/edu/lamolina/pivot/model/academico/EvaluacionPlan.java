@@ -41,6 +41,7 @@ public class EvaluacionPlan implements Serializable {
     private String tipoSeccion;
 
     @Column(name = "nota_minima_anulable")
+    @NotNull
     private Integer notaMinimaAnulable;
 
     @Column(name = "ind_porcentaje_variable")
@@ -62,12 +63,14 @@ public class EvaluacionPlan implements Serializable {
     private List<EvaluacionExpandida> evaluacionesExpandidas;
 
     public EvaluacionPlan() {
-        indPorcentajeVariable = 0;
+        this.indPorcentajeVariable = 0;
+        this.notaMinimaAnulable = 0;
     }
 
     public EvaluacionPlan(Object id) {
         this.id = TypesUtil.getLong(id);
         this.indPorcentajeVariable = 0;
+        this.notaMinimaAnulable = 0;
     }
 
     public Long getId() {
