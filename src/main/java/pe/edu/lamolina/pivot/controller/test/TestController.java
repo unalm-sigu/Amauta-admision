@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -49,6 +50,9 @@ public class TestController {
 
     @Autowired
     CargaAcademicaService cargaAcademicaService;
+    
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -105,9 +109,39 @@ public class TestController {
     }
 
     @ResponseBody
+    @RequestMapping("calcularAllResumenEvaluacion/{grupoSeccion}")
+    public String calcularAllResumenEvaluacion(@PathVariable("grupoSeccion") Long grupoSeccionId, HttpSession session) {
+        int loop = 1;
+        visorCalculoNotas.iniciar();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
+        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
+            Alumno alumno = alumnoEvaluacion.getAlumno();
+            Seccion seccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable();
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+
+            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+            if (grupoSeccionId.equals(grupoSeccion.getId())) {
+                if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
+                    continue;
+                }
+                
+                cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion, loop);
+                visorCalculoNotas.incrementarCantidad();
+                loop++;
+            }
+        }
+        return "yeah";
+    }
+
+    @ResponseBody
     @RequestMapping("calcularAllResumenEvaluacion")
     public String calcularAllResumenEvaluacion(HttpSession session) {
         int loop = 1;
+        visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
@@ -122,8 +156,9 @@ public class TestController {
             if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
                 continue;
             }
-            logger.info("{}.- recalculando notas del alumno {} curso {}", loop, alumno.getCodigo(), grupoSeccion.getCurso().getId());
+            
             cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion, loop);
+            visorCalculoNotas.incrementarCantidad();
             loop++;
         }
         return "yeah";

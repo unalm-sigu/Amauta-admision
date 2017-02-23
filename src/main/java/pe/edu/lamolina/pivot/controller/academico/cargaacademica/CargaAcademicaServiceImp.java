@@ -23,6 +23,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -125,6 +126,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico cicloAcademico) {
@@ -778,6 +782,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
                 alumnoEvaluacion.setValorNumerico(BigDecimal.ZERO);
+            } else if (alumnoEvaluacion.isNCV()) {
+                alumnoEvaluacion.setValorNumerico(BigDecimal.ZERO);
+                alumnoEvaluacion.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_NCV.name());
             } else if (sistemaNotas.isNumerico()) {
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
@@ -816,12 +823,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio) {
 
         Curso curso = grupoSeccion.getCurso();
-        //List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, grupoSeccion.getCicloAcademico());
+        logger.info("{}.- recalculando notas del alumno {} curso {}", envio, alumno.getCodigo(), curso.getId());
 
         List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(grupoSeccion.getPlanCalificacion());
 
         //for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
         calcularNotasAlumno(alumno, null, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), evaluacionesPlan);
+        visorCalculoNotas.incrementarProcesados();
+        visorCalculoNotas.reporte();
+        //logger.info("termino procesamiento de notas del envio {}", envio);
         //}
 
     }
@@ -832,8 +842,44 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("Calcular nota");
         BigDecimal bd100 = new BigDecimal("100");
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
-        //logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
+        if (evaluacionesAlumno.isEmpty()) {
+            return;
+        }
+        logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
+
+        for (EvaluacionPlan ep : evaluacionesPlan) {
+            TipoEvaluacion tipo = ep.getTipoEvaluacion();
+
+            AlumnoEvaluacion alumnoEvaluacionMinima = null;
+            BigDecimal notaMinima = BigDecimal.ZERO;
+            if (ep.getNotaMinimaAnulable() != null && ep.getNotaMinimaAnulable().equals(BigDecimal.ONE.intValue())) {
+                List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
+
+                int cantidadEvaluacionesTotales = ep.getCantidadEvaluaciones();
+                int cantidadEvaluacionesActuales = evalsTipo.size();
+
+                if (cantidadEvaluacionesTotales == cantidadEvaluacionesActuales) {
+                    for (AlumnoEvaluacion ae : evalsTipo) {
+                        if (!ae.isNCV()) {
+                            if (ae.getValorNumerico().compareTo(notaMinima) >= 0) {
+                                notaMinima = ae.getValorNumerico();
+                                alumnoEvaluacionMinima = new AlumnoEvaluacion(ae.getId());
+                                //  ae.setIndNotaAnulada(BigDecimal.ZERO.intValue());
+                                ae.setMotivoAnulacion("");
+                                alumnoEvaluacionDAO.update(ae);
+                            }
+                        }
+                    }
+                    alumnoEvaluacionMinima = alumnoEvaluacionDAO.find(alumnoEvaluacionMinima.getId());
+                    //     alumnoEvaluacionMinima.setIndNotaAnulada(BigDecimal.ONE.intValue());
+                    alumnoEvaluacionMinima.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MINIMA.name());
+                    alumnoEvaluacionDAO.update(alumnoEvaluacionMinima);
+                }
+            }
+        }
+
+        evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
 
         BigDecimal pesoTotal = BigDecimal.ZERO;
         BigDecimal ponderado = BigDecimal.ZERO;
@@ -849,7 +895,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         for (AlumnoEvaluacion ae : evaluacionesAlumno) {
             BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-            if (!ae.isNCV()) {
+            if (!ae.isNotaAnulada()) {
                 pesoTotal = pesoTotal.add(peso);
                 ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
                 // logger.debug("Evaluacion {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), peso.toString(), ponderado.toString());
@@ -892,18 +938,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
             rae.setEvaluaciones(evalsTipo.size());
 
-            int cantidadEvaluacionesTotales = ep.getCantidadEvaluaciones();
-            int cantidadEvaluacionesActuales = evalsTipo.size();
-
             pesoTotal = BigDecimal.ZERO;
             ponderado = BigDecimal.ZERO;
 
             for (AlumnoEvaluacion ae : evalsTipo) {
-                if (ae.isNCV()) {
-                    ae.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_CONV.name());
-                    ae.setIndNotaAnulada(BigDecimal.ONE.intValue());
-                    alumnoEvaluacionDAO.update(ae);
-                } else {
+                if (!ae.isNotaAnulada()) {
                     BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
