@@ -18,7 +18,10 @@
                     name="evaluacion.id" 
                     required="">
                 <option value="">Seleccionar..</option> 
+                <!--
                 <option  th:each="item : ${evaluacionesDisp}" th:value="${item.id}" th:text="${item.tipoEvaluacion.codigo+' '+item.numero +' - '+ item.tipoEvaluacion.nombre}"></option>
+                -->
+                <option  th:each="item : ${evaluacionesDisp}" th:value="${item.id}" th:text="${item.codigoNumeroGen}"></option>
             </select>
         </div>
     </div>

@@ -922,6 +922,7 @@ public class CargaAcademicaController {
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {
             if (nsp) {
                 if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
+
                     evaluacionesDisponibles.add(alumnoEvaluacion.getEvaluacion());
                 }
             } else {

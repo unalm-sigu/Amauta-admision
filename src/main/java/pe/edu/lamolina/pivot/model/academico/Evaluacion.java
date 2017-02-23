@@ -387,4 +387,22 @@ public class Evaluacion implements Serializable {
         this.nombreLargo = nombreLargo;
     }
 
+    public String getCodigoNumeroGen() {
+        StringBuilder nombre = new StringBuilder();
+        if (ObjectUtil.getParentTree(this, "evaluacionSuperior.id") != null) {
+            Evaluacion evaluacionPadre = this.getEvaluacionSuperior();
+            nombre.append("(");
+            nombre.append(evaluacionPadre.getTipoEvaluacion().getCodigo());
+            nombre.append(evaluacionPadre.getNumero());
+            nombre.append(")");
+        }
+        nombre.append(this.getTipoEvaluacion().getCodigo());
+        nombre.append(this.getNumero());
+        nombre.append(" - ");
+        nombre.append(this.getTipoEvaluacion().getNombre());
+        nombre.append(" ");
+        nombre.append(this.getNumero());
+        return nombre.toString();
+    }
+
 }
