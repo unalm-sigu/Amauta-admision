@@ -44,7 +44,7 @@ $(function () {
                 var i = $this.attr('rel');
                 var elem = "evaluacionPlan[" + i + "].notaMinimaAnulable";
                 $("[name='" + elem + "']").attr("disabled", true);
-                $("[name='" + elem + "']").val(0);
+                //     $("[name='" + elem + "']").val(0);
                 $("[name='" + elem + "']").attr("checked", false);
                 if (parseInt($this.val()) > 1) {
                     $("[name='" + elem + "']").removeAttr("disabled");
