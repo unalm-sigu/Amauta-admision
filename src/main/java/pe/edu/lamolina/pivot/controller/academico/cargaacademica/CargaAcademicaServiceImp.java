@@ -822,30 +822,30 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio) {
 
+        visorCalculoNotas.incrementarCantidad();
         Curso curso = grupoSeccion.getCurso();
         logger.info("{}.- recalculando notas del alumno {} curso {}", envio, alumno.getCodigo(), curso.getId());
 
         List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(grupoSeccion.getPlanCalificacion());
 
-        //for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
         calcularNotasAlumno(alumno, null, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), evaluacionesPlan);
+        logger.info("final del proceso {}", envio);
+        
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
-        //logger.info("termino procesamiento de notas del envio {}", envio);
-        //}
 
     }
 
-    public void calcularNotasAlumno(Alumno alumno, Evaluacion evaluacion,
+    private void calcularNotasAlumno(Alumno alumno, Evaluacion evaluacion,
             GrupoSeccion grupoSeccion, Curso curso,
             CicloAcademico ciclo, List<EvaluacionPlan> evaluacionesPlan) {
-        logger.debug("Calcular nota");
+
         BigDecimal bd100 = new BigDecimal("100");
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
         if (evaluacionesAlumno.isEmpty()) {
             return;
         }
-        logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
+
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 
         for (EvaluacionPlan ep : evaluacionesPlan) {
@@ -872,7 +872,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                         }
                     }
                     alumnoEvaluacionMinima = alumnoEvaluacionDAO.find(alumnoEvaluacionMinima.getId());
-                    //     alumnoEvaluacionMinima.setIndNotaAnulada(BigDecimal.ONE.intValue());
                     alumnoEvaluacionMinima.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MINIMA.name());
                     alumnoEvaluacionDAO.update(alumnoEvaluacionMinima);
                 }
@@ -898,7 +897,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             if (!ae.isNotaAnulada()) {
                 pesoTotal = pesoTotal.add(peso);
                 ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-                // logger.debug("Evaluacion {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), peso.toString(), ponderado.toString());
             }
         }
 
@@ -908,9 +906,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(avance));
         matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
 
-        logger.debug("### pesoTotal {}", pesoTotal);
         if (pesoTotal.compareTo(bd100) == 0) {
-            //sBigDecimal notaFinal = ponderado.divide(bd100, 0, RoundingMode.HALF_UP);
             BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
         }
@@ -946,7 +942,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-                    //    logger.debug("Evaluacion {} {}, numero {} peso total {}, ponderado {}", ae.getEvaluacion().getTipoEvaluacion().getCodigo(), ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), peso.toString(), ponderado.toString());
                 }
             }
 

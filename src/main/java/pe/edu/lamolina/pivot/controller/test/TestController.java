@@ -16,6 +16,7 @@ import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaS
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
@@ -24,6 +25,7 @@ import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -49,8 +51,11 @@ public class TestController {
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
 
     @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
     CargaAcademicaService cargaAcademicaService;
-    
+
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
 
@@ -115,25 +120,26 @@ public class TestController {
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
-        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
-            Alumno alumno = alumnoEvaluacion.getAlumno();
-            Seccion seccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable();
+
+        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(new GrupoSeccion(grupoSeccionId), ciclo);
+        for (MatriculaSeccion ms : alumnosSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+            if (gpoSecc.getPlanCalificacion() == null) {
+                break;
+            }
+
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;
             }
 
-            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-            if (grupoSeccionId.equals(grupoSeccion.getId())) {
-                if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
-                    continue;
-                }
-                
-                cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion, loop);
-                visorCalculoNotas.incrementarCantidad();
-                loop++;
-            }
+            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop);
+            loop++;
+
         }
+
         return "yeah";
     }
 
@@ -144,22 +150,23 @@ public class TestController {
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(null, null, ciclo);
-        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesAlumno) {
-            Alumno alumno = alumnoEvaluacion.getAlumno();
-            Seccion seccion = alumnoEvaluacion.getEvaluacion().getSeccionResponsable();
+        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByCiclo(ciclo);
+        for (MatriculaSeccion ms : alumnosSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+            if (gpoSecc.getPlanCalificacion() == null) {
+                continue;
+            }
+
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;
             }
 
-            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-            if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") == null) {
-                continue;
-            }
-            
-            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, grupoSeccion, loop);
-            visorCalculoNotas.incrementarCantidad();
+            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop);
             loop++;
+
         }
         return "yeah";
     }

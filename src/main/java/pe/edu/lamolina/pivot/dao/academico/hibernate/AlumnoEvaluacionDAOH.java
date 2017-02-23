@@ -133,10 +133,10 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         query.setString("ESTADO", MAT.name());
 
         if (alumno != null) {
-            query.setLong("CURSO", alumno.getId());
+            query.setLong("ALUMNO", alumno.getId());
         }
         if (curso != null) {
-            query.setLong("ALUMNO", curso.getId());
+            query.setLong("CURSO", curso.getId());
         }
 
         return query.list();

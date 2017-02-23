@@ -7,9 +7,12 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
+import static pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum.MAT;
 
 @Repository
 public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
@@ -59,6 +62,31 @@ public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implemen
                 .parents("_mr.alumno alu", "_s.grupoSeccion gs")
                 .parents("_gs.curso cur", "_alu.persona per")
                 .filter("mr.id", resumen);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo) {
+        SqlUtil sqlUtil = new SqlUtil("ms")
+                .parents("matriculaResumen mr", "seccion s")
+                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
+                .parents("_gs.curso cur", "_gs.cicloAcademico ca", "_alu.persona per")
+                .parents("left _gs.planCalificacion")
+                .filter("ms.estado", MAT.name())
+                .filter("gs.id", grupoSeccion)
+                .filter("ca.id", ciclo);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo) {
+        SqlUtil sqlUtil = new SqlUtil("ms")
+                .parents("matriculaResumen mr", "seccion s")
+                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
+                .parents("_gs.curso cur", "_gs.cicloAcademico ca", "_alu.persona per")
+                .parents("left _gs.planCalificacion")
+                .filter("ms.estado", MAT.name())
+                .filter("ca.id", ciclo);
         return all(sqlUtil);
     }
 
