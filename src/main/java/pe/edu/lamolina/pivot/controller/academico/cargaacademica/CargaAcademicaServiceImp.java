@@ -947,9 +947,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
 
+                    String evalCodigo = ae.getEvaluacion().getTipoEvaluacion().getCodigo();
+                    if (ObjectUtil.getParentTree(ae, "evaluacion.evaluacionSuperior.id") != null) {
+                        String parent = ae.getEvaluacion().getEvaluacionSuperior().getTipoEvaluacion().getCodigo() + ae.getEvaluacion().getEvaluacionSuperior().getNumero();
+                        evalCodigo = "(" + parent + ")" + evalCodigo;
+                    }
 
-                    /*       logger.debug("Evaluacion {} {}, numero {} nota {} peso total {}, ponderado {}",
-                            evalCodigo, ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), ae.getNota(), peso.toString(), ponderado.toString());*/
+                    logger.debug("Evaluacion {} {}, numero {} nota {} peso total {}, ponderado {}",
+                            evalCodigo, ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), ae.getNota(), peso.toString(), ponderado.toString());
+
                 }
             }
 
@@ -980,9 +986,20 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             TipoEvaluacion tipoEvaluacion = null;
             if (ObjectUtil.getParentTree(eval, "evaluacionSuperior.id") != null) {
+
+                /*
+                if (ObjectUtil.getParentTree(eval, "evaluacionSuperior.tipoEvaluacion.id") != null
+                        && ObjectUtil.getParentTree(eval, "evaluacionSuperior.tipoEvaluacion.codigo") != null
+                        ) {*/
                 tipoEvaluacion = eval.getEvaluacionSuperior().getTipoEvaluacion();
+                //  }
             } else {
+
+                /*  if (ObjectUtil.getParentTree(eval, "evaluacion.tipoEvaluacion.id") != null
+                        && ObjectUtil.getParentTree(eval, "evaluacion.tipoEvaluacion.codigo") != null
+                        ) {*/
                 tipoEvaluacion = eval.getTipoEvaluacion();
+                // }
             }
             if (tipoEvaluacion != null) {
                 if (tipoEvaluacion.getId().equals(tipo.getId())) {
