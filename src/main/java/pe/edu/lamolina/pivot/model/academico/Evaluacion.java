@@ -389,7 +389,9 @@ public class Evaluacion implements Serializable {
 
     public String getCodigoNumeroGen() {
         StringBuilder nombre = new StringBuilder();
-        if (ObjectUtil.getParentTree(this, "evaluacionSuperior.id") != null) {
+        if (ObjectUtil.getParentTree(this, "evaluacionSuperior.id") != null
+                && ObjectUtil.getParentTree(this, "evaluacionSuperior.tipoEvaluacion.id") != null) {
+
             Evaluacion evaluacionPadre = this.getEvaluacionSuperior();
             nombre.append("(");
             nombre.append(evaluacionPadre.getTipoEvaluacion().getCodigo());

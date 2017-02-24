@@ -928,8 +928,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 continue;
             }
 
-         //   logger.debug("######## Evaluacion Plan {}, Cantidad de alumno evaluaciones {}", tipo.getCodigo(), evalsTipo.size());
-
+            //   logger.debug("######## Evaluacion Plan {}, Cantidad de alumno evaluaciones {}", tipo.getCodigo(), evalsTipo.size());
             ResumenAlumnoEvaluacion rae = mapResumenAluEval.get(tipo.getId());
             if (rae == null) {
                 rae = new ResumenAlumnoEvaluacion();
@@ -948,12 +947,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
 
-                    String evalCodigo = ae.getEvaluacion().getTipoEvaluacion().getCodigo();
-                    if (ObjectUtil.getParentTree(ae, "evaluacion.evaluacionSuperior.id") != null) {
-                        String parent = ae.getEvaluacion().getEvaluacionSuperior().getTipoEvaluacion().getCodigo() + ae.getEvaluacion().getEvaluacionSuperior().getNumero();
-                        evalCodigo = "(" + parent + ")" + evalCodigo;
-                    }
-             /*       logger.debug("Evaluacion {} {}, numero {} nota {} peso total {}, ponderado {}",
+
+                    /*       logger.debug("Evaluacion {} {}, numero {} nota {} peso total {}, ponderado {}",
                             evalCodigo, ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), ae.getNota(), peso.toString(), ponderado.toString());*/
                 }
             }
