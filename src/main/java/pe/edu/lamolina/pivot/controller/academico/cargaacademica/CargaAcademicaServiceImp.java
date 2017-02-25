@@ -873,7 +873,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                         }
                     }
                     alumnoEvaluacionMinima = alumnoEvaluacionDAO.find(alumnoEvaluacionMinima.getId());
-                    alumnoEvaluacionMinima.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MINIMA.name());
+                    alumnoEvaluacionMinima.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MIN.name());
                     alumnoEvaluacionDAO.update(alumnoEvaluacionMinima);
                 }
             }

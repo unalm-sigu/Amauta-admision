@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum MotivoAnulacionEnum {
 
-    NOTA_MINIMA("Es la nota mínima"), NOTA_NCV("Nota convalidada");
+    NOTA_MIN("Es la nota mínima"), NOTA_NCV("Nota convalidada");
 
     private final String value;
     private static final Map<String, MotivoAnulacionEnum> lookup = new HashMap<>();
