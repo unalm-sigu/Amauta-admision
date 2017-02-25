@@ -946,7 +946,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
                     pesoTotal = pesoTotal.add(peso);
                     ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-
+                    /*
                     String evalCodigo = ae.getEvaluacion().getTipoEvaluacion().getCodigo();
                     if (ObjectUtil.getParentTree(ae, "evaluacion.evaluacionSuperior.id") != null) {
                         String parent = ae.getEvaluacion().getEvaluacionSuperior().getTipoEvaluacion().getCodigo() + ae.getEvaluacion().getEvaluacionSuperior().getNumero();
@@ -955,6 +955,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
                     logger.debug("Evaluacion {} {}, numero {} nota {} peso total {}, ponderado {}",
                             evalCodigo, ae.getEvaluacion().getId(), ae.getEvaluacion().getNumero(), ae.getNota(), peso.toString(), ponderado.toString());
+                     */
 
                 }
             }
