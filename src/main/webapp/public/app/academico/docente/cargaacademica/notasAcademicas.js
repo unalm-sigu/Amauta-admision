@@ -223,6 +223,7 @@ $(function () {
                                 $("#txtCodeSel").val(response.data.evaId);
                                 $("span[name='" + response.data.evaId + "']").css("display", "none");
                                 $("input[title='" + response.data.evaId + "']").css("display", "");
+                                $("input[title='" + response.data.evaId + "']").css("style", "width:50px;");
                                 $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
                                 $("input[title='" + response.data.evaId + "']").val("");
                             }
