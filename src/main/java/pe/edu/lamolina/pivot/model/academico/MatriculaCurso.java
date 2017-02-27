@@ -36,6 +36,12 @@ public class MatriculaCurso implements Serializable {
     @Column(name = "nota_final")
     private String notaFinal;
 
+    @Column(name = "nota_avance_full")
+    private String notaAvanceFull;
+
+    @Column(name = "nota_acumulada_full")
+    private String notaAcumuladaFull;
+
     @Column(name = "porcentaje_avance_nota")
     private Integer porcentajeAvanceNota;
 
@@ -131,6 +137,22 @@ public class MatriculaCurso implements Serializable {
 
     public void setPorcentajeAvanceNota(Integer porcentajeAvanceNota) {
         this.porcentajeAvanceNota = porcentajeAvanceNota;
+    }
+
+    public String getNotaAvanceFull() {
+        return notaAvanceFull;
+    }
+
+    public void setNotaAvanceFull(String notaAvanceFull) {
+        this.notaAvanceFull = notaAvanceFull;
+    }
+
+    public String getNotaAcumuladaFull() {
+        return notaAcumuladaFull;
+    }
+
+    public void setNotaAcumuladaFull(String notaAcumuladaFull) {
+        this.notaAcumuladaFull = notaAcumuladaFull;
     }
 
 }
