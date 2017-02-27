@@ -914,12 +914,18 @@ public class CargaAcademicaController {
         model.addAttribute("curso", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso());
         model.addAttribute("seccion", matriculaSeccion.getSeccion());
 
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
+
         List<AlumnoEvaluacion> alumnosEvaluaciones = cargaAcademicaService.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
                 matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico);
         //evaluacionesDisponibles se muestra en el modal
         List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
 
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {
+
+            if (!evaluacionesBySeccionFinal.contains(alumnoEvaluacion.getEvaluacion())) {
+                continue;
+            }
             if (nsp) {
                 if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
 

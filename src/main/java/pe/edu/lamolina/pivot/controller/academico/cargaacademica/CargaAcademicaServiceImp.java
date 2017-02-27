@@ -888,8 +888,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         BigDecimal ponderado = BigDecimal.ZERO;
 
         if (evaluacionesAlumno.isEmpty()) {
-            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal(ponderado));
-            matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal(ponderado));
+            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(ponderado));
+            matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(ponderado));
             matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
             matriculaCurso.setNotaFinal("0");
 
@@ -912,13 +912,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(prom));
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(avance));
 
-        matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(prom));
-        matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(avance));
+        BigDecimal avanceFull = ponderado.divide(bd100, 10, RoundingMode.HALF_DOWN);
+        BigDecimal promFull = ponderado.divide(pesoTotal, 10, RoundingMode.HALF_DOWN);
+        matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(promFull));
+        matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(avanceFull));
 
         matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
-
-        //  logger.debug("### El tipo de evaluacion {}", evaluacion.getTipoEvaluacion().getNombre());
-        //   logger.debug("Promedio {}, Avance {}, Ponderado {}", prom, avance, ponderado);
+        /*
+        logger.debug("### El tipo de evaluacion {}", evaluacion.getTipoEvaluacion().getNombre());
+        logger.debug("Promedio {}, Avance {}, Ponderado {}", prom, avance, ponderado);*/
         if (pesoTotal.compareTo(bd100) == 0) {
             BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
             //    logger.debug("nota final {}", notaFinal);
