@@ -917,11 +917,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
 
-        logger.debug("### El tipo de evaluacion {}", evaluacion.getTipoEvaluacion().getNombre());
-        logger.debug("Promedio {}, Avance {}, Ponderado {}", prom, avance, ponderado);
+        //  logger.debug("### El tipo de evaluacion {}", evaluacion.getTipoEvaluacion().getNombre());
+        //   logger.debug("Promedio {}, Avance {}, Ponderado {}", prom, avance, ponderado);
         if (pesoTotal.compareTo(bd100) == 0) {
             BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
-            logger.debug("nota final {}", notaFinal);
+            //    logger.debug("nota final {}", notaFinal);
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
 
         }
