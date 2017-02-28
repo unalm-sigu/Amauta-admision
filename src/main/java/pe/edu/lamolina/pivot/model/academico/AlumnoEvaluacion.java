@@ -13,8 +13,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
+import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 
 @Entity
 @Table(name = "aca_alumno_evaluacion", uniqueConstraints = {
@@ -196,6 +198,10 @@ public class AlumnoEvaluacion implements Serializable {
 
     public void setMotivoAnulacion(String motivoAnulacion) {
         this.motivoAnulacion = motivoAnulacion;
+    }
+
+    public MotivoAnulacionEnum getMotivoAnulacionEnum() {
+        return MotivoAnulacionEnum.valueOf(this.getMotivoAnulacion());
     }
 
     public boolean isNCV() {

@@ -856,7 +856,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             TipoEvaluacion tipo = ep.getTipoEvaluacion();
 
             AlumnoEvaluacion alumnoEvaluacionMinima = null;
-            BigDecimal notaMinima = new BigDecimal("200");
+            BigDecimal notaMinima = new BigDecimal("100000000");
             if (ep.getNotaMinimaAnulable() != null && ep.getNotaMinimaAnulable().equals(BigDecimal.ONE.intValue())) {
                 List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
 
@@ -867,7 +867,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     for (AlumnoEvaluacion ae : evalsTipo) {
                         if (!ae.isNCV()) {
                             ae.setMotivoAnulacion("");
-                            if (ae.getValorNumerico().compareTo(notaMinima) <= 0) {
+                            BigDecimal producto = ae.getValorNumerico().multiply(ae.getEvaluacion().getPeso());
+                            if (producto.compareTo(notaMinima) <= 0) {
                                 notaMinima = ae.getValorNumerico();
                                 alumnoEvaluacionMinima = new AlumnoEvaluacion(ae.getId());
                                 //  ae.setIndNotaAnulada(BigDecimal.ZERO.intValue());
