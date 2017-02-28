@@ -63,6 +63,12 @@
                                 <i class="fa fa-users"></i><span>Personas</span>
                             </a>
                         </li>
+
+                        <li class="option" th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                            <a th:href="@{/academico/acta}">
+                                <i class="fa fa-users"></i><span>Control de Actas</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
