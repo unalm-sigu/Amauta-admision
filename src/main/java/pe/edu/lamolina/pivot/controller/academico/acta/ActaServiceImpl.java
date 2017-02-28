@@ -31,54 +31,54 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 @Service
 @Transactional(readOnly = true)
 public class ActaServiceImpl implements ActaService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
+    
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-
+    
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-
+    
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
-
+    
     @Autowired
     ControlDeActasDAO controlDeActasDAO;
-
+    
     @Override
     public List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter) {
         return departamentoAcademicoDAO.allActiveByDyna(filter);
     }
-
+    
     @Override
     public DepartamentoAcademico findDepartamento(Long idDepartamentoAcad) {
         return departamentoAcademicoDAO.find(idDepartamentoAcad);
     }
-
+    
     @Override
     public List<GrupoSeccion> allGrupoSeccionByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
         return grupoSeccionDAO.allByFilter(null, cicloAcademico, departamentoAcademico);
     }
-
+    
     @Override
     public List<GrupoSeccion> allGrupoSeccionByFilterDyna(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter dynatableFilter) {
         return grupoSeccionDAO.allByFilter(cicloAcademico, departamentoAcademico, dynatableFilter);
     }
-
+    
     @Override
     public DocenteSeccion findDocenteSeccionByFilter(Docente docente, Seccion seccion) {
         return docenteSeccionDAO.findByFilter(docente, seccion);
     }
-
+    
     @Override
     public List<DocenteSeccion> allDocenteSeccionByGrupo(GrupoSeccion grupoSeccion) {
         return docenteSeccionDAO.allByGrupoSeccion(grupoSeccion);
     }
-
+    
     @Override
     @Transactional
     public void reabrirGrupo(GrupoSeccion grupoSeccion, Usuario usuario) {
@@ -86,7 +86,7 @@ public class ActaServiceImpl implements ActaService {
         DateTime today = new DateTime();
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
         logger.debug("Id Grupo Seccion {}", grupoSeccion.getId());
-
+        
         ControlDeActas controlDeActas = new ControlDeActas();
         controlDeActas.setFechaCierreActa(grupoSeccion.getFechaCierreActa());
         controlDeActas.setUsuarioCierraActa(grupoSeccion.getUsuarioCierraActa());
@@ -94,20 +94,21 @@ public class ActaServiceImpl implements ActaService {
         controlDeActas.setGrupoSeccion(grupoSeccion);
         controlDeActas.setUsuarioRegistro(usuario);
         controlDeActas.setVersion(grupoSeccion.getVersion());
-
+        
         controlDeActas.setControlDeActasDets(new ArrayList<>());
-
+        
         List<AlumnoEvaluacion> evaluacionesBySeccion = alumnoEvaluacionDAO.allByFilter(null, grupoSeccion.getId(), null);
         logger.debug("Cantidad de evaluaciones del grupo {}", evaluacionesBySeccion.size());
         if (evaluacionesBySeccion.isEmpty()) {
             throw new PhobosException("Error. El grupo no cuenta con notas ingresadas.");
         }
-
+        
         ControlDeActasDet controlDeActasDet = null;
         for (AlumnoEvaluacion alumnoEvaluacion : evaluacionesBySeccion) {
             controlDeActasDet = new ControlDeActasDet();
             controlDeActasDet.setControlDeActas(controlDeActas);
             controlDeActasDet.setEvaluacion(alumnoEvaluacion.getEvaluacion());
+            controlDeActasDet.setAlumno(alumnoEvaluacion.getAlumno());
             if (ObjectUtil.getParentTree(alumnoEvaluacion.getEvaluacion(), "evaluacionSuperior.id") != null) {
                 controlDeActasDet.setEvaluacionSuperior(alumnoEvaluacion.getEvaluacion().getEvaluacionSuperior());
             } else {
@@ -120,7 +121,7 @@ public class ActaServiceImpl implements ActaService {
             controlDeActasDet.setNumeroEvaluacion(alumnoEvaluacion.getEvaluacion().getNumero());
             controlDeActasDet.setSeccion(alumnoEvaluacion.getEvaluacion().getSeccionResponsable());
             controlDeActasDet.setTipoSeccion(alumnoEvaluacion.getEvaluacion().getTipoSeccion());
-
+            
             StringBuilder codigoPadre = new StringBuilder();
             StringBuilder codigoHijo = new StringBuilder();
             if (ObjectUtil.getParentTree(alumnoEvaluacion.getEvaluacion(), "evaluacionSuperior.id") != null) {
@@ -135,11 +136,11 @@ public class ActaServiceImpl implements ActaService {
             controlDeActasDet.setEvaluacionDescripcion(nombreEvaluacion.toString());
             controlDeActas.getControlDeActasDets().add(controlDeActasDet);
         }
-
+        
         controlDeActasDAO.save(controlDeActas);
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.RAB);
         grupoSeccion.setVersion("" + (Integer.valueOf(grupoSeccion.getVersion()) + 1));
         grupoSeccionDAO.update(grupoSeccion);
     }
-
+    
 }

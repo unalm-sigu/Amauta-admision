@@ -47,9 +47,9 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     @Override
     public List<GrupoSeccion> allByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter filter) {
 
-        // List<String> fieldsFiltro = Arrays.asList("da.nombre", "da.codigo");
+        List<String> fieldsFiltro = Arrays.asList("gp.codigo", "cur.nombre");
         filter.setAlias("gp");
-        //   filter.setFields(fieldsFiltro);
+        filter.setFields(fieldsFiltro);
         filter.setParents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc", "_cur.departamentoAcademico da");
 
         filter.filterFix("ca.id", cicloAcademico.getId());

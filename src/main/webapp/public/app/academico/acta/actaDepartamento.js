@@ -45,8 +45,8 @@ $(function () {
         },
         reabrir: function (item, e) {
             bootbox.confirm({
-                message: MESSAGES.confirmApprove,
-                title: 'Reabrir Actadel Grupo',
+                message: "Seguro que desea reabrir",
+                title: 'Reabrir Acta del Grupo',
                 buttons: {
                     confirm: {label: 'Aceptar'},
                     cancel: {label: 'Cancelar', className: "btn-link"}
