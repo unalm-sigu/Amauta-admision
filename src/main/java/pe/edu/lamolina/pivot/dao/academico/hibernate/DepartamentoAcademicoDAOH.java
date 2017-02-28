@@ -1,18 +1,26 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico> implements DepartamentoAcademicoDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public DepartamentoAcademicoDAOH() {
         super();
@@ -58,5 +66,46 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
                 .orderBy("da.nombre");
 
         return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> countByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" Select ");
+        //     strb.append(" new pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico(");
+        strb.append("           da.id as id, ");
+        strb.append("           sum(if(estado_grupo='CER',1,0)) as cantidadGruposCerrados, ");
+        strb.append("           sum(if(estado_grupo='ABI' or estado_grupo='RAB',1,0)) as cantidadGruposAbiertos, ");
+        strb.append("           count(*) as totalGrupos ");
+        //   strb.append(" ) ");
+        strb.append(" from ");
+        strb.append(" aca_grupo_seccion gs ");
+        strb.append(" left join  aca_plan_calificacion pc on gs.id_plan_calificacion=pc.id ");
+        strb.append(" inner join  aca_curso cur on gs.id_curso=cur.id ");
+        strb.append(" inner join  aca_ciclo_academico ca on gs.id_ciclo=ca.id ");
+        strb.append(" inner join  aca_departamento_academico da on cur.id_departamento_academico=da.id ");
+        strb.append(" where 1=1 ");
+        strb.append(" and da.id in (:prm_grupos) ");
+        if (departamentoAcademico != null) {
+            strb.append(" and ds.id=:prm_departamento ");
+        }
+        strb.append(" and ca.id=:prm_ciclo ");
+        strb.append(" group by da.id ");
+        SQLQuery query = getCurrentSession().createSQLQuery(strb.toString());
+        query.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+        if (departamentoAcademico != null) {
+            query.setParameter("prm_departamento", departamentoAcademico.getId());
+        }
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+        query.setParameterList("prm_grupos", ids);
+
+        List<DepartamentoAcademico> result = new ArrayList<>();
+        List<Map> lstData = query.list();
+
+        for (Map map : lstData) {
+
+            result.add(new DepartamentoAcademico(map.get("id"), map.get("cantidadGruposCerrados"), map.get("cantidadGruposAbiertos"), map.get("totalGrupos")));
+        }
+        return result;
     }
 }

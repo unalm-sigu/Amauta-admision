@@ -7,9 +7,14 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,14 +98,39 @@ public class ActaController {
 
             List<DepartamentoAcademico> departamentosAcaActivos = actaService.allActiveDepartamentosAcademicos(filter);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<Long> departamentos = new ArrayList<>();
+            if (!departamentosAcaActivos.isEmpty()) {
+                for (DepartamentoAcademico departamento : departamentosAcaActivos) {
+                    departamentos.add(departamento.getId());
+                }
+            }
+            List<DepartamentoAcademico> counts = new ArrayList<>();
+            if (!departamentos.isEmpty()) {
+                counts = actaService.countGroupsByFilter(departamentos, ds.getCicloAcademico(), null);
+                logger.debug("Cantidad de resumen de cantidades {}", counts.size());
+            }
 
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (DepartamentoAcademico dep : departamentosAcaActivos) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
                 node.put("idDep", dep.getId());
                 node.put("nombreDep", dep.getNombre());
+
+                if (counts.contains(dep)) {
+
+                    DepartamentoAcademico countDep = counts.stream().filter(x -> x.equals(dep)).findFirst().get();
+
+                    node.put("cantidadCerrados", countDep.getCantidadGruposCerrados());
+                    node.put("cantidadAbiertos", countDep.getCantidadGruposAbiertos());
+                    node.put("cantidadTotal", dep.getTotalGrupos());
+                } else {
+
+                    node.put("cantidadCerrados", 0);
+                    node.put("cantidadAbiertos", 0);
+                    node.put("cantidadTotal", 0);
+                }
                 array.add(node);
             }
 
@@ -109,6 +139,7 @@ public class ActaController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
 
@@ -156,37 +187,55 @@ public class ActaController {
                 node.put("nombreCurso", grupo.getCurso().getNombre());
 
                 node.put("version", grupo.getVersion());
-                node.put("estadoPlan", grupo.getEstadoPlanEnum().name());
-                node.put("estadoPlanValue", grupo.getEstadoPlanEnum().getValue());
-                node.put("estadoGrupo", grupo.getEstadoGrupoEnum().name());
-                node.put("estadoGrupoValue", grupo.getEstadoGrupoEnum().getValue());
+                node.put("estadoPlan", "");
+                node.put("estadoPlanValue", "");
+                if (grupo.getEstadoPlanEnum() != null) {
+                    node.put("estadoPlan", grupo.getEstadoPlanEnum().name());
+                    node.put("estadoPlanValue", grupo.getEstadoPlanEnum().getValue());
+                }
+                node.put("estadoGrupo", "");
+                node.put("estadoGrupoValue", "");
+                if (grupo.getEstadoGrupoEnum() != null) {
+                    node.put("estadoGrupo", grupo.getEstadoGrupoEnum().name());
+                    node.put("estadoGrupoValue", grupo.getEstadoGrupoEnum().getValue());
+                }
 
                 node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
                 node.put("estadoPlanAceptado", grupo.isEstadoAceptado());
 
                 StringBuilder secciones = new StringBuilder();
-                DocenteSeccion docenteSeccion = null;
-                Docente docentePrincipal = null;
+                List<DocenteSeccion> docentesSeccion = null;
+                List<Docente> docentesPrincipal = new ArrayList<>();
 
                 for (Seccion sec : grupo.getSecciones()) {
                     secciones.append(sec.getCodigo());
                     secciones.append(",");
 
                     if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
-                        docenteSeccion = actaService.findDocenteSeccionByFilter(null, sec);
-                        if (docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
-                            if (docenteSeccion.esDocentePrincipal()) {
-                                docentePrincipal = docenteSeccion.getDocente();
+                        docentesSeccion = actaService.allDocenteSeccionByFilter(null, sec);
+                        for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
+                            if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                                if (docentesSeccionEach.esDocentePrincipal()) {
+                                    docentesPrincipal.add(docentesSeccionEach.getDocente());
+                                }
                             }
                         }
+
                     }
 
                 }
                 node.put("docenteNombre", "");
-                node.put("idDocente", "");
-                if (docentePrincipal != null) {
-                    node.put("docenteNombre", docentePrincipal.getPersona().getApellidosNombres());
-                    node.put("idDocente", docentePrincipal.getId());
+                //    node.put("idDocente", "");
+                if (!docentesPrincipal.isEmpty()) {
+                    String docentes = "";
+                    for (Docente doc : docentesPrincipal) {
+                        docentes += doc.getPersona().getApellidosNombres() + " - ";
+                    }
+                    if (!StringUtils.isEmpty(docentes)) {
+                        docentes = docentes.substring(0, docentes.length() - 3);
+                    }
+                    node.put("docenteNombre", docentes);
+                    //    node.put("idDocente", docentePrincipal.getId());
                 }
                 array.add(node);
             }

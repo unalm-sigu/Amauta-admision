@@ -19,17 +19,36 @@
 
         <div id="templateActas" type="text/x-jsrender" class="hide" >
             <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3" >
-                <div class="col-sm-10 col-sm-offset-1 panel qard qard-{{:colorPanel}} depart-academico" rel="{{:idDep}}">
-                    <h4  class="detalle">
+
+                <div class="col-sm-10 col-sm-offset-1 panel qard qard-info depart-academico" rel="{{:idDep}}">
+                    <h4>
                         {{:nombreDep}}
                     </h4>
+
                     <div>
-                        <!-- 
-                        <div class="m-b-md text-muted">
-                            <span class="block">{{:matriculados}} / {{:vacantes}} </span>
-                            <span class="block">{{:porc}}% completado  </span>
-                        </div>-->
+                        <div class="m-b clear">
+                            <span class="block clearfix"> 
+                                <span class="text-muted">{{:cantidadTotal}} Actas</span>
+                            </span>
+                            <span class="block clearfix" >
+                                <div class="col-sm-12">
+                                    <div class="b-r col-md-6">
+                                        <span class="clear">
+                                            <small class="block text-danger">{{:cantidadAbiertos}}</small>
+                                            <small class="block text-danger">Cartas Abiertas</small>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <span class="clear">
+                                            <small class="block text-success">{{:cantidadCerrados}}</small>
+                                            <small class="block text-success">Cartas Cerradas</small>
+                                        </span>
+                                    </div>
+                                </div>
+                            </span>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>

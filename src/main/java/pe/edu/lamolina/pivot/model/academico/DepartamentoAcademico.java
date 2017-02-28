@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 
 @Entity
@@ -47,11 +48,27 @@ public class DepartamentoAcademico implements Serializable {
     @OneToMany(mappedBy = "departamentoAcademico", fetch = FetchType.LAZY)
     private List<PlanCalificacion> planCalificacion;
 
+    @Transient
+    Long cantidadGruposAbiertos;
+
+    @Transient
+    Long cantidadGruposCerrados;
+
+    @Transient
+    Long totalGrupos;
+
     public DepartamentoAcademico() {
     }
 
     public DepartamentoAcademico(Object id) {
         this.id = TypesUtil.getLong(id);
+    }
+
+    public DepartamentoAcademico(Object id, Object cantidadGruposCerrados, Object cantidadGruposAbiertos, Object totalGrupos) {
+        this.id = TypesUtil.getLong(id);
+        this.cantidadGruposAbiertos = TypesUtil.getLong(cantidadGruposAbiertos);
+        this.cantidadGruposCerrados = TypesUtil.getLong(cantidadGruposCerrados);
+        this.totalGrupos = TypesUtil.getLong(totalGrupos);
     }
 
     public Long getId() {
@@ -126,5 +143,46 @@ public class DepartamentoAcademico implements Serializable {
         this.planCalificacion = planCalificacion;
     }
 
-}
+    public Long getCantidadGruposAbiertos() {
+        return cantidadGruposAbiertos;
+    }
 
+    public void setCantidadGruposAbiertos(Long cantidadGruposAbiertos) {
+        this.cantidadGruposAbiertos = cantidadGruposAbiertos;
+    }
+
+    public Long getCantidadGruposCerrados() {
+        return cantidadGruposCerrados;
+    }
+
+    public void setCantidadGruposCerrados(Long cantidadGruposCerrados) {
+        this.cantidadGruposCerrados = cantidadGruposCerrados;
+    }
+
+    public Long getTotalGrupos() {
+        return totalGrupos;
+    }
+
+    public void setTotalGrupos(Long totalGrupos) {
+        this.totalGrupos = totalGrupos;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof DepartamentoAcademico)) {
+            return false;
+        }
+        DepartamentoAcademico other = (DepartamentoAcademico) obj;
+        if (id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
+}

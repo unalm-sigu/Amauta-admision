@@ -25,4 +25,6 @@ public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     List<DocenteSeccion> allByCiclo(CicloAcademico ciclo);
 
+    List<DocenteSeccion> allByFilter(Docente docente, Seccion seccion);
+
 }

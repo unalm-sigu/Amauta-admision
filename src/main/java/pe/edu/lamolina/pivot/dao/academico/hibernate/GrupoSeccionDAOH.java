@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
