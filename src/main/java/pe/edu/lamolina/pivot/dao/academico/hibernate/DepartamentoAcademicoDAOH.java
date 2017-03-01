@@ -85,7 +85,7 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
         strb.append(" inner join  aca_ciclo_academico ca on gs.id_ciclo=ca.id ");
         strb.append(" inner join  aca_departamento_academico da on cur.id_departamento_academico=da.id ");
         strb.append(" where 1=1 ");
-        strb.append(" and da.id in (:prm_grupos) ");
+        strb.append(" and da.id in (:prm_departamentos) ");
         if (departamentoAcademico != null) {
             strb.append(" and ds.id=:prm_departamento ");
         }
@@ -97,7 +97,7 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
             query.setParameter("prm_departamento", departamentoAcademico.getId());
         }
         query.setParameter("prm_ciclo", cicloAcademico.getId());
-        query.setParameterList("prm_grupos", ids);
+        query.setParameterList("prm_departamentos", ids);
 
         List<DepartamentoAcademico> result = new ArrayList<>();
         List<Map> lstData = query.list();
@@ -105,6 +105,7 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
         for (Map map : lstData) {
 
             result.add(new DepartamentoAcademico(map.get("id"), map.get("cantidadGruposCerrados"), map.get("cantidadGruposAbiertos"), map.get("totalGrupos")));
+            
         }
         return result;
     }

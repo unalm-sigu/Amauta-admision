@@ -124,7 +124,7 @@ public class ActaController {
 
                     node.put("cantidadCerrados", countDep.getCantidadGruposCerrados());
                     node.put("cantidadAbiertos", countDep.getCantidadGruposAbiertos());
-                    node.put("cantidadTotal", dep.getTotalGrupos());
+                    node.put("cantidadTotal", countDep.getTotalGrupos());
                 } else {
 
                     node.put("cantidadCerrados", 0);
