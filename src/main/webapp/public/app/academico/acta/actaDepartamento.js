@@ -25,6 +25,31 @@ $(function () {
         record.colorEstadoPlan = colorEstadoPlan[record.estadoPlan];
 
         record.index = rowIndex;
+
+
+        var secciones = record.secciones.split(",");
+
+        var grupoHoras = "";
+        if (record.grupoHoras != "") {
+            grupoHoras = record.grupoHoras.toString().split(",")
+        }
+        var seccionesResult = "";
+
+        for (var i = 0; i < secciones.length; i++) {
+            seccionesResult += '<div class="col-md-4"><a href="#" ';
+            if (record.estado == 'ACEP') {
+                seccionesResult += 'class="notas-academicas"';
+            }
+            var grupoText = "";
+            if (grupoHoras[i] != null) {
+                grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
+            }
+
+            seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + grupoText + '</a></div>';
+
+        }
+        record.secciones = seccionesResult;
+
         var html = $.templates("#templateGrupos").render(record);
         return html;
     }

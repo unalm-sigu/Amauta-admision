@@ -32,6 +32,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
@@ -203,15 +204,19 @@ public class ActaController {
                 node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
                 node.put("estadoPlanAceptado", grupo.isEstadoAceptado());
 
-                StringBuilder secciones = new StringBuilder();
+                String secciones = "";
+                String grupoHoras = "";
                 List<DocenteSeccion> docentesSeccion = null;
                 List<Docente> docentesPrincipal = new ArrayList<>();
 
                 for (Seccion sec : grupo.getSecciones()) {
-                    secciones.append(sec.getCodigo());
-                    secciones.append(",");
 
                     if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                        secciones += sec.getId() + "|" + sec.getCodigo() + ",";
+                        if (ObjectUtil.getParentTree(sec, "grupoHoras") != null) {
+                            grupoHoras += sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo() + ",";
+                        }
+
                         docentesSeccion = actaService.allDocenteSeccionByFilter(null, sec);
                         for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
                             if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
@@ -224,6 +229,12 @@ public class ActaController {
                     }
 
                 }
+                node.put("secciones", secciones.substring(0, secciones.length() - 1));
+                if (grupoHoras != "") {
+                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
+                }
+                node.put("grupoHoras", grupoHoras);
+
                 node.put("docenteNombre", "");
                 //    node.put("idDocente", "");
                 if (!docentesPrincipal.isEmpty()) {

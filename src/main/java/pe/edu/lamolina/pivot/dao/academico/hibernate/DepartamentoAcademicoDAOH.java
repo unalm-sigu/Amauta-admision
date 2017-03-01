@@ -41,21 +41,22 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
     public List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, CicloAcademico cicloAcademico) {
         StringBuilder strb = new StringBuilder();
         strb.append(" Select ");
-        strb.append("   gs ");
+        strb.append("  distinct dep ");
         strb.append(" from ");
         strb.append("   GrupoSeccion gs ");
-        strb.append("    inner join fetch gs.curso cur ");
-        strb.append("    inner join fetch cur.departamentoAcademico dep ");
-        strb.append("    inner join fetch gs.cicloAcademico cic ");
+        strb.append("    inner join  gs.curso cur ");
+        strb.append("    inner join  cur.departamentoAcademico dep ");
+        strb.append("    inner join  gs.cicloAcademico cic ");
+        strb.append("    inner join  gs.secciones secs ");
         strb.append(" where ");
-        strb.append("   cic.id=:prm_ciclo ");
+        strb.append("   cic.id=:prm_ciclo and secs.matriculados>0");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
-        List<GrupoSeccion> listGrupos = query.list();
+        List<DepartamentoAcademico> listGrupos = query.list();
         List<Long> lstDepartamentos = new ArrayList<Long>();
-        for (GrupoSeccion grup : listGrupos) {
-            lstDepartamentos.add(grup.getCurso().getDepartamentoAcademico().getId());
+        for (DepartamentoAcademico dep : listGrupos) {
+            lstDepartamentos.add(dep.getId());
         }
 
         List<String> fieldsFiltro = Arrays.asList("da.nombre", "da.codigo");
