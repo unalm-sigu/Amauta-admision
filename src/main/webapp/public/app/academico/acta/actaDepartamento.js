@@ -36,7 +36,7 @@ $(function () {
         var seccionesResult = "";
 
         for (var i = 0; i < secciones.length; i++) {
-            seccionesResult += '<div class="col-md-4"><a href="#" ';
+            seccionesResult += '<div ><span ';
             if (record.estado == 'ACEP') {
                 seccionesResult += 'class="notas-academicas"';
             }
@@ -45,7 +45,7 @@ $(function () {
                 grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
             }
 
-            seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + grupoText + '</a></div>';
+            seccionesResult += ' ">' + secciones[i].split("|")[1] + grupoText + '</span></div>';
 
         }
         record.secciones = seccionesResult;
