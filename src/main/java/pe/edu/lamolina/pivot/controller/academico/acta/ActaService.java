@@ -13,7 +13,7 @@ import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 public interface ActaService {
 
-    List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter);
+    List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     DepartamentoAcademico findDepartamento(Long idDepartamentoAcad);
 

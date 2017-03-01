@@ -96,7 +96,7 @@ public class ActaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico periodo = ds.getCicloAcademico();
 
-            List<DepartamentoAcademico> departamentosAcaActivos = actaService.allActiveDepartamentosAcademicos(filter);
+            List<DepartamentoAcademico> departamentosAcaActivos = actaService.allActiveDepartamentosAcademicos(filter, ds.getCicloAcademico());
 
             List<Long> departamentos = new ArrayList<>();
             if (!departamentosAcaActivos.isEmpty()) {

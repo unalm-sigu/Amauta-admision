@@ -11,7 +11,7 @@ public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
 
     DepartamentoAcademico find(Long id);
 
-    List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter);
+    List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     List<DepartamentoAcademico> countByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
 
