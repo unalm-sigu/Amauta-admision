@@ -14,8 +14,16 @@ $(function () {
         }
     }).data('dynatable');
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
-        // record.colorEstado = colorEstado[record.estado];
+        // var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
+        var colorEstadoPlan = {
+            ACT: "success", APR: "success", EXPR: "success", EXP: "success", ACEP: "success",
+            PEND: "warning", CRE: "warning", OBS: "warning", SOL: "warning", REE: "warning", PRO: "warning",
+            INA: "danger", RHZ: "danger", CER: "danger"
+        };
+        var colorEstadoActa = {ABI: "danger", CER: "success", RAB: "danger"};
+        record.colorEstadoGrupo = colorEstadoActa[record.estadoGrupo];
+        record.colorEstadoPlan = colorEstadoPlan[record.estadoPlan];
+
         record.index = rowIndex;
         var html = $.templates("#templateGrupos").render(record);
         return html;

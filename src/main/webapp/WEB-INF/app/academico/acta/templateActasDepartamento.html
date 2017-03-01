@@ -1,12 +1,14 @@
 <tr rel="{{:index}}">
-    <td > 
+    <td class="text-left v-middle">
+        <span class="block">{{:nombreCurso}}</span>
+    </td>
+
+    <td class="text-center"> 
         <span class="block">
             <a href="#" class="detalle-sistema">{{:codigoGrupo}}</a>	
         </span>
     </td>
-    <td class="text-left v-middle">
-        <span class="block">{{:nombreCurso}}</span>
-    </td>
+
     <td>
         <span class="block">{{:docenteNombre}}</span>
     </td>
@@ -15,10 +17,10 @@
     </td>
 
     <td class="text-center v-middle">
-        <span class="block">{{:estadoPlanValue}}</span>
+        <span class=" label label-{{:colorEstadoPlan}}">{{:estadoPlanValue}}</span>
     </td>
     <td class="text-center v-middle">
-        <span class="block">{{:estadoGrupoValue}}</span>
+        <span class=" label label-{{:colorEstadoGrupo}}">{{:estadoGrupoValue}}</span>
     </td>
     <td>
         {{if estadoGrupoCerrado==true}}     
