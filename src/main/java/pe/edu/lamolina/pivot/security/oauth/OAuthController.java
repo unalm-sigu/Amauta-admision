@@ -154,6 +154,10 @@ public class OAuthController {
                 redirect = "redirect:/general/personaperfil";
                 break;
 
+            case "OREA":
+                redirect = "redirect:/academico/acta";
+                break;
+
             default:
                 logger.debug("No se identifica acceso para el rol: {} ", ds.getRolActivo().getCodigo());
                 break;
