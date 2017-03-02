@@ -34,7 +34,7 @@ public interface ProgDataService {
 
     void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, String> mapBloqueados);
 
-    void revisarSecciones(List<Seccion> secciones);
+    void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo);
 
     void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones);
 

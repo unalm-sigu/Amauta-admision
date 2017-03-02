@@ -17,4 +17,6 @@ public interface SeccionDAO extends Crud<Seccion> {
 
     Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
 
+    List<Seccion> allByCiclo(CicloAcademico ciclo);
+
 }

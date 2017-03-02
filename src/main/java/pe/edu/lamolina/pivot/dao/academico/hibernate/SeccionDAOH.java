@@ -75,4 +75,12 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
         return find(sqlUtil);
     }
 
+    @Override
+    public List<Seccion> allByCiclo(CicloAcademico ciclo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
+                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
+                .filter("ca.id", ciclo);
+        return all(sqlUtil);
+    }
+
 }

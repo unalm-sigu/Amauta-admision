@@ -111,7 +111,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
-        progDataService.revisarSecciones(secciones);
+        progDataService.revisarSecciones(secciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
 

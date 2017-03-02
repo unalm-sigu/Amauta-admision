@@ -93,6 +93,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setVersion("1");
                 gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
+                gpoSeccBD.setEstado(EstadoEnum.ACT.name());
 
                 grupoSeccionDAO.save(gpoSeccBD);
 
@@ -100,6 +101,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setVersion(gpoSeccBD.getVersion() == null ? "1" : gpoSeccBD.getVersion());
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
+                gpoSeccBD.setEstado(EstadoEnum.ACT.name());
                 grupoSeccionDAO.update(gpoSeccBD);
 
                 Curso cursoBD = gpoSeccBD.getCurso();
@@ -153,6 +155,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setHorasTeoria(curso.getHorasTeoria());
                 seccionBD.setHorasPractica(curso.getHorasPractica());
                 seccionBD.setHorasSemanales(curso.getHorasTeoria() + curso.getHorasPractica());
+                seccionBD.setEstado(EstadoEnum.ACT.name());
                 //seccionBD.setSeccionSuperior(seccionBD);
 
                 seccionDAO.save(seccionBD);
@@ -496,12 +499,24 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void revisarSecciones(List<Seccion> secciones) {
+    public void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo) {
+        Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
             //logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             seccion.setMatriculados(seccion.getMatriculaSeccion().size());
             seccionDAO.update(seccion);
+            mapSecciones.put(seccion.getId(), seccion);
         }
+
+        List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
+        for (Seccion secc : seccionesBD) {
+            Seccion seccion = mapSecciones.get(secc.getId());
+            if (seccion == null) {
+                secc.setEstado(EstadoEnum.INA.name());
+                seccionDAO.update(secc);
+            }
+        }
+
     }
 
     @Override
