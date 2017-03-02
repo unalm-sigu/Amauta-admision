@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
@@ -34,6 +35,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.controller.academico.acta.reporte.RecordDeActasExcelView;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
@@ -51,6 +53,9 @@ public class ActaController {
 
     @Autowired
     ActaService actaService;
+
+    @Autowired
+    RecordDeActasExcelView recordDeActasExcelView;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -204,6 +209,7 @@ public class ActaController {
                 node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
                 node.put("estadoPlanAceptado", grupo.isEstadoAceptado());
 
+                Long idSeccion = 0L;
                 String secciones = "";
                 String grupoHoras = "";
                 List<DocenteSeccion> docentesSeccion = null;
@@ -212,6 +218,7 @@ public class ActaController {
                 for (Seccion sec : grupo.getSecciones()) {
 
                     if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                        idSeccion = sec.getId();
                         secciones += sec.getId() + "|" + sec.getCodigo() + ",";
                         if (ObjectUtil.getParentTree(sec, "grupoHoras") != null) {
                             grupoHoras += sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo() + ",";
@@ -229,6 +236,7 @@ public class ActaController {
                     }
 
                 }
+                node.put("seccion", idSeccion);
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
                 if (grupoHoras != "") {
                     grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
@@ -283,6 +291,26 @@ public class ActaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("exportExcel/recordActas")
+    public ModelAndView recordActas(HttpSession session, Model model, RedirectAttributes redirectAttr) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+
+        }
+
+        return new ModelAndView(recordDeActasExcelView);
     }
 
 }

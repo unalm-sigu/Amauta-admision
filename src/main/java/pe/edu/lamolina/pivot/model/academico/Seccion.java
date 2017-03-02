@@ -55,6 +55,9 @@ public class Seccion implements Serializable {
     @Column(name = "retirados")
     private Integer retirados;
 
+    @Column(name = "estado")
+    private String estado;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seccion_superior")
     private Seccion seccionSuperior;
@@ -344,5 +347,15 @@ public class Seccion implements Serializable {
     public void setCodigoTipoSeccion(String codigoTipoSeccion) {
         this.codigoTipoSeccion = codigoTipoSeccion;
     }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+    
+    
 
 }

@@ -110,6 +110,8 @@ $(function () {
                     }
                 }
             });
+        }, reporteActa: function (item, e) {
+            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=' + item.attr("rel"));
         }
     };
 
@@ -117,4 +119,10 @@ $(function () {
     $("body").delegate(".reabrir", "click", function () {
         ActaDepartamento.reabrir($(this));
     });
+
+    $("body").delegate(".reporteActa", "click", function () {
+        ActaDepartamento.reporteActa($(this));
+    });
+
+
 });

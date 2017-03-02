@@ -23,18 +23,24 @@
         <span class=" label label-{{:colorEstadoGrupo}}">{{:estadoGrupoValue}}</span>
     </td>
     <td>
-        {{if estadoGrupoCerrado==true}}     
-        {{if estadoPlanAceptado==true}}  
+
         <div class="dropdown actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+
             <ul class="dropdown-menu pull-right" >
+                <li role="presentation">
+                    <a class="reporteActa" rel="{{:seccion}}" href="#">Reporte de Actas</a>
+                </li>
+                {{if estadoGrupoCerrado==true}}     
+                {{if estadoPlanAceptado==true}}  
                 <li role="presentation">
                     <a class="reabrir" rel="{{:idGrupo}}" href="#">Reabrir</a>
                 </li>
+                {{/if}}
+                {{/if}}  
             </ul>
         </div>
-        {{/if}}
-        {{/if}}  
+
     </td>
 
 </tr>

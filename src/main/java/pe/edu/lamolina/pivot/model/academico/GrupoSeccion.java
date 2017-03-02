@@ -48,6 +48,9 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "estado_grupo")
     private String estadoGrupo;
 
+    @Column(name = "estado")
+    private String estado;
+
     @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
     private List<Seccion> secciones;
 
@@ -303,6 +306,14 @@ public class GrupoSeccion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 
 }
