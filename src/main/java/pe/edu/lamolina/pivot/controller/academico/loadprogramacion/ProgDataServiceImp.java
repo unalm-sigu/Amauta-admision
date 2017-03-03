@@ -162,6 +162,7 @@ public class ProgDataServiceImp implements ProgDataService {
             } else {
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
+                seccionBD.setEstado(EstadoEnum.ACT.name());
                 seccionDAO.update(seccionBD);
             }
 
@@ -512,17 +513,20 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Seccion secc : seccionesBD) {
             Seccion seccion = mapSecciones.get(secc.getId());
             if (seccion == null) {
+                logger.debug("\tanulando sección {}",secc.getCodigo());
                 secc.setEstado(EstadoEnum.INA.name());
                 seccionDAO.update(secc);
             }
         }
-
+        logger.debug("\tRevision de secciones finalizada");
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones) {
+    public void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
+        Map<Long, GrupoSeccion> mapGrupoSecciones = new LinkedHashMap();
         for (GrupoSeccion gpoSecc : gruposSecciones) {
+            mapGrupoSecciones.put(gpoSecc.getId(), gpoSecc);
             //logger.debug("\tprocesando el gpo-seccion {}", gpoSecc.getCodigo());
             Seccion seccSuperior = null;
             List<Seccion> secciones = gpoSecc.getSecciones();
@@ -541,6 +545,15 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionDAO.update(secc);
             }
         }
+        List<GrupoSeccion> grupoSeccionesDB = grupoSeccionDAO.allByCiclo(ciclo);
+        for(GrupoSeccion gpoSecc : grupoSeccionesDB){
+            GrupoSeccion grupoSeccion = mapGrupoSecciones.get(gpoSecc.getId());
+            if(grupoSeccion == null){
+                gpoSecc.setEstado(EstadoEnum.INA.name());
+                grupoSeccionDAO.update(gpoSecc);
+            }
+        }
+        
     }
 
     @Async

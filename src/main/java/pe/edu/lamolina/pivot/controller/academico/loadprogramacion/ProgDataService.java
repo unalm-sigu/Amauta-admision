@@ -36,7 +36,7 @@ public interface ProgDataService {
 
     void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo);
 
-    void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones);
+    void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 
     void revisarBloqueados(Map<String, String> mapBloqueados);
 

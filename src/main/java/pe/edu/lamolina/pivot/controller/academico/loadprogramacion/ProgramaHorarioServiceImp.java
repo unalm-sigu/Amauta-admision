@@ -117,7 +117,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarGrupoSecciones");
-        progDataService.revisarGrupoSecciones(gruposSecciones);
+        progDataService.revisarGrupoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarGrupoSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -195,7 +195,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -235,7 +235,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -277,7 +277,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -319,7 +319,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -361,7 +361,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -404,7 +404,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
