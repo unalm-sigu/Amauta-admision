@@ -247,7 +247,11 @@ public class ActaController {
 
                 }
                 node.put("seccion", idSeccion);
-                node.put("secciones", secciones.substring(0, secciones.length() - 1));
+                node.put("secciones", "");
+
+                if (!StringUtils.isEmpty(secciones)) {
+                    node.put("secciones", secciones.substring(0, secciones.length() - 1));
+                }
                 if (grupoHoras != "") {
                     grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
                 }

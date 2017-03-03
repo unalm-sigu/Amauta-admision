@@ -28,9 +28,9 @@ $(function () {
         record.colorEstado = estado[record.estado];
 
         record.index = rowIndex;
-
-
-        var secciones = record.secciones.split(",");
+        var secciones = "";
+        if (record.secciones != "")
+            secciones = record.secciones.split(",");
 
         var grupoHoras = "";
         if (record.grupoHoras != "") {
