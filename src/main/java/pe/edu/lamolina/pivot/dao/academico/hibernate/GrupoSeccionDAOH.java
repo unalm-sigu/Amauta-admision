@@ -14,6 +14,7 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements GrupoSeccionDAO {
@@ -32,7 +33,7 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     }
 
     @Override
-    public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
+    public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
                 .parents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc")
                 .parents("_cur.departamentoAcademico da")
@@ -42,6 +43,9 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
         }
         if (ids != null) {
             sqlUtil.filterIn("gp.id", ids);
+        }
+        if (estadoEnum != null) {
+            sqlUtil.filter("gp.estado", estadoEnum.ACT.name());
         }
         return all(sqlUtil);
     }

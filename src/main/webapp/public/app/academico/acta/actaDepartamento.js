@@ -21,8 +21,11 @@ $(function () {
             INA: "danger", RHZ: "danger", CER: "danger"
         };
         var colorEstadoActa = {ABI: "danger", CER: "success", RAB: "danger"};
+        var estado = {ACT: "success", INA: "danger", CER: "danger"};
+
         record.colorEstadoGrupo = colorEstadoActa[record.estadoGrupo];
         record.colorEstadoPlan = colorEstadoPlan[record.estadoPlan];
+        record.colorEstado = estado[record.estado];
 
         record.index = rowIndex;
 
@@ -81,7 +84,7 @@ $(function () {
                 message: "Seguro que desea reabrir",
                 title: 'Reabrir Acta del Grupo',
                 buttons: {
-                    confirm: {label: 'Aceptar'},
+                    confirm: {label: 'Reabrir'},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {

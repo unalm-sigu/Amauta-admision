@@ -112,6 +112,8 @@ public class ActaController {
             }
             List<DepartamentoAcademico> counts = new ArrayList<>();
             if (!departamentos.isEmpty()) {
+                logger.debug("Departamentos {}", StringUtils.join(departamentos, ","));
+                logger.debug("Ciclo Academico {}", ds.getCicloAcademico().getId());
                 counts = actaService.countGroupsByFilter(departamentos, ds.getCicloAcademico(), null);
                 logger.debug("Cantidad de resumen de cantidades {}", counts.size());
             }
@@ -158,7 +160,8 @@ public class ActaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DepartamentoAcademico depAcademico = actaService.findDepartamento(idDepartamento);
         logger.debug("departamento academico id {}", depAcademico.getId());
-        List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento));
+        logger.debug("ciclo academico id {}", ds.getCicloAcademico().getId());
+        List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
         logger.debug("cantidad de grupos secciones {}", allGruposSeccion.size());
 
         model.addAttribute("docente", ds.getDocente());
@@ -179,7 +182,7 @@ public class ActaController {
 
         try {
             DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
-
+            filter.filterFix("gp.estado", EstadoEnum.ACT.name());
             List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -191,6 +194,13 @@ public class ActaController {
 
                 node.put("idCurso", grupo.getCurso().getId());
                 node.put("nombreCurso", grupo.getCurso().getNombre());
+
+                node.put("estado", grupo.getEstado());
+                node.put("estadoValue", "");
+                if (!StringUtils.isEmpty(grupo.getEstado())) {
+                    node.put("estadoValue", EstadoEnum.valueOf(grupo.getEstado()).getValue());
+                }
+                //    node.put("version", grupo.getVersion());
 
                 node.put("version", grupo.getVersion());
                 node.put("estadoPlan", "");

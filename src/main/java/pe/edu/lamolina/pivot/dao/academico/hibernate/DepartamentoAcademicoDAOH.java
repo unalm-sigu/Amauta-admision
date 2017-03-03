@@ -103,12 +103,12 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
         //   strb.append(" ) ");
         strb.append(" from ");
         strb.append(" aca_grupo_seccion gs ");
-        strb.append(" inner join  aca_seccion sec on sec.id_grupo_seccion=gs.id ");
+        //      strb.append(" inner join  aca_seccion sec on sec.id_grupo_seccion=gs.id ");
         strb.append(" left join  aca_plan_calificacion pc on gs.id_plan_calificacion=pc.id ");
         strb.append(" inner join  aca_curso cur on gs.id_curso=cur.id ");
         strb.append(" inner join  aca_ciclo_academico ca on gs.id_ciclo=ca.id ");
         strb.append(" inner join  aca_departamento_academico da on cur.id_departamento_academico=da.id ");
-        strb.append(" where 1=1 and sec.estado='ACT'  ");
+        strb.append(" where 1=1 and gs.estado='ACT'  ");
         strb.append(" and da.id in (:prm_departamentos) ");
         if (departamentoAcademico != null) {
             strb.append(" and ds.id=:prm_departamento ");

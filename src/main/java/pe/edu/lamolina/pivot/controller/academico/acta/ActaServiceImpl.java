@@ -27,6 +27,7 @@ import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.auditoria.ControlDeActas;
 import pe.edu.lamolina.pivot.model.auditoria.ControlDeActasDet;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 
 @Service
@@ -61,8 +62,8 @@ public class ActaServiceImpl implements ActaService {
     }
 
     @Override
-    public List<GrupoSeccion> allGrupoSeccionByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
-        return grupoSeccionDAO.allByFilter(null, cicloAcademico, departamentoAcademico);
+    public List<GrupoSeccion> allGrupoSeccionByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum) {
+        return grupoSeccionDAO.allByFilter(null, cicloAcademico, departamentoAcademico, null);
     }
 
     @Override

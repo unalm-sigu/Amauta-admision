@@ -55,7 +55,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
     protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
-        List<GrupoSeccion> allGruposSeccion = grupoSeccionDAO.allByFilter(null, cicloAcademico, null);
+        List<GrupoSeccion> allGruposSeccion = grupoSeccionDAO.allByFilter(null, cicloAcademico, null, EstadoEnum.ACT);
         logger.debug("Cantidad de grupos {}", allGruposSeccion.size());
 
         CellStyle cellHeader = ExcelStyles.getStyleHeader(workbook);
