@@ -32,13 +32,13 @@ public interface ProgDataService {
             Map<String, Seccion> mapSecciones,
             CicloAcademico ciclo, DataSessionPivot ds);
 
-    void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, String> mapBloqueados);
+    void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados);
 
     void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo);
 
     void revisarGrupoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 
-    void revisarBloqueados(Map<String, String> mapBloqueados);
+    void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados);
 
     void detenerRevisionBloqueado();
 

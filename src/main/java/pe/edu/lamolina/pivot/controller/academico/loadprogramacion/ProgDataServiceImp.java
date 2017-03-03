@@ -2,9 +2,11 @@ package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,7 +327,7 @@ public class ProgDataServiceImp implements ProgDataService {
         }
         System.out.println("bloquearemos alumno " + alumno.getCodigo() + " para loadDataMatriculados");
         alumnoDAO.findLock(alumno.getId());
-        System.out.println("\talumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
+        
 
         MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
         if (resumen == null) {
@@ -395,7 +397,9 @@ public class ProgDataServiceImp implements ProgDataService {
             matriCursoBD.setPorcentajeAvanceNota(0);
             matriculaCursoDAO.save(matriCursoBD);
 
-            resumen.getMatriculaCurso().add(matriCursoBD);
+            System.out.println("matri-curso creado " + matriCursoBD.getId() + " para el alumno " + alumno.getCodigo());
+
+            //resumen.getMatriculaCurso().add(matriCursoBD);
         }
 
         if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
@@ -408,6 +412,8 @@ public class ProgDataServiceImp implements ProgDataService {
         matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
         matriculaCursoDAO.update(matriCursoBD);
         matriSecc.setProcesado(1);
+        
+        System.out.println("\talumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
     }
 
     private boolean existeCurso(List<MatriculaCurso> alumnoCursos, Curso curso) {
@@ -437,65 +443,114 @@ public class ProgDataServiceImp implements ProgDataService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, String> mapBloqueados) {
-        Alumno alumno = aluResumen.getAlumno();
+    public void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueadox) {
+        try {
 
-        System.out.println("bloquearemos alumno " + alumno.getCodigo() + " para revisarAlumnoMatriculado");
-        alumnoDAO.findLock(alumno.getId());
-        mapBloqueados.put(alumno.getCodigo(), System.currentTimeMillis() + "::::revisarAlumnoMatriculado");
-        //System.out.println("\talumno " + alumno.getCodigo() + " desbloqueado en revisarAlumnoMatriculado");
+            Alumno alumno = aluResumen.getAlumno();
 
-        MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
+            System.out.println("bloquearemos alumno " + alumno.getCodigo() + " para revisarAlumnoMatriculado");
+            alumnoDAO.findLock(alumno.getId());
+            //AlumnoBlocked aluBlock = new AlumnoBlocked(alumno, System.currentTimeMillis(), "revisarAlumnoMatriculado");
+            //mapBloqueados.put(alumno.getCodigo(), aluBlock);
+            //System.out.println("\talumno " + alumno.getCodigo() + " ingresa a bloqueados revisarAlumnoMatriculado");
 
-        if (resumen == null) {
-            aluResumen.setEstadoEnum(EstadoMatriculaCursoEnum.RCI);
-            aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
-            aluResumen.setCreditosMatriculados(0);
-            aluResumen.setCursosRetirados(aluResumen.getCursosRetirados() + aluResumen.getCursosMatriculados());
-            aluResumen.setCursosMatriculados(0);
-            matriculaResumenDAO.update(aluResumen);
+            MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
 
-            List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(aluResumen);
-            for (MatriculaCurso alumnoCurso : alumnoCursos) {
-                alumnoCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
-                matriculaCursoDAO.update(alumnoCurso);
+            if (resumen == null) {
+                aluResumen.setEstadoEnum(EstadoMatriculaCursoEnum.RCI);
+                aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
+                aluResumen.setCreditosMatriculados(0);
+                aluResumen.setCursosRetirados(aluResumen.getCursosRetirados() + aluResumen.getCursosMatriculados());
+                aluResumen.setCursosMatriculados(0);
+                matriculaResumenDAO.update(aluResumen);
+
+                List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(aluResumen);
+                for (MatriculaCurso alumnoCurso : alumnoCursos) {
+                    alumnoCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaCursoDAO.update(alumnoCurso);
+                }
+
+                List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(aluResumen);
+                for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
+                    alumnoSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaSeccionDAO.update(alumnoSeccion);
+                }
+                //mapBloqueados.remove(alumno.getCodigo());
+                //AlumnoBlocked aluBlu = mapBloqueados.get(alumno.getCodigo());
+                //System.out.println("\tcomprobamos retiro del map " + aluBlu);
+                System.out.println("\talumno " + alumno.getCodigo() + " desbloqueado 2222 en revisarAlumnoMatriculado");
+                aluResumen.setProcesado(1);
+                return;
             }
 
-            List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(aluResumen);
-            for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
-                alumnoSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
-                matriculaSeccionDAO.update(alumnoSeccion);
+            List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(resumen);
+            for (MatriculaCurso aluCurso : alumnoCursos) {
+                Curso curso = aluCurso.getCurso();
+
+                if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
+                    resumen.setCursosRetirados(resumen.getCursosRetirados() + 1);
+                    resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
+                    resumen.setCreditosRetirados(resumen.getCreditosRetirados() + curso.getCreditos());
+                    resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() - curso.getCreditos());
+
+                    aluCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaCursoDAO.update(aluCurso);
+                }
             }
-            mapBloqueados.remove(alumno.getCodigo());
-            return;
+
+            List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(resumen);
+            for (MatriculaSeccion aluSeccion : alumnoSecciones) {
+                Seccion secc = aluSeccion.getSeccion();
+                if (!existeSeccion(resumen.getMatriculaSeccion(), secc)) {
+                    aluSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    matriculaSeccionDAO.update(aluSeccion);
+                }
+            }
+
+            matriculaResumenDAO.update(resumen);
+            //System.out.println(mapBloqueados);
+            //mapBloqueados.remove(alumno.getCodigo());
+            //AlumnoBlocked aluBlu = mapBloqueados.get(alumno.getCodigo());
+            //System.out.println("\tcomprobamos retiro del map del alumno " + alumno.getCodigo() + " --> " + aluBlu);
+            //System.out.println(mapBloqueados);
+            aluResumen.setProcesado(1);
+            System.out.println("\talumno " + alumno.getCodigo() + " desbloqueado 3333 en revisarAlumnoMatriculado");
+
+//            int loop = 1;
+//            Iterator entries = mapBloqueados.entrySet().iterator();
+//            while (entries.hasNext()) {
+//                long ahora = System.currentTimeMillis();
+//                Entry entry = (Entry) entries.next();
+//                String alumno1 = (String) entry.getKey();
+//                AlumnoBlocked aluBlock22 = (AlumnoBlocked) entry.getValue();
+//                long hora = aluBlock22.getInicio();
+//                String zona = aluBlock22.getZona();
+//
+//                if (alumno1.equals(alumno.getCodigo())) {
+//                    System.out.println("\t" + alumno1 + " sigue en el map, no se elimino");
+//                    entries.remove();
+//                }
+//
+//                System.out.println(loop + "====> alumno " + alumno1 + " bloqueado por " + (ahora - hora) + " mseg en " + zona);
+//                loop++;
+//            }
+//
+//            loop = 1;
+//            entries = mapBloqueados.entrySet().iterator();
+//            while (entries.hasNext()) {
+//                long ahora = System.currentTimeMillis();
+//                Entry entry = (Entry) entries.next();
+//                String alumno1 = (String) entry.getKey();
+//                AlumnoBlocked aluBlock22 = (AlumnoBlocked) entry.getValue();
+//                long hora = aluBlock22.getInicio();
+//                String zona = aluBlock22.getZona();
+//
+//                System.out.println(loop + "=//==//=> alumno " + alumno1 + " bloqueado por " + (ahora - hora) + " mseg en " + zona);
+//                loop++;
+//            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(resumen);
-        for (MatriculaCurso aluCurso : alumnoCursos) {
-            Curso curso = aluCurso.getCurso();
-
-            if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
-                resumen.setCursosRetirados(resumen.getCursosRetirados() + 1);
-                resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
-                resumen.setCreditosRetirados(resumen.getCreditosRetirados() + curso.getCreditos());
-                resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() - curso.getCreditos());
-
-                aluCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
-                matriculaCursoDAO.update(aluCurso);
-            }
-        }
-
-        List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(resumen);
-        for (MatriculaSeccion aluSeccion : alumnoSecciones) {
-            Seccion secc = aluSeccion.getSeccion();
-            if (!existeSeccion(resumen.getMatriculaSeccion(), secc)) {
-                aluSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
-                matriculaSeccionDAO.update(aluSeccion);
-            }
-        }
-
-        matriculaResumenDAO.update(resumen);
-        mapBloqueados.remove(alumno.getCodigo());
     }
 
     @Override
@@ -512,8 +567,9 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
         for (Seccion secc : seccionesBD) {
             Seccion seccion = mapSecciones.get(secc.getId());
+            logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             if (seccion == null) {
-                logger.debug("\tanulando sección {}",secc.getCodigo());
+                logger.debug("\tanulando sección {}", secc.getCodigo());
                 secc.setEstado(EstadoEnum.INA.name());
                 seccionDAO.update(secc);
             }
@@ -546,28 +602,53 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
         List<GrupoSeccion> grupoSeccionesDB = grupoSeccionDAO.allByCiclo(ciclo);
-        for(GrupoSeccion gpoSecc : grupoSeccionesDB){
+        for (GrupoSeccion gpoSecc : grupoSeccionesDB) {
             GrupoSeccion grupoSeccion = mapGrupoSecciones.get(gpoSecc.getId());
-            if(grupoSeccion == null){
+            if (grupoSeccion == null) {
                 gpoSecc.setEstado(EstadoEnum.INA.name());
+                gpoSecc.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
+                gpoSecc.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
+                gpoSecc.setVersion("0");
                 grupoSeccionDAO.update(gpoSecc);
             }
         }
-        
+
     }
 
     @Async
     @Override
-    public void revisarBloqueados(Map<String, String> mapBloqueados) {
+    public void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados) {
+        if (1 == 1) {
+            return;
+        }
         for (;;) {
-            for (Map.Entry<String, String> bloqueado : mapBloqueados.entrySet()) {
-                long ahora = System.currentTimeMillis();
-                String alumno = bloqueado.getKey();
-                long hora = Long.valueOf(bloqueado.getValue().split("::::")[0]);
-                String zona = bloqueado.getValue().split("::::")[1];
-
-                System.out.println("alumno " + alumno + " bloqueado por " + (ahora - hora) + " mseg en " + zona);
+            //System.out.println(mapBloqueados);
+            //Iterator entries = mapBloqueados.entrySet().iterator();
+            List<AlumnoBlocked> bloks = new ArrayList();
+            bloks.addAll(mapBloqueados.values());
+            System.out.println("tenemos " + bloks.size() + " bloqueados");
+            for (AlumnoBlocked blok : bloks) {
+                System.out.println("blockkkk :: " + blok.getAlumno().getCodigo());
+                mapBloqueados.remove(blok.getAlumno().getCodigo(), blok);
             }
+            System.out.println("======================");
+
+//            while (entries.hasNext()) {
+//                long ahora = System.currentTimeMillis();
+//                Entry entry = (Entry) entries.next();
+//                String alumno = (String) entry.getKey();
+//                AlumnoBlocked aluBlock = (AlumnoBlocked) entry.getValue();
+//                long hora = aluBlock.getInicio();
+//                String zona = aluBlock.getZona();
+//
+//                System.out.println("alumno " + alumno + " bloqueado por " + (ahora - hora) + " mseg en " + zona);
+//
+//                if ((ahora - hora) > 5000) {
+//                    System.out.println("tiene " + mapBloqueados.size() + " elementos");
+//                    mapBloqueados.remove(alumno);
+//                    System.out.println("se queda con " + mapBloqueados.size() + " elementos");
+//                }
+//            }
             if (!revisar) {
                 break;
             }

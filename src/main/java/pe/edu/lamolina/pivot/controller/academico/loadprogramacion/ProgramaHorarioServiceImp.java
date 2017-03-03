@@ -64,7 +64,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
-        Map<String, String> mapBloqueados = new LinkedHashMap();
+        Map<String, AlumnoBlocked> mapBloqueados = new LinkedHashMap();
         progDataService.revisarBloqueados(mapBloqueados);
 
         long t1 = System.currentTimeMillis();
@@ -125,12 +125,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     }
 
-    private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, String> mapBloqueados) {
+    private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {
         List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
         for (MatriculaResumen aluResumen : alumnosResumen) {
             progDataService.revisarAlumnoMatriculado(aluResumen, mapResumenes, mapBloqueados);
         }
 
+        logger.debug("\trevisarAlumnosMatriculados envio {} alumnos a ser revisados", alumnosResumen.size());
         int procesadosAntes = -1;
         for (;;) {
             boolean salir = true;
@@ -147,7 +148,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             }
 
             if (procesadosAntes != procesados) {
-                logger.debug("\revisarAlumnosMatriculados procesados {} de {}", procesados, alumnosResumen.size());
+                logger.debug("\trevisarAlumnosMatriculados procesados {} de {}", procesados, alumnosResumen.size());
             }
             procesadosAntes = procesados;
         }
