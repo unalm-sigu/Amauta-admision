@@ -117,7 +117,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             if (!StringUtils.isEmpty(secciones)) {
                 secciones = secciones.substring(0, secciones.length() - 1);
             }
-            sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(curso.getNombre()).append("|").append(docentes).append("|").append(estadoPlan).append("|").append(estadoPlan);
+            sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(curso.getNombre()).append("|").append(docentes).append("|").append(estadoPlan).append("|").append(estadoGrupo);
             rows.add(sb.toString());
         }
 
