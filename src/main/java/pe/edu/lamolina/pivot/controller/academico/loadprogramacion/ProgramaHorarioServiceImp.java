@@ -64,7 +64,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
-        Map<String, String> mapBloqueados = new LinkedHashMap();
+        Map<String, AlumnoBlocked> mapBloqueados = new LinkedHashMap();
         progDataService.revisarBloqueados(mapBloqueados);
 
         long t1 = System.currentTimeMillis();
@@ -111,13 +111,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
-        progDataService.revisarSecciones(secciones);
+        progDataService.revisarSecciones(secciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarGrupoSecciones");
-        progDataService.revisarGrupoSecciones(gruposSecciones);
+        progDataService.revisarGrupoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarGrupoSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -125,12 +125,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     }
 
-    private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, String> mapBloqueados) {
+    private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {
         List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
         for (MatriculaResumen aluResumen : alumnosResumen) {
             progDataService.revisarAlumnoMatriculado(aluResumen, mapResumenes, mapBloqueados);
         }
 
+        logger.debug("\trevisarAlumnosMatriculados envio {} alumnos a ser revisados", alumnosResumen.size());
         int procesadosAntes = -1;
         for (;;) {
             boolean salir = true;
@@ -147,7 +148,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             }
 
             if (procesadosAntes != procesados) {
-                logger.debug("\revisarAlumnosMatriculados procesados {} de {}", procesados, alumnosResumen.size());
+                logger.debug("\trevisarAlumnosMatriculados procesados {} de {}", procesados, alumnosResumen.size());
             }
             procesadosAntes = procesados;
         }
@@ -195,7 +196,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -235,7 +236,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -277,7 +278,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -319,7 +320,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -361,7 +362,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
@@ -404,7 +405,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Row row = rowIterator.next();
                 loop = row.getRowNum();
 
-                if (loop < 2) {
+                if (loop < 1) {
                     continue;
                 }
 
