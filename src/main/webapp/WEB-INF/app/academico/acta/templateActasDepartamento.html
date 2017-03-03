@@ -31,9 +31,11 @@
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
 
             <ul class="dropdown-menu pull-right" >
+                {{if secciones!=""}} 
                 <li role="presentation">
                     <a class="reporteActa" rel="{{:seccion}}" href="#">Reporte de Actas</a>
                 </li>
+                {{/if}}
                 {{if estadoGrupoCerrado==true}}     
                 {{if estadoPlanAceptado==true}}  
                 <li role="presentation">
