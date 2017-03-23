@@ -397,6 +397,23 @@ public class CargaAcademicaController {
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
 
+    @RequestMapping("{sistemaCalificacion}/{grupoSeccion}/aceptarSistemaCalificacion")
+    public String aceptarSistemaCalificacion(@PathVariable("sistemaCalificacion") Long idSistemaCalificacion,
+            @PathVariable("grupoSeccion") Long idGrupoSeccion,
+            Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        logger.debug("plan calificacion {}, grupo seccion {}", idSistemaCalificacion, idGrupoSeccion);
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
+        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistemaCalificacion);
+        List<Curso> cursosByPlan = cargaAcademicaService.allActiveCursosByPlan(planCalificacion);
+        // model.addAttribute("seccion", seccion);
+        model.addAttribute("planCalificacion", planCalificacion);
+        model.addAttribute("curso", grupoSeccion.getCurso());
+        model.addAttribute("grupoSeccion", grupoSeccion);
+        model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
+        return "app/academico/docente/cargaacademica/aceptarSistemaCalificacion";
+    }
+
     @RequestMapping("expandir/{grupoSeccion}")
     public String expandir(Model model, HttpSession session, @PathVariable("grupoSeccion") Long grupoSeccionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

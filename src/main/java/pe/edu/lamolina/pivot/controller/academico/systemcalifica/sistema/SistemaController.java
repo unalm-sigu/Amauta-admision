@@ -48,15 +48,15 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @SessionAttributes("planCalificacion")
 @RequestMapping("academico/systemcalifica/sistema")
 public class SistemaController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     SistemaService sistemaService;
-
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-
+        
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -67,7 +67,7 @@ public class SistemaController {
                 }
             }
         });
-
+        
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -79,31 +79,31 @@ public class SistemaController {
             }
         });
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/systemcalifica/sistema/sistema";
     }
-
+    
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-
+        
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         try {
             DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
-
+            
             List<PlanCalificacion> lstPLanCalificacion = sistemaService.allPlanesCalificacionByDynatable(filter, dpto);
-
+            logger.debug("Tamaño lista plan {}", lstPLanCalificacion.size());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (PlanCalificacion planCalificacion : lstPLanCalificacion) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+                
                 node.put("id", planCalificacion.getId());
                 node.put("codigo", planCalificacion.getCodigo());
                 node.put("formula", planCalificacion.getFormula());
@@ -116,7 +116,7 @@ public class SistemaController {
                 node.put("verActivar", planCalificacion.isEstadoCreado());
                 node.put("verInactivar", planCalificacion.isEstadoCreado() || planCalificacion.isEstadoActivado());
                 node.put("verAprobar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
-
+                
                 node.put("verRechazar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
                 node.put("verObservar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
                 node.put("verReenviar", planCalificacion.isEstadoObservado());
@@ -132,36 +132,36 @@ public class SistemaController {
                 node.put("cantidadCursos", cursos.size());
                 array.add(node);
             }
-
+            
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-
+    
     @ResponseBody
     @RequestMapping("listCursos")
     public DynatableResponse listCursos(DynatableFilter filter, @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
-
+        
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         try {
             logger.debug("Plancalificacion {}", planCalificacion);
             CicloAcademico ciclo = ds.getCicloAcademico();
-
+            
             List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
-
+            
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+                
                 node.put("id", curso.getId());
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
@@ -169,18 +169,18 @@ public class SistemaController {
                 node.put("tpc", curso.getTpc());
                 array.add(node);
             }
-
+            
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-
+    
     @RequestMapping("{sistema}/detalleSistema")
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -191,18 +191,18 @@ public class SistemaController {
         model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
-
+    
     @RequestMapping("{sistema}/cursos")
     public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
-
+        
         return "app/academico/systemcalifica/sistema/cursos";
     }
-
+    
     @RequestMapping("{sistema}/detalleSolicitud")
     public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -210,15 +210,15 @@ public class SistemaController {
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
-
+        
         return "app/academico/systemcalifica/sistema/detalleSolicitud";
     }
-
+    
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = new PlanCalificacion();
-
+        
         model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("tipoEvaluaciones", sistemaService.allTipoEvaluacion());
         model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
@@ -226,23 +226,23 @@ public class SistemaController {
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/systemcalifica/sistema/nuevoSistema";
     }
-
+    
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
             RedirectAttributes redirectAttr, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             String message = "";
             if (planCalificacion.getId() == null) {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DEP);
                 sistemaService.saveSistemaCalifica(planCalificacion);
                 message = "Creado exitosamente.";
-
+                
             } else {
                 message = "Actualizado exitosamente.";
             }
@@ -259,7 +259,7 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("aprobar")
     public JsonResponse aprobar(@RequestParam("sistema") Long sistema,
@@ -270,7 +270,7 @@ public class SistemaController {
             sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.ACEP);
             response.setMessage(Messages.APPROVED);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -280,7 +280,7 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("rechazar")
     public JsonResponse rechazar(@RequestParam("sistema") Long sistema,
@@ -291,7 +291,7 @@ public class SistemaController {
             sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.RHZ);
             response.setMessage(Messages.REJECT);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -301,7 +301,7 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("observar")
     public JsonResponse observar(@RequestParam("sistema") Long sistema,
@@ -311,7 +311,7 @@ public class SistemaController {
             sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS);
             response.setMessage(Messages.OBSERVED);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -321,7 +321,7 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("activar")
     public JsonResponse activar(@RequestParam("sistema") Long sistema) {
@@ -330,7 +330,7 @@ public class SistemaController {
             sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT);
             response.setMessage(Messages.ACTIVATED);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -340,7 +340,7 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("inactivar")
     public JsonResponse inactivar(@RequestParam("sistema") Long sistema) {
@@ -349,7 +349,7 @@ public class SistemaController {
             sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
             response.setMessage(Messages.INACTIVATED);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -359,7 +359,7 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("anull")
     public JsonResponse anull(@RequestParam("sistema") Long sistema) {
@@ -368,7 +368,7 @@ public class SistemaController {
             sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
             response.setMessage(Messages.ANNULL);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -378,20 +378,20 @@ public class SistemaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("tiposEvaluacion")
     public JsonResponse tiposEvaluacion() {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
             ObjectNode json = sistemaService.allTipoEvaluacionJson();
-
+            
             response.setSuccess(true);
             response.setData(json);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -399,22 +399,22 @@ public class SistemaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("incluirCurso")
     public JsonResponse incluirCurso(@RequestParam("curso") Long curso,
             @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             sistemaService.asignarCurso(curso, planCalificacion, ds.getUsuario().getId());
             response.setMessage("Curso asignado.");
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -422,22 +422,22 @@ public class SistemaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("desasignarCurso")
     public JsonResponse desasignarCurso(@RequestParam("curso") Long curso,
             @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             sistemaService.desasignarCurso(curso, planCalificacion, ds.getPersona().getId());
             response.setMessage("Curso desasignado.");
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -445,8 +445,8 @@ public class SistemaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
 }

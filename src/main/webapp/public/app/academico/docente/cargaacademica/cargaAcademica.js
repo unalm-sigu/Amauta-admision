@@ -63,7 +63,7 @@ $(function () {
             }
 
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/aceptarSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
