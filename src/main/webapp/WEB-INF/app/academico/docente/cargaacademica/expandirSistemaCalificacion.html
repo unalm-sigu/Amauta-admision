@@ -6,9 +6,12 @@
 
 <body> 
     <div layout:fragment="main">
-        <header class="page-header">      
-            <h2>Evaluadores - <span th:text="${ciclo.descripcion}">Sistema de Calificación SC-33</span></h2>
-            <span class="block"><strong>Curso:</strong> <span th:text="${curso.nombre}">Matemática Básica</span></span>
+        <header class="page-header">       
+            <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-success pull-right">Regresar</a>
+            <h2>
+                <span th:text="|${curso.nombre} - ${ciclo.descripcion}: Asignar Evaluadores|">Sistema de Calificación SC-33</span>
+            </h2>
+
             <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
             <span class="block"><strong>Sist. Calificación:</strong > <span th:text="${planCalificacion.codigo}">2020, 2021, 2022</span></span>
             <span class="block"><strong>Fórmula:</strong > <span th:text="${planCalificacion.formula}">2020, 2021, 2022</span></span>
@@ -27,13 +30,15 @@
                     <table id="dynaTable" class="table table-striped">
                         <thead> 
                             <tr class=""> 
-                                <!--th class="col-md-1">Código</th-->
-                                <th class="col-md-6">Evaluación</th>
-                                <th class="col-md-3 text-center">Tipo</th>
-                                <th class="col-md-1 text-center">Numero</th>
+
+                                <th class="col-md-4">Evaluación</th>
+
+
                                 <th class="col-md-2 text-center">Peso</th>
-                                <th th:if="${permiteAsignar}" class="v-middle">Asign Doc</th>
-                                <th th:if="${permiteAsignar}" class="v-middle">Expandir</th>
+                                <th class="col-md-2 text-center">Docente</th>
+                                <th class="col-md-4">Docente Responsable</th>
+                                <th th:if="${permiteAsignar}" class="text-center col-md-1">Asign Docente</th>
+                                <th th:if="${permiteAsignar}" class="text-center col-md-1">Expandir</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,10 +46,7 @@
                     </table>
 
                 </section>
-                <section class="panel-footer pull-right">
-                    <a href="#" class="btn btn-link cancelarExpansion">Cancelar</a>
-                    <a href="#" id="btnAceptarExpandir" class="btn btn-success">Grabar</a>
-                </section>
+
             </section>
         </form>
         <div class="line line-dashed b-b line-lg pull-in"></div>
@@ -53,7 +55,7 @@
             <div class="text-center">
 
 
-                <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-link">Regresar</a>
+
             </div>
         </div>
 

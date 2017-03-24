@@ -59,7 +59,7 @@ $(function () {
             } else {
                 MODAL.buttons(
                         '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
-                        '<a class="btn btn-danger new-sis-calificacion">Solicita modificación</a>');
+                        '<a class="btn btn-danger new-sis-calificacion pull-left">Solicita modificación</a>');
             }
 
             $.ajax({

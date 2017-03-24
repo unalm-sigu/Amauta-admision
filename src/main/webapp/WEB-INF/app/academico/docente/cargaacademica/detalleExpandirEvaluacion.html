@@ -1,7 +1,7 @@
 <form id="frmExpandirEvals" >
     <div class="m-b">			
-        <span class="block"><strong th:text="${evaluacion.tipoEvaluacion.nombre}">TA1 Tarea:</strong> <span  th:text="${evaluacion.numero}">1</span></span>
-        <span class="block"><strong>Peso:</strong> <span th:text="${evaluacion.peso}">5%</span></span>
+        <h4 class="block"><strong th:text="${evaluacion.tipoEvaluacion.nombre}">TA1 Tarea:</strong> <span  th:text="${evaluacion.numero}">1</span></h4>
+
         <input type="hidden" name="id" th:value="${evaluacion.id}"/>
         <input type="hidden" id="txtEvalSeccionId" name="evaluacionSeccion.id" th:value="${evaluacion.evaluacionSeccion.id}"/>
         <input type="hidden" id="txtPesoEvalForExp" name="peso" th:value="${evaluacion.peso}"/>
@@ -10,9 +10,9 @@
     <table class="table table-striped">
         <thead>
             <tr class=""> 
-                <th class="col-md-6">Tipo evaluación</th>
-                <th class="col-md-3">Número Evaluación</th>
-                <th class="col-md-3">Peso</th>
+                <th class="col-md-6">Tipo de evaluación</th>
+                <th class="col-md-3">Número de Evaluación</th>
+                <th class="col-md-3">Peso Total: <span th:text="${evaluacion.peso}">5%</span></th>
                 <th></th>
             </tr>
         </thead>
@@ -34,14 +34,14 @@
 
 
                 </td>
-                <td class="v-middle">
+                <td class="v-middle text-center">
                     <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].numero'}" 
                            data-parsley-type="digits"
-                           class="form-control"  type="text"
+                           class="form-control input-s-md"  type="text"
                            th:value="${eval.numero}" 
                            required="true"/>
                 </td>
-                <td  class="v-middle">
+                <td  class="v-middle text-center">
                     <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
                            th:value="${eval.peso}"
                            class="form-control"

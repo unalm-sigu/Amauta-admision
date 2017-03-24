@@ -3,7 +3,55 @@
 <input  id="txtGrupo" type="hidden" th:value="${grupoSeccion.id}"/>
 
 
-<table class="table table-striped">
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="block">
+                <strong>Descripcion:</strong> 
+                <span th:text="${planCalificacion.descripcion}">100</span>
+            </div>
+
+            <div>
+                <strong>Nota Base:</strong> 
+                <span th:text="${planCalificacion.notaBase}">100</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="block">
+                <strong>Formula:</strong> 
+
+                <span th:text="${planCalificacion.formula}">1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span>
+            </div>
+            <div>
+                <strong>Sistema de Notas:</strong>
+
+                <span th:text="${planCalificacion.sistemaNotas.nombre}">1 al 20</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" th:if="${planCalificacion.estadoObservado || planCalificacion.estadoRechazado}">
+        <div class="col-md-2" >
+            <strong>Observación:</strong>
+        </div>
+        <div class="col-md-10" >
+            <span  th:text="${planCalificacion.observacion}">1 al 20</span>
+        </div>
+    </div>
+
+
+    <div class="row"  th:if="${planCalificacion.estadoSolicitado}">
+        <div class="col-md-2" >
+            <strong>Sustento</strong> 
+        </div>
+        <div class="col-md-10" >
+            <span  th:text="${planCalificacion.sustento}">1 al 20</span>
+        </div>
+    </div>
+
+
+<table class="table table-striped m-t-lg">
     <thead>
         <tr class=""> 
             <th class="col-md-1">Código</th>
@@ -33,10 +81,7 @@
 
             </td>
             <td class="text-center v-middle">
-                <!-- 
-                <span class="block"  th:if='${evas.notaMinimaAnulable==1}'>Si</span>
-                <span class="block"  th:if='${evas.notaMinimaAnulable==0}'>No</span>
-                -->
+
                 <label class="switch">
                     <input  type="checkbox" th:value='${evas.notaMinimaAnulable}'
                             rel="0"   class="calcular-peso-eva-chk" />
@@ -44,10 +89,7 @@
                 </label>
             </td>
             <td class="text-center v-middle">
-                <!-- 
-              <span class="block"  th:if='${evas.indPorcentajeVariable==1}'>Si</span>
-              <span class="block"  th:if='${evas.indPorcentajeVariable==0}'>No</span>
-                -->
+
                 <label class="switch">
                     <input  type="checkbox" th:value='${evas.indPorcentajeVariable}'
                             rel="0"   class="calcular-peso-eva-chk" />
@@ -62,26 +104,14 @@
     </tbody>
 </table>
 
-<div class="">	
-    <span class="block"><strong>Descripcion:</strong> <span th:text="${planCalificacion.descripcion}">100</span></span>
-    <span class="block"><strong>Nota Base:</strong> <span th:text="${planCalificacion.notaBase}">100</span></span>
-    <span class="block"><strong>Formula:</strong> <span th:text="${planCalificacion.formula}">1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span></span>
-    <span class="block"><strong>Sistema de Notas:</strong> <span th:text="${planCalificacion.sistemaNotas.nombre}">1 al 20</span></span>
-
-    <span class="block" th:if="${planCalificacion.estadoObservado || planCalificacion.estadoRechazado}">
-        <strong>Observación:</strong> <span  th:text="${planCalificacion.observacion}">1 al 20</span>
-    </span>
-    <span class="block" th:if="${planCalificacion.estadoSolicitado}">
-        <strong>Sustento</strong> <span  th:text="${planCalificacion.sustento}">1 al 20</span>
-    </span>
-</div>
-
-
-<span class="block m-b" th:if="${tieneCursos}">Cursos </span>
 
 
 
-<table th:if="${tieneCursos}" class="table table-striped" id="dynaTable">
+<span class="block m-b" th:if="${tieneCursos}" style="display: none;">Cursos </span>
+
+
+
+<table th:if="${tieneCursos}" class="table table-striped" id="dynaTable" style="display: none;">
     <thead>
         <tr class=""> 
             <th class="col-md-1 v-middle text-center">Código</th>

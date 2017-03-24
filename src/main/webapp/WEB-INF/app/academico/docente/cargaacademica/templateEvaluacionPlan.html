@@ -1,35 +1,12 @@
 <tr  rel="{{:evaPlanId}}">
 
-    <!--td class="v-middle" style="{{:styleHijo}}">
-        <span class="block">{{:tipoEvalCod}}</span>
-    </td-->
+
     <td class="v-middle" style="{{:styleHijo}}">
         <span class="block text-primary" >{{:tipoEvalCod}} - {{:tipoEvalNombre}}</span>
-        {{:docentes}}
+
     </td>
-    <td class="v-middle">
-        {{if permiteAsign==false}}
-        {{:tipoSeccion}}
-        {{/if}}
-        {{if permiteAsign==true}}
-        {{if desagregado==false}}
-        <select class="select2 cboTipoSecEval"
-                rel="{{:evaPlanId}}">
-            {{for tipoSeccionesEval}}
-            {{if #data.selected==true}}
-            <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
-            {{/if}}
-            {{if #data.selected==false}}
-            <option  value="{{:#data.codigo}}">{{:#data.nombre}}</option>
-            {{/if}}
-            {{/for}}
-            {{/if}}
-            {{/if}}
-        </select>
-    </td>
-    <td class="v-middle">
-        <span class="block text-center">{{:numero}}</span>
-    </td>
+
+
     <td class="v-middle text-center">
 
         {{if editarPorcentaje==true}}1
@@ -49,23 +26,50 @@
 
         </div>
         {{/if}}
-        {{if esPadre==true}}adad  
+        {{if esPadre==true}}  
         (de {{:evaluacionPlan.pesoTotal}}%)
         {{/if}}
 
     </td>
+    <td class="v-middle text-center">
+        {{if permiteAsign==false}}
+        {{:tipoSeccion}}
+        {{/if}}
+        {{if permiteAsign==true}}
+        {{if desagregado==false}}
+
+        <select class="select2 cboTipoSecEval input-s-md"
+                rel="{{:evaPlanId}}" 
+                >
+            {{for tipoSeccionesEval}}
+            {{if #data.selected==true}}
+            <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+            {{/if}}
+            {{if #data.selected==false}}
+            <option  value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+            {{/if}}
+            {{/for}}
+            {{/if}}
+            {{/if}}
+        </select>
+
+    </td>
+    <td class="v-middle">
+        {{:docentes}}
+    </td>
+
     {{if permiteAsign==true}}
     <td class="v-middle text-center">
         {{if desagregado==false}}
         <a href="#"  rel="{{:evaPlanId}}" 
-           class="btn btn-default asignar-docente"><i class="fa fa-paperclip text-primary"></i></a>
+           class="btn btn-default asignar-docente"><i class="fa fa-user text-success"></i></a>
         {{/if}}
     </td>
     <td class="v-middle text-center">
         {{if esHijo==false}}
         {{if notasIngresadas==false}}
         <a href="#"  rel="{{:evaPlanId}}" 
-           class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-primary"></i></a>
+           class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-success"></i></a>
         {{/if}}
         {{/if}}
         {{if esHijo==true}}

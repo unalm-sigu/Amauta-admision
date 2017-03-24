@@ -1,15 +1,14 @@
 <tr rel="{{:index}}">
     <td  class="v-middle"> 
-        <span class="block">
-            <a href="#" class="detalle-sistema">{{:codigo}}</a>	
-        </span>
-        <span class="block text-primary" >
-            <a href="#" class="detalle-sistema"> Cursos : {{:cantidadCursos}} </a>	
-        </span>
+
+        <a href="#" class="detalle-sistema h4 text-info">{{:codigo}}</a>	
+
+
+        <small class="text-muted block">
+            {{:descripcion}}
+        </small>
     </td>
-    <td>
-        {{:descripcion}}
-    </td>
+
     <td class="text-left v-middle">
         <span class="block">{{:formula}}</span>
     </td>
@@ -20,6 +19,11 @@
     <td class="text-center v-middle">
         <span class="block">{{:fechaReg}}</span>
     </td>
+
+    <td class="v-middle text-center">
+        <a href="#" class="detalle-sistema"> {{:cantidadCursos}} Curso(s) </a>	
+    </td>
+
     <td class="text-center v-middle">
         <span class="label label-{{:colorEstado}}">{{:estadoEnum}}</span>
 

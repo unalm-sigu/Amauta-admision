@@ -274,7 +274,7 @@ public class CargaAcademicaController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("evaPlanId", evaluacionPlan.getId());
                 node.put("tipoEvalCod", evaluacionPlan.getTipoEvaluacion().getCodigo());
-                node.put("tipoEvalNombre", evaluacionPlan.getTipoEvaluacion().getNombre() + " " + evaluacionPlan.getNumero());
+                node.put("tipoEvalNombre", evaluacionPlan.getTipoEvaluacion().getNombre() + " Nº " + evaluacionPlan.getNumero());
                 node.put("numero", evaluacionPlan.getNumero());
                 node.put("pesoEvaluacion", NumberFormat.precio(evaluacionPlan.getPeso()));
                 node.put("esHijo", false);
@@ -326,7 +326,7 @@ public class CargaAcademicaController {
                     logger.debug("Tipo evaluacion {}", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionHija.getNumero());
                     nodeHijo.put("evaPlanId", evaluacionHija.getId());
                     nodeHijo.put("tipoEvalCod", evaluacionHija.getTipoEvaluacion().getCodigo());
-                    nodeHijo.put("tipoEvalNombre", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionHija.getNumero());
+                    nodeHijo.put("tipoEvalNombre", evaluacionHija.getTipoEvaluacion().getNombre() + " Nº " + evaluacionHija.getNumero());
                     nodeHijo.put("numero", evaluacionHija.getNumero());
                     nodeHijo.put("pesoEvaluacion", NumberFormat.precio(evaluacionHija.getPeso()));
                     nodeHijo.put("esHijo", true);
