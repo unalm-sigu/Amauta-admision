@@ -7,9 +7,9 @@
 <body>
     <div layout:fragment="main">
         <header class="page-header">        
-            <h2>Carga Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>
+            <h2>Mi Carga Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
             <span class="block"><strong >Departamento Academico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
         </header>
 
         <section class="panel">
@@ -18,11 +18,10 @@
                     <thead> 
                         <tr class=""> 
                             <th class="col-md-5">Curso</th>
-                            <th class="col-md-2 text-center">Claves</th>
-
-                            <th class="col-md-2 text-center">Sistema de calificación</th>
+                            <th class="col-md-3 text-center">Claves</th>
+                            <th class="col-md-2 text-center">Sistema de Calificación</th>
                             <th class="col-md-1 text-center">Estado</th>
-                            <th class="v-middle col-md-1"></th>
+                            <th class="col-md-1"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
