@@ -106,7 +106,7 @@ $(function () {
 
             MODAL.hide();
             MODAL.init("lg");
-            MODAL.title("Cambio de nota");
+            MODAL.title("Reemplazar Nota de Estudiante");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="cmbGuardarCambio">Guardar</a>');
 
@@ -177,11 +177,11 @@ $(function () {
 
                     if (data.estaAbierto == true || data.estaReabierto) {
                         if (data.evaFechaIngresoNota == "") {
-                            buttons = buttons + '<a href="#" class="btn btn-warning activar-eval" rel="true">Activar</a>';
+                            buttons = buttons + '<a href="#" class="btn btn-success activar-eval" rel="true">Activar</a>';
                             checkin.setDate("");
                         } else {
                             buttons = '<a class="btn btn-success adicionar-evals"  >Adicionar Notas</a>';
-                            buttons += '<a class="btn btn-success activar-eval"  rel="false">Modificar Fecha Eva.</a>';
+                            buttons += '<a class="btn btn-primary activar-eval"  rel="false">Guardar Nueva Fecha de Evaluación</a>';
                         }
                     }
                     MODAL.buttons(buttons);
