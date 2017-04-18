@@ -78,7 +78,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-        //this.savePersonas(personas, ds);
+        this.savePersonas(personas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
@@ -152,10 +152,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         long loop = 1;
         for (Alumno alumno : alumnos) {
             logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
-            if (loop < 5320) {
-                loop++;
-                continue;
-            }
+//            if (loop < 5320) {
+//                loop++;
+//                continue;
+//            }
             Persona persona = alumno.getPersona();
             persona = progDataService.savePersona(persona, mapTiposDoc, ds);
             String emailCia = progDataService.extraerEmailCompania(persona, ds);
