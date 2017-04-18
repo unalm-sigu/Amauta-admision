@@ -174,7 +174,7 @@ public class CargaAcademicaController {
                     node.put("estado", "");
                     node.put("estadoEnum", "");
 
-                    if (grupoSeccion.getCurso().getPlanCalificacion().isTipoCicloNivelacion()) {
+                    if (ds.getCicloAcademico().isTipoNivelacion()) {
                         if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacion.id") != null) {
                             node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getId().toString());
                             node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getCodigo());
@@ -184,7 +184,7 @@ public class CargaAcademicaController {
                             planCalificacionSelected = grupoSeccion.getCurso().getPlanCalificacion();
 
                         }
-                    } else if (grupoSeccion.getCurso().getPlanCalificacion().isTipoCicloRegular()) {
+                    } else if (ds.getCicloAcademico().isTipoRegular()) {
                         if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacionRegular.id") != null) {
                             node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacionRegular().getId().toString());
                             node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacionRegular().getCodigo());
