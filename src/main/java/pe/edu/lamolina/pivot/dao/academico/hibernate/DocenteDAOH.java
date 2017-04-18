@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.model.academico.Docente;
@@ -37,5 +38,13 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
                 .parents("left persona per", "left modalidadEstudio", "left departamentoAcademico")
                 .filter("doc.codigo", codigo);
         return find(sqlUtil);
+    }
+
+    @Override
+    public List<Docente> allByPersona(Persona persona) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("doc")
+                .parents("persona per")
+                .filter("per.id", persona);
+        return all(sqlUtil);
     }
 }

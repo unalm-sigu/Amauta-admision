@@ -160,4 +160,21 @@ public class PersonaDAOH extends AbstractDAO<Persona> implements PersonaDAO {
         return this.all(sqlUtil);
     }
 
+    @Override
+    public List<Persona> allByApellidosNombres(Persona persona) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("  from ").append(Persona.class.getName()).append(" as per ");
+        sql.append("  left join fetch per.tipoDocumento ");
+        sql.append(" where per.paterno like :PATERNO ");
+        sql.append("   and per.materno like :MATERNO ");
+        sql.append("   and per.nombres like :NOMBRES ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setString("PATERNO", persona.getPaterno());
+        query.setString("MATERNO", persona.getMaterno());
+        query.setString("NOMBRES", persona.getNombres());
+
+        return query.list();
+    }
+
 }

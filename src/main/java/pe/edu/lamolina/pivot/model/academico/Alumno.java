@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.tramite.AutorizacionRegistro;
@@ -120,6 +121,23 @@ public class Alumno implements Serializable {
 
     @OneToMany(mappedBy = "alumno", fetch = FetchType.LAZY)
     private List<Tramite> tramite;
+
+    @Transient
+    private String codigoEspecialidad;
+    @Transient
+    private String codigoPostgrado;
+    @Transient
+    private String situacion;
+    @Transient
+    private String email;
+
+    public Alumno(String codigo, String codigoEspecialidad, String codigoPostgrado, String situacion, String email) {
+        this.codigo = codigo;
+        this.codigoEspecialidad = codigoEspecialidad;
+        this.codigoPostgrado = codigoPostgrado;
+        this.situacion = situacion;
+        this.email = email;
+    }
 
     public Alumno() {
     }
@@ -366,6 +384,38 @@ public class Alumno implements Serializable {
 
     public void setTramite(List<Tramite> tramite) {
         this.tramite = tramite;
+    }
+
+    public String getCodigoEspecialidad() {
+        return codigoEspecialidad;
+    }
+
+    public void setCodigoEspecialidad(String codigoEspecialidad) {
+        this.codigoEspecialidad = codigoEspecialidad;
+    }
+
+    public String getCodigoPostgrado() {
+        return codigoPostgrado;
+    }
+
+    public void setCodigoPostgrado(String codigoPostgrado) {
+        this.codigoPostgrado = codigoPostgrado;
+    }
+
+    public String getSituacion() {
+        return situacion;
+    }
+
+    public void setSituacion(String situacion) {
+        this.situacion = situacion;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }

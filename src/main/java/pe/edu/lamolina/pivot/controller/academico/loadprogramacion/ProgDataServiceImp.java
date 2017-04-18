@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +15,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -25,9 +27,16 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
+import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
+import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
@@ -37,13 +46,20 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import pe.edu.lamolina.pivot.model.general.Aula;
+import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
+import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.model.inscripcion.Postulante;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -72,9 +88,496 @@ public class ProgDataServiceImp implements ProgDataService {
     MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    PersonaDAO personaDAO;
+    @Autowired
+    TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    @Autowired
+    PostulanteDAO postulanteDAO;
+    @Autowired
+    PersonaPerfilDAO personaPerfilDAO;
+    @Autowired
+    UsuarioDAO usuarioDAO;
+    @Autowired
+    CarreraDAO carreraDAO;
+    @Autowired
+    SituacionAcademicaDAO situacionAcademicaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static boolean revisar = true;
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public String extraerEmailCompania(Persona perso, DataSessionPivot ds) {
+        String email = null;
+        List<Persona> personas = allPersonasByPer(perso, ds);
+        Persona main = null;
+        for (Persona persona : personas) {
+            if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
+                main = persona;
+                break;
+            }
+        }
+
+        for (Persona persona : personas) {
+            if (persona == main) {
+                continue;
+            }
+            if (StringUtils.isEmpty(main.getEmailCompania()) && !StringUtils.isEmpty(persona.getEmailCompania())) {
+                email = persona.getEmailCompania();
+                persona.setEmailCompania(null);
+                personaDAO.update(persona);
+                break;
+            }
+        }
+
+        return email;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Persona extraerDocumentoIdentidad(Persona perso, DataSessionPivot ds) {
+        Persona dni = new Persona();
+        List<Persona> personas = allPersonasByPer(perso, ds);
+        Persona main = null;
+        for (Persona persona : personas) {
+            if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
+                main = persona;
+                break;
+            }
+        }
+
+        for (Persona persona : personas) {
+            if (persona == main) {
+                continue;
+            }
+            if (StringUtils.isEmpty(main.getNumeroDocIdentidad()) && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
+                dni.setNumeroDocIdentidad(persona.getNumeroDocIdentidad());
+                dni.setTipoDocumento(persona.getTipoDocumento());
+                persona.setNumeroDocIdentidad(null);
+                personaDAO.update(persona);
+                break;
+            }
+        }
+
+        return dni;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void changeDocumentoIdentidad(Persona perso, TipoDocIdentidad tipoDocumento, String numeroDocIdentidad, String emailCompania, DataSessionPivot ds) {
+        List<Persona> personas = allPersonasByPer(perso, ds);
+        Persona main = null;
+        for (Persona persona : personas) {
+            if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
+                main = persona;
+                break;
+            }
+        }
+        if (StringUtils.isEmpty(main.getEmailCompania()) && !StringUtils.isEmpty(emailCompania)) {
+            main.setEmailCompania(emailCompania);
+        }
+        if (StringUtils.isEmpty(main.getNumeroDocIdentidad()) && !StringUtils.isEmpty(numeroDocIdentidad)) {
+            main.setTipoDocumento(tipoDocumento);
+            main.setNumeroDocIdentidad(numeroDocIdentidad);
+        }
+        personaDAO.update(main);
+
+        for (Persona persona : personas) {
+            Usuario user = usuarioDAO.findByPersona(persona);
+            if (user == null) {
+                continue;
+            }
+            if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                user.setPersona(main);
+                usuarioDAO.update(user);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Persona savePersona(Persona persona, Map<String, TipoDocIdentidad> mapTiposDoc, DataSessionPivot ds) {
+
+        TipoDocIdentidad tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
+        if (tipoDoc == null) {
+            persona.setCodigoTipoDocumento("DNI");
+            tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
+        }
+
+        persona.setTipoDocumento(tipoDoc);
+        logger.debug("buscando {} {} con tipoDoc {}", persona.getCodigoTipoDocumento(), persona.getNumeroDocIdentidad(), tipoDoc);
+        if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
+            Persona tempo = personaDAO.findByDocIdentidad(tipoDoc, persona.getNumeroDocIdentidad());
+            if (tempo == null) {
+                persona.setUserRegistro(ds.getUsuario());
+                persona.setFechaRegistro(new Date());
+                persona.setEstado(EstadoEnum.ACT.name());
+                personaDAO.save(persona);
+            }
+
+            return revisarPersona(persona, ds);
+        }
+        return revisarPersona(persona, ds);
+
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveAlumno(Alumno alumno, DataSessionPivot ds) {
+        Persona persona = personaDAO.find(alumno.getPersona().getId());
+        if (StringUtils.isEmpty(persona.getEmailCompania())) {
+            persona.setEmailCompania(alumno.getEmail());
+            personaDAO.update(persona);
+        }
+
+        Alumno alu = alumnoDAO.findByCodigo(alumno.getCodigo());
+        if (alu != null) {
+            alu.setPersona(persona);
+            alumnoDAO.update(alu);
+
+        } else {
+            String cod = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
+            Carrera carrera = carreraDAO.findByCodigo(cod);
+            alumno.setCarrera(carrera);
+            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(alumno.getSituacion());
+            alumno.setSituacionAcademica(situacion);
+            alumno.setCicloActivo(ds.getCicloAcademico());
+            alumno.setCicloIngreso(ds.getCicloAcademico());
+            alumno.setRetirosCursos(0);
+            alumno.setRetirosCiclos(0);
+            alumno.setRetirosExtemporaneos(0);
+            alumno.setCreditosCursados(0);
+            alumno.setCreditosAprobados(0);
+            alumno.setCreditosCarreraCursados(0);
+            alumno.setCreditosCarreraAprobados(0);
+            alumno.setCursosInscritos(0);
+            alumno.setCursosAprobados(0);
+            alumno.setCursosCarreraInscritos(0);
+            alumno.setCursosCarreraAprobados(0);
+            alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
+            alumno.setPromedioAcumulado(BigDecimal.ZERO);
+            alumnoDAO.save(alumno);
+        }
+
+    }
+
+    private List<Persona> allPersonasByPer(Persona persona, DataSessionPivot ds) {
+        List<Persona> personas = personaDAO.allByApellidosNombres(persona);
+        if (!StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
+            Persona per = personaDAO.findByDocIdentidad(persona.getTipoDocumento(), persona.getNumeroDocIdentidad());
+            if (per != null) {
+                boolean ok = false;
+                for (Persona pp : personas) {
+                    if (pp.getId() == per.getId().longValue()) {
+                        ok = true;
+                        break;
+                    }
+                }
+                if (!ok) {
+                    personas.add(per);
+                }
+            }
+        }
+
+        if (personas.isEmpty()) {
+            persona.setUserRegistro(ds.getUsuario());
+            persona.setFechaRegistro(new Date());
+            persona.setEstado(EstadoEnum.ACT.name());
+            persona.setNumeroDocIdentidad(null);
+            personaDAO.save(persona);
+
+            personas.add(persona);
+        }
+        return personas;
+
+    }
+
+    @Override
+    @Transactional
+    public Persona revisarPersona(Persona persona, DataSessionPivot ds) {
+        List<Persona> personas = allPersonasByPer(persona, ds);
+        logger.debug("existen {} duplicados parar {} {} {}", personas.size(), persona.getPaterno(), persona.getMaterno(), persona.getNombres());
+
+        if (personas.isEmpty()) {
+            Persona pp = new Persona(persona);
+            pp.setUserRegistro(ds.getUsuario());
+            pp.setFechaRegistro(new Date());
+            pp.setEstado(EstadoEnum.ACT.name());
+            logger.debug("finalizo revision de persona {}", pp.getApellidosNombres());
+            return pp;
+        }
+
+        if (personas.size() == 1) {
+            Persona pp = personas.get(0);
+            pp.setEstado(EstadoEnum.ACT.name());
+            personaDAO.update(pp);
+            logger.debug("finalizo revision de persona {}", pp.getApellidosNombres());
+            return personas.get(0);
+        }
+
+        Persona main = findPersonaMain(personas);
+        //logger.debug("persona main es {}", main.getId());
+        datoToMain(personas, main, ds);
+        changePersonasNoMain(personas, main, ds);
+
+        for (Persona p : personas) {
+            personaDAO.update(p);
+        }
+
+        logger.debug("finalizo revision de persona {}", main.getApellidosNombres());
+        return main;
+    }
+
+    private void datoToMain(List<Persona> personas, Persona main, DataSessionPivot ds) {
+        for (Persona persona : personas) {
+            if (persona.getId() == main.getId().longValue()) {
+                continue;
+            }
+            //logger.debug("pasando datos de {} hacia {}", persona.getId(), main.getId());
+            copyInfo(main, persona);
+        }
+
+        for (Persona persona : personas) {
+            if (persona.getId() == main.getId().longValue()) {
+                //logger.debug("Activando persona {}", persona.getId());
+                persona.setEstado(EstadoEnum.ACT.name());
+                persona.setFechaTraslado(null);
+                persona.setUserTraslado(null);
+                persona.setPersonaTraslado(null);
+                continue;
+            }
+
+            //logger.debug("desactivando persona {}", persona.getId());
+            persona.setEstado(EstadoEnum.INA.name());
+            persona.setFechaTraslado(new Date());
+            persona.setUserTraslado(ds.getUsuario());
+            persona.setPersonaTraslado(main);
+        }
+    }
+
+    private void copyInfo(Persona main, Persona persona) {
+        if (StringUtils.isEmpty(main.getSexo()) && !StringUtils.isEmpty(persona.getSexo())) {
+            main.setSexo(persona.getSexo());
+        }
+        if (StringUtils.isEmpty(main.getEmail()) && !StringUtils.isEmpty(persona.getEmail())) {
+            main.setEmail(persona.getEmail());
+            persona.setEmail(null);
+        }
+        if (StringUtils.isEmpty(main.getCelular()) && !StringUtils.isEmpty(persona.getCelular())) {
+            main.setCelular(persona.getCelular());
+        }
+        if (StringUtils.isEmpty(main.getTelefono()) && !StringUtils.isEmpty(persona.getTelefono())) {
+            main.setTelefono(persona.getTelefono());
+        }
+        if (StringUtils.isEmpty(main.getDireccion()) && !StringUtils.isEmpty(persona.getDireccion())) {
+            main.setDireccion(persona.getDireccion());
+        }
+        if (StringUtils.isEmpty(main.getTituloAcademico()) && !StringUtils.isEmpty(persona.getTituloAcademico())) {
+            main.setTituloAcademico(persona.getTituloAcademico());
+        }
+        if (StringUtils.isEmpty(main.getFoto()) && !StringUtils.isEmpty(persona.getFoto())) {
+            main.setFoto(persona.getFoto());
+        }
+        if (main.getFechaNacer() == null && persona.getFechaNacer() != null) {
+            main.setFechaNacer(persona.getFechaNacer());
+        }
+        if (main.getFechaRegistro() == null && persona.getFechaRegistro() != null) {
+            main.setFechaRegistro(persona.getFechaRegistro());
+        }
+        if (main.getFechaValidacion() == null && persona.getFechaValidacion() != null) {
+            main.setFechaValidacion(persona.getFechaValidacion());
+        }
+        if (main.getUbicacionNacer() == null && persona.getUbicacionNacer() != null) {
+            main.setUbicacionNacer(persona.getUbicacionNacer());
+        }
+        if (main.getUbicacionDomicilio() == null && persona.getUbicacionDomicilio() != null) {
+            main.setUbicacionDomicilio(persona.getUbicacionDomicilio());
+        }
+        if (main.getPaisNacer() == null && persona.getPaisNacer() != null) {
+            main.setPaisNacer(persona.getPaisNacer());
+        }
+        if (main.getNacionalidad() == null && persona.getNacionalidad() != null) {
+            main.setNacionalidad(persona.getNacionalidad());
+        }
+        if (main.getUserValidacion() == null && persona.getUserValidacion() != null) {
+            main.setUserValidacion(persona.getUserValidacion());
+        }
+        if (main.getUserRegistro() == null && persona.getUserRegistro() != null) {
+            main.setUserRegistro(persona.getUserRegistro());
+        }
+    }
+
+    private void changePersonasNoMain(List<Persona> personas, Persona main, DataSessionPivot ds) {
+
+        //logger.debug("procedemos a cambiar el ID de las personas por el principal ", main.getId());
+        for (Persona persona : personas) {
+            if (persona.getId() == main.getId().longValue()) {
+                continue;
+            }
+            //logger.debug("cambiando el ID de {} a {}", persona.getId(), main.getId());
+
+            List<Postulante> postulantes = postulanteDAO.allByPersona(persona);
+            //logger.debug("se hallo {} postulantes", postulantes.size());
+            for (Postulante postulante : postulantes) {
+                postulante.setPersona(main);
+                postulanteDAO.update(postulante);
+            }
+
+            List<Alumno> alumnos = alumnoDAO.allByPersona(persona);
+            //logger.debug("se hallo {} alumnos", alumnos.size());
+            for (Alumno alumno : alumnos) {
+                alumno.setPersona(main);
+                alumnoDAO.update(alumno);
+            }
+
+            List<Docente> docentes = docenteDAO.allByPersona(persona);
+            //logger.debug("se hallo {} docentes", docentes.size());
+            for (Docente docente : docentes) {
+                docente.setPersona(main);
+                docenteDAO.update(docente);
+            }
+
+            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            //logger.debug("se hallo {} perfiles", persoPerfiles.size());
+            for (PersonaPerfil pp : persoPerfiles) {
+                pp.setPersona(main);
+                personaPerfilDAO.update(pp);
+            }
+
+        }
+
+        List<Usuario> usuarios = usuarioDAO.allByPersonas(personas);
+        if (usuarios.isEmpty()) {
+            return;
+        }
+
+        Usuario userMain = null;
+        Usuario usuario = usuarioDAO.findByPersona(main);
+
+        if (usuario == null) {
+            for (Usuario user : usuarios) {
+                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                    userMain = user;
+                    break;
+                }
+            }
+            if (userMain == null) {
+                userMain = usuarios.get(0);
+            }
+
+            userMain.setPersona(main);
+
+            for (Usuario user : usuarios) {
+                if (user == userMain) {
+                    continue;
+                }
+                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                    user.setEstadoEnum(EstadoEnum.INA);
+                    user.setFechaMofica(new Date());
+                    user.setUserModifica(ds.getUsuario());
+                }
+                user.setUserActivo(userMain);
+                usuarioDAO.update(user);
+            }
+            return;
+        }
+
+        if (usuario.getEstadoEnum() == EstadoEnum.INA) {
+            for (Usuario user : usuarios) {
+                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                    userMain = user;
+                    break;
+                }
+            }
+            if (userMain != null) {
+                //userMain.setPersona(main);
+                usuario.setPersona(null);
+                usuarioDAO.update(usuario);
+                //usuarioDAO.update(userMain);
+            } else {
+                userMain = usuario;
+            }
+
+            for (Usuario user : usuarios) {
+                if (user == userMain) {
+                    continue;
+                }
+                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                    user.setEstadoEnum(EstadoEnum.INA);
+                    user.setFechaMofica(new Date());
+                    user.setUserModifica(ds.getUsuario());
+                }
+                user.setUserActivo(userMain);
+                usuarioDAO.update(user);
+            }
+            return;
+        }
+
+        if (usuario.getEstadoEnum() == EstadoEnum.ACT) {
+            for (Usuario user : usuarios) {
+                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                    user.setEstadoEnum(EstadoEnum.INA);
+                    user.setFechaMofica(new Date());
+                    user.setUserModifica(ds.getUsuario());
+                }
+                user.setUserActivo(usuario);
+                usuarioDAO.update(user);
+            }
+        }
+
+    }
+
+    private Persona findPersonaMain(List<Persona> personas) {
+        for (Persona persona : personas) {
+            if (persona.getFechaValidacion() != null) {
+                //logger.debug("se escoge por fecha de validacion");
+                return persona;
+            }
+        }
+        for (Persona persona : personas) {
+            List<Postulante> postulantes = postulanteDAO.allByPersona(persona);
+            if (!postulantes.isEmpty()) {
+                //logger.debug("se escoge por postulantes");
+                return persona;
+            }
+        }
+        for (Persona persona : personas) {
+            List<Docente> docentes = docenteDAO.allByPersona(persona);
+            if (!docentes.isEmpty()) {
+                //logger.debug("se escoge por docentes");
+                return persona;
+            }
+        }
+        for (Persona persona : personas) {
+            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            if (!persoPerfiles.isEmpty()) {
+                //logger.debug("se escoge por perfiles");
+                return persona;
+            }
+        }
+        for (Persona persona : personas) {
+            List<Alumno> alumnos = alumnoDAO.allByPersona(persona);
+            if (!alumnos.isEmpty()) {
+                //logger.debug("se escoge por alumnos");
+                return persona;
+            }
+        }
+        for (Persona persona : personas) {
+            Usuario user = usuarioDAO.findByPersona(persona);
+            if (user != null && user.getEstadoEnum() == EstadoEnum.ACT) {
+                //logger.debug("se escoge por fecha de user");
+                return persona;
+            }
+        }
+        for (Persona persona : personas) {
+            if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
+                //logger.debug("se escoge por persona activa");
+                return persona;
+            }
+        }
+        return personas.get(0);
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -83,9 +586,10 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, GrupoSeccion> mapGpoSecciones = new LinkedHashMap();
         for (GrupoSeccion gpoSecc : gruposSecciones) {
 
-            //logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
+            logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
             GrupoSeccion gpoSeccBD = grupoSeccionDAO.findByCodeCiclo(gpoSecc.getCodigo(), ciclo);
             Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
+            logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
             if (gpoSeccBD == null) {
 
                 gpoSeccBD = new GrupoSeccion();
@@ -129,8 +633,6 @@ public class ProgDataServiceImp implements ProgDataService {
         int loop = 0;
         Map<String, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
-
-            //logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
             if (gpoSecc == null) {
                 String msg = String.format("La seccion %s no tiene su padre grupo-seccion %s",
@@ -154,9 +656,12 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
-                seccionBD.setHorasTeoria(curso.getHorasTeoria());
-                seccionBD.setHorasPractica(curso.getHorasPractica());
-                seccionBD.setHorasSemanales(curso.getHorasTeoria() + curso.getHorasPractica());
+
+                Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
+                Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
+                seccionBD.setHorasTeoria(horasTeoria);
+                seccionBD.setHorasPractica(horasPractica);
+                seccionBD.setHorasSemanales(horasTeoria + horasPractica);
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 //seccionBD.setSeccionSuperior(seccionBD);
 
@@ -327,7 +832,6 @@ public class ProgDataServiceImp implements ProgDataService {
         }
         System.out.println("bloquearemos alumno " + alumno.getCodigo() + " para loadDataMatriculados");
         alumnoDAO.findLock(alumno.getId());
-        
 
         MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
         if (resumen == null) {
@@ -412,7 +916,7 @@ public class ProgDataServiceImp implements ProgDataService {
         matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
         matriculaCursoDAO.update(matriCursoBD);
         matriSecc.setProcesado(1);
-        
+
         System.out.println("\talumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
     }
 
@@ -667,6 +1171,20 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     public void detenerRevisionBloqueado() {
         revisar = false;
+    }
+
+    private String limpiarInfo(String dato) {
+        if (dato != null) {
+            dato = StringUtils.replaceChars(dato, '\t', ' ');
+            dato = StringUtils.replaceChars(dato, '\r', ' ');
+            dato = StringUtils.replaceChars(dato, '\n', ' ');
+            dato = StringUtils.replaceChars(dato, ',', ' ');
+            dato = StringUtils.replaceChars(dato, '|', ' ');
+            dato = StringUtils.replaceChars(dato, '´', '\'');
+            dato = StringUtils.replaceChars(dato, 'ö', 'o');
+            dato = dato.replaceAll("\\s{2,}", " ").trim();
+        }
+        return dato;
     }
 
 }

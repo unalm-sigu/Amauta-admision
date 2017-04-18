@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
+import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
@@ -28,8 +29,17 @@ public class UsuarioDAOH extends AbstractDAO<Usuario> implements UsuarioDAO {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
                 .parents("persona pe")
                 .filter("pe.id", persona);
-        
+
         return this.find(sqlUtil);
+    }
+
+    @Override
+    public List<Usuario> allByPersonas(List<Persona> personas) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
+                .parents("persona pe")
+                .filterIn("pe.id", personas);
+
+        return this.all(sqlUtil);
     }
 
 }
