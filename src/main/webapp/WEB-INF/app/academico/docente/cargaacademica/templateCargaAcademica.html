@@ -1,10 +1,10 @@
 <tr rel="{{:index}}">
-    <td class="v-middle" style="{{:styleHijo}}" >
-
-        <span class="block bold">{{:nombre}}</span>
-        <span class="block">Código: {{:codigo}}</span>
-        <span class="block">TPC: {{:tpc}}</span>
+    <td class="v-middle padder-v" style="{{:styleHijo}}">
+        <p class="h4 text-info">{{:nombre}}</p>
+        <small class="block text-muted">Código: {{:codigo}}</small>
+        <small class="block text-muted">TPC: {{:tpc}}</small>
     </td>
+    
     <td class="v-middle text-center">
         {{:secciones}}
     </td>
@@ -48,7 +48,7 @@
         {{/if}}
     </td>
     <td class="text-center v-middle">
-        <span class="label label-default">{{:estadoEnum}}</span>
+        <span class="label label-success">{{:estadoEnum}}</span>
     </td>
     <td class="text-center v-middle">
         <input value="{{:id}}" type="hidden"/>
