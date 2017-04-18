@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 
 public interface CarreraDAO extends Crud<Carrera> {
 
-}
+    Carrera findByCodigo(String cod);
 
+}

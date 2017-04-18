@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.seguridad;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -30,12 +32,35 @@ public class Usuario implements Serializable {
     @Column(name = "estado")
     private String estado;
 
+    @Column(name = "fecha_registro")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
+
+    @Column(name = "fecha_modifica")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaMofica;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona")
     private Persona persona;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_modifica")
+    private Usuario userModifica;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_activo")
+    private Usuario userActivo;
+
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<UsuarioRol> usuarioRol;
+
+    @OneToMany(mappedBy = "userActivo", fetch = FetchType.LAZY)
+    private List<Usuario> usuariosNoActivos;
 
     public Usuario() {
     }
@@ -82,6 +107,54 @@ public class Usuario implements Serializable {
 
     public void setEstadoEnum(EstadoEnum estadoEnum) {
         this.estado = estadoEnum.name();
+    }
+
+    public Date getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(Date fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public Date getFechaMofica() {
+        return fechaMofica;
+    }
+
+    public void setFechaMofica(Date fechaMofica) {
+        this.fechaMofica = fechaMofica;
+    }
+
+    public Usuario getUserRegistro() {
+        return userRegistro;
+    }
+
+    public void setUserRegistro(Usuario userRegistro) {
+        this.userRegistro = userRegistro;
+    }
+
+    public Usuario getUserModifica() {
+        return userModifica;
+    }
+
+    public void setUserModifica(Usuario userModifica) {
+        this.userModifica = userModifica;
+    }
+
+    public Usuario getUserActivo() {
+        return userActivo;
+    }
+
+    public void setUserActivo(Usuario userActivo) {
+        this.userActivo = userActivo;
+    }
+
+    public List<Usuario> getUsuariosNoActivos() {
+        return usuariosNoActivos;
+    }
+
+    public void setUsuariosNoActivos(List<Usuario> usuariosNoActivos) {
+        this.usuariosNoActivos = usuariosNoActivos;
     }
 
     public boolean isEstadoLike(EstadoEnum estado) {

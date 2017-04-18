@@ -9,6 +9,7 @@ import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.general.Persona;
 
 @Repository
 public class PersonaPerfilDAOH extends AbstractDAO<PersonaPerfil> implements PersonaPerfilDAO {
@@ -24,8 +25,7 @@ public class PersonaPerfilDAOH extends AbstractDAO<PersonaPerfil> implements Per
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pp")
                 .parents("left oficina ofi", "perfilCompania peco", "persona p")
                 .filter("pp.id", id);
-        
-        
+
         return this.find(sqlUtil);
 
     }
@@ -72,6 +72,15 @@ public class PersonaPerfilDAOH extends AbstractDAO<PersonaPerfil> implements Per
         List<PersonaPerfil> lstPersonaPerfils = this.all(sqlUtil);
 
         return lstPersonaPerfils;
+    }
+
+    @Override
+    public List<PersonaPerfil> allByPersona(Persona persona) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pp")
+                .parents("persona per")
+                .filter("per.id", persona);
+
+        return all(sqlUtil);
     }
 
 }

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.List;
 import org.hibernate.LockOptions;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.pivot.model.general.Persona;
 
 @Repository
 public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
@@ -29,5 +31,13 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
     @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
     public Alumno findLock(Long id) {
         return (Alumno) getCurrentSession().load(Alumno.class, id, LockOptions.UPGRADE);
+    }
+
+    @Override
+    public List<Alumno> allByPersona(Persona persona) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("alu")
+                .parents("persona per")
+                .filter("per.id", persona);
+        return all(sqlUtil);
     }
 }

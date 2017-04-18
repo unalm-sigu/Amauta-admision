@@ -24,6 +24,8 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
@@ -32,7 +34,9 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -45,6 +49,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     @Autowired
     ProgDataService progDataService;
 
+    @Autowired
+    TipoDocIdentidadDAO tipoDocIdentidadDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -55,22 +62,36 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         String rutaFilePersonas = saveFile(files[2]);
         String rutaFileProfes = saveFile(files[3]);
         String rutaFileProfeSecciones = saveFile(files[4]);
-        String rutaFileAlumnoSecciones = saveFile(files[5]);
+        String rutaFileAlumno = saveFile(files[5]);
+        String rutaFileAlumnoSecciones = saveFile(files[6]);
 
         List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
         List<Seccion> secciones = crearSecciones(rutaFileSecciones);
         List<Persona> personas = crearPersonas(rutaFilePersonas);
         List<Docente> docentes = crearDocentes(rutaFileProfes);
         List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
+        List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
         Map<String, AlumnoBlocked> mapBloqueados = new LinkedHashMap();
         progDataService.revisarBloqueados(mapBloqueados);
 
         long t1 = System.currentTimeMillis();
+        logger.debug("savePersonas");
+        this.savePersonas(personas, ds);
+        long t2 = System.currentTimeMillis();
+        logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("saveAlumnos");
+        this.saveAlumnos(alumnos, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
         Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
-        long t2 = System.currentTimeMillis();
+        t2 = System.currentTimeMillis();
         logger.debug("\tloadDataGpoSecciones ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
@@ -122,6 +143,44 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         logger.debug("\trevisarGrupoSecciones ejecutado en {} mseg", (t2 - t1));
 
         progDataService.detenerRevisionBloqueado();
+
+    }
+
+    private void saveAlumnos(List<Alumno> alumnos, DataSessionPivot ds) {
+        List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
+        Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
+        long loop = 1;
+        for (Alumno alumno : alumnos) {
+            logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
+//            if (loop < 5320) {
+//                loop++;
+//                continue;
+//            }
+            Persona persona = alumno.getPersona();
+            persona = progDataService.savePersona(persona, mapTiposDoc, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, ds);
+            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, ds);
+
+            alumno.setPersona(persona);
+            progDataService.saveAlumno(alumno, ds);
+            loop++;
+        }
+
+    }
+
+    private void savePersonas(List<Persona> personas, DataSessionPivot ds) {
+        List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
+        Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
+        long loop = 1;
+        for (Persona persona : personas) {
+            logger.debug("Guardando persona {} de {}", loop, personas.size());
+            progDataService.savePersona(persona, mapTiposDoc, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, ds);
+            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, ds);
+            loop++;
+        }
 
     }
 
@@ -180,6 +239,62 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             procesadosAntes = procesados;
         }
         return mapResumenes;
+    }
+
+    private List<Alumno> crearAlumnos(String rutaFile) {
+        List<Alumno> alumnnos = new ArrayList();
+        try {
+
+            FileInputStream fis = new FileInputStream(rutaFile);
+            Workbook myWorkBook = new HSSFWorkbook(fis);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+
+            Iterator<Row> rowIterator = mySheet.iterator();
+            int loop = 0;
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                String codigo = getCellValue(1, row);
+                String codigoEspecialidad = getCellValue(2, row);
+                String codigoPostgrado = getCellValue(3, row);
+                String situacion = getCellValue(4, row);
+                String email = getCellValue(5, row);
+                String paterno = getCellValue(8, row);
+                String materno = getCellValue(9, row);
+                String nombres = getCellValue(10, row);
+                String tipoDocumento = getCellValue(11, row);
+                String numeroDoc = getCellValue(12, row);
+
+                if (StringUtils.isEmpty(codigo)) {
+                    break;
+                }
+
+                if (StringUtils.isEmpty(tipoDocumento)) {
+                    tipoDocumento = "DNI";
+                }
+                if (StringUtils.isEmpty(email)) {
+                    email = null;
+                }
+
+                Persona persona = new Persona(paterno, materno, nombres, numeroDoc, tipoDocumento);
+                Alumno alumno = new Alumno(codigo, codigoEspecialidad, codigoPostgrado, situacion, email);
+                alumno.setPersona(persona);
+                alumnnos.add(alumno);
+            }
+            logger.debug("Se han leido un total de {} alumnos", loop);
+
+        } catch (FileNotFoundException ex) {
+            throw new PhobosException("Archivo no puede ser ubicado en el servidor");
+        } catch (IOException ex) {
+            throw new PhobosException("El archivo no puede ser leido");
+        }
+
+        return alumnnos;
     }
 
     private List<MatriculaSeccion> crearMatriculasSecciones(String rutaFile) {
@@ -334,6 +449,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     break;
                 }
 
+                if (StringUtils.isEmpty(tipoDoc)) {
+                    tipoDoc = "DNI";
+                }
+
                 Persona persona = new Persona(paterno, materno, nombres, numeroDoc, tipoDoc);
                 personas.add(persona);
             }
@@ -457,7 +576,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             dato = StringUtils.replaceChars(dato, '\n', ' ');
             dato = StringUtils.replaceChars(dato, ',', ' ');
             dato = StringUtils.replaceChars(dato, '|', ' ');
-            dato = StringUtils.trim(dato);
+            dato = StringUtils.replaceChars(dato, '´', '\'');
+            dato = dato.replaceAll("\\s{2,}", " ").trim();
         }
         return dato;
     }

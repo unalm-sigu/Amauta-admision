@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
 import java.util.List;
 import java.util.Map;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
@@ -9,9 +10,23 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ProgDataService {
+
+    String extraerEmailCompania(Persona persona, DataSessionPivot ds);
+
+    Persona extraerDocumentoIdentidad(Persona persona, DataSessionPivot ds);
+
+    void changeDocumentoIdentidad(Persona persona, TipoDocIdentidad tipoDocumento, String numeroDocIdentidad, String emailCompania, DataSessionPivot ds);
+
+    Persona savePersona(Persona persona, Map<String, TipoDocIdentidad> mapTiposDoc, DataSessionPivot ds);
+
+    void saveAlumno(Alumno alumno, DataSessionPivot ds);
+
+    Persona revisarPersona(Persona persona, DataSessionPivot ds);
 
     Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 

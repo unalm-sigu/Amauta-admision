@@ -5,5 +5,6 @@ import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 
 public interface SituacionAcademicaDAO extends Crud<SituacionAcademica> {
 
-}
+    SituacionAcademica findByCodigo(String codigo);
 
+}

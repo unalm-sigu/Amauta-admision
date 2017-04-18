@@ -10,16 +10,18 @@ public interface PersonaDAO extends Crud<Persona> {
 
     List<Persona> allByNombre(String nombre);
 
-    public List<Persona> allByFilter(DynatableFilter filter);
+    List<Persona> allByFilter(DynatableFilter filter);
 
-    public Persona findByDocIdentidad(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad);
+    Persona findByDocIdentidad(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad);
 
-    public List<Persona> allByEmailEmpresa(String email);
+    List<Persona> allByEmailEmpresa(String email);
 
-    public List<Persona> allByEmailEmpresaWithoutPersona(Persona persona);
+    List<Persona> allByEmailEmpresaWithoutPersona(Persona persona);
 
-    public List<Persona> allByEmail(String email);
+    List<Persona> allByEmail(String email);
 
-    public List<Persona> allByEmailWithoutPersona(Persona persona);
+    List<Persona> allByEmailWithoutPersona(Persona persona);
+
+    List<Persona> allByApellidosNombres(Persona persona);
 
 }
