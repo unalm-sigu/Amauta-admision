@@ -18,6 +18,7 @@ import org.hibernate.validator.constraints.Length;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 
 @Entity
 @Table(name = "aca_plan_calificacion")
@@ -80,6 +81,9 @@ public class PlanCalificacion implements Serializable {
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
     private List<Curso> curso;
 
+    @OneToMany(mappedBy = "planCalificacionRegular", fetch = FetchType.LAZY)
+    private List<Curso> cursosPlanRegular;
+
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<EvaluacionPlan> evaluacionPlan;
 
@@ -88,6 +92,16 @@ public class PlanCalificacion implements Serializable {
 
     @OneToMany(mappedBy = "sistemaAcademico", fetch = FetchType.LAZY)
     private List<LoggerPlanCalificacion> loggerPlanCalificacion;
+
+    @Column(name = "tipo")
+    private String tipo;
+
+    @Column(name = "tipo_ciclo")
+    private String tipoCiclo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_plan_calificacion_superior")
+    private PlanCalificacion planCalificacionSuperior;
 
     public PlanCalificacion() {
     }
@@ -343,11 +357,69 @@ public class PlanCalificacion implements Serializable {
         PlanCalificacion.PREFIJO_CODIGO = PREFIJO_CODIGO;
     }
 
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public PlanCalificacion getPlanCalificacionSuperior() {
+        return planCalificacionSuperior;
+    }
+
+    public void setPlanCalificacionSuperior(PlanCalificacion planCalificacionSuperior) {
+        this.planCalificacionSuperior = planCalificacionSuperior;
+    }
+
     public void generateCodigo() {
         StringBuilder codigoGen = new StringBuilder(PlanCalificacion.PREFIJO_CODIGO);
         codigoGen.append(String.format("%05d", this.getNumero()));
         codigoGen.append(this.getDepartamentoAcademico().getCodigo());
         this.codigo = codigoGen.toString();
+    }
+
+    public String getTipoCiclo() {
+        return tipoCiclo;
+    }
+
+    public void setTipoCiclo(String tipoCiclo) {
+        this.tipoCiclo = tipoCiclo;
+    }
+
+    public TipoCicloEnum getTipoCicloEnum() {
+        return TipoCicloEnum.valueOf(this.getTipoCiclo());
+    }
+
+    public void setTipoCicloEnum(TipoCicloEnum tipoCicloEnum) {
+        this.tipoCiclo = tipoCicloEnum.name();
+    }
+
+    public List<Curso> getCursosPlanRegular() {
+        return cursosPlanRegular;
+    }
+
+    public void setCursosPlanRegular(List<Curso> cursosPlanRegular) {
+        this.cursosPlanRegular = cursosPlanRegular;
+    }
+
+    public boolean isTipoCicloRegular() {
+        if (this.getTipoCiclo() != null) {
+            if (TipoCicloEnum.REG.name().equals(this.getTipoCiclo())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isTipoCicloNivelacion() {
+        if (this.getTipoCiclo() != null) {
+            if (TipoCicloEnum.NIV.name().equals(this.getTipoCiclo())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

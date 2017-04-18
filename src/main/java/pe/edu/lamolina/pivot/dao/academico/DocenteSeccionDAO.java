@@ -8,12 +8,13 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico cicloAcademico);
 
-    List<DocenteSeccion> allByDocente(Docente docente);
+    List<DocenteSeccion> allByDocente(Docente docente, DataSessionPivot ds);
 
     List<DocenteSeccion> allBySeccion(Seccion seccion);
 

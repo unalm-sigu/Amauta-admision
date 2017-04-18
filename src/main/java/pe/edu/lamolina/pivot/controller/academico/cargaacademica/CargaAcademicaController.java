@@ -64,6 +64,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -111,7 +112,7 @@ public class CargaAcademicaController {
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
-        cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente());
+        cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
 
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "app/academico/docente/cargaacademica/cargaAcademica";
@@ -136,7 +137,7 @@ public class CargaAcademicaController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(ds.getDocente(), ciclo);
+            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(ds.getDocente(), ciclo, ds);
             logger.debug("Lista grupos por docente {}", gruposSeccion.size());
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
@@ -164,34 +165,49 @@ public class CargaAcademicaController {
                 node.put("grupoHoras", grupoHoras);
 
                 node.put("tienePlanCalificacion", false);
-                Long idSistemaCalificacion = null;
+                PlanCalificacion planCalificacionSelected = null;
                 if (grupoSeccion.getPlanCalificacion() == null) {
+                    logger.debug("Grupo seccion sin plan calificacion");
                     node.put("idSistemaCalificacion", "");
                     node.put("sistemaCalificacion", "");
 
                     node.put("estado", "");
                     node.put("estadoEnum", "");
-                    if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacion.id") != null) {
-                        node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getId().toString());
-                        node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getCodigo());
 
-                        node.put("estado", EstadoPlanCalificaEnum.PRO.name());
-                        node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
-                        idSistemaCalificacion = grupoSeccion.getCurso().getPlanCalificacion().getId();
+                    if (grupoSeccion.getCurso().getPlanCalificacion().isTipoCicloNivelacion()) {
+                        if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacion.id") != null) {
+                            node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getId().toString());
+                            node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getCodigo());
 
+                            node.put("estado", EstadoPlanCalificaEnum.PRO.name());
+                            node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
+                            planCalificacionSelected = grupoSeccion.getCurso().getPlanCalificacion();
+
+                        }
+                    } else if (grupoSeccion.getCurso().getPlanCalificacion().isTipoCicloRegular()) {
+                        if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacionRegular.id") != null) {
+                            node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacionRegular().getId().toString());
+                            node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacionRegular().getCodigo());
+
+                            node.put("estado", EstadoPlanCalificaEnum.PRO.name());
+                            node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
+                            planCalificacionSelected = grupoSeccion.getCurso().getPlanCalificacionRegular();
+
+                        }
                     }
                 } else {
+                    logger.debug("Grupo seccion con plan calificacion");
                     node.put("idSistemaCalificacion", grupoSeccion.getPlanCalificacion().getId().toString());
                     node.put("sistemaCalificacion", grupoSeccion.getPlanCalificacion().getCodigo());
 
                     node.put("estado", grupoSeccion.getEstadoPlan());
                     node.put("estadoEnum", grupoSeccion.getEstadoPlanEnum().getValue());
                     node.put("tienePlanCalificacion", true);
-                    idSistemaCalificacion = grupoSeccion.getPlanCalificacion().getId();
+                    planCalificacionSelected = grupoSeccion.getPlanCalificacion();
                 }
                 List<Curso> cursos = null;
-                if (idSistemaCalificacion != null) {
-                    cursos = cargaAcademicaService.allActiveCursosByPlan(new PlanCalificacion(idSistemaCalificacion));
+                if (planCalificacionSelected != null) {
+                    cursos = cargaAcademicaService.allActiveCursosByPlan(planCalificacionSelected);
                 }
 
                 node.put("cantidadCursos", 0);
@@ -576,6 +592,7 @@ public class CargaAcademicaController {
             if (planCalificacion.getId() == null) {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
+                planCalificacion.setIdUserRegistro(ds.getUsuario().getId());
                 cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId);
                 message = "Creado exitosamente.";
 
@@ -1034,6 +1051,7 @@ public class CargaAcademicaController {
     @ResponseBody
     @RequestMapping("aceptarPropuesta")
     public JsonResponse aceptarPropuesta(
+            PlanCalificacion planCalificacion,
             @RequestParam("cursoId") Long cursoId,
             @RequestParam("grupoId") Long grupoId,
             RedirectAttributes redirectAttr, HttpSession session) {
@@ -1044,8 +1062,7 @@ public class CargaAcademicaController {
             logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Aceptado correctamente.";
 
-            cargaAcademicaService.aceptarPlanCalificacion(cursoId, grupoId, ds);
-
+            cargaAcademicaService.aceptarPlanCalificacion(planCalificacion, cursoId, grupoId, ds);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setSuccess(true);

@@ -65,9 +65,13 @@ public class Curso implements Serializable {
     @JoinColumn(name = "id_departamento_academico")
     private DepartamentoAcademico departamentoAcademico;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) //nivelacion
     @JoinColumn(name = "id_plan_calificacion")
     private PlanCalificacion planCalificacion;
+
+    @ManyToOne(fetch = FetchType.LAZY) //regular
+    @JoinColumn(name = "id_plan_calificacion_regular")
+    private PlanCalificacion planCalificacionRegular;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinador")
@@ -289,6 +293,14 @@ public class Curso implements Serializable {
 
     public void setHorasPractica(Integer horasPractica) {
         this.horasPractica = horasPractica;
+    }
+
+    public PlanCalificacion getPlanCalificacionRegular() {
+        return planCalificacionRegular;
+    }
+
+    public void setPlanCalificacionRegular(PlanCalificacion planCalificacionRegular) {
+        this.planCalificacionRegular = planCalificacionRegular;
     }
 
     public String getTpc() {

@@ -9,6 +9,7 @@ import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface SistemaService {
 
@@ -18,7 +19,7 @@ public interface SistemaService {
 
     List<SistemaNotas> allSistemasNotas();
 
-    void saveSistemaCalifica(PlanCalificacion planCalificacion);
+    void saveSistemaCalifica(PlanCalificacion planCalificacion, DataSessionPivot ds);
 
     List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DepartamentoAcademico dpto);
 
@@ -28,7 +29,7 @@ public interface SistemaService {
 
     void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
 
-    List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long planCalificacion, Long idDepartamentoAcademico);
+    List<Curso> allCursosByPlanCalifica(DynatableFilter dynatableFilter, Long idPlanCalificacion, Long idDepartamentoAcademico);
 
     void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
 

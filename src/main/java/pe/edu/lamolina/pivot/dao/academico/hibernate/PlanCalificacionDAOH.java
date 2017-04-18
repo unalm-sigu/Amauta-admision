@@ -10,8 +10,10 @@ import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
+import pe.edu.lamolina.pivot.zelper.enums.TipoPlanCalificacionEnum;
 
 @Repository
 public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implements PlanCalificacionDAO {
@@ -25,8 +27,9 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
     public List<PlanCalificacion> allByDynatable(DynatableFilter filter, DepartamentoAcademico dpto) {
         filter.setFields(Arrays.asList("pc.formula", "pc.codigo"));
         filter.setAlias("pc");
-        filter.setParents("departamentoAcademico da", "left sistemaNotas sn", "left curso cur");
+        filter.setParents("departamentoAcademico da", "left sistemaNotas sn");//, "left curso cur"
         filter.filterFix("da.id", dpto.getId());
+        filter.filterFix("pc.tipo", TipoPlanCalificacionEnum.PLANT.name());
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));
@@ -47,8 +50,24 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
         sqlUtil.setFirstResult(filter.getOffset())
                 .setPageSize(filter.getPerPage());
         sqlUtil.orderBy("pc.id desc");
-
-        return this.all(sqlUtil);
+        List<PlanCalificacion> listaRestultado = this.all(sqlUtil);
+        for (PlanCalificacion plan : listaRestultado) {
+            if (plan.isTipoCicloNivelacion()) {
+                if (plan.getCurso() != null) {
+                    for (Curso curso : plan.getCurso()) {
+                        curso.getId();
+                    }
+                }
+            }
+            if (plan.isTipoCicloNivelacion()) {
+                if (plan.getCursosPlanRegular() != null) {
+                    for (Curso curso : plan.getCursosPlanRegular()) {
+                        curso.getId();
+                    }
+                }
+            }
+        }
+        return listaRestultado;
     }
 
     @Override
@@ -58,10 +77,11 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
         sqlUtil.filter("pc.id", idPlanCalificacion);
 
         PlanCalificacion result = find(sqlUtil);
-        for (EvaluacionPlan evaPlan : result.getEvaluacionPlan()) {
-            evaPlan.getTipoEvaluacion();
+        if (result.getEvaluacionPlan() != null) {
+            for (EvaluacionPlan evaPlan : result.getEvaluacionPlan()) {
+                evaPlan.getTipoEvaluacion();
+            }
         }
-
         return result;
     }
 
