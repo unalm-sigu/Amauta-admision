@@ -18,6 +18,7 @@ import pe.edu.lamolina.pivot.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 
 @Entity
 @Table(name = "aca_ciclo_academico")
@@ -255,6 +256,24 @@ public class CicloAcademico implements Serializable {
 
     public void setTramite(List<Tramite> tramite) {
         this.tramite = tramite;
+    }
+
+    public boolean isTipoRegular() {
+        if (this.getTipo() != null) {
+            if (TipoCicloEnum.REG.name().equals(this.getTipo())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isTipoNivelacion() {
+        if (this.getTipo() != null) {
+            if (TipoCicloEnum.NIV.name().equals(this.getTipo())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

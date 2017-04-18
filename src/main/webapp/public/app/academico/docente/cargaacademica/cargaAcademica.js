@@ -58,10 +58,12 @@ $(function () {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
             } else {
                 MODAL.buttons(
-                        '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
-                        '<a class="btn btn-danger new-sis-calificacion pull-left">Solicita modificación</a>');
+                        '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>');
             }
-
+            /*             * 
+             +
+             '<a class="btn btn-danger new-sis-calificacion pull-left">Solicita modificación</a>'
+             */
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/aceptarSistemaCalificacion'),
                 type: 'POST',
@@ -100,6 +102,15 @@ $(function () {
             });
         },
         confirmaSistemaCalificacion: function ($this, e) {
+            var form = $("[id='frmAceptarSistCal']");
+            // form.submit();
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
                 buttons: {
@@ -112,10 +123,11 @@ $(function () {
                             url: APP.url('academico/docente/cargaacademica/aceptarPropuesta'),
                             type: 'POST',
                             async: true,
-                            data: {
-                                cursoId: $("#txtCurso").val(),
-                                grupoId: $("#txtGrupo").val()
-                            },
+                            data:
+                                    //  { cursoId: $("#txtCurso").val(),
+                                    // grupoId: $("#txtGrupo").val() }
+                                    form.serialize()
+                            ,
                             success: function (response) {
                                 MODAL.hideWait();
                                 MODAL.hide();
@@ -221,6 +233,69 @@ $(function () {
                     }
                 }
             });
+        },
+        changeCantidadEval: function ($this) {
+            if ($.isNumeric($this.val())) {
+                var i = $this.attr('rel');
+                var elem = "evaluacionPlan[" + i + "].notaMinimaAnulable";
+                $("[name='" + elem + "']").attr("disabled", true);
+                //     $("[name='" + elem + "']").val(0);
+                $("[name='" + elem + "']").attr("checked", false);
+                if (parseInt($this.val()) > 1) {
+                    $("[name='" + elem + "']").removeAttr("disabled");
+                }
+
+            }
+        },
+        calcularPesoEval: function (el) {
+            var i = el.attr('rel');
+            var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']");
+            var cantEvals = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']");
+            var anularNotMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']");
+            var pesoEval = $("[name='evaluacionPlan[" + i + "].pesoEvaluacion']");
+
+            if ($.isNumeric(pesoTotal.val()) && $.isNumeric(cantEvals.val())) {
+                var pesoTotalNumber = parseFloat(pesoTotal.val())
+                var cantEvalsNumber = parseFloat(cantEvals.val());
+
+                if (anularNotMin.prop('checked')) {
+                    cantEvalsNumber--;
+                }
+                /*
+                 if ((parseInt(pesoTotalNumber) % parseInt(cantEvalsNumber)) != 0) {
+                 pesoEval.val("");
+                 return;
+                 }
+                 */
+                var pesoEvalsNumber = parseFloat(pesoTotalNumber) / parseFloat(cantEvalsNumber);
+                pesoEval.val(pesoEvalsNumber.toFixed(2));
+            }
+        },
+        calcularFormula: function () {
+            var rowCount = $('#tblEvaluaciones tr').length - 1;
+            var formula = "";
+            for (i = 0; i < rowCount; i++) {
+                var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
+                var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
+                var anularNotaMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']").prop('checked');
+                var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
+                if (tipoEvaluacion == null || tipoEvaluacion == "") {
+                    continue;
+                }
+                var tipoEvaluacionCode = evaluacionCnf[tipoEvaluacion].codigo;
+                if (i > 0) {
+                    formula += " + ";
+                }
+                formula += cantEvaluaciones;
+                if (anularNotaMin) {
+                    formula += "(1)";
+                }
+                formula += tipoEvaluacionCode + "(";
+                formula += pesoTotal + ")";
+
+            }
+            $("#spnFormula").html(formula);
+            $("#txtFormula").val(formula);
         }
     };
     $("body").delegate(".aceptar-sistema-calificacion", "click", function (e) {
@@ -250,6 +325,19 @@ $(function () {
 
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
         CargaAcademica.addTipoEvaluacion(e);
+    });
+
+    $("body").delegate(".clsCantEvaluaciones", "keyup", function (e) {
+        CargaAcademica.changeCantidadEval($(this));
+        CargaAcademica.calcularPesoEval($(this));
+    });
+
+    $("body").delegate(".calcular-peso-eva", "keyup", function (e) {
+        CargaAcademica.calcularPesoEval($(this));
+    });
+
+    $("body").delegate(".calcular-peso-eva-chk", "change", function (e) {
+        CargaAcademica.calcularPesoEval($(this));
     });
 
 

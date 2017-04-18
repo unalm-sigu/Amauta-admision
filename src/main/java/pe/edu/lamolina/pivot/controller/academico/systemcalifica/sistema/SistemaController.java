@@ -122,10 +122,20 @@ public class SistemaController {
                 node.put("verReenviar", planCalificacion.isEstadoObservado());
                 node.put("verAsignarCursos", planCalificacion.isEstadoActivado());
                 List<Curso> cursos = new ArrayList<>();
-                if (ObjectUtil.getParentTree(planCalificacion, "curso") != null) {
-                    for (Curso cur : planCalificacion.getCurso()) {
-                        if (cur.isEstadoActive()) {
-                            cursos.add(cur);
+                if (planCalificacion.isTipoCicloNivelacion()) {
+                    if (ObjectUtil.getParentTree(planCalificacion, "curso") != null) {
+                        for (Curso cur : planCalificacion.getCurso()) {
+                            if (cur.isEstadoActive()) {
+                                cursos.add(cur);
+                            }
+                        }
+                    }
+                } else if (planCalificacion.isTipoCicloRegular()) {
+                    if (ObjectUtil.getParentTree(planCalificacion, "cursosPlanRegular") != null) {
+                        for (Curso cur : planCalificacion.getCursosPlanRegular()) {
+                            if (cur.isEstadoActive()) {
+                                cursos.add(cur);
+                            }
                         }
                     }
                 }
@@ -152,7 +162,7 @@ public class SistemaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            logger.debug("Plancalificacion {}", planCalificacion);
+            logger.debug("listCursos Plancalificacion {}", planCalificacion);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
@@ -217,6 +227,7 @@ public class SistemaController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         PlanCalificacion planCalificacion = new PlanCalificacion();
 
         model.addAttribute("planCalificacion", planCalificacion);
@@ -224,6 +235,8 @@ public class SistemaController {
         model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEvalEnum.values());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
         return "app/academico/systemcalifica/sistema/nuevoSistema";
     }
 
@@ -238,9 +251,8 @@ public class SistemaController {
 
             String message = "";
             if (planCalificacion.getId() == null) {
-                planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
-                planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DEP);
-                sistemaService.saveSistemaCalifica(planCalificacion);
+
+                sistemaService.saveSistemaCalifica(planCalificacion, ds);
                 message = "Creado exitosamente.";
 
             } else {
