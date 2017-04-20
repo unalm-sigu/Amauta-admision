@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
@@ -26,14 +28,17 @@ public interface ProgDataService {
 
     void saveAlumno(Alumno alumno, DataSessionPivot ds);
 
+    Docente saveDocente(Docente docente, ModalidadEstudio modalidad, Map<String, DepartamentoAcademico> mapDptos, DataSessionPivot ds);
+
+    void anularDocentes(Map<String, Docente> mapDocentes, ModalidadEstudio modalidad, DataSessionPivot ds);
+
     Persona revisarPersona(Persona persona, DataSessionPivot ds);
 
     Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 
     Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones);
 
-    Map<String, Docente> loadDataDocentes(List<Docente> docentes, CicloAcademico ciclo);
-
+    //Map<String, Docente> loadDataDocentes(List<Docente> docentes, CicloAcademico ciclo, DataSessionPivot ds);
     Map<String, DocenteSeccion> loadDataDocentesSecciones(
             List<DocenteSeccion> docentesSecciones,
             Map<String, Seccion> mapSecciones,

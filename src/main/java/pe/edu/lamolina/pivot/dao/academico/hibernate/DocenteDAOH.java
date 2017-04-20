@@ -6,7 +6,9 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
@@ -45,6 +47,15 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("doc")
                 .parents("persona per")
                 .filter("per.id", persona);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<Docente> allActivos(ModalidadEstudio modalidad) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("doc")
+                .parents("persona per", "modalidadEstudio me")
+                .filter("doc.estado", EstadoEnum.ACT.name())
+                .filter("me.id", modalidad);
         return all(sqlUtil);
     }
 }
