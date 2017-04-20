@@ -35,7 +35,7 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     @Override
     public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
-                .parents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc")
+                .parents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc", "left _cur.planCalificacionRegular pcr")
                 .parents("_cur.departamentoAcademico da")
                 .filter("ca.id", cicloAcademico);
         if (departamentoAcademico != null) {
