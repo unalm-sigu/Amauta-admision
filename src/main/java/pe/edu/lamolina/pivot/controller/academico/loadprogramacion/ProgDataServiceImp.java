@@ -768,26 +768,6 @@ public class ProgDataServiceImp implements ProgDataService {
         return aula;
     }
 
-//    @Override
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public Map<String, Docente> loadDataDocentes(List<Docente> docentes, CicloAcademico ciclo, DataSessionPivot ds) {
-//        int loop = 0;
-//        Map<String, Docente> mapDocentes = new LinkedHashMap();
-//        for (Docente profe : docentes) {
-//            //logger.debug("\tprocesando el profesor {}", profe.getCodigo());
-//            Docente profeBD = docenteDAO.findByCode(profe.getCodigo());
-//            if (profeBD == null) {
-//                String msg = String.format("No existe en base de datos el docente de codigo %s", profe.getCodigo());
-//                throw new PhobosException(msg);
-//            }
-//            
-//            docentes.set(loop, profeBD);
-//            mapDocentes.put(profeBD.getCodigo(), profeBD);
-//            loop++;
-//        }
-//        
-//        return mapDocentes;
-//    }
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, DocenteSeccion> loadDataDocentesSecciones(
@@ -873,18 +853,16 @@ public class ProgDataServiceImp implements ProgDataService {
 
         Seccion seccion = mapSecciones.get(matriSecc.getCodigoSeccion());
         if (seccion == null) {
-            String msg = String.format("La seccion %s no existe para se incluida en matricula-seccion",
-                    matriSecc.getCodigoSeccion());
+            String msg = String.format("La seccion %s no existe para se incluida en matricula-seccion", matriSecc.getCodigoSeccion());
             throw new PhobosException(msg);
         }
 
-        //ObjectUtil.printAttr(seccion);
         Alumno alumno = alumnoDAO.findByCodigo(matriSecc.getCodigoAlumno());
         if (alumno == null) {
-            String msg = String.format("El alumno %s no existe para se incluida en matricula-seccion",
-                    matriSecc.getCodigoAlumno());
+            String msg = String.format("El alumno %s no existe para se incluida en matricula-seccion", matriSecc.getCodigoAlumno());
             throw new PhobosException(msg);
         }
+
         System.out.println(rr + " vamos a bloquear alumno " + alumno.getCodigo() + "(" + alumno.getId() + ") para loadDataMatriculados");
         alumnoDAO.findLock(alumno.getId());
         System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + "(" + alumno.getId() + ") bloqueado para loadDataMatriculados");
@@ -940,12 +918,10 @@ public class ProgDataServiceImp implements ProgDataService {
             matriSeccBD.setSeccion(seccion);
             matriSeccBD.setMatriculaResumen(resumen);
             matriculaSeccionDAO.save(matriSeccBD);
-            System.out.println("\t" + rr + " mat-seccion es " + matriSeccBD.getId());
 
-            //resumen.getMatriculaSeccion().add(matriSeccBD);
+            System.out.println("\t" + rr + " mat-seccion es " + matriSeccBD.getId());
         }
 
-        //seccion.getMatriculaSeccion().add(matriSeccBD);
         if (!existeSeccion(resumen.getMatriculaSeccion(), seccion)) {
             System.out.println("\t" + rr + " mat-seccion " + matriSeccBD.getId() + " se agrega al alumno " + alumno.getCodigo());
             resumen.getMatriculaSeccion().add(matriSeccBD);
@@ -974,14 +950,11 @@ public class ProgDataServiceImp implements ProgDataService {
             matriCursoBD.setNotaFinal("0");
             matriCursoBD.setPorcentajeAvanceNota(0);
             matriculaCursoDAO.save(matriCursoBD);
-            System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
 
-            //resumen.getMatriculaCurso().add(matriCursoBD);
+            System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
         }
 
         if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
-            //ObjectUtil.printAttr(resumen);
-            //ObjectUtil.printAttr(curso);
             System.out.println("\t" + rr + " mat-curso " + matriCursoBD.getId() + " agregado al mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
             resumen.getMatriculaCurso().add(matriCursoBD);
             resumen.setCursosMatriculados(resumen.getCursosMatriculados() + 1);
@@ -1267,20 +1240,6 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     public void detenerRevisionBloqueado() {
         revisar = false;
-    }
-
-    private String limpiarInfo(String dato) {
-        if (dato != null) {
-            dato = StringUtils.replaceChars(dato, '\t', ' ');
-            dato = StringUtils.replaceChars(dato, '\r', ' ');
-            dato = StringUtils.replaceChars(dato, '\n', ' ');
-            dato = StringUtils.replaceChars(dato, ',', ' ');
-            dato = StringUtils.replaceChars(dato, '|', ' ');
-            dato = StringUtils.replaceChars(dato, '´', '\'');
-            dato = StringUtils.replaceChars(dato, 'ö', 'o');
-            dato = dato.replaceAll("\\s{2,}", " ").trim();
-        }
-        return dato;
     }
 
 }
