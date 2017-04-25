@@ -27,7 +27,8 @@ public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implemen
         SqlUtil sqlUtil = new SqlUtil("ms")
                 .parents("matriculaResumen mr", "seccion s")
                 .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("_gs.curso cur", "_alu.persona per")
+                .parents("left _alu.carrera carr", "left _carr.facultad fac")
+                .parents("_gs.curso cur", "_alu.persona per", "_per.tipoDocumento tdoc")
                 .filter("ms.estado", EstadoMatriculaCursoEnum.MAT.name())
                 .filter("s.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");

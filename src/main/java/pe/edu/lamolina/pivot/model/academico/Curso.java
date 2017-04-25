@@ -184,6 +184,9 @@ public class Curso implements Serializable {
     }
 
     public Integer getCreditos() {
+        if (creditos == null) {
+            return 0;
+        }
         return creditos;
     }
 

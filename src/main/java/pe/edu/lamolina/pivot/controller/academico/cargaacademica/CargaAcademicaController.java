@@ -159,7 +159,7 @@ public class CargaAcademicaController {
                     }
                 }
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
-                if (grupoHoras != "") {
+                if (!"".equals(grupoHoras)) {
                     grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
                 }
                 node.put("grupoHoras", grupoHoras);
@@ -827,7 +827,57 @@ public class CargaAcademicaController {
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
         model.addAttribute("esDocentePrincipal", esDocentePrincipal);
+        
         return "app/academico/docente/cargaacademica/notasAcademicas";
+    }
+
+    @RequestMapping("{seccion}/alumnos")
+    public String alumnos(
+            @PathVariable("seccion") Long idSeccion,
+            Model model, HttpSession session) {
+        logger.debug("la seccion es {}", idSeccion);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
+        List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
+
+        logger.debug("El docente es {}", ds.getDocente().getId());
+        logger.debug("Consultara notas por seccion");
+        
+        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Curso curso = grupoSeccion.getCurso();
+        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+
+        boolean esDocentePrincipal = false;
+        for (Seccion sec : grupoSeccion.getSecciones()) {
+
+            if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
+                DocenteSeccion docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
+                if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                    if (docenteSeccion.esDocentePrincipal()) {
+                        esDocentePrincipal = true;
+                    }
+                }
+            }
+
+        }
+
+        //     model.addAttribute("docenteSeccion", docenteSeccion);
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("grupoSeccion", grupoSeccion);
+        model.addAttribute("curso", curso);
+        model.addAttribute("sistemaNotas", evaluacionSeccion.getSistemaNotas());
+        model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
+        model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
+        model.addAttribute("notas", mapNotas);
+        model.addAttribute("matriculaCursoMap", matriculaCursoMap);
+        model.addAttribute("esDocentePrincipal", esDocentePrincipal);
+        return "app/academico/docente/alumnos/alumnos";
     }
 
     @RequestMapping("{seccion}/notasAcademicasReload")

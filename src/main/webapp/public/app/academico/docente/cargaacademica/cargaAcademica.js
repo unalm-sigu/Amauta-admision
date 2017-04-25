@@ -21,7 +21,7 @@ $(function () {
 
         var grupoHoras = "";
         if (record.grupoHoras != "") {
-            grupoHoras = record.grupoHoras.toString().split(",")
+            grupoHoras = record.grupoHoras.toString().split(",");
         }
         var seccionesResult = "";
 
@@ -29,7 +29,10 @@ $(function () {
             seccionesResult += '<div class="m-l-md inline"><a href="#" ';
             if (record.estado == 'ACEP') {
                 seccionesResult += 'class="notas-academicas"';
+            } else {
+                seccionesResult += 'class="ver-alumnos"';
             }
+
             var grupoText = "";
             if (grupoHoras[i] != null) {
                 grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
@@ -172,9 +175,14 @@ $(function () {
         notasAcademicas: function ($this, e) {
             var tr = $this.closest("tr");
             var idx = $this.attr("rel");
-            var rec = dynatable.settings.dataset.records[idx];
+            //var rec = dynatable.settings.dataset.records[idx];
 
             location.href = APP.url('academico/docente/cargaacademica/') + idx + '/notasAcademicas';
+        },
+        verAlumnos: function ($this, e) {
+            var tr = $this.closest("tr");
+            var idx = $this.attr("rel");
+            location.href = APP.url('academico/docente/alumnosDocente/') + idx + '/alumnosDocente';
         },
         verNuevoSC: function (e) {
             e.preventDefault();
@@ -298,6 +306,7 @@ $(function () {
             $("#txtFormula").val(formula);
         }
     };
+
     $("body").delegate(".aceptar-sistema-calificacion", "click", function (e) {
         CargaAcademica.aceptarSistemaCalificacion($(this), e);
     });
@@ -319,23 +328,22 @@ $(function () {
     $("body").delegate(".notas-academicas", "click", function (e) {
         CargaAcademica.notasAcademicas($(this), e);
     });
+    $("body").delegate(".ver-alumnos", "click", function (e) {
+        CargaAcademica.verAlumnos($(this), e);
+    });
     $("body").delegate(".new-sis-calificacion", "click", function (e) {
         CargaAcademica.verNuevoSC(e);
     });
-
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
         CargaAcademica.addTipoEvaluacion(e);
     });
-
     $("body").delegate(".clsCantEvaluaciones", "keyup", function (e) {
         CargaAcademica.changeCantidadEval($(this));
         CargaAcademica.calcularPesoEval($(this));
     });
-
     $("body").delegate(".calcular-peso-eva", "keyup", function (e) {
         CargaAcademica.calcularPesoEval($(this));
     });
-
     $("body").delegate(".calcular-peso-eva-chk", "change", function (e) {
         CargaAcademica.calcularPesoEval($(this));
     });

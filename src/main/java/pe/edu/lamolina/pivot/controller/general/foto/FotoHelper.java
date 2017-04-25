@@ -12,13 +12,13 @@ public class FotoHelper {
         if (!StringUtils.isEmpty(sexo)) {
             switch (sexo) {
                 case "M":
-                    return "/phobos/images/dm/male.png";
+                    return "/phobos/images/unalm/male.png";
                 case "F":
-                    return "/phobos/images/dm/female.png";
+                    return "/phobos/images/unalm/female.png";
             }
         }
 
-        return "/phobos/images/dm/unknown-person.gif";
+        return "/phobos/images/unalm/unknown-person.gif";
     }
 
 }

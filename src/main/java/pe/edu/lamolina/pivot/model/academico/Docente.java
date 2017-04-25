@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,9 +12,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "aca_docente")
@@ -30,6 +33,14 @@ public class Docente implements Serializable {
     @Column(name = "estado")
     private String estado;
 
+    @Column(name = "fecha_registro")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
+
+    @Column(name = "fecha_modifica")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaModifica;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_modalidad_estudio")
     private ModalidadEstudio modalidadEstudio;
@@ -37,6 +48,14 @@ public class Docente implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona")
     private Persona persona;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_modifica")
+    private Usuario userModifica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
@@ -155,6 +174,38 @@ public class Docente implements Serializable {
 
     public void setCodigoDepartamento(String codigoDepartamento) {
         this.codigoDepartamento = codigoDepartamento;
+    }
+
+    public Date getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(Date fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public Date getFechaModifica() {
+        return fechaModifica;
+    }
+
+    public void setFechaModifica(Date fechaModifica) {
+        this.fechaModifica = fechaModifica;
+    }
+
+    public Usuario getUserRegistro() {
+        return userRegistro;
+    }
+
+    public void setUserRegistro(Usuario userRegistro) {
+        this.userRegistro = userRegistro;
+    }
+
+    public Usuario getUserModifica() {
+        return userModifica;
+    }
+
+    public void setUserModifica(Usuario userModifica) {
+        this.userModifica = userModifica;
     }
 
 }
