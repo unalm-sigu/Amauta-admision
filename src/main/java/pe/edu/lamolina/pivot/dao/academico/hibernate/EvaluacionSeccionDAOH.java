@@ -56,7 +56,7 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
     @Override
     public List<EvaluacionSeccion> allByGrupoSeccion(GrupoSeccion gpoSecc) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es")
-                .parents("planCalificacion pc", "grupoSeccion gs")
+                .parents("left planCalificacion pc", "grupoSeccion gs")
                 .filter("gs.id", gpoSecc);
 
         return all(sqlUtil);

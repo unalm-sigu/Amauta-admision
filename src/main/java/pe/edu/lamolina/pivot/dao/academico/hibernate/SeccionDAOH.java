@@ -23,7 +23,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
     public List<Seccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
         filter.setAlias("sec");
         filter.setParents("grupoSeccion gs", "docenteSeccion ds", "aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc");
+                "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr");
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));
@@ -61,7 +61,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
     @Override
     public List<Seccion> allByFilter(Long idGrupo) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.curso cur", "_cur.planCalificacion pc", "_gs.planCalificacion pc2")
+                .parents("grupoSeccion gs", "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "_gs.planCalificacion pc2")
                 .filter("gs.id", idGrupo);
         return all(sqlUtil);
     }
