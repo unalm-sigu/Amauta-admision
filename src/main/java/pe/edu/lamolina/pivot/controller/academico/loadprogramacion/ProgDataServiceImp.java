@@ -702,6 +702,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (seccionBD == null) {
                 seccionBD = new Seccion();
                 seccionBD.setCodigo(seccion.getCodigo());
+                seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setGrupoSeccion(gpoSecc);
                 seccionBD.setMatriculados(0);
                 seccionBD.setRetirados(0);
@@ -723,6 +724,7 @@ public class ProgDataServiceImp implements ProgDataService {
             } else {
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
+                seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 seccionDAO.update(seccionBD);
             }

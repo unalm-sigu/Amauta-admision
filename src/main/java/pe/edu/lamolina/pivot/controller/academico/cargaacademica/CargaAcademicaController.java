@@ -153,7 +153,7 @@ public class CargaAcademicaController {
                 String grupoHoras = "";
 
                 for (Seccion seccion : grupoSeccion.getSecciones()) {
-                    secciones += seccion.getId() + "|" + seccion.getCodigo() + ",";
+                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + ",";
                     if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
                         grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
                     }
@@ -308,7 +308,7 @@ public class CargaAcademicaController {
                         Docente profe = eval.getDocenteEvaluador();
 
                         ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
-                        nodeDoc.put("seccion", seccion.getCodigo());
+                        nodeDoc.put("seccion", seccion.getCodigo2());
                         nodeDoc.put("docente", profe == null ? "" : (profe.getPersona().getApellidosNombres()));
                         evaluadores.add(nodeDoc);
 
@@ -359,7 +359,7 @@ public class CargaAcademicaController {
                             Docente profe = eval.getDocenteEvaluador();
 
                             ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
-                            nodeDoc.put("seccion", seccion.getCodigo());
+                            nodeDoc.put("seccion", seccion.getCodigo2());
                             nodeDoc.put("docente", profe == null ? "" : (profe.getPersona().getApellidosNombres()));
                             evaluadores.add(nodeDoc);
 
@@ -452,7 +452,7 @@ public class CargaAcademicaController {
         DocenteSeccion docenteSeccion = null;
 
         for (Seccion sec : grupoSeccion.getSecciones()) {
-            claves.append(sec.getCodigo());
+            claves.append(sec.getCodigo2());
             claves.append(",");
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                 docenteSeccion = cargaAcademicaService.findDocenteSeccionByFilter(ds.getDocente(), sec);
@@ -492,7 +492,7 @@ public class CargaAcademicaController {
 
         StringBuilder claves = new StringBuilder();
         for (Seccion sec : grupoSeccion.getSecciones()) {
-            claves.append(sec.getCodigo());
+            claves.append(sec.getCodigo2());
             claves.append(",");
 
         }
@@ -933,7 +933,7 @@ public class CargaAcademicaController {
 
         Seccion secc = cargaAcademicaService.findSeccion(idSeccion);
         Curso cur = secc.getGrupoSeccion().getCurso();
-        String nom = "ActaNotas_" + cur.getCodigo() + "_" + secc.getCodigo();
+        String nom = "ActaNotas_" + cur.getCodigo() + "_" + secc.getCodigo2();
 
         List<String> lstPdfFiles = pdfService.reporteDeActaDeNotas(secc.getGrupoSeccion().getId(), ds);
 
