@@ -746,14 +746,6 @@ public class CargaAcademicaController {
                         evaluacion1.getDocentesSeccion().add(docenteSeccion);
                     }
                 }
-                /*else {
-
-                    DocenteSeccion docenteSeccion1 = new DocenteSeccion();
-                    Docente docente = new Docente();
-                    docente.setPersona(new Persona());
-                    docenteSeccion1.setDocente(docente);
-                    evaluacion1.getDocentesSeccion().add(docenteSeccion1);
-                }*/
             }
         }
 

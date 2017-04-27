@@ -280,7 +280,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
         List<EvaluacionExpandida> evaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
-        logger.debug("Evaluacion seccion {}, cantidad de pensiones expandidadas {}", evaluacionSeccion.getId(), evaluaciones.size());
+        logger.debug("Evaluacion seccion {}, cantidad de evaluaciones expandidadas {}", evaluacionSeccion.getId(), evaluaciones.size());
         if (evaluaciones.isEmpty()) {
             logger.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());
 
@@ -675,6 +675,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
         logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+        evaluacionSeccion.setFechaAceptacion(today);
+        evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
