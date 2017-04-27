@@ -87,13 +87,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-        //this.savePersonas(personas, ds);
+        this.savePersonas(personas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        //this.saveAlumnos(alumnos, ds);
+        this.saveAlumnos(alumnos, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
