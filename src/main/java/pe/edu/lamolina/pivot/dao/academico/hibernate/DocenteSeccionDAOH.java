@@ -100,7 +100,7 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
                 .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
                 .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
-                .parents("docente doc", "left _doc.persona dper")
+                .parents("docente doc", "_doc.persona dper")
                 .filter("gs.id", grupoSeccion.getId());
         sqlUtil.orderBy("dper.paterno");
         return this.all(sqlUtil);

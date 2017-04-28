@@ -5,6 +5,8 @@ import pe.albatross.zelpers.miscelanea.OSValidator;
 public interface Constantine {
 
     String SESSION_USUARIO = "SESSION_USUARIO";
+    
+    String DOCENTE_INDETERMINADO = "N.N.";
 
     String TMP_DIR = OSValidator.isWindows() ? "D:/dxtr/tmp/" : "/tmp/";
 

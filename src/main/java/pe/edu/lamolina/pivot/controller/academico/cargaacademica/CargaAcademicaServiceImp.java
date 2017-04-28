@@ -64,13 +64,13 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoPlanCalificacionEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 
 @Service

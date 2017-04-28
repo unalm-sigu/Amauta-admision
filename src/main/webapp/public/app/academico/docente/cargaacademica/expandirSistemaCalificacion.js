@@ -90,6 +90,7 @@ $(function () {
             MODAL.title("Asignar Docentes");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success grabar-asignacion" id="cmbSaveAssign">Aceptar</a>');
+
             $.ajax({
                 url: APP.url('academico/docente/cargaacademica/detalleAsignarDocente'),
                 type: 'POST',
@@ -100,6 +101,10 @@ $(function () {
                 },
                 success: function (response) {
                     MODAL.body(response);
+                    $(".item-select2").select2();
+                    $(".item-select2").each(function () {
+                        $(this).removeClass("item-select2");
+                    });
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -421,7 +426,6 @@ $(function () {
     $("body").delegate("#btnAceptarExp", "click", function (e) {
         ExpandirSCN.aceptarExpansion()
     });
-
 
     $("body").delegate(".cboTipoSecEval", "change", function () {
         ExpandirSCN.cambiarTipoSecEval($(this));

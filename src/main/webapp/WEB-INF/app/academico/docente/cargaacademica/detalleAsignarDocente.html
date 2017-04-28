@@ -8,8 +8,8 @@
             <tr class=""> 
                 <th class="col-md-3">Tipo evaluación</th>
                 <th class="col-md-2">Seccion</th>
-                <th class="col-md-3">Tipo Seccion</th>
-                <th class="col-md-4">Docente</th>
+                <th class="col-md-2">Tipo Seccion</th>
+                <th class="col-md-5">Docente</th>
             </tr>
         </thead>
 
@@ -26,7 +26,7 @@
 
                 </td>
                 <td  class="v-middle">
-                    <span th:text="${eval.seccionResponsable.codigo}"></span>
+                    <span th:text="${eval.seccionResponsable.codigo2}"></span>
                 </td>
                 <td  class="v-middle">
                     <span th:text="${eval.tipoSeccionEnum.value}"></span>
@@ -39,7 +39,8 @@
                         <option value=""></option>
                         <option  th:each="item : ${eval.docentesSeccion}" 
                                  th:selected="${item.docente.id==eval.docenteEvaluador.id}"
-                                 th:value="${item.docente.id}" th:text="${item.docente.persona.apellidosNombres}"></option>
+                                 th:value="${item.docente.id}" 
+                                 th:text="|${item.docente.persona.apellidosNombres} - ${item.estadoEnum.value.toUpperCase()}|"></option>
                     </select>
                 </td>
             </tr>
