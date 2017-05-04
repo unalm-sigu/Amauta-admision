@@ -10,73 +10,81 @@
     <td class="v-middle text-center">
 
         {{if editarPorcentaje==true}}1
-        <input value="{{:pesoEvaluacion}}"
-               rel="{{:evaPlanId}}"
-               name="{{:classArg}}"
-               class="form-control"
-               required="true"
-               data-parsley-type="number"
-               data-parsley-max="{{:evaluacionPlan.pesoTotal}}"/>
-        (de {{:evaluacionPlan.pesoTotal}}%)
+            <input value="{{:pesoEvaluacion}}"
+                   rel="{{:evaPlanId}}"
+                   name="{{:classArg}}"
+                   class="form-control"
+                   required="true"
+                   data-parsley-type="number"
+                   data-parsley-max="{{:evaluacionPlan.pesoTotal}}"/>
+            (de {{:evaluacionPlan.pesoTotal}}%)
         {{/if}}
 
         {{if editarPorcentaje==false}}
-        <div>
-            <span class="block" >{{:pesoEvaluacion}}%</span>
-
-        </div>
+            <div><span class="block" >{{:pesoEvaluacion}}%</span></div>
         {{/if}}
-        {{if esPadre==true}}  
-        (de {{:evaluacionPlan.pesoTotal}}%)
+        
+        <!--
+        {{if esHijo}}  
+            (de {{:evaluacionPlan.pesoTotal}}%)
         {{/if}}
+        -->
 
     </td>
     <td class="v-middle text-center">
-        {{if permiteAsign==false}}
-        {{:tipoSeccion}}
+        
+        {{if permiteAsign}}
+            {{if desagregado==false}}
+            <select class="select2 cboTipoSecEval input-s-md" rel="{{:evaPlanId}}" >
+                {{for tipoSeccionesEval}}
+                    {{if #data.selected==true}}
+                        <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+                    {{/if}}
+                    {{if #data.selected==false}}
+                        <option  value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+                    {{/if}}
+                {{/for}}
+            </select>
+            {{/if}}
+        {{else}}
+            {{:tipoSeccion}}
         {{/if}}
-        {{if permiteAsign==true}}
-        {{if desagregado==false}}
 
-        <select class="select2 cboTipoSecEval input-s-md"
-                rel="{{:evaPlanId}}" 
-                >
-            {{for tipoSeccionesEval}}
-            {{if #data.selected==true}}
-            <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
+    </td>
+    <td class="text-center v-middle">
+        {{if esPadre==false}}
+            {{if conNotas}}
+                <span class="label label-danger">Con notas</span>
+            {{else}}
+                <span class="label label-default">Sin notas</span>
             {{/if}}
-            {{if #data.selected==false}}
-            <option  value="{{:#data.codigo}}">{{:#data.nombre}}</option>
-            {{/if}}
-            {{/for}}
-            {{/if}}
-            {{/if}}
-        </select>
-
+        {{/if}}
     </td>
     <td class="v-middle">
         {{:docentes}}
     </td>
 
-    {{if permiteAsign==true}}
+    
     <td class="v-middle text-center">
-        {{if desagregado==false}}
-        <a href="#"  rel="{{:evaPlanId}}" 
-           class="btn btn-default asignar-docente"><i class="fa fa-user text-success"></i></a>
+        {{if permiteAsign==true}}
+            {{if desagregado==false}}
+                <a href="#" rel="{{:evaPlanId}}" class="btn btn-default asignar-docente"><i class="fa fa-user text-success"></i></a>
+            {{/if}}
         {{/if}}
     </td>
     <td class="v-middle text-center">
-        {{if esHijo==false}}
-        {{if notasIngresadas==false}}
-        <a href="#"  rel="{{:evaPlanId}}" 
-           class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-success"></i></a>
-        {{/if}}
-        {{/if}}
-        {{if esHijo==true}}
-        <!--
-        <a href="#" rel="{{:evaPlanId}}"  class="btn btn-default delete-expansion"><i class="fa fa-times text-danger"></i></a> -->
+        {{if permiteAsign==true}}
+            {{if esHijo==false}}
+                {{if notasIngresadas==false}}
+                <a href="#"  rel="{{:evaPlanId}}" class="btn btn-default expandir-evaluacion"><i class="fa fa-expand text-success"></i></a>
+                {{/if}}
+            {{/if}}
+            
+            {{if esHijo==true}}
+                <!-- <a href="#" rel="{{:evaPlanId}}"  class="btn btn-default delete-expansion"><i class="fa fa-times text-danger"></i></a> -->
+            {{/if}}
         {{/if}}
     </td>
-    {{/if}}
+    
 
 </tr>

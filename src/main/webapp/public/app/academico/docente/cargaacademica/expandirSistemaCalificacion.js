@@ -30,9 +30,9 @@ $(function () {
         var docentes = "";
         if (!record.esPadre) {
             $.each(record.evaluadores, function (i, item) {
-                docentes += '<span class="block">';
+                docentes += '<span class="block m-b-xxs">';
                 docentes += '<span class="label label-' + (item.docente == "" ? "danger" : "success") + '">' + item.seccion + '</span> ';
-                docentes += '<small>' + item.docente + '</small>';
+                docentes += '<small>&nbsp;&nbsp;' + item.docente + '</small>';
                 docentes += '</span>';
             });
         }
@@ -56,7 +56,8 @@ $(function () {
             });
 
             $("#btnAceptarExpandir").css("display", "none");
-        }, expandirEvaluacion: function ($this, e) {
+        },
+        expandirEvaluacion: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
@@ -75,11 +76,26 @@ $(function () {
                 },
                 success: function (response) {
                     MODAL.body(response);
+                    $(".item-select2").select2();
+                    $(".item-select2").each(function () {
+                        $(this).removeClass("item-select2");
+                    });
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        reindexNameForm: function (val, idx, pos) {
+            pos = typeof pos !== 'undefined' ? pos : 1;
+            var nom = val;
+            var ini = nom.indexOf("[");
+            for (var i = 0; i < pos - 1; i++) {
+                ini = nom.indexOf("[", ini + 1);
+            }
+            var fin = nom.indexOf("]", ini);
+            nom = nom.substring(0, ini + 1) + idx + nom.substring(fin, nom.length);
+            return nom;
         },
         asignarDocente: function ($this, e) {
             e.preventDefault();
@@ -179,15 +195,25 @@ $(function () {
                     }
                 }
             });
-        }, saveExpandir: function () {
+        },
+        saveExpandir: function () {
 
             var form = $("#frmExpandirEvals");
-
             form.parsley().destroy();
             form.parsley();
             if (!form.parsley().validate()) {
                 return;
             }
+
+            $('#tbodyEvaluaciones tr').each(function (i, tr) {
+                var tr = $(this);
+                tr.find("input, select, textarea").each(function (idx) {
+                    var nameInp = $(this).attr("name");
+                    if (typeof nameInp !== "undefined") {
+                        $(this).attr("name", ExpandirSCN.reindexNameForm(nameInp, i));
+                    }
+                });
+            });
 
             bootbox.confirm({
                 message: "¿Está seguro que desea expandir?",
@@ -221,7 +247,8 @@ $(function () {
                     }
                 }
             });
-        }, aceptarAsignacion: function () {
+        },
+        aceptarAsignacion: function () {
 
             var form = $("#frmAsignarDocente");
 
@@ -262,8 +289,8 @@ $(function () {
                     }
                 }
             });
-        }
-        , aceptarExpansion: function (el) {
+        },
+        aceptarExpansion: function (el) {
             bootbox.confirm({
                 message: MESSAGES.confirmAccept,
                 title: 'Aceptar Expansión',
@@ -297,8 +324,8 @@ $(function () {
                     }
                 }
             });
-        }
-        , cambiarTipoSecEval: function ($this) {
+        },
+        cambiarTipoSecEval: function ($this) {
             bootbox.confirm({
                 message: MESSAGES.confirmAccept,
                 title: 'Aceptar Cambio Seccion',

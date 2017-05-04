@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import java.util.Map;
 import pe.albatross.zelpers.dao.Crud;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;

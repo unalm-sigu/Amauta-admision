@@ -18,6 +18,10 @@ public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     List<DocenteSeccion> allBySeccion(Seccion seccion);
 
+    List<DocenteSeccion> allPersonasActivasBySeccion(Seccion seccionResponsable);
+
+    List<DocenteSeccion> allPersonasActivasBySecciones(List<Seccion> secciones);
+
     List<DocenteSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion);
 
     DocenteSeccion findByFilter(Docente docente, Seccion seccion);

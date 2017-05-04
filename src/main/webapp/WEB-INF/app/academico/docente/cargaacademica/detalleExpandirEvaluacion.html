@@ -10,9 +10,10 @@
     <table class="table table-striped">
         <thead>
             <tr class=""> 
-                <th class="col-md-6">Tipo de evaluación</th>
-                <th class="col-md-3">Número de Evaluación</th>
-                <th class="col-md-3">Peso Total: <span th:text="${evaluacion.peso}">5%</span></th>
+                <th class="col-md-5 text-center v-middle">Tipo de evaluación</th>
+                <th class="col-md-2 text-center v-middle">Número de Evaluación</th>
+                <th class="col-md-2 text-center v-middle">Existen notas</th>
+                <th class="col-md-3 text-center v-middle">Peso Total: <span th:text="${evaluacion.peso}">5%</span></th>
                 <th></th>
             </tr>
         </thead>
@@ -21,8 +22,7 @@
             <tr  th:each="eval,iterStat : ${evaluaciones}">
                 <td  class="v-middle">
                     <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].id'}" 
-                           th:value="${eval.id}" type="hidden"
-                           />
+                           th:value="${eval.id}" type="hidden"  />
 
                     <select th:name="${'evaluacionesExpandidas['+iterStat.index +'].tipoEvaluacion.id'}" 
                             class="form-control item-select2"
@@ -41,6 +41,10 @@
                            th:value="${eval.numero}" 
                            required="true"/>
                 </td>
+                <td class="v-middle text-center">
+                    <span class="label label-danger" th:if="${isNotasIngresadas}">Con notas</span>
+                    <span class="label label-default" th:unless="${isNotasIngresadas}">Sin notas</span>
+                </td>
                 <td  class="v-middle text-center">
                     <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
                            th:value="${eval.peso}"
@@ -55,9 +59,8 @@
                            th:value="${eval.peso}" type="hidden"/>
                 </td>
                 <td class="text-center">
-                    <a href="#" 
-                       class="btn btn-default delete-tipo-evaluacion"
-                       th:if="${!eval.notasIngresadas}">
+                    <a href="#" class="btn btn-default delete-tipo-evaluacion"
+                       th:unless="${eval.notasIngresadas}">
                         <i class="fa fa-times text-danger"></i>
                     </a>
                 </td>
@@ -78,6 +81,7 @@
                            type="text"
                            required="true"/>
                 </td>
+                <td class="v-middle text-center"><span class="label label-default">Sin notas</span></td>
                 <td  class="v-middle">
                     <input name="evaluacionesExpandidas[0].peso" 
                            class="form-control"

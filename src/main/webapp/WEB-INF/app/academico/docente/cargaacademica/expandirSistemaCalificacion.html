@@ -32,13 +32,13 @@
                             <tr class=""> 
 
                                 <th class="col-md-4">Evaluación</th>
+                                <th class="col-md-1 text-center v-middle">Peso</th>
+                                <th class="col-md-2 text-center v-middle">Docente</th>
+                                <th class="col-md-1 text-center v-middle">Existen notas</th>
+                                <th class="col-md-4 v-middle">Docente Responsable</th>
 
-
-                                <th class="col-md-2 text-center">Peso</th>
-                                <th class="col-md-2 text-center">Docente</th>
-                                <th class="col-md-4">Docente Responsable</th>
-                                <th th:if="${permiteAsignar}" class="text-center col-md-1">Asign Docente</th>
-                                <th th:if="${permiteAsignar}" class="text-center col-md-1">Expandir</th>
+                                <th class="text-center v-middle"><span th:if="${permiteAsignar}">Asignar Docente</span></th>
+                                <th class="text-center v-middle"><span th:if="${permiteAsignar}">Expandir</span></th>
                             </tr>
                         </thead>
                         <tbody>

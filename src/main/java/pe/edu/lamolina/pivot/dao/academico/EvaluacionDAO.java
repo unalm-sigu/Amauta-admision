@@ -28,4 +28,6 @@ public interface EvaluacionDAO extends Crud<Evaluacion> {
 
     List<Evaluacion> allByEvaluacionesExpandidas(List<EvaluacionExpandida> evaluacionesExp);
 
+    List<Evaluacion> allByEvaluacionExpandidaSecciones(EvaluacionExpandida evaluacion, List<Seccion> secciones);
+
 }

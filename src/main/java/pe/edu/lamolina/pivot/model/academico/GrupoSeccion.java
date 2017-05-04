@@ -51,8 +51,9 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "estado")
     private String estado;
 
-    @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
-    private List<Seccion> secciones;
+    @Column(name = "fecha_cierre_acta")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaCierreActa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ciclo")
@@ -66,19 +67,18 @@ public class GrupoSeccion implements Serializable {
     @JoinColumn(name = "id_plan_calificacion")
     private PlanCalificacion planCalificacion;
 
-    @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
-    private List<EvaluacionSeccion> evaluacionSecciones;
-
-    @Transient
-    private String codigoCurso;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user_cierre_acta")
     private Usuario usuarioCierraActa;
 
-    @Column(name = "fecha_cierre_acta")
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date fechaCierreActa;
+    @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
+    private List<EvaluacionSeccion> evaluacionSecciones;
+
+    @OneToMany(mappedBy = "grupoSeccion", fetch = FetchType.LAZY)
+    private List<Seccion> secciones;
+
+    @Transient
+    private String codigoCurso;
 
     public GrupoSeccion() {
     }

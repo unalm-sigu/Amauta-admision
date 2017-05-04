@@ -10,6 +10,8 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
@@ -80,6 +82,16 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
                 .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
                 .filter("ca.id", ciclo);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
+                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
+                .parents("left _s.aula", "left _s.grupoHoras")
+                .filter("s.estado", EstadoEnum.ACT.name())
+                .filterIn("gs.id", gruposSeccion);
         return all(sqlUtil);
     }
 

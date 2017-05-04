@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -64,14 +65,13 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
-import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoPlanCalificacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
+import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -142,8 +142,41 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
             logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
         }
-        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico, null, null);
+
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
+        gruposSeccion.forEach((grupoSeccion) -> {
+            grupoSeccion.setSecciones(new ArrayList());
+        });
+        Map<Long, GrupoSeccion> mapGposSeccion = MapUtil.storeItems("id", gruposSeccion);
+
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gruposSeccion);
+        Map<Long, Seccion> mapSecciones = MapUtil.storeItems("id", secciones);
+        for (Seccion seccion : secciones) {
+            seccion.setDocenteSeccion(new ArrayList());
+            GrupoSeccion gpoSecc = mapGposSeccion.get(seccion.getGrupoSeccion().getId());
+            seccion.setGrupoSeccion(gpoSecc);
+            gpoSecc.getSecciones().add(seccion);
+        }
+
+        for (DocenteSeccion profeSecc : docentesSecciones) {
+            Seccion secc = mapSecciones.get(profeSecc.getSeccion().getId());
+            if (secc == null) {
+                continue;
+            }
+            profeSecc.setSeccion(secc);
+            secc.getDocenteSeccion().add(profeSecc);
+        }
+
+        for (GrupoSeccion gpoSecc : gruposSeccion) {
+            List<Seccion> seccion = gpoSecc.getSecciones();
+            logger.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
+            for (Seccion secc : seccion) {
+                List<DocenteSeccion> docSeccs = secc.getDocenteSeccion();
+                logger.debug("\tSeccion {}-{} hay {} docentes", secc.getCodigo(), secc.getCodigo2(), docSeccs.size());
+            }
+        }
+
         return gruposSeccion;
     }
 
@@ -320,140 +353,185 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void saveExpansionEvaluacion(EvaluacionExpandida evaluacion, DataSessionPivot ds) {
-        logger.debug("La evaluacion expandida padre es {}", evaluacion.getId());
+    public void saveExpansionEvaluacion(EvaluacionExpandida evaluacionForm, DataSessionPivot ds) {
+        EvaluacionExpandida evaluacionPadreBD = evaluacionExpandidaDAO.find(evaluacionForm.getId());
+        EvaluacionSeccion evaluacionSeccion = evaluacionPadreBD.getEvaluacionSeccion();
+        validarEvaluacionesExpandidas(evaluacionForm, evaluacionPadreBD);
 
-        EvaluacionExpandida evaluacionPadre = evaluacionExpandidaDAO.find(evaluacion.getId());
-        logger.debug("Evaluacion Exp {}, Cantidad de Hijos {}", evaluacionPadre.getId(), evaluacionPadre.getEvaluacionesExpandidas().size());
+        List<EvaluacionExpandida> evaluacionesHijasForm = evaluacionForm.getEvaluacionesExpandidas();
+        List<EvaluacionExpandida> evaluacionesHijasBD = evaluacionPadreBD.getEvaluacionesExpandidas();
+        Map<Long, EvaluacionExpandida> mapEvaluaciones = MapUtil.storeItems("id", evaluacionesHijasBD);
 
-        evaluacionPadre.setEstaDesagregado(BigDecimal.ONE.intValue());
-        evaluacionPadre.setFechaDesagregar(new Date());
-        evaluacionPadre.setUsuarioDesagregar(ds.getUsuario());
-
-        BigDecimal newPesoTotal = BigDecimal.ZERO;
-
-        for (EvaluacionExpandida evaChilds : evaluacionPadre.getEvaluacionesExpandidas()) {
-            if (!evaChilds.isNotasIngresadas()) {
-                evaluacionDAO.deleteByEvaluacionExpandida(evaChilds.getId());
-            }
+        if (evaluacionesHijasForm.isEmpty()) {
+            evaluacionPadreBD.setEstaDesagregado(BigDecimal.ZERO.intValue());
+            evaluacionPadreBD.setFechaDesagregar(null);
+            evaluacionPadreBD.setUsuarioDesagregar(null);
+        } else {
+            evaluacionPadreBD.setEstaDesagregado(BigDecimal.ONE.intValue());
+            evaluacionPadreBD.setFechaDesagregar(new Date());
+            evaluacionPadreBD.setUsuarioDesagregar(ds.getUsuario());
         }
-        evaluacionExpandidaDAO.deleteByEvaluacionParent(evaluacionPadre.getId());
 
-        //Evaluaciones que actualmente se expanderan
-        for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluacionesExpandidas()) {
-            newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
-        }
-        logger.debug("new peso total {}, eva padre peso {}", newPesoTotal, evaluacionPadre.getPeso());
-        if (newPesoTotal.compareTo(evaluacionPadre.getPeso()) != 0) {
-            throw new PhobosException("El peso de las evaluaciones expandidas debe ser igual al peso de la evaluacion padre, verifique ");
-        }
-        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.find(evaluacion.getEvaluacionSeccion().getId());
-
-        List<Seccion> secciones = seccionDAO.allByFilter(evaluacionSeccion.getGrupoSeccion().getId());
-        logger.debug("la cantidad de secciones para el grupo {}, es {}", evaluacionSeccion.getGrupoSeccion().getId(), secciones.size());
-
-        //  int numero = 1;
-        //  StringBuilder strb = new StringBuilder();
-        for (EvaluacionExpandida evaluacionHija : evaluacion.getEvaluacionesExpandidas()) {
-            if (evaluacionHija.isNotasIngresadas()) {
-                logger.debug("Evaluacion {}, tiene notas ingresadas", evaluacionHija.getId());
+        for (EvaluacionExpandida eval : evaluacionesHijasForm) {
+            if (eval.getId() == null) {
                 continue;
             }
-            /*
-            StringBuilder strbFilter = new StringBuilder();
-            strbFilter.append(",").append(evaluacionHija.getTipoEvaluacion().getId()).append(",");
-             */
- /*
-            if (strb.toString().contains(strbFilter.toString())) {
-                throw new PhobosException("Las evaluaciones no se pueden repetir, verifique.");
+            if (existeEvaluacion(eval, evaluacionesHijasBD)) {
+                continue;
             }
-             */
-            //    if (evaluacionHija.getId() == null) {
-            evaluacionHija.setId(null);
-            evaluacionHija.setAlumnoEvaluacion(null);
-            evaluacionHija.setEstaDesagregado(BigDecimal.ZERO.intValue());
-            evaluacionHija.setEvaluacionSeccion(evaluacionPadre.getEvaluacionSeccion());
-            evaluacionHija.setEvaluacionSuperior(evaluacionPadre);
-            evaluacionHija.setEvaluacionesExpandidas(null);
-            evaluacionHija.setEvaluados(BigDecimal.ZERO.intValue());
-            evaluacionHija.setExtemporaneos(BigDecimal.ZERO.intValue());
-            evaluacionHija.setFechaDesagregar(null);
-            evaluacionHija.setPeso(evaluacionHija.getPeso());
-            evaluacionHija.setTipoEvaluacion(evaluacionHija.getTipoEvaluacion());
-            evaluacionHija.setTipoSeccion(evaluacionPadre.getTipoSeccion());
-            evaluacionHija.setUsuarioDesagregar(null);
-            //  evaluacionHija.setNumero(numero);
-            evaluacionHija.getEvaluacionSeccion().getGrupoSeccion();
-            evaluacionHija.setIndPorcentajeVariable(evaluacionPadre.getIndPorcentajeVariable());
-
-            Date today = new Date();
-            evaluacionHija.setEvaluaciones(new ArrayList<>());
-            for (Seccion seccionEach : secciones) {
-                Evaluacion evalPadreBySeccion = evaluacionDAO.findByEvalExpSeccion(evaluacionPadre.getId(), seccionEach.getId());
-
-                if (evalPadreBySeccion != null) {
-                    if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-                            evaluacionHija.getTipoSeccionEnum())) {
-                        if (!evalPadreBySeccion.isDesagregado()) {
-                            evalPadreBySeccion.setEstaDesagregado(BigDecimal.ONE.intValue());
-                            evalPadreBySeccion.setUsuarioDesagregar(ds.getUsuario());
-                            evalPadreBySeccion.setFechaDesagregar(today);
-                            evaluacionDAO.update(evalPadreBySeccion);
-                        }
-                        Evaluacion evaluacionChild = new Evaluacion();
-                        evaluacionChild.create(evaluacionSeccion, seccionEach, evaluacionHija);
-                        evaluacionChild.setEvaluacionSuperior(evalPadreBySeccion);
-                        evaluacionChild.setEstaDesagregado(BigDecimal.ZERO.intValue());
-                        evaluacionHija.getEvaluaciones().add(evaluacionChild);
-
-                    }
-                }
+            EvaluacionExpandida evalBD = mapEvaluaciones.get(eval.getId());
+            if (evalBD == null) {
+                throw new PhobosException("Está intentando modificar una modalidad de evaluación inexistente");
             }
-            if (evaluacionHija.getEvaluaciones().isEmpty()) {
-                evaluacionHija.setEvaluaciones(null);
+            if (evalBD.isNotasIngresadas()) {
+                throw new PhobosException("Está intentando modificar una modalidad de evaluación que contiene notas");
             }
 
-            //  numero++;
-            evaluacionExpandidaDAO.save(evaluacionHija);
-
-            /*   } else {
-                EvaluacionExpandida evalExpandidaHija = evaluacionExpandidaDAO.find(evaluacionHija.getId());
-                evalExpandidaHija.setTipoEvaluacion(evaluacionHija.getTipoEvaluacion());
-                evalExpandidaHija.setPeso(evaluacionHija.getPeso());
-                evaluacionExpandidaDAO.update(evaluacionHija);
-
-            }*/
- /*
-            strb.append(",");
-            strb.append(evaluacionHija.getTipoEvaluacion().getId());
-            strb.append(",");*/
+            evaluacionDAO.deleteByEvaluacionExpandida(evalBD.getId());
+            evaluacionExpandidaDAO.delete(evalBD);
+            evaluacionesHijasBD.remove(evalBD);
+            eval.setId(null);
         }
-        /*
-        logger.debug("222222222222222222222222222");
-        EvaluacionExpandida evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionPadre.getId());
-        logger.debug("Evaluacion Exp {}, Cantidad de Hijos {}", evaluacionPadre.getId(), evaluacionExpandida.getEvaluacionesExpandidas().size());
 
-        for (Seccion seccionEach : secciones) {
-
-            Evaluacion evalPadreBySeccion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
-            if (evalPadreBySeccion != null) {
-
-                if (evaluacion.getEvaluacionesExpandidas() != null && !evaluacion.getEvaluacionesExpandidas().isEmpty()) {
-                    for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluacionesExpandidas()) {
-                        logger.debug("222");
-                        Evaluacion evaluacionChild = new Evaluacion();
-                        evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
-                        evaluacionChild.setEvaluacionSuperior(evalPadreBySeccion);
-                        evaluacionChild.setEstaDesagregado(BigDecimal.ZERO.intValue());
-                        evaluacionDAO.save(evaluacionChild);
-                        logger.debug("333");
-                    }
-                }
+        List<EvaluacionExpandida> eliminados = new ArrayList();
+        for (EvaluacionExpandida eval : evaluacionesHijasBD) {
+            if (existeEvaluacion(eval, evaluacionesHijasForm)) {
+                continue;
+            }
+            if (eval.isNotasIngresadas()) {
+                throw new PhobosException("Está intentando modificar una modalidad de evaluación que contiene notas");
             }
 
+            evaluacionDAO.deleteByEvaluacionExpandida(eval.getId());
+            evaluacionExpandidaDAO.delete(eval);
+            eliminados.add(eval);
         }
-         */
-        evaluacionExpandidaDAO.update(evaluacionPadre);
+
+        for (EvaluacionExpandida eliminado : eliminados) {
+            evaluacionesHijasBD.remove(eliminado);
+        }
+
+        Date today = new Date();
+        List<Seccion> secciones = seccionDAO.allByFilter(evaluacionSeccion.getGrupoSeccion().getId());
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allPersonasActivasBySecciones(secciones);
+        Map<Long, List<DocenteSeccion>> mapDocentesSeccion = MapUtil.storeLists("seccion.id", docentesSecciones);
+
+        List<Evaluacion> evaluacionesSuperiores = evaluacionDAO.allByEvaluacionExpandidaSecciones(evaluacionPadreBD, secciones);
+        Map<String, Evaluacion> mapEvaluacionPadre = new LinkedHashMap();
+        for (Evaluacion evalSuperior : evaluacionesSuperiores) {
+            Seccion seccion = evalSuperior.getSeccionResponsable();
+            EvaluacionExpandida evalSup = evalSuperior.getEvaluacionExpandida();
+            mapEvaluacionPadre.put(seccion.getId() + "-" + evalSup.getId(), evalSuperior);
+        }
+
+        if (evaluacionesHijasForm.isEmpty()) {
+            evaluacionExpandidaDAO.update(evaluacionPadreBD);
+            return;
+        }
+
+        for (EvaluacionExpandida evalForm : evaluacionesHijasForm) {
+            if (evalForm.getId() != null) {
+                continue;
+            }
+
+            evalForm.setEstaDesagregado(BigDecimal.ZERO.intValue());
+            evalForm.setEvaluacionSeccion(evaluacionPadreBD.getEvaluacionSeccion());
+            evalForm.setEvaluacionSuperior(evaluacionPadreBD);
+            evalForm.setEvaluados(BigDecimal.ZERO.intValue());
+            evalForm.setExtemporaneos(BigDecimal.ZERO.intValue());
+            evalForm.setTipoSeccion(evaluacionPadreBD.getTipoSeccion());
+            evalForm.setIndPorcentajeVariable(evaluacionPadreBD.getIndPorcentajeVariable());
+
+            evalForm.setEvaluaciones(new ArrayList());
+            for (Seccion seccion : secciones) {
+                if (seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum() != evalForm.getTipoSeccionEnum()) {
+                    continue;
+                }
+
+                Evaluacion evalPadre = mapEvaluacionPadre.get(seccion.getId() + "-" + evaluacionPadreBD.getId());
+                if (evalPadre == null) {
+                    continue;
+                }
+                if (!evalPadre.isDesagregado()) {
+                    evalPadre.setEstaDesagregado(BigDecimal.ONE.intValue());
+                    evalPadre.setUsuarioDesagregar(ds.getUsuario());
+                    evalPadre.setFechaDesagregar(today);
+                }
+
+                Evaluacion eval = new Evaluacion();
+                eval.create(evaluacionSeccion, seccion, evalForm);
+                eval.setEvaluacionSuperior(evalPadre);
+                eval.setEstaDesagregado(BigDecimal.ZERO.intValue());
+                evalForm.getEvaluaciones().add(eval);
+
+                List<DocenteSeccion> docentesSecc = mapDocentesSeccion.get(seccion.getId());
+                if (docentesSecc != null && docentesSecc.size() == 1) {
+                    Docente profe = docentesSecc.get(0).getDocente();
+                    eval.setDocenteEvaluador(profe);
+                }
+                evaluacionDAO.save(eval);
+            }
+
+            if (evalForm.getEvaluaciones().isEmpty()) {
+                evalForm.setEvaluaciones(null);
+            }
+            evaluacionExpandidaDAO.save(evalForm);
+
+        }
+
+        for (Evaluacion evalSuperior : evaluacionesSuperiores) {
+            evaluacionDAO.update(evalSuperior);
+        }
+        evaluacionExpandidaDAO.update(evaluacionPadreBD);
+    }
+
+    private void validarEvaluacionesExpandidas(EvaluacionExpandida evaluacionForm, EvaluacionExpandida evaluacionPadreBD) {
+        List<EvaluacionExpandida> evaluacionesHijasForm = evaluacionForm.getEvaluacionesExpandidas();
+
+        if (evaluacionesHijasForm == null) {
+            evaluacionesHijasForm = new ArrayList();
+            evaluacionForm.setEvaluacionesExpandidas(evaluacionesHijasForm);
+        }
+
+        List<EvaluacionExpandida> evaluacionesHijasBD = evaluacionPadreBD.getEvaluacionesExpandidas();
+        if (evaluacionesHijasForm.size() == evaluacionesHijasBD.size() && evaluacionesHijasForm.isEmpty()) {
+            throw new PhobosException("No ha ingresado las evaluaciones disgregadas ");
+        }
+
+        boolean isOkEvaluacionesBD = true;
+        for (EvaluacionExpandida evalExp : evaluacionesHijasBD) {
+            if (!existeEvaluacion(evalExp, evaluacionesHijasForm)) {
+                isOkEvaluacionesBD = false;
+            }
+        }
+
+        boolean isOkEvaluacionesForm = true;
+        for (EvaluacionExpandida evalExp : evaluacionesHijasForm) {
+            if (!existeEvaluacion(evalExp, evaluacionesHijasBD)) {
+                isOkEvaluacionesForm = false;
+            }
+        }
+
+        if (isOkEvaluacionesBD && isOkEvaluacionesForm) {
+            throw new PhobosException("No ha ingresado ningún cambio");
+        }
+
+        BigDecimal newPesoTotal = BigDecimal.ZERO;
+        for (EvaluacionExpandida evaluacionHija : evaluacionesHijasForm) {
+            newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
+        }
+        if (newPesoTotal.compareTo(evaluacionPadreBD.getPeso()) != 0 && !evaluacionesHijasForm.isEmpty()) {
+            throw new PhobosException("El peso de las evaluaciones expandidas debe ser igual al peso de la evaluacion padre, verifique ");
+        }
+    }
+
+    private boolean existeEvaluacion(EvaluacionExpandida evaluacion, List<EvaluacionExpandida> evaluaciones) {
+        for (EvaluacionExpandida eval : evaluaciones) {
+            if (ObjectUtil.verificarIgualdad(evaluacion, eval, Arrays.asList("id", "peso", "numero", "tipoEvaluacion.id"))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -735,6 +813,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                             evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
                             evaluacionChild.setEvaluacionSuperior(evaluacion);
                             evaluacion.getEvaluaciones().add(evaluacionChild);
+                        }
+                    }
+                    if (evaluacion.getDocenteEvaluador() == null) {
+                        List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySeccion(evaluacion.getSeccionResponsable());
+                        if (docentesSecc.size() == 1) {
+                            Docente profe = docentesSecc.get(0).getDocente();
+                            evaluacion.setDocenteEvaluador(profe);
                         }
                     }
                     evaluacionDAO.save(evaluacion);
@@ -1351,7 +1436,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
+    @Transactional
     public void saveEvaluacion(Evaluacion evaluacion) {
+        if (evaluacion.getDocenteEvaluador() == null) {
+            List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySeccion(evaluacion.getSeccionResponsable());
+            if (docentesSecc.size() == 1) {
+                Docente profe = docentesSecc.get(0).getDocente();
+                evaluacion.setDocenteEvaluador(profe);
+            }
+        }
         evaluacionDAO.save(evaluacion);
     }
 
@@ -1424,6 +1517,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         List<Curso> cursos = cursoDAO.allByPlan(plan);
         for (Curso curso : cursos) {
             curso.setPlanCalificacion(null);
+            cursoDAO.update(curso);
+        }
+
+        cursos = cursoDAO.allByPlanRegular(plan);
+        for (Curso curso : cursos) {
+            curso.setPlanCalificacionRegular(null);
             cursoDAO.update(curso);
         }
 
