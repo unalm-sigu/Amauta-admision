@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -61,7 +59,6 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
-import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -284,7 +281,7 @@ public class ProgDataServiceImp implements ProgDataService {
             DepartamentoAcademico dpto = mapDptos.get(docente.getCodigoDepartamento());
             profeBD = new Docente();
             profeBD.setCodigo(docente.getCodigo());
-            profeBD.setEstado(EstadoEnum.ACT.name());
+            profeBD.setEstadoEnum(EstadoEnum.ACT);
             profeBD.setDepartamentoAcademico(dpto);
             profeBD.setModalidadEstudio(modalidad);
             profeBD.setPersona(persona);
@@ -293,7 +290,7 @@ public class ProgDataServiceImp implements ProgDataService {
             docenteDAO.save(profeBD);
 
         } else if (!profeBD.getEstado().equals(EstadoEnum.ACT.name())) {
-            profeBD.setEstado(EstadoEnum.ACT.name());
+            profeBD.setEstadoEnum(EstadoEnum.ACT);
             profeBD.setFechaModifica(new Date());
             profeBD.setUserModifica(ds.getUsuario());
             docenteDAO.update(profeBD);
@@ -308,7 +305,7 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Docente docente : docentesActivos) {
             Docente profe = mapDocentes.get(docente.getCodigo());
             if (profe == null) {
-                docente.setEstado(EstadoEnum.INA.name());
+                docente.setEstadoEnum(EstadoEnum.INA);
                 docente.setFechaModifica(new Date());
                 docente.setUserModifica(ds.getUsuario());
                 docenteDAO.update(docente);
@@ -702,6 +699,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (seccionBD == null) {
                 seccionBD = new Seccion();
                 seccionBD.setCodigo(seccion.getCodigo());
+                seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setGrupoSeccion(gpoSecc);
                 seccionBD.setMatriculados(0);
                 seccionBD.setRetirados(0);
@@ -723,6 +721,7 @@ public class ProgDataServiceImp implements ProgDataService {
             } else {
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
+                seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 seccionDAO.update(seccionBD);
             }

@@ -73,7 +73,7 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
     @Override
     public PlanCalificacion find(Long idPlanCalificacion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pc");
-        sqlUtil.parents("sistemaNotas sn", "departamentoAcademico da", "evaluacionPlan ep");
+        sqlUtil.parents("sistemaNotas sn", "departamentoAcademico da", "left evaluacionPlan ep");
         sqlUtil.filter("pc.id", idPlanCalificacion);
 
         PlanCalificacion result = find(sqlUtil);

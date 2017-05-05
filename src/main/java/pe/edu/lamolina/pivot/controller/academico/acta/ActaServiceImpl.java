@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.acta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

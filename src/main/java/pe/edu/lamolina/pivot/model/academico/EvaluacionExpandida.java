@@ -70,6 +70,10 @@ public class EvaluacionExpandida implements Serializable {
     @Column(name = " ind_notas_ingresadas")
     private Integer indNotasIngresadas;
 
+    @NotNull
+    @Column(name = "ind_porcentaje_variable")
+    private Integer indPorcentajeVariable;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_evaluacion_seccion")
     private EvaluacionSeccion evaluacionSeccion;
@@ -82,10 +86,9 @@ public class EvaluacionExpandida implements Serializable {
     @JoinColumn(name = "id_evaluacion_superior")
     private EvaluacionExpandida evaluacionSuperior;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_seccion_responsable")
-    private Seccion seccionResponsable;
-
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "id_seccion_responsable")
+//    private Seccion seccionResponsable;
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<AlumnoEvaluacion> alumnoEvaluacion;
 
@@ -98,12 +101,8 @@ public class EvaluacionExpandida implements Serializable {
     @OneToMany(mappedBy = "evaluacion", fetch = FetchType.LAZY)
     private List<ReclamoNota> reclamoNota;
 
-    @Column(name = "ind_porcentaje_variable")
-    @NotNull
-    private Integer indPorcentajeVariable;
-
     public EvaluacionExpandida() {
-        this.setIndNotasIngresadas(BigDecimal.ZERO.intValue());
+        this.indNotasIngresadas = BigDecimal.ZERO.intValue();
     }
 
     public EvaluacionExpandida(Object id) {
@@ -182,14 +181,13 @@ public class EvaluacionExpandida implements Serializable {
         this.tipoSeccion = tipoSeccion;
     }
 
-    public Seccion getSeccionResponsable() {
-        return seccionResponsable;
-    }
-
-    public void setSeccionResponsable(Seccion seccionResponsable) {
-        this.seccionResponsable = seccionResponsable;
-    }
-
+//    public Seccion getSeccionResponsable() {
+//        return seccionResponsable;
+//    }
+//
+//    public void setSeccionResponsable(Seccion seccionResponsable) {
+//        this.seccionResponsable = seccionResponsable;
+//    }
     public Date getFechaProgramada() {
         return fechaProgramada;
     }

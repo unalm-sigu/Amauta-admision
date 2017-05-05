@@ -31,6 +31,9 @@ public class Seccion implements Serializable {
     @Column(name = "codigo")
     private String codigo;
 
+    @Column(name = "codigo2")
+    private String codigo2;
+
     @Column(name = "tipo_seccion")
     private String tipoSeccion;
 
@@ -107,8 +110,9 @@ public class Seccion implements Serializable {
     public Seccion() {
     }
 
-    public Seccion(String codigo, String codigoGrupoHorario, String codigoAula, String codigoGrupoSeccion, String codigoTipoSeccion) {
+    public Seccion(String codigo, String codigo2, String codigoGrupoHorario, String codigoAula, String codigoGrupoSeccion, String codigoTipoSeccion) {
         this.codigo = codigo;
+        this.codigo2 = codigo2;
         this.codigoGrupoHorario = codigoGrupoHorario;
         this.codigoAula = codigoAula;
         this.codigoGrupoSeccion = codigoGrupoSeccion;
@@ -141,6 +145,14 @@ public class Seccion implements Serializable {
 
     public void setCodigo(String codigo) {
         this.codigo = codigo;
+    }
+
+    public String getCodigo2() {
+        return codigo2;
+    }
+
+    public void setCodigo2(String codigo2) {
+        this.codigo2 = codigo2;
     }
 
     public String getTipoSeccion() {
@@ -355,7 +367,5 @@ public class Seccion implements Serializable {
     public void setEstado(String estado) {
         this.estado = estado;
     }
-    
-    
 
 }

@@ -69,12 +69,13 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
 
     @Override
     public List<DocenteSeccion> allByDocente(Docente docente, DataSessionPivot ds) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc");
-        sqlUtil.parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "left _sec.aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2", "left _sec.grupoHoras gh");
-        sqlUtil.filter("doc.id", docente.getId());
-        sqlUtil.filter("dc.estado", EstadoEnum.ACT.name());
-        sqlUtil.filter("gs.cicloAcademico.id", ds.getCicloAcademico().getId());
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur", "left _sec.aula au", "left _sec.grupoHoras gh")
+                .parents("left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2")
+                .parents("left _doc.persona per", "left _per.tipoDocumento")
+                .filter("doc.id", docente.getId())
+                .filter("dc.estado", EstadoEnum.ACT.name())
+                .filter("gs.cicloAcademico.id", ds.getCicloAcademico().getId());
         /*
         if (ds.getCicloAcademico().isTipoNivelacion()) {
             sqlUtil.filter("pc.tipoCiclo", ds.getCicloAcademico().getTipo());
@@ -96,11 +97,34 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     }
 
     @Override
+    public List<DocenteSeccion> allPersonasActivasBySeccion(Seccion seccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
+                .parents("docente doc", "_doc.persona")
+                .filter("dc.estado", EstadoEnum.ACT.name())
+                .filter("sec.id", seccion);
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allPersonasActivasBySecciones(List<Seccion> secciones) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
+                .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
+                .parents("docente doc", "_doc.persona")
+                .filter("dc.estado", EstadoEnum.ACT.name())
+                .filterIn("sec.id", secciones);
+
+        return this.all(sqlUtil);
+    }
+
+    @Override
     public List<DocenteSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
                 .parents("seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur")
                 .parents("left _cur.planCalificacion pc", "left _gs.planCalificacion pc2")
-                .parents("docente doc", "left _doc.persona dper")
+                .parents("docente doc", "_doc.persona dper")
                 .filter("gs.id", grupoSeccion.getId());
         sqlUtil.orderBy("dper.paterno");
         return this.all(sqlUtil);

@@ -5,6 +5,7 @@ import pe.albatross.zelpers.dao.Crud;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 public interface SeccionDAO extends Crud<Seccion> {
@@ -18,5 +19,7 @@ public interface SeccionDAO extends Crud<Seccion> {
     Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
 
     List<Seccion> allByCiclo(CicloAcademico ciclo);
+
+    List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion);
 
 }

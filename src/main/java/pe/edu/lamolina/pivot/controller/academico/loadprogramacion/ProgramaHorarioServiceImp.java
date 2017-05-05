@@ -87,19 +87,18 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-        //this.savePersonas(personas, ds);
+        this.savePersonas(personas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        //this.saveAlumnos(alumnos, ds);
+        this.saveAlumnos(alumnos, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
-        //Map<String, Docente> mapDocentes = progDataService.loadDataDocentes(docentes, ciclo, ds);
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
@@ -265,22 +264,40 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             progDataService.loadDataMatriculados(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
         }
 
+        long t1 = System.currentTimeMillis();
         int procesadosAntes = -1;
         for (;;) {
+            long t2 = System.currentTimeMillis();
             boolean salir = true;
+            boolean ver = false;
             int procesados = 0;
+            if (ver) {
+                System.out.println("Tenemos un total de " + matriculasSecciones.size() + " elementos");
+            }
             for (MatriculaSeccion matriSecc : matriculasSecciones) {
                 if (matriSecc.getProcesado() == 0) {
                     salir = false;
+                    if (ver) {
+                        System.out.println("\tElemento sin procesar alumno:" + matriSecc.getCodigoAlumno() + " seccion:" + matriSecc.getCodigoSeccion());
+                    }
                 } else {
                     procesados++;
                 }
+            }
+            if (ver) {
+                ver = false;
             }
             if (salir) {
                 break;
             }
             if (procesadosAntes != procesados) {
                 logger.debug("\tloadDataMatriculados procesados {} de {}", procesados, matriculasSecciones.size());
+                t1 = System.currentTimeMillis();
+            } else {
+                if (t2 - t1 > 5000) {
+                    ver = true;
+                    t1 = System.currentTimeMillis();
+                }
             }
             procesadosAntes = procesados;
         }
@@ -542,12 +559,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String aula = getCellValue(4, row);
                 String gclave = getCellValue(5, row);
                 String tclave = getCellValue(6, row);
+                String clave2 = getCellValue(8, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-                Seccion seccion = new Seccion(clave, gpo, aula, gclave, tclave);
+                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave);
                 secciones.add(seccion);
             }
             logger.debug("Se han leido un total de {} secciones", loop);

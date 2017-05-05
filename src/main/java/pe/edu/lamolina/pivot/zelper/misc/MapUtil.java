@@ -20,7 +20,7 @@ public class MapUtil {
     public static Map storeLists(String attr, List items) {
         Map map = new LinkedHashMap();
         for (Object item : items) {
-            Long id = (Long) ObjectUtil.getParentTree(item, attr);
+            Object id = ObjectUtil.getParentTree(item, attr);
             List lista = (List) map.get(id);
             if (lista == null) {
                 lista = new ArrayList();

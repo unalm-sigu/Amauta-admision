@@ -17,6 +17,7 @@ import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Entity
 @Table(name = "aca_docente")
@@ -132,8 +133,15 @@ public class Docente implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public EstadoEnum getEstadoEnum() {
+        if (estado == null) {
+            return null;
+        }
+        return EstadoEnum.valueOf(estado);
+    }
+
+    public void setEstadoEnum(EstadoEnum estado) {
+        this.estado = estado.name();
     }
 
     public List<Curso> getCurso() {

@@ -123,6 +123,14 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
+    public List<Curso> allByPlanRegular(PlanCalificacion plan) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
+                .parents("planCalificacionRegular pc")
+                .filter("pc.id", plan);
+        return all(sqlUtil);
+    }
+
+    @Override
     public List<Curso> allActiveByPlan(PlanCalificacion plan) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
                 .parents("left planCalificacion pc", "left planCalificacionRegular pcr")
