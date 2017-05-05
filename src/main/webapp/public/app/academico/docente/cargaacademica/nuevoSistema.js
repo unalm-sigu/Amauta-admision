@@ -173,7 +173,16 @@ $(function () {
             if (tEval != null && tEval != "") {
                 var tipoEvaluacion = evaluacionCnf[tEval];
 
-                if (formula.indexOf(tipoEvaluacion.codigo) > -1) {
+
+                var rowCount = $('#tblEvaluaciones tr').length - 1;
+                var found = 0;
+                for (i = 0; i < rowCount; i++) {
+                    var tipoEvalEach = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
+                    if (parseInt(tipoEvalEach) == parseInt(tEval)) {
+                        found++;
+                    }
+                }
+                if (found >= 2) {
                     bootbox.alert(
                             {
                                 message: "Seleccione una evaluación distinta.",

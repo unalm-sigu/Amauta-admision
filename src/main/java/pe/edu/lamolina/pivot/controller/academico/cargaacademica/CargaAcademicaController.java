@@ -827,7 +827,7 @@ public class CargaAcademicaController {
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
         model.addAttribute("esDocentePrincipal", esDocentePrincipal);
-        
+
         return "app/academico/docente/cargaacademica/notasAcademicas";
     }
 
@@ -848,7 +848,7 @@ public class CargaAcademicaController {
 
         logger.debug("El docente es {}", ds.getDocente().getId());
         logger.debug("Consultara notas por seccion");
-        
+
         Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
         Curso curso = grupoSeccion.getCurso();
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
