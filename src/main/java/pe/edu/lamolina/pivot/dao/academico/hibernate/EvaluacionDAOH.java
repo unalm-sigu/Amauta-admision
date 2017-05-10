@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -188,6 +189,50 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
                 .filterIn("s.id", secciones);
 
         return all(sqlUtil);
+    }
+
+    @Override
+    public void deleteEvaluacionesByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion) {
+        StringBuilder strbDeleteAlumnoEvaluacion = new StringBuilder(" delete from aca_alumno_evaluacion where id_evaluacion in ( ");
+        strbDeleteAlumnoEvaluacion.append(" select id from aca_evaluacion where id_evaluacion_expandida in ( ");
+        strbDeleteAlumnoEvaluacion.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
+        strbDeleteAlumnoEvaluacion.append("))");
+
+        SQLQuery query = getCurrentSession().createSQLQuery(strbDeleteAlumnoEvaluacion.toString());
+        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
+        query.executeUpdate();
+
+        StringBuilder strbDeleteReclamoNota = new StringBuilder(" delete from aca_reclamo_nota where id_evaluacion in ( ");
+        strbDeleteReclamoNota.append(" Select id from aca_evaluacion where  id_evaluacion_seccion=:prm_evaluacion_seccion ");
+        strbDeleteReclamoNota.append(");");
+
+        query = getCurrentSession().createSQLQuery(strbDeleteReclamoNota.toString());
+        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
+        query.executeUpdate();
+
+        StringBuilder strbDeleteEvaluacionesHijas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
+        strbDeleteEvaluacionesHijas.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
+        strbDeleteEvaluacionesHijas.append(") and id_evaluacion_superior is not null");
+
+        query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesHijas.toString());
+        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
+        query.executeUpdate();
+
+        StringBuilder strbDeleteEvaluacionesPadres = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
+        strbDeleteEvaluacionesPadres.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
+        strbDeleteEvaluacionesPadres.append(")");
+
+        query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesPadres.toString());
+        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
+        query.executeUpdate();
+
+        StringBuilder strbDeleteEvaluacionesExpadidas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in (");
+        strbDeleteEvaluacionesExpadidas.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
+        strbDeleteEvaluacionesExpadidas.append(" )");
+
+        query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesExpadidas.toString());
+        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
+        query.executeUpdate();
     }
 
 }

@@ -29,7 +29,8 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
         filter.setAlias("pc");
         filter.setParents("departamentoAcademico da", "left sistemaNotas sn");//, "left curso cur"
         filter.filterFix("da.id", dpto.getId());
-        filter.filterFix("pc.tipo", TipoPlanCalificacionEnum.PLANT.name());
+
+        filter.filterInFix("pc.tipo", Arrays.asList(TipoPlanCalificacionEnum.PLANT.name(), "0"));
 
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));

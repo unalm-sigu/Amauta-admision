@@ -115,7 +115,7 @@ public class SistemaServiceImp implements SistemaService {
 
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
-        planCalificacion.setTipo(TipoPlanCalificacionEnum.PLANT.name());
+//        planCalificacion.setTipo(TipoPlanCalificacionEnum.PLANT.name());
         planCalificacion.setTipoCiclo(ds.getCicloAcademico().getTipo());
 
         BigDecimal totalWeight = BigDecimal.ZERO;

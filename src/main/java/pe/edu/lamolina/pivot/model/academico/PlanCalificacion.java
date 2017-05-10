@@ -104,6 +104,7 @@ public class PlanCalificacion implements Serializable {
     private PlanCalificacion planCalificacionSuperior;
 
     public PlanCalificacion() {
+        this.setTipo("0");
     }
 
     public PlanCalificacion(Object id) {
@@ -357,14 +358,6 @@ public class PlanCalificacion implements Serializable {
         PlanCalificacion.PREFIJO_CODIGO = PREFIJO_CODIGO;
     }
 
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
     public PlanCalificacion getPlanCalificacionSuperior() {
         return planCalificacionSuperior;
     }
@@ -402,6 +395,14 @@ public class PlanCalificacion implements Serializable {
 
     public void setCursosPlanRegular(List<Curso> cursosPlanRegular) {
         this.cursosPlanRegular = cursosPlanRegular;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     public boolean isTipoCicloRegular() {

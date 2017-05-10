@@ -64,7 +64,6 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -145,7 +144,7 @@ public class CargaAcademicaController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", grupoSeccion.getId());
                 node.put("idCurso", grupoSeccion.getCurso().getId());
-
+                //   node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoCicloEnum().getValue());
                 node.put("nombre", grupoSeccion.getCurso().getNombre());
                 node.put("codigo", grupoSeccion.getCurso().getCodigo());
                 node.put("tpc", grupoSeccion.getCurso().getTpc());
@@ -565,7 +564,7 @@ public class CargaAcademicaController {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
                 planCalificacion.setIdUserRegistro(ds.getUsuario().getId());
-                cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId);
+                cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId, ds);
                 message = "Creado exitosamente.";
 
             } else {
@@ -1318,6 +1317,26 @@ public class CargaAcademicaController {
         response.setMessage(message);
         response.setSuccess(true);
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desvincularPlanCalificacion")
+    public JsonResponse desvincularPlanCalificacion(@RequestParam(name = "grupo", required = true) Long grupoId,
+            HttpSession session, Model model,
+            RedirectAttributes redirectAttr) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        //  ds.getDocente();
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+        cargaAcademicaService.desvincularPlanCalificacion(new GrupoSeccion(grupoId));
+
+        cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
+
+        // Notificaciones.crearMsg("Desvinculado satisfactoriamente", redirectAttr);
+        response.setMessage("Desvinculado satisfactoriamente");
+        response.setSuccess(true);
         return response;
     }
 

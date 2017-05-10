@@ -82,7 +82,7 @@ public interface CargaAcademicaService {
 
     List<SistemaNotas> allSistemasNotas();
 
-    void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId);
+    void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId, DataSessionPivot ds);
 
     void aceptarExpansion(Long evaluacionSeccionId, DataSessionPivot ds);
 
@@ -143,4 +143,6 @@ public interface CargaAcademicaService {
     void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario);
 
     void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio);
+
+    void desvincularPlanCalificacion(GrupoSeccion grupo);
 }
