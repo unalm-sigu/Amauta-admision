@@ -24,10 +24,10 @@ $(function () {
         $('.contenedor-secciones').height(alto);
     });
 
-
-
-
-
+    $("body").delegate(".exit-session", "click", function () {
+        var win = window.open('http://www.google.com.mx/accounts/Logout2', '_blank', 'modal=yes,width=500,height=500');
+        location.href = "/logout";
+    });
 });
 
 Messenger.options = {
