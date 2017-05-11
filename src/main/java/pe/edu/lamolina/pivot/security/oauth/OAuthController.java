@@ -106,9 +106,7 @@ public class OAuthController {
             session.setAttribute(Constantine.SESSION_USUARIO, ds);
         }
 
-        String redirect = this.getRedirect(ds);
-
-        return redirect;
+        return this.getRedirect(ds, session);
     }
 
     @ResponseBody
@@ -134,9 +132,11 @@ public class OAuthController {
         return "security/rolland";
     }
 
-    private String getRedirect(DataSessionPivot ds) {
+    private String getRedirect(DataSessionPivot ds, HttpSession session) {
 
         String redirect = "redirect:/logout";
+        String urlServerExterno = "http://maipi.albatross.pe/login";
+        //String urlServerExterno = "http://localhost:9800/lagunas/" + ds.getUsuario().getUsuario();
 
         switch (ds.getRolActivo().getCodigo()) {
             case "DPTO":
@@ -156,6 +156,11 @@ public class OAuthController {
 
             case "OREA":
                 redirect = "redirect:/academico/acta";
+                break;
+
+            case "ALU":
+                session.invalidate();
+                redirect = "redirect:" + urlServerExterno;
                 break;
 
             default:

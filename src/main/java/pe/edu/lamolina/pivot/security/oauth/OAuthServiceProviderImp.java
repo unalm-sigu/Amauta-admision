@@ -75,19 +75,16 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     public void loginManually(String email, HttpSession session) {
         
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
-        
         Usuario usuario = usuarioDAO.findByEmail(email);
-        
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
         }
         
-        List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
         
-        SecurityContext cntx = SecurityContextHolder.getContext();
         
         Collection<GrantedAuthority> authorities = new ArrayList();
         
+        List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
         for (Rol rol : roles) {
             authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
         }
@@ -97,6 +94,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
         
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, email, authorities);
+        SecurityContext cntx = SecurityContextHolder.getContext();
         cntx.setAuthentication(authentication);
         
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
