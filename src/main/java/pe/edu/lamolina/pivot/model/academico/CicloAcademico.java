@@ -276,4 +276,8 @@ public class CicloAcademico implements Serializable {
         return false;
     }
 
+    public TipoCicloEnum getTipoCicloEnum() {
+        return TipoCicloEnum.valueOf(this.tipo);
+    }
+
 }

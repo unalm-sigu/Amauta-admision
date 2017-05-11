@@ -61,7 +61,9 @@ $(function () {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
             } else {
                 MODAL.buttons(
-                        '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>');
+                        '<a class="btn btn-success" id="cmbAceptar">Aceptar</a>' +
+                        '<a class="btn btn-danger new-sis-calificacion pull-left">Solicita modificación</a>');
+
             }
             /*             * 
              +
@@ -115,7 +117,7 @@ $(function () {
             }
 
             bootbox.confirm({
-                message: "¿Está seguro que desea grabar?",
+                message: "¿Está seguro que desea aceptar?",
                 buttons: {
                     confirm: {label: 'Si', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
@@ -279,6 +281,52 @@ $(function () {
                 pesoEval.val(pesoEvalsNumber.toFixed(2));
             }
         },
+        desvincularPlanCalificacion: function ($this) {
+            MODAL.showWait("Espere un momento por favor");
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea desvincular?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                }, callback: function (result) {
+
+
+                    var tr = $this.closest("tr");
+                    var idx = tr.attr("rel");
+                    var rec = dynatable.settings.dataset.records[idx];
+
+                    $.ajax({
+                        url: APP.url('academico/docente/cargaacademica/desvincularPlanCalificacion'),
+                        type: 'POST',
+                        async: true,
+                        data: {
+                            grupo: rec.id
+                        },
+                        success: function (response) {
+                            MODAL.hideWait();
+                            MODAL.hide();
+
+                            if (response.success) {
+                                notify(response.message, "info");
+                                dynatable.process();
+                            } else {
+                                notify(response.message, "error");
+                            }
+                        },
+                        error: function (error) {
+                            MODAL.hideWait();
+                            var message = error.responseJSON.message;
+                            notify(message, "error");
+                        }
+                    });
+
+                }
+            });
+
+
+
+        },
         calcularFormula: function () {
             var rowCount = $('#tblEvaluaciones tr').length - 1;
             var formula = "";
@@ -346,6 +394,9 @@ $(function () {
     });
     $("body").delegate(".calcular-peso-eva-chk", "change", function (e) {
         CargaAcademica.calcularPesoEval($(this));
+    });
+    $("body").delegate(".desvincular-expandir-sistema", "click", function (e) {
+        CargaAcademica.desvincularPlanCalificacion($(this));
     });
 
 

@@ -30,4 +30,5 @@ public interface EvaluacionDAO extends Crud<Evaluacion> {
 
     List<Evaluacion> allByEvaluacionExpandidaSecciones(EvaluacionExpandida evaluacion, List<Seccion> secciones);
 
+    void deleteEvaluacionesByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion);
 }
