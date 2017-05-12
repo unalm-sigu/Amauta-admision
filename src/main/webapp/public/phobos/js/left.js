@@ -27,67 +27,67 @@ var UI = {
         })
     }
 },
-Sidebar = {
-    position: function (str, m, i) {
-        return str.split(m, i).join(m).length;
-    },
-    initialize: function () {
-        var t = $(".main-sidebar"),
-                e = t.find(".current-user .menu");
-        $(".current-user .name").click(function (t) {
-            t.preventDefault(), t.stopPropagation(), e.toggleClass("active")
-        }), e.click(function (t) {
-            t.stopPropagation()
-        }), $("body").click(function () {
-            e.removeClass("active")
-        });
-        var n = t.find("[data-toggle~='sidebar']");
-        n.click(function (t) {
-            if (t.preventDefault(), !utils.isTablet()) {
-                $(this).closest(".submenu").length || n.not(this).removeClass("toggled").siblings(".submenu").slideUp(300, o);
-                var e = $(this),
-                        i = $(this).siblings(".submenu");
-                e.toggleClass("toggled"), e.hasClass("toggled") ? i.slideDown(300, o) : i.slideUp(300, o)
+        Sidebar = {
+            position: function (str, m, i) {
+                return str.split(m, i).join(m).length;
+            },
+            initialize: function () {
+                var t = $(".main-sidebar"),
+                        e = t.find(".current-user .menu");
+                $(".current-user .name").click(function (t) {
+                    t.preventDefault(), t.stopPropagation(), e.toggleClass("active")
+                }), e.click(function (t) {
+                    t.stopPropagation()
+                }), $("body").click(function () {
+                    e.removeClass("active")
+                });
+                var n = t.find("[data-toggle~='sidebar']");
+                n.click(function (t) {
+                    if (t.preventDefault(), !utils.isTablet()) {
+                        $(this).closest(".submenu").length || n.not(this).removeClass("toggled").siblings(".submenu").slideUp(300, o);
+                        var e = $(this),
+                                i = $(this).siblings(".submenu");
+                        e.toggleClass("toggled"), e.hasClass("toggled") ? i.slideDown(300, o) : i.slideUp(300, o)
+                    }
+                });
+                var i = window.location.pathname;
+                var u = i.substr(0, Sidebar.position(i, '/', 3));
+
+                t.find(".menu-section a").removeClass("active");
+                var s = t.find("a[href='" + u + "']");
+
+                if (s.length) {
+                    if (s.addClass("active"), s.parents(".submenu").length) {
+                        var r = s.closest(".option").find("[data-toggle~='sidebar']");
+                        r.addClass("active toggled"), s.parents(".submenu").addClass("active")
+                    }
+                } else
+                    t.find(".menu-section .option > a:eq(0)").addClass("active");
+
+                var o = function () {
+                    var t = $("body").height();
+                    $(".main-sidebar").css("bottom", "auto");
+                    var e = $(".main-sidebar").height();
+                    t > e ? $(".main-sidebar").css("bottom", 0) : $(".main-sidebar").css("bottom", "auto")
+                },
+                        a = $("#content .sidebar-toggler");
+                a.click(function (t) {
+                    t.stopPropagation(), $("body").toggleClass("open-sidebar")
+                }), $("#content").click(function () {
+                    $("body").removeClass("open-sidebar")
+                });
+
+
+                /*var lef = $(".left-bar"), i = url_server(window.location.pathname);
+                 lef.find(".list-group a").removeClass("act");
+                 var item = lef.find("a[href='" + i + "']");
+                 if (item.length) {
+                 item.addClass("act")
+                 } else {
+                 lef.find(".left-group .list-group-item > a:eq(0)").addClass("act");
+                 }*/
             }
-        });
-        var i = window.location.pathname;
-        var u = i.substr(0, Sidebar.position(i, '/', 3));
-
-        t.find(".menu-section a").removeClass("active");
-        var s = t.find("a[href='" + u + "']");
-
-        if (s.length) {
-            if (s.addClass("active"), s.parents(".submenu").length) {
-                var r = s.closest(".option").find("[data-toggle~='sidebar']");
-                r.addClass("active toggled"), s.parents(".submenu").addClass("active")
-            }
-        } else
-            t.find(".menu-section .option > a:eq(0)").addClass("active");
-        
-        var o = function () {
-            var t = $("body").height();
-            $(".main-sidebar").css("bottom", "auto");
-            var e = $(".main-sidebar").height();
-            t > e ? $(".main-sidebar").css("bottom", 0) : $(".main-sidebar").css("bottom", "auto")
-        },
-                a = $("#content .sidebar-toggler");
-        a.click(function (t) {
-            t.stopPropagation(), $("body").toggleClass("open-sidebar")
-        }), $("#content").click(function () {
-            $("body").removeClass("open-sidebar")
-        });
-
-
-        /*var lef = $(".left-bar"), i = url_server(window.location.pathname);
-         lef.find(".list-group a").removeClass("act");
-         var item = lef.find("a[href='" + i + "']");
-         if (item.length) {
-         item.addClass("act")
-         } else {
-         lef.find(".left-group .list-group-item > a:eq(0)").addClass("act");
-         }*/
-    }
-};
+        };
 
 
 
@@ -106,12 +106,12 @@ window.utils = {
         return moment().subtract("days", t).toDate().getTime()
     }
 },
-function () {
-    var t = function () {
-        $("body#sidebar").length && ($("html, body").css("height", "100%"), $(".main-sidebar").wrapInner("<div class='scroll-wrapper'></div>"))
-    };
-    $(document).on("ready page:load", t)
-}();
+        function () {
+            var t = function () {
+                $("body#sidebar").length && ($("html, body").css("height", "100%"), $(".main-sidebar").wrapInner("<div class='scroll-wrapper'></div>"))
+            };
+            $(document).on("ready page:load", t)
+        }();
 
 
 
