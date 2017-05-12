@@ -74,15 +74,16 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
                 .parents("left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2")
                 .parents("left _doc.persona per", "left _per.tipoDocumento")
                 .filter("doc.id", docente.getId())
-                .filter("dc.estado", EstadoEnum.ACT.name())
-                .filter("gs.cicloAcademico.id", ds.getCicloAcademico().getId());
-        /*
+                .filter("dc.estado", EstadoEnum.ACT.name());
+
+        sqlUtil.filter("gs.cicloAcademico.id", ds.getCicloAcademico().getId());
+
         if (ds.getCicloAcademico().isTipoNivelacion()) {
             sqlUtil.filter("pc.tipoCiclo", ds.getCicloAcademico().getTipo());
         } else if (ds.getCicloAcademico().isTipoRegular()) {
             sqlUtil.filter("pcr.tipoCiclo", ds.getCicloAcademico().getTipo());
         }
-         */
+
         return this.all(sqlUtil);
     }
 

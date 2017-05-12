@@ -138,13 +138,13 @@ public class CargaAcademicaController {
             Docente docente = ds.getDocente();
 
             List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
-            //logger.debug("Lista grupos por docente {}", gruposSeccion.size());
+            logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSeccion.size());
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", grupoSeccion.getId());
                 node.put("idCurso", grupoSeccion.getCurso().getId());
-                //   node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoCicloEnum().getValue());
+                node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoCicloEnum().getValue());
                 node.put("nombre", grupoSeccion.getCurso().getNombre());
                 node.put("codigo", grupoSeccion.getCurso().getCodigo());
                 node.put("tpc", grupoSeccion.getCurso().getTpc());

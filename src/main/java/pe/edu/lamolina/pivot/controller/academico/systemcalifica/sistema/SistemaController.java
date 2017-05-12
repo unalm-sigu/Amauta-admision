@@ -107,6 +107,7 @@ public class SistemaController {
                 node.put("id", planCalificacion.getId());
                 node.put("codigo", planCalificacion.getCodigo());
                 node.put("formula", planCalificacion.getFormula());
+                node.put("tipoCiclo", planCalificacion.getTipoCicloEnum().getValue());
                 node.put("descripcion", planCalificacion.getDescripcion());
                 node.put("origen", planCalificacion.getOrigenEnum().getValue());
                 node.put("fechaReg", TypesUtil.getStringDate(planCalificacion.getFechaRegistro(), "dd/MM/yyyy"));

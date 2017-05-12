@@ -142,7 +142,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
             logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
         }
-        //cicloAcademico
+
+        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
         List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         gruposSeccion.forEach((grupoSeccion) -> {
