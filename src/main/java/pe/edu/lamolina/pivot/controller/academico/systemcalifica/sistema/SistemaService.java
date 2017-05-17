@@ -6,6 +6,7 @@ import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -33,8 +34,10 @@ public interface SistemaService {
 
     void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
 
-    void desasignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
+    void desasignarCurso(Long idPlanCurso, Long idPersona);
 
     List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
+
+    List<PlanCalificacionCurso> allPlanCalificacionCursosByFilterDyna(DynatableFilter dynatableFilter, PlanCalificacion planCalificacion);
 
 }

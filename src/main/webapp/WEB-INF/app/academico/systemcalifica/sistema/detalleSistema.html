@@ -86,18 +86,18 @@
         </tr>
     </thead>
     <tbody>
-        <tr th:each="curso : ${cursosByPlan}">
+        <tr th:each="planCurso : ${planCalificacion.planCalificacionCursos}">
             <td class="v-middle text-center">
-                <span th:text="${curso.codigo}"></span>
+                <span th:text="${planCurso.curso.codigo}"></span>
             </td>
             <td class="v-middle">
-                <span th:text="${curso.nombre}"></span>
+                <span th:text="${planCurso.curso.nombre}"></span>
             </td>
             <td class="v-middle text-center">
-                <span th:text="${#dates.format(curso.fechaPlanCalificacion, 'dd/MM/yyyy')}"></span>
+                <span th:if="${planCurso.fechaCreacion}" th:text="${#dates.format(planCurso.fechaCreacion, 'dd/MM/yyyy')}"></span>
             </td>
             <td class="v-middle text-center">
-                <span th:text="${curso.tpc}"></span>
+                <span th:text="${planCurso.curso.tpc}"></span>
             </td>
         </tr>
 

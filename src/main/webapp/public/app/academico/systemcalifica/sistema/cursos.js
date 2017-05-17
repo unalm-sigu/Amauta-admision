@@ -110,7 +110,7 @@ $(function () {
                             url: APP.url('academico/systemcalifica/sistema/desasignarCurso'),
                             type: 'POST',
                             async: true,
-                            data: {curso: id, planCalificacion: $('[name="plancalificacion.id"]').val()},
+                            data: {planCurso: id},
                             success: function (response) {
                                 MODAL.hideWait();
                                 if (response.success) {

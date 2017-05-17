@@ -37,6 +37,7 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -122,6 +123,7 @@ public class SistemaController {
                 node.put("verObservar", planCalificacion.isEstadoSolicitado() || planCalificacion.isEstadoReenviado());
                 node.put("verReenviar", planCalificacion.isEstadoObservado());
                 node.put("verAsignarCursos", planCalificacion.isEstadoActivado());
+
                 List<Curso> cursos = new ArrayList<>();
                 if (planCalificacion.isTipoCicloNivelacion()) {
                     if (ObjectUtil.getParentTree(planCalificacion, "curso") != null) {
@@ -140,7 +142,8 @@ public class SistemaController {
                         }
                     }
                 }
-                node.put("cantidadCursos", cursos.size());
+                //   node.put("cantidadCursos", cursos.size());
+                node.put("cantidadCursos", planCalificacion.getPlanCalificacionCursos().size());
                 array.add(node);
             }
 
@@ -165,10 +168,9 @@ public class SistemaController {
         try {
             logger.debug("listCursos Plancalificacion {}", planCalificacion);
             CicloAcademico ciclo = ds.getCicloAcademico();
-
-            List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            /*
+                List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
+                        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -178,6 +180,21 @@ public class SistemaController {
                 node.put("nombre", curso.getNombre());
                 node.put("fechaInclusion", curso.getFechaPlanCalificacion() != null ? TypesUtil.getStringDate(curso.getFechaPlanCalificacion(), "dd/MM/yyyy") : "");
                 node.put("tpc", curso.getTpc());
+                array.add(node);
+            }
+             */
+            List<PlanCalificacionCurso> planCursos = sistemaService.allPlanCalificacionCursosByFilterDyna(filter, new PlanCalificacion(planCalificacion));
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (PlanCalificacionCurso planCurso : planCursos) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("id", planCurso.getId());
+                node.put("codigo", planCurso.getCurso().getCodigo());
+                node.put("nombre", planCurso.getCurso().getNombre());
+                node.put("fechaInclusion", planCurso.getFechaCreacion() != null ? TypesUtil.getStringDate(planCurso.getFechaCreacion(), "dd/MM/yyyy") : "");
+                node.put("tpc", planCurso.getCurso().getTpc());
                 array.add(node);
             }
 
@@ -196,10 +213,14 @@ public class SistemaController {
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
-        List<Curso> cursosByPlan = sistemaService.allActiveCursosByPlan(planCalificacion);
+        /*    List<Curso> cursosByPlan = new ArrayList<>();
+        for (PlanCalificacionCurso planCurso : planCalificacion.getPlanCalificacionCursos()) {
+            cursosByPlan.add(planCurso.getCurso());
+        }
+         */
         model.addAttribute("planCalificacion", planCalificacion);
-        model.addAttribute("cursosByPlan", cursosByPlan);
-        model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
+        //  model.addAttribute("cursosByPlan", cursosByPlan);
+        model.addAttribute("tieneCursos", (!planCalificacion.getPlanCalificacionCursos().isEmpty()));
         return "app/academico/systemcalifica/sistema/detalleSistema";
     }
 
@@ -441,13 +462,12 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("desasignarCurso")
-    public JsonResponse desasignarCurso(@RequestParam("curso") Long curso,
-            @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
+    public JsonResponse desasignarCurso(@RequestParam("planCurso") Long planCurso, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.desasignarCurso(curso, planCalificacion, ds.getPersona().getId());
+            sistemaService.desasignarCurso(planCurso, ds.getPersona().getId());
             response.setMessage("Curso desasignado.");
             response.setSuccess(true);
 

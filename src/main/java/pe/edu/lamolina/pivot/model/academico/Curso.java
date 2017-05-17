@@ -308,9 +308,15 @@ public class Curso implements Serializable {
 
     public String getTpc() {
         StringBuilder tpc = new StringBuilder();
-        tpc.append(horasTeoria).append("-");
-        tpc.append(horasPractica).append("-");
-        tpc.append(creditos);
+        if (horasTeoria != null) {
+            tpc.append(horasTeoria).append("-");
+        }
+        if (horasPractica != null) {
+            tpc.append(horasPractica).append("-");
+        }
+        if (creditos != null) {
+            tpc.append(creditos);
+        }
         return tpc.toString();
     }
 

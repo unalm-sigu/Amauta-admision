@@ -81,6 +81,9 @@ public class PlanCalificacion implements Serializable {
     @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
     private List<Curso> curso;
 
+    @OneToMany(mappedBy = "planCalificacion", fetch = FetchType.LAZY)
+    private List<PlanCalificacionCurso> planCalificacionCursos;
+
     @OneToMany(mappedBy = "planCalificacionRegular", fetch = FetchType.LAZY)
     private List<Curso> cursosPlanRegular;
 
@@ -403,6 +406,14 @@ public class PlanCalificacion implements Serializable {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public List<PlanCalificacionCurso> getPlanCalificacionCursos() {
+        return planCalificacionCursos;
+    }
+
+    public void setPlanCalificacionCursos(List<PlanCalificacionCurso> planCalificacionCursos) {
+        this.planCalificacionCursos = planCalificacionCursos;
     }
 
     public boolean isTipoCicloRegular() {

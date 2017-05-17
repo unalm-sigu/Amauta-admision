@@ -52,6 +52,7 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
                 .setPageSize(filter.getPerPage());
         sqlUtil.orderBy("pc.id desc");
         List<PlanCalificacion> listaRestultado = this.all(sqlUtil);
+
         for (PlanCalificacion plan : listaRestultado) {
             if (plan.isTipoCicloNivelacion()) {
                 if (plan.getCurso() != null) {
