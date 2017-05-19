@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -24,14 +25,17 @@ public class PlanCalificacionDocente implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @NotNull
+    @GeneratedValue
     @Column(name = "id")
-
     private Long id;
 
     @NotNull
     @Column(name = "estado")
     private String estado;
+
+    @NotNull
+    @Column(name = "estado_plan")
+    private String estadoPlan;
 
     @Column(name = "fecha_creacion")
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,11 +47,11 @@ public class PlanCalificacionDocente implements Serializable {
 
     @JoinColumn(name = "id_plan_calificacion", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private PlanCalificacion idPlanCalificacion;
+    private PlanCalificacion planCalificacion;
 
     @JoinColumn(name = "id_docente", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private Docente idDocente;
+    private Docente docente;
 
     public PlanCalificacionDocente() {
     }
@@ -94,20 +98,28 @@ public class PlanCalificacionDocente implements Serializable {
         this.fechaActualizacion = fechaActualizacion;
     }
 
-    public PlanCalificacion getIdPlanCalificacion() {
-        return idPlanCalificacion;
+    public PlanCalificacion getPlanCalificacion() {
+        return planCalificacion;
     }
 
-    public void setIdPlanCalificacion(PlanCalificacion idPlanCalificacion) {
-        this.idPlanCalificacion = idPlanCalificacion;
+    public void setPlanCalificacion(PlanCalificacion planCalificacion) {
+        this.planCalificacion = planCalificacion;
     }
 
-    public Docente getIdDocente() {
-        return idDocente;
+    public Docente getDocente() {
+        return docente;
     }
 
-    public void setIdDocente(Docente idDocente) {
-        this.idDocente = idDocente;
+    public void setDocente(Docente docente) {
+        this.docente = docente;
+    }
+
+    public String getEstadoPlan() {
+        return estadoPlan;
+    }
+
+    public void setEstadoPlan(String estadoPlan) {
+        this.estadoPlan = estadoPlan;
     }
 
     @Override

@@ -37,11 +37,27 @@ $(function () {
             if (grupoHoras[i] != null) {
                 grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
             }
-
             seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + grupoText + '</a></div>';
-
         }
         record.secciones = seccionesResult;
+
+        if (record.sistemas != "") {
+            var sistemasCursos = record.sistemas.split("-");
+
+            var sistemasHtml = '<div class="m-l-md inline">';
+
+            for (var i = 0; i < sistemasCursos.length; i++) {
+                var sistema = sistemasCursos[i].split(',');
+                sistemasHtml += '<a href="#" rel="' + sistema[0] + '" class="label label-warning sistema-calificacion">';
+                sistemasHtml += sistema[1];
+                sistemasHtml += '</a> ';
+            }
+            sistemasHtml += '</div>';
+            console.log(sistemasHtml);
+            record.sistemasHtml = sistemasHtml;
+        }
+
+
         var html = $.templates("#templateCargaAcademica").render(record);
         return html;
     }
@@ -68,12 +84,15 @@ $(function () {
             /*             * 
              +
              '<a class="btn btn-danger new-sis-calificacion pull-left">Solicita modificación</a>'
+             url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/aceptarSistemaCalificacion'),
              */
+            MODAL.body('');
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/aceptarSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + rec.id + '/aceptarSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
+                    $(".item-select2").select2();
                     MODAL.body(response);
                 },
                 error: function () {
@@ -86,6 +105,7 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
+            var plan = $this.attr("rel");
 
             MODAL.hide();
             MODAL.init("lg");
@@ -95,7 +115,7 @@ $(function () {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
             }
             $.ajax({
-                url: APP.url('academico/docente/cargaacademica/' + rec.idSistemaCalificacion + "/" + rec.id + '/detalleSistemaCalificacion'),
+                url: APP.url('academico/docente/cargaacademica/' + plan + "/" + rec.id + '/detalleSistemaCalificacion'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
@@ -107,7 +127,7 @@ $(function () {
             });
         },
         confirmaSistemaCalificacion: function ($this, e) {
-            var form = $("[id='frmAceptarSistCal']");
+            var form = $("#frmAceptarSistCal");
             // form.submit();
 
             form.parsley().destroy();
@@ -352,6 +372,25 @@ $(function () {
             }
             $("#spnFormula").html(formula);
             $("#txtFormula").val(formula);
+        },
+        changeCambiarSistema: function ($this) {
+            var cboSistemaAceptar = $this.val();
+
+            $.ajax({
+                url: APP.url('academico/docente/cargaacademica/' + $("#txtGrupo").val() + '/ aceptarSistemaCalificacion'),
+                type: 'POST',
+                async: false,
+                data: {planCalificacion: cboSistemaAceptar},
+                success: function (response) {
+                    $(".item-select2").select2();
+                    //    $(".modal-body").html(response);
+                    MODAL.body('');
+                    MODAL.body(response);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
 
@@ -397,6 +436,9 @@ $(function () {
     });
     $("body").delegate(".desvincular-expandir-sistema", "click", function (e) {
         CargaAcademica.desvincularPlanCalificacion($(this));
+    });
+    $("body").delegate(".cbo-cambiar-sistema", "change", function (e) {
+        CargaAcademica.changeCambiarSistema($(this));
     });
 
 

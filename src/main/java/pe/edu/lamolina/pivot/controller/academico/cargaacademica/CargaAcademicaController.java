@@ -55,6 +55,7 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
@@ -64,6 +65,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.OrigenPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -164,58 +166,51 @@ public class CargaAcademicaController {
                 }
                 node.put("grupoHoras", grupoHoras);
 
-                node.put("tienePlanCalificacion", false);
+                boolean tienePlanCalificacion = false;
+                boolean verOpciones = false;
                 PlanCalificacion planCalificacionSelected = null;
-                if (grupoSeccion.getPlanCalificacion() == null) {
-                    //logger.debug("Grupo seccion sin plan calificacion");
-                    node.put("idSistemaCalificacion", "");
-                    node.put("sistemaCalificacion", "");
+                node.put("sistemas", "");
 
-                    node.put("estado", "");
-                    node.put("estadoEnum", "");
+                List<PlanCalificacionCurso> planesCalificacionesCursos = grupoSeccion.getCurso().getPlanesCalificacionCursos();
 
-                    if (ds.getCicloAcademico().isTipoNivelacion()) {
-                        if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacion.id") != null) {
-                            node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getId().toString());
-                            node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacion().getCodigo());
+                StringBuilder strbSistemas = new StringBuilder();
+                logger.debug("Curso {}, Cantidad Plan Cursos {}", grupoSeccion.getCurso().getId(), planesCalificacionesCursos.size());
 
-                            node.put("estado", EstadoPlanCalificaEnum.PRO.name());
-                            node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
-                            planCalificacionSelected = grupoSeccion.getCurso().getPlanCalificacion();
-
+                if (grupoSeccion.getPlanCalificacion() == null || grupoSeccion.isEstadoPropuesto()) {
+                    if (planesCalificacionesCursos.isEmpty()) {
+                        node.put("estado", EstadoPlanCalificaEnum.PEND.name());
+                        node.put("estadoEnum", EstadoPlanCalificaEnum.PEND.getValue());
+                    } else {
+                        for (PlanCalificacionCurso planesCalificacionesCurso : planesCalificacionesCursos) {
+                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getId());
+                            strbSistemas.append(",");
+                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getCodigo());
+                            strbSistemas.append("-");
                         }
-                    } else if (ds.getCicloAcademico().isTipoRegular()) {
-                        if (ObjectUtil.getParentTree(grupoSeccion, "curso.planCalificacionRegular.id") != null) {
-                            node.put("idSistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacionRegular().getId().toString());
-                            node.put("sistemaCalificacion", grupoSeccion.getCurso().getPlanCalificacionRegular().getCodigo());
-
-                            node.put("estado", EstadoPlanCalificaEnum.PRO.name());
-                            node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
-                            planCalificacionSelected = grupoSeccion.getCurso().getPlanCalificacionRegular();
-
+                        if (strbSistemas.length() != 0) {
+                            node.put("sistemas", strbSistemas.substring(0, strbSistemas.length() - 1));
                         }
+
+                        node.put("estado", EstadoPlanCalificaEnum.PRO.name());
+                        node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
+                        verOpciones = true;
                     }
+
                 } else {
-                    //logger.debug("Grupo seccion con plan calificacion");
+                    verOpciones = true;
                     node.put("idSistemaCalificacion", grupoSeccion.getPlanCalificacion().getId().toString());
                     node.put("sistemaCalificacion", grupoSeccion.getPlanCalificacion().getCodigo());
 
                     node.put("estado", grupoSeccion.getEstadoPlan());
                     node.put("estadoEnum", grupoSeccion.getEstadoPlanEnum().getValue());
-                    node.put("tienePlanCalificacion", true);
+
+                    tienePlanCalificacion = true;
                     planCalificacionSelected = grupoSeccion.getPlanCalificacion();
                 }
-                List<Curso> cursos = null;
-                if (planCalificacionSelected != null) {
-                    cursos = cargaAcademicaService.allActiveCursosByPlan(planCalificacionSelected);
-                }
-
-                node.put("cantidadCursos", 0);
-                if (cursos != null && !cursos.isEmpty()) {
-                    node.put("cantidadCursos", cursos.size());
-                }
+                node.put("tienePlanCalificacion", tienePlanCalificacion);
 
                 node.put("verDetalleSistemaCal", false);
+                node.put("verOpciones", verOpciones);
                 if (grupoSeccion != null) {
                     if (grupoSeccion.isEstadoSolicitado()
                             || grupoSeccion.isEstadoExpandido()
@@ -387,26 +382,37 @@ public class CargaAcademicaController {
         model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("grupoSeccion", grupoSeccion);
+
         model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
 
         return "app/academico/docente/cargaacademica/detalleSistemaCalificacion";
     }
+//      @PathVariable("sistemaCalificacion") Long idSistemaCalificacion, {sistemaCalificacion}/
 
-    @RequestMapping("{sistemaCalificacion}/{grupoSeccion}/aceptarSistemaCalificacion")
+    @RequestMapping("{grupoSeccion}/aceptarSistemaCalificacion")
     public String aceptarSistemaCalificacion(
-            @PathVariable("sistemaCalificacion") Long idSistemaCalificacion,
-            @PathVariable("grupoSeccion") Long idGrupoSeccion, Model model, HttpSession session) {
+            @PathVariable("grupoSeccion") Long idGrupoSeccion,
+            @RequestParam(name = "planCalificacion", required = false) Long planCalificacion,
+            Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        logger.debug("plan calificacion {}, grupo seccion {}", idSistemaCalificacion, idGrupoSeccion);
+        logger.debug("grupo seccion {}", idGrupoSeccion);
+        logger.debug("planCalificacion {}", planCalificacion);
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
-        PlanCalificacion planCalificacion = cargaAcademicaService.findPlanCalificacion(idSistemaCalificacion);
-        List<Curso> cursosByPlan = cargaAcademicaService.allActiveCursosByPlan(planCalificacion);
 
-        model.addAttribute("planCalificacion", planCalificacion);
+        List<PlanCalificacionCurso> planesCalificacionCurso = cargaAcademicaService.findAllActivePlanCalificacionCursos(grupoSeccion.getCurso(),
+                ds.getCicloAcademico().getTipoCicloEnum());
+        PlanCalificacion planCalifica = planesCalificacionCurso.get(0).getPlanCalificacion();
+        if (planCalificacion != null) {
+            logger.debug("buscara el sistema calificacion");
+            planCalifica = cargaAcademicaService.findPlanCalificacion(planCalificacion);
+        }
+
+        model.addAttribute("planCalificacion", planCalifica);
         model.addAttribute("curso", grupoSeccion.getCurso());
         model.addAttribute("grupoSeccion", grupoSeccion);
-        model.addAttribute("tieneCursos", (!cursosByPlan.isEmpty()));
+        model.addAttribute("planesCalificacionCurso", planesCalificacionCurso);
+        model.addAttribute("tieneCursos", false);
 
         return "app/academico/docente/cargaacademica/aceptarSistemaCalificacion";
     }

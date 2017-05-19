@@ -55,6 +55,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
@@ -63,12 +64,14 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoPlanCalificacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
@@ -133,8 +136,63 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
 
+    @Autowired
+    PlanCalificacionCursoDAO planCalificacionCursoDAO;
+
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ds);
+        logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
+        List<Long> lstIds = new ArrayList<>();
+        for (DocenteSeccion docenteSeccion : docentesSecciones) {
+            lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+            logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
+        }
+
+        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico, null, EstadoEnum.ACT);
+        logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
+        gruposSeccion.forEach((grupoSeccion) -> {
+            grupoSeccion.setSecciones(new ArrayList());
+        });
+        Map<Long, GrupoSeccion> mapGposSeccion = MapUtil.storeItems("id", gruposSeccion);
+
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gruposSeccion);
+        Map<Long, Seccion> mapSecciones = MapUtil.storeItems("id", secciones);
+        for (Seccion seccion : secciones) {
+            seccion.setDocenteSeccion(new ArrayList());
+            GrupoSeccion gpoSecc = mapGposSeccion.get(seccion.getGrupoSeccion().getId());
+            seccion.setGrupoSeccion(gpoSecc);
+            gpoSecc.getSecciones().add(seccion);
+        }
+
+        for (DocenteSeccion profeSecc : docentesSecciones) {
+            Seccion secc = mapSecciones.get(profeSecc.getSeccion().getId());
+            if (secc == null) {
+                continue;
+            }
+            profeSecc.setSeccion(secc);
+            secc.getDocenteSeccion().add(profeSecc);
+        }
+
+        for (GrupoSeccion gpoSecc : gruposSeccion) {
+            List<PlanCalificacionCurso> planCalificacionCursos = planCalificacionCursoDAO.allByFilter(null, ds.getCicloAcademico().getTipoCicloEnum(), gpoSecc.getCurso(), EstadoEnum.ACT);
+            gpoSecc.getCurso().setPlanesCalificacionCursos(planCalificacionCursos);
+            logger.debug("PlanCalificacionCurso del curso {}, con tipo de ciclo {}, cantidad {}",
+                    gpoSecc.getCurso().getId(), ds.getCicloAcademico().getTipoCicloEnum().name(), planCalificacionCursos.size());
+
+            List<Seccion> seccion = gpoSecc.getSecciones();
+            logger.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
+            for (Seccion secc : seccion) {
+                List<DocenteSeccion> docSeccs = secc.getDocenteSeccion();
+                logger.debug("\tSeccion {}-{} hay {} docentes", secc.getCodigo(), secc.getCodigo2(), docSeccs.size());
+            }
+        }
+
+        return gruposSeccion;
+    }
+
+    public List<DocenteSeccion> allDocenteSeccion(Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ds);
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
         List<Long> lstIds = new ArrayList<>();
@@ -178,7 +236,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
         }
 
-        return gruposSeccion;
+        return docentesSecciones;
     }
 
     @Override
@@ -736,7 +794,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         GrupoSeccion grupo = grupoSeccionDAO.find(grupoId);
         planCalificacion = planCalificacionDAO.find(planCalificacion.getId());
 
-        logger.debug("Plan Calificacion {}", planCalificacion.getId());
+        logger.debug("Plan Calificacion {}, Codigo {}", planCalificacion.getId(), planCalificacion.getCodigo());
 
         BigDecimal totalWeight = BigDecimal.ZERO;
 
@@ -810,6 +868,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
         evaluacionSeccion.setFechaAceptacion(today);
         evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+        evaluacionSeccion.setPlanCalificacion(planCalificacion);
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
@@ -1722,6 +1781,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             throw new PhobosException("No se puede desvincular el sistema porque ya cuenta con evaluaciones ingresadas.");
         }
 
+    }
+
+    @Override
+    public List<PlanCalificacionCurso> findAllActivePlanCalificacionCursos(Curso curso, TipoCicloEnum tipoCicloEnum) {
+        return planCalificacionCursoDAO.allByFilter(null, tipoCicloEnum, curso, EstadoEnum.ACT);
     }
 
 }

@@ -14,6 +14,7 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 
 @Repository
 public class PlanCalificacionCursoDAOH extends AbstractDAO<PlanCalificacionCurso> implements PlanCalificacionCursoDAO {
@@ -42,7 +43,7 @@ public class PlanCalificacionCursoDAOH extends AbstractDAO<PlanCalificacionCurso
     }
 
     @Override
-    public List<PlanCalificacionCurso> allByFilter(PlanCalificacion planCalificacion, Curso curso, EstadoEnum estadoEnum) {
+    public List<PlanCalificacionCurso> allByFilter(PlanCalificacion planCalificacion, TipoCicloEnum tipoCicloEnum, Curso curso, EstadoEnum estadoEnum) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pc");
         sqlUtil.parents("planCalificacion pln", "curso cur");
         if (planCalificacion != null) {
@@ -53,6 +54,9 @@ public class PlanCalificacionCursoDAOH extends AbstractDAO<PlanCalificacionCurso
         }
         if (estadoEnum != null) {
             sqlUtil.filter("pc.estado", estadoEnum.name());
+        }
+        if (tipoCicloEnum != null) {
+            sqlUtil.filter("pln.tipoCiclo", tipoCicloEnum.name());
         }
         return all(sqlUtil);
     }

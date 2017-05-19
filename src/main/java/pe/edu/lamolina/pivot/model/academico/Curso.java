@@ -104,6 +104,9 @@ public class Curso implements Serializable {
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<RetiroCurso> retiroCurso;
 
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<PlanCalificacionCurso> planesCalificacionCursos;
+
     public Curso() {
     }
 
@@ -304,6 +307,14 @@ public class Curso implements Serializable {
 
     public void setPlanCalificacionRegular(PlanCalificacion planCalificacionRegular) {
         this.planCalificacionRegular = planCalificacionRegular;
+    }
+
+    public List<PlanCalificacionCurso> getPlanesCalificacionCursos() {
+        return planesCalificacionCursos;
+    }
+
+    public void setPlanesCalificacionCursos(List<PlanCalificacionCurso> planesCalificacionCursos) {
+        this.planesCalificacionCursos = planesCalificacionCursos;
     }
 
     public String getTpc() {
