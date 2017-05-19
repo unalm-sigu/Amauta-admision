@@ -109,7 +109,7 @@ $(function () {
 
             MODAL.hide();
             MODAL.init("lg");
-            MODAL.title("Detalle del Sistema de Calificación : ");
+            MODAL.title("Detalle del Sistema de Calificación");
             MODAL.show();
             if (rec.estado == 'RHZ') {
                 MODAL.buttons('<a class="btn btn-danger" id="cmbRechazar">Aceptar rechazo</a>');
