@@ -366,7 +366,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    // @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
         evaluacionSeccionDAO.update(evaluacionSeccion);
@@ -609,6 +609,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional
     public void saveSistemaCalifica(PlanCalificacion planCalificacion, Long grupoSeccionId, DataSessionPivot ds) {
 
+        DateTime today = new DateTime();
+
         GrupoSeccion grupoSeccion = grupoSeccionDAO.find(grupoSeccionId);
         logger.debug("Grupo Seccion Id {}", grupoSeccion.getId());
 
@@ -655,6 +657,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
         planCalificacion.getId();
+
+        PlanCalificacionCurso planCalificacionCurso = new PlanCalificacionCurso();
+        planCalificacionCurso.setCurso(grupoSeccion.getCurso());
+        planCalificacionCurso.setPlanCalificacion(planCalificacion);
+        planCalificacionCurso.setEstadoEnum(EstadoEnum.ACT);
+        planCalificacionCurso.setFechaActualizacion(today.toDate());
+        planCalificacionCurso.setFechaCreacion(today.toDate());
+        planCalificacionCursoDAO.save(planCalificacionCurso);
         this.aceptarPropuestaSolicitud(planCalificacion);
     }
 

@@ -45,10 +45,12 @@ public class PlanCalificacionCurso implements Serializable {
 
     @JoinColumn(name = "id_plan_calificacion", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
     private PlanCalificacion planCalificacion;
 
     @JoinColumn(name = "id_curso", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
     private Curso curso;
 
     public PlanCalificacionCurso() {
