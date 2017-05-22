@@ -794,7 +794,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = false)
     public void aceptarPlanCalificacion(PlanCalificacion planCalificacion, Long cursoId, Long grupoId, DataSessionPivot ds) {
         logger.debug("CursoId {}, grupoId {}", cursoId, grupoId);
 
@@ -832,54 +832,21 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             throw new PhobosException("Pesos total (" + totalWeight.toString() + ") de las evaluaciones incorrecto.");
         }
 
-        /*
-        PlanCalificacion planCalificacionGrupo = new PlanCalificacion();
-        //planCalificacionGrupo.setId(planCalificacion.getId());
-        planCalificacionGrupo.setCodigo(planCalificacion.getCodigo());
-        planCalificacionGrupo.setDepartamentoAcademico(planCalificacion.getDepartamentoAcademico());
-        planCalificacionGrupo.setDescripcion(planCalificacion.getDescripcion());
-        planCalificacionGrupo.setEstado(planCalificacion.getEstado());
-        planCalificacionGrupo.setFechaAprobacion(planCalificacion.getFechaAprobacion());
-        planCalificacionGrupo.setFechaRegistro(today);
-        planCalificacionGrupo.setFormula(planCalificacion.getFormula());
-        planCalificacionGrupo.setIdUserRegistro(ds.getUsuario().getId());
-        planCalificacionGrupo.setNotaBase(planCalificacion.getNotaBase());
-        planCalificacionGrupo.setNumero(planCalificacion.getNumero());
-        planCalificacionGrupo.setObservacion(planCalificacion.getObservacion());
-        planCalificacionGrupo.setOrigen(planCalificacion.getOrigen());
-        planCalificacionGrupo.setSistemaNotas(planCalificacion.getSistemaNotas());
-        planCalificacionGrupo.setSustento(planCalificacion.getSustento());
-        planCalificacionGrupo.setTipo(TipoPlanCalificacionEnum.GPO_SEC.name());
-        planCalificacionGrupo.setPlanCalificacionSuperior(planCalificacion);
-        planCalificacionGrupo.setTipoCiclo(planCalificacion.getTipoCiclo());
-        
-        planCalificacionGrupo.setEvaluacionPlan(new ArrayList<>());
-        
-        for (EvaluacionPlan evaPlan : planCalificacion.getEvaluacionPlan()) {
-            EvaluacionPlan evaluacionPlan = new EvaluacionPlan();
-            evaluacionPlan.setCantidadEvaluaciones(evaPlan.getCantidadEvaluaciones());
-            evaluacionPlan.setEvaluacionesObligatorias(evaPlan.getEvaluacionesObligatorias());
-            evaluacionPlan.setIndPorcentajeVariable(evaPlan.getIndPorcentajeVariable());
-            evaluacionPlan.setNotaMinimaAnulable(evaPlan.getNotaMinimaAnulable());
-            evaluacionPlan.setPesoEvaluacion(evaPlan.getPesoEvaluacion());
-            evaluacionPlan.setPesoTotal(evaPlan.getPesoTotal());
-            evaluacionPlan.setPlanCalificacion(planCalificacionGrupo);
-            evaluacionPlan.setTipoEvaluacion(evaPlan.getTipoEvaluacion());
-            evaluacionPlan.setTipoSeccion(evaPlan.getTipoSeccion());
-        }
-        
-        planCalificacionDAO.save(planCalificacionGrupo);
-         */
         grupo.setPlanCalificacion(planCalificacion);
         //    curso.setPlanCalificacion(planCalificacion);
 
+        logger.debug("Buscara la evaluacion seccion del grupo {}", grupo.getId());
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);
-        logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
-        evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
-        evaluacionSeccion.setFechaAceptacion(today);
-        evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
-        evaluacionSeccion.setPlanCalificacion(planCalificacion);
-        evaluacionSeccionDAO.update(evaluacionSeccion);
+        if (evaluacionSeccion == null) {
+            evaluacionSeccion = new EvaluacionSeccion();
+            evaluacionSeccion.setPlanCalificacion(planCalificacion);
+            evaluacionSeccion.setSistemaNotas(planCalificacion.getSistemaNotas());
+            evaluacionSeccion.setGrupoSeccion(grupo);
+            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setFechaAceptacion(today);
+            evaluacionSeccionDAO.save(evaluacionSeccion);
+        }
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
 
