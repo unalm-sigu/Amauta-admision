@@ -846,6 +846,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
             evaluacionSeccion.setFechaAceptacion(today);
             evaluacionSeccionDAO.save(evaluacionSeccion);
+        } else {
+            evaluacionSeccion.setPlanCalificacion(planCalificacion);
+            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setFechaAceptacion(today);
+            evaluacionSeccionDAO.update(evaluacionSeccion);
         }
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
