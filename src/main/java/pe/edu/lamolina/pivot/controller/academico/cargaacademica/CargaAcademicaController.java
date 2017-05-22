@@ -168,6 +168,7 @@ public class CargaAcademicaController {
 
                 boolean tienePlanCalificacion = false;
                 boolean verOpciones = false;
+                boolean propuesto = false;
                 PlanCalificacion planCalificacionSelected = null;
                 node.put("sistemas", "");
 
@@ -193,6 +194,7 @@ public class CargaAcademicaController {
 
                         node.put("estado", EstadoPlanCalificaEnum.PRO.name());
                         node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
+                        propuesto = true;
                         verOpciones = true;
                     }
 
@@ -220,7 +222,7 @@ public class CargaAcademicaController {
                 }
                 node.put("verAceptarSistemaCal", false);
                 if (grupoSeccion != null) {
-                    if (grupoSeccion.isEstadoPropuesto()) {
+                    if (grupoSeccion.isEstadoPropuesto() || propuesto) {
                         node.put("verAceptarSistemaCal", true);
                     }
                 }
