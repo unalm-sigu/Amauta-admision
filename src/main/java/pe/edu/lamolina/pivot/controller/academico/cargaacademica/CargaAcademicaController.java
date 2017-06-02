@@ -150,21 +150,27 @@ public class CargaAcademicaController {
                 node.put("nombre", grupoSeccion.getCurso().getNombre());
                 node.put("codigo", grupoSeccion.getCurso().getCodigo());
                 node.put("tpc", grupoSeccion.getCurso().getTpc());
+                node.put("responsable", (String) ObjectUtil.getParentTree(grupoSeccion.getDocenteResponsable(), "persona.nombreCompleto"));
                 //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
                 String secciones = "";
-                String grupoHoras = "";
+                //String grupoHoras = "";
 
                 for (Seccion seccion : grupoSeccion.getSecciones()) {
-                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + ",";
+                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + "|";
+
                     if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
-                        grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
+                        secciones += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + "|";
+                        //grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
+                    } else {
+                        secciones += " | |";
                     }
+                    secciones += (seccion.getVerInformacion() ? "VER" : "NO-VER") + ",";
                 }
                 node.put("secciones", secciones.substring(0, secciones.length() - 1));
-                if (!"".equals(grupoHoras)) {
-                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
-                }
-                node.put("grupoHoras", grupoHoras);
+//                if (!"".equals(grupoHoras)) {
+//                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
+//                }
+//                node.put("grupoHoras", grupoHoras);
 
                 boolean tienePlanCalificacion = false;
                 boolean verOpciones = false;
@@ -230,8 +236,8 @@ public class CargaAcademicaController {
             }
 
             json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
+            json.setTotal(gruposSeccion.size());
+            json.setFiltered(gruposSeccion.size());
 
         } catch (Exception e) {
             e.printStackTrace();

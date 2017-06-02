@@ -39,7 +39,7 @@ public interface CargaAcademicaService {
 
     List<DocenteSeccion> allByCargaAcademica(DynatableFilter filter, Docente docente, CicloAcademico ciclo);
 
-    List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente, DataSessionPivot ds);
+    List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente, CicloAcademico ciclo);
 
     List<EvaluacionPlan> allEvaluacionPlanByPlanCalifica(Long idPlanCalificacion);
 
@@ -69,7 +69,7 @@ public interface CargaAcademicaService {
 
     void deleteEvaluacionExpandida(Long id);
 
-    void createEvaluacionSeccionPorDocente(Docente docente, DataSessionPivot ds);
+    void createEvaluacionSeccionPorDocente(Docente docente, CicloAcademico ciclo);
 
     void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum);
 

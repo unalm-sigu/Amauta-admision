@@ -79,6 +79,8 @@ public class GrupoSeccion implements Serializable {
 
     @Transient
     private String codigoCurso;
+    @Transient
+    private Docente docenteResponsable;
 
     public GrupoSeccion() {
     }
@@ -314,6 +316,14 @@ public class GrupoSeccion implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public Docente getDocenteResponsable() {
+        return docenteResponsable;
+    }
+
+    public void setDocenteResponsable(Docente docenteResponsable) {
+        this.docenteResponsable = docenteResponsable;
     }
 
 }

@@ -1,19 +1,22 @@
 <tr rel="{{:index}}">
     <td class="v-middle padder-v" style="{{:styleHijo}}">
         <p class="h4 text-info">{{:nombre}}</p>
+        
         <small class="block text-muted">Código: {{:codigo}}</small>
         <small class="block text-muted">TPC: {{:tpc}}</small>
+        {{:responsablePlan}}
     </td>
-    <td>
+    <td class="v-middle text-center">
         {{:tipoCiclo}}
     </td>
     <td class="v-middle text-center">
-        {{:secciones}}
+        {{:seccionesHtml}}
     </td>
 
     <td class="text-center v-middle">
         <input type="hidden" value="{{:id}}"/>
         <input type="hidden" value="{{:idSistemaCalificacion}}"/>
+        
         {{if sistemas==""}}
         <a href="#" class="label label-warning sistema-calificacion" rel="{{:idSistemaCalificacion}}">{{:sistemaCalificacion}}</a>
         {{/if}}

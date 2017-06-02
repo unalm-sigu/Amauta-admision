@@ -15,18 +15,18 @@
 
                     <span  class="capitalize" th:inline="text"> 
                         <div class="elipsis-name inline">
-                            [[ ${session.SESSION_USUARIO.persona.nombreCompleto} ]]
+                            [[ ${session.SESSION_USUARIO.persona.paternoNombre} ]]
                         </div>
                         <b class="fa fa-angle-down inline"></b> 
                     </span>
 
-                    <span class="role" >Administrador</span>
+                    <span class="role" th:inline="text">[[ ${session.SESSION_USUARIO.rolActivo.nombre} ]]</span>
                 </a>
 
                 <ul class="menu">      
-                    <li><a th:href="@{/changerol}">Cambiar de Rol</a></li>
+                    <li th:if="${session.SESSION_USUARIO.roles.size()>1}"><a th:href="@{/changerol}">Cambiar de Rol</a></li>
                     <!--li class="divider"> </li-->
-                    <li><a href="#"  onclick="exitSession()">Salir</a></li>
+                    <li><a href="#" onclick="exitSession()">Salir</a></li>
                 </ul>
             </div>
 
