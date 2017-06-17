@@ -567,6 +567,9 @@ public class ProgDataServiceImp implements ProgDataService {
 
         if (usuario.getEstadoEnum() == EstadoEnum.ACT) {
             for (Usuario user : usuarios) {
+                if (user.getId() == usuario.getId().longValue()) {
+                    continue;
+                }
                 if (user.getEstadoEnum() == EstadoEnum.ACT) {
                     user.setEstadoEnum(EstadoEnum.INA);
                     user.setFechaMofica(new Date());
