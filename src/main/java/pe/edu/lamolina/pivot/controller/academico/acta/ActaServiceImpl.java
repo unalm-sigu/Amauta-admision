@@ -103,7 +103,7 @@ public class ActaServiceImpl implements ActaService {
 
         controlDeActas.setControlDeActasDets(new ArrayList<>());
 
-        List<AlumnoEvaluacion> evaluacionesBySeccion = alumnoEvaluacionDAO.allByFilter(null, grupoSeccion.getId(), null);
+        List<AlumnoEvaluacion> evaluacionesBySeccion = alumnoEvaluacionDAO.allByFilter(null, grupoSeccion.getId(), null, null);
         logger.debug("Cantidad de evaluaciones del grupo {}", evaluacionesBySeccion.size());
         if (evaluacionesBySeccion.isEmpty()) {
             throw new PhobosException("Error. El grupo no cuenta con notas ingresadas.");

@@ -1,0 +1,62 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Acta de Notas</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">        
+            <h2>Acta de Notas - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+
+            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${departamentoAcademico.nombre}">Matematicas</span></span>
+            <input id="txtDepartamentoAcademico" type="hidden" th:value="${departamentoAcademico.id}"/>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-2 text-center">Curso</th>
+                            <th class="col-md-2 text-center">Grupo</th>
+                            <th class="col-md-2 text-center">Docente Principal</th>
+                            <th class="col-md-1 text-center">Versión Acta</th>
+                            <th class="col-md-2 text-center">Estado Sistema Calificación</th>
+                            <th class="col-md-1 text-center">Estado Acta</th>
+                            <th class="col-md-1 text-center">Estado</th>
+                            <th class="col-md-1 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+
+
+        <!-- 
+               <div class="tabbable-line m-b-lg" id="subBar">
+                   <ul class="nav nav-tabs">
+       
+                       <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
+                       <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
+                           <a href="#"
+                              th:text="${grupo.codigo}">grupo</a>
+                       </li>
+       
+                   </ul>
+               </div>
+        -->
+
+        <div th:substituteby="/templates/modal"/> 
+        <div th:substituteby="/academico/systemcalifica/sistema/modalSistema"/>
+        <script id="templateGrupos" type="text/x-jsrender" class="hide"><div th:substituteby="/academico/acta/templateActasDepartamento"/></script>
+    </div>
+
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/acta/actaDepartamento.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

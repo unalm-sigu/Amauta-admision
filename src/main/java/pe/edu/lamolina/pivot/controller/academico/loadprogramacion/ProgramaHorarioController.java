@@ -63,7 +63,7 @@ public class ProgramaHorarioController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
-        return "app/academico/loadprogramacion/loadProgramacion";
+        return "academico/loadprogramacion/loadProgramacion";
     }
 
     @ResponseBody

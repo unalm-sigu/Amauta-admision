@@ -85,7 +85,7 @@ public class SistemaController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
-        return "app/academico/systemcalifica/sistema/sistema";
+        return "academico/systemcalifica/sistema/sistema";
     }
 
     @ResponseBody
@@ -221,7 +221,7 @@ public class SistemaController {
         model.addAttribute("planCalificacion", planCalificacion);
         //  model.addAttribute("cursosByPlan", cursosByPlan);
         model.addAttribute("tieneCursos", (!planCalificacion.getPlanCalificacionCursos().isEmpty()));
-        return "app/academico/systemcalifica/sistema/detalleSistema";
+        return "academico/systemcalifica/sistema/detalleSistema";
     }
 
     @RequestMapping("{sistema}/cursos")
@@ -232,7 +232,7 @@ public class SistemaController {
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
 
-        return "app/academico/systemcalifica/sistema/cursos";
+        return "academico/systemcalifica/sistema/cursos";
     }
 
     @RequestMapping("{sistema}/detalleSolicitud")
@@ -243,7 +243,7 @@ public class SistemaController {
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
 
-        return "app/academico/systemcalifica/sistema/detalleSolicitud";
+        return "academico/systemcalifica/sistema/detalleSolicitud";
     }
 
     @RequestMapping("nuevo")
@@ -259,7 +259,7 @@ public class SistemaController {
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        return "app/academico/systemcalifica/sistema/nuevoSistema";
+        return "academico/systemcalifica/sistema/nuevoSistema";
     }
 
     @ResponseBody

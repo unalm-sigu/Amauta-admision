@@ -1,0 +1,61 @@
+<tr>
+    <td>
+        <select name="evaluacionPlan[{{:index}}].tipoEvaluacion.id"
+                class="form-control item-select2 cbo-tipo-evaluacion"
+                required="">
+            <option value="">Seleccionar..</option>
+            <option  th:each="item : ${tipoEvaluaciones}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+        </select>
+    </td>
+    <!-- 
+    <td>
+        <input  name="evaluacionPlan[{{:index}}].cantidadEvaluaciones"
+                type="text"
+                rel="{{:index}}"
+                class="form-control clsCantEvaluaciones" 
+                data-parsley-min="1"
+                required="true"/>
+    </td>    
+    -->
+    <td>
+        <input name="evaluacionPlan[{{:index}}].pesoTotal"
+               required="true"
+               data-parsley-type="number"
+               rel="{{:index}}" class="form-control calcular-peso-eva" />
+    </td>
+
+    <!-- 
+<td>
+    <label class="switch"> 
+        <input name="evaluacionPlan[{{:index}}].notaMinimaAnulable" type="checkbox" value="1" 
+               class="calcular-peso-eva-chk"
+               rel="{{:index}}"/>
+        <span></span>
+    </label>
+</td>
+<td>
+    <input name="evaluacionPlan[{{:index}}].pesoEvaluacion" 
+           type="text" class="form-control"
+           readonly="true"
+           rel="{{:index}}"/>
+</td>
+<td>
+    <label class="switch">
+        <input name="evaluacionPlan[{{:index}}].indPorcentajeVariable" type="checkbox" value="1"/>
+        <span></span>
+    </label>
+</td>
+<td>
+    <select name="evaluacionPlan[{{:index}}].tipoSeccion"  class="form-control item-select2">
+        <option th:each="itemea : ${tiposSeccion}"  
+                th:text="${itemea.value}"
+                th:value="${itemea.name()}" >yhhh</option>
+    </select>
+</td>
+    -->
+
+    <td class="v-middle text-center">
+        <a  rel="{{:index}}" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+    </td>
+
+</tr>

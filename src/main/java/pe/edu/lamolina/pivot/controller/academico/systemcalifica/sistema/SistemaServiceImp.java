@@ -128,9 +128,13 @@ public class SistemaServiceImp implements SistemaService {
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
+            evaluacionPlan.setCantidadEvaluaciones(BigDecimal.ONE.intValue());
+            evaluacionPlan.setPesoEvaluacion(evaluacionPlan.getPesoTotal());
+            /*
             if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().compareTo(BigDecimal.ZERO) == 0) {
                 throw new PhobosException("Peso evaluacion incorrecto..");
             }
+             */
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
@@ -195,9 +199,9 @@ public class SistemaServiceImp implements SistemaService {
                 for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
                     logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
                     logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-                    logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
+                    logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
                     if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-                            evaluacionExpandida.getTipoSeccionEnum())) {
+                            evaluacionExpandida.getTipoSeccionEvalEnum())) {
 
                         Evaluacion evaluacion = new Evaluacion();
                         evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);

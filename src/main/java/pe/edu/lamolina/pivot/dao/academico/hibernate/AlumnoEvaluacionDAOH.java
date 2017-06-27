@@ -12,6 +12,7 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import static pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum.MAT;
@@ -27,7 +28,7 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
     }
 
     @Override
-    public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion) {
+    public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva");
         sqlUtil.parents("evaluacion eva");
         sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr", "left _eva.evaluacionSuperior evaSup");
@@ -40,6 +41,9 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         }
         if (idSeccion != null) {
             sqlUtil.filter("sr.id", idSeccion);
+        }
+        if (idEvaluacion != null) {
+            sqlUtil.filter("eva.id", idEvaluacion);
         }
         List<AlumnoEvaluacion> lstEvaluaciones = this.all(sqlUtil);
         return lstEvaluaciones;
@@ -160,4 +164,13 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         }
         return find(sqlUtil);
     }
+
+    @Override
+    public void deleteByEvaluacion(Evaluacion evaluacion) {
+        String strQuery = "delete from AlumnoEvaluacion eva where eva.evaluacion.id=:prm_evaluacion";
+        Query query = getCurrentSession().createQuery(strQuery);
+        query.setLong("prm_evaluacion", evaluacion.getId());
+        query.executeUpdate();
+    }
+
 }

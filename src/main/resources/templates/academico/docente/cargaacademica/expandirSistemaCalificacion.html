@@ -1,0 +1,71 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Carga Académica</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body> 
+    <div layout:fragment="main">
+        <header class="page-header">       
+            <a th:href="@{/academico/docente/cargaacademica}" class="btn btn-sm btn-default pull-right">Regresar</a>
+            <h2>
+                <span th:text="|${curso.nombre} - ${ciclo.descripcion}: Asignar Evaluadores|">Sistema de Calificación SC-33</span>
+            </h2>
+
+            <span class="block"><strong>Claves:</strong > <span th:text="${claves}">2020, 2021, 2022</span></span>
+            <span class="block"><strong>Sist. Calificación:</strong > <span th:text="${planCalificacion.codigo}">2020, 2021, 2022</span></span>
+            <span class="block"><strong>Fórmula:</strong > <span th:text="${planCalificacion.formula}">2020, 2021, 2022</span></span>
+
+            <input id="txtPlanCalificaId" type="hidden" th:value="${planCalificacion.id}"/>
+            <input id="txtEvalSeccionId" name="evaluacionSeccionId" type="hidden" th:value="${evaluacionSeccion.id}"/>
+            <input id="txtGrupoSeccionId" type="hidden" th:value="${grupoSeccion.id}"/>
+            <input id="txtPermiteAsig" type="hidden" th:value="${permiteAsignar}"/>
+            <input type="hidden" id="txtEvalPlan" th:value="${evalPlanJson}"/>
+
+        </header>
+        <form id="frmExpansion">
+            <section class="panel">
+                <section class="panel-body">
+
+                    <table id="dynaTable" class="table table-striped">
+                        <thead> 
+                            <tr class=""> 
+
+                                <th class="col-md-4">Evaluación</th>
+                                <th class="col-md-1 text-center v-middle">Peso</th>
+                                <th class="col-md-2 text-center v-middle">Docente</th>
+                                <th class="col-md-1 text-center v-middle">Existen notas</th>
+                                <th class="col-md-4 v-middle">Docente Responsable</th>
+                                <th class="col-md-1 text-center">Anular nota min</th>
+                                <th class="text-center v-middle"><span th:if="${permiteAsignar}">Asignar Docente</span></th>
+                                <th class="text-center v-middle"><span th:if="${permiteAsignar}">Expandir</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </section>
+
+            </section>
+        </form>
+        <div class="line line-dashed b-b line-lg pull-in"></div>
+
+        <div class="form-group">
+            <div class="text-center">
+
+
+
+            </div>
+        </div>
+
+        <div th:substituteby="/templates/modal"/>
+
+        <script id="templateEvaluacionPlan" type="text/x-jsrender" class="hide"><div th:substituteby="/academico/docente/cargaacademica/templateEvaluacionPlan"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/cargaacademica/expandirSistemaCalificacion.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

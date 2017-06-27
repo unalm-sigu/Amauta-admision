@@ -81,9 +81,9 @@ public class TestController {
             for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
                 logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
                 logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEnum().name());
+                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
                 if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-                        evaluacionExpandida.getTipoSeccionEnum())) {
+                        evaluacionExpandida.getTipoSeccionEvalEnum())) {
 
                     Evaluacion evaluacion = evaluacionDAO.findByEvalExpSeccion(evaluacionExpandida.getId(), seccionEach.getId());
                     if (evaluacion != null) {

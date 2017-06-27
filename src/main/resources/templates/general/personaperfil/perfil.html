@@ -1,0 +1,46 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Administración de Colaboradores</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <div class="btn-group">
+                    <a type="button" class="btn btn-success" th:href="@{/general/personaperfil/nuevo}" >Nuevo</a>
+
+                </div>
+            </div> 
+            <h2>Administración de Colaboradores</h2>
+        </header>
+
+        <table id="dynaTable" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th class="col-md-4 text-left">Persona</th>
+                    <th class="col-md-4 text-center">Cargo</th>    
+                    <th class="col-md-3 text-center">Oficina</th>
+                    <th class="col-md-1 text-center">Estado</th>  
+                    <th></th>  
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
+        <div th:substituteby="/templates/modal"></div>
+        <script id="templatePerfil" type="text/x-jsrender" class="hide" ><div th:substituteby="general/personaperfil/perfilTemplate"/></script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/general/personaperfil/perfil.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

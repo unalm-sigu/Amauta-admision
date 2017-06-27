@@ -16,7 +16,9 @@ public class Application extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/**").addResourceLocations("/public/", "classpath:/META-INF/resources/webjars/");
+        registry
+                .addResourceHandler("/**")
+                .addResourceLocations("classpath:/public/", "classpath:/META-INF/resources/webjars/");
     }
 
 }

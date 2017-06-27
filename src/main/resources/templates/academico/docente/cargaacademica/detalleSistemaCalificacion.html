@@ -1,0 +1,118 @@
+<input  id="txtPlanCalificacion" type="hidden" th:value="${planCalificacion.id}"/>
+<input  id="txtCurso" type="hidden" th:value="${curso.id}"/>
+<input  id="txtGrupo" type="hidden" th:value="${grupoSeccion.id}"/>
+
+
+
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="block">
+            <strong>Codigo</strong> 
+            <span th:text="${planCalificacion.codigo}">100</span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="block">
+            <strong>Descripcion:</strong> 
+            <span th:text="${planCalificacion.descripcion}">100</span>
+        </div>
+
+        <div>
+            <strong>Nota Base:</strong> 
+            <span th:text="${planCalificacion.notaBase}">100</span>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="block">
+            <strong>Formula:</strong> 
+
+            <span th:text="${planCalificacion.formula}">1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span>
+        </div>
+        <div>
+            <strong>Sistema de Notas:</strong>
+
+            <span th:text="${planCalificacion.sistemaNotas.nombre}">1 al 20</span>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped m-t-lg">
+    <thead>
+        <tr class=""> 
+            <th class="col-md-1">Código</th>
+            <th class="col-md-4">Tipo Calificación</th>
+            <th class="col-md-2 text-center">Cantidad</th>
+            <th class="col-md-1 text-center">Peso</th>
+            <th class="col-md-2 text-center">Nota Min. Anulable</th>
+            <th class="col-md-1 text-center">Porcentaje Var.</th>
+            <!--   <th class="col-md-3 text-center">Profesor</th> -->
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
+            <td  class="v-middle"><span th:text="${evas.tipoEvaluacion.codigo}">EP</span></td>
+
+            <td  class="v-middle">
+                <span th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
+            </td>
+            <td class="text-center v-middle">
+                <span class="block" th:text="${evas.cantidadEvaluaciones}" >1</span>
+            </td>
+            <td class="text-center v-middle">
+                <span class="block"  th:text="${evas.pesoTotal + ' %'}"  >20 %</span>
+            </td>
+            <td class="text-center v-middle">
+                <span class="block"  th:if='${evas.notaMinimaAnulable==1}'>Si</span>
+                <span class="block"  th:if='${evas.notaMinimaAnulable==0}'>No</span>
+            </td>
+            <td class="text-center v-middle">
+                <span class="block"  th:if='${evas.indPorcentajeVariable==1}'>Si</span>
+                <span class="block"  th:if='${evas.indPorcentajeVariable==0}'>No</span>
+            </td>
+            <!--
+            <td class="text-center v-middle">
+                <span class="label label-default" th:text="${evas.tipoSeccionEnum.value}">Teoria</span> 
+            </td>-->
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+
+<span class="block m-b" th:if="${tieneCursos}" style="display: none;">Cursos </span>
+
+
+
+<table th:if="${tieneCursos}" class="table table-striped" id="dynaTable" style="display: none;">
+    <thead>
+        <tr class=""> 
+            <th class="col-md-1 v-middle text-center">Código</th>
+            <th class="col-md-8 v-middle">Curso</th>
+            <th class="col-md-2 v-middle text-center">Fecha de Inclusión</th>
+            <th class="col-md-1 v-middle text-center">TPC</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="curso : ${cursosByPlan}">
+            <td class="v-middle text-center">
+                <span th:text="${curso.codigo}"></span>
+            </td>
+            <td class="v-middle">
+                <span th:text="${curso.nombre}"></span>
+            </td>
+            <td class="v-middle text-center">
+                <span th:text="${#dates.format(curso.fechaPlanCalificacion, 'dd/MM/yyyy')}"></span>
+            </td>
+            <td class="v-middle text-center">
+                <span th:text="${curso.tpc}"></span>
+            </td>
+        </tr>
+
+    </tbody>
+</table>

@@ -59,7 +59,7 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> allEvaluacionesByEvalExpandida(EvaluacionExpandida evaluacionExpandida);
 
-    List<AlumnoEvaluacion> allAlumnoEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
+    List<AlumnoEvaluacion> allAlumnoEvaluacionByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion);
 
     EvaluacionPlan findEvaluacionPlan(Long idEvaluacionPlan);
 
@@ -148,5 +148,11 @@ public interface CargaAcademicaService {
     void desvincularPlanCalificacion(GrupoSeccion grupo);
 
     List<PlanCalificacionCurso> findAllActivePlanCalificacionCursos(Curso curso, TipoCicloEnum tipoCicloEnum);
+
+    void cambiarAnularNotaminima(EvaluacionExpandida evaluacionExpandida, Integer notaMinimaAnulable);
+
+    void eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds);
+
+    List<AlumnoEvaluacion> allAlumnosEvaluacionesPorEvaluacionExpandida(Long idEvaluacionExpandida);
 
 }

@@ -39,7 +39,7 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
     @Override
     public EvaluacionSeccion find(Long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es")
-                .parents("planCalificacion pc", "grupoSeccion gs")
+                .parents("planCalificacion pc", "grupoSeccion gs", "_gs.curso curso")
                 .filter("es.id", id);
         return find(sqlUtil);
     }

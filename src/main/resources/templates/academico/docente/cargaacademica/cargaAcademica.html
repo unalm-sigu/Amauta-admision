@@ -1,0 +1,41 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Carga Académica</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">        
+            <h2>Mi Carga Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-4">Curso</th>
+                            <th class="col-md-1 text-center">Tipo Ciclo</th>
+                            <th class="col-md-3 text-center">Claves</th>
+                            <th class="col-md-2 text-center">Sistema de Calificación</th>
+                            <th class="col-md-1 text-center">Estado</th>
+                            <th class="col-md-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+
+        <div th:substituteby="/templates/modal"/>
+        <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="/academico/docente/cargaacademica/templateCargaAcademica"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/cargaacademica/cargaAcademica.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

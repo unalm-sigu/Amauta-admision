@@ -86,7 +86,7 @@ public class ActaController {
         //   model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         //    model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
-        return "app/academico/acta/acta";
+        return "academico/acta/acta";
     }
 
     @ResponseBody
@@ -166,7 +166,7 @@ public class ActaController {
         model.addAttribute("departamentoAcademico", depAcademico);
         model.addAttribute("gruposSecciones", allGruposSeccion);
 
-        return "app/academico/acta/actaDepartamento";
+        return "academico/acta/actaDepartamento";
 
     }
 

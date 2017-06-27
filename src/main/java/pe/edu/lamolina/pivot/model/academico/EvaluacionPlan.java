@@ -36,10 +36,10 @@ public class EvaluacionPlan implements Serializable {
 
     @Column(name = "peso_total")
     private BigDecimal pesoTotal;
-
+    /*
     @Column(name = "tipo_seccion")
     private String tipoSeccion;
-
+     */
     @Column(name = "nota_minima_anulable")
     @NotNull
     private Integer notaMinimaAnulable;
@@ -129,6 +129,7 @@ public class EvaluacionPlan implements Serializable {
         this.pesoTotal = pesoTotal;
     }
 
+    /*
     public String getTipoSeccion() {
         return tipoSeccion;
     }
@@ -140,7 +141,7 @@ public class EvaluacionPlan implements Serializable {
     public TipoSeccionEvalEnum getTipoSeccionEnum() {
         return TipoSeccionEvalEnum.valueOf(tipoSeccion);
     }
-
+     */
     public Integer getNotaMinimaAnulable() {
         return notaMinimaAnulable;
     }

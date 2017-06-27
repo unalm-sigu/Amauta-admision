@@ -1,0 +1,179 @@
+<form id="frmAceptarSistCal" class="frmAceptarSistCal">
+
+    <input  id="txtPlanCalificacion" name="id" type="hidden" th:value="${planCalificacion.id}"/>
+    <input  id="txtCurso" name="cursoId" type="hidden" th:value="${curso.id}"/>
+    <input  id="txtGrupo" name="grupoId" type="hidden" th:value="${grupoSeccion.id}"/>
+
+    <div class="row">
+        <div class="form-group">
+            <label for="ejemplo_email_3" class="col-lg-2 control-label bold" style="font-weight: bold;">Plan Calificación:</label>
+            <div class="col-lg-10">
+                <select id="cboSistemaAceptar" class="form-control item-select2 cbo-cambiar-sistema">
+                    <option  th:each="planCalCurso,itrStat : ${planesCalificacionCurso}"  
+                             th:selected="${planCalificacion.id==planCalCurso.planCalificacion.id}"
+                             th:value="${planCalCurso.planCalificacion.id}" th:text="${planCalCurso.planCalificacion.codigo}"></option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="block">
+                <strong>Descripcion:</strong> 
+                <span th:text="${planCalificacion.descripcion}">100</span>
+            </div>
+
+            <div>
+                <strong>Nota Base:</strong> 
+                <span th:text="${planCalificacion.notaBase}">100</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="block">
+                <strong>Formula:</strong> 
+
+                <span th:text="${planCalificacion.formula}">1EP(20) + 1EF(30) + 5(1)PC(40) + 3(1)TA(10)</span>
+            </div>
+            <div>
+                <strong>Sistema de Notas:</strong>
+
+                <span th:text="${planCalificacion.sistemaNotas.nombre}">1 al 20</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" th:if="${planCalificacion.estadoObservado || planCalificacion.estadoRechazado}">
+        <div class="col-md-2" >
+            <strong>Observación:</strong>
+        </div>
+        <div class="col-md-10" >
+            <span  th:text="${planCalificacion.observacion}">1 al 20</span>
+        </div>
+    </div>
+
+
+    <div class="row"  th:if="${planCalificacion.estadoSolicitado}">
+        <div class="col-md-2" >
+            <strong>Sustento</strong> 
+        </div>
+        <div class="col-md-10" >
+            <span  th:text="${planCalificacion.sustento}">1 al 20</span>
+        </div>
+    </div>
+
+
+    <table class="table table-striped m-t-lg">
+        <thead>
+            <tr class=""> 
+                <th class="col-md-1">Código</th>
+                <th class="col-md-2">Tipo Calificación</th>
+                <!-- 
+                <th class="col-md-2 text-center">Cantidad</th>
+                -->
+                <th class="col-md-1 text-center">Peso Total</th>
+                <!-- 
+              <th class="col-md-2 text-center">Nota Min. Anulable</th>
+              <th class="col-md-1 text-center">Peso Evaluacion</th>
+              <th class="col-md-1 text-center">Porcentaje Var.</th>
+
+              <th class="col-md-2 text-center">Profesor</th>
+                -->
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="evas,iter : ${planCalificacion.evaluacionPlan}">
+                <td  class="v-middle">
+                    <span th:text="${evas.tipoEvaluacion.codigo}">EP</span>
+                </td>
+
+                <td  class="v-middle">
+                    <span th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
+
+                </td>
+                <!-- 
+                <td class="text-center v-middle">
+                    <span th:text="${evas.cantidadEvaluaciones}">100</span>
+                </td>
+                -->
+                <td class="text-center v-middle">
+                    <span th:text="${evas.pesoTotal}">100</span>
+                </td>
+                 <!-- 
+                <td class="text-center v-middle">
+
+
+                    <label class="switch">
+                        <input  type="checkbox" 
+                                th:name="|evaluacionPlan[${iter.index}].notaMinimaAnulable|"
+                                value="1"
+                                th:attr="checked=${evas.notaMinimaAnulable==1 ? true : false}"
+                                rel="0"   class="calcular-peso-eva-chk calcular-peso-eva"
+                                disabled="true"/>
+                        <span></span>
+                    </label>
+                </td>
+                <td class="text-center v-middle">
+                    <span th:text="${evas.pesoEvaluacion}">100</span>
+
+                </td>
+                <td class="text-center v-middle">
+                  
+                    <label class="switch">
+                        <input  type="checkbox" 
+                                th:name="|evaluacionPlan[${iter.index}].indPorcentajeVariable|"
+                                th:attr="checked=${evas.indPorcentajeVariable==1 ? true : false}"
+                                th:value="1"
+                                disabled="true"
+                                rel="0"   class="calcular-peso-eva-chk" />
+                        <span></span>
+                    </label>
+                </td>
+                <td class="text-center v-middle">
+                    <span class="label label-default" th:text="${evas.tipoSeccionEnum.value}">Teoria</span>
+
+
+                </td>   -->
+            </tr>
+
+        </tbody>
+    </table>
+
+
+
+
+    <span class="block m-b" th:if="${tieneCursos}" style="display: none;">Cursos </span>
+
+
+
+    <table th:if="${tieneCursos}" class="table table-striped" id="dynaTable" style="display: none;">
+        <thead>
+            <tr class=""> 
+                <th class="col-md-1 v-middle text-center">Código</th>
+                <th class="col-md-8 v-middle">Curso</th>
+                <th class="col-md-2 v-middle text-center">Fecha de Inclusión</th>
+                <th class="col-md-1 v-middle text-center">TPC</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="curso : ${cursosByPlan}">
+                <td class="v-middle text-center">
+                    <span th:text="${curso.codigo}"></span>
+                </td>
+                <td class="v-middle">
+                    <span th:text="${curso.nombre}"></span>
+                </td>
+                <td class="v-middle text-center">
+                    <span th:text="${#dates.format(curso.fechaPlanCalificacion, 'dd/MM/yyyy')}"></span>
+                </td>
+                <td class="v-middle text-center">
+                    <span th:text="${curso.tpc}"></span>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+
+</form>

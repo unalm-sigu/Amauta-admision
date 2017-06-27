@@ -1,0 +1,194 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Carga Académica</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">        
+            <h2>Resumen de Evaluaciones</h2>
+            <span class="block"><strong>Departamento Académico:</strong> Matematicas</span>
+            <span class="block"><strong>Ciclo:</strong> <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016 - II</span></span>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                <a href="#" class="otra-pantalla">Otra pantalla</a>
+                <span class="col-sm-1 btn btn-primary pull-right">Excel</span>
+                <div class="row m-b-sm">
+                    <div class="form-group">
+                        <span class="col-sm-1 v-middle"><strong>Curso:</strong></span>
+                        <div class="col-sm-2">
+                            <select name="account" class="form-control m-b select2">
+                                <option>Todos</option>
+                                <option>Matemática</option>
+                                <option>Lenguaje</option>
+                                <option>Biología</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-2">Sistema</th>
+                            <th class="col-md-2 text-center">Curso</th>
+                            <th class="col-md-1 text-center">Grupo CI</th>
+                            <th class="col-md-1 text-center">Alumnos</th>
+                            <th class="col-md-1 text-center">EP</th>
+                            <th class="col-md-1 text-center">EF</th>
+                            <th class="col-md-1 text-center">
+                                <a href="#" class="resumen-evaluaciones">PC 1</a>
+                            </th>
+                            <th class="col-md-1 text-center">
+                                <a href="#" class="resumen-evaluaciones">PC 2</a>
+                            </th>
+                            <th class="col-md-1 text-center">TAI 1</th>
+                            <th class="col-md-1 text-center">TAI 2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="v-middle">
+                                <span>SC 308-MT</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>MT-1001</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>302</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>45</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">25</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">35</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="v-middle">
+                                <span>SC 308-MT</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>MT-1001</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>302</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>45</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">31</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">42</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="v-middle">
+                                <span>SC 308-MT</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>MT-1001</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>302</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>45</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">39</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">44</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="v-middle">
+                                <span>SC 308-MT</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>MT-1001</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>302</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <span>45</span>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">27</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">29</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                            <td class="v-middle text-center">
+                                <a href="#" class="estadistica-evaluaciones">0</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </section>
+
+        <div th:substituteby="/templates/modal"/>
+        <div th:substituteby="/academico/docente/cargaacademica/modalNotasAcademicas"/>
+        <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="/academico/docente/cargaacademica/templateCargaAcademica"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/evaluacion/resumenEvaluaciones.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

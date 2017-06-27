@@ -17,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCursoEnum;
 
 @Entity
 @Table(name = "aca_curso")
@@ -203,6 +204,10 @@ public class Curso implements Serializable {
 
     public void setTipoCurso(String tipoCurso) {
         this.tipoCurso = tipoCurso;
+    }
+
+    public TipoCursoEnum getTipoCursoEnum() {
+        return TipoCursoEnum.valueOf(this.getTipoCurso());
     }
 
     public List<AlumnoCicloCurso> getAlumnoCicloCurso() {

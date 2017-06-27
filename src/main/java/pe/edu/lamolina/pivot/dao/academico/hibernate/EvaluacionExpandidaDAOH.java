@@ -24,7 +24,7 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
     @Override
     public EvaluacionExpandida find(long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva")
-                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc")
+                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc", "evaluaciones evals")
                 .parents("_sc.grupoSeccion gs")
                 .filter("eva.id", id);
 
@@ -37,7 +37,16 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
         List<EvaluacionExpandida> evaluacionesHija = this.all(sqlUtil);
         evaluacion.setEvaluacionesExpandidas(evaluacionesHija);
-
+        /*
+        for (EvaluacionExpandida evaluacionExpandida : evaluacion.getEvaluacionesExpandidas()) {
+            sqlUtil = SqlUtil.creaSqlUtil("eva")
+                    .parents("tipoEvaluacion te", "evaluacionSuperior es", "evaluacionSeccion sc")
+                    .parents("_sc.grupoSeccion gs")
+                    .filter("es.id", evaluacionExpandida.getId());
+            List<EvaluacionExpandida> evaluacionesNietas = this.all(sqlUtil);
+            evaluacionExpandida.setEvaluacionesExpandidas(evaluacionesNietas);
+        }
+         */
         return evaluacion;
     }
 

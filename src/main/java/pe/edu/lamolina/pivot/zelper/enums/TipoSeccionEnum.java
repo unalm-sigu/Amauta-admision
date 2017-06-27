@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoSeccionEnum {
-    PRA("Práctica", TipoSeccionEvalEnum.PRAC), PCUR("Práctica Curso", TipoSeccionEvalEnum.PRAC),
-    TCUR("Teoría Curso", TipoSeccionEvalEnum.TEO), TEO("Teoría", TipoSeccionEvalEnum.TEO);
+    PRA("Práctica", TipoSeccionEvalEnum.PRAC, TipoCursoEnum.TEOPRA), //PRA
+    PCUR("Práctica Curso", TipoSeccionEvalEnum.PRAC, TipoCursoEnum.TEOPRA), //TEOPRA,,, la primira vez no se hace el merge
+    TCUR("Teoría Curso", TipoSeccionEvalEnum.TEO, TipoCursoEnum.TEOPRA), //TEOPRA
+    TEO("Teoría", TipoSeccionEvalEnum.TEO, TipoCursoEnum.TEO); //TEO
 
     private final String value;
     private final TipoSeccionEvalEnum tipoSeccionEvalEnum;
+    private final TipoCursoEnum tipoCursoEnum;
     private static final Map<String, TipoSeccionEnum> lookup = new HashMap<>();
 
     static {
@@ -17,9 +20,10 @@ public enum TipoSeccionEnum {
         }
     }
 
-    private TipoSeccionEnum(String value, TipoSeccionEvalEnum tipoSeccionEvalEnum) {
+    private TipoSeccionEnum(String value, TipoSeccionEvalEnum tipoSeccionEvalEnum, TipoCursoEnum tipoCursoEnum) {
         this.value = value;
         this.tipoSeccionEvalEnum = tipoSeccionEvalEnum;
+        this.tipoCursoEnum = tipoCursoEnum;
     }
 
     public String getValue() {
@@ -28,6 +32,10 @@ public enum TipoSeccionEnum {
 
     public TipoSeccionEvalEnum getTipoSeccionEvalEnum() {
         return tipoSeccionEvalEnum;
+    }
+
+    public TipoCursoEnum getTipoCursoEum() {
+        return tipoCursoEnum;
     }
 
     public static TipoSeccionEnum get(String abbreviation) {

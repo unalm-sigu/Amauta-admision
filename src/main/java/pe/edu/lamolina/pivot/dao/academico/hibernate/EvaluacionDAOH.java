@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -172,7 +173,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     }
 
     @Override
-    public List<Evaluacion> allByEvaluacionesExpandidas(List<EvaluacionExpandida> evaluacionesExp) {
+    public List<Evaluacion> allByEvaluacionesByExpandidas(List<EvaluacionExpandida> evaluacionesExp) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
                 .parents("evaluacionSeccion es", "evaluacionExpandida ee", "seccionResponsable s", "left docenteEvaluador de")
                 .filterIn("ee.id", evaluacionesExp);
@@ -184,7 +185,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     public List<Evaluacion> allByEvaluacionExpandidaSecciones(EvaluacionExpandida evaluacion, List<Seccion> secciones) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
                 .parents("evaluacionSeccion es", "evaluacionExpandida ee", "left _ee.evaluacionSuperior ees", "seccionResponsable s", "left docenteEvaluador de")
-                .filterIsNull("ees.id")
+                //  .filterIsNull("ees.id")
                 .filter("ee.id", evaluacion)
                 .filterIn("s.id", secciones);
 
@@ -210,6 +211,44 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
         query.executeUpdate();
 
+        List<Evaluacion> evaluaciones = allByFilter(evaluacionSeccion.getId(), null, null, null);
+
+        List<Long> lstEvaNietasId = new ArrayList<>();
+        List<Long> lstEvaHijasId = new ArrayList<>();
+        List<Long> lstEvaPadresId = new ArrayList<>();
+
+        for (Evaluacion evaluacione : evaluaciones) {
+            lstEvaPadresId.add(evaluacione.getId());
+            for (Evaluacion evaluacione1 : evaluacione.getEvaluaciones()) {
+                lstEvaHijasId.add(evaluacione1.getId());
+                for (Evaluacion evaluacione2 : evaluacione1.getEvaluaciones()) {
+                    lstEvaNietasId.add(evaluacione2.getId());
+                }
+            }
+        }
+        StringBuilder strbDeleteEvaluacionesHijas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
+        strbDeleteEvaluacionesHijas.append(" :prm_evas ");
+        strbDeleteEvaluacionesHijas.append(") ");
+
+        if (!lstEvaNietasId.isEmpty()) {
+            query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesHijas.toString());
+            query.setParameterList("prm_evas", lstEvaNietasId);
+            query.executeUpdate();
+        }
+
+        if (!lstEvaHijasId.isEmpty()) {
+            query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesHijas.toString());
+            query.setParameterList("prm_evas", lstEvaHijasId);
+            query.executeUpdate();
+        }
+
+        if (!lstEvaPadresId.isEmpty()) {
+            query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesHijas.toString());
+            query.setParameterList("prm_evas", lstEvaPadresId);
+            query.executeUpdate();
+        }
+
+        /*
         StringBuilder strbDeleteEvaluacionesHijas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
         strbDeleteEvaluacionesHijas.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
         strbDeleteEvaluacionesHijas.append(") and id_evaluacion_superior is not null");
@@ -233,6 +272,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesExpadidas.toString());
         query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
         query.executeUpdate();
+         */
     }
 
 }

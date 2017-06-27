@@ -6,10 +6,11 @@ import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 
 public interface AlumnoEvaluacionDAO extends Crud<AlumnoEvaluacion> {
 
-    List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion);
+    List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion);
 
     List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idALumno, Long idCurso, Long idCicloAcademico, String orderBy);
 
@@ -18,5 +19,7 @@ public interface AlumnoEvaluacionDAO extends Crud<AlumnoEvaluacion> {
     List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo);
 
     AlumnoEvaluacion findByFilter(Long id, Long idEvaluacion, Long idAlumno);
+
+    void deleteByEvaluacion(Evaluacion evaluacion);
 
 }

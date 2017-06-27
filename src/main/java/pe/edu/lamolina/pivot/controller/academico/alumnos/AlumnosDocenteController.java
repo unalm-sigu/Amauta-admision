@@ -142,7 +142,7 @@ public class AlumnosDocenteController {
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
         //model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
-        return "app/academico/docente/alumnos/alumnosDocente";
+        return "academico/docente/alumnos/alumnosDocente";
     }
 
 }

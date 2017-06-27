@@ -51,27 +51,27 @@ public class EvaluacionesController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "app/academico/docente/evaluacion/resumenEvaluacion";
+        return "academico/docente/evaluacion/resumenEvaluacion";
     }
 
     @RequestMapping("detalleResumenEvaluacion")
     public String detalleResumenEvaluacion(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "app/academico/docente/evaluacion/detalleResumenEvaluacion";
+        return "academico/docente/evaluacion/detalleResumenEvaluacion";
     }
     
     @RequestMapping("detalleEstadisticaEvaluacion")
     public String detalleEstadisticaEvaluacion(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "app/academico/docente/evaluacion/detalleResumenEvaluacion";
+        return "academico/docente/evaluacion/detalleResumenEvaluacion";
     }
     
     @RequestMapping("resumenEvaluacion2")
     public String resumenEvaluacion2(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "app/academico/docente/evaluacion/resumenEvaluacion2";
+        return "academico/docente/evaluacion/resumenEvaluacion2";
     }
 }
