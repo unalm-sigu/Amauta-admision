@@ -75,7 +75,6 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoPlanCalificacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
@@ -146,8 +145,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     EvaluacionEliminadaDAO evaluacionEliminadaDAO;
 
     @Override
-    public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ds);
+    public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
+        Map<Long, DocenteSeccion> mapDocentesSeccion = MapUtil.storeItems("seccion.id", docentesSecciones);
+
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
         List<Long> lstIds = new ArrayList<>();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
@@ -156,11 +157,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
-        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico, null, EstadoEnum.ACT);
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, ciclo, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
-        gruposSeccion.forEach((grupoSeccion) -> {
+        List<DocenteSeccion> responsables = docenteSeccionDAO.allResponsablesByGpoSecciones(gruposSeccion, ciclo);
+        Map<Long, DocenteSeccion> mapResponsables = MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
+        for (GrupoSeccion grupoSeccion : gruposSeccion) {
             grupoSeccion.setSecciones(new ArrayList());
-        });
+            DocenteSeccion responsable = mapResponsables.get(grupoSeccion.getId());
+            grupoSeccion.setDocenteResponsable(responsable.getDocente());
+        }
+
         Map<Long, GrupoSeccion> mapGposSeccion = MapUtil.storeItems("id", gruposSeccion);
 
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gruposSeccion);
@@ -170,6 +176,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             GrupoSeccion gpoSecc = mapGposSeccion.get(seccion.getGrupoSeccion().getId());
             seccion.setGrupoSeccion(gpoSecc);
             gpoSecc.getSecciones().add(seccion);
+
+            DocenteSeccion profeSeccion = mapDocentesSeccion.get(seccion.getId());
+            Docente responsable = gpoSecc.getDocenteResponsable();
+            if (profeSeccion != null) {
+                seccion.setVerInformacion(true);
+            } else if (responsable != null && responsable.getId() == docente.getId().longValue()) {
+                seccion.setVerInformacion(true);
+            }
         }
 
         for (DocenteSeccion profeSecc : docentesSecciones) {
@@ -198,8 +212,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         return gruposSeccion;
     }
 
-    public List<DocenteSeccion> allDocenteSeccion(Docente docente, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ds);
+    public List<DocenteSeccion> allDocenteSeccion(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
         List<Long> lstIds = new ArrayList<>();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
@@ -208,7 +222,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
-        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, cicloAcademico, null, EstadoEnum.ACT);
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, ciclo, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         gruposSeccion.forEach((grupoSeccion) -> {
             grupoSeccion.setSecciones(new ArrayList());
@@ -256,8 +270,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente, DataSessionPivot ds) {
-        return docenteSeccionDAO.allByDocente(docente, ds);
+    public List<DocenteSeccion> allDocenteSeccionByDocente(Docente docente, CicloAcademico ciclo) {
+        return docenteSeccionDAO.allByDocente(docente, ciclo);
     }
 
     @Override
@@ -340,9 +354,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Override
     @Transactional
-    public void createEvaluacionSeccionPorDocente(Docente docente, DataSessionPivot ds) {
+    public void createEvaluacionSeccionPorDocente(Docente docente, CicloAcademico ciclo) {
 
-        List<DocenteSeccion> lstDocenteSeccion = docenteSeccionDAO.allByDocente(docente, ds);
+        List<DocenteSeccion> lstDocenteSeccion = docenteSeccionDAO.allByDocente(docente, ciclo);
         logger.debug("Lista de secciones por docente {}", lstDocenteSeccion.size());
         for (DocenteSeccion docenteSeccion : lstDocenteSeccion) {
 
@@ -350,10 +364,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Curso curso = docenteSeccion.getSeccion().getGrupoSeccion().getCurso();
 
             String objectToEvaluate = "";
-            if (ds.getCicloAcademico().isTipoNivelacion()) {
+            if (ciclo.isTipoNivelacion()) {
                 logger.debug("El ciclo es nivelacion");
                 objectToEvaluate = "planCalificacion.id";
-            } else if (ds.getCicloAcademico().isTipoRegular()) {
+            } else if (ciclo.isTipoRegular()) {
                 logger.debug("El ciclo es regular");
                 objectToEvaluate = "planCalificacionRegular.id";
             }

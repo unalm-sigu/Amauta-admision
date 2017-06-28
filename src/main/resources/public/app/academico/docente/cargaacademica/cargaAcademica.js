@@ -3,13 +3,18 @@ $(function () {
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/docente/cargaacademica/list'),
-            perPageDefault: 100
+            perPageDefault: 100,
+            recordCountText: '{x} to {y} out of {z} {params.records}'
         },
         writers: {
             _rowWriter: ulWriter
         },
         table: {
             bodyRowSelector: 'tbody tr'
+        },
+        features: {
+            paginate: false,
+            search: false
         }
     }).data('dynatable');
 
@@ -17,29 +22,32 @@ $(function () {
         var colorEstado = {ACT: "success", CER: "danger", CRE: "default"};
         record.colorEstado = colorEstado[record.estado];
         record.index = rowIndex;
+
+        var seccionesHtml = "";
         var secciones = record.secciones.split(",");
 
-        var grupoHoras = "";
-        if (record.grupoHoras != "") {
-            grupoHoras = record.grupoHoras.toString().split(",");
-        }
-        var seccionesResult = "";
-
         for (var i = 0; i < secciones.length; i++) {
-            seccionesResult += '<div class="m-l-md inline"><a href="#" ';
-            if (record.estado == 'ACEP') {
-                seccionesResult += 'class="notas-academicas"';
+            seccionesHtml += '<div class="m-l-md inline"><a href="#" ';
+            if (record.estado == 'ACEP' && secciones[i].split("|")[4] == "VER") {
+                seccionesHtml += 'class="notas-academicas"';
+            } else if (secciones[i].split("|")[4] == "VER") {
+                seccionesHtml += 'class="ver-alumnos"';
             } else {
-                seccionesResult += 'class="ver-alumnos"';
+                seccionesHtml += 'class="text-danger no-ver-alumnos"';
             }
-
-            var grupoText = "";
-            if (grupoHoras[i] != null) {
-                grupoText = grupoHoras != "" ? (' - ' + grupoHoras[i].split("|")[1]) : "";
+            seccionesHtml += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1];
+            if (secciones[i].split("|")[3] != " ") {
+                seccionesHtml += " - " + secciones[i].split("|")[3];
             }
-            seccionesResult += ' rel="' + secciones[i].split("|")[0] + '">' + secciones[i].split("|")[1] + grupoText + '</a></div>';
+            seccionesHtml += '</a></div>';
         }
-        record.secciones = seccionesResult;
+        record.seccionesHtml = seccionesHtml;
+
+        if (record.responsable != null) {
+            record.responsablePlan = '<div class="block"><strong>Responsable:</strong> ' + record.responsable + '</div>';
+        } else {
+            record.responsablePlan = '<div class="text-danger block">Sin responsable</div>';
+        }
 
         if (record.sistemas != "") {
             var sistemasCursos = record.sistemas.split("-");
@@ -209,6 +217,9 @@ $(function () {
         verNuevoSC: function (e) {
             e.preventDefault();
             location.href = APP.url("academico/docente/cargaacademica/nuevo/" + $("#txtGrupo").val());
+        },
+        noVerAlumnos: function ($this, e) {
+            notify("Usted no es docente de esta clave", "error");
         },
         addTipoEvaluacion: function (e) {
             e.preventDefault();
@@ -414,6 +425,9 @@ $(function () {
     });
     $("body").delegate(".notas-academicas", "click", function (e) {
         CargaAcademica.notasAcademicas($(this), e);
+    });
+    $("body").delegate(".no-ver-alumnos", "click", function (e) {
+        CargaAcademica.noVerAlumnos($(this), e);
     });
     $("body").delegate(".ver-alumnos", "click", function (e) {
         CargaAcademica.verAlumnos($(this), e);

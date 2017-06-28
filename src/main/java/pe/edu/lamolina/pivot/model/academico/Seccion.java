@@ -106,8 +106,11 @@ public class Seccion implements Serializable {
     private String codigoGrupoSeccion;
     @Transient
     private String codigoTipoSeccion;
+    @Transient
+    private Boolean verInformacion;
 
     public Seccion() {
+        this.verInformacion = false;
     }
 
     public Seccion(String codigo, String codigo2, String codigoGrupoHorario, String codigoAula, String codigoGrupoSeccion, String codigoTipoSeccion) {
@@ -117,6 +120,7 @@ public class Seccion implements Serializable {
         this.codigoAula = codigoAula;
         this.codigoGrupoSeccion = codigoGrupoSeccion;
         this.codigoTipoSeccion = codigoTipoSeccion;
+        this.verInformacion = false;
     }
 
     public Seccion(Object id) {
@@ -366,6 +370,14 @@ public class Seccion implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public Boolean getVerInformacion() {
+        return verInformacion;
+    }
+
+    public void setVerInformacion(Boolean verInformacion) {
+        this.verInformacion = verInformacion;
     }
 
 }

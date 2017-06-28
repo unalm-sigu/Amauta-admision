@@ -13,6 +13,7 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Repository
@@ -68,15 +69,15 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     }
 
     @Override
-    public List<DocenteSeccion> allByDocente(Docente docente, DataSessionPivot ds) {
+    public List<DocenteSeccion> allByDocente(Docente docente, CicloAcademico ciclo) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
                 .parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur", "left _sec.aula au", "left _sec.grupoHoras gh")
                 .parents("left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2")
                 .parents("left _doc.persona per", "left _per.tipoDocumento")
                 .filter("doc.id", docente.getId())
+                .filter("gs.cicloAcademico.id", ciclo)
                 .filter("dc.estado", EstadoEnum.ACT.name());
 
-        sqlUtil.filter("gs.cicloAcademico.id", ds.getCicloAcademico().getId());
         /*
         if (ds.getCicloAcademico().isTipoNivelacion()) {
             sqlUtil.filter("pc.tipoCiclo", ds.getCicloAcademico().getTipo());
@@ -84,6 +85,23 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
             sqlUtil.filter("pcr.tipoCiclo", ds.getCicloAcademico().getTipo());
         }
          */
+        return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allResponsablesByGpoSecciones(List<GrupoSeccion> gruposSeccion, CicloAcademico ciclo) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("dc")
+                .parents("docente doc", "seccion sec", "_sec.grupoSeccion gs", "_gs.curso cur", "left _sec.aula au", "left _sec.grupoHoras gh")
+                .parents("left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2")
+                .parents("left _doc.persona per", "left _per.tipoDocumento")
+                .filterIn("gs.id", gruposSeccion)
+                .filter("gs.cicloAcademico.id", ciclo)
+                .filter("sec.tipoSeccion <>", TipoSeccionEnum.PCUR.name())
+                .filter("dc.principal", 1)
+                .filter("gs.estado", EstadoEnum.ACT.name())
+                .filter("sec.estado", EstadoEnum.ACT.name())
+                .filter("dc.estado", EstadoEnum.ACT.name());
+
         return this.all(sqlUtil);
     }
 
