@@ -270,6 +270,7 @@ public class CargaAcademicaController {
                 logger.debug("Padre - Tipo evaluacion {}", evaluacionExpandida.getTipoEvaluacion().getNombre() + " " + evaluacionExpandida.getNumero());
 
                 ObjectNode node = castEvaluacionExpandida(evaluacionExpandida);
+                node.put("esAbuelo", true);
                 node.put("esHijo", false);
                 node.put("esNieto", false);
                 boolean estaEvaluado = false;
@@ -291,6 +292,7 @@ public class CargaAcademicaController {
                     nodeHijo.put("editarPorcentaje", false);
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("esNieto", false);
+                    nodeHijo.put("esAbuelo", false);
                     array.add(nodeHijo);
 
                     for (EvaluacionExpandida evaluacionNieta : evaluacionHija.getEvaluacionesExpandidas()) {
@@ -299,6 +301,7 @@ public class CargaAcademicaController {
                         //            nodeNieta.put("editarPorcentaje", evaluacionExpandida.isPorcentajeVariable() && !estaEvaluado && !evaluacionExpandida.isDesagregado());
                         nodeNieta.put("editarPorcentaje", false);
                         nodeNieta.put("esNieto", true);
+                        nodeNieta.put("esAbuelo", false);
                         array.add(nodeNieta);
                     }
 
@@ -332,6 +335,8 @@ public class CargaAcademicaController {
         node.put("conNotas", evaluacionExpandida.isNotasIngresadas());
         node.put("permiteAnular", esPadre && evaluacionExpandida.isDesagregado());
         node.put("notaMinAnulable", evaluacionExpandida.getNotaMinimaAnulable());
+        node.put("estadoPlanExp", evaluacionExpandida.getEstadoEnum().getValue());
+        node.put("estadoAnulado", evaluacionExpandida.isEstadoAnulado());
         {
             ArrayNode evaluadores = new ArrayNode(JsonNodeFactory.instance);
             List<Evaluacion> evals = evaluacionExpandida.getEvaluaciones();
@@ -342,6 +347,7 @@ public class CargaAcademicaController {
                 ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
                 nodeDoc.put("seccion", seccion.getCodigo2());
                 nodeDoc.put("docente", profe == null ? "" : (profe.getPersona().getApellidosNombres()));
+
                 evaluadores.add(nodeDoc);
             }
             node.put("evaluadores", evaluadores);
@@ -688,6 +694,28 @@ public class CargaAcademicaController {
         model.addAttribute("evaluaciones", evaluacion.getEvaluacionesExpandidas());
         model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluacionesExpandidas() != null && !evaluacion.getEvaluacionesExpandidas().isEmpty() ? true : false);
         return "academico/docente/cargaacademica/detalleExpandirEvaluacion";
+    }
+
+    @ResponseBody
+    @RequestMapping("anularEvaluacionExp")
+    public JsonResponse anularEvaluacionExp(@RequestParam("evaluacion") Long evaluacionExp,
+            RedirectAttributes redirectAttr, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            logger.debug("Evaluacion Expandida {}", evaluacionExp);
+
+            cargaAcademicaService.anularEvaluacionExp(new EvaluacionExpandida(evaluacionExp));
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Anulado correctamente.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @RequestMapping("detalleAsignarDocente")

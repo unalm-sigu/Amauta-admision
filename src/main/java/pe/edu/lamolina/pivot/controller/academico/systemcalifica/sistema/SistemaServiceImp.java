@@ -193,7 +193,7 @@ public class SistemaServiceImp implements SistemaService {
 
             List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
             logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
-            List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+            List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
             logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", idPLanCalificacion, planEvaluaciones.size());
             for (Seccion seccionEach : secciones) {
                 for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
@@ -237,7 +237,7 @@ public class SistemaServiceImp implements SistemaService {
         evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
-        List<EvaluacionExpandida> evaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        List<EvaluacionExpandida> evaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
         logger.debug("Evaluacion seccion {}, cantidad de pensiones expandidadas {}", evaluacionSeccion.getId(), evaluaciones.size());
         if (evaluaciones.isEmpty()) {
             logger.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());

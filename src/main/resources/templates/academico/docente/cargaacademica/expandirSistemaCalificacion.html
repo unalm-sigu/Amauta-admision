@@ -2,6 +2,12 @@
     <head>
         <title>Carga Académica</title>
     <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+
+    <style type="text/css">
+        #dynatable-search-dynaTable, #dynatable-record-count-dynaTable{
+            display: none;
+        }
+    </style>
 </head>
 
 <body> 
@@ -39,6 +45,7 @@
                                 <th class="col-md-1 text-center">Anular nota min</th>
                                 <th class="text-center v-middle"><span th:if="${permiteAsignar}">Asignar Docente</span></th>
                                 <th class="text-center v-middle"><span th:if="${permiteAsignar}">Expandir</span></th>
+                                <th class="text-center v-middle"><span th:if="${permiteAsignar}">Anular</span></th>
                             </tr>
                         </thead>
                         <tbody>

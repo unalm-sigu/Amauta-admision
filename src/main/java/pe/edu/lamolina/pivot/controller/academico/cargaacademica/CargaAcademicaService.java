@@ -155,4 +155,6 @@ public interface CargaAcademicaService {
 
     List<AlumnoEvaluacion> allAlumnosEvaluacionesPorEvaluacionExpandida(Long idEvaluacionExpandida);
 
+    void anularEvaluacionExp(EvaluacionExpandida evaluacionExpandidaAnul);
+
 }

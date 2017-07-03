@@ -15,6 +15,7 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements EvaluacionDAO {
@@ -33,6 +34,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         sqlUtil.parents("_es.planCalificacion pc", "_es.sistemaNotas sn");
         sqlUtil.parents("_sr.grupoSeccion gs", "_gs.curso", "_gs.cicloAcademico", "left _esup.tipoEvaluacion tesupe");
         sqlUtil.filter("eva.id", id);
+        sqlUtil.filter("exx.estado", EstadoEnum.ACT.name());
         Evaluacion evaluacion = this.find(sqlUtil);
         if (evaluacion.getEvaluaciones() != null) {
             for (Evaluacion eva : evaluacion.getEvaluaciones()) {
@@ -49,6 +51,9 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te", "left seccionResponsable sr", "evaluacionExpandida exx", "left docenteEvaluador de");
         sqlUtil.parents("_es.grupoSeccion gs");
         sqlUtil.parents("left evaluacionSuperior esup");
+
+        sqlUtil.filter("exx.estado", EstadoEnum.ACT.name());
+
         if (idEvaluacionSeccion != null) {
             sqlUtil.filter("es.id", idEvaluacionSeccion);
         }
@@ -80,10 +85,10 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     @Override
     public List<Evaluacion> allBySecciones(List<Seccion> secciones) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion", "tipoEvaluacion", "left evaluacionSuperior evaSup", "seccionResponsable sr")
+                .parents("evaluacionExpandida ee", "evaluacionSeccion", "tipoEvaluacion", "left evaluacionSuperior evaSup", "seccionResponsable sr")
                 .filterIn("sr.id", secciones);
         sqlUtil.filterIsNull("evaSup");
-
+        sqlUtil.filter("ee.estado", EstadoEnum.ACT.name());
         List<Evaluacion> evaluaciones = this.all(sqlUtil);
         for (Evaluacion evaluacion : evaluaciones) {
             if (evaluacion.getEvaluaciones() != null) {
@@ -100,11 +105,11 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     @Override
     public List<Evaluacion> allBySeccion(Seccion seccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion es", "tipoEvaluacion te", "left evaluacionSuperior evaSup", "seccionResponsable sr")
+                .parents("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "left evaluacionSuperior evaSup", "seccionResponsable sr")
                 .filter("sr.id", seccion.getId())
                 .orderBy("te.orden", "ev.numero");
         sqlUtil.filterIsNull("evaSup");
-
+        sqlUtil.filter("ee.estado", EstadoEnum.ACT.name());
         List<Evaluacion> evaluaciones = this.all(sqlUtil);
         for (Evaluacion evaluacion : evaluaciones) {
             if (evaluacion.getEvaluaciones() != null) {

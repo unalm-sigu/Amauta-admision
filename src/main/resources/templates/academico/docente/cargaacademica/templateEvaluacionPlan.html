@@ -2,8 +2,10 @@
 
 
     <td class="v-middle" style="{{:styleHijo}}">
-        <span class="block text-primary" >{{:tipoEvalCod}} - {{:tipoEvalNombre}}</span>
-
+        <span class="block m-b-xxs">
+            <span class="text-primary" >{{:tipoEvalCod}} - {{:tipoEvalNombre}}</span>
+            <small>({{:estadoPlanExp}})</small>
+        </span>
     </td>
 
 
@@ -33,9 +35,17 @@
     </td>
     <td class="v-middle text-center">
 
+        {{if estadoAnulado==true}}
+        {{:tipoSeccion}}
+        {{/if}}
+
+        {{if estadoAnulado==false}}
         {{if permiteAsign}}
         {{if desagregado==false}}
-        <select class="select2 cboTipoSecEval input-s-md" rel="{{:evaPlanId}}" >
+        <select class="select2 cboTipoSecEval input-s-md" 
+                rel="{{:evaPlanId}}"
+
+                >
             {{for tipoSeccionesEval}}
             {{if #data.selected==true}}
             <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
@@ -48,6 +58,7 @@
         {{/if}}
         {{else}}
         {{:tipoSeccion}}
+        {{/if}}
         {{/if}}
 
     </td>
@@ -65,6 +76,7 @@
     </td>
 
     <td class="v-middle" >
+        {{if estadoAnulado==false}}
         {{if permiteAnular}}
         <label class="switch"> 
             <input  type="checkbox" value="1" 
@@ -74,15 +86,19 @@
             <span></span>
         </label>
         {{/if}}
+        {{/if}}
     </td>
     <td class="v-middle text-center">
+        {{if estadoAnulado==false}}
         {{if permiteAsign==true}}
         {{if desagregado==false}}
         <a href="#" rel="{{:evaPlanId}}" class="btn btn-default asignar-docente"><i class="fa fa-user text-success"></i></a>
         {{/if}}
         {{/if}}
+        {{/if}}
     </td>
     <td class="v-middle text-center">
+        {{if estadoAnulado==false}}
         {{if permiteAsign==true}}
         {{if esNieto==false}}
         {{if notasIngresadas==false}}
@@ -94,7 +110,20 @@
         <!-- <a href="#" rel="{{:evaPlanId}}"  class="btn btn-default delete-expansion"><i class="fa fa-times text-danger"></i></a> -->
         {{/if}}
         {{/if}}
+        {{/if}}
     </td>
 
-
+    <td>
+        {{if estadoAnulado==false}}
+        {{if esAbuelo==false}}
+        {{if permiteAsign==true}}
+      
+        <a href="#" class="btn btn-default anular-evaluacion-exp">
+            <i class="fa fa-times text-danger"></i>
+        </a>
+       
+        {{/if}}
+        {{/if}}
+        {{/if}}
+    </td>
 </tr>

@@ -96,6 +96,47 @@ $(function () {
                 }
             });
         },
+        anularEvaluacion: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea anular la evaluación?",
+                buttons: {
+                    cancel: {label: "Cancelar", className: "btn-default"},
+                    confirm: {label: "Anular", className: "btn-danger"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/anularEvaluacionExp'),
+                            type: 'POST',
+                            async: false,
+                            data: {
+                                evaluacion: idx
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    dynatable.process();
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
+                    }
+                }
+            });
+
+
+        },
         reindexNameForm: function (val, idx, pos) {
             pos = typeof pos !== 'undefined' ? pos : 1;
             var nom = val;
@@ -553,6 +594,10 @@ $(function () {
 
     $("body").delegate("#btnAceptarExpandir", "click", function (e) {
         ExpandirSCN.aceptarExpandir(e);
+    });
+
+    $("body").delegate(".anular-evaluacion-exp", "click", function (e) {
+        ExpandirSCN.anularEvaluacion($(this), e);
     });
 
 

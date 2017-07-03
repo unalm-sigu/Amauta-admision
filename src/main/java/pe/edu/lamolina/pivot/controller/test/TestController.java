@@ -75,7 +75,7 @@ public class TestController {
 
         List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
         logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
-        List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        List<EvaluacionExpandida> planEvaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
         logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", planCalificacion.getId(), planEvaluaciones.size());
         for (Seccion seccionEach : secciones) {
             for (EvaluacionExpandida evaluacionExpandida : planEvaluaciones) {
