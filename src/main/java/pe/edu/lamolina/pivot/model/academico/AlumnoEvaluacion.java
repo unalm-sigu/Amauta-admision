@@ -41,6 +41,9 @@ public class AlumnoEvaluacion implements Serializable {
     @Column(name = "valor_numerico")
     private BigDecimal valorNumerico;
 
+    @Column(name = "valor_letra")
+    private String valorLetra;
+
     @Column(name = "es_ingreso_regular")
     private Integer esIngresoRegular;
 
@@ -197,6 +200,14 @@ public class AlumnoEvaluacion implements Serializable {
 
     public void setMotivoAnulacion(String motivoAnulacion) {
         this.motivoAnulacion = motivoAnulacion;
+    }
+
+    public String getValorLetra() {
+        return valorLetra;
+    }
+
+    public void setValorLetra(String valorLetra) {
+        this.valorLetra = valorLetra;
     }
 
     public MotivoAnulacionEnum getMotivoAnulacionEnum() {

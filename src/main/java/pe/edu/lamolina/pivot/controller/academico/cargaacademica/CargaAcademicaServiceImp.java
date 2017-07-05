@@ -1143,6 +1143,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacion.setEvaluacion(evaluacionEach);
             alumnoEvaluacion.setFechaIngresoNota(today);
             alumnoEvaluacion.setNota(alumnoEvaluacionEach.getNota());
+            alumnoEvaluacion.setValorLetra(alumnoEvaluacionEach.getValorLetra());
             alumnoEvaluacion.setEsIngresoRegular(BigDecimal.ONE.intValue());
             mapAlumno.put(alumnoEach.getId(), alumnoEach);
 
@@ -1156,8 +1157,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
                 alumnoEvaluacion.setNota(notax);
             } else {
+                /*
                 NotaLetra notaLetra = sistemaNotas.getNotaLetra(alumnoEvaluacion.getNota());
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(notaLetra.getValor()));
+                 */
+                alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
+                String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
+                alumnoEvaluacion.setNota(notax);
             }
 
             alumnoEvaluacion.setUsuarioIngresoNota(ds.getUsuario());
@@ -1508,11 +1514,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     @Override
-    public Map<String, String> allAlumnoEvaluacionBySeccion(Long idSeccion) {
+    public Map<String, AlumnoEvaluacion> allAlumnoEvaluacionBySeccion(Long idSeccion) {
         List<AlumnoEvaluacion> alumnosEvaluaciones = alumnoEvaluacionDAO.allBySeccion(idSeccion);
-        Map<String, String> mapNotas = new HashMap();
+        Map<String, AlumnoEvaluacion> mapNotas = new HashMap();
         for (AlumnoEvaluacion alumnosEvaluacion : alumnosEvaluaciones) {
-            mapNotas.put(alumnosEvaluacion.getAlumno().getId() + "-" + alumnosEvaluacion.getEvaluacion().getId(), alumnosEvaluacion.getNota());
+            mapNotas.put(alumnosEvaluacion.getAlumno().getId() + "-" + alumnosEvaluacion.getEvaluacion().getId(), alumnosEvaluacion);
         }
         return mapNotas;
     }

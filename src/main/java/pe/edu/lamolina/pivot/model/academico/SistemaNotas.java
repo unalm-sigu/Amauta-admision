@@ -142,6 +142,13 @@ public class SistemaNotas implements Serializable {
         return false;
     }
 
+    public boolean isLetras() {
+        if (BigDecimal.valueOf(0).intValue() == esNumerico) {
+            return true;
+        }
+        return false;
+    }
+
     public NotaLetra getNotaLetra(String letra) {
         if (this.getNotaLetra() != null && !this.getNotaLetra().isEmpty()) {
             for (NotaLetra notaLetra : this.getNotaLetra()) {

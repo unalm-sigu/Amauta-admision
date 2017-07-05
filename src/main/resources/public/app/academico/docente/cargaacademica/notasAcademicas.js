@@ -217,13 +217,17 @@ $(function () {
                 },
                 success: function (response) {
                     if (response.success) {
-
+                        console.dir(sistemaNotasValidate);
                         if (activacion == "true" || activacion == true) {
                             var input = $("input[title='" + response.data.evaId + "']");
                             if (input != null && input != undefined) {
                                 $("#txtCodeSel").val(response.data.evaId);
                                 $("span[name='" + response.data.evaId + "']").css("display", "none");
+
                                 $("input[title='" + response.data.evaId + "']").css("display", "");
+                                if (sistemaNotasValidate.esLetras == "true" || sistemaNotasValidate.esLetras == true) {
+                                    $("select[title='" + response.data.evaId + "']").css("display", "");
+                                }
                                 $("input[title='" + response.data.evaId + "']").css("style", "width:50px;");
                                 $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
                                 $("input[title='" + response.data.evaId + "']").val("");
@@ -365,41 +369,57 @@ $(function () {
 
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
-            $("input[title='" + evaluacion + "']").each(function () {
-                $(this).attr("data-parsley-whitespace", "trim");
-                $(this).attr("required", true);
+            $("select[title='" + evaluacion + "'], input[title='" + evaluacion + "']").each(function () {
 
-                //  $(this).attr("data-parsley-sistema-nota", "true");
-                if (sistemaNotasValidate.esNumerico == "true" || sistemaNotasValidate.esNumerico == true) {
-                    //      $(this).attr("data-parsley-min", sistemaNotasValidate.valorInicial);
-                    //      $(this).attr("data-parsley-max", sistemaNotasValidate.valorFinal);
-                    $(this).attr("data-parsley-nota-numerica", "true");
-                    $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
-                    $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                    $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
 
-                    //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
-
-                } else {
-                    var letters = NSP + "|" + NCV + "|";
-
-                    var letrasArg = sistemaNotasValidate.letras.split(",");
-                    for (var i = 0; i < letrasArg.length; i++) {
-                        letters += letrasArg[i] + "|";
-                    }
-                    $(this).attr("data-parsley-pattern", "(" + letters.substring(0, letters.length - 1) + ")");
+                if ($(this).is("select") && (sistemaNotasValidate.esLetras == "true" || sistemaNotasValidate.esLetras == true)) {
+                    $(this).attr("required", true);
                 }
+                if ($(this).is("input")) {
+                    $(this).attr("required", true);
 
-                var alumno = $(this).attr("rel");
-                var evaluacion = $(this).attr("title");
-                var nota = $(this).val();
+                    var notaLetra = $(this).closest('tr').find("select").val();
 
-                var item = {};
+                    $(this).attr("data-parsley-whitespace", "trim");
+                    //  $(this).attr("data-parsley-sistema-nota", "true");
+                    if (sistemaNotasValidate.esNumerico == "true" || sistemaNotasValidate.esNumerico == true) {
+                        //      $(this).attr("data-parsley-min", sistemaNotasValidate.valorInicial);
+                        //      $(this).attr("data-parsley-max", sistemaNotasValidate.valorFinal);
+                        $(this).attr("data-parsley-nota-numerica", "true");
+                        $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                        $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                        $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
 
-                item["nota"] = nota;
-                item["alumno"] = {id: alumno};
-                item["evaluacion"] = {id: evaluacion};
-                jsonObj.push(item);
+                        //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
+
+                    } else {
+                        $(this).attr("data-parsley-nota-minima", 1);
+                        $(this).attr("data-parsley-nota-maxima", 100);
+                        $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
+                        /* //var letters = NSP + "|" + NCV + "|";
+                         
+                         var letrasArg = sistemaNotasValidate.letras.split(",");
+                         for (var i = 0; i < letrasArg.length; i++) {
+                         letters += letrasArg[i] + "|";
+                         }
+                         */
+                        //   $(this).attr("data-parsley-pattern", "(" + letters.substring(0, letters.length - 1) + ")");
+                    }
+
+                    var alumno = $(this).attr("rel");
+                    var evaluacion = $(this).attr("title");
+                    var nota = $(this).val();
+
+                    var item = {};
+
+                    item["nota"] = nota;
+                    if (sistemaNotasValidate.esLetras == "true" || sistemaNotasValidate.esLetras == true) {
+                        item["valorLetra"] = notaLetra;
+                    }
+                    item["alumno"] = {id: alumno};
+                    item["evaluacion"] = {id: evaluacion};
+                    jsonObj.push(item);
+                }
             });
             var form = $("[id='frmNotas']");
             form.parsley().destroy();
@@ -446,7 +466,8 @@ $(function () {
                         notify(response.message, "info");
                         $("#txtCodeSel").val("");
                         $("span[name='" + response.data.evaId + "']").css("display", "");
-                        $("input[title='" + response.data.evaId + "']").css("display", "none");
+                        $("span[title='" + response.data.evaId + "']").css("display", "none");
+                        //       $("select, input[title='" + response.data.evaId + "']").css("display", "none");
                         $("input[title='" + response.data.evaId + "']").each(function () {
                             var alumno = $(this).attr("rel");
                             var nota = $(this).val();

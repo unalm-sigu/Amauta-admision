@@ -113,7 +113,7 @@ public interface CargaAcademicaService {
 
     List<Evaluacion> allEvaluacionBySecciones(List<Seccion> secciones);
 
-    Map<String, String> allAlumnoEvaluacionBySeccion(Long idSeccion);
+    Map<String, AlumnoEvaluacion> allAlumnoEvaluacionBySeccion(Long idSeccion);
 
     MatriculaSeccion findMatriculaSeccion(Long id);
 

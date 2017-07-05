@@ -605,6 +605,7 @@ public class CargaAcademicaController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("esNumerico", sistemaNotas.isNumerico());
+            node.put("esLetras", sistemaNotas.isLetras());
             node.put("valorInicial", sistemaNotas.getValorInicio());
             node.put("valorFinal", sistemaNotas.getValorFinal());
             node.put("minimoAprobatorio", sistemaNotas.getMinimoAprobatorio());
@@ -821,7 +822,7 @@ public class CargaAcademicaController {
         logger.debug("El docente es {}", ds.getDocente().getId());
 
         logger.debug("Consultara notas por seccion");
-        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
 
         Curso curso = grupoSeccion.getCurso();
 
@@ -846,6 +847,7 @@ public class CargaAcademicaController {
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
         model.addAttribute("sistemaNotas", evaluacionSeccion.getSistemaNotas());
+
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
@@ -873,7 +875,7 @@ public class CargaAcademicaController {
         logger.debug("El docente es {}", ds.getDocente().getId());
         logger.debug("Consultara notas por seccion");
 
-        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
         Curso curso = grupoSeccion.getCurso();
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
@@ -919,7 +921,7 @@ public class CargaAcademicaController {
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
         logger.debug("Consultara notas por seccion");
-        Map<String, String> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
+        Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
 
         Curso curso = grupoSeccion.getCurso();
 
@@ -1194,6 +1196,7 @@ public class CargaAcademicaController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());
+
             response.setData(node);
             if (activacion) {
                 response.setMessage("Evaluación activada.");
