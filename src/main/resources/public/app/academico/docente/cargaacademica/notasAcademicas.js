@@ -314,55 +314,74 @@ $(function () {
                 bootbox.alert("Tiene una evaluacion pendiente, verifique.");
                 return;
             }
-            $.ajax({
-                url: APP.url('academico/docente/cargaacademica/eliminarNotas'),
-                type: 'POST',
-                async: false,
-                data: {
-                    evaluacion: $("#txtEvaluacionId").val()
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar las notas de la evaluación?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                success: function (response) {
-                    if (response.success) {
+                callback: function (result) {
+                    if (result) {
 
 
-                        var input = $("input[title='" + response.data.evaId + "']");
-                        var found = false;
-                        if (input != null && input != undefined) {
-                            $("#txtCodeSel").val(response.data.evaId);
-                            //    $("span[name='" + response.data.evaId + "']").css("display", "none");
-                            $("input[title='" + response.data.evaId + "']").css("display", "");
-                            $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
-                            $("input[title='" + response.data.evaId + "']").val("");
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/eliminarNotas'),
+                            type: 'POST',
+                            async: false,
+                            data: {
+                                evaluacion: $("#txtEvaluacionId").val()
+                            },
+                            success: function (response) {
+                                if (response.success) {
 
-                        }
-                        $("input[title='" + response.data.evaId + "']").each(function () {
-                            found = true;
+
+                                    var input = $("input[title='" + response.data.evaId + "']");
+                                    var found = false;
+                                    if (input != null && input != undefined) {
+                                        $("#txtCodeSel").val(response.data.evaId);
+                                        //    $("span[name='" + response.data.evaId + "']").css("display", "none");
+                                        $("input[title='" + response.data.evaId + "']").css("display", "");
+                                        $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
+                                        $("input[title='" + response.data.evaId + "']").val("");
+
+                                    }
+                                    $("input[title='" + response.data.evaId + "']").each(function () {
+                                        found = true;
+                                    });
+                                    if (!found) {
+                                        $("#txtEvaluacionId").val("");
+                                        $("#txtCodeSel").val("");
+                                        // bootbox.alert("No se encontraron alumnos sin notas, para esta evaluación.");
+
+                                    }
+                                    notify(response.message, "info");
+                                    /*
+                                     <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                                     type="text" 
+                                     class="form-control nota-alumno"
+                                     readonly="false"/>
+                                     */
+
+
+                                    NotasAcademicas.reloadNotas();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                                MODAL.hide();
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                MODAL.hide();
+                            }
                         });
-                        if (!found) {
-                            $("#txtEvaluacionId").val("");
-                            $("#txtCodeSel").val("");
-                            bootbox.alert("No se encontraron alumnos sin notas, para esta evaluación.");
-
-                        }
-                        /*
-                         <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
-                         type="text" 
-                         class="form-control nota-alumno"
-                         readonly="false"/>
-                         */
 
 
-                        NotasAcademicas.reloadNotas();
-                    } else {
-                        notify(response.message, "error");
                     }
-                    MODAL.hide();
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hide();
                 }
             });
+
+
 
         },
         verGrabarNotas: function () {

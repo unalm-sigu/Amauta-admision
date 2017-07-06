@@ -932,6 +932,7 @@ public class CargaAcademicaController {
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
         model.addAttribute("sistemaNotas", evaluacionSeccion.getSistemaNotas());
+
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         model.addAttribute("notas", mapNotas);
