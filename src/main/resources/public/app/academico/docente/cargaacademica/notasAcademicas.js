@@ -397,7 +397,7 @@ $(function () {
                 if ($(this).is("input")) {
                     $(this).attr("required", true);
 
-                    var notaLetra = $(this).closest('tr').find("select").val();
+                    var notaLetra = $(this).closest('td').find("select").val();
 
                     $(this).attr("data-parsley-whitespace", "trim");
                     //  $(this).attr("data-parsley-sistema-nota", "true");
@@ -412,8 +412,8 @@ $(function () {
                         //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
 
                     } else {
-                        $(this).attr("data-parsley-nota-minima", 1);
-                        $(this).attr("data-parsley-nota-maxima", 100);
+                        $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                        $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
                         $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
                         /* //var letters = NSP + "|" + NCV + "|";
                          
@@ -674,6 +674,19 @@ $(function () {
             });
 
 
+        },
+        cambiarComboLetra: function ($this, e) {
+            // alert($this.val());
+            //  var nota = $(this).parent().children().children(2).find("input").val();
+            var input = $this.closest('td').find('input');
+            input.val('');
+            input.removeAttr("readonly");
+            if ($this.val() == 'D') {
+                var input = $this.closest('td').find('input');
+                input.val(0);
+                input.attr("readonly", true);
+            }
+
         }
     };
     NotasAcademicas.init();
@@ -771,6 +784,10 @@ $(function () {
 
     $("body").delegate(".cerrar-acta", "click", function (e) {
         NotasAcademicas.cerrarActa($(this), e);
+    });
+
+    $("body").delegate(".clsCboLetraNota", "change", function (e) {
+        NotasAcademicas.cambiarComboLetra($(this), e);
     });
 
 });
