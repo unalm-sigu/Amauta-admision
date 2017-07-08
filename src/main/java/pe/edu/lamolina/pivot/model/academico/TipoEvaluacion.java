@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.TipoEvaluacionEnum;
 
 @Entity
 @Table(name = "aca_tipo_evaluacion")
@@ -162,6 +163,13 @@ public class TipoEvaluacion implements Serializable {
 
     public boolean isNotaMinimaAnulable() {
         if (BigDecimal.ONE.intValue() == this.indNotaMinimaAnulable) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTipoEvaluacionNF() {
+        if (TipoEvaluacionEnum.NF.getCodigo().equals(this.getCodigo())) {
             return true;
         }
         return false;

@@ -125,6 +125,20 @@ public class SistemaServiceImp implements SistemaService {
 
         BigDecimal totalWeight = BigDecimal.ZERO;
 
+        SistemaNotas sistemaNotas = sistemaNotasDAO.find(planCalificacion.getSistemaNotas().getId());
+        planCalificacion.setSistemaNotas(sistemaNotas);
+
+        if (planCalificacion.getSistemaNotas().isLetras()) {
+            if (planCalificacion.getEvaluacionPlan().size() == 1) {
+                TipoEvaluacion tipoEvaluacion = tipoEvaluacionDAO.find(planCalificacion.getEvaluacionPlan().get(0).getTipoEvaluacion().getId());
+                if (!tipoEvaluacion.isTipoEvaluacionNF()) {
+                    throw new PhobosException("El sistema de notas seleccionado, solo debe tener una evaluacion del tipo Nota Final.");
+                }
+            } else {
+                throw new PhobosException("El sistema de notas seleccionado, solo debe tener una evaluacion del tipo Nota Final.");
+            }
+        }
+
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
             logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);

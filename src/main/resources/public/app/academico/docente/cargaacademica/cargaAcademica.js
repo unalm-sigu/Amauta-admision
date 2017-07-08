@@ -322,36 +322,37 @@ $(function () {
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 }, callback: function (result) {
 
+                    if (result) {
+                        var tr = $this.closest("tr");
+                        var idx = tr.attr("rel");
+                        var rec = dynatable.settings.dataset.records[idx];
 
-                    var tr = $this.closest("tr");
-                    var idx = tr.attr("rel");
-                    var rec = dynatable.settings.dataset.records[idx];
+                        $.ajax({
+                            url: APP.url('academico/docente/cargaacademica/desvincularPlanCalificacion'),
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                grupo: rec.id
+                            },
+                            success: function (response) {
 
-                    $.ajax({
-                        url: APP.url('academico/docente/cargaacademica/desvincularPlanCalificacion'),
-                        type: 'POST',
-                        async: true,
-                        data: {
-                            grupo: rec.id
-                        },
-                        success: function (response) {
-                            MODAL.hideWait();
-                            MODAL.hide();
+                                MODAL.hide();
 
-                            if (response.success) {
-                                notify(response.message, "info");
-                                dynatable.process();
-                            } else {
-                                notify(response.message, "error");
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function (error) {
+
+                                var message = error.responseJSON.message;
+                                notify(message, "error");
                             }
-                        },
-                        error: function (error) {
-                            MODAL.hideWait();
-                            var message = error.responseJSON.message;
-                            notify(message, "error");
-                        }
-                    });
-
+                        });
+                    }
+                    MODAL.hideWait();
                 }
             });
 
