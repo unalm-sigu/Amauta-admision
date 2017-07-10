@@ -36,6 +36,9 @@ public class EvaluacionExpandida implements Serializable {
     @Column(name = "numero")
     private Integer numero;
 
+    @Column(name = "nivel")
+    private Integer nivel;
+
     @Column(name = "esta_desagregado")
     private Integer estaDesagregado;
 
@@ -373,6 +376,14 @@ public class EvaluacionExpandida implements Serializable {
 
     public EstadoEnum getEstadoEnum() {
         return EstadoEnum.valueOf(this.getEstado());
+    }
+
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
     }
 
 }
