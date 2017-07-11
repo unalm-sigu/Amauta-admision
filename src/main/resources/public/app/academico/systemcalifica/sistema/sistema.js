@@ -230,15 +230,15 @@ $(function () {
         },
         inactivar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmActive,
-                title: 'Inactivar Sistema Calificación',
+                message: MESSAGES.confirmDesActive,
+                title: 'Desactivar Sistema Calificación',
                 buttons: {
-                    confirm: {label: 'Activar'},
+                    confirm: {label: 'Inactivar'},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
                     if (result) {
-                        MODAL.showWait("Espere un momento por favor");
+                        MODAL.showWait("Desactivar un momento por favor");
                         $.ajax({
                             url: APP.url('academico/systemcalifica/sistema/inactivar'),
                             type: 'POST',
