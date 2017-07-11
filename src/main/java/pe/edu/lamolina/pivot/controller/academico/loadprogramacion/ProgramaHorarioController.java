@@ -30,6 +30,8 @@ public class ProgramaHorarioController {
 
     @Autowired
     ProgramaHorarioService service;
+    @Autowired
+    EvaluacionExpandidaService evaluacionExpandidaService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -74,6 +76,29 @@ public class ProgramaHorarioController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.loadArchivosHorario(files, ds.getCicloAcademico(), ds);
+
+            json.setSuccess(true);
+            json.setMessage("carga satisfactoria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+
+        } finally {
+            return json;
+        }
+
+    }
+    
+    @ResponseBody
+    @RequestMapping("recalcularNivel")
+    public JsonResponse recalcularNivel( Model model, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            evaluacionExpandidaService.recalcularNivel( ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
             json.setMessage("carga satisfactoria");

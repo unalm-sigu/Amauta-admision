@@ -558,8 +558,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evalForm.setEstaDesagregado(BigDecimal.ZERO.intValue());
             evalForm.setEvaluacionSeccion(evaluacionPadreBD.getEvaluacionSeccion());
             evalForm.setEvaluacionSuperior(evaluacionPadreBD);
-            evalForm.setEvaluados(BigDecimal.ZERO.intValue());
-            evalForm.setExtemporaneos(BigDecimal.ZERO.intValue());
+//            evalForm.setEvaluados(BigDecimal.ZERO.intValue());
+//            evalForm.setExtemporaneos(BigDecimal.ZERO.intValue());
             evalForm.setTipoSeccion(evaluacionPadreBD.getTipoSeccion());
             evalForm.setIndPorcentajeVariable(evaluacionPadreBD.getIndPorcentajeVariable());
             evalForm.setNotaMinimaAnulable(BigDecimal.ZERO.intValue());
