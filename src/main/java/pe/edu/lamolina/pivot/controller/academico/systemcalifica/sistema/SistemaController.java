@@ -46,7 +46,7 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@SessionAttributes("planCalificacion")
+//@SessionAttributes("planCalificacion")
 @RequestMapping("academico/systemcalifica/sistema")
 public class SistemaController {
 
@@ -250,9 +250,8 @@ public class SistemaController {
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        PlanCalificacion planCalificacion = new PlanCalificacion();
-
-        model.addAttribute("planCalificacion", planCalificacion);
+        //    PlanCalificacion planCalificacion = new PlanCalificacion();
+        //   model.addAttribute("planCalificacion", planCalificacion);
         model.addAttribute("tipoEvaluaciones", sistemaService.allTipoEvaluacion());
         model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEvalEnum.values());
