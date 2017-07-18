@@ -46,7 +46,7 @@
         </section>
 
         <div th:substituteby="templates/modal"/>
-        <script id="templateAlumnosDocente" type="text/x-jsrender" class="hide"><div th:substituteby="/academico/docente/alumnos/templateAlumnosDocente"/></script>
+        <script id="templateAlumnosDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/alumnos/templateAlumnosDocente"/></script>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>

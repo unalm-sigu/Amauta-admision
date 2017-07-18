@@ -211,8 +211,8 @@
         </section>
 
         <div th:substituteby="templates/modal"/>
-        <div class="divEvaluacion" th:substituteby="/academico/docente/cargaacademica/detalleNotasAcademicas"/>
-        <div th:substituteby="/academico/docente/cargaacademica/modalNotasAcademicas"/>
+        <div class="divEvaluacion" th:substituteby="academico/docente/cargaacademica/detalleNotasAcademicas"/>
+        <div th:substituteby="academico/docente/cargaacademica/modalNotasAcademicas"/>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
