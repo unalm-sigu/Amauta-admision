@@ -47,6 +47,14 @@
 
         </span>
     </td>
+
+    <td th:if="${sistemaNotas.letras}">
+        <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
+              > 
+            04.18 
+        </span>
+    </td>
+
     <td class="text-center v-middle">
 
         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >

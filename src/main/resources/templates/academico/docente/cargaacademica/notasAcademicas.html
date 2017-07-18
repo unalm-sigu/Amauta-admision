@@ -73,6 +73,7 @@
                                            th:if="${seccion.id==evaluacion.seccionResponsable.id}">EP</a>
 
                                     </th>
+                                    <th class="text-center v-middle" th:if="${sistemaNotas.letras}">Creditos</th>
                                     <th class="text-center v-middle">Avance NF</th>
                                     <th class="text-center v-middle">Acumulada NF</th>
                                     <th class="text-center v-middle">Nota Final</th>
@@ -128,6 +129,12 @@
 
 
 
+                                        </span>
+                                    </td>
+                                    <td th:if="${sistemaNotas.letras}">
+                                        <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
+                                              > 
+                                            04.18 
                                         </span>
                                     </td>
                                     <td class="text-center v-middle">

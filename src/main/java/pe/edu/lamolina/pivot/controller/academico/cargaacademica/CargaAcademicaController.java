@@ -1233,7 +1233,7 @@ public class CargaAcademicaController {
 
             List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
             cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
-            
+
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());
