@@ -111,7 +111,7 @@ public class SistemaServiceImp implements SistemaService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = false)
     public void saveSistemaCalifica(PlanCalificacion planCalificacion, DataSessionPivot ds) {
 
         planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
@@ -320,10 +320,17 @@ public class SistemaServiceImp implements SistemaService {
         curso.setUserPlanCalificacion(idUsuario);
         cursoDAO.update(curso);
          */
+
+        if (planCalificacion.getSistemaNotas().isLetras()) {
+            if (!curso.isTieneCreditosVariables()) {
+                throw new PhobosException("Error, El curso debe tener creditos variables.");
+            }
+        }
+
         PlanCalificacionCurso planCalificacionCurso = planCalificacionCursoDAO.findByFilter(planCalificacion, curso, EstadoEnum.ACT);
 
         if (planCalificacionCurso != null) {
-            throw new PhobosException("El curso ya fué asignado al plan.");
+            throw new PhobosException("Error, El curso ya fué asignado al plan anteriormente.");
         }
 
         planCalificacionCurso = new PlanCalificacionCurso();

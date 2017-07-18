@@ -354,4 +354,11 @@ public class Curso implements Serializable {
         return false;
     }
 
+    public boolean isTieneCreditosVariables() {
+        if (this.getCreditosVariables() != null) {
+            return true;
+        }
+        return false;
+    }
+
 }
