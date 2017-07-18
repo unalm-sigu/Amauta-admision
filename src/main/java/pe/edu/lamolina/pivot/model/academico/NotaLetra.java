@@ -24,6 +24,9 @@ public class NotaLetra implements Serializable {
     @Column(name = "letra")
     private String letra;
 
+    @Column(name = "descripcion")
+    private String descripcion;
+
     @Column(name = "es_aprobatorio")
     private Integer esAprobatorio;
 
@@ -79,6 +82,14 @@ public class NotaLetra implements Serializable {
 
     public void setValor(Integer valor) {
         this.valor = valor;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     public boolean isAprobatorio() {
