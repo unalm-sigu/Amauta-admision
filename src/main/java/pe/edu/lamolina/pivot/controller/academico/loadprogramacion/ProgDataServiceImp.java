@@ -644,6 +644,7 @@ public class ProgDataServiceImp implements ProgDataService {
             GrupoSeccion gpoSeccBD = grupoSeccionDAO.findByCodeCiclo(gpoSecc.getCodigo(), ciclo);
             Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
             logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
+            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
             if (gpoSeccBD == null) {
 
                 gpoSeccBD = new GrupoSeccion();
