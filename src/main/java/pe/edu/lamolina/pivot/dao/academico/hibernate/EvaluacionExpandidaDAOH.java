@@ -27,7 +27,7 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
     @Override
     public EvaluacionExpandida find(long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva")
-                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc", "evaluaciones evals")
+                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc", "left evaluaciones evals")
                 .parents("_sc.grupoSeccion gs")
                 .filter("eva.id", id);
 
@@ -132,5 +132,4 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 //
 //        return all(sqlUtil);
 //    }
-
 }
