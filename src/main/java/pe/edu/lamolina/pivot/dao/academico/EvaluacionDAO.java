@@ -2,10 +2,12 @@ package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
 import pe.albatross.zelpers.dao.Crud;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 public interface EvaluacionDAO extends Crud<Evaluacion> {
@@ -31,4 +33,8 @@ public interface EvaluacionDAO extends Crud<Evaluacion> {
     List<Evaluacion> allByEvaluacionExpandidaSecciones(EvaluacionExpandida evaluacion, List<Seccion> secciones);
 
     void deleteEvaluacionesByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion);
+
+    List<Evaluacion> allByCiclo(CicloAcademico ciclo);
+
+    List<Evaluacion> allByGrupoSeccion(GrupoSeccion grupoSeccion);
 }

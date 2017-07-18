@@ -53,23 +53,23 @@ public class EvaluacionExpandida implements Serializable {
     @Column(name = "tipo_seccion")
     private String tipoSeccion;
 
-    @Column(name = "fecha_programada")
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date fechaProgramada;
+//    @Column(name = "fecha_programada")
+//    @Temporal(javax.persistence.TemporalType.DATE)
+//    private Date fechaProgramada;
+//
+//    @Column(name = "fecha_realizada")
+//    @Temporal(javax.persistence.TemporalType.DATE)
+//    private Date fechaRealizada;
+//
+//    @Column(name = "fecha_ingreso_nota")
+//    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+//    private Date fechaIngresoNota;
 
-    @Column(name = "fecha_realizada")
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date fechaRealizada;
-
-    @Column(name = "fecha_ingreso_nota")
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date fechaIngresoNota;
-
-    @Column(name = "evaluados")
-    private Integer evaluados;
-
-    @Column(name = "extemporaneos")
-    private Integer extemporaneos;
+//    @Column(name = "evaluados")
+//    private Integer evaluados;
+//
+//    @Column(name = "extemporaneos")
+//    private Integer extemporaneos;
 
     @Column(name = " ind_notas_ingresadas")
     private Integer indNotasIngresadas;
@@ -90,8 +90,8 @@ public class EvaluacionExpandida implements Serializable {
     @JoinColumn(name = "id_evaluacion_superior")
     private EvaluacionExpandida evaluacionSuperior;
 
-    @Column(name = "nota_minima_anulable")
     @NotNull
+    @Column(name = "nota_minima_anulable")
     private Integer notaMinimaAnulable;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -204,45 +204,45 @@ public class EvaluacionExpandida implements Serializable {
 //    public void setSeccionResponsable(Seccion seccionResponsable) {
 //        this.seccionResponsable = seccionResponsable;
 //    }
-    public Date getFechaProgramada() {
-        return fechaProgramada;
-    }
+//    public Date getFechaProgramada() {
+//        return fechaProgramada;
+//    }
+//
+//    public void setFechaProgramada(Date fechaProgramada) {
+//        this.fechaProgramada = fechaProgramada;
+//    }
+//
+//    public Date getFechaRealizada() {
+//        return fechaRealizada;
+//    }
+//
+//    public void setFechaRealizada(Date fechaRealizada) {
+//        this.fechaRealizada = fechaRealizada;
+//    }
+//
+//    public Date getFechaIngresoNota() {
+//        return fechaIngresoNota;
+//    }
+//
+//    public void setFechaIngresoNota(Date fechaIngresoNota) {
+//        this.fechaIngresoNota = fechaIngresoNota;
+//    }
 
-    public void setFechaProgramada(Date fechaProgramada) {
-        this.fechaProgramada = fechaProgramada;
-    }
-
-    public Date getFechaRealizada() {
-        return fechaRealizada;
-    }
-
-    public void setFechaRealizada(Date fechaRealizada) {
-        this.fechaRealizada = fechaRealizada;
-    }
-
-    public Date getFechaIngresoNota() {
-        return fechaIngresoNota;
-    }
-
-    public void setFechaIngresoNota(Date fechaIngresoNota) {
-        this.fechaIngresoNota = fechaIngresoNota;
-    }
-
-    public Integer getEvaluados() {
-        return evaluados;
-    }
-
-    public void setEvaluados(Integer evaluados) {
-        this.evaluados = evaluados;
-    }
-
-    public Integer getExtemporaneos() {
-        return extemporaneos;
-    }
-
-    public void setExtemporaneos(Integer extemporaneos) {
-        this.extemporaneos = extemporaneos;
-    }
+//    public Integer getEvaluados() {
+//        return evaluados;
+//    }
+//
+//    public void setEvaluados(Integer evaluados) {
+//        this.evaluados = evaluados;
+//    }
+//
+//    public Integer getExtemporaneos() {
+//        return extemporaneos;
+//    }
+//
+//    public void setExtemporaneos(Integer extemporaneos) {
+//        this.extemporaneos = extemporaneos;
+//    }
 
     public List<AlumnoEvaluacion> getAlumnoEvaluacion() {
         return alumnoEvaluacion;
@@ -316,7 +316,7 @@ public class EvaluacionExpandida implements Serializable {
         this.setEstaDesagregado(BigDecimal.ZERO.intValue());
         this.setEvaluacionSuperior(null);
         this.setEvaluacionesExpandidas(null);
-        this.setEvaluados(BigDecimal.ZERO.intValue());
+        //this.setEvaluados(BigDecimal.ZERO.intValue());
         this.setPeso(evaluacionPlan.getPesoEvaluacion());
         this.setNumero(numero);
         this.setIndPorcentajeVariable(evaluacionPlan.getIndPorcentajeVariable());

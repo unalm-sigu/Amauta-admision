@@ -79,4 +79,12 @@ public class EvaluacionPlanDAOH extends AbstractDAO<EvaluacionPlan> implements E
         query.executeUpdate();
     }
 
+    @Override
+    public List<EvaluacionPlan> allByPlanes(List<PlanCalificacion> planes) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("evap")
+                .parents("planCalificacion pc", "tipoEvaluacion")
+                .filterIn("pc.id", planes);
+        return this.all(sqlUtil);
+    }
+
 }

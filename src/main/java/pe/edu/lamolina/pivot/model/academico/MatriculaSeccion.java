@@ -50,14 +50,17 @@ public class MatriculaSeccion implements Serializable {
     private String codigoSeccion;
     @Transient
     private Integer procesado;
+    @Transient
+    private Integer creditos;
 
     public MatriculaSeccion() {
         this.procesado = 0;
     }
 
-    public MatriculaSeccion(String codigoAlumno, String codigoSeccion) {
+    public MatriculaSeccion(String codigoAlumno, String codigoSeccion, Integer creditos) {
         this.codigoAlumno = codigoAlumno;
         this.codigoSeccion = codigoSeccion;
+        this.creditos = creditos;
         this.procesado = 0;
     }
 
@@ -143,6 +146,14 @@ public class MatriculaSeccion implements Serializable {
 
     public void setProcesado(Integer procesado) {
         this.procesado = procesado;
+    }
+
+    public Integer getCreditos() {
+        return creditos;
+    }
+
+    public void setCreditos(Integer creditos) {
+        this.creditos = creditos;
     }
 
 }

@@ -10,24 +10,57 @@ public class MapUtil {
 
     public static Map storeItems(String attr, List items) {
         Map map = new LinkedHashMap();
-        for (Object item : items) {
-            Object id = ObjectUtil.getParentTree(item, attr);
-            map.put(id, item);
-        }
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attr);
+            if (!(key == null)) {
+                map.put(key, item);
+            }
+        });
+        return map;
+    }
+
+    public static Map storeItems(String attrKey, String attrValue, List items) {
+        Map map = new LinkedHashMap();
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attrKey);
+            if (!(key == null)) {
+                Object val = ObjectUtil.getParentTree(item, attrValue);
+                map.put(key, val);
+            }
+        });
         return map;
     }
 
     public static Map storeLists(String attr, List items) {
         Map map = new LinkedHashMap();
-        for (Object item : items) {
-            Object id = ObjectUtil.getParentTree(item, attr);
-            List lista = (List) map.get(id);
-            if (lista == null) {
-                lista = new ArrayList();
-                map.put(id, lista);
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attr);
+            if (!(key == null)) {
+                List lista = (List) map.get(key);
+                if (lista == null) {
+                    lista = new ArrayList();
+                    map.put(key, lista);
+                }
+                lista.add(item);
             }
-            lista.add(item);
-        }
+        });
+        return map;
+    }
+
+    public static Map storeLists(String attrKey, String attrValue, List items) {
+        Map map = new LinkedHashMap();
+        items.forEach((item) -> {
+            Object key = ObjectUtil.getParentTree(item, attrKey);
+            if (!(key == null)) {
+                Object val = ObjectUtil.getParentTree(item, attrValue);
+                List lista = (List) map.get(key);
+                if (lista == null) {
+                    lista = new ArrayList();
+                    map.put(key, lista);
+                }
+                lista.add(val);
+            }
+        });
         return map;
     }
 

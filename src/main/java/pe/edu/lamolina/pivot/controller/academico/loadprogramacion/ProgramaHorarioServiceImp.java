@@ -381,12 +381,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String ciclo = getCellValue(1, row);
                 String codigoAlumno = getCellValue(2, row);
                 String codigoSeccion = getCellValue(3, row);
+                Integer creditos = Integer.valueOf(getCellValue(4, row));
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-                MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion);
+                MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion, creditos);
                 matriculasSecciones.add(alumnoSecc);
             }
             logger.debug("Se han leido un total de {} alumnos-secciones", loop);

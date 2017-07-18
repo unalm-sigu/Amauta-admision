@@ -10,6 +10,8 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
@@ -25,11 +27,12 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
     @Override
     public EvaluacionExpandida find(long id) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva")
-                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc", "evaluaciones evals")
+                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc", "left evaluaciones evals")
                 .parents("_sc.grupoSeccion gs")
                 .filter("eva.id", id);
 
         EvaluacionExpandida evaluacion = this.find(sqlUtil);
+        System.out.println(evaluacion);
 
         sqlUtil = SqlUtil.creaSqlUtil("eva")
                 .parents("tipoEvaluacion te", "evaluacionSuperior es", "evaluacionSeccion sc")
@@ -108,4 +111,25 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
         return all(sqlUtil);
     }
 
+    @Override
+    public List<EvaluacionExpandida> allByGpoSeccionPlan(GrupoSeccion gpoSeccion, PlanCalificacion plan) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
+                .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior")
+                .parents("_es.grupoSeccion gs", "_es.planCalificacion p")
+                .filter("gs.id", gpoSeccion)
+                .filter("p.id", plan);
+
+        return all(sqlUtil);
+    }
+
+//    @Override
+//    public List<EvaluacionExpandida> allByGpoSeccion(GrupoSeccion gpoSeccion) {
+//        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
+//                .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior")
+//                .parents("_es.grupoSeccion gs", "_es.planCalificacion p")
+//                .filter("gs.id", gpoSeccion)
+//                .filter("ev.estado", EstadoEnum.ACT.name());
+//
+//        return all(sqlUtil);
+//    }
 }

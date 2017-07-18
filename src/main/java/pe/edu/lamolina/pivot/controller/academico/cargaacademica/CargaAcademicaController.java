@@ -42,6 +42,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -52,6 +53,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -1229,7 +1231,9 @@ public class CargaAcademicaController {
 
             Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
 
-            cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
+            List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
+            cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+            
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());
@@ -1260,7 +1264,9 @@ public class CargaAcademicaController {
 
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());
             evaluacion = cargaAcademicaService.findEvaluacion(evaluacion.getId());
-            cargaAcademicaService.saveIngresoNotas(ds, evaluacion, alumnoEvaluaciones);
+            List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.saveIngresoNotas(evaluacion, alumnoEvaluaciones, ds);
+            cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
             node.put("evaId", evaluacion.getId());

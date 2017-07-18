@@ -943,7 +943,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (matriCursoBD == null) {
             System.out.print("\t" + rr + " creando mat-curso del alumno " + alumno.getCodigo() + " :::: ");
             matriCursoBD = new MatriculaCurso();
-            matriCursoBD.setCreditos(curso.getCreditos());
+
             matriCursoBD.setCurso(curso);
             matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
             matriCursoBD.setMatriculaResumen(resumen);
@@ -955,6 +955,9 @@ public class ProgDataServiceImp implements ProgDataService {
 
             System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
         }
+
+        matriCursoBD.setCreditos(curso.getCreditosVariables() != null ? matriSecc.getCreditos() : curso.getCreditos());
+        matriculaCursoDAO.update(matriCursoBD);
 
         if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
             System.out.println("\t" + rr + " mat-curso " + matriCursoBD.getId() + " agregado al mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());

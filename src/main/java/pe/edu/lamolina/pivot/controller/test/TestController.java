@@ -133,7 +133,7 @@ public class TestController {
                 continue;
             }
 
-            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop);
+            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
 
         }
@@ -162,7 +162,7 @@ public class TestController {
                 continue;
             }
 
-            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop);
+            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
 
         }
