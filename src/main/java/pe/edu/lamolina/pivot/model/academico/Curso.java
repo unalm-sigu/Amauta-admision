@@ -52,6 +52,9 @@ public class Curso implements Serializable {
     @Column(name = "creditos")
     private Integer creditos;
 
+    @Column(name = "creditos_variables")
+    private Integer creditosVariables;
+
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
@@ -320,6 +323,14 @@ public class Curso implements Serializable {
 
     public void setPlanesCalificacionCursos(List<PlanCalificacionCurso> planesCalificacionCursos) {
         this.planesCalificacionCursos = planesCalificacionCursos;
+    }
+
+    public Integer getCreditosVariables() {
+        return creditosVariables;
+    }
+
+    public void setCreditosVariables(Integer creditosVariables) {
+        this.creditosVariables = creditosVariables;
     }
 
     public String getTpc() {
