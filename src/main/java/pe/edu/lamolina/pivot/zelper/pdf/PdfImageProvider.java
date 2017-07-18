@@ -12,13 +12,12 @@ import java.io.IOException;
  */
 class PdfImageProvider extends AbstractImageProvider {
 
-    private String PATH="/document/img/";
-    
+    public final static String PATH = "/public/pdf/img/";
+
     @Override
     public Image retrieve(String src) {
         try {
-            this.getClass().getResourceAsStream(PATH+src);
-            return Image.getInstance(this.getClass().getResource(PATH+src));
+            return Image.getInstance(this.getClass().getResource(PATH + src));
         } catch (BadElementException ex) {
             ex.printStackTrace();
         } catch (IOException ex) {

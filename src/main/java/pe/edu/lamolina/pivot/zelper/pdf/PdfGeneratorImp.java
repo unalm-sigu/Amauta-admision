@@ -43,7 +43,7 @@ import pe.edu.lamolina.pivot.zelper.enums.DocumentoPdfEnum;
 @Service
 public class PdfGeneratorImp implements PdfGenerator {
 
-    private final String PDF_CSS = "/document/css/pdf.css";
+    private final String PDF_CSS = "public/pdf/css/pdf.css";
     private final String PDF_SAVE_PATH = Constantine.ADMISION_DIR;
 
     @Autowired
@@ -97,7 +97,7 @@ public class PdfGeneratorImp implements PdfGenerator {
             htmlContext.setImageProvider(new PdfImageProvider());
 
             CSSResolver cssResolver = new StyleAttrCSSResolver();
-            logger.debug("La ruta del css es {}", this.getClass().getResource(PDF_CSS).getFile());
+            //    logger.debug("La ruta del css es {}", this.getClass().getResource(PDF_CSS).getFile());
             /*
             InputStream csspathtest = new FileInputStream(new File(this.getClass().getResource(PDF_CSS).getFile()));
             CssFile cssfiletest = XMLWorkerHelper.getCSS(csspathtest);
