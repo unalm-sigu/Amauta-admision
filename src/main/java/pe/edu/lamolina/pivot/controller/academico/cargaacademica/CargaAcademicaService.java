@@ -27,7 +27,6 @@ import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -105,7 +104,9 @@ public interface CargaAcademicaService {
 
     void updateEvaluacion(Evaluacion evaluacion);
 
-    void saveIngresoNotas(DataSessionPivot ds, Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones);
+    List<MatriculaSeccion> saveIngresoNotas(Evaluacion evaluacion, AlumnoEvaluacion[] alumnoEvaluaciones, DataSessionPivot ds);
+
+    void calcularNotasLista(List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds);
 
     SistemaNotas findSistemaNotaById(Long id);
 
@@ -143,7 +144,7 @@ public interface CargaAcademicaService {
 
     void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario);
 
-    void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio);
+    void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio, DataSessionPivot ds);
 
     void desvincularPlanCalificacion(GrupoSeccion grupo);
 
@@ -151,7 +152,7 @@ public interface CargaAcademicaService {
 
     void cambiarAnularNotaminima(EvaluacionExpandida evaluacionExpandida, Integer notaMinimaAnulable);
 
-    void eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds);
+    List<MatriculaSeccion> eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds);
 
     List<AlumnoEvaluacion> allAlumnosEvaluacionesPorEvaluacionExpandida(Long idEvaluacionExpandida);
 

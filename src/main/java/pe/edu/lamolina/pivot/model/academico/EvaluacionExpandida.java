@@ -90,8 +90,8 @@ public class EvaluacionExpandida implements Serializable {
     @JoinColumn(name = "id_evaluacion_superior")
     private EvaluacionExpandida evaluacionSuperior;
 
-    @Column(name = "nota_minima_anulable")
     @NotNull
+    @Column(name = "nota_minima_anulable")
     private Integer notaMinimaAnulable;
 
 //    @ManyToOne(fetch = FetchType.LAZY)

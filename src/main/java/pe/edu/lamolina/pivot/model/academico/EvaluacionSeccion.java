@@ -51,6 +51,9 @@ public class EvaluacionSeccion implements Serializable {
     @OneToMany(mappedBy = "evaluacionSeccion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Evaluacion> evaluaciones;
 
+    @OneToMany(mappedBy = "evaluacionSeccion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<EvaluacionExpandida> evaluacionExpandida;
+
     public EvaluacionSeccion() {
     }
 
@@ -128,6 +131,14 @@ public class EvaluacionSeccion implements Serializable {
 
     public void setEvaluaciones(List<Evaluacion> evaluaciones) {
         this.evaluaciones = evaluaciones;
+    }
+
+    public List<EvaluacionExpandida> getEvaluacionExpandida() {
+        return evaluacionExpandida;
+    }
+
+    public void setEvaluacionExpandida(List<EvaluacionExpandida> evaluacionExpandida) {
+        this.evaluacionExpandida = evaluacionExpandida;
     }
 
     public boolean isEstadoPro() {
