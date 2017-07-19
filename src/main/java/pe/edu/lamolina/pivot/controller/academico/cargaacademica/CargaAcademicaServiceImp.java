@@ -1286,10 +1286,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         joinConfiguracionEvaluaciones(evaluaciones, evaluacionesAlumno);
 
         List<EvaluacionExpandida> configPrimerNivel = allConfigByNivel(evaluaciones, 1);
-        System.out.println("PESO TOTAL");
         BigDecimal pesoTotal = BigDecimal.ZERO;
         for (EvaluacionExpandida cfgEval : configPrimerNivel) {
-            System.out.println("\tid:" + cfgEval.getId() + " - peso:" + cfgEval.getPeso());
             pesoTotal = pesoTotal.add(cfgEval.getPeso());
         }
 
@@ -1305,11 +1303,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             dividendo = dividendo.add(notas.get(i).multiply(pesos.get(i)));
             pesoConNota = pesoConNota.add(pesos.get(i));
         }
-        System.out.println(notas);
-        System.out.println(pesos);
-        System.out.println("dividentdo :: " + dividendo);
-        System.out.println("pesoConNota :: " + pesoConNota);
-        System.out.println("pesoTotal :: " + pesoTotal);
 
         BigDecimal prom = dividendo.divide(pesoTotal, 4, RoundingMode.HALF_DOWN);
         BigDecimal avance = dividendo.divide(pesoConNota, 4, RoundingMode.HALF_DOWN);
@@ -1549,7 +1542,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         if (configEvaluacionesHijas.isEmpty()) {
             Evaluacion evaluacion = configEvaluacion.getEvaluaciones().get(0);
             List<AlumnoEvaluacion> notax = evaluacion.getAlumnoEvaluacion();
-            System.out.println("tienen " + notax.size() + " notas para la evaluacion " + evaluacion.getId());
             if (notax.isEmpty()) {
                 return;
             }
@@ -1722,7 +1714,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         List<EvaluacionExpandida> configEvaluacionesHijas = configEvaluacion.getEvaluacionesExpandidas();
         List<AlumnoEvaluacion> notasHijas = allNotasHijos(configEvaluacionesHijas);
         BigDecimal prom = calcularPonderado(notasHijas);
-        System.out.println("prom : " + prom);
 
         Evaluacion evaluacion = configEvaluacion.getEvaluaciones().get(0);
         List<AlumnoEvaluacion> notas = evaluacion.getAlumnoEvaluacion();
@@ -1812,7 +1803,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Map<Long, EvaluacionExpandida> mapConfiguraciones = MapUtil.storeItems("evaluacionExpandida.id", "evaluacionExpandida", evaluaciones);
         List<EvaluacionExpandida> configuraciones = new ArrayList();
         for (EvaluacionExpandida cfgEval : mapConfiguraciones.values()) {
-            System.out.println("id:" + cfgEval.getId() + " nivel:" + cfgEval.getNivel() + " hijos:" + cfgEval.getEvaluacionesExpandidas().size());
             if (cfgEval.getNivel() != nivel) {
                 continue;
             }
@@ -1822,10 +1812,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     private void joinConfiguracionEvaluaciones(List<Evaluacion> evaluaciones, List<AlumnoEvaluacion> notasAlumno) {
-        System.out.println("revision :::::::: " + System.currentTimeMillis());
-        System.out.println("\thay " + evaluaciones.size() + " evaluaciones");
-        System.out.println("\thay " + notasAlumno.size() + " notasAlumno");
-
         for (Evaluacion eval : evaluaciones) {
             eval.setAlumnoEvaluacion(new ArrayList());
             EvaluacionExpandida cfgEval = eval.getEvaluacionExpandida();
@@ -1847,18 +1833,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         Map<Long, Evaluacion> mapEvaluaciones = MapUtil.storeItems("id", evaluaciones);
         for (AlumnoEvaluacion evalAlumno : notasAlumno) {
-            System.out.println("\tbuscando eval " + evalAlumno.getEvaluacion().getId());
             Evaluacion eval = mapEvaluaciones.get(evalAlumno.getEvaluacion().getId());
 
             eval.getAlumnoEvaluacion().add(evalAlumno);
             evalAlumno.setEvaluacion(eval);
-            System.out.println("\tevaluacion " + eval.getId() + " ya tiene " + eval.getAlumnoEvaluacion().size() + " notas");
         }
-        System.out.println("resumen");
 
         for (Evaluacion eval : evaluaciones) {
             List<AlumnoEvaluacion> notas = eval.getAlumnoEvaluacion();
-            System.out.println("\thay " + notas.size() + " notas para la evaluacion " + eval.getId());
         }
     }
 
