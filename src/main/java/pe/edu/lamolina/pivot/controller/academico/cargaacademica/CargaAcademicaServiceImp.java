@@ -347,23 +347,23 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacionElim.create(alumnoEvaluacion);
             alumnoEvaluacionElim.setEvaluacionEliminada(evaluacionEliminada);
             evaluacionEliminada.getAlumnoEvaluacionElims().add(alumnoEvaluacionElim);
-            
+
             Alumno alumno = alumnoEvaluacion.getAlumno();
             MatriculaSeccion matSecc = new MatriculaSeccion();
             matSecc.setMatriculaResumen(new MatriculaResumen());
             matSecc.getMatriculaResumen().setAlumno(alumno);
             matSecc.setSeccion(evaluacion.getSeccionResponsable());
-            
+
             marticulasSeccion.add(matSecc);
         }
-        
+
         evaluacionEliminadaDAO.save(evaluacionEliminada);
 
         alumnoEvaluacionDAO.deleteByEvaluacion(evaluacion);
         evaluacion.setFechaIngresoNota(null);
         evaluacion.setFechaRealizada(null);
         evaluacionDAO.update(evaluacion);
-        
+
         return marticulasSeccion;
     }
 
@@ -1262,7 +1262,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             CicloAcademico ciclo, //List<EvaluacionPlan> evaluacionesPlan
             //List<EvaluacionExpandida> evaluasExpan,
             DataSessionPivot ds) {
-        logger.debug("Calcular nota");
+        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
         //BigDecimal bd100 = new BigDecimal("100");
 
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
@@ -1282,13 +1282,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         //  logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
 
         //List<EvaluacionExpandida> configEvaluaciones = evaluacionExpandidaDAO.allByGpoSeccion(grupoSeccion);
-        List<Evaluacion> evaluaciones = evaluacionDAO.allByGrupoSeccion(grupoSeccion);
+        List<Evaluacion> evaluaciones = evaluacionDAO.allByGrupoSeccionAlumno(grupoSeccion,alumno);
         joinConfiguracionEvaluaciones(evaluaciones, evaluacionesAlumno);
 
         List<EvaluacionExpandida> configPrimerNivel = allConfigByNivel(evaluaciones, 1);
-
+        System.out.println("PESO TOTAL");
         BigDecimal pesoTotal = BigDecimal.ZERO;
         for (EvaluacionExpandida cfgEval : configPrimerNivel) {
+            System.out.println("\tid:" + cfgEval.getId() + " - peso:" + cfgEval.getPeso());
             pesoTotal = pesoTotal.add(cfgEval.getPeso());
         }
 
@@ -1304,6 +1305,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             dividendo = dividendo.add(notas.get(i).multiply(pesos.get(i)));
             pesoConNota = pesoConNota.add(pesos.get(i));
         }
+        System.out.println(notas);
+        System.out.println(pesos);
+        System.out.println("dividentdo :: " + dividendo);
+        System.out.println("pesoConNota :: " + pesoConNota);
+        System.out.println("pesoTotal :: " + pesoTotal);
 
         BigDecimal prom = dividendo.divide(pesoTotal, 4, RoundingMode.HALF_DOWN);
         BigDecimal avance = dividendo.divide(pesoConNota, 4, RoundingMode.HALF_DOWN);
@@ -1381,6 +1387,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 resumenAlumnoEvaluacionDAO.update(resumen);
             }
         }
+
+        logger.debug("Finalizó calculo notas del alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
 
         /*
         //Identificar la nota minima para las evaluaciones que la consideran
@@ -1539,7 +1547,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         List<EvaluacionExpandida> configEvaluacionesHijas = configEvaluacion.getEvaluacionesExpandidas();
         BigDecimal pesoNota = configEvaluacion.getPeso().multiply(pesoPadre).divide(pesoGrupo, 14, RoundingMode.HALF_UP);
         if (configEvaluacionesHijas.isEmpty()) {
-            List<AlumnoEvaluacion> notax = configEvaluacion.getEvaluaciones().get(0).getAlumnoEvaluacion();
+            Evaluacion evaluacion = configEvaluacion.getEvaluaciones().get(0);
+            List<AlumnoEvaluacion> notax = evaluacion.getAlumnoEvaluacion();
+            System.out.println("tienen " + notax.size() + " notas para la evaluacion " + evaluacion.getId());
             if (notax.isEmpty()) {
                 return;
             }
@@ -1568,7 +1578,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     calcularNotaEvaluacion(cfgEval, pesoGrupoHijos, pesoGrupoHijos, new ArrayList(), new ArrayList());
                 }
 
-                promediaNotaConAnulables(configEvaluacion);
+                promediarNotaConAnulables(configEvaluacion);
                 AlumnoEvaluacion nota = configEvaluacion.getEvaluaciones().get(0).getAlumnoEvaluacion().get(0);
                 notas.add(nota.getValorNumerico());
                 pesos.add(pesoNota);
@@ -1583,7 +1593,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     }
 
-    private void promediaNotaConAnulables(EvaluacionExpandida configEvaluacion) {
+    private void promediarNotaConAnulables(EvaluacionExpandida configEvaluacion) {
         List<EvaluacionExpandida> configEvaluacionesHijas = configEvaluacion.getEvaluacionesExpandidas();
         List<AlumnoEvaluacion> notasHijas = allNotasHijos(configEvaluacionesHijas);
 
@@ -1634,8 +1644,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         Evaluacion evaluacion = configEvaluacion.getEvaluaciones().get(0);
-        AlumnoEvaluacion nota = evaluacion.getAlumnoEvaluacion().get(0);
+        List<AlumnoEvaluacion> notas = evaluacion.getAlumnoEvaluacion();
 
+        AlumnoEvaluacion nota = notas.isEmpty() ? null : notas.get(0);
         if (nota != null) {
             nota.setValorNumerico(promFinal);
             nota.setEstadoEnum(AlumnoEvaluacionEstadoEnum.CALC);
@@ -1644,9 +1655,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         nota = new AlumnoEvaluacion();
         nota.setValorNumerico(promFinal);
-        evaluacion.getAlumnoEvaluacion().add(nota);
         nota.setEvaluacion(evaluacion);
         nota.setEstadoEnum(AlumnoEvaluacionEstadoEnum.CALC);
+        notas.add(nota);
 
     }
 
@@ -1798,9 +1809,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     private List<EvaluacionExpandida> allConfigByNivel(List<Evaluacion> evaluaciones, int nivel) {
+        Map<Long, EvaluacionExpandida> mapConfiguraciones = MapUtil.storeItems("evaluacionExpandida.id", "evaluacionExpandida", evaluaciones);
         List<EvaluacionExpandida> configuraciones = new ArrayList();
-        for (Evaluacion eval : evaluaciones) {
-            EvaluacionExpandida cfgEval = eval.getEvaluacionExpandida();
+        for (EvaluacionExpandida cfgEval : mapConfiguraciones.values()) {
+            System.out.println("id:" + cfgEval.getId() + " nivel:" + cfgEval.getNivel() + " hijos:" + cfgEval.getEvaluacionesExpandidas().size());
             if (cfgEval.getNivel() != nivel) {
                 continue;
             }
@@ -1810,7 +1822,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     }
 
     private void joinConfiguracionEvaluaciones(List<Evaluacion> evaluaciones, List<AlumnoEvaluacion> notasAlumno) {
+        System.out.println("revision :::::::: " + System.currentTimeMillis());
+        System.out.println("\thay " + evaluaciones.size() + " evaluaciones");
+        System.out.println("\thay " + notasAlumno.size() + " notasAlumno");
+
         for (Evaluacion eval : evaluaciones) {
+            eval.setAlumnoEvaluacion(new ArrayList());
             EvaluacionExpandida cfgEval = eval.getEvaluacionExpandida();
             cfgEval.setEvaluacionesExpandidas(new ArrayList());
             cfgEval.setEvaluaciones(new ArrayList());
@@ -1830,10 +1847,18 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         Map<Long, Evaluacion> mapEvaluaciones = MapUtil.storeItems("id", evaluaciones);
         for (AlumnoEvaluacion evalAlumno : notasAlumno) {
+            System.out.println("\tbuscando eval " + evalAlumno.getEvaluacion().getId());
             Evaluacion eval = mapEvaluaciones.get(evalAlumno.getEvaluacion().getId());
-            eval.setAlumnoEvaluacion(new ArrayList());
+
             eval.getAlumnoEvaluacion().add(evalAlumno);
             evalAlumno.setEvaluacion(eval);
+            System.out.println("\tevaluacion " + eval.getId() + " ya tiene " + eval.getAlumnoEvaluacion().size() + " notas");
+        }
+        System.out.println("resumen");
+
+        for (Evaluacion eval : evaluaciones) {
+            List<AlumnoEvaluacion> notas = eval.getAlumnoEvaluacion();
+            System.out.println("\thay " + notas.size() + " notas para la evaluacion " + eval.getId());
         }
     }
 
