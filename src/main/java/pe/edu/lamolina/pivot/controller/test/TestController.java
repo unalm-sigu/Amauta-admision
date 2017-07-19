@@ -162,6 +162,10 @@ public class TestController {
                 continue;
             }
 
+            if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
+                continue;
+            }
+
             cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
 
