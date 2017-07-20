@@ -673,8 +673,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         for (EvaluacionExpandida evaluacionHija : evaluacionesHijasForm) {
             newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
         }
-        if (newPesoTotal.compareTo(evaluacionPadreBD.getPeso()) != 0 && !evaluacionesHijasForm.isEmpty()) {
-            throw new PhobosException("El peso de las evaluaciones expandidas debe ser igual al peso de la evaluacion padre, verifique ");
+        if (evaluacionForm.getNotaMinimaAnulable().equals(BigDecimal.ZERO.intValue())) {
+            if (newPesoTotal.compareTo(evaluacionPadreBD.getPeso()) != 0 && !evaluacionesHijasForm.isEmpty()) {
+                throw new PhobosException("El peso de las evaluaciones expandidas debe ser igual al peso de la evaluacion padre, verifique ");
+            }
         }
     }
 
