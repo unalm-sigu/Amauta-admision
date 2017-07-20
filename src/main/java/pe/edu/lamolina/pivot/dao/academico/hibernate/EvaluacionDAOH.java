@@ -233,8 +233,8 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     }
 
     @Override
-    public void deleteEvaluacionesByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion
-    ) {
+    public void deleteEvaluacionesByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion) {
+        /*
         StringBuilder strbDeleteAlumnoEvaluacion = new StringBuilder(" delete from aca_alumno_evaluacion where id_evaluacion in ( ");
         strbDeleteAlumnoEvaluacion.append(" select id from aca_evaluacion where id_evaluacion_expandida in ( ");
         strbDeleteAlumnoEvaluacion.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
@@ -243,12 +243,13 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         SQLQuery query = getCurrentSession().createSQLQuery(strbDeleteAlumnoEvaluacion.toString());
         query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
         query.executeUpdate();
+         */
 
         StringBuilder strbDeleteReclamoNota = new StringBuilder(" delete from aca_reclamo_nota where id_evaluacion in ( ");
         strbDeleteReclamoNota.append(" Select id from aca_evaluacion where  id_evaluacion_seccion=:prm_evaluacion_seccion ");
         strbDeleteReclamoNota.append(");");
 
-        query = getCurrentSession().createSQLQuery(strbDeleteReclamoNota.toString());
+        SQLQuery query = getCurrentSession().createSQLQuery(strbDeleteReclamoNota.toString());
         query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
         query.executeUpdate();
 
@@ -267,7 +268,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
                 }
             }
         }
-        StringBuilder strbDeleteEvaluacionesHijas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
+        StringBuilder strbDeleteEvaluacionesHijas = new StringBuilder(" delete from aca_evaluacion where id in ( ");
         strbDeleteEvaluacionesHijas.append(" :prm_evas ");
         strbDeleteEvaluacionesHijas.append(") ");
 
