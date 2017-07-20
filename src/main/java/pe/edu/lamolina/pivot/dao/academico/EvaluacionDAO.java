@@ -10,6 +10,7 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 public interface EvaluacionDAO extends Crud<Evaluacion> {
 
