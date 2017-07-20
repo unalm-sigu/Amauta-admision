@@ -480,12 +480,19 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     @Transactional
     public void saveExpansionEvaluacion(EvaluacionExpandida evaluacionExpandidaForm, DataSessionPivot ds) {
+
         EvaluacionExpandida evaluacionPadreBD = evaluacionExpandidaDAO.find(evaluacionExpandidaForm.getId());
+
         EvaluacionSeccion evaluacionSeccion = evaluacionPadreBD.getEvaluacionSeccion();
         validarEvaluacionesExpandidas(evaluacionExpandidaForm, evaluacionPadreBD);
 
         List<EvaluacionExpandida> evaluacionesHijasForm = evaluacionExpandidaForm.getEvaluacionesExpandidas();
         List<EvaluacionExpandida> evaluacionesHijasBD = evaluacionPadreBD.getEvaluacionesExpandidas();
+
+        if (evaluacionExpandidaForm.getNotaMinimaAnulable() > evaluacionesHijasForm.size() - 1) {
+            throw new PhobosException("Error, notas minimas anulables incorrectas.");
+        }
+
         Map<Long, EvaluacionExpandida> mapEvaluaciones = MapUtil.storeItems("id", evaluacionesHijasBD);
 
         if (evaluacionesHijasForm.isEmpty()) {
@@ -626,6 +633,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionDAO.update(evalSuperior);
         }*//*
         evaluacionExpandidaDAO.update(evaluacionPadreBD);*/
+        EvaluacionExpandida evaluacionExpBD = evaluacionExpandidaDAO.find(evaluacionExpandidaForm.getId());
+        evaluacionExpBD.setNotaMinimaAnulable(evaluacionExpandidaForm.getNotaMinimaAnulable());
+        evaluacionExpandidaDAO.update(evaluacionExpBD);
     }
 
     private void validarEvaluacionesExpandidas(EvaluacionExpandida evaluacionForm, EvaluacionExpandida evaluacionPadreBD) {
@@ -655,7 +665,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
         }
 
-        if (isOkEvaluacionesBD && isOkEvaluacionesForm) {
+        if ((isOkEvaluacionesBD && isOkEvaluacionesForm) && evaluacionForm.getNotaMinimaAnulable().equals(evaluacionPadreBD.getNotaMinimaAnulable())) {
             throw new PhobosException("No ha ingresado ningún cambio");
         }
 
@@ -1282,7 +1292,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         //  logger.debug("Evaluaciones {} del alumno {}, seccion {}, Curso {}", evaluacionesAlumno.size(), alumno.getId(), evaluacion.getSeccionResponsable().getId(), curso.getId());
 
         //List<EvaluacionExpandida> configEvaluaciones = evaluacionExpandidaDAO.allByGpoSeccion(grupoSeccion);
-        List<Evaluacion> evaluaciones = evaluacionDAO.allByGrupoSeccionAlumno(grupoSeccion,alumno);
+        List<Evaluacion> evaluaciones = evaluacionDAO.allByGrupoSeccionAlumno(grupoSeccion, alumno);
         joinConfiguracionEvaluaciones(evaluaciones, evaluacionesAlumno);
 
         List<EvaluacionExpandida> configPrimerNivel = allConfigByNivel(evaluaciones, 1);

@@ -689,13 +689,13 @@ public class CargaAcademicaController {
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("la evaluacion expandida es {}", evaluacionId);
-        EvaluacionExpandida evaluacion = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
+        EvaluacionExpandida evaluacionExp = cargaAcademicaService.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = cargaAcademicaService.allTipoEvaluacion();
 
         model.addAttribute("tipoEvaluaciones", lstTipoEvas);
-        model.addAttribute("evaluacion", evaluacion);
-        model.addAttribute("evaluaciones", evaluacion.getEvaluacionesExpandidas());
-        model.addAttribute("tieneEvaluaciones", evaluacion.getEvaluacionesExpandidas() != null && !evaluacion.getEvaluacionesExpandidas().isEmpty() ? true : false);
+        model.addAttribute("evaluacion", evaluacionExp);
+        model.addAttribute("evaluaciones", evaluacionExp.getEvaluacionesExpandidas());
+        model.addAttribute("tieneEvaluaciones", evaluacionExp.getEvaluacionesExpandidas() != null && !evaluacionExp.getEvaluacionesExpandidas().isEmpty() ? true : false);
         return "academico/docente/cargaacademica/detalleExpandirEvaluacion";
     }
 
@@ -711,6 +711,9 @@ public class CargaAcademicaController {
             cargaAcademicaService.anularEvaluacionExp(new EvaluacionExpandida(evaluacionExp));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Anulado correctamente.");
+
+            //   List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
+            //   cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -1441,7 +1444,10 @@ public class CargaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         logger.debug("Evaluacion expandida " + evalExpandidaId);
-
+        if (evalExpandidaId.equals(0L)) {
+            response.setSuccess(true);
+            return response;
+        }
         List<AlumnoEvaluacion> alumnosEvaluaciones = cargaAcademicaService.allAlumnosEvaluacionesPorEvaluacionExpandida(evalExpandidaId);
         logger.debug("Alumnos Evaluaciones {}", alumnosEvaluaciones.size());
         response.setSuccess(true);

@@ -75,16 +75,8 @@
     </td>
 
     <td class="v-middle" >
-        {{if estadoAnulado==false}}
-        {{if permiteAnular}}
-        <label class="switch"> 
-            <input  type="checkbox" value="1" 
-                    rel="{{:notaMinAnulable}}" 
-                    class="chkAnularNotaMinCls"
-                    />
-            <span></span>
-        </label>
-        {{/if}}
+        {{if notaMinAnulable>0}}
+        <span>{{:notaMinAnulable}}</span>
         {{/if}}
     </td>
     <td class="v-middle text-center">

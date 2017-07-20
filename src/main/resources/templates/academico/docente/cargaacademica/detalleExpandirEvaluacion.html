@@ -5,6 +5,20 @@
         <input type="hidden" name="id" th:value="${evaluacion.id}"/>
         <input type="hidden" id="txtEvalSeccionId" name="evaluacionSeccion.id" th:value="${evaluacion.evaluacionSeccion.id}"/>
         <input type="hidden" id="txtPesoEvalForExp" name="peso" th:value="${evaluacion.peso}"/>
+
+
+
+    </div>
+
+    <div class="row">
+        <div class="form-group col-md-6">
+            <label >Notas Anulables (*)</label>
+            <input id="txtNotasAnulables" class="form-control mx-sm-3"
+                   required="true" name="notaMinimaAnulable" 
+                   th:value="${evaluacion.notaMinimaAnulable}"
+                   data-parsley-type="integer"/>
+        </div>
+
     </div>
 
     <table class="table table-striped">
@@ -90,7 +104,7 @@
                            required="true"/>
                 </td>
                 <td class="text-center">
-                    <a href="#" class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                    <a href="#" class="btn btn-default delete-tipo-evaluacion" rel="0"><i class="fa fa-times text-danger"></i></a>
                 </td>
             </tr>
         </tbody>

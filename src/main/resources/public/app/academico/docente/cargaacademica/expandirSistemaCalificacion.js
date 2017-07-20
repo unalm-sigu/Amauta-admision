@@ -17,13 +17,7 @@ $(function () {
         }
     }).data('dynatable');
 
-    $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
-        $(".chkAnularNotaMinCls").each(function () {
-            if ($(this).attr('rel') == $(this).attr('value')) {
-                $(this).attr('checked', true);
-            }
-        });
-    });
+
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
         var colorEstado = {CRE: "default", ACT: "success", INA: "danger", APR: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
@@ -255,7 +249,8 @@ $(function () {
                                     notify(response.message, "error");
                                 }
                             },
-                            error: function () {
+                            error: function (error) {
+                                console.dir(error);
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -432,37 +427,6 @@ $(function () {
             });
 
         },
-        cambiarAnularNotaMin: function ($this) {
-            var tr = $this.closest("tr");
-            var evaPlanId = tr.attr("rel");
-            var checked = $this.prop('checked');
-            checked = (checked == true) ? 1 : 0;
-
-            $.ajax({
-                url: APP.url('academico/docente/cargaacademica/cambiarAnularNotaMinima'),
-                type: 'POST',
-                async: true,
-                data: {
-                    notaMinimaAnulable: checked,
-                    evaluacionExp: evaPlanId
-                }
-                ,
-                success: function (response) {
-                    MODAL.hideWait();
-                    MODAL.hide();
-                    if (response.success) {
-                        notify(response.message, "info");
-                        dynatable.process();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-
-        },
         cancelarExpansion: function (e) {
             e.preventDefault();
             location.href = APP.url("academico/docente/cargaacademica");
@@ -582,10 +546,6 @@ $(function () {
 
     $("body").delegate(".cboTipoSecEval", "change", function () {
         ExpandirSCN.cambiarTipoSecEval($(this));
-    });
-
-    $("body").delegate(".chkAnularNotaMinCls", "change", function () {
-        ExpandirSCN.cambiarAnularNotaMin($(this));
     });
 
     $("body").delegate(".cancelarExpansion", "click", function (e) {
