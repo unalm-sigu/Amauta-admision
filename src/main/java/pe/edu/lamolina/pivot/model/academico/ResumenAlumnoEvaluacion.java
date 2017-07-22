@@ -25,6 +25,9 @@ public class ResumenAlumnoEvaluacion implements Serializable {
     @Column(name = "nota")
     private String nota;
 
+    @Column(name = "creditos")
+    private Integer creditos;
+
     @Column(name = "evaluaciones")
     private Integer evaluaciones;
 
@@ -93,6 +96,14 @@ public class ResumenAlumnoEvaluacion implements Serializable {
 
     public void setAlumno(Alumno alumno) {
         this.alumno = alumno;
+    }
+
+    public Integer getCreditos() {
+        return creditos;
+    }
+
+    public void setCreditos(Integer creditos) {
+        this.creditos = creditos;
     }
 
 }

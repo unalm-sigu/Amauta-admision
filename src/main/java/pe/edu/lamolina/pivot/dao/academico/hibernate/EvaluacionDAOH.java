@@ -354,6 +354,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         sql.append("          where ss.id = sec.id ");
         sql.append("            and alu.id = :ALUMNO ");
         sql.append("   ) ");
+        sql.append(" and  ee.estado='ACT' ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("GRUPO_SECCION", grupoSeccion.getId());

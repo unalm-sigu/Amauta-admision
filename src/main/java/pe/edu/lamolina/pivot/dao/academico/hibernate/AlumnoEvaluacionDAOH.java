@@ -97,7 +97,7 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         StringBuilder sql = new StringBuilder();
         sql.append("  from ").append(AlumnoEvaluacion.class.getName()).append(" as ae ");
         sql.append("  join fetch ae.evaluacion eva ");
-        sql.append("  join fetch eva.evaluacionExpandida ");
+        sql.append("  join fetch eva.evaluacionExpandida evae");
         sql.append("  join fetch eva.tipoEvaluacion tEva ");
         sql.append("  join fetch ae.alumno alu ");
         sql.append("  join fetch eva.seccionResponsable sec ");
@@ -125,7 +125,7 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("          and mc.curso.id = cur.id ");
         sql.append("          and mc.estado = :ESTADO ");
         sql.append("   ) ");
-
+        sql.append(" and evae.estado='ACT'");
         if (alumno != null) {
             sql.append("   and alu.id = :ALUMNO ");
         }

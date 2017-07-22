@@ -1277,6 +1277,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
         //BigDecimal bd100 = new BigDecimal("100");
 
+        grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
+
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
         //Si el alumno no cuenta con evaluaciones, no se hace nada
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
@@ -1377,7 +1379,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 resumen.setAlumno(alumno);
                 resumen.setGrupoSeccion(grupoSeccion);
                 resumen.setTipoEvaluacion(cfgEval.getTipoEvaluacion());
-                resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
+
+                if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isNumerico()) {
+                    resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
+                } else if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isLetras()) {
+                    resumen.setNota(nota.getNotaLetra());
+                    resumen.setCreditos(Integer.valueOf(NumberFormat.nota(nota.getValorNumerico())));
+                }
                 resumenAlumnoEvaluacionDAO.save(resumen);
 
             } else {
@@ -1388,7 +1396,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 }
 
                 AlumnoEvaluacion nota = notax.get(0);
-                resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
+                //   resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
+
+                if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isNumerico()) {
+                    resumen.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
+                } else if (grupoSeccion.getPlanCalificacion().getSistemaNotas().isLetras()) {
+
+                    resumen.setNota(nota.getNotaLetra());
+                    resumen.setCreditos(Integer.valueOf(NumberFormat.nota(nota.getValorNumerico())));
+                }
+                logger.debug("calculo del resumen alumno evaluacion alumno {}, nota {},  creditos {}", resumen.getAlumno().getPersona().getApellidosNombres(), resumen.getNota(), resumen.getCreditos());
                 resumenAlumnoEvaluacionDAO.update(resumen);
             }
         }

@@ -24,6 +24,9 @@ public class MatriculaCurso implements Serializable {
     @Column(name = "creditos")
     private Integer creditos;
 
+    @Column(name = "creditos_aprobados")
+    private Integer creditosAprobados;
+
     @Column(name = "estado")
     private String estado;
 
@@ -153,6 +156,14 @@ public class MatriculaCurso implements Serializable {
 
     public void setNotaAcumuladaFull(String notaAcumuladaFull) {
         this.notaAcumuladaFull = notaAcumuladaFull;
+    }
+
+    public Integer getCreditosAprobados() {
+        return creditosAprobados;
+    }
+
+    public void setCreditosAprobados(Integer creditosAprobados) {
+        this.creditosAprobados = creditosAprobados;
     }
 
 }

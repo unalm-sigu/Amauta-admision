@@ -178,12 +178,25 @@
                 </td>
                 <td style="width:20px; text-align: center; w"
                     th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
-                    <span th:if="${evalPlan.cantidadEvaluaciones != 1}"
-                          th:text="${evalPlan.cantidadEvaluaciones}">ee</span>
-                    <span th:text="${evalPlan.tipoEvaluacion.codigo}">ee</span>
+
+
+                    <span th:if="${planCalificacion.sistemaNotas.numerico}">
+                        <span th:if="${evalPlan.cantidadEvaluaciones != 1}"
+                              th:text="${evalPlan.cantidadEvaluaciones}">ee</span>
+                        <span th:text="${evalPlan.tipoEvaluacion.codigo}">ee</span>
+                    </span>
+                    <span th:if="${planCalificacion.sistemaNotas.letras}">
+                        Nota
+                    </span>
+
                 </td>
                 <td style="width:20px; text-align: center;">
-                    PROM. FINAL
+                    <span th:if="${planCalificacion.sistemaNotas.numerico}">
+                        PROM. FINAL
+                    </span>
+                    <span th:if="${planCalificacion.sistemaNotas.letras}">
+                        Creditos
+                    </span>
                 </td>
             </tr>
 
@@ -196,7 +209,7 @@
                 <td style="" 
                     th:text="${matSec.matriculaResumen.alumno.persona.apellidosNombres}">nombre
                 </td>  
-                <td style="text-align: center;"
+                <td style="text-align: right;"
                     th:each="evalPlan : ${planCalificacion.evaluacionPlan}" >
                     <span class="nota-academica" 
                           th:if="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id]}"
@@ -206,7 +219,7 @@
                           th:unless="${notas[matSec.matriculaResumen.alumno.id+'-'+evalPlan.tipoEvaluacion.id]}"
                           >  </span>
                 </td>
-                <td style="text-align: center;">
+                <td style="text-align: right;">
                     <span  th:if="${matriculaCurso[matSec.matriculaResumen.alumno.id]}" >
                         <span class="nota-academica" th:text="${matriculaCurso[matSec.matriculaResumen.alumno.id].notaFinal}" > 04.18 </span>
                     </span>

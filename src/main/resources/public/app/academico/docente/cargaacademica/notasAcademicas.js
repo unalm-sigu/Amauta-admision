@@ -681,6 +681,7 @@ $(function () {
             var input = $this.closest('td').find('input');
             input.val('');
             input.removeAttr("readonly");
+            input.attr("data-parsley-type", "integer");
             if ($this.val() == 'D') {
                 var input = $this.closest('td').find('input');
                 input.val(0);

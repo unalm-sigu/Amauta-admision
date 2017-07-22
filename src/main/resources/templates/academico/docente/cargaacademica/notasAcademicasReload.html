@@ -19,9 +19,10 @@
 
             <span  th:class="${sistemaNotas.letras} ? 'form-inline col-md-12' : ''" th:title="${evaluacion.id}"> 
                 <div th:class="${sistemaNotas.letras} ? 'form-group col-md-6' : ''">
-                    <select   th:title="${evaluacion.id}" 
-                              th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
-                              style="display: none; width:25x; padding: 3px !important;">
+                    <select class="clsCboLetraNota"  
+                            th:title="${evaluacion.id}" 
+                            th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                            style="display: none; width:25x; padding: 3px !important;">
                         <option></option>
                         <option th:each="notaLet : ${sistemaNotas.notaLetra}" 
                                 th:text="${notaLet.letra}"
