@@ -332,6 +332,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     public List<MatriculaSeccion> eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds) {
 
         evaluacion = evaluacionDAO.find(evaluacion.getId());
+        EvaluacionExpandida evalExp = new EvaluacionExpandida(evaluacion.getEvaluacionExpandida().getId());
         List<AlumnoEvaluacion> alumnoEvaluaciones = alumnoEvaluacionDAO.allByFilter(null, null, null, evaluacion.getId());
         DateTime today = new DateTime();
 
@@ -371,7 +372,24 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionExpandidaDAO.update(evaluacion.getEvaluacionExpandida());
         }
 
-        this.calcularNotasLista(marticulasSeccion, ds);
+        List<MatriculaSeccion> matriculasSeccion = this.allMatriculaSeccionByFilter(evalExp, ds.getCicloAcademico());
+        for (MatriculaSeccion ms : matriculasSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+            if (gpoSecc.getPlanCalificacion() == null) {
+                break;
+            }
+
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+
+            calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
+
+        }
+
         return marticulasSeccion;
     }
 
@@ -1362,15 +1380,19 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         BigDecimal prom = dividendo.divide(pesoTotal, 4, RoundingMode.HALF_DOWN);
-        BigDecimal avance = dividendo.divide(pesoConNota, 4, RoundingMode.HALF_DOWN);
-
+        BigDecimal avance = BigDecimal.ZERO;
+        if (prom.compareTo(BigDecimal.ZERO) != 0 && avance.compareTo(BigDecimal.ZERO) != 0) {
+            avance = dividendo.divide(pesoConNota, 4, RoundingMode.HALF_DOWN);
+        }
         matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(avance));
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(prom));
         matriculaCurso.setPorcentajeAvanceNota(pesoConNota.intValue());
         matriculaCurso.setNotaFinal("0");
 
         avance = dividendo.divide(pesoTotal, 10, RoundingMode.HALF_DOWN);
-        prom = dividendo.divide(pesoConNota, 10, RoundingMode.HALF_DOWN);
+        if (prom.compareTo(BigDecimal.ZERO) != 0 && avance.compareTo(BigDecimal.ZERO) != 0) {
+            prom = dividendo.divide(pesoConNota, 10, RoundingMode.HALF_DOWN);
+        }
 
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom));
