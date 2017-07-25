@@ -78,6 +78,7 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
@@ -369,6 +370,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacion.getEvaluacionExpandida().setIndNotasIngresadas(BigDecimal.ZERO.intValue());
             evaluacionExpandidaDAO.update(evaluacion.getEvaluacionExpandida());
         }
+
+        this.calcularNotasLista(marticulasSeccion, ds);
         return marticulasSeccion;
     }
 
@@ -531,9 +534,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
                 for (Evaluacion ev : evalBD.getEvaluaciones()) {
                     ev.setPeso(eval.getPeso());
+                    ev.setNumero(eval.getNumero());
                     evaluacionDAO.update(ev);
                 }
-
+                evalBD.setNumero(eval.getNumero());
                 evalBD.setPeso(eval.getPeso());
                 evaluacionExpandidaDAO.update(evalBD);
                 //     continue;
@@ -652,6 +656,25 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         EvaluacionExpandida evaluacionExpBD = evaluacionExpandidaDAO.find(evaluacionExpandidaForm.getId());
         evaluacionExpBD.setNotaMinimaAnulable(evaluacionExpandidaForm.getNotaMinimaAnulable());
         evaluacionExpandidaDAO.update(evaluacionExpBD);
+
+        List<MatriculaSeccion> matriculasSeccion = this.allMatriculaSeccionByFilter(evaluacionExpBD, ds.getCicloAcademico());
+
+        for (MatriculaSeccion ms : matriculasSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+            if (gpoSecc.getPlanCalificacion() == null) {
+                break;
+            }
+
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+
+            calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
+
+        }
     }
 
     private void validarEvaluacionesExpandidas(EvaluacionExpandida evaluacionForm, EvaluacionExpandida evaluacionPadreBD) {
@@ -1243,12 +1266,16 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             calcularNotasAlumno(alumno, evaluacion, grupoSeccion, curso, ciclo, evaluacionesPlan);
             //*/
         }
+
+        this.calcularNotasLista(marticulasSeccion, ds);
+
         return marticulasSeccion;
         /*
         if (evaluacionDAO.countEvaluacionesFaltantesByGrupo(grupoSeccion.getId()).intValue() == 0) {
             grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
             grupoSeccionDAO.update(seccion.getGrupoSeccion());
         }*/
+
     }
 
     @Override
@@ -1421,164 +1448,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     resumen.setNota(nota.getNotaLetra());
                     resumen.setCreditos(Integer.valueOf(NumberFormat.nota(nota.getValorNumerico())));
                 }
-                logger.debug("calculo del resumen alumno evaluacion alumno {}, nota {},  creditos {}", resumen.getAlumno().getPersona().getApellidosNombres(), resumen.getNota(), resumen.getCreditos());
                 resumenAlumnoEvaluacionDAO.update(resumen);
             }
         }
 
         logger.debug("Finalizó calculo notas del alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
-
-        /*
-        //Identificar la nota minima para las evaluaciones que la consideran
-        for (EvaluacionExpandida ee : evaluasExpan) {
-            TipoEvaluacion tipo = ee.getTipoEvaluacion();
-
-            if (ee.getNotaMinimaAnulable() < 1) {
-                continue;
-            }
-
-            AlumnoEvaluacion alumnoEvaluacionMinima = null;
-            BigDecimal notaMinima = new BigDecimal("100000000");
-
-            List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
-
-            int cantidadEvaluacionesTotales = ee.getCantidadEvaluaciones();
-            int cantidadEvaluacionesActuales = evalsTipo.size();
-
-            if (cantidadEvaluacionesTotales == cantidadEvaluacionesActuales) {
-                for (AlumnoEvaluacion ae : evalsTipo) {
-                    if (!ae.isNCV()) {
-                        ae.setMotivoAnulacion("");
-                        BigDecimal producto = ae.getValorNumerico().multiply(ae.getEvaluacion().getPeso());
-                        if (producto.compareTo(notaMinima) <= 0) {
-                            notaMinima = ae.getValorNumerico();
-                            alumnoEvaluacionMinima = new AlumnoEvaluacion(ae.getId());
-                            alumnoEvaluacionDAO.update(ae);
-                        }
-                    }
-                }
-                alumnoEvaluacionMinima = alumnoEvaluacionDAO.find(alumnoEvaluacionMinima.getId());
-                alumnoEvaluacionMinima.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MIN.name());
-                alumnoEvaluacionDAO.update(alumnoEvaluacionMinima);
-            }
-        }
-        for (EvaluacionPlan ep : evaluacionesPlan) {
-            TipoEvaluacion tipo = ep.getTipoEvaluacion();
-
-            AlumnoEvaluacion alumnoEvaluacionMinima = null;
-            BigDecimal notaMinima = new BigDecimal("100000000");
-            if (ep.getNotaMinimaAnulable() != null && ep.getNotaMinimaAnulable().equals(BigDecimal.ONE.intValue())) {
-                List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
-
-                int cantidadEvaluacionesTotales = ep.getCantidadEvaluaciones();
-                int cantidadEvaluacionesActuales = evalsTipo.size();
-
-                if (cantidadEvaluacionesTotales == cantidadEvaluacionesActuales) {
-                    for (AlumnoEvaluacion ae : evalsTipo) {
-                        if (!ae.isNCV()) {
-                            ae.setMotivoAnulacion("");
-                            BigDecimal producto = ae.getValorNumerico().multiply(ae.getEvaluacion().getPeso());
-                            if (producto.compareTo(notaMinima) <= 0) {
-                                notaMinima = ae.getValorNumerico();
-                                alumnoEvaluacionMinima = new AlumnoEvaluacion(ae.getId());
-                                alumnoEvaluacionDAO.update(ae);
-                            }
-                        }
-                    }
-                    alumnoEvaluacionMinima = alumnoEvaluacionDAO.find(alumnoEvaluacionMinima.getId());
-                    alumnoEvaluacionMinima.setMotivoAnulacion(MotivoAnulacionEnum.NOTA_MIN.name());
-                    alumnoEvaluacionDAO.update(alumnoEvaluacionMinima);
-                }
-            }
-        }
-
-        evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
-
-        BigDecimal pesoTotal = BigDecimal.ZERO;
-        BigDecimal ponderado = BigDecimal.ZERO;
-
-        if (evaluacionesAlumno.isEmpty()) {
-            matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(ponderado));
-            matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(ponderado));
-            matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
-            matriculaCurso.setNotaFinal("0");
-
-            matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(ponderado));
-            matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(ponderado));
-            matriculaCursoDAO.update(matriculaCurso);
-            return;
-        }
-
-        for (AlumnoEvaluacion ae : evaluacionesAlumno) {
-            BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-            if (!ae.isNotaAnulada()) {
-                pesoTotal = pesoTotal.add(peso);
-                ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-            }
-        }
-
-        BigDecimal avance = ponderado.divide(bd100, 4, RoundingMode.HALF_DOWN);
-        BigDecimal prom = ponderado.divide(pesoTotal, 4, RoundingMode.HALF_DOWN);
-        matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(prom));
-        matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(avance));
-
-        BigDecimal avanceFull = ponderado.divide(bd100, 10, RoundingMode.HALF_DOWN);
-        BigDecimal promFull = ponderado.divide(pesoTotal, 10, RoundingMode.HALF_DOWN);
-        matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(promFull));
-        matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(avanceFull));
-
-        matriculaCurso.setPorcentajeAvanceNota(pesoTotal.intValue());
-        if (pesoTotal.compareTo(bd100) == 0) {
-            BigDecimal notaFinal = calularNota(ponderado, bd100, 0);
-            matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
-        }
-        matriculaCursoDAO.update(matriculaCurso);
-
-        Map<Long, ResumenAlumnoEvaluacion> mapResumenAluEval = new LinkedHashMap();
-
-        List<ResumenAlumnoEvaluacion> resumenTipoEVal = resumenAlumnoEvaluacionDAO.allByAlumnoGrupoSeccion(alumno, grupoSeccion);
-        for (ResumenAlumnoEvaluacion rae : resumenTipoEVal) {
-            mapResumenAluEval.put(rae.getTipoEvaluacion().getId(), rae);
-        }
-
-        for (EvaluacionPlan ep : evaluacionesPlan) {
-            TipoEvaluacion tipo = ep.getTipoEvaluacion();
-            List<AlumnoEvaluacion> evalsTipo = allEvaluacionesByTipoEvaluacion(tipo, evaluacionesAlumno, evaluacion);
-
-            if (evalsTipo.isEmpty()) {
-                continue;
-            }
-
-            ResumenAlumnoEvaluacion rae = mapResumenAluEval.get(tipo.getId());
-            if (rae == null) {
-                rae = new ResumenAlumnoEvaluacion();
-                rae.setAlumno(alumno);
-                rae.setGrupoSeccion(grupoSeccion);
-                rae.setTipoEvaluacion(tipo);
-            }
-            rae.setEvaluaciones(evalsTipo.size());
-
-            pesoTotal = BigDecimal.ZERO;
-            ponderado = BigDecimal.ZERO;
-
-            for (AlumnoEvaluacion ae : evalsTipo) {
-                if (!ae.isNotaAnulada()) {
-                    BigDecimal peso = choiceEvaluacion(ae.getEvaluacion(), evaluacion).getPeso();
-                    pesoTotal = pesoTotal.add(peso);
-                    ponderado = ponderado.add(peso.multiply(ae.getValorNumerico()));
-                }
-            }
-
-            BigDecimal nota = calularNota(ponderado, pesoTotal, 2);
-            rae.setNota(NumberFormat.notaDecimal(nota));
-            if (ObjectUtil.getParentTree(rae, "id") == null) {
-                resumenAlumnoEvaluacionDAO.save(rae);
-            } else {
-                resumenAlumnoEvaluacionDAO.update(rae);
-            }
-
-        }
-        //*/
     }
 
     private void calcularNotaEvaluacion(EvaluacionExpandida configEvaluacion, BigDecimal pesoGrupo, BigDecimal pesoPadre, List<BigDecimal> notas, List<BigDecimal> pesos) {

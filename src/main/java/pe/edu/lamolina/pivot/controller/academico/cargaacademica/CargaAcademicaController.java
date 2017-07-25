@@ -539,6 +539,7 @@ public class CargaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             cargaAcademicaService.saveExpansionEvaluacion(evaluacion, ds);
 
+            /*
             List<MatriculaSeccion> alumnosSeccion = cargaAcademicaService.allMatriculaSeccionByFilter(evaluacion, ds.getCicloAcademico());
             int loop = 1;
             for (MatriculaSeccion ms : alumnosSeccion) {
@@ -558,7 +559,7 @@ public class CargaAcademicaController {
                 loop++;
 
             }
-
+             */
             response.setSuccess(true);
             response.setMessage("Evaluacion Expandida");
 
@@ -1280,7 +1281,7 @@ public class CargaAcademicaController {
             Evaluacion evaluacion = cargaAcademicaService.findEvaluacion(evaluacionId);
 
             List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.eliminarNotas(new Evaluacion(evaluacionId), ds);
-            cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+            //    cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
@@ -1313,7 +1314,7 @@ public class CargaAcademicaController {
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());
             evaluacion = cargaAcademicaService.findEvaluacion(evaluacion.getId());
             List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.saveIngresoNotas(evaluacion, alumnoEvaluaciones, ds);
-            cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+            //    cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());
