@@ -64,13 +64,11 @@ public class EvaluacionExpandida implements Serializable {
 //    @Column(name = "fecha_ingreso_nota")
 //    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
 //    private Date fechaIngresoNota;
-
 //    @Column(name = "evaluados")
 //    private Integer evaluados;
 //
 //    @Column(name = "extemporaneos")
 //    private Integer extemporaneos;
-
     @Column(name = " ind_notas_ingresadas")
     private Integer indNotasIngresadas;
 
@@ -227,7 +225,6 @@ public class EvaluacionExpandida implements Serializable {
 //    public void setFechaIngresoNota(Date fechaIngresoNota) {
 //        this.fechaIngresoNota = fechaIngresoNota;
 //    }
-
 //    public Integer getEvaluados() {
 //        return evaluados;
 //    }
@@ -243,7 +240,6 @@ public class EvaluacionExpandida implements Serializable {
 //    public void setExtemporaneos(Integer extemporaneos) {
 //        this.extemporaneos = extemporaneos;
 //    }
-
     public List<AlumnoEvaluacion> getAlumnoEvaluacion() {
         return alumnoEvaluacion;
     }

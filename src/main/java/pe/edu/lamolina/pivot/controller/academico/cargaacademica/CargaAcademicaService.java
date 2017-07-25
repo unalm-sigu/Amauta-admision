@@ -158,4 +158,6 @@ public interface CargaAcademicaService {
 
     void anularEvaluacionExp(EvaluacionExpandida evaluacionExpandidaAnul);
 
+    List<MatriculaSeccion> allMatriculaSeccionByFilter(EvaluacionExpandida evaluacionExpandida, CicloAcademico cilo);
+
 }

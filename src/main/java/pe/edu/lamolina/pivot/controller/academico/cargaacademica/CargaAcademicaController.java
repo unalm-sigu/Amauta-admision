@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -287,6 +288,11 @@ public class CargaAcademicaController {
 
                 array.add(node);
 
+                BigDecimal totalHija = BigDecimal.ZERO;
+                for (EvaluacionExpandida evaluacionHija : evaluacionExpandida.getEvaluacionesExpandidas()) {
+                    totalHija = totalHija.add(evaluacionHija.getPeso());
+                }
+
                 for (EvaluacionExpandida evaluacionHija : evaluacionExpandida.getEvaluacionesExpandidas()) {
                     logger.debug("Hija - Tipo evaluacion {}", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionHija.getNumero());
                     ObjectNode nodeHijo = castEvaluacionExpandida(evaluacionHija);
@@ -295,7 +301,19 @@ public class CargaAcademicaController {
                     nodeHijo.put("esHijo", true);
                     nodeHijo.put("esNieto", false);
                     nodeHijo.put("esAbuelo", false);
+
+                    if (totalHija.compareTo(evaluacionExpandida.getPeso()) == 0) {
+                        nodeHijo.put("porcentajeFail", false);
+                    } else {
+                        nodeHijo.put("porcentajeFail", true);
+                    }
+
                     array.add(nodeHijo);
+
+                    BigDecimal totalNietas = BigDecimal.ZERO;
+                    for (EvaluacionExpandida evaluacionNieta : evaluacionHija.getEvaluacionesExpandidas()) {
+                        totalNietas = totalNietas.add(evaluacionNieta.getPeso());
+                    }
 
                     for (EvaluacionExpandida evaluacionNieta : evaluacionHija.getEvaluacionesExpandidas()) {
                         logger.debug("Nieta - Tipo evaluacion {}", evaluacionNieta.getTipoEvaluacion().getNombre() + " " + evaluacionNieta.getNumero());
@@ -304,6 +322,13 @@ public class CargaAcademicaController {
                         nodeNieta.put("editarPorcentaje", false);
                         nodeNieta.put("esNieto", true);
                         nodeNieta.put("esAbuelo", false);
+
+                        if (totalNietas.compareTo(evaluacionHija.getPeso()) == 0) {
+                            nodeNieta.put("porcentajeFail", false);
+                        } else {
+                            nodeNieta.put("porcentajeFail", true);
+                        }
+
                         array.add(nodeNieta);
                     }
 
@@ -513,6 +538,26 @@ public class CargaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             cargaAcademicaService.saveExpansionEvaluacion(evaluacion, ds);
+
+            List<MatriculaSeccion> alumnosSeccion = cargaAcademicaService.allMatriculaSeccionByFilter(evaluacion, ds.getCicloAcademico());
+            int loop = 1;
+            for (MatriculaSeccion ms : alumnosSeccion) {
+                Seccion seccion = ms.getSeccion();
+                GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+                Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+                if (gpoSecc.getPlanCalificacion() == null) {
+                    break;
+                }
+
+                if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                    continue;
+                }
+
+                cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
+                loop++;
+
+            }
 
             response.setSuccess(true);
             response.setMessage("Evaluacion Expandida");

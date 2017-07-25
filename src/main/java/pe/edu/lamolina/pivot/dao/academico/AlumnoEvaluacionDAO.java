@@ -10,7 +10,11 @@ import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 
 public interface AlumnoEvaluacionDAO extends Crud<AlumnoEvaluacion> {
 
+    List<AlumnoEvaluacion> allByEvaluacionExp(Long idEvaluacionExpandida);
+
     List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion);
+
+    List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion, Long idEvaluacionExpandida);
 
     List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idALumno, Long idCurso, Long idCicloAcademico, String orderBy);
 

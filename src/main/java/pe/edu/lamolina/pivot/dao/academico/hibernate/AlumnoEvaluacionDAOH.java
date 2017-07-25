@@ -29,10 +29,20 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
 
     @Override
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion) {
+        return this.allByFilter(idEvaluacionSeccion, idGrupoSeccion, idSeccion, idEvaluacion, null);
+    }
+
+    @Override
+    public List<AlumnoEvaluacion> allByEvaluacionExp(Long idEvaluacionExpandida) {
+        return this.allByFilter(null, null, null, null, idEvaluacionExpandida);
+    }
+
+    @Override
+    public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion, Long idEvaluacionExpandida) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva");
         sqlUtil.parents("evaluacion eva");
         sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr", "left _eva.evaluacionSuperior evaSup");
-        sqlUtil.parents("_es.grupoSeccion gs", "left _evaSup.tipoEvaluacion te2");
+        sqlUtil.parents("_es.grupoSeccion gs", "left _evaSup.tipoEvaluacion te2", "_eva.evaluacionExpandida evaex");
         if (idEvaluacionSeccion != null) {
             sqlUtil.filter("es.id", idEvaluacionSeccion);
         }
@@ -44,6 +54,9 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         }
         if (idEvaluacion != null) {
             sqlUtil.filter("eva.id", idEvaluacion);
+        }
+        if (idEvaluacionExpandida != null) {
+            sqlUtil.filter("evaex.id", idEvaluacionExpandida);
         }
         List<AlumnoEvaluacion> lstEvaluaciones = this.all(sqlUtil);
         return lstEvaluaciones;

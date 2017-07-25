@@ -31,6 +31,12 @@ $(function () {
         } else if (record.esNieto) {
             record.styleHijo = 'padding-left:120px;';
         }
+        if (record.porcentajeFail) {
+            record.stryleRow = 'text-decoration:line-through !important;font-color:red !important;';
+        } else {
+            record.stryleRow = '';
+        }
+
         var docentes = "";
         if (!record.esPadre) {
             $.each(record.evaluadores, function (i, item) {

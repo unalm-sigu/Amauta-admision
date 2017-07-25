@@ -364,6 +364,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacion.setFechaRealizada(null);
         evaluacionDAO.update(evaluacion);
 
+        List<AlumnoEvaluacion> listaAluEvas = alumnoEvaluacionDAO.allByEvaluacionExp(evaluacion.getEvaluacionExpandida().getId());
+        if (listaAluEvas == null || listaAluEvas.isEmpty()) {
+            evaluacion.getEvaluacionExpandida().setIndNotasIngresadas(BigDecimal.ZERO.intValue());
+            evaluacionExpandidaDAO.update(evaluacion.getEvaluacionExpandida());
+        }
         return marticulasSeccion;
     }
 
@@ -489,10 +494,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         List<EvaluacionExpandida> evaluacionesHijasForm = evaluacionExpandidaForm.getEvaluacionesExpandidas();
         List<EvaluacionExpandida> evaluacionesHijasBD = evaluacionPadreBD.getEvaluacionesExpandidas();
 
-        if (evaluacionExpandidaForm.getNotaMinimaAnulable() > evaluacionesHijasForm.size() - 1) {
-            throw new PhobosException("Error, notas minimas anulables incorrectas.");
-        }
-
         Map<Long, EvaluacionExpandida> mapEvaluaciones = MapUtil.storeItems("id", evaluacionesHijasBD);
 
         if (evaluacionesHijasForm.isEmpty()) {
@@ -504,6 +505,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 evaluacion.setEstaDesagregado(BigDecimal.ZERO.intValue());
             }
         } else {
+            if (evaluacionExpandidaForm.getNotaMinimaAnulable() > evaluacionesHijasForm.size() - 1) {
+                throw new PhobosException("Error, notas minimas anulables incorrectas.");
+            }
+
             evaluacionPadreBD.setEstaDesagregado(BigDecimal.ONE.intValue());
             evaluacionPadreBD.setFechaDesagregar(new Date());
             evaluacionPadreBD.setUsuarioDesagregar(ds.getUsuario());
@@ -519,15 +524,25 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             EvaluacionExpandida evalBD = mapEvaluaciones.get(eval.getId());
             if (evalBD == null) {
                 throw new PhobosException("Está intentando modificar una modalidad de evaluación inexistente");
-            }
-            if (evalBD.isNotasIngresadas()) {
-                throw new PhobosException("Está intentando modificar una modalidad de evaluación que contiene notas");
-            }
+            } //   if (evalBD.isNotasIngresadas()) {
+            else {
+                // logger.debug("Eval expandida {}, Peso {}", eval.getId(), eval.getPeso());
+                //throw new PhobosException("Está intentando modificar una evaluación que contiene notas");
 
+                for (Evaluacion ev : evalBD.getEvaluaciones()) {
+                    ev.setPeso(eval.getPeso());
+                    evaluacionDAO.update(ev);
+                }
+
+                evalBD.setPeso(eval.getPeso());
+                evaluacionExpandidaDAO.update(evalBD);
+                //     continue;
+            }
+            /*
             evaluacionDAO.deleteByEvaluacionExpandida(evalBD.getId());
             evaluacionExpandidaDAO.delete(evalBD);
             evaluacionesHijasBD.remove(evalBD);
-            eval.setId(null);
+            eval.setId(null);*/
         }
 
         List<EvaluacionExpandida> eliminados = new ArrayList();
@@ -536,7 +551,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 continue;
             }
             if (eval.isNotasIngresadas()) {
-                throw new PhobosException("Está intentando modificar una modalidad de evaluación que contiene notas");
+                continue;
+                // throw new PhobosException("Está intentando modificar una evaluación que contiene notas");
             }
 
             evaluacionDAO.deleteByEvaluacionExpandida(eval.getId());
@@ -2483,6 +2499,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
         }
 
+    }
+
+    @Override
+    public List<MatriculaSeccion> allMatriculaSeccionByFilter(EvaluacionExpandida evaluacionExpandida, CicloAcademico ciclo) {
+        evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
+        return matriculaSeccionDAO.allByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), ciclo);
     }
 
 }

@@ -56,8 +56,9 @@
                            required="true"/>
                 </td>
                 <td class="v-middle text-center">
-                    <span class="label label-danger" th:if="${isNotasIngresadas}">Con notas</span>
-                    <span class="label label-default" th:unless="${isNotasIngresadas}">Sin notas</span>
+
+                    <span class="label label-danger" th:if="${eval.notasIngresadas}">Con notas</span>
+                    <span class="label label-default" th:unless="${eval.notasIngresadas}">Sin notas</span>
                 </td>
                 <td  class="v-middle text-center">
                     <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
@@ -66,11 +67,11 @@
                            type="text"
                            data-parsley-pattern="[0-9]{0,3}\.?[0-9]{0,2}"
                            required="true"
-                           th:disabled="${eval.notasIngresadas}"/>
-
-                    <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
-                           th:if="${eval.notasIngresadas}"
-                           th:value="${eval.peso}" type="hidden"/>
+                           />
+                    <!--
+                                        <input th:name="${'evaluacionesExpandidas['+iterStat.index +'].peso'}" 
+                                               th:if="${eval.notasIngresadas}"
+                                               th:value="${eval.peso}" type="hidden"/> -->
                 </td>
                 <td class="text-center">
                     <a href="#" class="btn btn-default delete-tipo-evaluacion"
