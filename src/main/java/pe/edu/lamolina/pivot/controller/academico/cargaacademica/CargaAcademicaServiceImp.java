@@ -362,6 +362,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionEliminadaDAO.save(evaluacionEliminada);
 
         alumnoEvaluacionDAO.deleteByEvaluacion(evaluacion);
+        reclamoNotaDAO.deleteByEvaluacion(evaluacion);
+
         evaluacion.setFechaIngresoNota(null);
         evaluacion.setFechaRealizada(null);
         evaluacionDAO.update(evaluacion);
@@ -576,10 +578,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 continue;
                 // throw new PhobosException("Está intentando modificar una evaluación que contiene notas");
             }
-
+            eliminados.add(eval);
             evaluacionDAO.deleteByEvaluacionExpandida(eval.getId());
             evaluacionExpandidaDAO.delete(eval);
-            eliminados.add(eval);
+
         }
 
         for (EvaluacionExpandida eliminado : eliminados) {
