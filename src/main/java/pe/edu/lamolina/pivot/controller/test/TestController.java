@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
@@ -53,6 +54,9 @@ public class TestController {
 
     @Autowired
     CargaAcademicaService cargaAcademicaService;
+
+    @Autowired
+    CalculoNotasService calculoNotasService;
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
@@ -133,7 +137,7 @@ public class TestController {
                 continue;
             }
 
-            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
+            calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
 
         }
@@ -166,7 +170,7 @@ public class TestController {
                 continue;
             }
 
-            cargaAcademicaService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
+            calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
 
         }

@@ -138,7 +138,9 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
         sql.append("          and mc.curso.id = cur.id ");
         sql.append("          and mc.estado = :ESTADO ");
         sql.append("   ) ");
-        sql.append(" and evae.estado='ACT'");
+        sql.append(" and evae.estado = 'ACT' ");
+        //sql.append(" and ae.estado = 'ACT' ");
+
         if (alumno != null) {
             sql.append("   and alu.id = :ALUMNO ");
         }

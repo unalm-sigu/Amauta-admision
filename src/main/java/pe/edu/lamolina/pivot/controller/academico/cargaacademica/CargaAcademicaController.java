@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.cargaacademica;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -43,7 +42,6 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -54,7 +52,6 @@ import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.NotaLetra;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
