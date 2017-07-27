@@ -732,6 +732,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             throw new PhobosException("No ha ingresado ningún cambio");
         }
 
+        /*
         BigDecimal newPesoTotal = BigDecimal.ZERO;
         for (EvaluacionExpandida evaluacionHija : evaluacionesHijasForm) {
             newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
@@ -740,7 +741,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             if (newPesoTotal.compareTo(evaluacionPadreBD.getPeso()) != 0 && !evaluacionesHijasForm.isEmpty()) {
                 throw new PhobosException("El peso de las evaluaciones expandidas debe ser igual al peso de la evaluacion padre, verifique ");
             }
-        }
+        }*/
     }
 
     private boolean existeEvaluacion(EvaluacionExpandida evaluacion, List<EvaluacionExpandida> evaluaciones) {
