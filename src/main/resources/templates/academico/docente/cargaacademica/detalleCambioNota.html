@@ -22,6 +22,37 @@
             </select>
         </div>
     </div>
+    <div class="form-group" th:if="${curso.tieneCreditosVariables}">
+        <div class="col-md-6">
+            <label>Letra anterior:</label>
+            <input id="txtLetraAnterior"
+                   class="form-control"
+                   type="text"
+                   disabled="true"/>
+
+            <input name="letraInicial"
+                   class="form-control"
+                   type="hidden"/>
+        </div>
+        <div class="col-md-6">
+            <label>Letra nueva:</label>
+            <!-- 
+            <input id="txtLetraNueva" 
+                   class="form-control" 
+                   name="letraFinal"
+                   required="true"
+                   type="text" />
+            -->
+            <select id="cboLetraFinal" name="letraFinal"
+                    required="true" class="select2single form-control clsCboLetraCambioNota" 
+                    style="width:25x; padding: 3px !important;">
+                <option></option>
+                <option th:each="notaLet : ${sistemaNotas.notaLetra}" 
+                        th:text="|${notaLet.letra} - ${notaLet.descripcion} |"
+                        th:value="${notaLet.letra}"></option>
+            </select>
+        </div>
+    </div>
     <div class="form-group">
         <div class="col-md-6">
             <label>Nota anterior:</label>

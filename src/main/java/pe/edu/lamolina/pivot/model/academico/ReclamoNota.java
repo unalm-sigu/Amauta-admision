@@ -54,6 +54,12 @@ public class ReclamoNota implements Serializable {
     @Column(name = "nota_final")
     private String notaFinal;
 
+    @Column(name = "letra_inicial")
+    private String letraInicial;
+
+    @Column(name = "letra_final")
+    private String letraFinal;
+
     @Column(name = "id_user_respuesta")
     private Long idUserRespuesta;
 
@@ -186,6 +192,22 @@ public class ReclamoNota implements Serializable {
 
     public void setFechaRespuesta(Date fechaRespuesta) {
         this.fechaRespuesta = fechaRespuesta;
+    }
+
+    public String getLetraInicial() {
+        return letraInicial;
+    }
+
+    public void setLetraInicial(String letraInicial) {
+        this.letraInicial = letraInicial;
+    }
+
+    public String getLetraFinal() {
+        return letraFinal;
+    }
+
+    public void setLetraFinal(String letraFinal) {
+        this.letraFinal = letraFinal;
     }
 
 }

@@ -1986,12 +1986,17 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         reclamoNotaDAO.save(reclamoNota);
 
         AlumnoEvaluacion alumnoEvaluacion = alumnoEvaluacionDAO.findByFilter(null, reclamoNota.getEvaluacion().getId(), reclamoNota.getAlumno().getId());
+        Evaluacion evaluacion = evaluacionDAO.find(alumnoEvaluacion.getEvaluacion().getId());
         alumnoEvaluacion.setNota(reclamoNota.getNotaFinal());
-        alumnoEvaluacion.setValorNumerico(new BigDecimal(reclamoNota.getNotaFinal()));
-
+        if (evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso().isTieneCreditosVariables()) {
+            alumnoEvaluacion.setValorLetra(reclamoNota.getLetraFinal());
+        }
         SistemaNotas sistemaNotas = alumnoEvaluacion.getEvaluacion().getEvaluacionSeccion().getSistemaNotas();
 
         if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
+            if (evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso().isTieneCreditosVariables()) {
+                throw new PhobosException("No se permite " + AlumnoEvaluacion.NSP);
+            }
             alumnoEvaluacion.setValorNumerico(BigDecimal.ZERO);
         } else if (alumnoEvaluacion.isNCV()) {
             alumnoEvaluacion.setEstadoEnum(AlumnoEvaluacionEstadoEnum.ANC);

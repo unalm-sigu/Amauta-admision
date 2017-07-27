@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -21,7 +20,6 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import static pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEvalEnum.list;
 
 @Repository
 public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements EvaluacionDAO {
@@ -42,10 +40,12 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         sqlUtil.filter("eva.id", id);
         sqlUtil.filter("eex.estado", EstadoEnum.ACT.name());
         Evaluacion evaluacion = this.find(sqlUtil);
-        if (evaluacion.getEvaluaciones() != null) {
-            for (Evaluacion eva : evaluacion.getEvaluaciones()) {
-                eva.getId();
-                eva.getTipoEvaluacion().getId();
+        if (evaluacion != null) {
+            if (evaluacion.getEvaluaciones() != null) {
+                for (Evaluacion eva : evaluacion.getEvaluaciones()) {
+                    eva.getId();
+                    eva.getTipoEvaluacion().getId();
+                }
             }
         }
         return evaluacion;
