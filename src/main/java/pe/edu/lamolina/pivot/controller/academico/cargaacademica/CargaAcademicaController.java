@@ -1058,6 +1058,7 @@ public class CargaAcademicaController {
 
         logger.debug("matricula seccion {}", matriculaSeccionId);
         MatriculaSeccion matriculaSeccion = cargaAcademicaService.findMatriculaSeccion(matriculaSeccionId);
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(matriculaSeccion.getSeccion().getGrupoSeccion().getId());
         logger.debug("alumno {}", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getNombreCompleto());
         logger.debug("curso {}", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
 
@@ -1065,6 +1066,7 @@ public class CargaAcademicaController {
         model.addAttribute("alumnoPer", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona());
         model.addAttribute("curso", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso());
         model.addAttribute("seccion", matriculaSeccion.getSeccion());
+        model.addAttribute("sistemaNotas", grupoSeccion.getPlanCalificacion().getSistemaNotas());
 
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
 
@@ -1378,9 +1380,13 @@ public class CargaAcademicaController {
                 AlumnoEvaluacion alumnoEvaluacion = cargaAcademicaService.findAlumnoEvaluacion(null, evaluacionId, alumnoId);
                 node.put("nota", alumnoEvaluacion.getNota());
                 node.put("notaNumerica", alumnoEvaluacion.getValorNumerico());
+
+                node.put("notaLetra", alumnoEvaluacion.getValorLetra());
             } else {
                 node.put("nota", "");
                 node.put("notaNumerica", "");
+
+                node.put("notaLetra", "");
             }
 
             response.setData(node);

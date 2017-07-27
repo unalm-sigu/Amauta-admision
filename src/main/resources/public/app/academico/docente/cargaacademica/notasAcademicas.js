@@ -609,6 +609,10 @@ $(function () {
                     if (response.success) {
                         $("#txtNotaAnterior").val(response.data.nota);
                         $("[name='notaInicial']").val(response.data.nota);
+
+                        $("#txtLetraAnterior").val(response.data.notaLetra);
+                        $("[name='letraInicial']").val(response.data.notaLetra);
+
                     }
                 },
                 error: function () {
@@ -684,6 +688,19 @@ $(function () {
             input.attr("data-parsley-type", "integer");
             if ($this.val() == 'D') {
                 var input = $this.closest('td').find('input');
+                input.val(0);
+                input.attr("readonly", true);
+            }
+
+        },
+        cambiarComboCambioLetra: function ($this, e) {
+            // alert($this.val());
+            //  var nota = $(this).parent().children().children(2).find("input").val();
+            var input = $("#txtNotaNueva");
+            input.val('');
+            input.removeAttr("readonly");
+            input.attr("data-parsley-type", "integer");
+            if ($this.val() == 'D') {
                 input.val(0);
                 input.attr("readonly", true);
             }
@@ -789,6 +806,10 @@ $(function () {
 
     $("body").delegate(".clsCboLetraNota", "change", function (e) {
         NotasAcademicas.cambiarComboLetra($(this), e);
+    });
+
+    $("body").delegate(".clsCboLetraCambioNota", "change", function (e) {
+        NotasAcademicas.cambiarComboCambioLetra($(this), e);
     });
 
 });
