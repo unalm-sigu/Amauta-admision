@@ -9,8 +9,10 @@
     </td>
 
 
-    <td class="v-middle text-center">
-        {{if editarPorcentaje==true}}1
+    <td class="v-middle text-center"
+
+        >
+        {{if editarPorcentaje==true}}
         <input value="{{:pesoEvaluacion}}"
                rel="{{:evaPlanId}}"
                name="{{:classArg}}"
@@ -18,11 +20,15 @@
                required="true"
                data-parsley-type="number"
                data-parsley-max="{{:evaluacionPlan.pesoTotal}}"/>
-        (de {{:evaluacionPlan.pesoTotal}}%)
+        (de {{:evaluacionPlan.pesoTotal}} % )
         {{/if}}
 
         {{if editarPorcentaje==false}}
-        <div><span class="block" >{{:pesoEvaluacion}}%</span></div>
+        <div><span class="block" style="{{:styleAbuelo}}">{{:pesoEvaluacion}}
+                {{if esAbuelo==true}}
+                %
+                {{/if}}
+            </span></div>
         {{/if}}
 
         <!--

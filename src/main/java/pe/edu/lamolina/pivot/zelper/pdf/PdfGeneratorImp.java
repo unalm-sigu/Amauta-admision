@@ -44,7 +44,7 @@ import pe.edu.lamolina.pivot.zelper.enums.DocumentoPdfEnum;
 public class PdfGeneratorImp implements PdfGenerator {
 
     private final String PDF_CSS = "public/pdf/css/pdf.css";
-    private final String PDF_SAVE_PATH = Constantine.ADMISION_DIR;
+    private final String PDF_SAVE_PATH = Constantine.TMP_DIR;
 
     @Autowired
     private SpringTemplateEngine templateEngine;

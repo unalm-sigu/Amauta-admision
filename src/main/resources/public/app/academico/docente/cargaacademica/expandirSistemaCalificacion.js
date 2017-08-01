@@ -31,12 +31,16 @@ $(function () {
         } else if (record.esNieto) {
             record.styleHijo = 'padding-left:120px;';
         }
-        if (record.porcentajeFail) {
-            record.stryleRow = 'text-decoration:line-through !important;font-color:red !important;';
-        } else {
-            record.stryleRow = '';
+        if (record.esAbuelo) {
+            record.styleAbuelo = 'font-weight:bold;font-size:15px !important;';
         }
-
+        /*
+         if (record.porcentajeFail) {
+         record.stryleRow = 'text-decoration:line-through !important;font-color:red !important;';
+         } else {
+         record.stryleRow = '';
+         }
+         */
         var docentes = "";
         if (!record.esPadre) {
             $.each(record.evaluadores, function (i, item) {
@@ -292,7 +296,7 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
-
+                        MODAL.showWait("Espere un momento por favor");
                         $.ajax({
                             url: APP.url('academico/docente/cargaacademica/saveExpandir'),
                             type: 'POST',
@@ -306,8 +310,10 @@ $(function () {
                                 } else {
                                     notify(response.message, "error");
                                 }
+                                MODAL.hideWait();
                             },
                             error: function () {
+                                MODAL.hideWait();
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });

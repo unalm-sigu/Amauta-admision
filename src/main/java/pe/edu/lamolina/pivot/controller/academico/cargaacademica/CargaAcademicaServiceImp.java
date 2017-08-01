@@ -736,11 +736,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         for (EvaluacionExpandida evaluacionHija : evaluacionesHijasForm) {
             newPesoTotal = newPesoTotal.add(evaluacionHija.getPeso());
         }
-        if (evaluacionForm.getNotaMinimaAnulable().equals(BigDecimal.ZERO.intValue())) {
-            if (newPesoTotal.compareTo(evaluacionPadreBD.getPeso()) != 0 && !evaluacionesHijasForm.isEmpty()) {
-                throw new PhobosException("El peso de las evaluaciones expandidas debe ser igual al peso de la evaluacion padre, verifique ");
-            }
+        //   if (evaluacionForm.getNotaMinimaAnulable().equals(BigDecimal.ZERO.intValue())) {
+        if (newPesoTotal.compareTo(BigDecimal.valueOf(100)) > 0 && !evaluacionesHijasForm.isEmpty()) {
+            throw new PhobosException("El peso de las evaluaciones expandidas no debe ser mayor que 100, verifique ");
         }
+        //  }
     }
 
     private boolean existeEvaluacion(EvaluacionExpandida evaluacion, List<EvaluacionExpandida> evaluaciones) {
