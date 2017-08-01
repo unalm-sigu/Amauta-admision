@@ -44,4 +44,12 @@ public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRo
 
     }
 
+    @Override
+    public List<UsuarioRol> allByUser(Usuario user) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ur")
+                .filter("usuario.id", user);
+
+        return this.all(sqlUtil);
+    }
+
 }

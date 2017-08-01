@@ -33,6 +33,7 @@ import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -53,7 +54,9 @@ import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.inscripcion.Postulante;
+import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
@@ -97,6 +100,8 @@ public class ProgDataServiceImp implements ProgDataService {
     PersonaPerfilDAO personaPerfilDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
     @Autowired
     CarreraDAO carreraDAO;
     @Autowired
@@ -268,6 +273,47 @@ public class ProgDataServiceImp implements ProgDataService {
             alumno.setPromedioAcumulado(BigDecimal.ZERO);
             alumnoDAO.save(alumno);
         }
+
+        Usuario user = usuarioDAO.allByPersona(persona);
+        if (user != null) {
+
+            boolean existeAlumno = false;
+            List<UsuarioRol> userRoles = usuarioRolDAO.allByUser(user);
+            for (UsuarioRol userRol : userRoles) {
+                if (userRol.getId() == 1) {
+                    existeAlumno = true;
+                    break;
+                }
+            }
+            if (!existeAlumno) {
+                UsuarioRol userRol = new UsuarioRol();
+                userRol.setUsuario(user);
+                userRol.setRol(new Rol(1));
+                usuarioRolDAO.save(userRol);
+            }
+
+            return;
+        }
+
+        if (StringUtils.isEmpty(persona.getEmailCompania())) {
+            return;
+        }
+
+        user = new Usuario();
+        user.setPersona(persona);
+        user.setUsuario(persona.getEmailCompania().toLowerCase());
+        user.setEstadoEnum(EstadoEnum.ACT);
+        user.setFechaRegistro(new Date());
+        user.setUserRegistro(ds.getUsuario());
+        usuarioDAO.save(user);
+
+        user.setUserActivo(user);
+        usuarioDAO.update(user);
+
+        UsuarioRol userRol = new UsuarioRol();
+        userRol.setUsuario(user);
+        userRol.setRol(new Rol(1));
+        usuarioRolDAO.save(userRol);
 
     }
 
