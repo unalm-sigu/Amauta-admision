@@ -634,6 +634,7 @@ $(function () {
                 title: "Entregar acta",
                 message: "adad",
                 inputType: 'checkbox',
+                className: 'cerrar-acta-cls',
                 buttons: {
                     confirm: {label: 'Entregar', className: "btn-success"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
@@ -670,7 +671,10 @@ $(function () {
 
                             });
                         } else {
-                            bootbox.alert("El acta no seré entrgada hasta que acepte la validación.");
+                            bootbox.alert({
+                                message: "El acta NO será entregada hasta que acepte la validación.",
+                                className: 'cerrar-acta-mal-cls'
+                            });
                         }
 
                     }
