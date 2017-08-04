@@ -149,9 +149,6 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         Fraxtion prom = dividendo.divide(pesoTotal);
         Fraxtion avance = dividendo.divide(pesoConNota);
-        //if (prom.isZero() && avance.compareTo(BigDecimal.ZERO) != 0) {
-        //    avance = dividendo.divide(pesoConNota);
-        //}
         matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(avance.getValue()));
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(prom.getValue()));
         matriculaCurso.setPorcentajeAvanceNota(pesoConNota.getValue().intValue());
@@ -159,9 +156,6 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         avance = dividendo.divide(pesoTotal);
         prom = dividendo.divide(pesoConNota);
-//        if (prom.compareTo(BigDecimal.ZERO) != 0 && avance.compareTo(BigDecimal.ZERO) != 0) {
-//            prom = dividendo.divide(pesoConNota, 10, RoundingMode.HALF_DOWN);
-//        }
 
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance.getValue(18)));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom.getValue(18)));

@@ -13,4 +13,6 @@ public interface UsuarioDAO extends Crud<Usuario> {
 
     List<Usuario> allByPersonas(List<Persona> personas);
 
+    Usuario allByPersona(Persona persona);
+
 }

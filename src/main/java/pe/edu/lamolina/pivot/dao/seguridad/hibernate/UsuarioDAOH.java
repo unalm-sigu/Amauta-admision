@@ -42,4 +42,13 @@ public class UsuarioDAOH extends AbstractDAO<Usuario> implements UsuarioDAO {
         return this.all(sqlUtil);
     }
 
+    @Override
+    public Usuario allByPersona(Persona persona) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
+                .parents("persona pe")
+                .filter("pe.id", persona);
+
+        return this.find(sqlUtil);
+    }
+
 }

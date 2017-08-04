@@ -12,4 +12,6 @@ public interface UsuarioRolDAO extends Crud<UsuarioRol> {
 
     void deleteByUsuarioRol(Usuario usuario, List<Long> roles);
 
+    List<UsuarioRol> allByUser(Usuario user);
+
 }
