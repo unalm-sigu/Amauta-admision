@@ -40,6 +40,10 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public final static String TIPO = "tipo";
+    public final static String PRE_GRADO = "PRE";
+    public final static String POST_GRADO = "POST";
+
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
 
@@ -55,7 +59,11 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
     protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
+        String tipo = (String) model.get(TIPO);
+
         List<GrupoSeccion> allGruposSeccion = grupoSeccionDAO.allByFilter(null, cicloAcademico, null, EstadoEnum.ACT);
+        allGruposSeccion = filtrarByType(allGruposSeccion, tipo);
+
         logger.debug("Cantidad de grupos {}", allGruposSeccion.size());
 
         CellStyle cellHeader = ExcelStyles.getStyleHeader(workbook);
@@ -117,7 +125,10 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             if (!StringUtils.isEmpty(secciones)) {
                 secciones = secciones.substring(0, secciones.length() - 1);
             }
-            sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(curso.getNombre()).append("|").append(docentes).append("|").append(estadoPlan).append("|").append(estadoGrupo);
+            if (docentes.isEmpty()) {
+                docentes = "-";
+            }
+            sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(docentes).append("|").append(grupoSeccion.getVersion()).append("|").append(estadoPlan).append("|").append(estadoGrupo);
             rows.add(sb.toString());
         }
 
@@ -129,6 +140,22 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
         String nombreReporte = "RecordActas ";
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombreReporte + fechaRep + ".xlsx\"");
+    }
+
+    public List<GrupoSeccion> filtrarByType(List<GrupoSeccion> allGruposSeccion, String tipo) {
+        List<GrupoSeccion> result = new ArrayList<>();
+        for (GrupoSeccion grupoSeccion : allGruposSeccion) {
+            if (PRE_GRADO.equals(tipo)) {
+                if (!grupoSeccion.getCurso().isPostgrado()) {
+                    result.add(grupoSeccion);
+                }
+            } else if (POST_GRADO.equals(tipo)) {
+                if (grupoSeccion.getCurso().isPostgrado()) {
+                    result.add(grupoSeccion);
+                }
+            }
+        }
+        return result;
     }
 
     private void createSheet(Workbook workBook, List<String> rows, int columnas, String sheetName, CellStyle cellHeader, CellStyle cellBody) {
@@ -211,6 +238,20 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             return " ";
         }
         return val;
+    }
+
+    public boolean isTipoPreGrado() {
+        if (TIPO.equals(PRE_GRADO)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTipoPostGrado() {
+        if (TIPO.equals(POST_GRADO)) {
+            return true;
+        }
+        return false;
     }
 
 }

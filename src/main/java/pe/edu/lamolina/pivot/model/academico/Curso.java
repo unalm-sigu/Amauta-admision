@@ -361,4 +361,12 @@ public class Curso implements Serializable {
         return false;
     }
 
+    public boolean isPostgrado() {
+        String caracter = this.getCodigo().charAt(2) + "";
+        if (Integer.parseInt(caracter) >= 7) {
+            return true;
+        }
+        return false;
+    }
+
 }

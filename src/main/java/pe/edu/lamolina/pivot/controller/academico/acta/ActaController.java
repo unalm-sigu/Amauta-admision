@@ -310,6 +310,28 @@ public class ActaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+            model.addAttribute(RecordDeActasExcelView.TIPO, RecordDeActasExcelView.PRE_GRADO);
+
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ModelAndView("redirect:/");
+
+        }
+
+        return new ModelAndView(recordDeActasExcelView);
+    }
+
+    @RequestMapping("exportExcel/raPostGrado")
+    public ModelAndView postGrado(HttpSession session, Model model, RedirectAttributes redirectAttr) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+            model.addAttribute(RecordDeActasExcelView.TIPO, RecordDeActasExcelView.POST_GRADO);
 
         } catch (PhobosException e) {
             e.printStackTrace();
