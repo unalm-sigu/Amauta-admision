@@ -1750,11 +1750,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 }
             }
             if (!evaluactionsComplete) {
-                lstSeccion.add(seccion.getCodigo());
+                lstSeccion.add(seccion.getCodigo2() + " - " + seccion.getGrupoHoras().getCodigo());
             }
         }
         if (!evaluactionsComplete) {
-            throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(",", lstSeccion)));
+            throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(", ", lstSeccion)));
         }
         grupoSeccion.setUsuarioCierraActa(usuario);
         grupoSeccion.setFechaCierreActa(new DateTime().toDate());
