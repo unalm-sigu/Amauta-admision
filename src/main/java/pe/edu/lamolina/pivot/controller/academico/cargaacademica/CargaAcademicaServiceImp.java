@@ -468,9 +468,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
 
-        List<EvaluacionExpandida> evaluaciones = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
-        logger.debug("Evaluacion seccion {}, cantidad de evaluaciones expandidadas {}", evaluacionSeccion.getId(), evaluaciones.size());
-        if (evaluaciones.isEmpty()) {
+        List<EvaluacionExpandida> evaluacionesExpandidas = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null, null);
+        logger.debug("Evaluacion seccion {}, cantidad de evaluaciones expandidadas {}", evaluacionSeccion.getId(), evaluacionesExpandidas.size());
+        if (evaluacionesExpandidas.isEmpty()) {
             logger.debug("no tiene evaluaciones, se creara las evaluaciones en base al plan calificacion {}", evaluacionSeccion.getPlanCalificacion().getId());
 
             List<EvaluacionPlan> evaluacionesPlanes = this.allEvaluacionPlanByPlanCalifica(evaluacionSeccion.getPlanCalificacion().getId());
@@ -1077,6 +1077,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         grupoSeccion.getCurso().getTipoCurso();
         for (Seccion seccionEach : secciones) {
+            if (!seccionEach.isEstadoActivo()) {
+                continue;
+            }
             logger.debug("aceptarExpansion ############################################");
             logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
             for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {

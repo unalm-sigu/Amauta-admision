@@ -17,6 +17,7 @@ import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 
 @Entity
@@ -372,12 +373,27 @@ public class Seccion implements Serializable {
         this.estado = estado;
     }
 
+    public void setEstadoEnum(EstadoEnum estadoEnum) {
+        this.estado = estadoEnum.name();
+    }
+
+    public EstadoEnum getEstadoEnum() {
+        return EstadoEnum.valueOf(this.getEstado());
+    }
+
     public Boolean getVerInformacion() {
         return verInformacion;
     }
 
     public void setVerInformacion(Boolean verInformacion) {
         this.verInformacion = verInformacion;
+    }
+
+    public boolean isEstadoActivo() {
+        if (this.getEstadoEnum().equals(EstadoEnum.ACT)) {
+            return true;
+        }
+        return false;
     }
 
 }
