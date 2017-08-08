@@ -34,6 +34,7 @@ import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Component
 public class RecordDeActasExcelView extends AbstractPOIExcelView {
@@ -63,15 +64,22 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
 
         List<GrupoSeccion> allGruposSeccion = grupoSeccionDAO.allByFilter(null, cicloAcademico, null, EstadoEnum.ACT);
         allGruposSeccion = filtrarByType(allGruposSeccion, tipo);
-
         logger.debug("Cantidad de grupos {}", allGruposSeccion.size());
-
+        /*
+        List<DocenteSeccion> responsables = docenteSeccionDAO.allResponsablesByGpoSecciones(allGruposSeccion, cicloAcademico);
+        Map<Long, DocenteSeccion> mapResponsables = MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
+        for (GrupoSeccion grupoSeccion : allGruposSeccion) {
+            grupoSeccion.setSecciones(new ArrayList());
+            DocenteSeccion responsable = mapResponsables.get(grupoSeccion.getId());
+            grupoSeccion.setDocenteResponsable(responsable.getDocente());
+        }
+         */
         CellStyle cellHeader = ExcelStyles.getStyleHeader(workbook);
         CellStyle cellBody = ExcelStyles.getStyleBody(workbook);
 
         List<String> rows = new ArrayList();
 
-        String head = "Curso|Grupo|Departamento|Docente Principal|Versión Acta|Estado Sistema Calificación|Estado Acta";
+        String head = "Curso|Grupo|Departamento|Docente Principal|Email Doc. Principal|Versión Acta|Estado Sistema Calificación|Estado Acta";
         rows.add(head);
         StringBuilder sb;
         for (GrupoSeccion grupoSeccion : allGruposSeccion) {
@@ -83,6 +91,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             List<Docente> docentesPrincipal = new ArrayList<>();
 
             String docentes = "";
+            String emails = "";
             String secciones = "";
 
             for (Seccion sec : grupoSeccion.getSecciones()) {
@@ -107,11 +116,14 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             }
             if (!docentesPrincipal.isEmpty()) {
                 docentes = "";
+                emails = "";
                 for (Docente doc : docentesPrincipal) {
                     docentes += doc.getPersona().getApellidosNombres() + " - ";
+                    emails += doc.getPersona().getEmailCompania() + " - ";
                 }
                 if (!StringUtils.isEmpty(docentes)) {
                     docentes = docentes.substring(0, docentes.length() - 3);
+                    emails = emails.substring(0, emails.length() - 3);
                 }
             }
             String estadoPlan = "";
@@ -127,8 +139,9 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
             }
             if (docentes.isEmpty()) {
                 docentes = "-";
+                emails = "-";
             }
-            sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(docentes).append("|").append(grupoSeccion.getVersion()).append("|").append(estadoPlan).append("|").append(estadoGrupo);
+            sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(docentes).append("|").append(emails).append("|").append(grupoSeccion.getVersion()).append("|").append(estadoPlan).append("|").append(estadoGrupo);
             rows.add(sb.toString());
         }
 
