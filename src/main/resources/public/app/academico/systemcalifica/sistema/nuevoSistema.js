@@ -185,20 +185,17 @@ $(function () {
             }
         },
         calcularFormula: function () {
-
             var rowCount = $('#tblEvaluaciones tr').length - 1;
             var formula = "";
             for (i = 0; i < rowCount; i++) {
                 var tipoEvaluacion = $("[name='evaluacionPlan[" + i + "].tipoEvaluacion.id']").val();
                 //     var cantEvaluaciones = $("[name='evaluacionPlan[" + i + "].cantidadEvaluaciones']").val();
                 var anularNotaMin = $("[name='evaluacionPlan[" + i + "].notaMinimaAnulable']").prop('checked');
-
                 var pesoTotal = $("[name='evaluacionPlan[" + i + "].pesoTotal']").val();
                 if (tipoEvaluacion == null || tipoEvaluacion == "") {
                     continue;
                 }
                 var tipoEvaluacionCode = evaluacionCnf[tipoEvaluacion].codigo;
-
                 if (i > 0) {
                     formula += " + ";
                 }

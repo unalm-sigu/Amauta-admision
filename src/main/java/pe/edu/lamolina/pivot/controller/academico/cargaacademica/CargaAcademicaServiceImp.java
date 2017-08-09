@@ -781,21 +781,41 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         BigDecimal totalWeight = BigDecimal.ZERO;
 
+        SistemaNotas sistemaNotas = sistemaNotasDAO.find(planCalificacion.getSistemaNotas().getId());
+        planCalificacion.setSistemaNotas(sistemaNotas);
+
+        if (planCalificacion.getSistemaNotas().isLetras()) {
+            if (planCalificacion.getEvaluacionPlan().size() == 1) {
+                TipoEvaluacion tipoEvaluacion = tipoEvaluacionDAO.find(planCalificacion.getEvaluacionPlan().get(0).getTipoEvaluacion().getId());
+                if (!tipoEvaluacion.isTipoEvaluacionNF()) {
+                    throw new PhobosException("El sistema de notas seleccionado, solo debe tener una evaluacion del tipo Nota Final.");
+                }
+            } else {
+                throw new PhobosException("El sistema de notas seleccionado, solo debe tener una evaluacion del tipo Nota Final.");
+            }
+        }
+
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
+            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
+            evaluacionPlan.setCantidadEvaluaciones(BigDecimal.ONE.intValue());
+            evaluacionPlan.setPesoEvaluacion(evaluacionPlan.getPesoTotal());
+            /*
             if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().compareTo(BigDecimal.ZERO) == 0) {
                 throw new PhobosException("Peso evaluacion incorrecto..");
             }
+             */
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
-            evaluacionPlan.setIndPorcentajeVariable(evaluacionPlan.getIndPorcentajeVariable() == null ? 0 : evaluacionPlan.getIndPorcentajeVariable());
 
             totalWeight = totalWeight.add(evaluacionPlan.getPesoTotal());
         }
+
         if (totalWeight.compareTo(new BigDecimal("100")) != 0) {
             throw new PhobosException("Pesos total (" + totalWeight.toString() + ") de las evaluaciones incorrecto.");
         }
+
         Long maxNumeroCorrelativo = planCalificacionDAO.maxNumeroCorrelativoPlanCalifica(planCalificacion.getDepartamentoAcademico().getId());
         maxNumeroCorrelativo = maxNumeroCorrelativo + 1;
         planCalificacion.setNumero(maxNumeroCorrelativo);
@@ -807,11 +827,29 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.ACEP);
         grupoSeccion.setPlanCalificacion(planCalificacion);
         grupoSeccionDAO.update(grupoSeccion);
-
+        /*
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
         evaluacionSeccion.setPlanCalificacion(planCalificacion);
-        evaluacionSeccionDAO.update(evaluacionSeccion);
+        evaluacionSeccionDAO.update(evaluacionSeccion);*/
+
+        EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
+        if (evaluacionSeccion == null) {
+            evaluacionSeccion = new EvaluacionSeccion();
+            evaluacionSeccion.setPlanCalificacion(planCalificacion);
+            evaluacionSeccion.setSistemaNotas(planCalificacion.getSistemaNotas());
+            evaluacionSeccion.setGrupoSeccion(grupoSeccion);
+            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setFechaAceptacion(today.toDate());
+            evaluacionSeccionDAO.save(evaluacionSeccion);
+        } else {
+            evaluacionSeccion.setPlanCalificacion(planCalificacion);
+            evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
+            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setFechaAceptacion(today.toDate());
+            evaluacionSeccionDAO.update(evaluacionSeccion);
+        }
 
         planCalificacion.getId();
 
@@ -980,32 +1018,29 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         BigDecimal totalWeight = BigDecimal.ZERO;
 
-        for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
-            logger.debug("Tipo evaluacion {}, Cantidad Evaluaciones {}, Peso Total {}, Nota Minima Anulable {}, Porcentaje Variable {}",
-                    evaluacionPlan.getTipoEvaluacion().getId(),
-                    evaluacionPlan.getCantidadEvaluaciones(),
-                    evaluacionPlan.getPesoTotal(),
-                    evaluacionPlan.getNotaMinimaAnulable(),
-                    evaluacionPlan.getIndPorcentajeVariable()
-            );
+        SistemaNotas sistemaNotas = sistemaNotasDAO.find(planCalificacion.getSistemaNotas().getId());
+        planCalificacion.setSistemaNotas(sistemaNotas);
 
+        if (planCalificacion.getSistemaNotas().isLetras()) {
+            if (planCalificacion.getEvaluacionPlan().size() == 1) {
+                TipoEvaluacion tipoEvaluacion = tipoEvaluacionDAO.find(planCalificacion.getEvaluacionPlan().get(0).getTipoEvaluacion().getId());
+                if (!tipoEvaluacion.isTipoEvaluacionNF()) {
+                    throw new PhobosException("El sistema de notas seleccionado, solo debe tener una evaluacion del tipo Nota Final.");
+                }
+            } else {
+                throw new PhobosException("El sistema de notas seleccionado, solo debe tener una evaluacion del tipo Nota Final.");
+            }
+        }
+
+        for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
+            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
-            /*
-            if (evaluacionPlan.getPesoEvaluacion() == null || evaluacionPlan.getPesoEvaluacion().compareTo(BigDecimal.ZERO) == 0) {
-                throw new PhobosException("Peso evaluacion incorrecto..");
-            }
-             */
-            if (evaluacionPlan.getPesoTotal() == null) {
-                throw new PhobosException("Peso total evaluacion incorrecto..");
-            }
-            /*
+            evaluacionPlan.setCantidadEvaluaciones(BigDecimal.ONE.intValue());
+            evaluacionPlan.setPesoEvaluacion(evaluacionPlan.getPesoTotal());
             if (evaluacionPlan.getEvaluacionesObligatorias() == null) {
                 evaluacionPlan.setEvaluacionesObligatorias(BigDecimal.ZERO.intValue());
             }
-             */
- /*
-            evaluacionPlan.setIndPorcentajeVariable(evaluacionPlan.getIndPorcentajeVariable() == null ? 0 : evaluacionPlan.getIndPorcentajeVariable());
-             */
+
             totalWeight = totalWeight.add(evaluacionPlan.getPesoTotal());
         }
         if (totalWeight.compareTo(new BigDecimal("100")) != 0) {
@@ -1013,7 +1048,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         grupo.setPlanCalificacion(planCalificacion);
-        //    curso.setPlanCalificacion(planCalificacion);
 
         logger.debug("Buscara la evaluacion seccion del grupo {}", grupo.getId());
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupo.getId(), null);

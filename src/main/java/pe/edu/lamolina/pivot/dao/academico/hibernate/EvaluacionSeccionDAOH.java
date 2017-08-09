@@ -21,7 +21,7 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
     @Override
     public EvaluacionSeccion findByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es");
-        sqlUtil.parents("planCalificacion pc", "grupoSeccion gs", "sistemaNotas sn");
+        sqlUtil.parents("left planCalificacion pc", "grupoSeccion gs", "left sistemaNotas sn");
 
         if (idPlanCalificacion != null) {
             sqlUtil.filter("pc.id", idPlanCalificacion);
