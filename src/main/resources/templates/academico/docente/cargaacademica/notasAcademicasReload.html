@@ -25,7 +25,7 @@
                             style="display: none; width:25x; padding: 3px !important;">
                         <option></option>
                         <option th:each="notaLet : ${sistemaNotas.notaLetra}" 
-                                th:text="${notaLet.letra}"
+                                th:text="|${notaLet.letra} - ${notaLet.descripcion} |"
                                 th:value="${notaLet.letra}"></option>
                     </select>
                 </div>

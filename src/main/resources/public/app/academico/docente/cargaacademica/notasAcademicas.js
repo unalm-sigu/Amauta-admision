@@ -747,7 +747,10 @@ $(function () {
                 } else {
                     nota.addClass("text-danger");
                 }
-                nota.val(notaFloat.toFixed(2));
+
+                if (sistemaNotasValidate.esNumerico) {
+                    nota.val(notaFloat.toFixed(2));
+                }
             }
         }
     });
