@@ -15,7 +15,10 @@ $(function () {
                     url: APP.url('academico/docente/cargaacademica/getSistemaNotas'),
                     type: 'POST',
                     async: false,
-                    data: {sistemaNotas: $("#txtSistemaNotas").val()},
+                    data: {
+                        sistemaNotas: $("#txtSistemaNotas").val(),
+                        grupo: $("#txtGrupo").val()
+                    },
                     success: function (response) {
 
                         sistemaNotasValidate = response.data;
@@ -222,9 +225,11 @@ $(function () {
                             var input = $("input[title='" + response.data.evaId + "']");
                             if (input != null && input != undefined) {
                                 $("#txtCodeSel").val(response.data.evaId);
-                                $("span[name='" + response.data.evaId + "']").css("display", "none");
+                                if (!sistemaNotasValidate.esCreditoZero) {
+                                    $("span[name='" + response.data.evaId + "']").css("display", "none");
+                                    $("input[title='" + response.data.evaId + "']").css("display", "");
+                                }
 
-                                $("input[title='" + response.data.evaId + "']").css("display", "");
                                 if (sistemaNotasValidate.esLetras == "true" || sistemaNotasValidate.esLetras == true) {
                                     $("select[title='" + response.data.evaId + "']").css("display", "");
                                 }
@@ -395,8 +400,9 @@ $(function () {
                     $(this).attr("required", true);
                 }
                 if ($(this).is("input")) {
-                    $(this).attr("required", true);
-
+                    if (!sistemaNotasValidate.esCreditoZero) {
+                        $(this).attr("required", true);
+                    }
                     var notaLetra = $(this).closest('td').find("select").val();
 
                     $(this).attr("data-parsley-whitespace", "trim");
@@ -412,9 +418,13 @@ $(function () {
                         //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
 
                     } else {
-                        $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
-                        $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                        $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
+                        console.dir(sistemaNotasValidate);
+                        if (!sistemaNotasValidate.esCreditoZero) {
+                            $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                            $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                            $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+                        }
+
                         /* //var letters = NSP + "|" + NCV + "|";
                          
                          var letrasArg = sistemaNotasValidate.letras.split(",");

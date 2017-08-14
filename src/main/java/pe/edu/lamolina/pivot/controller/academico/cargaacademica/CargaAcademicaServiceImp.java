@@ -57,7 +57,9 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.NotaLetraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
@@ -77,6 +79,7 @@ import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
@@ -151,6 +154,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     CalculoNotasService calculoNotasService;
+
+    @Autowired
+    NotaLetraDAO notaLetraDAO;
+
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -361,6 +370,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             matSecc.setSeccion(evaluacion.getSeccionResponsable());
 
             marticulasSeccion.add(matSecc);
+
+            MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno,
+                    evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso(),
+                    ds.getCicloAcademico());
+            matriculaCurso.setCreditosAprobados(null);
+            matriculaCursoDAO.update(matriculaCurso);
         }
 
         evaluacionEliminadaDAO.save(evaluacionEliminada);
@@ -1264,6 +1279,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         Map<Long, Alumno> mapAlumno = new LinkedHashMap();
 
+        Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
+        List<NotaLetra> notasLetras = notaLetraDAO.all();
+        for (NotaLetra notasLetra : notasLetras) {
+            mapNotaLetra.put(notasLetra.getLetra(), notasLetra);
+        }
+
         for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
             Alumno alumnoEach = alumnoEvaluacionEach.getAlumno();
             Evaluacion evaluacionEach = alumnoEvaluacionEach.getEvaluacion();
@@ -1293,6 +1314,17 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 NotaLetra notaLetra = sistemaNotas.getNotaLetra(alumnoEvaluacion.getNota());
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(notaLetra.getValor()));
                  */
+                if (grupoSeccion.getCurso().isCreditosZero()) {
+                    NotaLetra notaLetra = (NotaLetra) mapNotaLetra.get(alumnoEvaluacionEach.getValorLetra());
+                    alumnoEvaluacion.setNota(notaLetra.getValor().toString());
+                } else {
+                    //  MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumnoEach, EstadoMatriculaCursoEnum.MAT);
+                    Curso curso = grupoSeccion.getCurso();
+                    MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEach, curso, ciclo);
+                    matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacionEach.getNota()));
+                    matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
+                    matriculaCursoDAO.update(matriculaCurso);
+                }
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
                 alumnoEvaluacion.setNota(notax);
@@ -1336,7 +1368,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
             grupoSeccionDAO.update(seccion.getGrupoSeccion());
         }*/
-
     }
 
     @Override
@@ -1483,6 +1514,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         reclamoNota.setUserReclamo(ds.getUsuario());
         reclamoNotaDAO.save(reclamoNota);
 
+        Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
+        List<NotaLetra> notasLetras = notaLetraDAO.all();
+        for (NotaLetra notasLetra : notasLetras) {
+            mapNotaLetra.put(notasLetra.getLetra(), notasLetra);
+        }
+
         AlumnoEvaluacion alumnoEvaluacion = alumnoEvaluacionDAO.findByFilter(null, reclamoNota.getEvaluacion().getId(), reclamoNota.getAlumno().getId());
         Evaluacion evaluacion = evaluacionDAO.find(alumnoEvaluacion.getEvaluacion().getId());
         alumnoEvaluacion.setNota(reclamoNota.getNotaFinal());
@@ -1505,6 +1542,23 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
             alumnoEvaluacion.setNota(notax);
         } else {
+
+
+            /*
+                NotaLetra notaLetra = sistemaNotas.getNotaLetra(alumnoEvaluacion.getNota());
+                alumnoEvaluacion.setValorNumerico(new BigDecimal(notaLetra.getValor()));
+             */
+            if (evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso().isCreditosZero()) {
+                NotaLetra notaLetra = (NotaLetra) mapNotaLetra.get(alumnoEvaluacion.getValorLetra());
+                alumnoEvaluacion.setNota(notaLetra.getValor().toString());
+            } else {
+                //  MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumnoEach, EstadoMatriculaCursoEnum.MAT);
+                Curso curso = evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso();
+                MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEvaluacion.getAlumno(), curso, ds.getCicloAcademico());
+                matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacion.getNota()));
+                matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
+                matriculaCursoDAO.update(matriculaCurso);
+            }
             alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
             String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
             alumnoEvaluacion.setNota(notax);

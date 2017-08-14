@@ -323,7 +323,9 @@ public class SistemaServiceImp implements SistemaService {
 
         if (planCalificacion.getSistemaNotas().isLetras()) {
             if (!curso.isTieneCreditosVariables()) {
-                throw new PhobosException("Error, El curso debe tener creditos variables.");
+                if (curso.getCreditos() != null && curso.getCreditos().compareTo(BigDecimal.ZERO.intValue()) != 0) {
+                    throw new PhobosException("Error, El curso debe tener creditos variables.");
+                }
             }
         }
 

@@ -12,5 +12,8 @@ public class NotaLetraDAOH extends AbstractDAO<NotaLetra> implements NotaLetraDA
         super();
         setClazz(NotaLetra.class);
     }
+    
+    
+    
 }
 

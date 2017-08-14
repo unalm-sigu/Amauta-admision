@@ -110,7 +110,11 @@
                                                         <span class="nota-academica" 
                                                               th:if="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id].valorLetra}"
                                                               th:text="|(${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id].valorLetra})|"> 04.18 </span>
-                                                        <span class="nota-academica" th:text="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id].nota}" > 04.18 </span>
+
+                                                        <span class="nota-academica" th:text="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id].nota}" 
+                                                              th:unless="${curso.creditosZero}">
+                                                            04.18
+                                                        </span>
 
                                                     </span>
                                                 </span>

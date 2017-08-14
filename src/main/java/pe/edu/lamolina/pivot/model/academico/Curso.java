@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -357,6 +358,15 @@ public class Curso implements Serializable {
     public boolean isTieneCreditosVariables() {
         if (this.getCreditosVariables() != null) {
             return true;
+        }
+        return false;
+    }
+
+    public boolean isCreditosZero() {
+        if (this.getCreditosVariables() == null) {
+            if (this.getCreditos().compareTo(BigDecimal.ZERO.intValue()) == 0) {
+                return true;
+            }
         }
         return false;
     }

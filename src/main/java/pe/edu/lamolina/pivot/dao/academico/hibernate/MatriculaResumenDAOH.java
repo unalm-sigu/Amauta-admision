@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractDAO<MatriculaResumen> implements MatriculaResumenDAO {
@@ -32,6 +33,22 @@ public class MatriculaResumenDAOH extends AbstractDAO<MatriculaResumen> implemen
                 .parents("alumno alu", "cicloAcademico ca")
                 .filter("ca.id", ciclo);
         return all(sqlUtil);
+    }
+
+    @Override
+    public MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaCursoEnum estadoMatriculaCursoEnum) {
+        SqlUtil sqlUtil = new SqlUtil("mr")
+                .parents("alumno alu", "cicloAcademico ca");
+        if (ciclo != null) {
+            sqlUtil.filter("ca.id", ciclo);
+        }
+        if (alumno != null) {
+            sqlUtil.filter("alu.id", alumno);
+        }
+        if (estadoMatriculaCursoEnum != null) {
+            sqlUtil.filter("mr.estado", estadoMatriculaCursoEnum.name());
+        }
+        return find(sqlUtil);
     }
 
 }

@@ -638,7 +638,9 @@ public class CargaAcademicaController {
 
     @ResponseBody
     @RequestMapping("getSistemaNotas")
-    public JsonResponse getSistemaNotas(@RequestParam("sistemaNotas") Long idSistemaNotas,
+    public JsonResponse getSistemaNotas(
+            @RequestParam("sistemaNotas") Long idSistemaNotas,
+            @RequestParam("grupo") Long idGrupoSeccion,
             RedirectAttributes redirectAttr, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -647,6 +649,7 @@ public class CargaAcademicaController {
             logger.debug("Sistema Notas {}", idSistemaNotas);
 
             SistemaNotas sistemaNotas = cargaAcademicaService.findSistemaNotaById(idSistemaNotas);
+            GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(idGrupoSeccion);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("esNumerico", sistemaNotas.isNumerico());
@@ -655,6 +658,7 @@ public class CargaAcademicaController {
             node.put("valorFinal", sistemaNotas.getValorFinal());
             node.put("minimoAprobatorio", sistemaNotas.getMinimoAprobatorio());
             node.put("letras", "");
+            node.put("esCreditoZero", grupoSeccion.getCurso().isCreditosZero());
 
             StringBuilder strbLetras = new StringBuilder();
             if (!sistemaNotas.isNumerico() && (sistemaNotas.getNotaLetra() != null && !sistemaNotas.getNotaLetra().isEmpty())) {
