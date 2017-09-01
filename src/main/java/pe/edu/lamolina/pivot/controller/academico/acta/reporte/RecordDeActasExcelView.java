@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.acta.reporte;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -34,7 +33,6 @@ import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Component
 public class RecordDeActasExcelView extends AbstractPOIExcelView {

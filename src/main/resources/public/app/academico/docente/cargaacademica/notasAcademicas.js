@@ -633,9 +633,16 @@ $(function () {
             );
         },
         reporteActaNotas: function ($this, e) {
+            if ($("#txtEstGrupo").val() == 'ABI') {
+                location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
+            } else {
+                location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
+            }
+        },
+        reporteActaNotasAbi: function ($this, e) {
 
-            var alumno = $("#txtAlumnoCambiarNota").val();
-            location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
+
+            location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
 
         },
         cerrarActa: function ($this, e) {
@@ -815,6 +822,10 @@ $(function () {
 
     $("body").delegate("#cmbReporteNotas", "click", function (e) {
         NotasAcademicas.reporteActaNotas($(this), e);
+    });
+
+    $("body").delegate("#cmbReporteNotasAbi", "click", function (e) {
+        NotasAcademicas.reporteActaNotasAbi($(this), e);
     });
 
     $("body").delegate(".cerrar-acta", "click", function (e) {

@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
@@ -42,6 +43,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.controller.reporte.view.ReporteActasView;
 import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -81,6 +83,9 @@ public class CargaAcademicaController {
 
     @Autowired
     PdfService pdfService;
+
+    @Autowired
+    ReporteActasView reporteActasView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -1033,12 +1038,28 @@ public class CargaAcademicaController {
                 response.flushBuffer();
 
             } finally {
-
                 close(output);
                 close(input);
-
             }
         }
+
+    }
+
+    @RequestMapping("reporteDeActasExcel")
+    public ModelAndView reporteDeActasExcel(Model model,
+            @RequestParam("seccion") Long idSeccion,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Seccion secc = cargaAcademicaService.findSeccion(idSeccion);
+        Curso cur = secc.getGrupoSeccion().getCurso();
+
+        model.addAttribute("seccion", secc);
+        model.addAttribute("grupoSeccion", secc.getGrupoSeccion());
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("curso", cur);
+
+        return new ModelAndView(reporteActasView);
     }
 
     @RequestMapping("{evaluacion}/evaluacion")

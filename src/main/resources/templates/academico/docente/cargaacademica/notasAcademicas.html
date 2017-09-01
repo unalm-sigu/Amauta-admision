@@ -12,6 +12,7 @@
                 <a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-success cerrar-acta" href="#" >Entregar Acta</a>
 
                 <a class="btn btn-primary" href="#" id="cmbReporteNotas">Descargar Reporte</a>
+
             </div>
 
             <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Registro de Notas|'>2016-II</span></h2>
@@ -57,6 +58,7 @@
 
                 <input id="txtCodeSel" type="hidden"/>
                 <input id="txtGrupo" type="hidden" th:value='${grupoSeccion.id}'/>
+                <input id="txtEstGrupo" type="hidden" th:value='${grupoSeccion.estadoGrupo}'/>
                 <input id="txtSeccion" type="hidden" th:value='${seccion.id}'/>
 
                 <form id="frmNotas">
