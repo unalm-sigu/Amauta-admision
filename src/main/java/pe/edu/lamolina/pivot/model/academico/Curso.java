@@ -362,6 +362,7 @@ public class Curso implements Serializable {
         return false;
     }
 
+    //Se pone solo a o d, mas no la cantidad de creditos
     public boolean isCreditosZero() {
         if (this.getCreditosVariables() == null) {
             if (this.getCreditos().compareTo(BigDecimal.ZERO.intValue()) == 0) {

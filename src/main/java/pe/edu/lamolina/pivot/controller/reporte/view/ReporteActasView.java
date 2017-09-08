@@ -76,8 +76,10 @@ public class ReporteActasView extends AbstractPOIExcelView {
             head += "|Creditos";
             totalColumns++;
         }
-        totalColumns += 3;
-        head += "|Avance NF|Acumulada NF|NotaFinal";
+        if (sistemaNotas.isNumerico()) {
+            totalColumns += 3;
+            head += "|Avance NF|Acumulada NF|NotaFinal";
+        }
         rows.add(head);
 
         StringBuilder sb;
@@ -102,7 +104,9 @@ public class ReporteActasView extends AbstractPOIExcelView {
                     if (StringUtils.isNotBlank(alumnoEvaluacion.getValorLetra())) {
                         nota.append(alumnoEvaluacion.getValorLetra()).append(" ");
                     }
-                    nota.append(alumnoEvaluacion.getNota());
+                    if (!curso.isCreditosZero()) {
+                        nota.append(alumnoEvaluacion.getNota());
+                    }
                     sb.append(nota.toString()).append("|");
                 } else {
                     sb.append("-").append("|");
@@ -112,9 +116,11 @@ public class ReporteActasView extends AbstractPOIExcelView {
             if (sistemaNotas.isLetras()) {
                 sb.append(matriculaCurso.getCreditos() != null ? matriculaCurso.getCreditos() : "").append("|");
             }
-            sb.append(matriculaCurso.getNotaAvanceFull() != null ? matriculaCurso.getNotaAvanceFull() : "").append("|");
-            sb.append(matriculaCurso.getNotaAcumuladaFull() != null ? matriculaCurso.getNotaAcumuladaFull() : "").append("|");
-            sb.append(matriculaCurso.getNotaFinal() != null ? matriculaCurso.getNotaFinal() : "");
+            if (sistemaNotas.isNumerico()) {
+                sb.append(matriculaCurso.getNotaAvanceFull() != null ? matriculaCurso.getNotaAvanceFull() : "").append("|");
+                sb.append(matriculaCurso.getNotaAcumuladaFull() != null ? matriculaCurso.getNotaAcumuladaFull() : "").append("|");
+                sb.append(matriculaCurso.getNotaFinal() != null ? matriculaCurso.getNotaFinal() : "");
+            }
             rows.add(sb.toString());
         }
 

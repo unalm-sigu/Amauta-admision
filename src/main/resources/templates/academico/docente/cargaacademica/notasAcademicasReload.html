@@ -61,7 +61,7 @@
         </span>
     </td>
 
-    <td class="text-center v-middle">
+    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaAvance}" 
@@ -73,7 +73,7 @@
         </span>
 
     </td>
-    <td class="text-center v-middle">
+    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
             <span class="nota-academica" 
@@ -88,7 +88,7 @@
     </td>
     <td class="text-center v-middle">
 
-        <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
+        <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" th:if="${sistemaNotas.numerico}" >
             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}" 
 
                   > 

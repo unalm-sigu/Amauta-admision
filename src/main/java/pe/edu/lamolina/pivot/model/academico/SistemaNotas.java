@@ -142,6 +142,7 @@ public class SistemaNotas implements Serializable {
         return false;
     }
 
+    //si tiene creditos
     public boolean isLetras() {
         if (BigDecimal.valueOf(0).intValue() == esNumerico) {
             return true;
