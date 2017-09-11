@@ -636,7 +636,7 @@ $(function () {
             if ($("#txtEstGrupo").val() == 'ABI') {
                 location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
             } else {
-                location.href = APP.url('academico/docente/cargaacademica/reporteDeActasExcel?seccion=') + $("#txtSeccion").val();
+                location.href = APP.url('academico/docente/cargaacademica/reporteDeActas?seccion=') + $("#txtSeccion").val();
             }
         },
         reporteActaNotasAbi: function ($this, e) {
