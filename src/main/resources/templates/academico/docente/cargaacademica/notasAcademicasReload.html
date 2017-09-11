@@ -88,9 +88,9 @@
     </td>
     <td class="text-center v-middle">
 
-        <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" th:if="${sistemaNotas.numerico}" >
+        <span   th:if="${sistemaNotas.numerico}" >
             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}" 
-
+                  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}"
                   > 
                 04.18 
             </span>
