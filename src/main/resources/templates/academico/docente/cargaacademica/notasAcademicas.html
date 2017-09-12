@@ -127,6 +127,7 @@
                                                     <select  class="clsCboLetraNota"  
                                                              th:title="${evaluacion.id}" 
                                                              th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
+                                                             th:unless="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}"
                                                              style="display: none; width:25x; padding: 3px !important;">
                                                         <option></option>
                                                         <option th:each="notaLet : ${sistemaNotas.notaLetra}" 

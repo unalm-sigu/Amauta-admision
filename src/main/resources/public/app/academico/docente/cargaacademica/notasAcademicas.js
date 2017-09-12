@@ -183,8 +183,8 @@ $(function () {
                             buttons = buttons + '<a href="#" class="btn btn-success activar-eval" rel="true">Activar</a>';
                             checkin.setDate("");
                         } else {
-                            buttons += '<a class="btn btn-danger eliminar-evals"  >Eliminar Notas</a>';
-                            buttons += '<a class="btn btn-success adicionar-evals"  >Adicionar Notas</a>';
+                            buttons += '<a class="btn btn-danger eliminar-evals">Eliminar Notas</a>';
+                            buttons += '<a class="btn btn-success adicionar-evals">Adicionar Notas</a>';
                             buttons += '<a class="btn btn-primary activar-eval"  rel="false">Guardar Nueva Fecha de Evaluación</a>';
                         }
                     }
@@ -278,7 +278,11 @@ $(function () {
                         var found = false;
                         if (input != null && input != undefined) {
                             $("#txtCodeSel").val(response.data.evaId);
-                            //    $("span[name='" + response.data.evaId + "']").css("display", "none");
+
+                            if (sistemaNotasValidate.esLetras == "true" || sistemaNotasValidate.esLetras == true) {
+                                $("select[title='" + response.data.evaId + "']").css("display", "");
+                            }
+
                             $("input[title='" + response.data.evaId + "']").css("display", "");
                             $("input[title='" + response.data.evaId + "']").addClass("nota-alumno");
                             $("input[title='" + response.data.evaId + "']").val("");
