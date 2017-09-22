@@ -80,9 +80,9 @@ public class PersonaController {
     public DynatableResponse allUsuarios(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        
+
         try {
-            
+
             FotoHelper helper = new FotoHelper();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<Persona> personas = service.allByDynatable(filter);
@@ -196,7 +196,7 @@ public class PersonaController {
             node.put("nombres", persona.getNombres());
             node.put("sexo", persona.getSexo());
             node.put("fechaNacer", (persona.getFechaNacer() == null) ? "" : new DateTime(persona.getFechaNacer()).toString("dd/MM/yyyy"));
-            node.put("domicilio", persona.getUbicacionDomicilio()!=null ? persona.getUbicacionDomicilio().getNombre():"");
+            node.put("domicilio", persona.getUbicacionDomicilio() != null ? persona.getUbicacionDomicilio().getNombre() : "");
             node.put("email", persona.getEmail());
             node.put("emailEmpresa", persona.getEmailCompania());
             node.put("celular", persona.getCelular());
@@ -212,7 +212,6 @@ public class PersonaController {
         }
         return response;
     }
-
 
     @ResponseBody
     @RequestMapping("validarEmail")

@@ -8,10 +8,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @EnableAsync
 @SpringBootApplication
-public class Application extends WebMvcConfigurerAdapter {
+public class PivotApplication extends WebMvcConfigurerAdapter {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(PivotApplication.class, args);
     }
 
     @Override

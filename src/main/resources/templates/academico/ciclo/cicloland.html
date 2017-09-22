@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html class="app">
+    <head>
+        <title>La Molina</title>
+        <base th:substituteby="zlayout/includes :: styles"/>
+        <base th:substituteby="zlayout/includes :: favicon"/>
+    </head>
+
+    <body class="login-bg">
+
+        <div class="login-header">
+            <span class="text-uppercase"> Universidad Nacional Agraria la Molina </span>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-4  col-sm-4 col-sm-offset-4">
+                <section class="login-wrapper text-center ">
+                    <div class="box">
+                        <div class="m-b-md">
+                            <a href="#"><img th:src="@{/phobos/images/logo.svg}" width="300px"/></a>
+                        </div>
+
+                        <section style="max-height: 500px" class="panel-body text-center scrollable">
+
+                            <a class="ciclo btn btn-success m-b-md block" 
+                               th:each='ciclo : ${cicloAcademicos}'  
+                               th:rel="${ciclo.id}" th:text="${ciclo.descripcion2}">
+                                ciclo
+                            </a>
+
+                        </section> 
+                    </div>
+                </section>
+            </div>     
+        </div>
+
+        <div class="login-copyright text-muted">
+            © 2016 UNALM | Desarrollado por Albatross
+        </div>
+
+        <div class="login-footer"></div>
+
+        <div th:substituteby="zlayout/includes :: javascript"/>
+        <script th:src="@{/app/academico/ciclo/ciclolanding.js}" charset="utf-8"/>
+    </body>
+</html>

@@ -1,12 +1,14 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
+import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.albatross.octavia.Octavia;
+import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.ACT;
+import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CER;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -17,9 +19,33 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
     }
 
     @Override
-    public CicloAcademico findActivo() {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ca");
-        sqlUtil.filter("ca.estado", EstadoEnum.ACT.name());
-        return this.find(sqlUtil);
+    public CicloAcademico find(long cicloAcademico) {
+
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("id", cicloAcademico);
+        return (CicloAcademico) sql.find(getCurrentSession());
     }
+
+    @Override
+    public CicloAcademico findActivo() {
+
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("estado", ACT.name());
+        return (CicloAcademico) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<CicloAcademico> allForChanges(Integer maxResultado) {
+        
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .in("estado", Arrays.asList(ACT, CER))
+                .orderBy("year desc", "numeroCiclo desc")
+                .limit(maxResultado);
+
+        return sql.all(getCurrentSession());
+    }
+
 }

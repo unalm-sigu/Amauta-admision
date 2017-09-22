@@ -47,6 +47,9 @@ public class CicloAcademico implements Serializable {
     @Column(name = "descripcion")
     private String descripcion;
 
+    @Column(name = "descripcion2")
+    private String descripcion2;
+
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
@@ -278,6 +281,14 @@ public class CicloAcademico implements Serializable {
 
     public TipoCicloEnum getTipoCicloEnum() {
         return TipoCicloEnum.valueOf(this.tipo);
+    }
+
+    public String getDescripcion2() {
+        return descripcion2;
+    }
+
+    public void setDescripcion2(String descripcion2) {
+        this.descripcion2 = descripcion2;
     }
 
 }
