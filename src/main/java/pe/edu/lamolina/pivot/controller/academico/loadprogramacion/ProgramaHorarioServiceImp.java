@@ -66,6 +66,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     @Override
     @Transactional
     public void loadArchivosHorario(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
+        logger.debug("CICLO  {} {} {} ",ciclo.getId(),ciclo.getYear(),ciclo.getNumeroCiclo());
+        
         String rutaFileGpoSecciones = saveFile(files[0]);
         String rutaFileSecciones = saveFile(files[1]);
         String rutaFilePersonas = saveFile(files[2]);

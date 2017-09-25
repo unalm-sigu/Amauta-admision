@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.ACT;
 import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CER;
+import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.PEND;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -32,7 +33,7 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
 
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
-                .filter("estado", ACT.name());
+                .filter("estado", ACT);
         return (CicloAcademico) sql.find(getCurrentSession());
     }
 
@@ -41,7 +42,7 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
         
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
-                .in("estado", Arrays.asList(ACT, CER))
+                .in("estado", Arrays.asList(ACT, CER, PEND))
                 .orderBy("year desc", "numeroCiclo desc")
                 .limit(maxResultado);
 

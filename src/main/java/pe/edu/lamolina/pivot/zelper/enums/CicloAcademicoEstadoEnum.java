@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum CicloAcademicoEstadoEnum {
 
-    ACT("Activo"), CER("Cerrado"), CRE("Creado"), DES("Desactivado") ,PEN ("Pendiente") ;
+    ACT("Activo"), CER("Cerrado"), CRE("Creado"), DES("Desactivado") ,PEND ("Pendiente") ;
 
     private final String value;
     private static final Map<String, CicloAcademicoEstadoEnum> lookup = new HashMap<>();

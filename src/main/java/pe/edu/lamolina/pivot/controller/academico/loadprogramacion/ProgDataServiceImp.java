@@ -983,7 +983,7 @@ public class ProgDataServiceImp implements ProgDataService {
         }
 
         Curso curso = seccion.getGrupoSeccion().getCurso();
-        MatriculaCurso matriCursoBD = findMatriculaCurso(resumen.getMatriculaCurso(), curso);
+        MatriculaCurso matriCursoBD = findMatriculaCurso(resumen.getMatriculaCurso(), curso, rr);
         if (matriCursoBD == null) {
             matriCursoBD = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
         }
@@ -1025,10 +1025,11 @@ public class ProgDataServiceImp implements ProgDataService {
         System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
     }
 
-    private MatriculaCurso findMatriculaCurso(List<MatriculaCurso> alumnoCursos, Curso curso) {
+    private MatriculaCurso findMatriculaCurso(List<MatriculaCurso> alumnoCursos, Curso curso, int rr) {
         for (MatriculaCurso alumnoCurso : alumnoCursos) {
             Curso cur = alumnoCurso.getCurso();
             if (cur.getId().longValue() == curso.getId()) {
+                System.out.println("\t" + rr + " entregando " + alumnoCurso.getId() + " mat-curso");
                 return alumnoCurso;
             }
         }
