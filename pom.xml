@@ -312,7 +312,7 @@
         </dependency>
         
         <dependency>
-            <groupId>pe.albatross</groupId>
+            <groupId>com.github.albatrosscloud</groupId>
             <artifactId>zelpers</artifactId>
             <version>0.1.15</version>
         </dependency>
