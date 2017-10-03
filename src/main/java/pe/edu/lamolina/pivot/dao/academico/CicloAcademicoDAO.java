@@ -10,4 +10,6 @@ public interface CicloAcademicoDAO extends Crud<CicloAcademico> {
 
     List<CicloAcademico> allForChanges(Integer maxResultado);
 
+    CicloAcademico findAnteriorRegular(CicloAcademico ciclo);
+
 }

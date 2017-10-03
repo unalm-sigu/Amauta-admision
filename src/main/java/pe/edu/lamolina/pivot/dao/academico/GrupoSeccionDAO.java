@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.zelpers.dao.Crud;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
@@ -22,5 +23,7 @@ public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
     GrupoSeccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
 
     List<GrupoSeccion> allByCiclo(CicloAcademico ciclo);
+
+    List<DocenteCursoPlan> allDocenteCursoPlanByCiclo(CicloAcademico ciclo);
 
 }

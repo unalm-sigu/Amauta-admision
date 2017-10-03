@@ -88,6 +88,8 @@ public interface CargaAcademicaService {
 
     void aceptarRechazo(Long cursoId, Long grupoId, DataSessionPivot ds);
 
+    void aceptarPlanCalificacionSession(PlanCalificacion planCalificacion, Long cursoId, Long grupoId, DataSessionPivot ds);
+
     void aceptarPlanCalificacion(PlanCalificacion planCalificacion, Long cursoId, Long grupoId, DataSessionPivot ds);
 
     DocenteSeccion findDocenteSeccion(Long idDocenteSeccion);

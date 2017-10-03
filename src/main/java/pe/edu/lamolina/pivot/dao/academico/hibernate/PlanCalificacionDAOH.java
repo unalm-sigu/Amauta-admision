@@ -8,6 +8,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -89,16 +90,28 @@ public class PlanCalificacionDAOH extends AbstractDAO<PlanCalificacion> implemen
 
     @Override
     public Long maxNumeroCorrelativoPlanCalifica(Long idDepartamentoAcademico) {
-        StringBuilder strQuery = new StringBuilder();
-        strQuery.append("Select max(pc.numero) from PlanCalificacion pc ");
-        strQuery.append(" inner join  pc.departamentoAcademico da ");
-        strQuery.append(" where da.id=:prm_departamento_academico ");
-        Query query = getCurrentSession().createQuery(strQuery.toString());
+        StringBuilder sql = new StringBuilder();
+        sql.append("Select max(pc.numero) from PlanCalificacion pc ");
+        sql.append(" inner join  pc.departamentoAcademico da ");
+        sql.append(" where da.id=:prm_departamento_academico ");
+        
+        Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("prm_departamento_academico", idDepartamentoAcademico);
+        
         Long result = (Long) query.uniqueResult();
         if (result == null) {
             result = 0L;
         }
         return result;
     }
+
+    @Override
+    public List<PlanCalificacion> all(List<Long> ids) {
+        Octavia sql = Octavia.query()
+                .from(PlanCalificacion.class, "pc")
+                .leftJoin("sistemaNotas sn")
+                .in("pc.id", ids);
+        return sql.all(getCurrentSession());
+    }
+
 }

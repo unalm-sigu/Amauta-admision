@@ -6,6 +6,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -14,7 +15,6 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -194,6 +194,23 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
                 .parents("docente doc", "left _doc.persona dper")
                 .filter("ca.id", ciclo);
         return this.all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteSeccion> allPendientePlan(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "doc.persona per")
+                .join("seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca")
+                .left("gs.planCalificacion pc")
+                .filter("ca.id", ciclo)
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("s.tipoSeccion", "<>", TipoSeccionEnum.PCUR)
+                .filter("ds.principal", 1)
+                .isNull("pc.id")
+                .isNotNull("per.id");
+
+        return sql.all(getCurrentSession());
     }
 
 }

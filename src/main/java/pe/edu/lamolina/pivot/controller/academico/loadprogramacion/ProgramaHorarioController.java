@@ -21,23 +21,26 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.PlanCalificaCursoService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/loadprogramacion")
 public class ProgramaHorarioController {
-
+    
     @Autowired
     ProgramaHorarioService service;
     @Autowired
     EvaluacionExpandidaService evaluacionExpandidaService;
-
+    @Autowired
+    PlanCalificaCursoService planCalificaCursoService;
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-
+        
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -48,7 +51,7 @@ public class ProgramaHorarioController {
                 }
             }
         });
-
+        
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -60,57 +63,80 @@ public class ProgramaHorarioController {
             }
         });
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/loadprogramacion/loadProgramacion";
     }
-
+    
     @ResponseBody
     @RequestMapping("uploadFiles")
     public JsonResponse uploadFiles(@RequestParam("file") MultipartFile[] files, Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
-
+        
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.loadArchivosHorario(files, ds.getCicloAcademico(), ds);
-
+            
             json.setSuccess(true);
             json.setMessage("carga satisfactoria");
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, json);
-
+            
         } finally {
             return json;
         }
-
+        
     }
     
     @ResponseBody
     @RequestMapping("recalcularNivel")
-    public JsonResponse recalcularNivel( Model model, HttpSession session) {
+    public JsonResponse recalcularNivel(Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
-
+        
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            evaluacionExpandidaService.recalcularNivel( ds.getCicloAcademico(), ds);
-
+            evaluacionExpandidaService.recalcularNivel(ds.getCicloAcademico(), ds);
+            
             json.setSuccess(true);
             json.setMessage("carga satisfactoria");
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, json);
-
+            
         } finally {
             return json;
         }
-
+        
+    }
+    
+    @ResponseBody
+    @RequestMapping("reasignarPlan")
+    public JsonResponse reasignarPlan(Model model, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+        
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            planCalificaCursoService.reasignarPlanDocenteCurso(ds.getCicloAcademico(), ds);
+            
+            json.setSuccess(true);
+            json.setMessage("carga satisfactoria");
+            
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+            
+        } finally {
+            return json;
+        }
+        
     }
 }

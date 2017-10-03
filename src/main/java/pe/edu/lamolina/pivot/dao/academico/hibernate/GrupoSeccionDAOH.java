@@ -4,15 +4,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 
 @Repository
 public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements GrupoSeccionDAO {
@@ -108,6 +112,23 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
                 .parents("secciones s", "left planCalificacion pc", "curso cur", "cicloAcademico ca")
                 .filter("ca.id", ciclo);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<DocenteCursoPlan> allDocenteCursoPlanByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .select("doc.id", "cu.id", "count(distinct pc.id)", "max(pc.id)")
+                .into(DocenteCursoPlan.class)
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "doc.persona per", "seccion s", "s.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cu")
+                .join("gs.planCalificacion pc")
+                .filter("ca.id", ciclo)
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("s.tipoSeccion", "<>", TipoSeccionEnum.PCUR)
+                .filter("ds.principal", 1)
+                .groupBy("doc.id", "cu.id");
+
+        return sql.all(getCurrentSession());
     }
 
 }
