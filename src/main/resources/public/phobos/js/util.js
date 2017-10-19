@@ -422,7 +422,15 @@ APP = {
             str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
         }
         return str;
-    }
+    },
+    template: {
+        spin: "<i class='fa fa-spinner fa-spin' aria-hidden='true'></i>",
+        spincenter: "<div class='text-center'><i class='fa fa-spinner fa-spin' aria-hidden='true'></i></div>",
+        dynadiv: "<div class='panel-body'><div class='row' id='dynatable'></div></div>",
+        inext: "<i class='fa fa-chevron-right' aria-hidden='true'></i>",
+        iprev: "<i class='fa fa-chevron-left' aria-hidden='true'></i>",
+        fileLoad: '<form class="row text-center"><div id="archivoclick" style="border: dashed #cbd5dd 1px ;border-radius: 5px;" class="col-xs-10 col-xs-offset-1"><p id="archivoname" class="h4 m-t-lg m-b-lg text-muted pointer"  >archivo</p></div><input  class="hide" id="fileupload" type="file" value="Selecionar Archivo" name="file"/><input type="hidden" name="archivo" id="archivo" value="" /></form>'
+    },
 };
 
 MESSAGES = {
