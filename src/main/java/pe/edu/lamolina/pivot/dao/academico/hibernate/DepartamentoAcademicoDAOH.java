@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
@@ -130,5 +130,13 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
             result.add(new DepartamentoAcademico(map.get("id"), map.get("cantidadGruposCerrados"), map.get("cantidadGruposAbiertos"), map.get("totalGrupos")));
         }
         return result;
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allByCompania(Compania compania) {
+        SqlUtil sqlUtil = new SqlUtil("de")
+                .parents("facultad fa","_fa.compania co")
+                .filter("co.id", compania);
+        return all(sqlUtil);
     }
 }

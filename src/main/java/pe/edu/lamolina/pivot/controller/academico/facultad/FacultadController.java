@@ -81,6 +81,11 @@ public class FacultadController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            logger.debug("COMPANIA {}",ds.getCompania().getId());
+            logger.debug("FACULTADES {}",ds.getFacultados().size());
+            logger.debug("DEPARTAMENTOS {}",ds.getDepartamentos().size());
+            logger.debug("CARRERAS {}",ds.getCarreras().size());
+            logger.debug("MODALIDADES {}",ds.getModalidades().size());
 
             List<Facultad> facultades = service.allFacultad(filter);
 

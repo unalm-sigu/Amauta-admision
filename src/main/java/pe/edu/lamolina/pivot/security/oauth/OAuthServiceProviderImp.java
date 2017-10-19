@@ -18,15 +18,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
@@ -56,6 +64,18 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    
+    @Autowired
+    CompaniaDAO companiaDAO;
+    
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
+    
+    @Autowired
+    CarreraDAO carreraDAO;
+    
+    @Autowired
+    FacultadDAO facultadDAO;
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -119,6 +139,21 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 dataSession.setDepartamentoAcademico(dpto);
             }
         }
+        
+        Compania compania = companiaDAO.find(1L);
+        dataSession.setCompania(compania);
+        
+        List<Facultad> facultades = facultadDAO.allByCompania(compania);
+        dataSession.setFacultados(facultades);
+        
+        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allByCompania(compania);
+        dataSession.setModalidades(modalidades);
+        
+        List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.allByCompania(compania);
+        dataSession.setDepartamentos(departamentos);
+        
+        List<Carrera> carreras = carreraDAO.allByCompania(compania);
+        dataSession.setCarreras(carreras);
         
         session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
     }
