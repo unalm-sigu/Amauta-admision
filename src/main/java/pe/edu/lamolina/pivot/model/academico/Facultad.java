@@ -34,12 +34,22 @@ public class Facultad implements Serializable {
     @Column(name = "estado")
     private String estado;
 
+    @Column(name = "simbolo")
+    private String simbolo;
+
+    @Column(name = "motivo_desactivacion")
+    private String motivoDesactivacion;
+
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaRegistro;
+
+    @Column(name = "fecha_desactivacion")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaDesactivacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compania")
@@ -130,5 +140,28 @@ public class Facultad implements Serializable {
         this.departamentoAcademico = departamentoAcademico;
     }
 
-}
+    public String getSimbolo() {
+        return simbolo;
+    }
 
+    public void setSimbolo(String simbolo) {
+        this.simbolo = simbolo;
+    }
+
+    public String getMotivoDesactivacion() {
+        return motivoDesactivacion;
+    }
+
+    public void setMotivoDesactivacion(String motivoDesactivacion) {
+        this.motivoDesactivacion = motivoDesactivacion;
+    }
+
+    public Date getFechaDesactivacion() {
+        return fechaDesactivacion;
+    }
+
+    public void setFechaDesactivacion(Date fechaDesactivacion) {
+        this.fechaDesactivacion = fechaDesactivacion;
+    }
+
+}
