@@ -1,0 +1,52 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Carreras</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <div class="btn-group">
+                    <a type="button" class="btn btn-success" th:href="@{/general/personaperfil/nuevo}" >Nuevo</a>
+
+                </div>
+            </div> 
+            <h2>Carreras</h2>
+        </header>
+        <section class="panel">
+            <section class="panel-body">
+
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr class=""> 
+                            <th class="col-md-5">Nombre</th>
+                            <th class="col-md-1 text-center">Código</th>
+                            <th class="col-md-3 text-center">Modalidad / Tipo</th>
+                            <th class="col-md-2 text-left">Orientaciones</th>
+                            <th class="col-md-1 text-center">Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </section>
+        </section>
+
+
+        <div th:substituteby="academico/carrera/modalCambioEstado"/>
+        <script id="carreraTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/carrera/carreraTemplate"/></script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/carrera/carrera.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

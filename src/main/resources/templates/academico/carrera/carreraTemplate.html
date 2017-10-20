@@ -1,0 +1,41 @@
+<tr rel="{{:index}}">
+
+    <td class="v-middle">
+        <span class="block">{{:nombre}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <span class="block">{{:codigo}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <span class="block">{{:modalidad}}</span>
+        <span class="block">{{:tipoEnum}}</span>
+    </td>
+    <td class="v-middle text-left">
+        <ul>
+            {{for oriCarreras}}
+            <a target="_blank">
+                <span class="block"><i class="fa fa-check-square-o  fa-lg text-dark pointer" aria-hidden="true"></i>&nbsp;&nbsp;{{:nombre}} </span>
+            </a>
+            {{/for}}
+        </ul>
+    </td>
+    <td class="text-center v-middle">
+        <span class="clear">
+            <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>
+        </span>
+    </td> 
+    <td class="v-middle"> 
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" data-toggle="dropdown">
+                <i class="glyphicon glyphicon-cog"></i>
+            </a> 
+
+            <ul class="dropdown-menu pull-right">
+                <li><a class="btn-link pointer editar" rel="{{:id}}">Editar</a></li>
+                {{if esActivo}}
+                <li><a class="btn-link pointer desactivar" rel="{{:id}}">Desactivar</a></li>
+                {{/if}}
+            </ul>
+        </div>
+    </td>
+</tr>

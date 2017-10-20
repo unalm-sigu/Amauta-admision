@@ -6,7 +6,9 @@ import java.util.Map;
 public enum ModalidadEstudioEnum {
 
     PRE("Pre-Grado"),
-    EPG("Postgrado");
+    EPG("Postgrado"),
+    ESP("Especial"),
+    VIS("Visitante");
 
     private final String value;
     private static final Map<String, ModalidadEstudioEnum> lookup = new HashMap<>();

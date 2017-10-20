@@ -17,6 +17,8 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.inscripcion.CarreraPostula;
 import pe.edu.lamolina.pivot.model.inscripcion.Evaluado;
 import pe.edu.lamolina.pivot.model.inscripcion.Ingresante;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum;
 
 @Entity
 @Table(name = "aca_carrera")
@@ -38,6 +40,15 @@ public class Carrera implements Serializable {
 
     @Column(name = "tipo")
     private String tipo;
+
+    @Column(name = "nombre_corto")
+    private String nombreCorto;
+
+    @Column(name = "nombre_resultado")
+    private String nombreResultado;
+
+    @Column(name = "motivo")
+    private String motivo;
 
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
@@ -126,16 +137,24 @@ public class Carrera implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public EstadoEnum getEstadoEnum() {
+        return estado != null ? EstadoEnum.valueOf(estado) : null;
+    }
+
+    public void setEstado(EstadoEnum estado) {
+        this.estado = estado.name();
     }
 
     public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public TipoCarreraEnum getTipoEnum() {
+        return tipo != null ? TipoCarreraEnum.valueOf(tipo) : null;
+    }
+
+    public void setTipo(TipoCarreraEnum tipo) {
+        this.tipo = tipo.name();
     }
 
     public Long getIdUserRegistro() {
@@ -210,5 +229,28 @@ public class Carrera implements Serializable {
         this.ingresante = ingresante;
     }
 
-}
+    public String getNombreCorto() {
+        return nombreCorto;
+    }
 
+    public void setNombreCorto(String nombreCorto) {
+        this.nombreCorto = nombreCorto;
+    }
+
+    public String getNombreResultado() {
+        return nombreResultado;
+    }
+
+    public void setNombreResultado(String nombreResultado) {
+        this.nombreResultado = nombreResultado;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
+    }
+
+}
