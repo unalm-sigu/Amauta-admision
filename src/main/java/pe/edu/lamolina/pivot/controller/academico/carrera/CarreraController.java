@@ -18,20 +18,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -80,7 +85,7 @@ public class CarreraController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse listCarrerasByModalidadEstudio(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -95,6 +100,7 @@ public class CarreraController {
                 node.put("id", carrera.getId());
                 node.put("nombre", carrera.getNombre());
                 node.put("codigo", carrera.getCodigo());
+                node.put("facultad", carrera.getFacultad().getNombre());
                 node.put("modalidad", carrera.getModalidadEstudio().getNombre());
                 node.put("tipo", carrera.getTipo());
                 node.put("tipoEnum", carrera.getTipoEnum().getValue());
@@ -107,6 +113,7 @@ public class CarreraController {
                 node.set("oriCarreras", arrayOriCarrera);
                 node.put("estado", carrera.getEstado());
                 node.put("estadoEnum", carrera.getEstadoEnum().getValue());
+                node.put("motivo", carrera.getMotivo());
 
                 array.add(node);
             }
@@ -147,8 +154,140 @@ public class CarreraController {
         carrera.setOrientacionCarrera(new ArrayList());
         model.addAttribute("carrera", carrera);
         model.addAttribute("modalidades", service.allModalidades());
+        model.addAttribute("facultades", service.allFacultades());
+        model.addAttribute("tipos", TipoCarreraEnum.values());
 
-        return "sorteo/roles/rolesForm";
+        return "academico/carrera/carreraForm";
+    }
+
+    @RequestMapping("save")
+    public String save(Carrera carrera, RedirectAttributes redirectAttr, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            String mensaje = carrera.getId() != null ? "Carrera Actualizado" : "Carrera Agregado";
+            service.save(carrera, ds.getUsuario());
+            Notificaciones.crearMsg(mensaje, redirectAttr);
+
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+
+        }
+        return "redirect:/academico/carrera/editar/" + carrera.getId();
+    }
+
+    @ResponseBody
+    @RequestMapping("listOrientacion/{idCarrera}")
+    public DynatableResponse allByIdCarreraDynatable(DynatableFilter filter, @PathVariable("idCarrera") Long idCarrera, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<OrientacionCarrera> orientaciones = service.allByIdCarreraDynatable(filter, idCarrera);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            if (!orientaciones.isEmpty()) {
+
+                for (OrientacionCarrera orientacion : orientaciones) {
+                    ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                    node.put("id", orientacion.getId());
+                    node.put("idCarrera", orientacion.getCarrera().getId());
+                    node.put("codigo", orientacion.getCodigo());
+                    node.put("nombre", orientacion.getNombre());
+                    node.put("carrera", orientacion.getCarrera().getNombre());
+                    node.put("estado", orientacion.getEstado());
+                    node.put("estadoName", EstadoEnum.valueOf(orientacion.getEstado()).getValue());
+                    node.put("motivo", orientacion.getMotivo());
+
+                    array.add(node);
+                }
+            }
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @RequestMapping("editar/{id}")
+    public String editarCarrera(@PathVariable("id") Long id, Model model) {
+
+        Carrera carrera = service.find(id);
+        model.addAttribute("modalidades", service.allModalidades());
+        model.addAttribute("facultades", service.allFacultades());
+        model.addAttribute("tipos", TipoCarreraEnum.values());
+
+        model.addAttribute("carrera", carrera);
+        return "academico/carrera/carreraForm";
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteOrientacion")
+    public JsonResponse deleteOrientacion(@RequestParam("idOrientacion") Long idOrientacion,
+            @RequestParam("idCarrera") Long idCarrera, RedirectAttributes redirectAttr) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            service.deleteOrientacion(idOrientacion);
+            response.setMessage("Registro eliminado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveOrientacion")
+    public JsonResponse saveOrientacion(@RequestParam("nombreOrientacion") String nombreOrientacion,
+            @RequestParam("idCarrera") Long idCarrera,
+            Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.saveOrientacion(idCarrera, nombreOrientacion, ds.getUsuario());
+            response.setMessage("Orientacion ingresado satisfactoriamente.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desactivarOrientacion")
+    public JsonResponse desactivarOrientacion(OrientacionCarrera orientacion) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            service.desactivarOrientacion(orientacion);
+
+            response.setMessage("Registro desactivado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

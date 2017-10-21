@@ -12,4 +12,6 @@ public interface ModalidadEstudioDAO extends Crud<ModalidadEstudio> {
 
     List<ModalidadEstudio> allByCompania(Compania compania);
 
+    List<ModalidadEstudio> allActivos();
+
 }

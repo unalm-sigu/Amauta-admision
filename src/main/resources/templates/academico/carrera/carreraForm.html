@@ -14,80 +14,118 @@
         <div class="col-lg-12">
             <section class="panel">
                 <section class="panel-body">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item active ">
+                            <a class="nav-link active" data-toggle="tab" href="#carrera" role="tab">Carrera</a>
+                        </li>
+                        <li class="nav-item"  th:if="${carrera.id}">
+                            <a class="nav-link" data-toggle="tab" href="#orientacion" role="tab">Orientación</a>
+                        </li>
+                    </ul>
 
-                    <div class="col-lg-6">
-                        <form data-parsley-validate="true" id="formularioCarrera" method="POST" th:action="@{'/'}">
-                            <input type="hidden" th:value="${carrera.id}" name="id"/>
+                    <!-- Tab panes -->
+                    <div class="tab-content active">
+                        <div class="tab-pane active" id="carrera" role="tabpanel">
+                            <div class="col-lg-6 active">
+                                <form data-parsley-validate="true" id="formularioCarrera" method="POST" th:action="@{'/academico/carrera/save'}">
+                                    <input type="hidden" th:value="${carrera.id}" name="id"/>
 
-                            <div class="form-group">
-                                <label>Nombre</label>
-                                <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''"/>
+                                    <div class="form-group">
+                                        <label>Nombre</label>
+                                        <input name="nombre" class="form-control" required="true" th:value="${carrera} != null ? ${carrera.nombre} : ''"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Código</label>
+                                        <input name="codigo" class="form-control" th:disabled="${carrera.id} ? 'true':'false'" required="true" th:value="${carrera} != null ? ${carrera.codigo} : ''"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Facultad</label>
+                                        <select class="form-control" name="facultad.id">
+                                            <option th:each="item : ${facultades}"
+                                                    th:value="${item.id}"
+                                                    th:text="${item.nombre}"
+                                                    th:selected="${carrera.facultad} ? ${item.id == carrera.facultad.id}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Modalidad</label>
+                                        <select class="form-control" name="modalidadEstudio.id">
+                                            <option th:each="item : ${modalidades}"
+                                                    th:value="${item.id}"
+                                                    th:text="${item.nombre}"
+                                                    th:selected="${carrera.modalidadEstudio} ? ${item.id == carrera.modalidadEstudio.id}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Tipo</label>
+                                        <select class="form-control" name="tipo">
+                                            <option th:each="item : ${tipos}"
+                                                    th:value="${item.name()}"
+                                                    th:text="${item.value}"
+                                                    th:selected="${carrera} ? ${item.name() == carrera.tipo}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </form>
+                                <div class=" text-center">
+                                    <a class="btn btn-link" th:href="@{'/academico/carrera'}">Regresar</a>
+                                    <a class="btn btn-success save-update-carrera"  th:text="${carrera.id != null ? 'Actualizar' : 'Crear Carrera'}">Crear Carrera</a>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Código</label>
-                                <input name="codigo" class="form-control" maxlength="10" required="true" th:value="${carrera} != null ? ${carrera.codigo} : ''"/>
-                            </div>
-                            <div class="form-group">
-                                <label>Modalidad</label>
-                                <select class="form-control" name="modalidadEstudio.id">
-                                    <option th:each="item : ${modalidades}"
-                                            th:value="${item.id}"
-                                            th:text="${item.nombre}"
-                                            th:selected="${carrera.modalidadEstudio.id} != null ${item.id == carrera.modalidadEstudio.id} : ''">
-                                    </option>
-                                </select>
-                            </div>
-
-                        </form>
-                    </div>
-
-                    <div class="col-lg-6">
-
-                        <div class="form-group"  th:unless="${carrera.id}">
+                        </div>
+                        <div class="tab-pane" id="orientacion" role="tabpanel" th:if="${carrera.id}">
+                            <header >
+                                <div class="btn-group pull-right">
+                                    <!--<a type="button" class="btn btn-primary add-orientacion">Agregar Orientación</a>-->
+                                </div>
+                            </header>
                             <br/>
-                            <div class="alert alert-warning">
-                                <strong><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>  </strong>
-                                Debe crear el rol para agregar guias de instrucción.
-                            </div>
-                        </div>
-                        <div class="form-group" th:if="${carrera.id}">
-                            <label>Orientación Carrera</label>
-                            <table  class="table table-striped">
-                                <tbody>
-                                    <tr th:each="item, iter : ${carrera.orientacionCarrera}">
-                                        <td>
-                                            <input type="hidden" th:name="|orientacionCarrera[${iter.index}].id|" th:value="${item.id}"/>
-                                            <input type="text" class="form-control" th:name="|orientacionCarrera[${iter.index}].codigo|" th:value="${item.codigo}"/>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" th:name="|orientacionCarrera[${iter.index}].nombre|" th:value="${item.nombre}"/>
-                                        </td>
-                                        <td class="v-middle"> 
-                                            <a class="btn btn-warning btn-sm delete-orientacion" th:attr="rel=${item.id},rev=${carrera.id}"><i class="fa fa-times pointer" aria-hidden="true"></i></a>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center add-orientacion" colspan="2"><a class="btn btn-info btn-sm"><i class="fa fa-plus" aria-hidden="true"><strong> Agregar Orientación</strong></i></a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <section class="panel m-t-lg">
+                                <section class="panel-body">
+                                    <div class="form-group" th:if="${carrera.id}">
+                                        <table  class="table table-striped" id="dynaTable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-md-2">Código</th>
+                                                    <th class="col-md-4 text-left">Facultad</th>
+                                                    <th class="col-md-6 text-left">Nombre</th>
+                                                    <th class="col-md-1">Estado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </section>
+                                <div class="text-center">
+                                    <a class="btn btn-info btn-sm add-orientacion"><i class="fa fa-plus" aria-hidden="true"><strong> Agregar Orientación</strong></i></a>
+                                </div>
+
+                            </section>
                         </div>
                     </div>
+
                 </section>
                 <hr/>
-                <div class=" text-center">
-                    <a class="btn btn-link" th:href="@{'/academico/carrera'}">Regresar</a>
-                    <a class="btn btn-success save-update-rol"  th:text="${carrera.id != null ? 'Actualizar' : 'Crear Orientación'}">Crear Nuevo Rol</a>
-                </div>
+
             </section>
+
+
+        </div>
+        <div th:if="${carrera.id}">
+            <script id="orientacionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/carrera/orientacionTemplate"/></script>
         </div>
         <div th:substituteby="academico/carrera/modalOrientacion"/>
+        <div th:substituteby="academico/carrera/modalCambioEstadoOrientacion"/>
 
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/carrera/carrera.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/carrera/carreraForm.js}" charset="utf-8"></script>
     </div>
 
 </body>

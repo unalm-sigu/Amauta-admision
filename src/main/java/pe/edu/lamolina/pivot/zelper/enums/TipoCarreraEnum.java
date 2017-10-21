@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum TipoCarreraEnum {
 
-    SEM("Semestral"), DOC("Doctorado"), MAE("Maestria"), PMA("Post Maestria");
+    SEM("Semestral"), DOC("Doctorado"), MAE("Maestria"), PMA("Especial");
 
     private final String value;
     private static final Map<String, TipoCarreraEnum> lookup = new HashMap<>();

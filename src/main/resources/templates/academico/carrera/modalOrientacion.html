@@ -1,0 +1,28 @@
+
+<div class="modal fade" id="modalOrientacion">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title bold">Nueva Orientación</h5>
+            </div>
+            <div class="modal-body">
+                <form id="formOrientacion" method="POST">
+
+                    <div class="row m-b-md">
+                        
+                        <input class='hide' name="idCarrera"/>
+                        
+                        <div class="form-group col-lg-11">
+                            <label>Nombre</label>
+                            <input name="nombreOrientacion" class="form-control" required="true"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary guardar-orientacion">Guardar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

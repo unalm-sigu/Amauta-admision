@@ -10,12 +10,15 @@ $(function () {
         table: {
             bodyRowSelector: 'tbody tr'
         }
+    }).bind('dynatable:afterUpdate', function (e, dynatable) {
+        $('[data-toggle="tooltip"]').tooltip();
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
         var labelColor = {ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
         record.esActivo = record.estado == 'ACT';
+        record.esInactivo = record.estado == 'INA';
         record.colorEstado = labelColor[record.estado];
         var html = $.templates("#carreraTemplate").render(record);
         return html;
