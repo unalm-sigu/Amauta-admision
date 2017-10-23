@@ -7,9 +7,11 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
@@ -94,5 +96,14 @@ public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
                 .parents("compania co")
                 .filter("co.id", compania);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<Facultad> allActivos() {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .join("compania")
+                .filter("estado", EstadoEnum.ACT.name());
+        return sql.all(getCurrentSession());
     }
 }

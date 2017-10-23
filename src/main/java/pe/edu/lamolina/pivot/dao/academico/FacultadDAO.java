@@ -8,9 +8,11 @@ import pe.edu.lamolina.pivot.model.general.Compania;
 
 public interface FacultadDAO extends Crud<Facultad> {
 
-    public List<Facultad> allDynatable(DynatableFilter filter);
+    List<Facultad> allDynatable(DynatableFilter filter);
 
-    public List<Facultad> allByCompania(Compania compania);
+    List<Facultad> allByCompania(Compania compania);
+
+    List<Facultad> allActivos();
 
 }
 

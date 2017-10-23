@@ -1,0 +1,27 @@
+
+<div class="modal fade" id="modalCambioEstado">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title bold">¿Por qué motivo desea desactivar la carrera?</h5>
+            </div>
+            <div class="modal-body">
+                <form id="formCambioEstado" method="POST">
+
+                    <div class="row m-b-md">
+                        <input class='hide' name="id"/>
+                        <div class="form-group">
+                            <div class="col-md-12 text-center">
+                                <textarea class='form-control' name="motivo" required="true"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary desactivar-carrera">Aceptar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
