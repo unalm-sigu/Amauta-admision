@@ -525,14 +525,14 @@ $.fn.treeview = function () {
 
 $.fn.btnEnable = function () {
     $(this).removeProp("disabled");
-    $(this).data("btn-nombre", $(this).text());
     $(this).html($(this).data("btn-nombre"));
 };
 
 $.fn.btnDisabled = function () {
+    $(this).data("btn-nombre", $(this).prop('innerHTML'));
     $(this).prop("disabled", true);
-    $(this).data("btn-nombre", $(this).text());
     $(this).html('<i class="fa fa-spinner fa-spin"></i>  ' + $(this).data("btn-nombre"));
 };
+
 
 
