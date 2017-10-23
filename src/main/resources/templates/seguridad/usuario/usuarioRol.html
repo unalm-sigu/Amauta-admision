@@ -1,0 +1,34 @@
+<form  id="formPerfil" class="form-horizontal" data-parsley-validate="true">
+
+    <input type="hidden" name="usuario.id" th:value="${usuario.id}" id="modalIdUsuario"/>
+    <input type="hidden" name="usuario.persona.id" th:value="${usuario.persona.id}" id="persona"/>    
+
+
+    <div class="form-group" id="divPerfilUsuario">
+        <label for="perfilUsuario" class="col-sm-3 control-label">Perfil</label>
+        <div class="col-sm-8">
+            <select name="rol.id" id="perfilUsuario" required="true" class="input-s-full">
+                <option th:each="item : ${roles}" 
+                        th:value="${item.id}" 
+                        th:rel="${item.id}" 
+                        th:text="${item.nombre}" ></option>
+            </select>
+        </div>
+    </div>
+
+
+    <div class="form-group" id="divFechaInicio">
+        <label for="fechaInicio" class="col-sm-3 control-label" >Fecha Inicio</label>
+
+        <div class="col-sm-5">
+            <div class="input-group" >
+                <input  type="text" class="form-control"  
+                        required="true" 
+                        data-parsley-errors-container="#errorFechaInicio" 
+                        name="fechaInicio" id="fechaInicio"/>
+                <span class="input-group-addon glyphicon glyphicon-calendar pointer"></span>
+            </div>
+            <span id="errorFechaInicio"></span>
+        </div>
+    </div>
+</form>

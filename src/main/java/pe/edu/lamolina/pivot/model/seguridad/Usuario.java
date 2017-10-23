@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
 
 @Entity
 @Table(name = "seg_usuario")
@@ -38,7 +38,7 @@ public class Usuario implements Serializable {
 
     @Column(name = "fecha_modifica")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date fechaMofica;
+    private Date fechaModifica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona")
@@ -101,11 +101,11 @@ public class Usuario implements Serializable {
         this.usuarioRol = usuarioRol;
     }
 
-    public EstadoEnum getEstadoEnum() {
-        return EstadoEnum.valueOf(estado);
+    public UserEstadoEnum getEstadoEnum() {
+        return UserEstadoEnum.valueOf(estado);
     }
 
-    public void setEstadoEnum(EstadoEnum estadoEnum) {
+    public void setEstadoEnum(UserEstadoEnum estadoEnum) {
         this.estado = estadoEnum.name();
     }
 
@@ -117,12 +117,20 @@ public class Usuario implements Serializable {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public Date getFechaMofica() {
-        return fechaMofica;
+    public String getEstado() {
+        return estado;
     }
 
-    public void setFechaMofica(Date fechaMofica) {
-        this.fechaMofica = fechaMofica;
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Date getFechaModifica() {
+        return fechaModifica;
+    }
+
+    public void setFechaModifica(Date fechaModifica) {
+        this.fechaModifica = fechaModifica;
     }
 
     public Usuario getUserRegistro() {
@@ -157,7 +165,7 @@ public class Usuario implements Serializable {
         this.usuariosNoActivos = usuariosNoActivos;
     }
 
-    public boolean isEstadoLike(EstadoEnum estado) {
+    public boolean isEstadoLike(UserEstadoEnum estado) {
         if (this.getEstadoEnum() == estado) {
             return true;
         }

@@ -17,4 +17,8 @@ public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
 
     List<DepartamentoAcademico> allByCompania(Compania compania);
 
+    public List<DepartamentoAcademico> allDynatable(DynatableFilter filter);
+
+    public DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
+
 }

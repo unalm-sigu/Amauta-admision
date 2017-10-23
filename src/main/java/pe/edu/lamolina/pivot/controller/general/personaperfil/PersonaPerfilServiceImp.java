@@ -27,6 +27,7 @@ import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -168,7 +169,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
             user = new Usuario();
             user.setPersona(persona);
             user.setUsuario(persona.getEmail());
-            user.setEstadoEnum(EstadoEnum.ACT);
+            user.setEstadoEnum(UserEstadoEnum.ACT);
 
             usuarioDAO.save(user);
         }

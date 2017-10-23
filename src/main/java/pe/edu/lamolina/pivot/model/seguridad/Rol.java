@@ -28,6 +28,12 @@ public class Rol implements Serializable {
 
     @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     private List<UsuarioRol> usuarioRol;
+    
+    @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
+    private List<RolSistema> rolSistema;
+
+    @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
+    private List<MenuRol> menuRol;
 
     public Rol() {
     }
@@ -66,6 +72,22 @@ public class Rol implements Serializable {
 
     public void setUsuarioRol(List<UsuarioRol> usuarioRol) {
         this.usuarioRol = usuarioRol;
+    }
+
+    public List<RolSistema> getRolSistema() {
+        return rolSistema;
+    }
+
+    public void setRolSistema(List<RolSistema> rolSistema) {
+        this.rolSistema = rolSistema;
+    }
+
+    public List<MenuRol> getMenuRol() {
+        return menuRol;
+    }
+
+    public void setMenuRol(List<MenuRol> menuRol) {
+        this.menuRol = menuRol;
     }
 
 }

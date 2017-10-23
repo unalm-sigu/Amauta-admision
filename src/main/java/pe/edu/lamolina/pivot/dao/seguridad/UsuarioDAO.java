@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.seguridad;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
@@ -14,5 +15,9 @@ public interface UsuarioDAO extends Crud<Usuario> {
     List<Usuario> allByPersonas(List<Persona> personas);
 
     Usuario allByPersona(Persona persona);
+
+    List<Usuario> allByFilter(DynatableFilter filter);
+
+    Usuario find(Usuario user);
 
 }
