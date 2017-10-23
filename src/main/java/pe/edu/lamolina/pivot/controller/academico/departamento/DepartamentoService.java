@@ -17,4 +17,6 @@ public interface DepartamentoService {
     void delete(DepartamentoAcademico departamentoAcademico);
 
     void estado(DepartamentoAcademico departamentoAcademico);
+
+    List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<DepartamentoAcademico> departamentos);
 }

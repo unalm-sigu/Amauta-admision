@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -28,11 +29,11 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-
 
 @Controller
 @RequestMapping("academico/departamento")
@@ -82,10 +83,16 @@ public class DepartamentoController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<DepartamentoAcademico> departamentos = service.allDepartamentoAcademico(filter);
+            List<DepartamentoCursoDocente> departamentoCursoDocente = service.allDepartamentoCursoDocente(departamentos);
+
+            Map<Long, DepartamentoCursoDocente> departamentoMap = TypesUtil.convertListToMap("id", departamentoCursoDocente);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (DepartamentoAcademico departamentoAcademico : departamentos) {
+
+                DepartamentoCursoDocente depCurDocMap = departamentoMap.get(departamentoAcademico.getId());
+
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", departamentoAcademico.getId());
                 node.put("nombre", departamentoAcademico.getNombre());
@@ -94,6 +101,9 @@ public class DepartamentoController {
                 node.put("estado", departamentoAcademico.getEstado());
                 node.put("motivoDesactivacion", departamentoAcademico.getMotivoDesactivacion());
                 node.put("fecha", new DateTime(departamentoAcademico.getFechaDesactivacion()).toString("dd/MM/yyyy"));
+                node.put("docente", depCurDocMap.getDocente());
+                node.put("curso", depCurDocMap.getCurso());
+                node.put("facultad", departamentoAcademico.getFacultad().getNombre());
                 array.add(node);
             }
 
@@ -113,11 +123,10 @@ public class DepartamentoController {
     public String update(@PathVariable("departamento") Long idDepartamentoAcademico, Model model, HttpSession session) {
 
         DepartamentoAcademico departamento = service.findDepartamentoAcademico(idDepartamentoAcademico);
-        logger.debug("{}",departamento);
         model.addAttribute("departamento", departamento);
         return "academico/departamento/departamentoForm";
     }
-    
+
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
@@ -143,15 +152,14 @@ public class DepartamentoController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, redirectAttr);
         }
-        
+
         return "redirect:/academico/departamento";
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("delete")
     public JsonResponse delete(DepartamentoAcademico departamento) {
-        
+
         JsonResponse response = new JsonResponse();
 
         try {
@@ -168,12 +176,11 @@ public class DepartamentoController {
 
         return response;
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("estado")
     public JsonResponse estado(DepartamentoAcademico departamento) {
-        
+
         JsonResponse response = new JsonResponse();
 
         try {
@@ -190,5 +197,5 @@ public class DepartamentoController {
 
         return response;
     }
-    
+
 }

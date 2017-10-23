@@ -14,13 +14,13 @@
             <section class="panel-body">
 
                 <h3 class="m-t-lg m-b-lg" th:inline="text">
-                    
+
                     <b th:if="${departamento.codigo!=null}"
                        th:text="${departamento.codigo!=null?departamento.codigo:''}">
                     </b>
-                    
+
                     [[${departamento.nombre!=null?departamento.nombre:'Nuevo Departamento Académico'}]]
-                    
+
                 </h3>
 
                 <form method="post" th:action="@{/academico/departamento/save}"  data-parsley-validate="true" class="form-horizontal m-t-lg">
@@ -47,6 +47,26 @@
                             <input type="text"  maxlength="200" class="form-control" name="nombreLargo" th:value="${departamento.nombreLargo}"/>
                         </div>
                     </div>
+
+                    <div class="form-group">
+
+                        <label class="col-sm-3 control-label" >Facultad</label>
+
+                        <div class="col-sm-6">
+
+                            <input  type="text" 
+                                    name="facultad.id" 
+                                    th:value="${departamento.facultad!=null?departamento.facultad.id:''}"
+                                    th:rel="${departamento.facultad!=null?departamento.facultad.nombre:''}"
+                                    th:rev="${departamento.facultad!=null?departamento.facultad.codigo:''}"
+                                    required='true'
+                                    data-trigger="change"
+                                    class="form-control"/>
+                        </div>
+
+
+                    </div>
+
 
                     <div class="col-sm-6 col-lg-offset-3 m-t-lg text-center" >
 

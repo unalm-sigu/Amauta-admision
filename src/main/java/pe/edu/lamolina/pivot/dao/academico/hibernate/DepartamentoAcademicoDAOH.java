@@ -17,7 +17,10 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCursoDocente;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
@@ -156,8 +159,9 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
 
         {
             sql = new StringBuilder();
-            sql.append("  select count( distinct depa ) ");
-            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as depa ");
+            sql.append("  select count( distinct da ) ");
+            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+            sql.append("  inner join  da.facultad fa ");
             sql.append("  where 1 = 1 ");
 
             query = getCurrentSession().createQuery(sql.toString());
@@ -166,16 +170,17 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
 
         {
             sql = new StringBuilder();
-            sql.append("  select count( distinct depa ) ");
-            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as depa ");
+            sql.append("  select count( distinct da ) ");
+            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+            sql.append("  inner join  da.facultad fa ");
             sql.append("  where 1 = 1 ");
 
             if (!StringUtils.isEmpty(search)) {
                 sql.append("    and  ( ");
-                sql.append("    depa.nombre like :SEARCH ");
-                sql.append("    or depa.codigo like :SEARCH ");
-                sql.append("    or depa.estado like :SEARCH ");
-                sql.append("    or depa.nombreLargo like :SEARCH ");
+                sql.append("    da.nombre like :SEARCH ");
+                sql.append("    or da.codigo like :SEARCH ");
+                sql.append("    or da.estado like :SEARCH ");
+                sql.append("    or da.nombreLargo like :SEARCH ");
                 sql.append("    )    ");
             }
 
@@ -188,16 +193,17 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
 
         {
             sql = new StringBuilder();
-            sql.append("  select distinct depa ");
-            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as depa ");
+            sql.append("  select distinct da ");
+            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+            sql.append("  inner join  da.facultad fa ");
             sql.append("  where 1 = 1 ");
 
             if (!StringUtils.isEmpty(search)) {
                 sql.append("    and  ( ");
-                sql.append("    depa.nombre like :SEARCH ");
-                sql.append("    or depa.codigo like :SEARCH ");
-                sql.append("    or depa.estado like :SEARCH ");
-                sql.append("    or depa.nombreLargo like :SEARCH ");
+                sql.append("    da.nombre like :SEARCH ");
+                sql.append("    or da.codigo like :SEARCH ");
+                sql.append("    or da.estado like :SEARCH ");
+                sql.append("    or da.nombreLargo like :SEARCH ");
                 sql.append("    )    ");
             }
 
@@ -220,5 +226,31 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
                 .filter("da.id", idDepartamentoAcademico);
 
         return (DepartamentoAcademico) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  select new ").append(DepartamentoCursoDocente.class.getName()).append(" ( ");
+        sql.append("  da.id, ");
+        sql.append("  ( ");
+        sql.append("  select count(cu) ");
+        sql.append("  from ").append(Curso.class.getSimpleName()).append(" as cu ");
+        sql.append("  where cu.departamentoAcademico.id = da.id ");
+        sql.append("  ), ");
+        sql.append("  ( ");
+        sql.append("  select count(do) ");
+        sql.append("  from ").append(Docente.class.getSimpleName()).append(" as do ");
+        sql.append("  where do.departamentoAcademico.id = da.id ");
+        sql.append("  ) ");
+        sql.append("  ) ");
+        sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+        sql.append("  where da.id in :DEPARTAMENTOS ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("DEPARTAMENTOS", departamentosList);
+
+        return query.list();
     }
 }

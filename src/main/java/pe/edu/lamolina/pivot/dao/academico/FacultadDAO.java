@@ -14,5 +14,7 @@ public interface FacultadDAO extends Crud<Facultad> {
 
     List<Facultad> allActivos();
 
+    List<Facultad> allFacultad(String nombre, Compania compania);
+
 }
 

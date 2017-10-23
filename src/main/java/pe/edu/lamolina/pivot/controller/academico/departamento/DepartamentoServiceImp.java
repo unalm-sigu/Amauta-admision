@@ -1,7 +1,11 @@
 package pe.edu.lamolina.pivot.controller.academico.departamento;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +20,8 @@ public class DepartamentoServiceImp implements DepartamentoService {
 
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<DepartamentoAcademico> allDepartamentoAcademico(DynatableFilter filter) {
@@ -40,6 +46,7 @@ public class DepartamentoServiceImp implements DepartamentoService {
         departamentoAcademicoDb.setCodigo(departamentoAcademico.getCodigo());
         departamentoAcademicoDb.setNombre(departamentoAcademico.getNombre());
         departamentoAcademicoDb.setNombreLargo(departamentoAcademico.getNombreLargo());
+        departamentoAcademicoDb.setFacultad(departamentoAcademico.getFacultad());
         departamentoAcademicoDAO.update(departamentoAcademicoDb);
     }
 
@@ -63,6 +70,19 @@ public class DepartamentoServiceImp implements DepartamentoService {
             departamentoAcademicoBD.setEstado(DepartamentoAcademicoEstadoEnum.ACT.name());
         }
         departamentoAcademicoDAO.update(departamentoAcademicoBD);
+    }
+
+    @Override
+    public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<DepartamentoAcademico> departamentos) {
+        if (departamentos == null || departamentos.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> departamentosList = departamentos
+                .stream()
+                .map(depa -> depa.getId())
+                .collect(Collectors.toList());
+        logger.debug("{}", departamentosList);
+        return departamentoAcademicoDAO.allDepartamentoCursoDocente(departamentosList);
     }
 
 }
