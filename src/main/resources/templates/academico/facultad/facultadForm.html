@@ -1,0 +1,76 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Facultad</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <h3 class="m-t-lg m-b-lg" th:inline="text">
+                    
+                    <b th:if="${facultad.codigo!=null}"
+                       th:text="${facultad.codigo!=null?facultad.codigo:''}">
+                    </b>
+                    
+                    [[${facultad.nombre!=null?facultad.nombre:'Nueva Facultad'}]]
+                    
+                </h3>
+
+                <form method="post" th:action="@{/academico/facultad/save}"  data-parsley-validate="true" class="form-horizontal m-t-lg">
+
+                    <input type="hidden" name="id" th:value="${facultad.id}"/>
+
+                    <div class="form-group" >
+                        <label  class="col-sm-3 control-label">Código</label>
+                        <div class="col-sm-6">
+                            <input type="text" required="true"  maxlength="10" class="form-control" name="codigo" th:value="${facultad.codigo}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group" >
+                        <label  class="col-sm-3 control-label">Nombre</label>
+                        <div class="col-sm-6">
+                            <input type="text" required="true"  maxlength="100"  class="form-control" name="nombre" th:value="${facultad.nombre}"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group" >
+                        <label  class="col-sm-3 control-label">Símbolo</label>
+                        <div class="col-sm-6">
+                            <input type="text"  maxlength="10" class="form-control" name="simbolo" th:value="${facultad.simbolo}"/>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-lg-offset-3 m-t-lg text-center" >
+
+
+                        <a class="btn btn-link " th:href="@{/academico/facultad}" >Salir</a>
+
+                        <button type="submit" 
+                                class="btn-primary btn"  
+                                th:text="${facultad.nombre!=null?'Actualizar':'Guardar'}" >
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </section>
+
+    </div>
+
+    <div layout:fragment="js">
+        <script th:src="@{/app/academico/facultad/facultadForm.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

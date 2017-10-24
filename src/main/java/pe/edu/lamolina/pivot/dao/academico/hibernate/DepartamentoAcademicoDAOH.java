@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
@@ -13,10 +14,14 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCursoDocente;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
@@ -130,5 +135,122 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
             result.add(new DepartamentoAcademico(map.get("id"), map.get("cantidadGruposCerrados"), map.get("cantidadGruposAbiertos"), map.get("totalGrupos")));
         }
         return result;
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allByCompania(Compania compania) {
+        SqlUtil sqlUtil = new SqlUtil("de")
+                .parents("facultad fa", "_fa.compania co")
+                .filter("co.id", compania);
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDynatable(DynatableFilter filter) {
+
+        StringBuilder sql;
+        Query query;
+
+        String search = filter.getSearchValue();
+
+        if (!StringUtils.isEmpty(search)) {
+            search = "%" + search.replaceAll(" ", "%") + "%";
+        }
+
+        {
+            sql = new StringBuilder();
+            sql.append("  select count( distinct da ) ");
+            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+            sql.append("  inner join  da.facultad fa ");
+            sql.append("  where 1 = 1 ");
+
+            query = getCurrentSession().createQuery(sql.toString());
+            filter.setTotal(((Long) query.uniqueResult()).intValue());
+        }
+
+        {
+            sql = new StringBuilder();
+            sql.append("  select count( distinct da ) ");
+            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+            sql.append("  inner join  da.facultad fa ");
+            sql.append("  where 1 = 1 ");
+
+            if (!StringUtils.isEmpty(search)) {
+                sql.append("    and  ( ");
+                sql.append("    da.nombre like :SEARCH ");
+                sql.append("    or da.codigo like :SEARCH ");
+                sql.append("    or da.estado like :SEARCH ");
+                sql.append("    or da.nombreLargo like :SEARCH ");
+                sql.append("    )    ");
+            }
+
+            query = getCurrentSession().createQuery(sql.toString());
+            if (!StringUtils.isEmpty(search)) {
+                query.setString("SEARCH", search);
+            }
+            filter.setFiltered(((Long) query.uniqueResult()).intValue());
+        }
+
+        {
+            sql = new StringBuilder();
+            sql.append("  select distinct da ");
+            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+            sql.append("  inner join  da.facultad fa ");
+            sql.append("  where 1 = 1 ");
+
+            if (!StringUtils.isEmpty(search)) {
+                sql.append("    and  ( ");
+                sql.append("    da.nombre like :SEARCH ");
+                sql.append("    or da.codigo like :SEARCH ");
+                sql.append("    or da.estado like :SEARCH ");
+                sql.append("    or da.nombreLargo like :SEARCH ");
+                sql.append("    )    ");
+            }
+
+            query = getCurrentSession().createQuery(sql.toString());
+            if (!StringUtils.isEmpty(search)) {
+                query.setString("SEARCH", search);
+            }
+            query.setFirstResult((filter.getPage() - 1) * filter.getPerPage());
+            query.setMaxResults(filter.getPerPage());
+
+            return query.list();
+        }
+    }
+
+    @Override
+    public DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico) {
+
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .filter("da.id", idDepartamentoAcademico);
+
+        return (DepartamentoAcademico) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  select new ").append(DepartamentoCursoDocente.class.getName()).append(" ( ");
+        sql.append("  da.id, ");
+        sql.append("  ( ");
+        sql.append("  select count(cu) ");
+        sql.append("  from ").append(Curso.class.getSimpleName()).append(" as cu ");
+        sql.append("  where cu.departamentoAcademico.id = da.id ");
+        sql.append("  ), ");
+        sql.append("  ( ");
+        sql.append("  select count(do) ");
+        sql.append("  from ").append(Docente.class.getSimpleName()).append(" as do ");
+        sql.append("  where do.departamentoAcademico.id = da.id ");
+        sql.append("  ) ");
+        sql.append("  ) ");
+        sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
+        sql.append("  where da.id in :DEPARTAMENTOS ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameterList("DEPARTAMENTOS", departamentosList);
+
+        return query.list();
     }
 }

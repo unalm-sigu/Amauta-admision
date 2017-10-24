@@ -6,6 +6,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
@@ -175,6 +176,27 @@ public class PersonaDAOH extends AbstractDAO<Persona> implements PersonaDAO {
         query.setString("NOMBRES", persona.getNombres());
 
         return query.list();
+    }
+
+    @Override
+    public List<Persona> allByEmailCompania(String email) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("emailCompania", email);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Persona> allByEmailCompaniaWithoutPersona(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("emailCompania", persona.getEmailCompania())
+                .filter("per.id", "<>", persona.getId());
+
+        return sql.all(getCurrentSession());
     }
 
 }

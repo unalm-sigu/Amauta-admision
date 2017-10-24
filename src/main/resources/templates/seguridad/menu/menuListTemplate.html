@@ -1,0 +1,27 @@
+<ul>
+    <li>
+
+        <span class="h4"> <i class="fa fa-folder-open-o" aria-hidden="true"></i>   {{:nombre}}</span><a href="#"></a> 
+
+        <div class="pull-right btn-group btn-group-sm">
+            <button rel="{{:id}}" class="btn btn-link deleteMenu"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+            <button rel="{{:id}}" class="btn btn-link addMenu"><i class="fa fa-plus" aria-hidden="true"></i></button>
+        </div> 
+
+        <ul>
+            {{for nodes}}
+            <li>
+                <span><i class="fa {{:icono}}" aria-hidden="true"></i>  {{:nombre}}</span> <a href="#"></a>
+
+                <div class="pull-right btn-group btn-group-sm">
+                    <button rel="{{:id}}" class="btn btn-link deleteMenu"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                    <button rel="{{:id}}" class="btn btn-link editMenu"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                    <button rel="{{:id}}" class="btn btn-link perfilMenu"><i class="fa fa-users" aria-hidden="true"></i></button>
+                </div>     
+
+            </li>
+            {{/for}}
+        </ul>
+
+    </li>
+</ul>

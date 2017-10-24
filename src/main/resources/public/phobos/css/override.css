@@ -793,3 +793,175 @@ div.notas {
     padding: 8px 14px 8px 4px !important;
     /*margin-right: 10px;*/
 }
+
+/*tree view*/ 
+.tree {
+    min-height:20px;
+    padding:19px;
+    margin-bottom:20px;
+    background-color:transparent;
+    border:none;
+}
+.tree li {
+    list-style-type:none;
+    margin:0;
+    padding:10px 0 0 5px;
+    position:relative
+}
+.tree li::before, .tree li::after {
+    content:'';
+    left:-20px;
+    position:absolute;
+    right:auto
+}
+.tree li::before {
+    border-left:1px solid #999;
+    bottom:50px;
+    height:100%;
+    top:0;
+    width:1px
+}
+.tree li::after {
+    border-top:1px solid #999;
+    height:20px;
+    top:25px;
+    width:25px
+}
+.tree li div span {
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border:1px solid #999;
+    border-radius:5px;
+    display:inline-block;
+    padding:3px 8px ;
+    text-decoration:none
+}
+.tree li.parent_li>div>span {
+    cursor:pointer
+}
+.tree>ul>li::before, .tree>ul>li::after {
+    border:0
+}
+.tree li:last-child::before {
+    /*height:5px*/
+}
+.tree li.parent_li>div>span:hover, .tree li.parent_li>div>span:hover+ul li span {
+    background:#000;
+    border:1px solid #94a0b4;
+    color:#eee
+}
+
+/*over arow list*/
+.btn-up{
+    display: none;
+}
+.btn-down{
+    display: none;
+}
+.vresize{
+    resize: vertical;
+}
+.fixclose {
+    position: absolute;
+    right: 3px;
+    top: 1px;
+}
+.close {
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    filter: alpha(opacity=20);
+    opacity: .2;
+}
+.progress-bar[aria-valuenow="0"]{
+    background-color: #4fc244;
+}
+.alert-orange{
+    color: #fff;
+    background-color: #d4b638;
+    border-color: #d5c5b1;
+    font-size: 15px;
+    padding: 5px !important;
+}
+.btn.btn-success.inscribirse{
+    padding: 10px 27px;
+    text-transform: uppercase;
+}
+.form-group.col-md-6 input {
+    display: inline-block;
+    float: left;
+    margin-right: 5px;
+}
+
+.borders{
+    border-left: 1px solid #cfcfcf;
+    padding: 0 15px;
+    text-align: center;
+    height: 32px;
+    vertical-align: middle;
+}
+
+.borders span{
+    display: block;
+}
+
+/* JERARQUIA DIVISION */
+.division1 {
+    display: flex;
+    overflow: hidden;
+    height: calc(100vh - 150px);
+    margin-top: -100px;
+    padding-top: 100px;
+    padding-bottom: 40px;
+    position: relative;
+    width: 100%;
+    backface-visibility: hidden;
+    will-change: overflow;
+    border: #fff none thin;
+
+}
+
+.division2 {
+    overflow: auto;
+    height: auto;
+    padding: .5rem;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    flex: 1;
+}
+
+.table.table-preview > tbody > tr > td, .table.table-preview > tfoot > tr > td {
+    border-top: 1px solid #ffffff;
+}
+
+.headcolNumber{
+    position: absolute;
+    max-width: 36px;
+    width: 35px;
+    left: 15px;
+    padding-left: 10px !important;
+    height: 50px;
+    text-align: center;
+}
+
+.headcol {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position:absolute; 
+    max-width: 235px;
+    width: 234px;
+    left:50px;
+    padding: 8px 14px 8px 4px !important;
+}
+
+div.notas { 
+    width: auto; 
+    overflow-x:scroll;  
+    margin-left:253px; 
+    overflow-y:visible;
+    padding-bottom: 20px;
+}

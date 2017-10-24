@@ -1,0 +1,219 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title> Usuario </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+
+            <header class="page-header">                
+                <a th:href="@{${origen}}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                <h2 th:text="${ usuario.persona!=null ? usuario.persona.apellidosNombres : 'Nueva Persona' }" id="nombreCompleto">Nuevo Usuario</h2> 
+
+            </header>
+
+            <section class="panel-body">
+
+                <ul class="nav nav-tabs" id="tabPanel">
+                    <li class="active"><a href="#general" data-toggle="tab">Datos Generales</a></li>
+                    <li class="hide" id="tabPerfil"><a href="#perfil" data-toggle="tab">Perfil</a></li>
+                </ul>
+
+                <div class="panel-body bg-white b">
+                    <div class="tab-content">
+                        <!-- DATOS GENERALES -->
+                        <div class="tab-pane active" id="general">
+
+                            <form th:action="@{/general/usuario/save}" method="post" id="formUsuarioEdit" class="form-horizontal m-t-lg" data-parsley-validate="true">
+
+                                <input type="hidden" name="persona.id" id="personaId"  th:value="${usuario.persona}? ${usuario.persona.id}"/>
+                                <input type="hidden" name="id" id="usuarioId" th:value="${usuario.id}"/>
+
+                                <div class="form-group">
+
+                                    <label for="tipoDocumento" class="col-sm-2 control-label">N° documento</label>
+                                    <div class="col-sm-4">
+                                        <select name="persona.tipoDocumento.id" required="true" class="form-control select2 buscar-persona" id="tipoDNI">
+                                            <option></option>
+                                            <option th:each="item : ${documentos}"  
+                                                    th:text="${item.nombre}"
+                                                    th:selected="${usuario.persona!=null} ? ${usuario.persona.tipoDocumento.id==item.id}"
+                                                    th:value="${item.id}" ></option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <input  type="text" class="inline numeric form-control sin-espacios buscar-persona" required="true" name="persona.numeroDocIdentidad" 
+                                                id="numeroDocIdentidad" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.numeroDocIdentidad}"/>           
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="emailEmpresa" class="col-sm-2 control-label">Email institucional</label>
+                                    <div class="col-sm-6">
+
+                                        <input  class="inline form-control validar-email-empresa" 
+                                                data-trigger="change" required="true" type="email" 
+                                                data-trim-value="true"
+                                                th:attr="data-parsley-remote=@{'/general/usuario/'+${usuario.id !=null ? usuario.id:0}+'/validarEmail'}"
+                                                data-parsley-remote-message="El email ingresado ya esta asociado a una persona."
+                                                name="persona.emailCompania" id="emailEmpresa" th:value="${usuario.persona!=null} ? ${usuario.persona.emailCompania}"
+                                                /> 
+
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="paterno" class="col-sm-2 control-label">Nombre</label>
+                                    <div class="col-sm-3">
+                                        <input  type="text" name="persona.paterno" required="true" class="form-control nombre-persona" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.paterno}" placeholder="Paterno"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input  type="text" name="persona.materno" required="true" class="form-control nombre-persona" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.materno}" placeholder="Materno"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input  type="text" name="persona.nombres" required="true" class="form-control nombre-persona" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.nombres}" placeholder="Nombres"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="sexo" class="col-sm-2 control-label">Sexo</label>
+                                    <div class="col-sm-5">
+                                        <div class="col-sm-6">
+                                            <label class="radio inline">
+                                                <input  type="radio" required="true" name="persona.sexo" id="sexoM" value="M" 
+                                                        th:checked="${usuario.persona!=null} ? ${usuario.persona.sexo=='M'}" /> Masculino
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="radio inline">
+                                                <input  type="radio" required="true" name="persona.sexo" id="sexoF" value="F" 
+                                                        th:checked="${usuario.persona!=null} ? ${usuario.persona.sexo=='F'}" /> Femenino
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fechaNacimiento" class="col-sm-2 control-label">Fecha de Nacimiento</label>
+                                    <div class="col-sm-4">
+                                        <div class="input-group date" >
+                                            <input  type="text" class="form-control" data-parsley-errors-container="#errorfechaNacimiento" 
+                                                    name="persona.fechaNacer" id="fechaNacer" 
+                                                    th:value="${usuario.persona!=null} ? ${usuario.persona.fechaNacer!=null ? #dates.format(usuario.persona.fechaNacer,'dd/MM/yyyy'):''}"/>
+                                            <span class="input-group-addon glyphicon glyphicon-calendar pointer"></span>
+                                        </div>
+                                        <span id="errorfechaNacimiento"></span>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="direccion" class="col-sm-2 control-label">Dirección</label>
+                                    <div class="col-sm-9">
+                                        <input  type="text" name="persona.direccion" class="input-xxlarge form-control domicilio" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.direccion}"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="email" class="col-sm-2 control-label">Email Personal</label>
+                                    <div class="col-sm-4">
+                                        <input  type="email" class="inline form-control validar-email" data-type="email" name="persona.email" id="email" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.email}"/>                                  
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="celular" class="col-sm-2 control-label">Celular</label>
+                                    <div class="col-sm-4">
+                                        <input  type="text" class="form-control sin-espacios"  name="persona.celular" 
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.celular}"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="telefono" class="col-sm-2 control-label">Teléfono</label>
+                                    <div class="col-sm-4">
+                                        <input  type="text" class="form-control sin-espacios" name="persona.telefono" id="telefono"
+                                                th:value="${usuario.persona!=null} ? ${usuario.persona.telefono}"/>
+                                    </div>
+                                </div>                                 
+
+                                <div class="form-group m-t-xxlg">
+                                    <label class="col-sm-2 control-label"></label>
+                                    <div id="footerUsuario" class="col-sm-10">
+                                        <a class="btn btn-primary"  id="btnSaveUser">Guardar</a>                                        
+                                        <a th:href="@{${origen}}" class="btn btn-link" >Cancelar</a>
+                                    </div>
+                                </div>
+
+                            </form>
+
+                        </div>
+                        <!-- ROL / PERFIL -->
+                        <div class="tab-pane" id="perfil">
+
+                            <section class="page-header no-border">
+                                <a href="#"  class="btn btn-primary btn-sm pull-right" id="addPerfil">Nuevo Perfil</a>
+                                <h3><b>Perfiles</b></h3>
+                            </section>
+
+                            <table id="tablaPerfil" class="table table-striped table-condensed">
+                                <thead>
+                                    <tr>                                                                 
+                                        <th class="col-md-4">Perfil</th>                           
+                                        <th class="text-left col-md-4">Acceso a </th>                                       
+                                        <th class="text-center col-md-2">Fecha Inicio</th>
+                                        <th class="text-center col-md-2">Fecha Fin</th> 
+
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tBodyRoles">
+                                    <tr th:each="rolUser : ${rolesUsuario}">                                        
+                                        <td th:text="${rolUser.rol.nombre}"> </td>                                        
+                                        <td>
+                                            <span class="block" th:each="rolSis : ${rolUser.rol.rolSistema}"
+                                                  th:text="${rolSis.sistema.nombre}"> </span> 
+                                        </td>                                        
+                                        <td class="text-center"  th:text="${rolUser.fechaInicio} ? ${#dates.format(rolUser.fechaInicio,'dd/MM/yyyy')}:''"></td>
+                                        <td class="text-center"  th:text="${rolUser.fechaFin} ? ${#dates.format(rolUser.fechaFin,'dd/MM/yyyy')}:''"></td>
+
+                                        <td>
+                                            <div class="actions" th:unless="${rolUser.fechaFin}" >
+                                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                                    <i class="glyphicon glyphicon-cog"></i> 
+                                                </a>
+                                                <ul class="dropdown-menu pull-right" role="menu">
+                                                    <li><a href="#" class="delete" th:rel="${rolUser.id}">Inhabilitar</a></li>
+                                                </ul>
+                                            </div>
+
+                                        </td>
+                                    </tr>                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div th:substituteby="templates/modal"/>
+
+            </section>
+
+        </section>
+
+        <div layout:fragment="js">
+            <script type="text/javascript" th:src="@{/phobos/js/wizard/jquery.bootstrap.wizard.js}"/>  
+            <script th:src="@{/app/seguridad/usuario/usuarioForm.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

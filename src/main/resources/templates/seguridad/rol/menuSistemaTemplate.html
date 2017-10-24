@@ -1,0 +1,15 @@
+<ul>
+    <li>
+        <div class="segnal" style="width:100%;">
+            {{if nodes}}
+                <span style="background-color: #363e45; color: #C1D0DF;"> <i class="fa fa-folder-open-o" aria-hidden="true"></i>   {{:nombre}}</span><a href="#"></a>
+            {{else}}
+                <span> <i class="fa {{:icono}}" aria-hidden="true"></i>   {{:nombre}}</span><a href="#"></a> 
+            {{/if}}
+
+        </div>
+
+        {{:menusHijos}}
+
+    </li>
+</ul>

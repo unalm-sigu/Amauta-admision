@@ -24,4 +24,8 @@ public interface PersonaDAO extends Crud<Persona> {
 
     List<Persona> allByApellidosNombres(Persona persona);
 
+    List<Persona> allByEmailCompania(String email);
+
+    List<Persona> allByEmailCompaniaWithoutPersona(Persona persona);
+
 }

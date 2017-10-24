@@ -4,10 +4,15 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Menu;
 import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
@@ -28,6 +33,18 @@ public class DataSessionPivot implements Serializable {
     private List<Rol> roles;
 
     private Rol rolActivo;
+
+    private Compania compania;
+
+    private List<Facultad> facultados;
+
+    private List<Carrera> carreras;
+
+    private List<ModalidadEstudio> modalidades;
+
+    private List<DepartamentoAcademico> departamentos;
+
+    private List<Menu> menu;
 
     public String getEmail() {
         return email;
@@ -97,6 +114,54 @@ public class DataSessionPivot implements Serializable {
 
     public void setRolActivo(Rol rolActivo) {
         this.rolActivo = rolActivo;
+    }
+
+    public Compania getCompania() {
+        return compania;
+    }
+
+    public void setCompania(Compania compania) {
+        this.compania = compania;
+    }
+
+    public List<Facultad> getFacultados() {
+        return facultados;
+    }
+
+    public void setFacultados(List<Facultad> facultados) {
+        this.facultados = facultados;
+    }
+
+    public List<Carrera> getCarreras() {
+        return carreras;
+    }
+
+    public void setCarreras(List<Carrera> carreras) {
+        this.carreras = carreras;
+    }
+
+    public List<ModalidadEstudio> getModalidades() {
+        return modalidades;
+    }
+
+    public void setModalidades(List<ModalidadEstudio> modalidades) {
+        this.modalidades = modalidades;
+    }
+
+    public List<DepartamentoAcademico> getDepartamentos() {
+        return departamentos;
+    }
+
+    public void setDepartamentos(List<DepartamentoAcademico> departamentos) {
+        this.departamentos = departamentos;
+    }
+
+    public List<Menu> getMenu() {
+        return menu;
+    }
+
+    public void setMenu(List<Menu> menu) {
+        this.menu = menu;
     }
 
 }

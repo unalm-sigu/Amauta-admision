@@ -33,6 +33,9 @@ public class OrientacionCarrera implements Serializable {
     @Column(name = "nombre")
     private String nombre;
 
+    @Column(name = "motivo")
+    private String motivo;
+
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
@@ -140,5 +143,12 @@ public class OrientacionCarrera implements Serializable {
         this.planCurricular = planCurricular;
     }
 
-}
+    public String getMotivo() {
+        return motivo;
+    }
 
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
+    }
+
+}

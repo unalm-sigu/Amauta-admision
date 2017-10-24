@@ -14,4 +14,10 @@ public interface UsuarioRolDAO extends Crud<UsuarioRol> {
 
     List<UsuarioRol> allByUser(Usuario user);
 
+    List<UsuarioRol> allByUsuarios(List<Usuario> users);
+
+    UsuarioRol findByUsuarioRol(Usuario usuario, Rol rol);
+
+    UsuarioRol find(UsuarioRol userRol);
+
 }

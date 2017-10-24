@@ -1,0 +1,49 @@
+<tr rel="{{:index}}">
+    <td>
+        <a href="#" class="thumb-sm pull-center m-r">
+            <img src="{{:rutaFoto}}" alt="..." class="img-circle"/>
+        </a>
+    </td>
+    <td class="v-middle">
+        <div class="clear">
+            {{if estado=='ACT'}}
+            <a href="#" rel="{{:id}}" class="info-usuario"><strong>{{:nombre}}</strong></a>
+            <small class="block text-muted">{{:simbolo}}: {{:documento}}</small>
+            {{else estado='INA'}}
+            <a class="info-usuario"><strong>{{:nombre}}</strong></a>
+            <small class="block text-muted">{{:simbolo}}: {{:documento}}</small>
+            {{/if}}
+        </div>
+    </td>
+    <td class="text-left-xs v-middle">{{:emailCompania}}</td>
+    <td class="text-left-xs v-middle">
+        {{for rolesUser }}
+        <span class="label label-primary"> {{:nombre}}</span><br/>
+        {{/for}}
+    </td>
+    <td class="text-left-xs v-middle">
+        {{if tieneCelular}}
+        <small class="block text-muted"><i class="fa fa-mobile"></i> {{:celular}}</small>
+        {{/if}}
+        {{if tieneTelefono}}
+        <small class="block text-muted"><i class="fa fa-phone"></i> {{:telefono}}</small>
+        {{/if}}
+        {{if tieneEmail}}
+        <small class="block text-muted"><i class="fa fa-envelope"></i> {{:email}}</small>
+        {{/if}}
+    </td>
+    <td class="text-center v-middle"><span class="label label-{{:labelEstado}}">{{:estadoEnum}}</span></td>
+    <td class="v-middle">
+        <div class="actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                {{if estado=='ACT'}}
+                <li><a class="btn-link modificar" href="#" rel="{{:id}}">Editar</a></li>  
+                <li><a class="btn-link eliminar" href="#" rel="{{:id}}">Desactivar</a></li>  
+                {{else estado=='DES'}}
+                <li><a class="btn-link activar" href="#" rel="{{:id}}" >Activar</a></li>  
+                {{/if}}
+            </ul>
+        </div>
+    </td>
+</tr>

@@ -58,6 +58,7 @@ import pe.edu.lamolina.pivot.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
@@ -202,7 +203,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (user == null) {
                 continue;
             }
-            if (user.getEstadoEnum() == EstadoEnum.ACT) {
+            if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
                 user.setPersona(main);
                 usuarioDAO.update(user);
             }
@@ -302,7 +303,7 @@ public class ProgDataServiceImp implements ProgDataService {
         user = new Usuario();
         user.setPersona(persona);
         user.setUsuario(persona.getEmailCompania().toLowerCase());
-        user.setEstadoEnum(EstadoEnum.ACT);
+        user.setEstadoEnum(UserEstadoEnum.ACT);
         user.setFechaRegistro(new Date());
         user.setUserRegistro(ds.getUsuario());
         usuarioDAO.save(user);
@@ -554,7 +555,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         if (usuario == null) {
             for (Usuario user : usuarios) {
-                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
                     userMain = user;
                     break;
                 }
@@ -569,9 +570,9 @@ public class ProgDataServiceImp implements ProgDataService {
                 if (user == userMain) {
                     continue;
                 }
-                if (user.getEstadoEnum() == EstadoEnum.ACT) {
-                    user.setEstadoEnum(EstadoEnum.INA);
-                    user.setFechaMofica(new Date());
+                if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
+                    user.setEstadoEnum(UserEstadoEnum.INA);
+                    user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
                 user.setUserActivo(userMain);
@@ -580,9 +581,9 @@ public class ProgDataServiceImp implements ProgDataService {
             return;
         }
 
-        if (usuario.getEstadoEnum() == EstadoEnum.INA) {
+        if (usuario.getEstadoEnum() == UserEstadoEnum.INA) {
             for (Usuario user : usuarios) {
-                if (user.getEstadoEnum() == EstadoEnum.ACT) {
+                if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
                     userMain = user;
                     break;
                 }
@@ -600,9 +601,9 @@ public class ProgDataServiceImp implements ProgDataService {
                 if (user == userMain) {
                     continue;
                 }
-                if (user.getEstadoEnum() == EstadoEnum.ACT) {
-                    user.setEstadoEnum(EstadoEnum.INA);
-                    user.setFechaMofica(new Date());
+                if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
+                    user.setEstadoEnum(UserEstadoEnum.INA);
+                    user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
                 user.setUserActivo(userMain);
@@ -611,14 +612,14 @@ public class ProgDataServiceImp implements ProgDataService {
             return;
         }
 
-        if (usuario.getEstadoEnum() == EstadoEnum.ACT) {
+        if (usuario.getEstadoEnum() == UserEstadoEnum.ACT) {
             for (Usuario user : usuarios) {
                 if (user.getId() == usuario.getId().longValue()) {
                     continue;
                 }
-                if (user.getEstadoEnum() == EstadoEnum.ACT) {
-                    user.setEstadoEnum(EstadoEnum.INA);
-                    user.setFechaMofica(new Date());
+                if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
+                    user.setEstadoEnum(UserEstadoEnum.INA);
+                    user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
                 user.setUserActivo(usuario);
@@ -665,7 +666,7 @@ public class ProgDataServiceImp implements ProgDataService {
         }
         for (Persona persona : personas) {
             Usuario user = usuarioDAO.findByPersona(persona);
-            if (user != null && user.getEstadoEnum() == EstadoEnum.ACT) {
+            if (user != null && user.getEstadoEnum() == UserEstadoEnum.ACT) {
                 //logger.debug("se escoge por fecha de user");
                 return persona;
             }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 
@@ -32,9 +34,19 @@ public class DepartamentoAcademico implements Serializable {
     @Column(name = "nombre")
     private String nombre;
 
+    @Column(name = "nombre_largo")
+    private String nombreLargo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_facultad")
     private Facultad facultad;
+
+    @Column(name = "motivo_desactivacion")
+    private String motivoDesactivacion;
+
+    @Column(name = "fecha_desactivacion")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaDesactivacion;
 
     @OneToMany(mappedBy = "departamentoAcademico", fetch = FetchType.LAZY)
     private List<Curso> curso;
@@ -183,6 +195,30 @@ public class DepartamentoAcademico implements Serializable {
             return false;
         }
         return true;
+    }
+
+    public String getNombreLargo() {
+        return nombreLargo;
+    }
+
+    public void setNombreLargo(String nombreLargo) {
+        this.nombreLargo = nombreLargo;
+    }
+
+    public String getMotivoDesactivacion() {
+        return motivoDesactivacion;
+    }
+
+    public void setMotivoDesactivacion(String motivoDesactivacion) {
+        this.motivoDesactivacion = motivoDesactivacion;
+    }
+
+    public Date getFechaDesactivacion() {
+        return fechaDesactivacion;
+    }
+
+    public void setFechaDesactivacion(Date fechaDesactivacion) {
+        this.fechaDesactivacion = fechaDesactivacion;
     }
 
 }

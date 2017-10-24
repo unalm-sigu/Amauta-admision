@@ -1,0 +1,67 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Administración de Usuarios</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <a th:href="@{${origen}}" class="btn btn-primary btn-sm" type="button" id="btnAddUsuario">Nuevo</a>
+            </div>  
+
+            <h2>Administración de Usuarios</h2>
+        </header>
+
+        <section class="panel">
+
+            <section class="panel-body">
+
+                <div class="hide" id="divBuscar">
+                    <form id="formRolUsuario">
+                        <div class="col-md-3">
+                            <select id="rol" class="form-control input-s-full">
+                                <option></option>
+                                <option th:each="item : ${roles}"  
+                                        th:text="${item.nombre}"
+                                        th:value="${item.id}" >yhhh</option>
+
+                            </select>
+                        </div>                                              
+                    </form>
+                </div>
+                <table id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th class="col-md-1"></th>
+                            <th class="col-md-3 v-middle">Nombre</th>                    
+                            <th class="col-md-2 text-center">Usuario</th>
+                            <th class="col-md-3 v-middle">Roles Activos</th>                    
+                            <th class="col-md-2 v-middle">Contacto</th>                    
+                            <th class="col-md-1 v-middle text-center">Estado</th>                                                                
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+
+        <form id="formUsuarioEdit"  action="" method="GET">
+            <input type="hidden" name="origen" value="" id="origenUrl"/>
+        </form>
+
+        <div th:substituteby="templates/modal"></div>
+        <script id="templateUsuario" type="text/x-jsrender" class="hide" ><div th:substituteby="seguridad/usuario/templateUsuario"/></script>
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/seguridad/usuario/usuario.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

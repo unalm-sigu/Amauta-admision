@@ -146,7 +146,7 @@ public class PersonaServiceImp implements PersonaService {
 
         Persona personaBD = personaDAO.find(persona.getId());
 
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion","celular", "telefono"));
+        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
         if (sinCambios) {
             logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
@@ -226,6 +226,32 @@ public class PersonaServiceImp implements PersonaService {
         }
 
         return new Persona();
+    }
+
+    @Override
+    public String validarEmailCompaniaByPersona(String email, Persona persona) {
+        List<Persona> personas;
+        if (persona.getId() == null) {
+            personas = personaDAO.allByEmailCompania(email);
+
+        } else {
+            persona.setEmailCompania(email);
+            personas = personaDAO.allByEmailCompaniaWithoutPersona(persona);
+        }
+
+        if (personas.isEmpty()) {
+            return null;
+        }
+
+        int loop = 0;
+        String msg = "Este correo ya pertenece al: ";
+        for (Persona per : personas) {
+            TipoDocIdentidad tipo = per.getTipoDocumento();
+            msg += (loop == 0) ? "" : ", ";
+            msg += tipo.getSimbolo() + " " + per.getNumeroDocIdentidad();
+            loop++;
+        }
+        return msg;
     }
 
 }

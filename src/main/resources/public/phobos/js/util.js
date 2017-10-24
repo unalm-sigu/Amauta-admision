@@ -422,7 +422,15 @@ APP = {
             str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
         }
         return str;
-    }
+    },
+    template: {
+        spin: "<i class='fa fa-spinner fa-spin' aria-hidden='true'></i>",
+        spincenter: "<div class='text-center'><i class='fa fa-spinner fa-spin' aria-hidden='true'></i></div>",
+        dynadiv: "<div class='panel-body'><div class='row' id='dynatable'></div></div>",
+        inext: "<i class='fa fa-chevron-right' aria-hidden='true'></i>",
+        iprev: "<i class='fa fa-chevron-left' aria-hidden='true'></i>",
+        fileLoad: '<form class="row text-center"><div id="archivoclick" style="border: dashed #cbd5dd 1px ;border-radius: 5px;" class="col-xs-10 col-xs-offset-1"><p id="archivoname" class="h4 m-t-lg m-b-lg text-muted pointer"  >archivo</p></div><input  class="hide" id="fileupload" type="file" value="Selecionar Archivo" name="file"/><input type="hidden" name="archivo" id="archivo" value="" /></form>'
+    },
 };
 
 MESSAGES = {
@@ -497,4 +505,34 @@ $.fn.cleanAll = function ()
     $(this).find("input, textarea").val("");
     return this;
 };
+
+$.fn.treeview = function () {
+    var self = $(this);
+    self.find('li:has(ul)').addClass('parent_li').find(' > div > span').attr('title', 'Colapsar este menú');
+    self.find('li.parent_li > div > span').on('click', function (e) {
+        var yourself = $(e.currentTarget);
+        var children = yourself.parent("div").parent('li.parent_li').find(' > ul > li');
+        if (children.is(":visible")) {
+            children.hide('fast');
+            yourself.attr('title', 'Expandir este menú').find(' > i').addClass('fa-folder-o').removeClass('fa-folder-open-o');
+        } else {
+            children.show('fast');
+            yourself.attr('title', 'Colapsar este menú').find(' > i').addClass('fa-folder-open-o').removeClass('fa-folder-o');
+        }
+        e.stopPropagation();
+    });
+};
+
+$.fn.btnEnable = function () {
+    $(this).removeProp("disabled");
+    $(this).html($(this).data("btn-nombre"));
+};
+
+$.fn.btnDisabled = function () {
+    $(this).data("btn-nombre", $(this).prop('innerHTML'));
+    $(this).prop("disabled", true);
+    $(this).html('<i class="fa fa-spinner fa-spin"></i>  ' + $(this).data("btn-nombre"));
+};
+
+
 
