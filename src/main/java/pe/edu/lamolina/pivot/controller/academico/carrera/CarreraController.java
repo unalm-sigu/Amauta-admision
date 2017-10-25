@@ -113,7 +113,7 @@ public class CarreraController {
                 node.set("oriCarreras", arrayOriCarrera);
                 node.put("estado", carrera.getEstado());
                 node.put("estadoEnum", carrera.getEstadoEnum().getValue());
-                node.put("motivo", carrera.getMotivo());
+                node.put("motivo", carrera.getMotivoAnulacion());
 
                 array.add(node);
             }
@@ -129,15 +129,15 @@ public class CarreraController {
     }
 
     @ResponseBody
-    @RequestMapping("desactivar")
-    public JsonResponse desactivar(Carrera carrera) {
+    @RequestMapping("cambiarEstadoCarrera")
+    public JsonResponse cambiarEstadoCarrera(Carrera carrera) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
         try {
-            service.desactivar(carrera);
+            service.cambiarEstadoCarrera(carrera);
 
-            response.setMessage("Registro desactivado.");
+            response.setMessage("Se cambio de estado satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -200,7 +200,7 @@ public class CarreraController {
                     node.put("carrera", orientacion.getCarrera().getNombre());
                     node.put("estado", orientacion.getEstado());
                     node.put("estadoName", EstadoEnum.valueOf(orientacion.getEstado()).getValue());
-                    node.put("motivo", orientacion.getMotivo());
+                    node.put("motivo", orientacion.getMotivoAnulacion());
 
                     array.add(node);
                 }
@@ -253,14 +253,19 @@ public class CarreraController {
     @RequestMapping("saveOrientacion")
     public JsonResponse saveOrientacion(@RequestParam("nombreOrientacion") String nombreOrientacion,
             @RequestParam("idCarrera") Long idCarrera,
+            @RequestParam(required = false, value = "idOrientacion") Long idOrientacion,
             Model model, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.saveOrientacion(idCarrera, nombreOrientacion, ds.getUsuario());
-            response.setMessage("Orientacion ingresado satisfactoriamente.");
+            service.saveOrientacion(idCarrera, idOrientacion, nombreOrientacion, ds.getUsuario());
+            if (idOrientacion == null) {
+                response.setMessage("Orientacion ingresado satisfactoriamente.");
+            } else {
+                response.setMessage("Orientacion actualizada satisfactoriamente.");
+            }
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -271,15 +276,41 @@ public class CarreraController {
     }
 
     @ResponseBody
-    @RequestMapping("desactivarOrientacion")
-    public JsonResponse desactivarOrientacion(OrientacionCarrera orientacion) {
+    @RequestMapping("editarOrientacion")
+    public JsonResponse editarOrientacion(@RequestParam("id") Long id) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
         try {
-            service.desactivarOrientacion(orientacion);
+            OrientacionCarrera orientacion = service.editarOrientacion(id);
 
-            response.setMessage("Registro desactivado.");
+            ObjectNode json = new ObjectNode(jsonFactory);
+
+            json.put("id", orientacion.getId());
+            json.put("nombreOrientacion", orientacion.getNombre());
+
+            response.setData(json);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambioEstadoOrientacion")
+    public JsonResponse cambioEstadoOrientacionCarrera(OrientacionCarrera orientacion) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            service.cambioEstado(orientacion);
+
+            response.setMessage("Se cambio de estado satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

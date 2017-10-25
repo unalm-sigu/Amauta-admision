@@ -18,4 +18,6 @@ public interface DocenteDAO extends Crud<Docente> {
 
     List<Docente> allActivos(ModalidadEstudio modalidad);
 
+    public List<Docente> allCoordinadoresByName(String nombre);
+
 }

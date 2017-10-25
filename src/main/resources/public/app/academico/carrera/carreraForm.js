@@ -14,7 +14,6 @@ $(function () {
     }).bind('dynatable:afterUpdate', function (e, dynatable) {
         $('[data-toggle="tooltip"]').tooltip();
     }).data('dynatable');
-
     function ulWriter(rowIndex, record, columns, cellWriter) {
         var labelColor = {ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
@@ -30,21 +29,20 @@ $(function () {
         formCarrera: $("#formularioCarrera"),
         modalOrientacion: $("#modalOrientacion"),
         formModalOrientacion: $("#formOrientacion"),
-        modalCambioEstadoOrientacion: $("#modalCambioEstadoOrientacion"),
-        formCambioEstadoOrientacion: $("#formCambioEstadoOrientacion"),
+        modalCambioEstado: $("#modalCambioEstado"),
+        formCambioEstado: $("#formCambioEstado"),
         init: function () {
             $('[name="facultad.id"]').select2();
             $('[name="modalidadEstudio.id"]').select2();
             $('[name="tipo"]').select2();
         },
-        viewModal: function (e) {
+        viewModalAddOrientacion: function (e) {
             e.preventDefault();
             CarreraForm.formCarrera.parsley().destroy();
-
             CarreraForm.modalOrientacion.modal("show");
-            $('[name="idCarrera"]').val($('[name="id"]').val())
+            $('[name="idOrientacion"]').val("");
+            $('[name="idCarrera"]').val($('.idCarrera').val())
             $('[name="nombreOrientacion"]').val("");
-
         },
         saveUpdateCarrera: function (e) {
             e.preventDefault();
@@ -87,6 +85,10 @@ $(function () {
             });
         },
         guardarOrientacion: function (e) {
+            var nombreOrientacion = $('[name="nombreOrientacion"]').val();
+            var idCarrera = $('[name="idCarrera"]').val();
+            var idOrientacion = $('[name="idOrientacion"]').val();
+
             e.preventDefault();
             var form = CarreraForm.formModalOrientacion;
             if (!form.parsley().validate()) {
@@ -98,8 +100,9 @@ $(function () {
                 type: 'POST',
                 async: true,
                 data: {
-                    nombreOrientacion: $('[name="nombreOrientacion"]').val(),
-                    idCarrera: $('[name="idCarrera"]').val()},
+                    nombreOrientacion: nombreOrientacion,
+                    idCarrera: idCarrera,
+                    idOrientacion: idOrientacion},
                 success: function (response) {
                     if (response.success) {
                         CarreraForm.modalOrientacion.modal("hide");
@@ -114,29 +117,58 @@ $(function () {
                 }
             });
         },
-        viewModalDesactivar: function (e, $this) {
+        viewModalCambioEstado: function (e, $this) {
             e.preventDefault();
-            CarreraForm.formCambioEstadoOrientacion.parsley().destroy();
-            CarreraForm.modalCambioEstadoOrientacion.modal("show");
-            $('[name="motivo"]').val("");
-            $('[name="id"]').val($this.attr("rel"));
-            $('[name="idCarrera"]').val($this.attr("rev"));
+            CarreraForm.formCambioEstado.parsley().destroy();
+            CarreraForm.modalCambioEstado.modal("show");
+            var modal = CarreraForm.formCambioEstado;
+            modal.find('[name="motivoAnulacion"]').val("");
+            modal.find('[name="id"]').val($this.attr("rel"));
+            var estado = $this.attr("rev");
+             estado == 'INA' ? $(".tituloCambioEstado").text("Activar Orientación") : $(".tituloCambioEstado").text("¿Por qué motivo desea cambiar el estado?");
+            estado == 'INA' ?
+                    $(".campoMotivo").html('¿Desea activar el estado de la carrera?') :
+                    $(".campoMotivo").html("<textarea class='form-control' name='motivoAnulacion' required='true'></textarea>");
         },
-        desactivarOrientacion: function (e) {
+        viewEditarOrientacion: function (e, $this) {
             e.preventDefault();
-            var form = CarreraForm.formCambioEstadoOrientacion;
+            CarreraForm.formCarrera.parsley().destroy();
+            $.ajax({
+                url: APP.url('academico/carrera/editarOrientacion'),
+                type: 'POST',
+                async: true,
+                data: {id: $this.attr("rel")},
+                success: function (response) {
+                    if (response.success) {
+                        CarreraForm.modalOrientacion.modal("show");
+                        var modal = CarreraForm.modalOrientacion;
+                        var data = response.data;
+                        modal.find('[name="idOrientacion"]').val(data.id);
+                        modal.find('[name="nombreOrientacion"]').val(data.nombreOrientacion);
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        cambioEstado: function (e) {
+            e.preventDefault();
+            var form = CarreraForm.formCambioEstado;
             if (!form.parsley().validate()) {
                 return;
             }
 
             $.ajax({
-                url: APP.url('academico/carrera/desactivarOrientacion'),
+                url: APP.url('academico/carrera/cambioEstadoOrientacion'),
                 type: 'POST',
                 async: true,
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        CarreraForm.modalCambioEstadoOrientacion.modal("hide");
+                        CarreraForm.modalCambioEstado.modal("hide");
                         notify(response.message, "info");
                         dynatable.process();
                     } else {
@@ -149,11 +181,9 @@ $(function () {
             });
         }
     };
-
     CarreraForm.init();
-
     $(".add-orientacion").click(function (e) {
-        CarreraForm.viewModal(e);
+        CarreraForm.viewModalAddOrientacion(e);
     });
     $(".save-update-carrera").click(function (e) {
         CarreraForm.saveUpdateCarrera(e);
@@ -164,11 +194,13 @@ $(function () {
     $("body").delegate(".delete-orientacion", "click", function () {
         CarreraForm.deleteOrientacion($(this));
     });
-    $("body").delegate(".desactivar-orientacion", "click", function (e) {
-        CarreraForm.viewModalDesactivar(e, $(this));
+    $("body").delegate(".view-cambio-estado", "click", function (e) {
+        CarreraForm.viewModalCambioEstado(e, $(this));
     });
-    $("body").delegate(".save-desactivar-orientacion", "click", function (e) {
-        CarreraForm.desactivarOrientacion(e);
+    $("body").delegate(".editar-orientacion", "click", function (e) {
+        CarreraForm.viewEditarOrientacion(e, $(this));
     });
-
+    $("body").delegate(".cambio-estado", "click", function (e) {
+        CarreraForm.cambioEstado(e);
+    });
 });

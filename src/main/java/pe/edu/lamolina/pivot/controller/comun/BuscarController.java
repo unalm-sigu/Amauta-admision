@@ -27,6 +27,8 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Ubicacion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -126,6 +128,72 @@ public class BuscarController {
                 json.put("provincia", provincia.getNombre());
                 json.put("departamento", departamento.getNombre());
                 json.put("nombre", ubicacion.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allDepartamentoAcademico")
+    public JsonResponse allDepartamentoAcademico(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<DepartamentoAcademico> departamentos = buscarService.allDepartamentosByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (DepartamentoAcademico departamento : departamentos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", departamento.getId());
+                json.put("nombre", departamento.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCoordinadores")
+    public JsonResponse allCoordinadores(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Docente> coordinadores = buscarService.allCoordinadoresByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Docente coordinador : coordinadores) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", coordinador.getId());
+                json.put("nombre", coordinador.getPersona().getNombreCompleto());
 
                 jsonList.add(json);
 

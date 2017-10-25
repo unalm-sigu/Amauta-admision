@@ -29,7 +29,7 @@
                         <div class="tab-pane active" id="carrera" role="tabpanel">
                             <div class="col-lg-6 active">
                                 <form data-parsley-validate="true" id="formularioCarrera" method="POST" th:action="@{'/academico/carrera/save'}">
-                                    <input type="hidden" th:value="${carrera.id}" name="id"/>
+                                    <input type="hidden" th:value="${carrera.id}" name="id" class="idCarrera"/>
 
                                     <div class="form-group">
                                         <label>Nombre</label>

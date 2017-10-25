@@ -17,4 +17,6 @@ public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
 
     List<DepartamentoAcademico> allByCompania(Compania compania);
 
+    List<DepartamentoAcademico> allDepartamentos(String nombre);
+
 }

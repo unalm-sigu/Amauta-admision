@@ -5,6 +5,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Persona;
@@ -57,5 +58,16 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
                 .filter("doc.estado", EstadoEnum.ACT.name())
                 .filter("me.id", modalidad);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<Docente> allCoordinadoresByName(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Docente.class, "do")
+                .join("persona per")
+                .__().complexFilter("concat(per.paterno,' ',per.materno,' ',per.nombres)", "like", nombre)
+                .__().complexFilter("concat(per.nombres,' ',per.paterno,' ',per.materno)", "like", nombre)
+                .limit(15);
+        return sql.all(getCurrentSession());
     }
 }

@@ -13,6 +13,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -135,8 +136,17 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
     @Override
     public List<DepartamentoAcademico> allByCompania(Compania compania) {
         SqlUtil sqlUtil = new SqlUtil("de")
-                .parents("facultad fa","_fa.compania co")
+                .parents("facultad fa", "_fa.compania co")
                 .filter("co.id", compania);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartamentos(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .join("facultad fa")
+                .filter("da.nombre", "like", nombre);
+        return sql.all(getCurrentSession());
     }
 }
