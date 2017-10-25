@@ -3,7 +3,7 @@ $(function () {
     var CursoForm = {
         init: function () {
             $(".numerico").numeric({negatice: false});
-            $('[name="tipoCurso"]').select2();
+            $('[name="tipoCurso"]').select2({placeholder: "Seleccione el tipo curso"});
             CursoForm.loadCoordinadores();
             CursoForm.loadDepartamentos();
 
@@ -11,7 +11,7 @@ $(function () {
         loadDepartamentos: function () {
             $("[name='departamentoAcademico.id']").select2({
                 allowClear: true,
-                placeholder: "Seleccione un proveedor",
+                placeholder: "Seleccione un departamento",
                 minimumInputLength: 1,
                 ajax: {
                     url: APP.url("comun/buscar/allDepartamentoAcademico"),
@@ -34,10 +34,10 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return "<strong>" + info.nombre + "</strong>";
+                    return info.nombre;
                 },
                 formatSelection: function (info) {
-                    return "<strong>" + info.nombre + "</strong>";
+                    return info.nombre;
                 },
                 escapeMarkup: function (m) {
                     return m;
@@ -47,7 +47,7 @@ $(function () {
         loadCoordinadores: function () {
             $("[name='coordinador.id']").select2({
                 allowClear: true,
-                placeholder: "Seleccione un proveedor",
+                placeholder: "Seleccione un coordinador",
                 minimumInputLength: 1,
                 ajax: {
                     url: APP.url("comun/buscar/allCoordinadores"),
@@ -70,10 +70,10 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return "<strong>" + info.nombre + "</strong>";
+                    return  info.nombre;
                 },
                 formatSelection: function (info) {
-                    return "<strong>" + info.nombre + "</strong>";
+                    return info.nombre;
                 },
                 escapeMarkup: function (m) {
                     return m;
@@ -95,4 +95,17 @@ $(function () {
     $("body").delegate(".save-update-curso", "click", function (e) {
         CursoForm.saveUpdate(e);
     });
+
+    $("body").delegate("[name='coordinador.id']", "change", function () {
+        $("[name='coordinador.id']").parsley().destroy();
+    });
+
+    $("body").delegate("[name='departamentoAcademico.id']", "change", function () {
+        $("[name='departamentoAcademico.id']").parsley().destroy();
+    });
+
+    $("body").delegate("[name='tipoCurso']", "change", function () {
+        $("[name='tipoCurso']").parsley().destroy();
+    });
+
 });

@@ -39,9 +39,9 @@ $(function () {
             modal.find('[name="motivo"]').val("");
             modal.find('[name="id"]').val($this.attr("rel"));
             var estado = $this.attr("rev");
-            estado == 'INA' ? $(".tituloCambioEstado").text("Activar Carrera") : $(".tituloCambioEstado").text("¿Por qué motivo desea cambiar el estado?");
+            estado == 'INA' ? $(".tituloCambioEstado").text("Activar Carrera") : $(".tituloCambioEstado").text("¿Por qué motivo desea desactivar la carrera?");
             estado == 'INA' ?
-                    $(".campoMotivo").html('¿Desea activar el estado de la carrera?') :
+                    $(".campoMotivo").html('¿Desea realmente activar la carrera?') :
                     $(".campoMotivo").html("<textarea class='form-control' name='motivoAnulacion' required='true'></textarea>");
         },
         cambioEstado: function (e) {

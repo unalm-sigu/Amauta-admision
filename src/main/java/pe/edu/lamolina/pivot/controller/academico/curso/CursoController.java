@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.curso;
+package pe.edu.lamolina.pivot.controller.academico.curso;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -31,6 +31,7 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCursoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -132,7 +133,7 @@ public class CursoController {
     public String save(Curso curso, RedirectAttributes redirectAttr, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            String mensaje = curso.getId() != null ? "Curso Actualizado" : "Curso Agregado";
+            String mensaje = curso.getId() != null ? Messages.UPDATED : Messages.CREATED;
             service.save(curso, ds.getUsuario());
             Notificaciones.crearMsg(mensaje, redirectAttr);
 

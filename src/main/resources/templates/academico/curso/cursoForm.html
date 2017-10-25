@@ -55,7 +55,7 @@
                                 <div class="form-group">
                                     <label>Coordinador</label>
                                     <input type='text' name="coordinador.id" class='form-control' th:value="${curso.coordinador != null} ? ${curso.coordinador.id}:''" 
-                                           th:rel="${curso.coordinador.id != null} ? ${curso.coordinador.persona.nombreCompleto}:''" required="true" data-trigger="change" />
+                                           th:rel="${curso.id != null and curso.coordinador != null} ? ${curso.coordinador.persona.nombreCompleto}:''" required="true" data-trigger="change" />
                                 </div>
                             </div>
 
@@ -65,13 +65,13 @@
 
                                         <div class="form-group">
                                             <label>Horas Teoría</label>
-                                            <input name="horasTeoria" class="form-control numerico" required="true" th:value="${curso} != null ? ${curso.horasTeoria} : ''"  data-trigger="change"/>
+                                            <input name="horasTeoria" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasTeoria} : ''"  data-trigger="change"/>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Horas Práctica</label>
-                                            <input name="horasPractica" class="form-control numerico" required="true" th:value="${curso} != null ? ${curso.horasPractica} : ''"  data-trigger="change"/>
+                                            <input name="horasPractica" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasPractica} : ''"  data-trigger="change"/>
                                         </div>
                                     </div>
                                 </div>
@@ -79,7 +79,8 @@
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <label>Tipo Curso</label>
-                                            <select class="form-control" name="tipoCurso">
+                                            <select class="form-control" name="tipoCurso" required="true" placeholder="Seleccione el tipo curso" data-trigger="change">
+                                                <option></option>
                                                 <option th:each="item : ${tiposCurso}"
                                                         th:value="${item.name()}" 
                                                         th:text="${item.value}"
@@ -93,13 +94,27 @@
 
                                         <div class="form-group">
                                             <label>Horas Teoría Verano</label>
-                                            <input name="horasTeoriaVerano" class="form-control numerico" th:value="${curso} != null ? ${curso.horasTeoriaVerano} : ''"  data-trigger="change"/>
+                                            <input name="horasTeoriaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasTeoriaVerano} : ''"  data-trigger="change"/>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Horas Práctica Verano</label>
-                                            <input name="horasPracticaVerano" class="form-control numerico" th:value="${curso} != null ? ${curso.horasPracticaVerano} : ''"  data-trigger="change"/>
+                                            <input name="horasPracticaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasPracticaVerano} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Creditos</label>
+                                            <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Creditos Variables</label>
+                                            <input name="creditosVariables" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.creditosVariables} : ''"  data-trigger="change"/>
                                         </div>
                                     </div>
                                 </div>

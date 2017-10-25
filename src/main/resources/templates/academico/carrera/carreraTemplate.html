@@ -5,20 +5,18 @@
         <span class="block"><strong>Facultad: </strong>{{:facultad}}</span>
         <span class="block"><strong>Código: </strong>{{:codigo}}</span>
     </td>
-    <td class="v-middle text-center">
+    <td class="v-middle text-left">
         <span class="block">{{:modalidad}}</span>
         <span class="block">{{:tipoEnum}}</span>
     </td>
-    <td class="v-middle text-left">
-        <ul>
-            {{for oriCarreras}}
-            <a target="_blank">
-                <span class="block"><i class="fa fa-check-square-o  fa-lg text-dark pointer" aria-hidden="true"></i>&nbsp;&nbsp;{{:nombre}} </span>
-            </a>
-            {{/for}}
-        </ul>
+    <td class=" text-left">
+        {{for oriCarreras}}
+        <a target="_blank">
+            <span class="block"><i class="fa fa-check-square-o  fa-lg text-dark pointer" aria-hidden="true"></i>&nbsp;&nbsp;{{:nombre}} </span>
+        </a>
+        {{/for}}
     </td>
-    <td class="text-center v-middle">
+    <td class=" v-middle">
         <span class="clear">
             {{if esActivo}}
             <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.curso;
+package pe.edu.lamolina.pivot.controller.academico.curso;
 
 import java.util.Date;
 import java.util.List;
