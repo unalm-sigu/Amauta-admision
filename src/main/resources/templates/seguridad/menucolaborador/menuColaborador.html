@@ -1,0 +1,121 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Menu Colaborador</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">        
+            <!--            <div class="pull-right" >
+                            <a class="btn btn-primary" href="#" id="cmbReporteNotas">Descargar Reporte</a>
+                        </div>-->
+
+            <h2><span>2016-II</span></h2>
+
+            <span class="block"><strong>Tipo sección:</strong>
+                <span>Teoría</span>
+            </span>
+            <span class="block"><strong>Sistema Notas:</strong> <span>2130</span></span>
+
+            <style>
+                body    {overflow-x:scroll;}
+                table { 
+                    border-collapse: separate; 
+                }
+            </style>
+
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <form id="frmNotas">
+                    <div class="notas">
+                        <table class="table table-striped" id="tableNotas">
+                            <thead> 
+                                <tr class=""> 
+                                    <th th:each="rp : ${reportes}" class="text-center v-middle"  
+                                        style="width: 100px;">
+                                        <a href="#" class="detalle-reporte" 
+                                           style="color: #3366ff !important;"
+                                           data-toggle="tooltip" 
+                                           th:title="${rp.nombre}"
+                                           th:text="|R.${rp.orden}|">R1</a>
+
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody> 
+                                <tr style="height: 50px;">
+
+                                    <td class="text-center v-middle">
+                                        <span class="nota-academica" 
+                                              data-toggle="tooltip" 
+                                              title="Permiso Concedido el 02/08/2017"> 
+                                            <i class="fa fa-check-square-o fa-lg"></i>
+                                        </span>
+
+                                    </td>
+                                    <td class="text-center v-middle">
+
+                                        <span class="nota-academica"
+                                              data-toggle="tooltip" 
+                                              title="Permiso Revocado el 01/08/2017"
+                                              > 
+                                            <i class="fa fa-square-o fa-lg"></i>
+                                        </span>
+
+                                    </td>
+                                    <td class="text-center v-middle">
+                                        <div class="dropdown actions" style="z-index: 1;">
+                                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                            <ul class="dropdown-menu pull-right" >
+                                                <li role="presentation">
+                                                    <a class="solicitar-cambio-nota" 
+                                                       title="true"
+                                                       href="#"
+                                                       >Reemplazar NSP</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td class="v-middle headcolNumber">
+                                        <span class="small text-muted">1</span>
+                                    </td>
+                                    <td class="v-middle headcol">
+                                        <span class="text-primary">Ph. D. Enrique Ricardo Flores Mariazza</span>
+                                        <span class="block small text-muted">Rector - El Papu de Papus</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+
+
+
+            </section>
+            <section class="panel-footer pull-right">
+                <a href="#" id="cmbSaveNotas" class="btn btn-success">Grabar Notas</a>
+                <div class="m-b-lg">&nbsp;</div>
+                <div class="m-b-lg">&nbsp;</div>
+                <div class="m-b-lg">&nbsp;</div>
+            </section>
+
+        </section>
+
+        <!--<div th:substituteby="templates/modal"/>-->
+        <!--<div class="divEvaluacion" th:substituteby="academico/docente/cargaacademica/detalleNotasAcademicas"/>-->
+        <!--<div th:substituteby="academico/docente/cargaacademica/modalNotasAcademicas"/>-->
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/cargaacademica/notasAcademicas.js}" charset="utf-8"></script>
+    </div>
+
+
+</body>
+</html>

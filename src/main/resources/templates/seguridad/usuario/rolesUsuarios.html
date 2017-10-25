@@ -1,0 +1,22 @@
+<tr th:each="rolUser : ${rolesUsuario}">                                        
+    <td th:text="${rolUser.rol.nombre}"> </td>                                        
+    <td>
+        <span class="block" th:each="rolSis : ${rolUser.rol.rolSistema}"
+              th:text="${rolSis.sistema.nombre}"> </span> 
+    </td>                                        
+    <td class="text-center"  th:text="${rolUser.fechaInicio} ? ${#dates.format(rolUser.fechaInicio,'dd/MM/yyyy')}:''"></td>
+    <td class="text-center"  th:text="${rolUser.fechaFin} ? ${#dates.format(rolUser.fechaFin,'dd/MM/yyyy')}:''"></td>
+
+    <td>
+
+        <div class="actions" th:unless="${rolUser.fechaFin}" >
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                <i class="glyphicon glyphicon-cog"></i> 
+            </a>
+            <ul  class="dropdown-menu pull-right" role="menu">
+                <li><a href="#" class="delete" th:rel="${rolUser.id}">Inhabilitar</a></li>
+            </ul>
+        </div>
+
+    </td>
+</tr>

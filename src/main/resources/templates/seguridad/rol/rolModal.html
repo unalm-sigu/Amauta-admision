@@ -1,0 +1,31 @@
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class='modal-title' id='myModalLabel' th:text="${rol != null ? 'Editar Rol' : 'Nuevo Rol'}">Nuevo Rol</h4>
+            </div>
+            <form data-parsley-validate="true"  method="POST" id="formulario" th:action="@{/seguridad/rol/save}">
+                <input th:if="${rol}" type="hidden" th:value="${rol.id}" name="id"/>
+                <div class="modal-body text-left">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input name="nombre" cols="54" rows="3" class="form-control" required="true" th:value="${rol} != null ? ${rol.nombre} : ''"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Código</label>
+                        <input name="codigo" cols="54" rows="3" class="form-control" required="true" th:value="${rol} != null ? ${rol.codigo} : ''"/>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a class="btn btn-link" data-dismiss="modal">Cancelar</a>
+                    <a class="btn btn-success save-rol" type="submit" th:text="${rol != null ? 'Actualizar Rol' : 'Crear Nuevo Rol'}">Crear Nuevo Rol</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

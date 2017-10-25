@@ -22,4 +22,6 @@ public interface PersonaService {
 
     Persona findPersona(Persona personaTmp);
 
+    String validarEmailCompaniaByPersona(String email, Persona persona);
+
 }

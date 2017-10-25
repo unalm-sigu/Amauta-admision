@@ -1,0 +1,69 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Departamento Académico</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+            
+            <a class="btn btn-info pull-right" th:href="@{/academico/departamento/nuevo}" >Nuevo Departamento Académico</a>
+            <h3>Departamento Académico</h3>
+            
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+
+                <table  id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th class="col-xs-1 text-center v-middle">Código</th>
+                            <th class="col-xs-3 text-center v-middle">Nombre</th>
+                            <th class="col-xs-3 text-center v-middle">Nombre Largo</th>
+                            <th class="col-xs-2 text-center v-middle">Facultad</th>
+                            <th class="col-xs-1 text-center v-middle">Docente</th>
+                            <th class="col-xs-1 text-center v-middle">Curso</th>
+                            <th class="col-xs-1 text-center v-middle">Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </section>
+
+        </section>
+
+        <script id="departamentoTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="academico/departamento/departamentoTemplate"></div>
+        </script>
+
+        <div id="motivoDesactivacionTemplate" type="text/x-jsrender" class="hide">
+            <div class="panel-body" >
+                <form data-parsley-validate="true" method="POST" >
+                    <div class="row" >
+                        <div class="form-group" >
+                            <label  class="col-sm-3 control-label">¿Por qué motivo desea deshabilitar el departamento académico?</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" maxlength="200" required="true" name="motivoDesactivacion" ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/departamento/departamento.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

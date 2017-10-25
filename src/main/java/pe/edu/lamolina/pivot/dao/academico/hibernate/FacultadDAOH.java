@@ -2,7 +2,13 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Query;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
@@ -105,5 +111,25 @@ public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
                 .join("compania")
                 .filter("estado", EstadoEnum.ACT.name());
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Facultad> allFacultad(String nombre, Compania compania) {
+
+        Criteria criteria = getCurrentSession().createCriteria(Facultad.class, "fa");
+        criteria.setFetchMode("compania", FetchMode.JOIN);
+        criteria.add(Restrictions.eq("compania", compania));
+
+        if (!"".equalsIgnoreCase(nombre)) {
+            String searchValue = nombre.trim().replaceAll("\\s+", "%");
+            Disjunction criteriaConjunction = Restrictions.disjunction();
+            criteriaConjunction.add(Restrictions.like("fa.codigo", searchValue, MatchMode.ANYWHERE));
+            criteriaConjunction.add(Restrictions.like("fa.nombre", searchValue, MatchMode.ANYWHERE));
+            criteria.add(criteriaConjunction);
+        }
+
+        criteria.addOrder(Order.asc("fa.nombre"));
+        criteria.setMaxResults(10);
+        return criteria.list();
     }
 }

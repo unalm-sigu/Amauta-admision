@@ -1,0 +1,34 @@
+<ul>
+    <li>
+        <div class="segnal" style="width:100%;">
+            {{if nodes}}
+            <span style="background-color: #363e45; color: #C1D0DF;"> <i class="fa fa-folder-open-o" aria-hidden="true"></i>   {{:nombre}}</span>
+            <a class="m-l-sm btn-up" href="#" rel="{{:id}}"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+            <a  rel="{{:id}}" class="m-l-sm btn-down" href="#"><i class="fa fa-arrow-down" aria-hidden="true"></i></a> 
+            {{else}}
+            <span> <i class="fa {{:icono}}" aria-hidden="true"></i>   {{:nombre}}</span>
+            <a class="m-l-sm btn-up" href="#" rel="{{:id}}"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+            <a  rel="{{:id}}" class="m-l-sm btn-down" href="#"><i class="fa fa-arrow-down" aria-hidden="true"></i></a> 
+            {{/if}}
+
+            <div class="pull-right btn-group btn-group-sm">
+
+                {{if menusHijos}}
+                {{else}}
+                <button rel="{{:id}}" class="btn btn-link deleteMenu"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                {{/if}}
+                <button rel="{{:id}}" class="btn btn-link editMenu"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                {{if crearMenuHijo}}
+                <button rel="{{:id}}" class="btn btn-link addMenu"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                {{/if}}
+                {{if asignarPermisos}}
+                <button rel="{{:id}}" class="btn btn-link perfilMenu"><i class="fa fa-users" aria-hidden="true"></i></button>   
+                {{/if}}
+            </div> 
+
+        </div>
+
+        {{:menusHijos}}
+
+    </li>
+</ul>

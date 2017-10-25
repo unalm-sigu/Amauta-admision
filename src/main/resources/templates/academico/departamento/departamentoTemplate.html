@@ -1,0 +1,65 @@
+<tr>
+    <td class="v-middle">
+        {{:codigo}}
+    </td>
+    <td class="v-middle">
+        {{:nombre}}
+    </td>
+    <td class="v-middle">
+        {{:nombreLargo}}
+    </td>
+    <td class="v-middle">
+        {{:facultad}}
+    </td>
+    <td class="v-middle  text-center">
+        <span class="badge">{{:docente}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <span class="badge">{{:curso}}</span>
+    </td>
+    <td class="v-middle">
+        {{if estado == 'ACT'}}
+        <label class="label label-success" >Activado</label>
+        {{/if}}
+        {{if estado == 'INA'}}
+        <label class="label label-danger"  data-toggle="tooltip" title="{{:motivoDesactivacion}}"  >Inactivo</label>
+        {{/if}}
+        {{if estado == 'CRE'}}
+        <label class="label label-default"  >Creado</label>
+        {{/if}}
+    </td>
+    <td  class="v-middle">
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+            </a>
+            <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
+
+                <li role="presentation">
+                    <a class="btn-link" th:href="@{'/academico/departamento/{{:id}}/update'}">Editar</a>
+                </li>
+
+                <li role="presentation" class="divider"></li>
+
+                <li role="presentation">
+                    {{if estado == 'ACT'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
+                    {{/if}}
+                    {{if estado == 'INA'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
+                    {{/if}}
+                    {{if estado == 'CRE'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
+                    {{/if}}
+                </li>
+
+                <li role="presentation" class="divider"></li>
+
+                <li role="presentation">
+                    <a class="btn-link delete" rel="{{:id}}" href="#">Eliminar</a>
+                </li>
+
+            </ul>
+        </div>
+    </td>
+</tr>
