@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
@@ -32,6 +33,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -195,6 +198,40 @@ public class DepartamentoController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allDepartamento")
+    public JsonResponse allDepartamento(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Compania compania = ds.getCompania();
+
+            List<DepartamentoAcademico> departamentos = service.allDepartemento(nombre, compania);
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (DepartamentoAcademico departamento : departamentos) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", departamento.getId());
+                a.put("codigo", departamento.getCodigo());
+                a.put("nombre", departamento.getNombre());
+                array.add(a);
+            }
+
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

@@ -216,4 +216,8 @@ public class Docente implements Serializable {
         this.userModifica = userModifica;
     }
 
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
 }

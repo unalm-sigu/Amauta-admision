@@ -1,0 +1,43 @@
+<tr rel="{{:index}}">
+
+    <td>
+        <a href="#" class="thumb-sm pull-center">
+            <img src="{{:rutaFoto}}" alt="..." class="img-rounded"/>
+        </a>
+    </td>
+
+    <td>
+        <div class="clear">
+            <a rel="{{:id}}" class="info-persona pointer"><strong>{{:nombre}}</strong></a>
+            <small class="block text-muted">{{:simbolo}}: {{:documento}}</small>
+        </div>
+    </td>
+    <td class="text-left-xs v-middle">{{:codigo}}</td>
+    <td class="text-left-xs v-middle">{{:facultad}}</td>
+    <td class="text-left-xs v-middle">{{:departamentoAcademico}}</td>
+    <td class="text-left-xs v-middle">{{:situacion}}</td>
+    <td class="text-left-xs v-middle">
+        <label class="label label-{{:colorEstado}}" >{{:nameEstado}}</label>
+    </td>
+    <td class="v-middle">
+        <div class="actions">
+            
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            
+            <ul class="dropdown-menu pull-right" >
+                
+                <li><a class="btn-link modificar" th:href="@{/academico/docente/{{:id}}/update}">Editar</a></li>
+                <li role="presentation">
+                    {{if estado == 'ACT'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
+                    {{/if}}
+                    {{if estado == 'INA'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
+                    {{/if}}
+                </li>
+                
+            </ul>
+
+        </div>
+    </td>
+</tr>

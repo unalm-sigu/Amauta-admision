@@ -6,8 +6,13 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -21,6 +26,7 @@ import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCurso
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
@@ -252,5 +258,25 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
         query.setParameterList("DEPARTAMENTOS", departamentosList);
 
         return query.list();
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
+
+        Criteria criteria = getCurrentSession().createCriteria(DepartamentoAcademico.class, "da");
+        criteria.createCriteria("facultad").add(Restrictions.eq("compania", compania));
+
+        if (!"".equalsIgnoreCase(nombre)) {
+            String searchValue = nombre.trim().replaceAll("\\s+", "%");
+            Disjunction criteriaConjunction = Restrictions.disjunction();
+            criteriaConjunction.add(Restrictions.like("da.codigo", searchValue, MatchMode.ANYWHERE));
+            criteriaConjunction.add(Restrictions.like("da.nombre", searchValue, MatchMode.ANYWHERE));
+            criteria.add(criteriaConjunction);
+        }
+
+        criteria.addOrder(Order.asc("da.nombre"));
+        criteria.setMaxResults(10);
+        return criteria.list();
+
     }
 }

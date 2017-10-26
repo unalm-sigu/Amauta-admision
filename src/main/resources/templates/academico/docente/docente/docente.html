@@ -1,0 +1,55 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Administración de Personas</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <a class="btn btn-primary btn-sm" type="button" th:href="@{/academico/docente/nuevo}" >Nuevo</a>
+            </div>  
+
+            <h2>Administración de Docentes</h2>
+
+        </header>
+
+        <section class="panel">
+
+            <section class="panel-body">
+
+                <table id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th class="v-middle"></th>                    
+                            <th class="col-md-4 v-middle">Nombre</th>                    
+                            <th class="col-md-1 text-center"><span>Código</span></th>
+                            <th class="col-md-3 text-center"><span>Facultad</span></th>
+                            <th class="col-md-2 text-center"><span>Dpto. Académico</span></th>
+                            <th class="col-md-1 text-center"><span>Situación laboral</span></th>
+                            <th class="col-md-1 v-middle">Estado</th>                    
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                
+            </section>
+        </section>
+
+        <script id="docenteTemplate" type="text/x-jsrender" class="hide" >
+            <div th:substituteby="academico/docente/docente/docenteTemplate"/>
+        </script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/docente/docente.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

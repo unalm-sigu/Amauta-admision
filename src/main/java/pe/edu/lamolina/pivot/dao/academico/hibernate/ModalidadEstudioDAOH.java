@@ -42,4 +42,14 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
                 .filter("estado", EstadoEnum.ACT.name());
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<ModalidadEstudio> allActivoByCompania(Compania compania) {
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "mo")
+                .join("compania")
+                .filter("compania", compania)
+                .filter("estado", EstadoEnum.ACT.name());
+        return sql.all(getCurrentSession());
+    }
 }

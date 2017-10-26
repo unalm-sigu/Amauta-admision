@@ -1,0 +1,103 @@
+<div class="form-group">
+    <label for="emailEmpresa" class="col-sm-2 control-label">Email Principal</label>
+    <div class="col-sm-6">
+
+        <input  class="inline form-control validar-email-empresa" 
+                data-trigger="change" required="true" type="email" 
+                data-trim-value="true"
+                name="persona.emailCompania" id="emailCompania" th:value="${docente.persona.emailCompania}"
+                /> 
+
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="paterno" class="col-sm-2 control-label">Nombre</label>
+    <div class="col-sm-3">
+        <input  type="text" name="persona.paterno" required="true" class="form-control nombre-persona" 
+                th:value="${docente.persona.paterno}" placeholder="Paterno"/>
+    </div>
+    <div class="col-sm-3">
+        <input  type="text" name="persona.materno" required="true" class="form-control nombre-persona" 
+                th:value="${docente.persona.materno}" placeholder="Materno"/>
+    </div>
+    <div class="col-sm-3">
+        <input  type="text" name="persona.nombres" required="true" class="form-control nombre-persona" 
+                th:value="${docente.persona.nombres}" placeholder="Nombres"/>
+    </div>
+</div>
+
+
+<div class="form-group">
+    <label for="sexo" class="col-sm-2 control-label">Sexo</label>
+    <div class="col-sm-5">
+        <div class="col-sm-6">
+            <label class="radio inline">
+                <input  type="radio" required="true" name="persona.sexo" id="sexoM" value="M" 
+                        th:checked="${docente.persona.sexo=='M'}" /> Masculino
+            </label>
+        </div>
+        <div class="col-sm-6">
+            <label class="radio inline">
+                <input  type="radio" required="true" name="persona.sexo" id="sexoF" value="F" 
+                        th:checked="${docente.persona.sexo=='F'}" /> Femenino
+            </label>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="fechaNacimiento" class="col-sm-2 control-label">Fecha de Nacimiento</label>
+    <div class="col-sm-4">
+        <div class="input-group date" >
+            <input  type="text" class="form-control" data-parsley-errors-container="#errorfechaNacimiento" 
+                    name="persona.fechaNacer" id="fechaNacer" 
+                    th:value="${docente.persona.fechaNacer!=null ? #dates.format(docente.persona.fechaNacer,'dd/MM/yyyy'):''}"/>
+            <span class="input-group-addon pointer"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+        </div>
+        <span id="errorfechaNacimiento"></span>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="distrito" class="col-sm-2 control-label">Distrito</label>
+    <div class="col-sm-4">
+        <input type="text" class="form-control input-s-full buscar-distrito" id="buscarDistrito" name="persona.ubicacionDomicilio.id" data-trigger="change" 
+               th:rel="${docente.persona.ubicacionDomicilio != null}? ${docente.persona.ubicacionDomicilio.distrito}"
+               th:value="${docente.persona.ubicacionDomicilio != null}? ${docente.persona.ubicacionDomicilio.id}"
+               required="true" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="direccion" class="col-sm-2 control-label">Dirección</label>
+    <div class="col-sm-9">
+        <input  type="text" name="persona.direccion" class="input-xxlarge form-control domicilio"  th:value="${docente.persona.direccion}"/>
+    </div>
+</div>
+
+
+<div class="form-group">
+    <label for="email" class="col-sm-2 control-label">Email Personal</label>
+    <div class="col-sm-4">
+        <input  type="email" class="inline form-control validar-email" data-type="email" name="persona.email" id="email" 
+                th:value="${docente.persona!=null} ? ${docente.persona.email}"/>                                  
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="celular" class="col-sm-2 control-label">Celular</label>
+    <div class="col-sm-4">
+        <input  type="text" class="form-control sin-espacios"  name="persona.celular" 
+                th:value="${docente.persona!=null} ? ${docente.persona.celular}"/>
+    </div>
+</div>
+
+
+<div class="form-group">
+    <label for="telefono" class="col-sm-2 control-label">Teléfono</label>
+    <div class="col-sm-4">
+        <input  type="text" class="form-control sin-espacios" name="persona.telefono" id="telefono"
+                th:value="${docente.persona!=null} ? ${docente.persona.telefono}"/>
+    </div>
+</div> 

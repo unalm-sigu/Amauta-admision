@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.departamento;
 import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.general.Compania;
 
 public interface DepartamentoService {
 
@@ -19,4 +20,6 @@ public interface DepartamentoService {
     void estado(DepartamentoAcademico departamentoAcademico);
 
     List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<DepartamentoAcademico> departamentos);
+
+    public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
 }

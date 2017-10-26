@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.DepartamentoAcademicoEstadoEnum;
 
 @Service
@@ -83,6 +84,11 @@ public class DepartamentoServiceImp implements DepartamentoService {
                 .collect(Collectors.toList());
         logger.debug("{}", departamentosList);
         return departamentoAcademicoDAO.allDepartamentoCursoDocente(departamentosList);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
+        return departamentoAcademicoDAO.allDepartemento(nombre, compania);
     }
 
 }
