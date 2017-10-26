@@ -12,7 +12,9 @@ public interface OrientacionCarreraDAO extends Crud<OrientacionCarrera> {
 
     OrientacionCarrera findLastByCarrera(Carrera carrera);
 
-    public List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
+    List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
+    
+    OrientacionCarrera find (Long id);
 
 }
 

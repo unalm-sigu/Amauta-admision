@@ -27,8 +27,12 @@
 
             <ul class="dropdown-menu pull-right">
                 <li><a class="btn-link pointer delete-orientacion" rel="{{:id}}" rev="{{:idCarrera}}">Eliminar</a></li>
+                {{if !esActivo}}
+                <li><a class="btn-link pointer view-cambio-estado" rel="{{:id}}" rev="{{:estado}}">Activar</a></li>
+                {{/if}}
                 {{if esActivo}}
-                <li><a class="btn-link pointer desactivar-orientacion" rel="{{:id}}" rev="{{:idCarrera}}">Desactivar</a></li>
+                <li><a class="btn-link pointer view-cambio-estado" rel="{{:id}}" rev="{{:estado}}">Desactivar</a></li>
+                <li><a class="btn-link pointer editar-orientacion" rel="{{:id}}">Editar</a></li>
                 {{/if}}
             </ul>
         </div>

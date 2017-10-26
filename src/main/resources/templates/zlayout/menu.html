@@ -35,7 +35,7 @@
                 <div class="menu-section">
                     <ul>
                         <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
-
+                            
                             <a th:href="@{/academico/systemcalifica/sistema}">
                                 <i class="fa fa-check-square"></i><span>Sist. Calificación</span>
                             </a>
@@ -62,6 +62,16 @@
                         <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a th:href="@{/general/persona}">
                                 <i class="fa fa-users"></i><span>Personas</span>
+                            </a>
+                        </li>
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/academico/carrera}">
+                                <i class="fa fa-users"></i><span>Carrera</span>
+                            </a>
+                        </li>
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/academico/curso}">
+                                <i class="fa fa-users"></i><span>Curso</span>
                             </a>
                         </li>
 

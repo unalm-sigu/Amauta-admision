@@ -48,4 +48,13 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .orderBy("ca.id desc");
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public OrientacionCarrera find(Long id) {
+         Octavia sql = Octavia.query()
+                .from(OrientacionCarrera.class, "oc")
+                .join("carrera ca")
+                .filter("oc.id", id);
+        return (OrientacionCarrera) sql.find(getCurrentSession());
+    }
 }

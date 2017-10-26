@@ -17,10 +17,10 @@
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
                         <li class="nav-item active ">
-                            <a class="nav-link active" data-toggle="tab" href="#carrera" role="tab">Carrera</a>
+                            <a class="nav-link active bold" data-toggle="tab" href="#carrera" role="tab">Carrera</a>
                         </li>
                         <li class="nav-item"  th:if="${carrera.id}">
-                            <a class="nav-link" data-toggle="tab" href="#orientacion" role="tab">Orientación</a>
+                            <a class="nav-link bold" data-toggle="tab" href="#orientacion" role="tab">Orientación</a>
                         </li>
                     </ul>
 
@@ -29,7 +29,7 @@
                         <div class="tab-pane active" id="carrera" role="tabpanel">
                             <div class="col-lg-6 active">
                                 <form data-parsley-validate="true" id="formularioCarrera" method="POST" th:action="@{'/academico/carrera/save'}">
-                                    <input type="hidden" th:value="${carrera.id}" name="id"/>
+                                    <input type="hidden" th:value="${carrera.id}" name="id" class="idCarrera"/>
 
                                     <div class="form-group">
                                         <label>Nombre</label>
@@ -41,7 +41,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Facultad</label>
-                                        <select class="form-control" name="facultad.id">
+                                        <select class="form-control" name="facultad.id" placeholder="Seleccione la facultad">
+                                            <option></option>
                                             <option th:each="item : ${facultades}"
                                                     th:value="${item.id}"
                                                     th:text="${item.nombre}"
@@ -51,7 +52,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Modalidad</label>
-                                        <select class="form-control" name="modalidadEstudio.id">
+                                        <select class="form-control" name="modalidadEstudio.id" placeholder="Seleccione la modalidad">
+                                            <option></option>
                                             <option th:each="item : ${modalidades}"
                                                     th:value="${item.id}"
                                                     th:text="${item.nombre}"
@@ -61,7 +63,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Tipo</label>
-                                        <select class="form-control" name="tipo">
+                                        <select class="form-control" name="tipo"  placeholder="Seleccione el tipo">
+                                            <option></option>
                                             <option th:each="item : ${tipos}"
                                                     th:value="${item.name()}"
                                                     th:text="${item.value}"

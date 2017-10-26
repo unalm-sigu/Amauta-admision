@@ -23,7 +23,9 @@ public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
     public DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
 
     public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList);
-
+    
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
+
+    List<DepartamentoAcademico> allDepartamentos(String nombre);
 
 }

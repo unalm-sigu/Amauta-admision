@@ -1,8 +1,9 @@
 $(function () {
+
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
-            ajaxUrl: APP.url('academico/carrera/list'),
-            perPageDefault: 10
+            ajaxUrl: APP.url('academico/curso/list'),
+            perPageDefault: 5
         },
         writers: {
             _rowWriter: ulWriter
@@ -20,45 +21,46 @@ $(function () {
         record.esActivo = record.estado == 'ACT';
         record.esInactivo = record.estado == 'INA';
         record.colorEstado = labelColor[record.estado];
-        var html = $.templates("#carreraTemplate").render(record);
+        var html = $.templates("#cursoTemplate").render(record);
         return html;
     }
 
-    var Carrera = {
+
+    var Curso = {
+        formCambioEstadoCurso: $("#formCambioEstado"),
+        modalCurso: $("#modalCambioEstado"),
         init: function () {
 
         },
-        modalCarrera: $("#modalCambioEstado"),
-        formCambioEstadoCarrera: $("#formCambioEstado"),
         viewModal: function (e, $this) {
             e.preventDefault();
-            Carrera.formCambioEstadoCarrera.parsley().destroy();
-            var modal = Carrera.modalCarrera;
+            Curso.formCambioEstadoCurso.parsley().destroy();
+            var modal = Curso.modalCurso;
 
             modal.modal("show");
             modal.find('[name="motivo"]').val("");
             modal.find('[name="id"]').val($this.attr("rel"));
             var estado = $this.attr("rev");
-            estado == 'INA' ? $(".tituloCambioEstado").text("Activar Carrera") : $(".tituloCambioEstado").text("¿Por qué motivo desea desactivar la carrera?");
+            estado == 'INA' ? $(".tituloCambioEstado").text("Activar Curso") : $(".tituloCambioEstado").text("¿Por qué motivo desea desactivar el curso?");
             estado == 'INA' ?
-                    $(".campoMotivo").html('¿Desea realmente activar la carrera?') :
+                    $(".campoMotivo").html('¿Desea realmente activar el curso?') :
                     $(".campoMotivo").html("<textarea class='form-control' name='motivoAnulacion' required='true'></textarea>");
         },
         cambioEstado: function (e) {
             e.preventDefault();
-            var form = Carrera.formCambioEstadoCarrera;
+            var form = Curso.formCambioEstadoCurso;
             if (!form.parsley().validate()) {
                 return;
             }
 
             $.ajax({
-                url: APP.url('academico/carrera/cambiarEstadoCarrera'),
+                url: APP.url('academico/curso/cambiarEstadoCurso'),
                 type: 'POST',
                 async: true,
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        Carrera.modalCarrera.modal("hide");
+                        Curso.modalCurso.modal("hide");
                         notify(response.message, "info");
                         dynatable.process();
                     } else {
@@ -72,13 +74,13 @@ $(function () {
         }
     }
 
-    Carrera.init();
+    Curso.init();
 
     $("body").delegate(".change-estado", "click", function (e) {
-        Carrera.viewModal(e, $(this));
+        Curso.viewModal(e, $(this));
     });
-    $("body").delegate(".cambio-estado-carrera", "click", function (e) {
-        Carrera.cambioEstado(e);
+    $("body").delegate(".cambio-estado-curso", "click", function (e) {
+        Curso.cambioEstado(e);
     });
 
 });

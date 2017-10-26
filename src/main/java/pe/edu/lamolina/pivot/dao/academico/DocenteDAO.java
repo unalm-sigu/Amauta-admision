@@ -25,4 +25,6 @@ public interface DocenteDAO extends Crud<Docente> {
 
     public Docente findDocenteByPersona(Persona persona);
 
+    public List<Docente> allCoordinadoresByName(String nombre);
+
 }

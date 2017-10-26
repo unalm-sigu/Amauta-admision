@@ -1,6 +1,6 @@
 <html layout:decorator="zlayout/layout">
     <head>
-        <title>Carreras</title>
+        <title>Cursos</title>
     <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
 </head>
 
@@ -11,21 +11,22 @@
 
             <div class="pull-right">                
                 <div class="btn-group">
-                    <a type="button" class="btn btn-success" th:href="@{/academico/carrera/nuevo}" >Nuevo</a>
+                    <a type="button" class="btn btn-success" th:href="@{/academico/curso/nuevo}" >Nuevo</a>
                 </div>
             </div> 
-            <h2>Carreras</h2>
+            <h2>Cursos</h2>
         </header>
         <section class="panel">
             <section class="panel-body">
 
                 <table class="table table-striped" id="dynaTable">
                     <thead> 
-                        <tr class=""> 
+                        <tr> 
                             <th class="col-md-4"></th>
-                            <th class="col-md-4 text-left">Modalidad / Tipo</th>
-                            <th class="col-md-3 text-left">Orientaciones</th>
-                            <th class="col-md-1">Estado</th>
+                            <th class="col-md-4 text-center">Facultad / Departamento</th>
+                            <th class="col-md-2 text-left">Coordinador</th>
+                            <th class="col-md-1 text-center">Planes de Calificación</th>
+                            <th class="col-md-1 text-center">Estado</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -34,16 +35,15 @@
                 </table>
             </section>
         </section>
-
-
-        <div th:substituteby="academico/carrera/modalCambioEstado"/>
-        <script id="carreraTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/carrera/carreraTemplate"/></script>
+        
+        <div th:substituteby="academico/curso/modalCambioEstado"/>
+        <script id="cursoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/curso/cursoTemplate"/></script>
 
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/carrera/carrera.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/curso/curso.js}" charset="utf-8"></script>
     </div>
 
 </body>

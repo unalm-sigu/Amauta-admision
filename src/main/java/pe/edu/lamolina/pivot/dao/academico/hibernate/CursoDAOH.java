@@ -1,8 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +8,14 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 
 @Repository
 public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
@@ -71,50 +70,6 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allByDynatable(DynatableFilter filter, PlanCalificacion planCalificacion, Long idDepartamentoAcademico) {
-        List<String> fieldsFiltro = Arrays.asList(
-                "c.nombre", "c.codigo", "c.fechaPlanCalificacion");
-
-        filter.setFields(fieldsFiltro);
-
-        filter.setAlias("c");
-        filter.setParents("left planCalificacion pc", "left planCalificacionRegular pcr", "departamentoAcademico da");
-
-        if (planCalificacion.isTipoCicloNivelacion()) {
-            logger.debug("Tipo Ciclo Nivelacion");
-            filter.filterFix("pc.id", planCalificacion.getId());
-        } else if (planCalificacion.isTipoCicloRegular()) {
-            logger.debug("Tipo Ciclo Regular");
-            filter.filterFix("pcr.id", planCalificacion.getId());
-        }
-        filter.filterFix("da.id", idDepartamentoAcademico);
-
-        filter.setTotal(this.count(filter));
-        filter.setFiltered(this.countByFilter(filter));
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
-        sqlUtil.parents(filter.getParents());
-
-        Map filtersFix = filter.getFiltersFixed();
-        if (filtersFix != null) {
-            for (Object key : filtersFix.keySet()) {
-                this.filterFixed(sqlUtil, (String) key, filtersFix.get(key));
-            }
-        }
-        Map filterFixIn = filter.getFiltersInFixed();
-        if (filterFixIn != null) {
-            for (Object key : filterFixIn.keySet()) {
-                this.filterInFixed(sqlUtil, (String) key, (List) filterFixIn.get(key));
-            }
-        }
-        this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
-        sqlUtil.setFirstResult(filter.getOffset())
-                .setPageSize(filter.getPerPage());
-
-        return this.all(sqlUtil);
-    }
-
-    @Override
     public List<Curso> allByPlan(PlanCalificacion plan) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("cur")
                 .parents("planCalificacion pc")
@@ -151,6 +106,18 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
                 .parents("left planCalificacion pc", "left departamentoAcademico da", "left _da.facultad")
                 .filter("cur.codigo", codigo);
         return find(sqlUtil);
+    }
+
+    @Override
+    public List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Curso.class, "cu")
+                .join("departamentoAcademico da", "da.facultad fa")
+                .leftJoin("planCalificacion pc")
+                .in("da.id", departamentos)
+                .searchFields("cu.nombre", "cu.codigo", "fa.nombre")
+                .orderBy("cu.id desc");
+        return sql.all(getCurrentSession());
     }
 
 }

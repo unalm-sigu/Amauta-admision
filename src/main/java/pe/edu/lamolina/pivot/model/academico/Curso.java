@@ -15,7 +15,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCursoEnum;
@@ -49,6 +48,12 @@ public class Curso implements Serializable {
 
     @Column(name = "horas_practica")
     private Integer horasPractica;
+    
+    @Column(name = "horas_teoria_verano")
+    private Integer horasTeoriaVerano;
+
+    @Column(name = "horas_practica_verano")
+    private Integer horasPracticaVerano;
 
     @Column(name = "creditos")
     private Integer creditos;
@@ -59,9 +64,16 @@ public class Curso implements Serializable {
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
+    @Column(name = "motivo_anulacion")
+    private String motivoAnulacion;
+
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "fecha_plan_calificacion")
     private Date fechaPlanCalificacion;
+
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Column(name = "fecha_anulacion")
+    private Date fechaAnulacion;
 
     @Column(name = "user_plan_calificacion")
     private Long userPlanCalificacion;
@@ -378,6 +390,38 @@ public class Curso implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public String getMotivoAnulacion() {
+        return motivoAnulacion;
+    }
+
+    public void setMotivoAnulacion(String motivoAnulacion) {
+        this.motivoAnulacion = motivoAnulacion;
+    }
+
+    public Date getFechaAnulacion() {
+        return fechaAnulacion;
+    }
+
+    public void setFechaAnulacion(Date fechaAnulacion) {
+        this.fechaAnulacion = fechaAnulacion;
+    }
+
+    public Integer getHorasTeoriaVerano() {
+        return horasTeoriaVerano;
+    }
+
+    public void setHorasTeoriaVerano(Integer horasTeoriaVerano) {
+        this.horasTeoriaVerano = horasTeoriaVerano;
+    }
+
+    public Integer getHorasPracticaVerano() {
+        return horasPracticaVerano;
+    }
+
+    public void setHorasPracticaVerano(Integer horasPracticaVerano) {
+        this.horasPracticaVerano = horasPracticaVerano;
     }
 
 }

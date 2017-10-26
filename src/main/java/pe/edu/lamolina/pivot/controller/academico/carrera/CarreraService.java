@@ -12,7 +12,7 @@ public interface CarreraService {
 
     List<Carrera> allByDynatable(DynatableFilter filter);
 
-    void desactivar(Carrera carrera);
+    void cambiarEstadoCarrera(Carrera carrera);
 
     List<ModalidadEstudio> allModalidades();
 
@@ -22,12 +22,14 @@ public interface CarreraService {
 
     Carrera find(Long id);
 
-    void saveOrientacion(Long idCarrera, String nombreOrientacion, Usuario usuario);
+    void saveOrientacion(Long idCarrera, Long idOrientacion, String nombreOrientacion, Usuario usuario);
 
     void deleteOrientacion(Long idOrientacion);
 
-    void desactivarOrientacion(OrientacionCarrera orientacion);
+    void cambioEstado(OrientacionCarrera orientacion);
 
     List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera);
+
+    OrientacionCarrera editarOrientacion(Long id);
 
 }

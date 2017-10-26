@@ -1,0 +1,145 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Curso</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+            <h2 th:text="${curso.id != null ? 'Editar Curso' : 'Nuevo Curso'}">Nuevo Curso</h2>
+        </header>
+
+        <div class="col-lg-12">
+            <section class="panel">
+                <section class="panel-body">
+                    <form data-parsley-validate="true" id="formularioCurso" method="POST" th:action="@{'/academico/curso/save'}">
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <input type="hidden" th:value="${curso.id}" name="id"/>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label>Nombre</label>
+                                            <input name="nombre" class="form-control" required="true" th:value="${curso} != null ? ${curso.nombre} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Código</label>
+                                            <input name="codigo" class="form-control" required="true" th:value="${curso} != null ? ${curso.codigo} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Código Anterior 1</label>
+                                            <input name="codigoAnterior1" class="form-control" required="true" th:value="${curso} != null ? ${curso.codigoAnterior1} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group">
+                                            <label>Código Anterior 2</label>
+                                            <input name="codigoAnterior2" class="form-control" required="true" th:value="${curso} != null ? ${curso.codigoAnterior2} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Departamento</label>
+                                    <input type='text' name="departamentoAcademico.id" class='form-control' th:value="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.id}:''" 
+                                           th:rel="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.nombre}:''" required="true" data-trigger="change" />	
+                                </div>
+                                <div class="form-group">
+                                    <label>Coordinador</label>
+                                    <input type='text' name="coordinador.id" class='form-control' th:value="${curso.coordinador != null} ? ${curso.coordinador.id}:''" 
+                                           th:rel="${curso.id != null and curso.coordinador != null} ? ${curso.coordinador.persona.nombreCompleto}:''" required="true" data-trigger="change" />
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="row">
+                                    <div class="col-lg-6">
+
+                                        <div class="form-group">
+                                            <label>Horas Teoría</label>
+                                            <input name="horasTeoria" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasTeoria} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Horas Práctica</label>
+                                            <input name="horasPractica" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasPractica} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label>Tipo Curso</label>
+                                            <select class="form-control" name="tipoCurso" required="true" placeholder="Seleccione el tipo curso" data-trigger="change">
+                                                <option></option>
+                                                <option th:each="item : ${tiposCurso}"
+                                                        th:value="${item.name()}" 
+                                                        th:text="${item.value}"
+                                                        th:selected="${curso.tipoCurso} ? ${item.name() == curso.tipoCurso}"/>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+
+                                        <div class="form-group">
+                                            <label>Horas Teoría Verano</label>
+                                            <input name="horasTeoriaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasTeoriaVerano} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Horas Práctica Verano</label>
+                                            <input name="horasPracticaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasPracticaVerano} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Creditos</label>
+                                            <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Creditos Variables</label>
+                                            <input name="creditosVariables" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.creditosVariables} : ''"  data-trigger="change"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class=" text-center">
+                            <a class="btn btn-link" th:href="@{'/academico/curso'}">Regresar</a>
+                            <a class="btn btn-success save-update-curso"  th:text="${curso.id != null ? 'Actualizar' : 'Crear Curso'}">Crear Curso</a>
+                        </div>
+                    </form>
+                </section>
+
+            </section>
+
+
+        </div>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/curso/cursoForm.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

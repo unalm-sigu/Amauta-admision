@@ -5,9 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.general.UbicacionDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.general.Ubicacion;
 
@@ -23,6 +27,12 @@ public class BuscarServiceImp implements BuscarService {
 
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
+    
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    
+    @Autowired
+    DocenteDAO docenteDAO;
 
     @Override
     public List<Curso> allCursosSCA(String nombre, Long idDepartamentoAca, Long planCalificacionId, Long idCiclo) {
@@ -37,6 +47,16 @@ public class BuscarServiceImp implements BuscarService {
 
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartamentosByName(String nombre) {
+        return departamentoAcademicoDAO.allDepartamentos(this.forLike(nombre));
+    }
+
+    @Override
+    public List<Docente> allCoordinadoresByName(String nombre) {
+        return docenteDAO.allCoordinadoresByName(this.forLike(nombre));
     }
 
 }

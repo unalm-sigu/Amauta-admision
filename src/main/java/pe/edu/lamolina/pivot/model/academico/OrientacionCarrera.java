@@ -33,11 +33,15 @@ public class OrientacionCarrera implements Serializable {
     @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "motivo")
-    private String motivo;
+    @Column(name = "motivo_anulacion")
+    private String motivoAnulacion;
 
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
+
+    @Column(name = "fecha_anulacion")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaAnulacion;
 
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -143,12 +147,20 @@ public class OrientacionCarrera implements Serializable {
         this.planCurricular = planCurricular;
     }
 
-    public String getMotivo() {
-        return motivo;
+    public String getMotivoAnulacion() {
+        return motivoAnulacion;
     }
 
-    public void setMotivo(String motivo) {
-        this.motivo = motivo;
+    public void setMotivoAnulacion(String motivoAnulacion) {
+        this.motivoAnulacion = motivoAnulacion;
+    }
+
+    public Date getFechaAnulacion() {
+        return fechaAnulacion;
+    }
+
+    public void setFechaAnulacion(Date fechaAnulacion) {
+        this.fechaAnulacion = fechaAnulacion;
     }
 
 }
