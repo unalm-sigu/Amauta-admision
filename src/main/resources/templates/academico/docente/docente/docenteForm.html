@@ -22,79 +22,111 @@
                         <input type="hidden" name="persona.id" id="personaId"  th:value="${docente.persona}? ${docente.persona.id}"/>
                         <input type="hidden" name="id" id="personaId" th:value="${docente.id}"/>
 
-                        <div class="form-group">
 
-                            <label for="docIdentidad" class="col-sm-2 control-label">N° documento</label>
 
-                            <div class="col-sm-4">
-                                <select name="persona.tipoDocumento.id" 
-                                        required="true" 
-                                        class="form-control select2single buscar-persona" >
-                                    <option></option>
-                                    <option th:each="item : ${documentos}"  
-                                            th:text="${item.nombre}"
-                                            th:selected="${docente.persona.tipoDocumento!=null} ? ${docente.persona.tipoDocumento.id==item.id}"
-                                            th:value="${item.id}" ></option>
-                                </select>
+                        <div class="col-sm-10">
+
+                            <div class="form-group">
+
+                                <label for="docIdentidad" class="col-sm-2 control-label">N° documento</label>
+
+                                <div class="col-sm-5">
+                                    <select name="persona.tipoDocumento.id" 
+                                            required="true" 
+                                            class="form-control select2single buscar-persona" >
+                                        <option></option>
+                                        <option th:each="item : ${documentos}"  
+                                                th:text="${item.nombre}"
+                                                th:selected="${docente.persona.tipoDocumento!=null} ? ${docente.persona.tipoDocumento.id==item.id}"
+                                                th:value="${item.id}" ></option>
+                                    </select>
+                                </div>
+
+                                <div class="col-sm-4">
+
+                                    <input  type="text" 
+                                            class="inline numeric form-control sin-espacios" 
+                                            required="true" 
+                                            name="persona.numeroDocIdentidad" 
+                                            th:value="${docente.persona!=null} ? ${docente.persona.numeroDocIdentidad}"/>
+
+                                </div>
+
                             </div>
 
-                            <div class="col-sm-3">
+                            <div id='formPersona'>
 
-                                <input  type="text" 
-                                        class="inline numeric form-control sin-espacios" 
-                                        required="true" 
-                                        name="persona.numeroDocIdentidad" 
-                                        th:value="${docente.persona!=null} ? ${docente.persona.numeroDocIdentidad}"/>
+                            </div> 
+
+
+                            <div class="form-group">
+
+                                <label class="col-sm-2 control-label" >Departamento Académico</label>
+                                <div class="col-sm-4">
+                                    <input  type="text" 
+                                            name="departamentoAcademico.id" 
+                                            th:value="${docente.departamentoAcademico!=null?docente.departamentoAcademico.id:''}"
+                                            th:rel="${docente.departamentoAcademico!=null?docente.departamentoAcademico.nombre:''}"
+                                            th:rev="${docente.departamentoAcademico!=null?docente.departamentoAcademico.codigo:''}"
+                                            required='true'
+                                            data-trigger="change"
+                                            class="form-control"/>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="" class="col-sm-2 control-label">Modalidad de Estudio</label>
+
+                                <div class="col-sm-4">
+                                    <select name="modalidadEstudio.id" 
+                                            required="true" 
+                                            class="form-control select2single buscar-persona" >
+                                        <option></option>
+                                        <option th:each="item : ${modalidades}"  
+                                                th:text="${item.nombre}"
+                                                th:selected="${docente.modalidadEstudio!=null} ? ${docente.modalidadEstudio.id==item.id}"
+                                                th:value="${item.id}" ></option>
+                                    </select>
+                                </div>
 
                             </div>
 
+                            <div class="form-group m-t-xxlg">
+                                <label class="col-sm-2 control-label"></label>
+                                <div id="footerUsuario" class="col-sm-10">
+                                    <button class="btn btn-primary" 
+                                            type="button"
+                                            th:text="${docente.id!=null?'Actualizar':'Guardar'}"
+                                            id="btnSavePersona">Guardar</button>                                        
+                                    <a th:href="@{/academico/docente}" class="btn btn-link" >Cancelar</a>
+                                </div>
+                            </div>
                         </div>
 
-                        <div id='formPersona'>
 
-                        </div> 
+                        <div class="col-sm-2 text-center" >
 
+                            <div class="col-xs-12">
 
-                        <div class="form-group">
+                                <img id="imagenProfile" 
+                                     th:src="@{|/academico/docente/view/${docente.persona.foto}|}"
+                                     th:onerror="|this.src='@{/phobos/images/unalm/male.png}';|"
+                                     class="img-thumbnail"/>
 
-                            <label class="col-sm-2 control-label" >Departamento Académico</label>
-                            <div class="col-sm-4">
-                                <input  type="text" 
-                                        name="departamentoAcademico.id" 
-                                        th:value="${docente.departamentoAcademico!=null?docente.departamentoAcademico.id:''}"
-                                        th:rel="${docente.departamentoAcademico!=null?docente.departamentoAcademico.nombre:''}"
-                                        th:rev="${docente.departamentoAcademico!=null?docente.departamentoAcademico.codigo:''}"
-                                        required='true'
-                                        data-trigger="change"
-                                        class="form-control"/>
-                            </div>
-                        </div>
+                                <input type="hidden" id="avatar" name="persona.foto" th:value="${docente.persona.foto}"/>
 
-
-                        <div class="form-group">
-
-                            <label for="" class="col-sm-2 control-label">Modalidad de Estudio</label>
-
-                            <div class="col-sm-4">
-                                <select name="modalidadEstudio.id" 
-                                        required="true" 
-                                        class="form-control select2single buscar-persona" >
-                                    <option></option>
-                                    <option th:each="item : ${modalidades}"  
-                                            th:text="${item.nombre}"
-                                            th:selected="${docente.modalidadEstudio!=null} ? ${docente.modalidadEstudio.id==item.id}"
-                                            th:value="${item.id}" ></option>
-                                </select>
                             </div>
 
-                        </div>
+                            <div class="col-xs-12 text-center">
 
-                        <div class="form-group m-t-xxlg">
-                            <label class="col-sm-2 control-label"></label>
-                            <div id="footerUsuario" class="col-sm-10">
-                                <a class="btn btn-primary" th:text="${docente.id!=null?'Actualizar':'Guardar'}" id="btnSavePersona">Guardar</a>                                        
-                                <a th:href="@{/academico/docente}" class="btn btn-link" >Cancelar</a>
+                                <input class="hidden" id="fileupload" type="file" name="file"/>
+
+                                <button type="button" id="fileuploadtrigger" class="btn btn-link btn-sm" >Elegir Foto</button>
+
                             </div>
+
                         </div>
 
                     </form>
@@ -111,7 +143,11 @@
         </section>
 
         <div layout:fragment="js">
-            <script type="text/javascript" th:src="@{/phobos/js/wizard/jquery.bootstrap.wizard.js}"/>  
+            <script charset="utf-8">
+                var datepicker = $.fn.datepicker.noConflict(); // return $.fn.datepicker to previously assigned value
+                $.fn.datepickerBoot = datepicker;
+            </script>
+            <div th:substituteby="zlayout/includes :: javascript-upload"> </div>
             <script th:src="@{/app/academico/docente/docente/docenteForm.js}" charset="utf-8"></script>
         </div>
 

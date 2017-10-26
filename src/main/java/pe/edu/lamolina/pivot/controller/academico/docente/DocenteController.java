@@ -4,12 +4,21 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -24,12 +33,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
@@ -299,6 +311,84 @@ public class DocenteController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("upload")
+    public JsonResponse upload(@RequestParam("file") MultipartFile archivo,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode json = new ObjectNode(jsonFactory);
+
+            String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
+            String fileName = TypesUtil.getUnixTime() + "." + fileExt;
+            String absoluteName = Constantine.TMP_DIR + fileName;
+            FileHelper.saveToDisk(archivo, absoluteName);
+            json.put("name", archivo.getOriginalFilename());
+            json.put("ruta", fileName);
+            json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
+            json.put("size", archivo.getSize());
+            response.setData(json);
+            response.setSuccess(true);
+            response.setMessage("Carga satisfactoria del archivo");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+
+    @RequestMapping("view/{file:.*}")
+    public void view(@PathVariable String file, HttpServletResponse response) throws Exception {
+
+        String fileNameRoot = Constantine.AVATAR_DIR + file;
+
+        File filex = new File(fileNameRoot);
+        if (!filex.exists()) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        response.reset();
+        response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "inline; filename=\"" + file + "\"");
+
+        BufferedInputStream input = null;
+        BufferedOutputStream output = null;
+
+        try {
+
+            input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            IOUtils.copy(input, output);
+            response.flushBuffer();
+
+        } finally {
+
+            close(output);
+            close(input);
+
+        }
+    }
+
+    private static void close(Closeable resource) {
+        if (resource != null) {
+            try {
+                resource.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

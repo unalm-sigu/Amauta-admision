@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.docente;
 
 import com.google.common.base.Strings;
+import java.io.File;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -22,6 +25,7 @@ import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -81,6 +85,12 @@ public class DocenteServiceImp implements DocenteService {
             }
             logger.debug("guardando persona {}", (persona != null));
             personaForm.setEstado(EstadoEnum.ACT.name());
+            if (Strings.isNullOrEmpty(personaForm.getFoto())) {
+                personaForm.setFoto(null);
+            } else {
+                this.saveFoto(personaForm.getFoto());
+            }
+            personaForm.setFechaRegistro(new Date());
             personaDAO.save(personaForm);
             logger.debug("guardado persona {}", personaForm.getId());
             docente.setPersona(personaForm);
@@ -88,6 +98,7 @@ public class DocenteServiceImp implements DocenteService {
             docente.setEstado(DocenteEstadoEnum.ACT.name());
             docente.setCodigo(this.getCodigo());
             logger.debug("validando codiggo docente xxx {}", docente.getCodigo());
+            docente.setFechaRegistro(new Date());
             docenteDAO.save(docente);
             logger.debug("creado docente {}", docente.getId());
             return;
@@ -106,6 +117,7 @@ public class DocenteServiceImp implements DocenteService {
         logger.debug("guardando docente ...");
         docente.setEstado(DocenteEstadoEnum.ACT.name());
         docente.setCodigo(this.getCodigo());
+        docente.setFechaRegistro(new Date());
         docenteDAO.save(docente);
         logger.debug("docente  guardado  {}", docente.getId());
     }
@@ -289,6 +301,16 @@ public class DocenteServiceImp implements DocenteService {
     @Override
     public List<ModalidadEstudio> allModalidadEstudio(Compania compania) {
         return modalidadEstudioDAO.allActivoByCompania(compania);
+    }
+
+    private void saveFoto(String avatar) {
+        String oldName = Constantine.TMP_DIR + avatar;
+        String newName = Constantine.AVATAR_DIR + avatar;
+        File directorio = new File(Constantine.AVATAR_DIR);
+        if (!directorio.isDirectory()) {
+            directorio.mkdirs();
+        }
+        FileHelper.renameFile(oldName, newName);
     }
 
 }

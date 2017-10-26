@@ -965,3 +965,14 @@ div.notas {
     overflow-y:visible;
     padding-bottom: 20px;
 }
+
+/*imgen xl*/
+.thumb-xlg {
+  width: 200px;
+  display: inline-block;
+}
+.thumb-xlg img {
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+}
