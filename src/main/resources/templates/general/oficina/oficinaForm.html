@@ -6,9 +6,9 @@
         <section layout:fragment="main">
 
             <header class="page-header">                
-                <a th:href="@{/academico/docente}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                <a th:href="@{/general/oficina}" class="btn btn-default btn-sm pull-right">Regresar</a>
 
-                <h2  id="nombreDocente" th:text="${ docente.persona.id!=null ? docente.persona.apellidosNombres : 'Nuevo Docente' }" >Nuevo Docente</h2> 
+                <h2  id="nombreDocente" th:text="${ oficina.id!=null ? oficina.nombre : 'Nueva Oficina' }" >Nuevo Oficina</h2> 
 
             </header>
 
@@ -17,11 +17,9 @@
                 <section class="panel-body bg-white b">
 
 
-                    <form th:action="@{/academico/docente/save}" method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
+                    <form th:action="@{/general/oficina/save}" method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
 
-                        <input type="hidden" name="persona.id" id="personaId"  th:value="${docente.persona}? ${docente.persona.id}"/>
-                        <input type="hidden" name="id" id="personaId" th:value="${docente.id}"/>
-
+                        <input type="hidden" name="id" id="oficinaId" th:value="${oficina.id}"/>
 
 
                         <div class="col-sm-10">
@@ -31,13 +29,13 @@
                                 <label for="docIdentidad" class="col-sm-2 control-label">N° documento</label>
 
                                 <div class="col-sm-5">
-                                    <select name="persona.tipoDocumento.id" 
+                                    <select name="tipoDocumento.id" 
                                             required="true" 
-                                            class="form-control select2single buscar-persona" >
+                                            class="form-control select2single buscar-" >
                                         <option></option>
                                         <option th:each="item : ${documentos}"  
                                                 th:text="${item.nombre}"
-                                                th:selected="${docente.persona.tipoDocumento!=null} ? ${docente.persona.tipoDocumento.id==item.id}"
+                                                th:selected="${oficina..tipoDocumento!=null} ? ${oficina..tipoDocumento.id==item.id}"
                                                 th:value="${item.id}" ></option>
                                     </select>
                                 </div>
@@ -47,16 +45,12 @@
                                     <input  type="text" 
                                             class="inline numeric form-control sin-espacios" 
                                             required="true" 
-                                            name="persona.numeroDocIdentidad" 
-                                            th:value="${docente.persona!=null} ? ${docente.persona.numeroDocIdentidad}"/>
+                                            name="nombre" 
+                                            th:value="${oficina.!=null} ? ${oficina..numeroDocIdentidad}"/>
 
                                 </div>
 
                             </div>
-
-                            <div id='formPersona'>
-
-                            </div> 
 
 
                             <div class="form-group">
@@ -65,9 +59,9 @@
                                 <div class="col-sm-4">
                                     <input  type="text" 
                                             name="departamentoAcademico.id" 
-                                            th:value="${docente.departamentoAcademico!=null?docente.departamentoAcademico.id:''}"
-                                            th:rel="${docente.departamentoAcademico!=null?docente.departamentoAcademico.nombre:''}"
-                                            th:rev="${docente.departamentoAcademico!=null?docente.departamentoAcademico.codigo:''}"
+                                            th:value="${oficina.departamentoAcademico!=null?oficina.departamentoAcademico.id:''}"
+                                            th:rel="${oficina.departamentoAcademico!=null?oficina.departamentoAcademico.nombre:''}"
+                                            th:rev="${oficina.departamentoAcademico!=null?oficina.departamentoAcademico.codigo:''}"
                                             required='true'
                                             data-trigger="change"
                                             class="form-control"/>
@@ -82,11 +76,11 @@
                                 <div class="col-sm-4">
                                     <select name="modalidadEstudio.id" 
                                             required="true" 
-                                            class="form-control select2single buscar-persona" >
+                                            class="form-control select2single buscar-" >
                                         <option></option>
                                         <option th:each="item : ${modalidades}"  
                                                 th:text="${item.nombre}"
-                                                th:selected="${docente.modalidadEstudio!=null} ? ${docente.modalidadEstudio.id==item.id}"
+                                                th:selected="${oficina.modalidadEstudio!=null} ? ${oficina.modalidadEstudio.id==item.id}"
                                                 th:value="${item.id}" ></option>
                                     </select>
                                 </div>
@@ -98,9 +92,9 @@
                                 <div id="footerUsuario" class="col-sm-10">
                                     <button class="btn btn-primary" 
                                             type="button"
-                                            th:text="${docente.id!=null?'Actualizar':'Guardar'}"
+                                            th:text="${oficina.id!=null?'Actualizar':'Guardar'}"
                                             id="btnSavePersona">Guardar</button>                                        
-                                    <a th:href="@{/academico/docente}" class="btn btn-link" >Cancelar</a>
+                                    <a th:href="@{/general/oficina}" class="btn btn-link" >Cancelar</a>
                                 </div>
                             </div>
                         </div>
@@ -111,11 +105,11 @@
                             <div class="col-xs-12">
 
                                 <img id="imagenProfile" 
-                                     th:src="@{|/academico/docente/view/${docente.persona.foto}|}"
+                                     th:src="@{|/general/oficina/view/${oficina..foto}|}"
                                      th:onerror="|this.src='@{/phobos/images/unalm/male.png}';|"
                                      class="img-thumbnail"/>
 
-                                <input type="hidden" id="avatar" name="persona.foto" th:value="${docente.persona.foto}"/>
+                                <input type="hidden" id="avatar" name=".foto" th:value="${oficina..foto}"/>
 
                             </div>
 
@@ -131,8 +125,8 @@
 
                     </form>
 
-                    <script id="docentePersonaTemplate" type="text/x-jsrender" class="hide" >
-                        <div th:substituteby="academico/docente/docente/docentePersonaTemplate"/>
+                    <script id="oficinaTemplate" type="text/x-jsrender" class="hide" >
+                        <div th:substituteby="general/oficina/oficina/oficinaTemplate"/>
                     </script>
 
 
@@ -143,12 +137,7 @@
         </section>
 
         <div layout:fragment="js">
-            <script charset="utf-8">
-                var datepicker = $.fn.datepicker.noConflict(); // return $.fn.datepicker to previously assigned value
-                $.fn.datepickerBoot = datepicker;
-            </script>
-            <div th:substituteby="zlayout/includes :: javascript-upload"> </div>
-            <script th:src="@{/app/academico/docente/docente/docenteForm.js}" charset="utf-8"></script>
+            <script th:src="@{/app/general/oficina/oficinaForm.js}" charset="utf-8"></script>
         </div>
 
     </body>
