@@ -1,0 +1,46 @@
+<tr rel="{{:index}}">
+
+    <td class="v-middle">
+        {{:nombre}}
+        <p class="text-sm"><b>Código:</b>{{:codigo}}</p>
+        <p class="text-sm"><b>Tipo:</b>{{:tipo}}</p>
+    </td>
+
+    <td class="v-middle">
+        {{:dependencia}}
+    </td>
+
+    <td class="v-middle">
+        {{:jefatura}}
+    </td>
+
+    <td class="v-middle">
+        <span class="badge">{{:colaboradores}}</span>
+    </td>
+
+    <td class="text-left-xs v-middle">
+        <label class="label label-{{:colorEstado}}" >{{:nameEstado}}</label>
+    </td>
+
+    <td class="v-middle">
+        <div class="actions">
+
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+
+            <ul class="dropdown-menu pull-right" >
+
+                <li><a class="btn-link modificar" th:href="@{/academico/docente/{{:id}}/update}">Editar</a></li>
+                <li role="presentation">
+                    {{if estado == 'ACT'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
+                    {{/if}}
+                    {{if estado == 'INA'}}
+                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
+                    {{/if}}
+                </li>
+
+            </ul>
+
+        </div>
+    </td>
+</tr>
