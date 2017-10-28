@@ -2,21 +2,24 @@ package pe.edu.lamolina.pivot.zelper.enums;
 
 import java.util.HashMap;
 import java.util.Map;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
 
 public enum TipoOficinaEnum {
 
-    OFI("Oficina"),
-    FAC("Facultad"),
-    DEP("Departamento"),
-    ESP("Especialidad"),
-    DPTO("Indefinido"),
-    EPG("Indefinido"),
-    RECT("Indefinido"),
-    UNA("Indefinido"),
-    AREA("Indefinido"),
-    VICE("Area");
+    OFI("Oficina", "null"),
+    UNA("Unidad", "null"),
+    RECT("Rector", "null"),
+    VICE("Vicerector", "null"),
+    AREA("Area", "null"),
+    EPG("Posgrado", "null"),
+    FAC("Facultad", Facultad.class.getName()),
+    DEP("Departamento", DepartamentoAcademico.class.getName()),
+    ESP("Especialidad", Carrera.class.getName());
 
     private final String value;
+    private final String clase;
     private static final Map<String, TipoOficinaEnum> lookup = new HashMap<>();
 
     static {
@@ -25,12 +28,17 @@ public enum TipoOficinaEnum {
         }
     }
 
-    private TipoOficinaEnum(String value) {
+    private TipoOficinaEnum(String value, String clase) {
         this.value = value;
+        this.clase = clase;
     }
 
     public String getValue() {
         return value;
+    }
+
+    public String getClase() {
+        return clase;
     }
 
     public static TipoOficinaEnum get(String abbreviation) {

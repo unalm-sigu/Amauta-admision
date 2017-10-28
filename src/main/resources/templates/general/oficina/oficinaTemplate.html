@@ -29,7 +29,10 @@
 
             <ul class="dropdown-menu pull-right" >
 
-                <li><a class="btn-link modificar" th:href="@{/academico/docente/{{:id}}/update}">Editar</a></li>
+                <li><a class="btn-link modificar" th:href="@{/general/oficina/{{:id}}/update}">Editar</a></li>
+
+                <li><a class="btn-link delete" rel="{{:id}}" href="#">Eliminar</a></li>
+                
                 <li role="presentation">
                     {{if estado == 'ACT'}}
                     <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>

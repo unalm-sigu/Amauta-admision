@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 
 @Entity
@@ -62,6 +63,9 @@ public class Oficina implements Serializable {
     @JoinColumn(name = "id_cargo_jefe")
     private PerfilCompania cargoJefe;
 
+    @Column(name = "estado")
+    private String estado;
+
     @OneToMany(mappedBy = "oficinaSupervisora", fetch = FetchType.LAZY)
     private List<Aula> aula;
 
@@ -76,6 +80,12 @@ public class Oficina implements Serializable {
 
     @OneToMany(mappedBy = "oficina", fetch = FetchType.LAZY)
     private List<PersonaPerfil> personaPerfil;
+
+    @Transient
+    private String instanciaOficinaNombre;
+
+    @Transient
+    private String instanciaOficinaCodigo;
 
     public Oficina() {
     }
@@ -220,5 +230,28 @@ public class Oficina implements Serializable {
         this.personaPerfil = personaPerfil;
     }
 
-}
+    public String getInstanciaOficinaNombre() {
+        return instanciaOficinaNombre;
+    }
 
+    public void setInstanciaOficinaNombre(String instanciaOficinaNombre) {
+        this.instanciaOficinaNombre = instanciaOficinaNombre;
+    }
+
+    public String getInstanciaOficinaCodigo() {
+        return instanciaOficinaCodigo;
+    }
+
+    public void setInstanciaOficinaCodigo(String instanciaOficinaCodigo) {
+        this.instanciaOficinaCodigo = instanciaOficinaCodigo;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+}

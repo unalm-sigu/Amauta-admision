@@ -43,7 +43,7 @@ $(function () {
             var mimodal = bootbox.confirm({
                 title: "Cambiar Estado",
                 size: 'small',
-                message: '¿Desea cambiar el estado del oficina?',
+                message: '¿Desea cambiar el estado de la oficina?',
                 buttons: {
                     confirm: {label: "Cambiar Estado", className: "btn-info"},
                     cancel: {label: "Cancelar", className: "btn-link"}
@@ -77,8 +77,47 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        eliminar: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar la oficina.",
+                size: 'small',
+                buttons: {
+                    confirm: {label: 'Sí, Eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('general/oficina/delete'),
+                            type: 'POST',
+                            async: true,
+                            data: {id: id},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
     };
+
+
+    Oficina.body.delegate(".delete", "click", function (e) {
+        Oficina.eliminar(e);
+    });
 
     Oficina.body.delegate(".estado", "click", function (e) {
         Oficina.estado(e);

@@ -1,15 +1,13 @@
 <html layout:decorator="zlayout/layout">
     <head>
-        <title> Usuario </title>
+        <title> Oficina </title>
     </head>
     <body>
         <section layout:fragment="main">
 
             <header class="page-header">                
                 <a th:href="@{/general/oficina}" class="btn btn-default btn-sm pull-right">Regresar</a>
-
                 <h2  id="nombreDocente" th:text="${ oficina.id!=null ? oficina.nombre : 'Nueva Oficina' }" >Nuevo Oficina</h2> 
-
             </header>
 
             <section class="panel">
@@ -19,116 +17,106 @@
 
                     <form th:action="@{/general/oficina/save}" method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
 
-                        <input type="hidden" name="id" id="oficinaId" th:value="${oficina.id}"/>
+                        <input type="hidden" name="id" th:value="${oficina.id}"/>
 
+                        <div class="form-group">
 
-                        <div class="col-sm-10">
+                            <label for="docIdentidad" class="col-sm-3 control-label">Nombre</label>
 
-                            <div class="form-group">
+                            <div class="col-sm-9">
 
-                                <label for="docIdentidad" class="col-sm-2 control-label">N° documento</label>
-
-                                <div class="col-sm-5">
-                                    <select name="tipoDocumento.id" 
-                                            required="true" 
-                                            class="form-control select2single buscar-" >
-                                        <option></option>
-                                        <option th:each="item : ${documentos}"  
-                                                th:text="${item.nombre}"
-                                                th:selected="${oficina..tipoDocumento!=null} ? ${oficina..tipoDocumento.id==item.id}"
-                                                th:value="${item.id}" ></option>
-                                    </select>
-                                </div>
-
-                                <div class="col-sm-4">
-
-                                    <input  type="text" 
-                                            class="inline numeric form-control sin-espacios" 
-                                            required="true" 
-                                            name="nombre" 
-                                            th:value="${oficina.!=null} ? ${oficina..numeroDocIdentidad}"/>
-
-                                </div>
+                                <input  type="text" 
+                                        class="inline numeric form-control" 
+                                        required="true" 
+                                        name="nombre"
+                                        maxlength="200"
+                                        th:value="${oficina.nombre}"/>
 
                             </div>
 
+                        </div>
 
-                            <div class="form-group">
+                        <div class="form-group">
 
-                                <label class="col-sm-2 control-label" >Departamento Académico</label>
-                                <div class="col-sm-4">
-                                    <input  type="text" 
-                                            name="departamentoAcademico.id" 
-                                            th:value="${oficina.departamentoAcademico!=null?oficina.departamentoAcademico.id:''}"
-                                            th:rel="${oficina.departamentoAcademico!=null?oficina.departamentoAcademico.nombre:''}"
-                                            th:rev="${oficina.departamentoAcademico!=null?oficina.departamentoAcademico.codigo:''}"
-                                            required='true'
-                                            data-trigger="change"
-                                            class="form-control"/>
-                                </div>
-                            </div>
+                            <label for="codigo" class="col-sm-3 control-label">Código</label>
 
+                            <div class="col-sm-4">
 
-                            <div class="form-group">
-
-                                <label for="" class="col-sm-2 control-label">Modalidad de Estudio</label>
-
-                                <div class="col-sm-4">
-                                    <select name="modalidadEstudio.id" 
-                                            required="true" 
-                                            class="form-control select2single buscar-" >
-                                        <option></option>
-                                        <option th:each="item : ${modalidades}"  
-                                                th:text="${item.nombre}"
-                                                th:selected="${oficina.modalidadEstudio!=null} ? ${oficina.modalidadEstudio.id==item.id}"
-                                                th:value="${item.id}" ></option>
-                                    </select>
-                                </div>
+                                <input  type="text" 
+                                        class="inline numeric form-control sin-espacios" 
+                                        required="true" 
+                                        name="codigo" 
+                                        maxlength="20"
+                                        th:value="${oficina.codigo}"/>
 
                             </div>
 
-                            <div class="form-group m-t-xxlg">
-                                <label class="col-sm-2 control-label"></label>
-                                <div id="footerUsuario" class="col-sm-10">
-                                    <button class="btn btn-primary" 
-                                            type="button"
-                                            th:text="${oficina.id!=null?'Actualizar':'Guardar'}"
-                                            id="btnSavePersona">Guardar</button>                                        
-                                    <a th:href="@{/general/oficina}" class="btn btn-link" >Cancelar</a>
-                                </div>
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="docIdentidad" class="col-sm-3 control-label">Tipo</label>
+
+                            <div class="col-sm-4">
+                                <select name="tipoOficina" 
+                                        required="true" 
+                                        class="form-control" >
+                                    <option></option>
+                                    <option th:each="item : ${tipos}"  
+                                            th:text="${item.value}"
+                                            th:selected="${oficina.tipoOficina!=null} ? ${oficina.tipoOficina==item.name()}"
+                                            th:value="${item.name()}" ></option>
+                                </select>
                             </div>
+
+
+                        </div>
+
+                        <div class="form-group" id="placeReferencia">
+         
                         </div>
 
 
-                        <div class="col-sm-2 text-center" >
-
-                            <div class="col-xs-12">
-
-                                <img id="imagenProfile" 
-                                     th:src="@{|/general/oficina/view/${oficina..foto}|}"
-                                     th:onerror="|this.src='@{/phobos/images/unalm/male.png}';|"
-                                     class="img-thumbnail"/>
-
-                                <input type="hidden" id="avatar" name=".foto" th:value="${oficina..foto}"/>
-
+                        <div class="form-group">
+                            <label for="oficinaSuperior.id" class="col-sm-3 control-label">Unidad Superior</label>
+                            <div class="col-sm-4">
+                                <input  type="text" 
+                                        class="inline form-control" 
+                                        th:value="${oficina.oficinaSuperior!=null?oficina.oficinaSuperior.id:''}"
+                                        th:rel="${oficina.oficinaSuperior!=null?oficina.oficinaSuperior.nombre:''}"
+                                        th:rev="${oficina.oficinaSuperior!=null?oficina.oficinaSuperior.codigo:''}"
+                                        name="oficinaSuperior.id"/>
                             </div>
+                        </div>
 
-                            <div class="col-xs-12 text-center">
-
-                                <input class="hidden" id="fileupload" type="file" name="file"/>
-
-                                <button type="button" id="fileuploadtrigger" class="btn btn-link btn-sm" >Elegir Foto</button>
-
+                        <div class="form-group m-t-xxlg">
+                            <label class="col-sm-2 control-label"></label>
+                            <div id="footerOficina" class="col-sm-10">
+                                <button class="btn btn-primary" 
+                                        type="submit"
+                                        th:text="${oficina.id!=null?'Actualizar':'Guardar'}"
+                                        id="btnSave">Guardar</button>                                        
+                                <a th:href="@{/general/oficina}" class="btn btn-link" >Cancelar</a>
                             </div>
-
                         </div>
 
                     </form>
 
-                    <script id="oficinaTemplate" type="text/x-jsrender" class="hide" >
-                        <div th:substituteby="general/oficina/oficina/oficinaTemplate"/>
-                    </script>
+                    <div id="referenciaTemplate" type="text/x-jsrender" class="hide" >
+                        <label for="instanciaOficina" class="col-sm-3 control-label">Referencia</label>
+                        <div class="col-sm-4">
+                            <input  type="text" 
+                                    class="inline form-control" 
+                                    th:value="${oficina.instanciaOficina!=null?oficina.instanciaOficina:''}"
+                                    th:rel="${oficina.instanciaOficina!=null?oficina.instanciaOficinaNombre:''}"
+                                    th:rev="${oficina.instanciaOficina!=null?oficina.instanciaOficinaCodigo:''}"
+                                    name="instanciaOficina"/>
+                        </div>
+                    </div>
 
+                    <div id="oficinaTemplate" type="text/x-jsrender" class="hide" >
+                        <div th:substituteby="general/oficina/oficinaTemplate"/>
+                    </div>
 
                 </section>
 

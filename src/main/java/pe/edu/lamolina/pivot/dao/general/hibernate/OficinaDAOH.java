@@ -2,7 +2,12 @@ package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.model.general.Oficina;
@@ -11,6 +16,7 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 
 @Repository
 public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
@@ -47,10 +53,10 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             sql.append("  inner join ofi.compania cia ");
             sql.append("  where 1 = 1 ");
             sql.append("  and cia.id =:COMPANIA ");
-            
+
             query = getCurrentSession().createQuery(sql.toString());
             query.setLong("COMPANIA", compania.getId());
-            
+
             filter.setTotal(((Long) query.uniqueResult()).intValue());
 
         }
@@ -76,7 +82,7 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             if (!StringUtils.isEmpty(search)) {
                 query.setString("SEARCH", search);
             }
-            
+
             query.setLong("COMPANIA", compania.getId());
             filter.setFiltered(((Long) query.uniqueResult()).intValue());
 
@@ -102,7 +108,7 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             if (!StringUtils.isEmpty(search)) {
                 query.setString("SEARCH", search);
             }
-            
+
             query.setLong("COMPANIA", compania.getId());
             query.setFirstResult((filter.getPage() - 1) * filter.getPerPage());
             query.setMaxResults(filter.getPerPage());
@@ -110,5 +116,24 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             return query.list();
 
         }
+    }
+
+    @Override
+    public List<Oficina> allUnidadSuperior(String nombre, Compania compania) {
+
+        Criteria criteria = getCurrentSession().createCriteria(Oficina.class, "ofi");
+        criteria.add(Restrictions.eq("compania", compania));
+
+        if (!"".equalsIgnoreCase(nombre)) {
+            String searchValue = nombre.trim().replaceAll("\\s+", "%");
+            Disjunction criteriaConjunction = Restrictions.disjunction();
+            criteriaConjunction.add(Restrictions.like("ofi.codigo", searchValue, MatchMode.ANYWHERE));
+            criteriaConjunction.add(Restrictions.like("ofi.nombre", searchValue, MatchMode.ANYWHERE));
+            criteria.add(criteriaConjunction);
+        }
+
+        criteria.addOrder(Order.asc("ofi.nombre"));
+        criteria.setMaxResults(10);
+        return criteria.list();
     }
 }

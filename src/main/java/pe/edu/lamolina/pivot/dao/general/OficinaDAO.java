@@ -13,4 +13,6 @@ public interface OficinaDAO extends Crud<Oficina> {
 
     public List<Oficina> allByFilter(DynatableFilter filter, Compania compania);
 
+    public List<Oficina> allUnidadSuperior(String nombre, Compania compania);
+
 }
