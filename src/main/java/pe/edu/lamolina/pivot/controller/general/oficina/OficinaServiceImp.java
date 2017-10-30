@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,9 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<Colaborador> allColaborador(List<Oficina> oficinas) {
+        if (oficinas.size() < 1) {
+            return new ArrayList();
+        }
         return colaboradorDAO.allColaborador(oficinas);
     }
 

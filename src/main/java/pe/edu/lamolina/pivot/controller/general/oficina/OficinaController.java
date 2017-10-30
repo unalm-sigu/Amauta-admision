@@ -109,14 +109,15 @@ public class OficinaController {
                 node.put("nombre", oficina.getNombre());
                 node.put("codigo", oficina.getCodigo());
                 node.put("tipo", TipoOficinaEnum.valueOf(oficina.getTipoOficina()).getValue());
-                node.put("estado", oficina.getEsJefeEncargado());
-                node.put("dependencia", oficina.getEsJefeEncargado());
-                node.put("jefatura", oficina.getEsJefeEncargado());
                 node.put("estado", oficina.getEstado());
-
+                node.put("dependencia", oficina.getOficinaSuperior() != null ? oficina.getOficinaSuperior().getNombre() : "");
                 node.put("colaboradores", colaboradorMap.size());
+
+                StringBuilder sb = new StringBuilder();
+                sb.append(oficina.getPersonaJefe() != null ? oficina.getPersonaJefe().getNombreCompleto() : "");
+                node.put("jefatura", sb.toString());
+                node.put("esencargado", oficina.getEsJefeEncargado());
                 node.put("colaboradoresMap", oficina.getEsJefeEncargado());
-                node.put("dependencia", oficina.getOficinaSuperior()!=null? oficina.getOficinaSuperior().getNombre():"");
                 array.add(node);
 
             }
@@ -298,8 +299,7 @@ public class OficinaController {
 
         return response;
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("allPersona")
     public JsonResponse allPersona(@RequestParam("nombre") String nombre, HttpSession session) {
