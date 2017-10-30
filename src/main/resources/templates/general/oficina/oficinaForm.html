@@ -73,7 +73,7 @@
                         </div>
 
                         <div class="form-group" id="placeReferencia">
-         
+
                         </div>
 
 
@@ -86,6 +86,18 @@
                                         th:rel="${oficina.oficinaSuperior!=null?oficina.oficinaSuperior.nombre:''}"
                                         th:rev="${oficina.oficinaSuperior!=null?oficina.oficinaSuperior.codigo:''}"
                                         name="oficinaSuperior.id"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="personaJefe.id" class="col-sm-3 control-label">Jefe de oficina</label>
+                            <div class="col-sm-4">
+                                <input  type="text" 
+                                        class="inline form-control" 
+                                        required="true"
+                                        th:value="${oficina.personaJefe!=null?oficina.personaJefe.id:''}"
+                                        th:rel="${oficina.personaJefe!=null?oficina.personaJefe.nombreCompleto:''}"
+                                        name="personaJefe.id"/>
                             </div>
                         </div>
 

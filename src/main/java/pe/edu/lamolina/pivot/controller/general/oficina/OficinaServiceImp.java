@@ -13,12 +13,14 @@ import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.general.Colaborador;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.enums.OficinaEstadoEnum;
 
 @Service
@@ -39,6 +41,9 @@ public class OficinaServiceImp implements OficinaService {
 
     @Autowired
     FacultadDAO facultadDAO;
+
+    @Autowired
+    PersonaDAO personaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -114,5 +119,10 @@ public class OficinaServiceImp implements OficinaService {
             oficinaBD.setEstado(OficinaEstadoEnum.ANU.name());
         }
         oficinaDAO.update(oficinaBD);
+    }
+
+    @Override
+    public List<Persona> allPersona(String nombre) {
+        return personaDAO.allByNombre(nombre);
     }
 }

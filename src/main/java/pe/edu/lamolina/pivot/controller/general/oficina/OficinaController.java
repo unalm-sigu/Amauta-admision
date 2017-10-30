@@ -36,6 +36,7 @@ import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.general.Colaborador;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -295,6 +296,36 @@ public class OficinaController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+    
+    
+    @ResponseBody
+    @RequestMapping("allPersona")
+    public JsonResponse allPersona(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<Persona> personas = service.allPersona(nombre);
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (Persona persona : personas) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", persona.getId());
+                a.put("nombre", persona.getNombreCompleto());
+                array.add(a);
+            }
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 }
