@@ -107,7 +107,7 @@ public class OficinaController {
                 node.put("id", oficina.getId());
                 node.put("nombre", oficina.getNombre());
                 node.put("codigo", oficina.getCodigo());
-                //node.put("tipo", TipoOficinaEnum.valueOf(oficina.getTipoOficina()).getValue());
+                node.put("tipo", TipoOficinaEnum.valueOf(oficina.getTipoOficina()).getValue());
                 node.put("estado", oficina.getEsJefeEncargado());
                 node.put("dependencia", oficina.getEsJefeEncargado());
                 node.put("jefatura", oficina.getEsJefeEncargado());
@@ -115,7 +115,7 @@ public class OficinaController {
 
                 node.put("colaboradores", colaboradorMap.size());
                 node.put("colaboradoresMap", oficina.getEsJefeEncargado());
-
+                node.put("dependencia", oficina.getOficinaSuperior()!=null? oficina.getOficinaSuperior().getNombre():"");
                 array.add(node);
 
             }
@@ -234,7 +234,7 @@ public class OficinaController {
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
 
-            if (TipoOficinaEnum.DEP.name().equalsIgnoreCase(tipo)) {
+            if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(tipo)) {
                 List<DepartamentoAcademico> departamentos = service.allDepartamento(compania);
                 for (DepartamentoAcademico departamento : departamentos) {
                     ObjectNode a = new ObjectNode(jsonFactory);

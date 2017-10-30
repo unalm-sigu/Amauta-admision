@@ -15,7 +15,7 @@ public enum TipoOficinaEnum {
     AREA("Area", "null"),
     EPG("Posgrado", "null"),
     FAC("Facultad", Facultad.class.getName()),
-    DEP("Departamento", DepartamentoAcademico.class.getName()),
+    DPTO("Departamento", DepartamentoAcademico.class.getName()),
     ESP("Especialidad", Carrera.class.getName());
 
     private final String value;

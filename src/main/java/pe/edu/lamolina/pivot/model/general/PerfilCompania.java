@@ -23,6 +23,9 @@ public class PerfilCompania implements Serializable {
     @Column(name = "nombre")
     private String nombre;
 
+    @Column(name = "nombre_documento")
+    private String nombreDocumento;
+
     public PerfilCompania() {
     }
 
@@ -52,6 +55,14 @@ public class PerfilCompania implements Serializable {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getNombreDocumento() {
+        return nombreDocumento;
+    }
+
+    public void setNombreDocumento(String nombreDocumento) {
+        this.nombreDocumento = nombreDocumento;
     }
 
 }

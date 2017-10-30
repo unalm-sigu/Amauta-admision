@@ -5,20 +5,16 @@ $(function () {
             ajaxUrl: APP.url('general/oficina/all'),
             perPageDefault: 10
         },
-        writers: {
-            _rowWriter: ulWriter
-
-        },
-        table: {
-            bodyRowSelector: 'tbody tr'
-        }
+        writers: {_rowWriter: ulWriter},
+        features: {pushState: false},
+        table: {bodyRowSelector: 'tbody tr'}
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
 
         record.index = rowIndex;
-        var colorEstado = {ACT: "success", INA: "default"};
-        var nameEstado = {ACT: "Activo", INA: "Inactivo"};
+        var colorEstado = {ACT: "success", ANU: "default"};
+        var nameEstado = {ACT: "Activo", ANU: "Anulado"};
 
         record.colorEstado = colorEstado[record.estado];
         record.nameEstado = nameEstado[record.estado];

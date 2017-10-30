@@ -16,7 +16,6 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 
 @Repository
 public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
@@ -67,6 +66,7 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             sql.append("  select count( distinct ofi ) ");
             sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
             sql.append("  inner join ofi.compania cia ");
+            sql.append("  left join ofi.oficinaSuperior sup ");
             sql.append("  where 1 = 1 ");
             sql.append("  and cia.id =:COMPANIA ");
 
@@ -94,6 +94,7 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             sql.append("  select distinct ofi ");
             sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
             sql.append("  inner join ofi.compania cia ");
+            sql.append("  left join ofi.oficinaSuperior sup ");
             sql.append("  where 1 = 1 ");
             sql.append("  and cia.id =:COMPANIA ");
 
