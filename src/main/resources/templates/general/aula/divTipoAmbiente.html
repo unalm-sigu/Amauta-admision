@@ -1,0 +1,112 @@
+<div id="divAmbiente" type="text/x-jsrender" class="hide">
+      <div class='row'>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>Tipo Aula</label>
+                <select class="form-control" name="tipoAula.id" placeholder="Seleccione el tipo aula" data-trigger="change">
+                    <option></option>
+                    <option th:each="item : ${tiposAula}"
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"
+                            th:selected="${aula.tipoAula} ? ${item.id == aula.tipoAula.id}"/>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <label>Permite cruce</label>
+            <div class="col-sm-10 text-left">
+                <label class="switch">
+                    <input type="checkbox" name="permiteCruce" value="1" th:checked="${aula.permiteCruce == 1}"/>
+                    <span></span>
+                </label>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>Aforo</label>
+                <input name="aforo" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.aforo} : ''"  data-trigger="change"/>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>Capacidad</label>
+                <input name="capacidadAula" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.capacidadAula} : ''"  data-trigger="change"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="form-group">
+                <label>Edificio</label>
+                <input type='text' name="aulaSuperior.id" class='form-control' th:value="${aula.aulaSuperior != null} ? ${aula.aulaSuperior.id}:''" 
+                       th:rel="${aula.id != null and aula.aulaSuperior != null} ? ${aula.aulaSuperior.nombre}:''" data-trigger="change" />
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>Planta(Piso)</label>
+                <input name="piso" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.piso} : ''"  data-trigger="change"/>
+            </div>
+        </div>
+    </div>  
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label>Sede</label>
+                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
+                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="form-group">
+                <label>Gestor</label>
+                <input type='text' name="oficinaSupervisora.id" class='form-control' th:value="${aula.oficinaSupervisora != null} ? ${aula.oficinaSupervisora.id}:''" 
+                       th:rel="${aula.id != null and aula.oficinaSupervisora != null} ? ${aula.oficinaSupervisora.nombre}:''" required="true" data-trigger="change" />
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="divEdificio" type="text/x-jsrender" class="hide">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label>Plantas(pisos)</label>
+                <input name="pisos" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.pisos} : ''"  data-trigger="change"/>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="form-group">
+                <label>Sede</label>
+                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
+                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="divEspacio" type="text/x-jsrender" class="hide">
+    <div class="row">
+        <div class="col-lg-3">
+            <label>Permite cruce</label>
+            <div class="col-sm-10 text-left">
+                <label class="switch">
+                    <input type="checkbox" name="permiteCruce" value="1" th:checked="${aula.permiteCruce == 1}"/>
+                    <span></span>
+                </label>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="form-group">
+                <label>Sede</label>
+                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
+                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />
+            </div>
+        </div>
+    </div>
+
+
+</div>

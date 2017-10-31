@@ -1,0 +1,292 @@
+package pe.edu.lamolina.pivot.controller.general.aula;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.beans.PropertyEditorSupport;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.general.Aula;
+import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.edu.lamolina.pivot.model.general.Sede;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoAmbienteEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+
+@Controller
+@RequestMapping("general/aula")
+public class AulaController {
+
+    @Autowired
+    AulaService service;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @InitBinder
+    public void initBinder(WebDataBinder dataBinder) {
+
+        dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String value) {
+                try {
+                    setValue(new SimpleDateFormat("dd/MM/yyyy").parse(value));
+                } catch (ParseException e) {
+                    setValue(null);
+                }
+            }
+        });
+
+        dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
+            @Override
+            public void setAsText(String value) {
+                try {
+                    setValue(new BigDecimal(value.replaceAll(",", "")));
+                } catch (Exception e) {
+                    setValue(null);
+                }
+            }
+        });
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
+        return "general/aula/aula";
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<Aula> aulas = service.allByDynatable(filter);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Aula aula : aulas) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("id", aula.getId());
+                node.put("codigo", aula.getCodigo());
+                node.put("nombre", aula.getNombre());
+                node.put("tipoAmbienteName", aula.getTipoAmbiente());
+                node.put("tipoAmbiente", TipoAmbienteEnum.valueOf(aula.getTipoAmbiente()).getValue());
+                node.put("piso", aula.getPiso());
+                node.put("pisos", aula.getPisos());
+                node.put("aforo", aula.getAforo());
+                node.put("capacidad", aula.getCapacidadAula());
+                node.put("sede", aula.getSede().getNombre());
+                node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
+                node.put("gestor", aula.getOficinaSupervisora().getNombre());
+                node.put("estado", aula.getEstado());
+                node.put("estadoName", EstadoEnum.valueOf(aula.getEstado()).getValue());
+                node.put("motivo", aula.getMotivoAnulacion());
+
+                array.add(node);
+            }
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Aula aula = new Aula();
+
+        model.addAttribute("aula", aula);
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
+        model.addAttribute("tiposAula", service.allTiposAula());
+        return "general/aula/aulaForm";
+    }
+
+    @RequestMapping("save")
+    public String save(Aula aula, RedirectAttributes redirectAttr, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            String mensaje = aula.getId() != null ? Messages.UPDATED : Messages.CREATED;
+            service.save(aula, ds.getUsuario());
+            Notificaciones.crearMsg(mensaje, redirectAttr);
+
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+
+        }
+        return "redirect:/general/aula";
+    }
+
+    @RequestMapping("editar/{id}")
+    public String editar(@PathVariable("id") Long id, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Aula aula = service.find(id);
+
+        model.addAttribute("aula", aula);
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
+        model.addAttribute("tiposAula", service.allTiposAula());
+        return "general/aula/aulaForm";
+    }
+
+    @ResponseBody
+    @RequestMapping("allAulasSuperiores")
+    public JsonResponse allAulasSuperiores(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Aula> aulasSuperiores = service.allAulasSuperioresByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Aula aula : aulasSuperiores) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", aula.getId());
+                json.put("nombre", aula.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allSedes")
+    public JsonResponse allSedes(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Sede> sedes = service.allSedesByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Sede sede : sedes) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", sede.getId());
+                json.put("nombre", sede.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allGestores")
+    public JsonResponse allGestores(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Oficina> gestores = service.allOficinasByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Oficina gestor : gestores) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", gestor.getId());
+                json.put("nombre", gestor.getNombre());
+
+                jsonList.add(json);
+
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambioEstado")
+    public JsonResponse cambioEstadoOrientacionCarrera(Aula aula) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            service.cambioEstado(aula);
+
+            response.setMessage("Se cambio de estado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+}

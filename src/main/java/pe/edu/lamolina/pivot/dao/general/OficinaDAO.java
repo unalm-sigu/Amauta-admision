@@ -9,4 +9,6 @@ public interface OficinaDAO extends Crud<Oficina> {
 
     List<Oficina> allByJefe(Persona persona);
 
+    public List<Oficina> allOficinasByName(String nombre);
+
 }

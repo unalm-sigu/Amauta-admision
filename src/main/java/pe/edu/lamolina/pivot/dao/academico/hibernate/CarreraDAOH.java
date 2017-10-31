@@ -27,7 +27,7 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
     }
 
     @Override
-    public List<Carrera> allByModalidadEstudio(DynatableFilter filter) {
+    public List<Carrera> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")

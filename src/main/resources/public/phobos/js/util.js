@@ -120,9 +120,11 @@ MODAL = {
     idModalMd: "modalVik",
     idModalLg: "modalVikLarge",
     idModalSm: "modalVikSmall",
+    idModalFoto: "modalVikFoto",
     modalActivo: null,
     idContent: "contentModalVik",
     idTitle: "titleModalVik",
+    idSize: "modalVik-size",
     idBody: "bodyModalVik",
     idFooter: "footerModalVik",
     idBtnClose: "btnCerrarModalVik",
@@ -137,7 +139,26 @@ MODAL = {
             MODAL.modalActivo = $("#" + MODAL.idModalLg);
         } else if (type == "md") {
             MODAL.modalActivo = $("#" + MODAL.idModalMd);
+        } else if (type == "foto") {
+            MODAL.modalActivo = $("#" + MODAL.idModalFoto);
         }
+        MODAL.body("");
+        MODAL.buttons("");
+        MODAL.activateButtons();
+    },
+    size : function(size){
+        var divSize = MODAL.modalActivo.find("#" + MODAL.idSize);
+        divSize.removeClass("modal-sm");
+        divSize.removeClass("modal-lg");
+        divSize.removeClass("modal-md");
+        
+       if (size == "sm") {
+           divSize.addClass("modal-sm");
+        } else if (size == "lg") {
+           divSize.addClass("modal-lg");
+        } else if (size == "md") {
+           divSize.addClass("modal-md");
+        } 
     },
     modalDefault: function () {
         if (MODAL.modalActivo == null) {
@@ -146,7 +167,14 @@ MODAL = {
     },
     title: function (html) {
         MODAL.modalDefault();
-        MODAL.modalActivo.find("#" + MODAL.idTitle).html(html);
+        var title = MODAL.modalActivo.find("#" + MODAL.idTitle);
+        var div = title.closest("div");
+        if (html != "") {
+            div.removeClass("hide");
+            title.html(html);
+        } else {
+            div.addClass("hide");
+        }
     },
     buttons: function (html) {
         MODAL.modalDefault();
@@ -167,10 +195,6 @@ MODAL = {
         MODAL.modalDefault();
         return MODAL.modalActivo.find("#" + MODAL.idFooter);
     },
-    footer: function () {
-        MODAL.modalDefault();
-        return MODAL.modalActivo.find("#" + MODAL.idFooter);
-    },
     show: function () {
         MODAL.modalDefault();
         MODAL.modalActivo.modal();
@@ -181,7 +205,6 @@ MODAL = {
     },
     hide: function () {
         MODAL.modalDefault();
-        MODAL.activateButtons();
         MODAL.modalActivo.modal("hide");
         MODAL.limpiar(MODAL.modalActivo);
     },
@@ -230,26 +253,6 @@ MODAL = {
                 MODAL.buttonAffected.html(MODAL.textButtonAffected);
             }
         }, 800);
-    },
-    activateButtonsInmediate: function (btn, htmlBtn) {
-        var footer = MODAL.modalActivo.find("#" + MODAL.idFooter);
-        footer.find("button").each(function (i, item) {
-            $(item).removeAttr("disabled");
-        });
-        footer.find("a").each(function (i, item) {
-            $(item).removeAttr("disabled");
-        });
-        if (btn != null) {
-            btn.html(htmlBtn);
-            return;
-        }
-        if (MODAL.buttonAffected != null && htmlBtn != null) {
-            MODAL.buttonAffected.html(htmlBtn);
-            return;
-        }
-        if (MODAL.buttonAffected != null) {
-            MODAL.buttonAffected.html(MODAL.textButtonAffected);
-        }
     },
     showWait: function (msg) {
         if (msg != null) {

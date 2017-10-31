@@ -1,7 +1,8 @@
 $(function () {
+
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
-            ajaxUrl: APP.url('academico/carrera/list'),
+            ajaxUrl: APP.url('general/aula/list'),
             perPageDefault: 10
         },
         writers: {
@@ -15,55 +16,52 @@ $(function () {
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {ACT: 'success', INA: 'danger'};
+        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
-        record.esActivo = record.estado == 'ACT';
+
+        record.activar = record.estado == 'ACT' || record.estado == 'CRE';
         record.esInactivo = record.estado == 'INA';
         record.colorEstado = labelColor[record.estado];
-        var html = $.templates("#carreraTemplate").render(record);
+        var html = $.templates("#aulaTemplate").render(record);
         return html;
     }
 
-    var Carrera = {
-        init: function () {
+    var Aula = {
+        form: null,
+        inti: function () {
 
         },
-        modalCarrera: $("#modalEstadoCarrera"),
-        form: null,
-        viewModal: function (e, $this) {
+        viewCambioEstado: function (e, $this) {
             e.preventDefault();
-
-            var estado = $this.attr("rev");
+            var estado = $this.attr('rev');
 
             var record = {
-                form: "formEstadoCarrera",
-                activo: estado == 'ACT',
-                id: $this.attr("rel")
-            };
+                form: 'formCambioEstado',
+                id: $this.attr('rel'),
+                seDesactiva: estado == 'ACT'
+            }
 
             MODAL.init("md");
             MODAL.title("");
-            MODAL.body($.templates("#divEstadoCarrera").render(record));
-            MODAL.buttons('<button type="button" class="btn btn-primary cambio-estado-carrera">Aceptar</button>');
+            MODAL.body($.templates("#divEstadoAula").render(record));
+            MODAL.buttons('<button type="button" class="btn btn-primary cambio-estado-aula">Aceptar</button>');
             MODAL.show();
-            Carrera.form = $("#" + record.form);
-
+            Aula.form = $("#" + record.form);
         },
         cambioEstado: function (e) {
             e.preventDefault();
-            var form = Carrera.form;
+            var form = Aula.form;
             if (!form.parsley().validate()) {
                 return;
             }
 
             $.ajax({
-                url: APP.url('academico/carrera/cambiarEstadoCarrera'),
+                url: APP.url('general/aula/cambioEstado'),
                 type: 'POST',
                 async: true,
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-//                        Carrera.modalCarrera.modal("hide");
                         MODAL.hide();
                         notify(response.message, "info");
                         dynatable.process();
@@ -78,13 +76,12 @@ $(function () {
         }
     }
 
-    Carrera.init();
-
+    Aula.init();
     $("body").delegate(".change-estado", "click", function (e) {
-        Carrera.viewModal(e, $(this));
+        Aula.viewCambioEstado(e, $(this));
     });
-    $("body").delegate(".cambio-estado-carrera", "click", function (e) {
-        Carrera.cambioEstado(e);
+    $("body").delegate(".cambio-estado-aula", "click", function (e) {
+        Aula.cambioEstado(e);
     });
 
 });

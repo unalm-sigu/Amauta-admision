@@ -97,15 +97,15 @@ $(function () {
     });
 
     $("body").delegate("[name='coordinador.id']", "change", function () {
-        $("[name='coordinador.id']").parsley().destroy();
+        $(this).parsley().destroy();
     });
 
     $("body").delegate("[name='departamentoAcademico.id']", "change", function () {
-        $("[name='departamentoAcademico.id']").parsley().destroy();
+        $(this).parsley().destroy();
     });
 
     $("body").delegate("[name='tipoCurso']", "change", function () {
-        $("[name='tipoCurso']").parsley().destroy();
+        $(this).parsley().destroy();
     });
 
 });
