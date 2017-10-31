@@ -108,11 +108,47 @@ $(function () {
                 }
             });
         },
+        colaborador: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+            var mialert = bootbox.alert({
+                message: "¿Está seguro que desea eliminar la oficina.",
+                title: "Colaboradores",
+                buttons: {
+                    ok: {label: 'Cerrar', className: "btn-primary"},
+                },
+                callback: function (result) {
+                    if (result) {
+                    }
+                }
+            });
+            $.ajax({
+                url: APP.url('general/oficina/allColaborador'),
+                type: 'POST',
+                async: true,
+                data: {id: id},
+                success: function (response) {
+                    if (response.success) {
+                        var html = $.templates("#colaboradorTemplate").render(response.data);
+                        mialert.find('.bootbox-body').html(html);
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }
     };
-
 
     Oficina.body.delegate(".delete", "click", function (e) {
         Oficina.eliminar(e);
+    });
+
+    Oficina.body.delegate(".colaborador", "click", function (e) {
+        Oficina.colaborador(e);
     });
 
     Oficina.body.delegate(".estado", "click", function (e) {

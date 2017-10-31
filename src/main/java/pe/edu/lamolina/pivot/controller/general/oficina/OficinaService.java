@@ -8,6 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.general.Colaborador;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.edu.lamolina.pivot.model.general.PerfilCompania;
 import pe.edu.lamolina.pivot.model.general.Persona;
 
 public interface OficinaService {
@@ -34,5 +35,11 @@ public interface OficinaService {
 
     void estado(Oficina oficina);
 
-    public List<Persona> allPersona(String nombre);
+    List<Persona> allPersona(String nombre);
+
+    List<Colaborador> allColaboradorByOficina(Oficina oficina);
+
+    List<PerfilCompania> allCargo(String nombre);
+
+    public void fillReferencia(Oficina oficina);
 }

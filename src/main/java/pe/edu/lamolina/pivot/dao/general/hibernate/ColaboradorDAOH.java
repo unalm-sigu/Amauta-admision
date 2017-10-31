@@ -26,4 +26,13 @@ public class ColaboradorDAOH extends AbstractDAO<Colaborador> implements Colabor
         criteria.setFetchMode("persona", FetchMode.JOIN);
         return criteria.list();
     }
+
+    @Override
+    public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
+        Criteria criteria = getCurrentSession().createCriteria(Colaborador.class);
+        criteria.add(Restrictions.eq("oficina", oficina));
+        criteria.setFetchMode("cargo", FetchMode.JOIN);
+        criteria.setFetchMode("persona", FetchMode.JOIN);
+        return criteria.list();
+    }
 }

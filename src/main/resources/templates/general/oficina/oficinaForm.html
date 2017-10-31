@@ -64,11 +64,12 @@
                                     <option></option>
                                     <option th:each="item : ${tipos}"  
                                             th:text="${item.value}"
-                                            th:selected="${oficina.tipoOficina!=null} ? ${oficina.tipoOficina==item.name()}"
+                                            th:selected="${oficina.tipoOficina == item.name()}"
                                             th:value="${item.name()}" ></option>
                                 </select>
                             </div>
-
+                            
+                            <input id="tipoOficina" type="hidden" th:value="${oficina.tipoOficina}"/>
 
                         </div>
 
@@ -98,6 +99,29 @@
                                         th:value="${oficina.personaJefe!=null?oficina.personaJefe.id:''}"
                                         th:rel="${oficina.personaJefe!=null?oficina.personaJefe.nombreCompleto:''}"
                                         name="personaJefe.id"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cargoJefe.id" class="col-sm-3 control-label">Cargo Jefe</label>
+                            <div class="col-sm-4">
+                                <input  type="text" 
+                                        class="inline form-control" 
+                                        required="true"
+                                        th:value="${oficina.cargoJefe!=null?oficina.cargoJefe.id:''}"
+                                        th:rel="${oficina.cargoJefe!=null?oficina.cargoJefe.nombreDocumento:''}"
+                                        name="cargoJefe.id"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cargoJefe.id" class="col-sm-3 control-label">Es Jefe Encargado</label>
+                            <div class="col-sm-4">
+                                <div class="checkbox m-t-lg">
+                                    <label>
+                                        <input type="checkbox" value="1" name="esJefeEncargado" th:checked="${oficina.esJefeEncargado==1}"/> 
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

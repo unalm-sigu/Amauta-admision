@@ -65,8 +65,9 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             sql = new StringBuilder();
             sql.append("  select count( distinct ofi ) ");
             sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
-            sql.append("  inner join ofi.compania cia ");
-            sql.append("  left join ofi.oficinaSuperior sup ");
+            sql.append("  inner join  ofi.compania cia ");
+            sql.append("  left  join  ofi.oficinaSuperior sup ");
+            sql.append("  left  join  ofi.personaJefe jef ");
             sql.append("  where 1 = 1 ");
             sql.append("  and cia.id =:COMPANIA ");
 
@@ -93,8 +94,9 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
             sql = new StringBuilder();
             sql.append("  select distinct ofi ");
             sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
-            sql.append("  inner join ofi.compania cia ");
-            sql.append("  left join ofi.oficinaSuperior sup ");
+            sql.append("  inner join  ofi.compania cia ");
+            sql.append("  left  join  ofi.oficinaSuperior sup ");
+            sql.append("  left  join  ofi.personaJefe jef ");
             sql.append("  where 1 = 1 ");
             sql.append("  and cia.id =:COMPANIA ");
 

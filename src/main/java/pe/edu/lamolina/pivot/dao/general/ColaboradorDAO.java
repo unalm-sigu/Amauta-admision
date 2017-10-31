@@ -9,5 +9,7 @@ public interface ColaboradorDAO extends Crud<Colaborador> {
 
     public List<Colaborador> allColaborador(List<Oficina> oficinas);
 
+    public List<Colaborador> allColaboradorByOficina(Oficina oficina);
+
 }
 
