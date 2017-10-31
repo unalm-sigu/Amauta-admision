@@ -16,4 +16,11 @@
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
+        <action>
+            <actionName>CUSTOM-help</actionName>
+            <displayName>help</displayName>
+            <goals>
+                <goal>-v</goal>
+            </goals>
+        </action>
     </actions>
