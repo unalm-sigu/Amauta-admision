@@ -85,6 +85,16 @@
                                 <i class="fa fa-users"></i><span>Docente</span>
                             </a>
                         </li>
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/general/aula}">
+                                <i class="fa fa-users"></i><span>Aula</span>
+                            </a>
+                        </li>
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/academico/anexo}">
+                                <i class="fa fa-users"></i><span>Anexo Boletin</span>
+                            </a>
+                        </li>
 
                         <li class="option" th:if='${ T(java.util.Arrays).asList("OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
                             <a th:href="@{/academico/acta}">

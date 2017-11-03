@@ -16,4 +16,6 @@ public interface CarreraDAO extends Crud<Carrera> {
 
     Carrera find(Long id);
 
+    List<Carrera> allByNombre(String forLike);
+
 }
