@@ -6,7 +6,7 @@ import pe.edu.lamolina.pivot.model.academico.Alumno;
 
 public interface AlumnoService {
 
-    List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter);
+    List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 
     AlumnoResumen findResumen();
 

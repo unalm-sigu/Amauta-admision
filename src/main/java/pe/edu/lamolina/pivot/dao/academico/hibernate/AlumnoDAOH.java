@@ -19,6 +19,7 @@ import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 
 @Repository
 public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
@@ -51,21 +52,59 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByCicloDynatable(DynatableFilter filter) {
-//        Octavia subqueryOpciones = Octavia.query()
-//                .from(OpcionCarrera.class, "oc")
-//                .join("carreraPostula cpo", "cpo.carrera car", "postulante pox");
+    public List<Alumno> allByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
 
-        DynatableSql sql = new DynatableSql(filter)
-                .from(Alumno.class, "al")
-                .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
-                .join("ca.modalidadEstudio moe")
-                .searchFields("ca.nombre", "al.estado", "al.codigo")
-                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                //                .searchSubquery(subqueryOpciones)
-                //                .subqueryLinkedBy("po.id", "pox.id")
-                .searchSubqueryFields("ca.nombre")
-                .orderBy("al.id desc");
+        DynatableSql sql = new DynatableSql(filter);
+        switch (RolEnum.valueOf(codigo)) {
+            case TODO:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .orderBy("al.id desc");
+                break;
+            case MOD:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .in("moe.id", filtros)
+                        .orderBy("al.id desc");
+                break;
+            case FAC:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .in("fac.id", filtros)
+                        .orderBy("al.id desc");
+                break;
+            case ESP:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .in("ca.id", filtros)
+                        .orderBy("al.id desc");
+                break;
+            default:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .orderBy("al.id desc");
+                break;
+        }
 
         sql.beginRelativeFilters();
         setCondicionModalidad(filter, sql);

@@ -15,7 +15,7 @@ public interface AlumnoDAO extends Crud<Alumno> {
 
     List<Alumno> allByPersona(Persona persona);
 
-    List<Alumno> allByCicloDynatable(DynatableFilter filter);
+    List<Alumno> allByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 
     AlumnoResumen findResumen();
 

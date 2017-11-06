@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -20,14 +21,22 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -38,6 +47,12 @@ public class AlumnoController {
 
     @Autowired
     AlumnoService service;
+    @Autowired
+    AlumnoEspecialService especialService;
+    @Autowired
+    AlumnoFisicoService fisicoService;
+    @Autowired
+    AlumnoVisitanteService visitanteService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -77,12 +92,38 @@ public class AlumnoController {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
+        logger.debug("Rol activo {}", ds.getRolActivo().getCodigo());
+
+        List<Long> filtros = new ArrayList();
+
+        switch (RolEnum.valueOf(ds.getRolActivo().getCodigo())) {
+            case TODO:
+                break;
+            case MOD:
+                for (ModalidadEstudio modalidad : ds.getModalidades()) {
+                    filtros.add(modalidad.getId());
+                }
+                break;
+            case FAC:
+                for (Facultad fac : ds.getFacultados()) {
+                    filtros.add(fac.getId());
+                }
+                break;
+            case ESP:
+                for (Carrera carrera : ds.getCarreras()) {
+                    filtros.add(carrera.getId());
+                }
+                break;
+            default:
+                break;
+        }
+
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             FotoHelper helper = new FotoHelper();
-            List<Alumno> alumnos = service.allAlumnosByCicloDynatable(filter);
+            List<Alumno> alumnos = service.allAlumnosByCicloDynatable(filter, ds.getRolActivo().getCodigo(), filtros);
 
             for (Alumno alumn : alumnos) {
                 Persona persona = alumn.getPersona();
@@ -122,4 +163,102 @@ public class AlumnoController {
         return json;
     }
 
+    @RequestMapping("especial")
+    public String alumnoEspecial(Model model, HttpSession session) {
+
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("documentos", especialService.allDocumentos());
+        model.addAttribute("ciclos", especialService.allCiclos());
+        model.addAttribute("situaciones", especialService.allSituaciones());
+
+        return "/academico/alumno/especial/alumnoEspecial";
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAlumnoEspecial")
+    public JsonResponse saveAlumnoEspecial(Alumno alumno, HttpSession session, RedirectAttributes redirectAttr) {
+
+        JsonResponse response = new JsonResponse();
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            response.setMessage("Usuario modificado satisfactoriamente");
+            if (alumno.getId() == null) {
+                response.setMessage("Usuario creado satisfactoriamente");
+            }
+            especialService.saveAlumno(alumno, ds.getUsuario());
+
+            response.setSuccess(true);
+            response.setData(node);
+
+            node.put("personaId", alumno.getPersona().getId());
+            node.put("nombreCompleto", alumno.getPersona().getApellidosNombres());
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("fisico")
+    public String alumnoFisico(Model model, HttpSession session) {
+
+        List<String> codigos = new ArrayList();
+        codigos.add(PRE.name());
+        codigos.add(EPG.name());
+
+        List<ModalidadEstudio> modalidades = fisicoService.allModalidadEstudioByCodigos(codigos);
+
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("documentos", especialService.allDocumentos());
+        model.addAttribute("ciclos", especialService.allCiclos());
+        model.addAttribute("modalidades", modalidades);
+
+        return "/academico/alumno/fisico/alumnoFisico";
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAlumnoFisico")
+    public JsonResponse saveAlumnoFisico(Alumno alumno, HttpSession session, RedirectAttributes redirectAttr) {
+
+        JsonResponse response = new JsonResponse();
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            response.setMessage("Usuario modificado satisfactoriamente");
+            if (alumno.getId() == null) {
+                response.setMessage("Usuario creado satisfactoriamente");
+            }
+            fisicoService.saveAlumno(alumno, ds.getUsuario());
+
+            response.setSuccess(true);
+            response.setData(node);
+
+            node.put("personaId", alumno.getPersona().getId());
+            node.put("nombreCompleto", alumno.getPersona().getApellidosNombres());
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("visitante")
+    public String alumnoVisitante(Model model, HttpSession session) {
+
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("documentos", especialService.allDocumentos());
+        model.addAttribute("ciclos", especialService.allCiclos());
+        model.addAttribute("situaciones", especialService.allSituaciones());
+
+        return "/academico/alumno/visitante/alumnoVisitante";
+    }
 }

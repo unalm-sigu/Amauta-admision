@@ -1,0 +1,167 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title> Nuevo Alumno Visitante </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+
+            <header class="page-header">                
+                <a href="/academico/alumno/" class="btn btn-default btn-sm pull-right">Regresar</a>
+                <h2 th:text="${ persona.id!=null ? persona.apellidosNombres : 'Alumno Especial' }" id="nombreCompleto">Alumno Especial</h2> 
+
+            </header>
+
+            <section class="panel">
+
+                <section class="panel-body bg-white b">
+
+
+                    <form th:action="@{/academico/alumno/saveAlumnoEspecial}" method="post" id="formPersonaEdit" class="form-horizontal m-t-lg" data-parsley-validate="true">
+
+                        <input type="hidden" name="persona.id" id="personaId"  th:value="${persona}? ${persona.id}"/>
+                        <input type="hidden" name="id" id="personaId" th:value="${persona.id}"/>
+
+                        <div class="form-group">
+
+                            <label for="docIdentidad" class="col-sm-2 control-label">N° documento</label>
+                            <div class="col-sm-4">
+                                <select name="persona.tipoDocumento.id" required="true" class="form-control select2 buscar-persona" id="tipoDNI">
+                                    <option></option>
+                                    <option th:each="item : ${documentos}"  
+                                            th:text="${item.nombre}"
+                                            th:selected="${persona.tipoDocumento!=null} ? ${persona.tipoDocumento.id==item.id}"
+                                            th:value="${item.id}" ></option>
+                                </select>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <input  type="text" class="inline numeric form-control sin-espacios buscar-persona" required="true" name="persona.numeroDocIdentidad" 
+                                        id="numeroDocIdentidad" 
+                                        th:value="${persona!=null} ? ${persona.numeroDocIdentidad}"/>           
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emailEmpresa" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-6">
+
+                                <input  class="inline form-control validar-email-empresa" 
+                                        data-trigger="change" required="true" type="email" 
+                                        data-trim-value="true"
+                                        name="persona.emailCompania" id="emailCompania" th:value="${persona!=null} ? ${persona.emailCompania}"
+                                        /> 
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="paterno" class="col-sm-2 control-label">Nombre</label>
+                            <div class="col-sm-3">
+                                <input  type="text" name="persona.paterno" required="true" class="form-control nombre-persona" 
+                                        th:value="${persona!=null} ? ${persona.paterno}" placeholder="Paterno"/>
+                            </div>
+                            <div class="col-sm-3">
+                                <input  type="text" name="persona.materno" required="true" class="form-control nombre-persona" 
+                                        th:value="${persona!=null} ? ${persona.materno}" placeholder="Materno"/>
+                            </div>
+                            <div class="col-sm-3">
+                                <input  type="text" name="persona.nombres" required="true" class="form-control nombre-persona" 
+                                        th:value="${persona!=null} ? ${persona.nombres}" placeholder="Nombres"/>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="sexo" class="col-sm-2 control-label">Sexo</label>
+                            <div class="col-sm-5">
+                                <div class="col-sm-6">
+                                    <label class="radio inline">
+                                        <input  type="radio" required="true" name="persona.sexo" id="sexoM" value="M" 
+                                                th:checked="${persona!=null} ? ${persona.sexo=='M'}" /> Masculino
+                                    </label>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="radio inline">
+                                        <input  type="radio" required="true" name="persona.sexo" id="sexoF" value="F" 
+                                                th:checked="${persona!=null} ? ${persona.sexo=='F'}" /> Femenino
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fechaNacimiento" class="col-sm-2 control-label">Fecha de Nacimiento</label>
+                            <div class="col-sm-4">
+                                <div class="input-group date" >
+                                    <input  type="text" class="form-control" data-parsley-errors-container="#errorfechaNacimiento" 
+                                            name="persona.fechaNacer" id="fechaNacer" 
+                                            th:value="${persona!=null} ? ${persona.fechaNacer!=null ? #dates.format(persona.fechaNacer,'dd/MM/yyyy'):''}"/>
+                                    <span class="input-group-addon pointer"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+                                </div>
+                                <span id="errorfechaNacimiento"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="distrito" class="col-sm-2 control-label">Distrito</label>
+                            <div class="col-sm-4">
+                                <input type="text" class="form-control input-s-full buscar-distrito" id="buscarDistrito" name="persona.ubicacionDomicilio.id" data-trigger="change" 
+                                       th:rel="${persona.ubicacionDomicilio != null}? ${persona.ubicacionDomicilio.distrito}"
+                                       th:value="${persona.ubicacionDomicilio != null}? ${persona.ubicacionDomicilio.id}"
+                                       required="true" />
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="codigo" class="col-sm-2 control-label">Matrícula</label>
+                            <div class="col-sm-4">
+                                <input  class="inline form-control" 
+                                        data-trigger="change" required="true" type="text" 
+                                        maxlength="9"
+                                        data-trim-value="true"
+                                        name="codigo" id="codigo" /> 
+                            </div>
+                            <label class="checkbox-inline"><input type="checkbox" id="chkbxGenMat"/>Generar Automáticamente</label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ciclos" class="col-sm-2 control-label">Ciclo de Ingreso</label>
+                            <div class="col-sm-4">
+                                <select name="cicloIngreso.id" required="true" class="form-control select2">
+                                    <option></option>
+                                    <option th:each="item : ${ciclos}"  
+                                            th:text="${item.descripcion}"
+                                            th:value="${item.id}" ></option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group m-t-xxlg">
+                            <label class="col-sm-2 control-label"></label>
+                            <div id="footerUsuario" class="col-sm-10">
+                                <a class="btn btn-primary"  id="btnSavePersona">Guardar</a>                                        
+                                <a href="/academico/alumno" class="btn btn-link" >Cancelar</a>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </section>
+
+
+                <div th:substituteby="templates/modal"/>
+
+            </section>
+
+        </section>
+
+        <div layout:fragment="js">
+            <script type="text/javascript" th:src="@{/phobos/js/wizard/jquery.bootstrap.wizard.js}"/>  
+            <script th:src="@{/app/academico/alumno/alumnoVisitante.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

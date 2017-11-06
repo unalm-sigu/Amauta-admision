@@ -100,6 +100,10 @@ public class Alumno implements Serializable {
     @JoinColumn(name = "id_situacion_academica")
     private SituacionAcademica situacionAcademica;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_modalidad_estudio")
+    private ModalidadEstudio modalidadEstudio;
+
     @OneToMany(mappedBy = "alumno", fetch = FetchType.LAZY)
     private List<AlumnoCiclo> alumnoCiclo;
 
@@ -436,6 +440,14 @@ public class Alumno implements Serializable {
             return null;
         }
         return AlumnoEstadoEnum.valueOf(estado);
+    }
+
+    public ModalidadEstudio getModalidadEstudio() {
+        return modalidadEstudio;
+    }
+
+    public void setModalidadEstudio(ModalidadEstudio modalidadEstudio) {
+        this.modalidadEstudio = modalidadEstudio;
     }
 
 }
