@@ -1,0 +1,38 @@
+<section class="panel-body">
+    <div class="form-group">
+        <label for="cboCarrera">Carrera</label>
+        <select class="form-control" id="cboCarrera">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="cboOrientacion">Orienacion</label>
+        <select class="form-control" id="cboOrientacion">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label >Fecha Vigencia</label>
+
+
+        <div id='dateFechaVig' class="input-group date">
+            <input type="text" name="fechaVig"
+                   id="inpDateFechaVig"
+                   data-parsley-errors-container="#errorfecha"
+                   required="true"
+                   class="form-control"/>
+            <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
+        </div>
+
+        <span id="errorfecha"></span>
+
+    </div>
+</section>

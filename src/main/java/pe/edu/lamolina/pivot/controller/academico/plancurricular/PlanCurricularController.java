@@ -76,4 +76,13 @@ public class PlanCurricularController {
         return json;
     }
 
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        logger.debug("entro a nuevo");
+
+        return "academico/plancurricular/plan/nuevoPlanCurricular";
+    }
+
 }

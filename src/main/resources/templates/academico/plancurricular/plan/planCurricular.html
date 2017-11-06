@@ -8,7 +8,7 @@
     <div layout:fragment="main">
         <header class="page-header">
             <div class="pull-right" >
-                <a class="btn btn-success nuevo-sistema" href="#" >Nuevo Plan de Estudios</a>
+                <a class="btn btn-success nuevo-plan-curricular" href="#" >Nuevo Plan de Estudios</a>
             </div>
             <h2>Plan de Estudios</h2>
             <span>Departamento Académico: <span >dfdf</span></span>
@@ -55,11 +55,12 @@
             </section>
         </section>
 
+
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/systemcalifica/sistema/sistema.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/plancurricular/plan/planCurricular.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

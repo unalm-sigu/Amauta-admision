@@ -1,0 +1,57 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Calificacion de Postulantes</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">
+            <h2>Nuevo Plan de Estudios</h2>
+        </header>
+
+        <form>
+            <div id="exTab2" class="tabbable-line m-b-sm">	
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a  href="#1" data-toggle="tab">Inicio</a>
+                    </li>
+                    <li>
+                        <a href="#2" data-toggle="tab">Cursos</a>
+                    </li>
+                    <li>
+                        <a href="#3" data-toggle="tab">Electivos</a>
+                    </li>
+                    <li>
+                        <a href="#4" data-toggle="tab">Adicionales</a>
+                    </li>
+                </ul>
+                <section class="panel">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="1">
+                            <div th:substituteby="academico/plancurricular/plan/includes/inicio"/>
+                        </div>
+                        <div class="tab-pane" id="2">
+                            <div th:substituteby="academico/plancurricular/plan/includes/cursos"/>
+                        </div>
+                        <div class="tab-pane" id="3">
+                            <div th:substituteby="academico/plancurricular/plan/includes/electivos"/>
+                        </div>
+                        <div class="tab-pane" id="4">
+                            <div th:substituteby="academico/plancurricular/plan/includes/adicionales"/>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+        </form>
+
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/plancurricular/plan/nuevoPlanCurricular.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

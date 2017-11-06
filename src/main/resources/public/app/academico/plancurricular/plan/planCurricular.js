@@ -1,16 +1,20 @@
 $(function () {
 
-    var dynatable = $('#dynaTable').dynatable({
-        dataset: {
-            ajaxUrl: APP.url('academico/systemcalifica/sistema/list'),
-            perPageDefault: 10
-        },
-        writers: {
-            _rowWriter: ulWriter
-        },
-        table: {
-            bodyRowSelector: 'tbody tr'
+    PlanCurricular = {
+        init: function () {
+        }, verNuevoPlanCurricular: function (e) {
+            e.preventDefault();
+            location.href = APP.url("academico/planCurricular/plan/nuevo");
         }
-    }).data('dynatable');
+    }
+
+    PlanCurricular.init();
+
+    $("body").delegate(".nuevo-plan-curricular", "click", function (e) {
+        PlanCurricular.verNuevoPlanCurricular(e);
+    });
+
+
+
 
 });
