@@ -34,6 +34,7 @@ import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -191,6 +192,7 @@ public class AnexoBoletinController {
 
                 json.put("id", dpto.getId());
                 json.put("nombre", dpto.getNombre());
+                json.put("facultad", dpto.getFacultad().getNombre());
 
                 jsonList.add(json);
 
@@ -224,6 +226,9 @@ public class AnexoBoletinController {
 
                 json.put("id", carrera.getId());
                 json.put("nombre", carrera.getNombre());
+                json.put("codigo", carrera.getCodigo());
+                json.put("tipoEstudio", !"".equals(this.getTipoEstudio(carrera.getTipo())) ? TipoCarreraEnum.valueOf(carrera.getTipo()).getValue() : "");
+                json.put("modalidadEstudio", carrera.getModalidadEstudio().getNombre());
 
                 jsonList.add(json);
 
@@ -239,6 +244,13 @@ public class AnexoBoletinController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    public String getTipoEstudio(String tipo) {
+        if (tipo.equals(TipoCarreraEnum.SEM.name()) || tipo.equals(TipoCarreraEnum.PMA.name())) {
+            return "";
+        }
+        return tipo;
     }
 
 }

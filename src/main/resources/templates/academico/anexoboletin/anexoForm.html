@@ -31,7 +31,7 @@
                             <div class="col-lg-8">
                                 <div class="form-group">
                                     <label>Grupos</label>
-                                    <select class="form-control" name="anexoSuperior.id" placeholder="Seleccione un anexo" data-trigger="change">
+                                    <select class="form-control" name="anexoSuperior.id" placeholder="Seleccione un anexo" data-trigger="change" required="true" >
                                         <option></option>
                                         <option th:each="item : ${anexos}"
                                                 th:value="${item.id}"

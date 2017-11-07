@@ -103,7 +103,7 @@ public class CarreraController {
                 node.put("facultad", carrera.getFacultad().getNombre());
                 node.put("modalidad", carrera.getModalidadEstudio().getNombre());
                 node.put("tipo", carrera.getTipo());
-                node.put("tipoEnum", carrera.getTipoEnum().getValue());
+                node.put("tipoEnum", !"".equals(this.getTipoEstudio(carrera.getTipo())) ? carrera.getTipoEnum().getValue() : "");
                 ArrayNode arrayOriCarrera = new ArrayNode(JsonNodeFactory.instance);
                 for (OrientacionCarrera oriCarrera : carrera.getOrientacionCarrera()) {
                     ObjectNode node2 = new ObjectNode(JsonNodeFactory.instance);
@@ -126,6 +126,13 @@ public class CarreraController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    public String getTipoEstudio(String tipo) {
+        if (tipo.equals(TipoCarreraEnum.SEM.name()) || tipo.equals(TipoCarreraEnum.PMA.name())) {
+            return "";
+        }
+        return tipo;
     }
 
     @ResponseBody
