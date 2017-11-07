@@ -2,21 +2,13 @@
     <div class="form-group">
         <label for="cboCarrera">Carrera</label>
         <select class="form-control" id="cboCarrera">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+            <option >Seleccione</option> 
+            <option  th:each="item : ${carrerasFacultad}" th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </div>
     <div class="form-group">
         <label for="cboOrientacion">Orienacion</label>
         <select class="form-control" id="cboOrientacion">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
         </select>
     </div>
     <div class="form-group">

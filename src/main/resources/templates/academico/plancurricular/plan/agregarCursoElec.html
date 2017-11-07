@@ -1,0 +1,35 @@
+<form id="frmAgregarCursoElec" >
+
+    <input  id="txtPlanCurricular" name="id" type="hidden" th:value="${planCurricular.id}"/>
+
+
+    <div class="form-group">
+        <label for="txtTipo">Tipo</label>
+
+        <select id="cboTipoElec" class="select2single form-control" 
+                required="true">
+            <option></option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="txtCursoElec">Curso</label>
+
+        <select id="cboCursoElec" class="select2single form-control" 
+                required="true">
+            <option></option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="txtCreditoCurElec">Credito</label>
+        <input id="txtCreditoCurElec" class="form-control"/>
+    </div>
+
+    <div class="form-group">
+        <label for="txtCursoElec">Código</label>
+        <input id="txtCodigoCurElec" class="form-control"/>
+    </div>
+
+
+</form>

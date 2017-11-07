@@ -3,7 +3,7 @@
 
     <div class="tabbable-line" id="subBar">
         <ul class="nav nav-tabs">
-            <li class="ver-tab-ciclo" th:rel="${ind}"  th:each="ind : ${#numbers.sequence( 1, 10)}">
+            <li class="ver-tab-ciclo-cur-obl" th:rel="${ind}"  th:each="ind : ${#numbers.sequence( 1, 10)}">
                 <a href="#"  th:rel="|Ciclo ${ind}|"  style="text-transform: none;"
                    th:text="${ind}">
                     Inicio
@@ -16,9 +16,9 @@
     <section class="panel">
         <section class="panel-body">
             <div class="pull-right" >
-                <a class="btn btn-success nuevo-plan-curricular" href="#" >Agregar Curso</a>
+                <a class="btn btn-success agregar-curso-obl" href="#" >Agregar Curso</a>
             </div>
-            <span>Cursos : <span id="spnCiclo">Ciclo 1</span></span>
+            <span>Cursos : <span id="spnCicloObl">Ciclo 1</span></span>
         </section>
 
         <section class="panel-body">

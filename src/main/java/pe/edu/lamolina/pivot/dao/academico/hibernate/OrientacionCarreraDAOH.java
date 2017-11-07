@@ -9,6 +9,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> implements OrientacionCarreraDAO {
@@ -51,10 +52,21 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
 
     @Override
     public OrientacionCarrera find(Long id) {
-         Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(OrientacionCarrera.class, "oc")
                 .join("carrera ca")
                 .filter("oc.id", id);
         return (OrientacionCarrera) sql.find(getCurrentSession());
     }
+
+    @Override
+    public List<OrientacionCarrera> allByFilter(Carrera carrera, EstadoEnum estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(OrientacionCarrera.class, "oc")
+                .join("carrera ca")
+                .filter("ca.id", carrera)
+                .filter("oc.estado", estadoEnum.name());
+        return sql.all(getCurrentSession());
+    }
+
 }

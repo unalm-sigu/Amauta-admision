@@ -1,0 +1,73 @@
+<form id="frmAgregarCurso" >
+
+    <input  id="txtPlanCurricular" name="id" type="hidden" th:value="${planCurricular.id}"/>
+
+
+    <div class="form-group">
+        <label for="txtTipo">Tipo</label>
+
+        <select id="cboTipo" class="select2single form-control" 
+                required="true">
+            <option></option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="txtCurso">Curso</label>
+
+        <select id="cboCurso" class="select2single form-control" 
+                required="true">
+            <option></option>
+        </select>
+    </div>
+
+    <fieldset>
+        <legend>Requisitos</legend>
+
+
+        <div class="form-group">
+            <label for="txtCredito">Creditos Requeridos</label>
+            <input id="txtCredito" type="text" class="form-control"  />
+        </div>
+
+        <div class="form-group">
+            <label for="txtCurso">Cursos</label>
+
+            <select id="cboCursos" class="select2single form-control" 
+                    required="true">
+                <option></option>
+            </select>
+
+            <a class="btn btn-success pull-right" id="cmbAdd">Agregar</a>
+        </div>
+
+        <div class="form-group">
+
+            <table class="table table-striped" id="dynaTable">
+                <thead> 
+                    <tr class=""> 
+                        <th class="col-md-5">Código </th>
+                        <th class="col-md-5">Nombre</th>
+                        <th class="col-md-2"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+
+                        </td>
+                        <td>
+
+                        </td>
+                        <td>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+    </fieldset>
+
+</form>
