@@ -14,6 +14,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
@@ -52,7 +54,7 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
+    public List<Alumno> allByRolDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
 
         DynatableSql sql = new DynatableSql(filter);
         switch (RolEnum.valueOf(codigo)) {
@@ -160,4 +162,99 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
 
         return (AlumnoResumen) query.uniqueResult();
     }
+
+    @Override
+    public List<Alumno> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
+
+        DynatableSql sql = new DynatableSql(filter);
+        switch (RolEnum.valueOf(codigo)) {
+            case TODO:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .filter("cia.id", cicloAcademico)
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .orderBy("al.id desc");
+                break;
+            case MOD:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .filter("cia.id", cicloAcademico)
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .in("moe.id", filtros)
+                        .orderBy("al.id desc");
+                break;
+            case FAC:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .filter("cia.id", cicloAcademico)
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .in("fac.id", filtros)
+                        .orderBy("al.id desc");
+                break;
+            case ESP:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .filter("cia.id", cicloAcademico)
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .in("ca.id", filtros)
+                        .orderBy("al.id desc");
+                break;
+            default:
+                sql.from(Alumno.class, "al")
+                        .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
+                        .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                        .filter("cia.id", cicloAcademico)
+                        .searchFields("ca.nombre", "al.estado", "al.codigo")
+                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchSubqueryFields("ca.nombre")
+                        .orderBy("al.id desc");
+                break;
+        }
+
+        sql.beginRelativeFilters();
+        setCondicionModalidad(filter, sql);
+
+        return sql.all(getCurrentSession());
+
+    }
+
+    @Override
+    public MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(MatriculableResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
+        sql.append(" inner join al.carrera ca ");
+        sql.append(" inner join al.cicloActivo cia ");
+        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" where cia.id = :CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+        query.setLong("CICLO", cicloAcademico.getId());
+
+        return (MatriculableResumen) query.uniqueResult();
+    }
+
 }

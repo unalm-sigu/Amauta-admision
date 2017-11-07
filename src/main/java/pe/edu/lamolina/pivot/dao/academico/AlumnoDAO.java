@@ -4,7 +4,9 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Persona;
 
 public interface AlumnoDAO extends Crud<Alumno> {
@@ -15,8 +17,12 @@ public interface AlumnoDAO extends Crud<Alumno> {
 
     List<Alumno> allByPersona(Persona persona);
 
-    List<Alumno> allByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
+    List<Alumno> allByRolDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 
     AlumnoResumen findResumen();
+
+    List<Alumno> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
+
+    MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 
 }

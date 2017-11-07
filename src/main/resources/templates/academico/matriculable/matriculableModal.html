@@ -1,0 +1,25 @@
+<div class="modal fade" id="modalMatriculable">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title bold">Agregar Matriculable</h5>
+            </div>
+            <div class="modal-body">
+                <form id="formMatriculable" method="POST" th:action="@{/academico/matriculable/save}">
+
+                    <div class="row m-b-md">
+                        <div class="form-group">
+                            <div class="col-md-12 text-center">
+                                <input type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Aceptar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>

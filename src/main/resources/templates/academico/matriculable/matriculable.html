@@ -1,0 +1,83 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Acta de Notas</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable" th:remove="tag"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">        
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="/academico/matriculable/nuevo">Agregar Matriculable</a></li>
+                    <li><a id="agregarMatriculable">Modal Matriculable</a></li>
+                </ul>
+            </div>
+            <h2>Alumnos - <span>2016-II</span></h2>
+        </header>
+
+        <section class="panel m-b-xs">
+            <section class="panel-body">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <a class="ver-modalidades text-danger pointer" rel="pregrado">
+                                <span class="h1 block bold" th:text="${resumen.pregrado}">23</span>
+                                <small class="block m-b-xs">Pregrado</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a class="ver-modalidades text-black pointer" rel="postgrado">
+                                <span class="h1 block bold" th:text="${resumen.postgrado}">23</span>
+                                <small class="block m-b-xs">Postgrado</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a class="ver-modalidades text-success pointer" rel="visitante">
+                                <span class="h1 block bold" th:text="${resumen.visitante}">23</span>
+                                <small class="block m-b-xs">Visitante</small>
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a class="ver-modalidades text-warning pointer" rel="especiales">
+                                <span class="h1 block bold" th:text="${resumen.especiales}">23</span>
+                                <small class="block m-b-xs">Especiales</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="panel">
+            <section class="panel-body">
+                <div class="hide" id="headDynatable"></div>
+                <table  id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th class="col-md-4"></th>
+                            <th class="col-md-2 text-center">Campo 1</th>
+                            <th class="col-md-3 text-center v-middle">Campo 2</th>
+                            <th class="col-md-2 text-center v-middle">Campo 3</th>
+                            <th class="col-md-1 text-center v-middle">Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+        <script id="matriculableTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/matriculable/matriculableTemplate"/></script>
+        <div th:substituteby="academico/matriculable/matriculableModal"/>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"></div>
+        <script th:src="@{/app/academico/matriculable/matriculable.js}" charset="utf-8"></script>
+    </div>
+</body>
+
+</html>
