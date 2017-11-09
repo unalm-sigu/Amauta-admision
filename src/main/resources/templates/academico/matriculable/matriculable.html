@@ -72,7 +72,8 @@
             </section>
         </section>
         <script id="matriculableTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/matriculable/matriculableTemplate"/></script>
-        <div th:substituteby="academico/matriculable/matriculableModal"/>
+        <div id="matriculableModal"></div>
+        <div id="cursosModal"></div>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"></div>

@@ -1,4 +1,4 @@
-<div class="modal fade" id="modalMatriculable">
+<div class="modal fade" id="viewModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -11,6 +11,18 @@
                         <div class="form-group">
                             <div class="col-md-12 text-center">
                                 <input type="text" class="form-control"/>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="form-group">
+                            <label for="ciclos" class="col-md-12 control-label">Modalidad de Estudio</label>
+                            <div class="col-md-12">
+                                <select name="" required="true" class="form-control select2">
+                                    <option></option>
+                                    <option th:each="item : ${modalidades}"  
+                                            th:text="${item.nombre}"
+                                            th:value="${item.id}" ></option>
+                                </select>
                             </div>
                         </div>
                     </div>

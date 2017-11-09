@@ -16,6 +16,7 @@ import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -252,6 +253,16 @@ public class PersonaServiceImp implements PersonaService {
             loop++;
         }
         return msg;
+    }
+
+    @Transactional
+    @Override
+    public void updatePersonaAlumno(Persona persona, Usuario usuario) {
+        Persona personaDB = personaDAO.find(persona.getId());
+
+        personaDB.setNombres(persona.getNombres());
+
+        personaDAO.update(personaDB);
     }
 
 }

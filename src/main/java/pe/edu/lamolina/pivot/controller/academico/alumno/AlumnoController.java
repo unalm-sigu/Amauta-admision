@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,6 +32,7 @@ import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -261,4 +263,49 @@ public class AlumnoController {
 
         return "/academico/alumno/visitante/alumnoVisitante";
     }
+
+    @RequestMapping("{alumno}/matricula/origen/matriculable")
+    public String alumnoMatricula(@PathVariable("alumno") Long idAlumno,
+            Model model, HttpSession session) {
+
+        List<MatriculaCurso> cursos = service.allMatriculaCursoByAlumno(idAlumno);
+
+        model.addAttribute("cursos", cursos);
+
+        return "/academico/alumno/otros/alumnoMatricula";
+    }
+
+    @RequestMapping("{alumno}/horario/origen/matriculable")
+    public String alumnoHorario(@PathVariable("persona") Long idPersona,
+            Model model, HttpSession session) {
+
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("documentos", especialService.allDocumentos());
+        model.addAttribute("ciclos", especialService.allCiclos());
+
+        return "/academico/alumno/alumnoHorario";
+    }
+
+    @RequestMapping("{alumno}/historia/origen/matriculable")
+    public String alumnoHistoria(@PathVariable("persona") Long idPersona,
+            Model model, HttpSession session) {
+
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("documentos", especialService.allDocumentos());
+        model.addAttribute("ciclos", especialService.allCiclos());
+
+        return "/academico/alumno/alumnoHistoria";
+    }
+
+    @RequestMapping("{alumno}/avance/origen/matriculable")
+    public String alumnoAvance(@PathVariable("persona") Long idPersona,
+            Model model, HttpSession session) {
+
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("documentos", especialService.allDocumentos());
+        model.addAttribute("ciclos", especialService.allCiclos());
+
+        return "/academico/alumno/alumnoAvance";
+    }
+
 }

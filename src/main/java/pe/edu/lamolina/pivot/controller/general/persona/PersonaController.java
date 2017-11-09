@@ -28,12 +28,11 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -148,7 +147,6 @@ public class PersonaController {
         return "general/persona/personaForm";
     }
 
-
     @ResponseBody
     @RequestMapping("savePersona")
     public JsonResponse savePersona(Persona persona, HttpSession session, RedirectAttributes redirectAttr) {
@@ -255,4 +253,59 @@ public class PersonaController {
         return response;
     }
 
+    @RequestMapping("{persona}/visual/matriculable/origen")
+    public String matriculableOrigen(
+            @PathVariable("persona") Long idPersona, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Persona persona = service.find(new Persona(idPersona));
+
+        model.addAttribute("persona", persona);
+        model.addAttribute("fotoHelper", new FotoHelper());
+        return "general/personaalumno/personaAlumno";
+    }
+
+    @RequestMapping("{persona}/editar/alumno/origen")
+    public String editarAlumno(
+            @PathVariable("persona") Long idPersona, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Persona persona = service.find(new Persona(idPersona));
+
+        model.addAttribute("persona", persona);
+        model.addAttribute("fotoHelper", new FotoHelper());
+        return "general/personaalumno/personaAlumno";
+    }
+
+    @RequestMapping("{persona}/visual/alumno/origen")
+    public String visualAlumno(
+            @PathVariable("persona") Long idPersona, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Persona persona = service.find(new Persona(idPersona));
+
+        model.addAttribute("persona", persona);
+        model.addAttribute("fotoHelper", new FotoHelper());
+        return "general/personaalumno/personaAlumno";
+    }
+
+    @RequestMapping("update/alumno/origen")
+    public String save(Persona persona,
+            RedirectAttributes redirectAttr, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Rol rol = ds.getRolActivo();
+        try {
+            String mensaje = "Alumno actualizado.";
+            service.updatePersonaAlumno(persona, ds.getUsuario());
+            Notificaciones.crearMsg(mensaje, redirectAttr);
+
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+
+        }
+        return "redirect:/academico/carrera/editar/";
+    }
 }

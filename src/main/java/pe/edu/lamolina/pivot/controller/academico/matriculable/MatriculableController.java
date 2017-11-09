@@ -30,6 +30,8 @@ import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -157,9 +159,26 @@ public class MatriculableController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
-        model.addAttribute("persona", new Persona());
+        List<String> codigos = new ArrayList();
+        codigos.add(ESP.name());
+        codigos.add(VIS.name());
 
-        return "/academico/matriculable/matriculableForm";
+        List<ModalidadEstudio> modalidades = service.allModalidadEstudioByCodigos(codigos);
+        model.addAttribute("modalidades", modalidades);
+
+        return "/academico/matriculable/matriculableModal";
+    }
+
+    @RequestMapping("generar")
+    public String generar(Model model, HttpSession session) {
+
+        return "/academico/matriculable/generar";
+    }
+
+    @RequestMapping("estadoVisor")
+    public String estadoVisor(Model model, HttpSession session) {
+
+        return "/academico/matriculable/estadoVisor";
     }
 
 }

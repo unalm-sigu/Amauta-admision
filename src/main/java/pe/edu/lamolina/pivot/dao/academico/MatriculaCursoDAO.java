@@ -16,4 +16,6 @@ public interface MatriculaCursoDAO extends Crud<MatriculaCurso> {
 
     List<MatriculaCurso> allByMatriculaResumen(MatriculaResumen resumen);
 
+    List<MatriculaCurso> allByAlumno(Long idAlumno);
+
 }

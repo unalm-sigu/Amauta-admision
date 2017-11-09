@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PersonaService {
@@ -23,5 +24,7 @@ public interface PersonaService {
     Persona findPersona(Persona personaTmp);
 
     String validarEmailCompaniaByPersona(String email, Persona persona);
+
+    void updatePersonaAlumno(Persona persona, Usuario usuario);
 
 }

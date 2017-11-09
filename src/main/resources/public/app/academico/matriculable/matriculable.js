@@ -54,14 +54,44 @@ $(function () {
             Matriculable.modalMatriculable.modal("show");
             $('[name="motivo"]').val("");
             $('[name="id"]').val($this.attr("rel"));
+        },
+        nuevoModal: function () {
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/nuevo'),
+                success: function (response) {
+                    $('#matriculableModal').html(response);
+                    $('#viewModal').modal('show');
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        verCursos: function ($this) {
+            var rel = $this.attr("rel");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/alumno/' + rel + '/matricula/origen/matriculable'),
+                success: function (response) {
+                    $('#cursosModal').html(response);
+                    $('#viewModal').modal('show');
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
 
     $("body").delegate(".ver-modalidades", "click", function (e) {
         Matriculable.verModalidades($(this), e);
     });
+    $("body").delegate(".ver-cursos", "click", function () {
+        Matriculable.verCursos($(this));
+    });
     $("body").delegate("#agregarMatriculable", "click", function (e) {
-        Matriculable.viewModal(e, $(this));
+        Matriculable.nuevoModal(e, $(this));
     });
 
 });

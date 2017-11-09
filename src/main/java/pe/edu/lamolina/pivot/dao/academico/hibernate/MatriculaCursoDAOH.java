@@ -5,6 +5,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -44,5 +45,16 @@ public class MatriculaCursoDAOH extends AbstractDAO<MatriculaCurso> implements M
                 .parents("matriculaResumen mr", "_mr.alumno alu", "_mr.cicloAcademico ca", "curso cu")
                 .filter("mr.id", resumen);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<MatriculaCurso> allByAlumno(Long idAlumno) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "macu")
+                .join("matriculaResumen mare", "curso")
+                .join("mare.alumno al")
+                .filter("al.id", idAlumno);
+
+        return sql.all(getCurrentSession());
     }
 }
