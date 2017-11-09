@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum;
 
 @Entity
 @Table(name = "aca_tipo_curso_curricula")
@@ -90,5 +91,20 @@ public class TipoCursoCurricula implements Serializable {
         this.resumenPlanCurricular = resumenPlanCurricular;
     }
 
-}
+    public boolean isTieneRequisitos() {
+        if (TipoCursoCurriculaEnum.OBL.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.GEN.name().equals(this.getCodigo())) {
+            return true;
+        }
+        return false;
+    }
 
+    public boolean isTieneCreditoManual() {
+        if (TipoCursoCurriculaEnum.OBL.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.GEN.name().equals(this.getCodigo())) {
+            return true;
+        }
+        return false;
+    }
+
+}

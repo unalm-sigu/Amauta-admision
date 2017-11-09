@@ -1,4 +1,4 @@
-$(function () {
+mo$(function () {
 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {

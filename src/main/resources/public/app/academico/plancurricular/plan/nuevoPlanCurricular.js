@@ -1,15 +1,43 @@
-
-
 $(function () {
+
+    var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
+        dataset: {
+            ajaxUrl: APP.url('academico/planCurricular/plan/listCurObl')
+            , perPageDefault: 10
+        },
+        writers: {
+            _rowWriter: ulWriter
+        },
+        table: {
+            bodyRowSelector: 'tbody tr'
+        }
+    }).data('dynatable');
+
+    function ulWriter(rowIndex, record, columns, cellWriter) {
+        var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
+        record.colorEstado = colorEstado[record.estado];
+        record.index = rowIndex;
+        var html = $.templates("#templateCursoCurricula").render(record);
+        return html;
+    }
 
     NuevoPlanCurricular = {
         pestañaCicloCurOblElegida: null,
         pestañaCicloCurElecElegida: null,
+        tipoCursoCurricula: null,
         init: function () {
             //$('#dateFechaVig').datepicker("remove");
             // $('#inpDateFechaVig').datepicker({startDate: "today"});
             $('#inpDateFechaVig').datepicker();
             //  $('#dateFechaVig').datepicker('update');
+            if ($("#txtPlanCurricular").val() != null) {
+                $(NuevoPlanCurricular.pestañaCicloCurOblElegida).attr("rel", "1")
+                NuevoPlanCurricular.pestañaCicloCurOblElegida = $("li.ver-tab-ciclo-cur-obl").first();
+                $("li.ver-tab-ciclo-cur-obl").first().addClass(("active"));
+                dynatableCursosObl.queries.add("pc.id", $("#txtPlanCurricular").val());
+                dynatableCursosObl.queries.add("cc.numeroCiclo", 1);
+                dynatableCursosObl.process();
+            }
         }, verPestañaCicloCurObl($this, e) {
             var pestaña = $this.attr("rel");
             if (NuevoPlanCurricular.pestañaCicloCurOblElegida !== null) {
@@ -18,6 +46,11 @@ $(function () {
             $this.addClass("active");
             NuevoPlanCurricular.pestañaCicloCurOblElegida = $this;
             $("#spnCicloObl").html("Ciclo " + pestaña);
+
+            dynatableCursosObl.queries.add("pc.id", $("#txtPlanCurricular").val());
+            dynatableCursosObl.queries.add("cc.numeroCiclo", pestaña);
+            dynatableCursosObl.process();
+
         }, verPestañaCicloCurElec($this, e) {
             var pestaña = $this.attr("rel");
             if (NuevoPlanCurricular.pestañaCicloCurElecElegida !== null) {
@@ -29,7 +62,7 @@ $(function () {
         }, agregarCursoObl($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : ");
+            MODAL.title("Curso : " + $("#spnCicloObl").html());
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnAddCurObl">Aceptar</a>');
             MODAL.body('');
@@ -39,6 +72,45 @@ $(function () {
                 async: false,
                 success: function (response) {
                     MODAL.body(response);
+                    $("#txtNumeroCiclo").val(NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
+                    $("#cboCurso").select2({
+                        minimumInputLength: 3,
+                        ajax: {
+                            url: APP.url("academico/planCurricular/plan/buscarCursos"),
+                            dataType: 'json',
+                            type: 'post',
+                            data: function (term, page) {
+                                return {nombre: term, page: page};
+                            },
+                            results: function (response, page) {
+                                return {results: response.data};
+                            }
+                        },
+                        formatResult: function (info) {
+                            return $.templates("#divBuscarCurso").render(info);
+                        },
+                        formatSelection: function (info) {
+                            return info.cursoCodigo + " - " + info.cursoNombre;
+                        },
+                        escapeMarkup: function (m) {
+                            return m;
+                        }
+                    }).on('select2-selecting', function (e) {
+                        $("#txtCurso").val(e.object.id);
+                        if (jQuery.type(NuevoPlanCurricular.tipoCursoCurricula.tieneCreditoManual) === "undefined") {
+                            $("#txtCreditos").val(e.object.cursoCreditos);
+                        } else {
+                            if (NuevoPlanCurricular.tipoCursoCurricula.tieneCreditoManual != null) {
+                                if (NuevoPlanCurricular.tipoCursoCurricula.tieneCreditoManual) {
+                                    $("#txtCreditos").val("");
+                                } else {
+                                    $("#txtCreditos").val(e.object.cursoCreditos);
+                                }
+                            }
+                        }
+                    });
+
+
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -47,7 +119,7 @@ $(function () {
         }, agregarCursoElec($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : ");
+            MODAL.title("Curso : Ciclo ");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnAddCurElec">Aceptar</a>');
             MODAL.body('');
@@ -68,13 +140,11 @@ $(function () {
 
             if (!isNaN(carr)) {
                 if (carr > 0) {
-                    alert("cambio");
                     $.ajax({
                         url: APP.url('academico/planCurricular/plan/' + carr + '/orientacionCarrera'),
                         type: 'POST',
                         async: false,
                         success: function (response) {
-                            alert(response);
                             $("#cboOrientacion").html(response);
                         },
                         error: function () {
@@ -83,6 +153,160 @@ $(function () {
                     });
                 }
             }
+        }, cambiarTipoCursoCurricula($this, e) {
+            var tipoCursoCurricula = $this.val();
+            if (!isNaN(tipoCursoCurricula)) {
+                if (tipoCursoCurricula > 0) {
+                    $.ajax({
+                        url: APP.url('academico/planCurricular/plan/' + tipoCursoCurricula + '/cambiarTipoCursoCurricula'),
+                        type: 'POST',
+                        async: false,
+                        success: function (response) {
+                            NuevoPlanCurricular.tipoCursoCurricula = response.data;
+
+                            $("#txtCreditoReq").removeAttr("required")
+                            $("#txtCreditos").attr("required", true);
+                            $('#cmbAdd').attr("disabled", "disabled");
+                            $('#txtCreditoReq').prop("disabled", true);
+                            $('#txtCreditos').prop("disabled", true);
+
+                            if (response.data.tieneRequisitos) {
+                                $('#txtCreditoReq').prop("disabled", false);
+                                $("#txtCreditoReq").attr("required", true)
+                                $("#cmbAdd").removeAttr("disabled")
+
+
+
+
+                                $("#cboCursosReq").select2({
+                                    minimumInputLength: 3,
+                                    ajax: {
+                                        url: APP.url("academico/planCurricular/plan/buscarCursosCurricula"),
+                                        dataType: 'json',
+                                        type: 'post',
+                                        data: function (term, page) {
+                                            return {nombre: term,
+                                                planCurricular: $("#txtPlanCurricular").val(),
+                                                numeroCiclo: NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"),
+                                                page: page};
+                                        },
+                                        results: function (response, page) {
+                                            return {results: response.data};
+                                        }
+                                    },
+                                    formatResult: function (info) {
+                                        return $.templates("#divBuscarCurso").render(info);
+                                    },
+                                    formatSelection: function (info) {
+                                        return info.cursoCodigo + " - " + info.cursoNombre;
+                                    },
+                                    escapeMarkup: function (m) {
+                                        return m;
+                                    }
+                                }).on('select2-selecting', function (e) {
+                                    console.dir(e.object);
+                                    $("#txtCursoReq").val(e.object.id);
+                                });
+
+
+                            }
+                            if (response.data.tieneCreditoManual) {
+                                $('#txtCreditos').prop("disabled", false);
+                                $("#txtCreditos").val("");
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        }
+                    });
+                }
+            }
+        },
+        savePlanCurricular: function () {
+
+
+            var form = $("[id='frmPlanCurricular']");
+            // form.submit();
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea grabar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('academico/planCurricular/plan/savePlanCurricular'),
+                            type: 'POST',
+                            async: true,
+                            data: form.serialize(),
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hide();
+                                    notify(response.message, "info");
+                                    location.href = APP.url('academico/planCurricular/plan/' + 1 + '/succesSave');
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
+                    }
+                }
+            });
+        }, addCursoObl: function () {
+            var form = $("[id='frmAgregarCurso']");
+            // form.submit();
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea agregar el curso?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    MODAL.showWait("Espere un momento por favor");
+                    $.ajax({
+                        url: APP.url('academico/planCurricular/plan/saveAgregarCursoObl'),
+                        type: 'POST',
+                        async: true,
+                        data: form.serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                notify(response.message, "info");
+
+                                dynatableCursosObl.queries.add("pc.id", $("#txtPlanCurricular").val());
+                                dynatableCursosObl.queries.add("cc.numeroCiclo", NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
+                                dynatableCursosObl.process();
+                            } else {
+                                notify(response.message, "error");
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        }
+                    });
+                }
+            });
         }
     }
     NuevoPlanCurricular.init();
@@ -106,5 +330,19 @@ $(function () {
     $("body").delegate("#cboCarrera", "change", function (e) {
         NuevoPlanCurricular.cambiarComboCarrera($(this), e);
     });
+
+    $("body").delegate("#cmbSavePlanCurricular", "click", function (e) {
+        NuevoPlanCurricular.savePlanCurricular();
+    });
+
+    $("body").delegate("#cboTipoCursoCurricula", "change", function (e) {
+        NuevoPlanCurricular.cambiarTipoCursoCurricula($(this), e);
+    });
+
+    $("body").delegate("#btnAddCurObl", "click", function (e) {
+        NuevoPlanCurricular.addCursoObl();
+    });
+
+
 
 });

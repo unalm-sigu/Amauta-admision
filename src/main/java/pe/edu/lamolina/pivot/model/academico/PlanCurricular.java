@@ -13,7 +13,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Entity
 @Table(name = "aca_plan_curricular")
@@ -31,8 +33,9 @@ public class PlanCurricular implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaAprobado;
 
-    @Column(name = "id_ciclo_inicio_vigencia")
-    private Long idCicloInicioVigencia;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ciclo_inicio_vigencia")
+    private CicloAcademico cicloInicioVigencia;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_carrera")
@@ -55,6 +58,11 @@ public class PlanCurricular implements Serializable {
     private List<ResumenPlanCurricular> resumenPlanCurricular;
 
     public PlanCurricular() {
+    }
+
+    public void init() {
+        this.setCicloInicioVigencia(new CicloAcademico());
+        this.setCarrera(new Carrera());
     }
 
     public PlanCurricular(Object id) {
@@ -93,6 +101,10 @@ public class PlanCurricular implements Serializable {
         this.estado = estado;
     }
 
+    public void setEstadoEnum(EstadoEnum estadoEnum) {
+        this.estado = estadoEnum.name();
+    }
+
     public Date getFechaAprobado() {
         return fechaAprobado;
     }
@@ -101,12 +113,12 @@ public class PlanCurricular implements Serializable {
         this.fechaAprobado = fechaAprobado;
     }
 
-    public Long getIdCicloInicioVigencia() {
-        return idCicloInicioVigencia;
+    public CicloAcademico getCicloInicioVigencia() {
+        return cicloInicioVigencia;
     }
 
-    public void setIdCicloInicioVigencia(Long idCicloInicioVigencia) {
-        this.idCicloInicioVigencia = idCicloInicioVigencia;
+    public void setCicloInicioVigencia(CicloAcademico cicloInicioVigencia) {
+        this.cicloInicioVigencia = cicloInicioVigencia;
     }
 
     public List<CursoAdicionalCurricula> getCursoAdicionalCurricula() {
@@ -142,4 +154,3 @@ public class PlanCurricular implements Serializable {
     }
 
 }
-

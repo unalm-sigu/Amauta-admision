@@ -13,42 +13,42 @@ import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.PEND;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements CicloAcademicoDAO {
-    
+
     public CicloAcademicoDAOH() {
         super();
         setClazz(CicloAcademico.class);
     }
-    
+
     @Override
     public CicloAcademico find(long cicloAcademico) {
-        
+
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .filter("id", cicloAcademico);
         return (CicloAcademico) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public CicloAcademico findActivo() {
-        
+
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .filter("estado", ACT);
         return (CicloAcademico) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public List<CicloAcademico> allForChanges(Integer maxResultado) {
-        
+
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .in("estado", Arrays.asList(ACT, CER, PEND))
                 .orderBy("year desc", "numeroCiclo desc")
                 .limit(maxResultado);
-        
+
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public CicloAcademico findAnteriorRegular(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -57,8 +57,20 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
                 .filter("codigo", "<", ciclo.getCodigo())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
-        
+
         return (CicloAcademico) sql.find(getCurrentSession());
     }
-    
+
+    @Override
+    public List<CicloAcademico> allRecientes(Integer year, Integer maxResultado) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("year", ">=", year)
+                .in("estado", Arrays.asList(ACT.name(), CER.name()))
+                .orderBy("year desc", "numeroCiclo desc")
+                .limit(maxResultado);
+
+        return sql.all(getCurrentSession());
+    }
+
 }

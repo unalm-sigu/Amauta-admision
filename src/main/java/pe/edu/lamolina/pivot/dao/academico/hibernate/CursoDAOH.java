@@ -8,6 +8,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
@@ -117,6 +118,16 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
                 .in("da.id", departamentos)
                 .searchFields("cu.nombre", "cu.codigo", "fa.nombre")
                 .orderBy("cu.id desc");
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Curso> allByNombreFilter(String nombre, Integer limit) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .like("cur.nombre", nombre)
+                .orderBy("cur.nombre")
+                .limit(limit);
         return sql.all(getCurrentSession());
     }
 

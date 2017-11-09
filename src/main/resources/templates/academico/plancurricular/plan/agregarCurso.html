@@ -1,24 +1,40 @@
 <form id="frmAgregarCurso" >
 
-    <input  id="txtPlanCurricular" name="id" type="hidden" th:value="${planCurricular.id}"/>
+    <input  id="txtPlanCurricular" name="planCurricular.id" type="hidden" th:value="${planCurricular.id}"/>
+    <input  id="txtNumeroCiclo" type="hidden" name="numeroCiclo" />
 
 
     <div class="form-group">
-        <label for="txtTipo">Tipo</label>
+        <label for="cboTipoCursoCurricula">Tipo</label>
 
-        <select id="cboTipo" class="select2single form-control" 
-                required="true">
-            <option></option>
+        <select id="cboTipoCursoCurricula" 
+                class="select2single form-control" 
+                name="tipoCursoCurricula.id"
+                required="">
+            <option value="">Seleccione</option> 
+            <option  th:each="item : ${tiposCursoCurriculas}" 
+                     th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </div>
 
     <div class="form-group">
-        <label for="txtCurso">Curso</label>
+        <label for="cboCurso">Curso</label>
+        <input id="cboCurso" class="form-control" 
+               type="text" 
+               required="yes"/>
+        <input id="txtCurso" type="hidden" name="curso.id"/>
 
-        <select id="cboCurso" class="select2single form-control" 
-                required="true">
-            <option></option>
-        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="txtCreditos">Creditos</label>
+        <input id="txtCreditos" class="form-control" 
+               name="creditos"
+               type="text" 
+               required="yes"
+               data-parsley-type="digits"/>
+        <input id="txtCurso" type="hidden" name="curso.id"/>
+
     </div>
 
     <fieldset>
@@ -27,16 +43,23 @@
 
         <div class="form-group">
             <label for="txtCredito">Creditos Requeridos</label>
-            <input id="txtCredito" type="text" class="form-control"  />
+            <input id="txtCreditoReq" 
+                   name="creditosRequisito" 
+                   type="text" 
+                   class="form-control"
+                   required="true" 
+                   data-parsley-type="digits"/>
         </div>
 
         <div class="form-group">
-            <label for="txtCurso">Cursos</label>
+            <label for="cboCursosReq">Cursos</label>
 
-            <select id="cboCursos" class="select2single form-control" 
-                    required="true">
-                <option></option>
-            </select>
+            <input id="cboCursosReq" 
+                   class="form-control" 
+                   type="text" />
+
+            <input id="txtCursoReq" 
+                   type="hidden"/>
 
             <a class="btn btn-success pull-right" id="cmbAdd">Agregar</a>
         </div>
@@ -71,3 +94,11 @@
     </fieldset>
 
 </form>
+
+
+<div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+    <span class="block bold h5 text-success">{{:cursoNombre}}</span>
+    <span class="block"><strong>Código:</strong> {{:cursoCodigo}} - <strong>TPC:</strong> {{:cursoTpc}}</span>
+    <small class="block"><strong>Dpto. Académico:</strong> {{:departamentoAcademico}}</small>
+    <small class="block"><strong>Facultad:</strong> {{:facultadNombre}}</small>
+</div>

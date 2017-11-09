@@ -9,8 +9,12 @@
         <header class="page-header">
             <h2>Nuevo Plan de Estudios</h2>
         </header>
-        <input name="id" type="hidden" th:value="${planCurricular.id}"/>
-        <form>
+
+        <form id="frmPlanCurricular">
+            <input name="id"
+                   id="txtPlanCurricular"
+                   type="hidden" 
+                   th:value="${planCurricular.id}"/>
             <div id="exTab2" class="tabbable-line m-b-sm">	
                 <ul class="nav nav-tabs">
                     <li class="active">
@@ -44,9 +48,15 @@
                 </section>
             </div>
 
+            <section class="panel-footer pull-right">
+                <a  href="#" class="btn btn-link cancelar">Cancelar</a>
+                <a th:unless="${planCurricular.id}" href="#" id="cmbSavePlanCurricular" class="btn btn-success">Crear PlanCurricular</a>
+            </section>
+
         </form>
 
         <div th:substituteby="templates/modal"/>
+        <script id="templateCursoCurricula" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/plan/includes/templateCursosObl"/></script>
     </div>
 
     <div layout:fragment="js">
