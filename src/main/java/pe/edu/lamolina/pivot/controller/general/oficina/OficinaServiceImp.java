@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
+import pe.edu.lamolina.pivot.dao.general.AusenciaJefeDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
@@ -19,11 +21,13 @@ import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.general.AusenciaJefe;
 import pe.edu.lamolina.pivot.model.general.Colaborador;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.PerfilCompania;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.OficinaEstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 
@@ -52,6 +56,9 @@ public class OficinaServiceImp implements OficinaService {
     @Autowired
     PerfilCompaniaDAO perfilCompaniaDAO;
 
+    @Autowired
+    AusenciaJefeDAO ausenciaJefeDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -76,7 +83,6 @@ public class OficinaServiceImp implements OficinaService {
         oficinaDb.setInstanciaOficina(oficina.getInstanciaOficina());
         oficinaDb.setCargoJefe(oficina.getCargoJefe());
         oficinaDb.setPersonaJefe(oficina.getPersonaJefe());
-        oficinaDb.setEsJefeEncargado(oficina.getEsJefeEncargado());
         oficinaDAO.update(oficinaDb);
     }
 
@@ -126,10 +132,10 @@ public class OficinaServiceImp implements OficinaService {
     @Transactional
     public void estado(Oficina oficina) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
-        if (OficinaEstadoEnum.ANU.name().equalsIgnoreCase(oficinaBD.getEstado())) {
+        if (OficinaEstadoEnum.INA.name().equalsIgnoreCase(oficinaBD.getEstado())) {
             oficinaBD.setEstado(OficinaEstadoEnum.ACT.name());
         } else {
-            oficinaBD.setEstado(OficinaEstadoEnum.ANU.name());
+            oficinaBD.setEstado(OficinaEstadoEnum.INA.name());
         }
         oficinaDAO.update(oficinaBD);
     }
@@ -153,19 +159,86 @@ public class OficinaServiceImp implements OficinaService {
     public void fillReferencia(Oficina oficina) {
         String tipo = oficina.getTipoOficina();
         if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(tipo)) {
-            DepartamentoAcademico  departamento = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
+            DepartamentoAcademico departamento = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
             oficina.setInstanciaOficinaCodigo(departamento.getCodigo());
             oficina.setInstanciaOficinaNombre(departamento.getNombreLargo());
         }
         if (TipoOficinaEnum.ESP.name().equalsIgnoreCase(tipo)) {
-            Carrera  carrera = carreraDAO.find(oficina.getInstanciaOficina());
+            Carrera carrera = carreraDAO.find(oficina.getInstanciaOficina());
             oficina.setInstanciaOficinaCodigo(carrera.getCodigo());
             oficina.setInstanciaOficinaNombre(carrera.getNombre());
         }
         if (TipoOficinaEnum.FAC.name().equalsIgnoreCase(tipo)) {
-            Facultad  facultad = facultadDAO.find(oficina.getInstanciaOficina());
+            Facultad facultad = facultadDAO.find(oficina.getInstanciaOficina());
             oficina.setInstanciaOficinaCodigo(facultad.getCodigo());
             oficina.setInstanciaOficinaNombre(facultad.getNombre());
         }
+    }
+
+    @Override
+    @Transactional
+    public void asignarJefe(Oficina oficina, Usuario usuario) {
+        Oficina oficinaDb = oficinaDAO.find(oficina.getId());
+        oficinaDb.setPersonaJefe(oficina.getPersonaJefe());
+        oficinaDb.setFechaInicioJefatura(new Date());
+        oficinaDAO.update(oficinaDb);
+
+        if (oficina.getPersonaJefe().getTituloAcademico() != null) {
+            Persona jefeDb = personaDAO.find(oficina.getPersonaJefe().getId());
+            jefeDb.setTituloAcademico(oficina.getPersonaJefe().getTituloAcademico());
+            personaDAO.update(jefeDb);
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public void retirarJefe(Oficina oficina, Usuario usuario) {
+        Oficina oficinaDb = oficinaDAO.find(oficina.getId());
+        oficinaDb.setPersonaJefe(null);
+        oficinaDAO.update(oficinaDb);
+    }
+
+    @Override
+    @Transactional
+    public void asignarEncargado(Oficina oficina, Usuario usuario) {
+
+        Oficina oficinaDb = oficinaDAO.find(oficina.getId());
+        oficinaDb.setJefeEncargado(oficina.getJefeEncargado());
+        oficinaDb.setMotivo(oficina.getMotivo());
+        oficinaDAO.update(oficinaDb);
+
+        if (oficina.getJefeEncargado().getTituloAcademico() != null) {
+            Persona jefeDb = personaDAO.find(oficina.getJefeEncargado().getId());
+            jefeDb.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
+            personaDAO.update(jefeDb);
+        }
+
+        AusenciaJefe ausenciaJefe = new AusenciaJefe();
+        ausenciaJefe.setMotivo(oficina.getMotivo());
+        ausenciaJefe.setEncargado(oficina.getJefeEncargado());
+        ausenciaJefe.setFecha(new Date());
+        ausenciaJefe.setOficina(oficinaDb);
+        ausenciaJefe.setUsuario(usuario);
+        ausenciaJefeDAO.save(ausenciaJefe);
+
+    }
+
+    @Override
+    @Transactional
+    public void retirarEncargado(Oficina oficina, Usuario usuario) {
+
+        Oficina oficinaDb = oficinaDAO.find(oficina.getId());
+
+        AusenciaJefe ausenciaJefe = new AusenciaJefe();
+        ausenciaJefe.setMotivo(oficina.getMotivo());
+        ausenciaJefe.setEncargado(oficinaDb.getJefeEncargado());
+        ausenciaJefe.setFecha(new Date());
+        ausenciaJefe.setOficina(oficinaDb);
+        ausenciaJefe.setUsuario(usuario);
+        ausenciaJefeDAO.save(ausenciaJefe);
+
+        oficinaDb.setJefeEncargado(null);
+        oficinaDAO.update(oficinaDb);
     }
 }

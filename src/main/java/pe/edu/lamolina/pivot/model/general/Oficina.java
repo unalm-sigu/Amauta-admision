@@ -44,9 +44,6 @@ public class Oficina implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaInicioJefatura;
 
-    @Column(name = "es_jefe_encargado")
-    private Integer esJefeEncargado;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compania")
     private Compania compania;
@@ -60,8 +57,15 @@ public class Oficina implements Serializable {
     private Persona personaJefe;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_jefe_encargado")
+    private Persona jefeEncargado;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cargo_jefe")
     private PerfilCompania cargoJefe;
+
+    @Column(name = "motivo")
+    private String motivo;
 
     @Column(name = "estado")
     private String estado;
@@ -182,12 +186,12 @@ public class Oficina implements Serializable {
         this.fechaInicioJefatura = fechaInicioJefatura;
     }
 
-    public Integer getEsJefeEncargado() {
-        return esJefeEncargado;
+    public Persona getJefeEncargado() {
+        return jefeEncargado;
     }
 
-    public void setEsJefeEncargado(Integer esJefeEncargado) {
-        this.esJefeEncargado = esJefeEncargado;
+    public void setJefeEncargado(Persona jefeEncargado) {
+        this.jefeEncargado = jefeEncargado;
     }
 
     public List<Aula> getAula() {
@@ -252,6 +256,14 @@ public class Oficina implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
     }
 
 }

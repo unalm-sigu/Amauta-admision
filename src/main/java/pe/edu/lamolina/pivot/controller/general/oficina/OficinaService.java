@@ -10,6 +10,7 @@ import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.PerfilCompania;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 public interface OficinaService {
 
@@ -41,5 +42,13 @@ public interface OficinaService {
 
     List<PerfilCompania> allCargo(String nombre);
 
-    public void fillReferencia(Oficina oficina);
+     void fillReferencia(Oficina oficina);
+
+     void asignarJefe(Oficina oficina, Usuario usuario);
+
+     void retirarJefe(Oficina oficina, Usuario usuario);
+
+     void retirarEncargado(Oficina oficina, Usuario usuario);
+
+     void asignarEncargado(Oficina oficina, Usuario usuario);
 }

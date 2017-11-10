@@ -10,10 +10,10 @@ public enum TipoOficinaEnum {
 
     OFI("Oficina", "null"),
     UNA("Unidad", "null"),
-    RECT("Rector", "null"),
-    VICE("Vicerector", "null"),
+    RECT("Rectorado", "null"),
+    VICE("Vicerrectorado", "null"),
     AREA("Area", "null"),
-    EPG("Posgrado", "null"),
+    EPG("Escuela Posgrado", "null"),
     FAC("Facultad", Facultad.class.getName()),
     DPTO("Departamento", DepartamentoAcademico.class.getName()),
     ESP("Especialidad", Carrera.class.getName());

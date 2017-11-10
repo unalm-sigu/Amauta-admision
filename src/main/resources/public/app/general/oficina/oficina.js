@@ -13,8 +13,8 @@ $(function () {
     function ulWriter(rowIndex, record, columns, cellWriter) {
 
         record.index = rowIndex;
-        var colorEstado = {ACT: "success", ANU: "default"};
-        var nameEstado = {ACT: "Activo", ANU: "Anulado"};
+        var colorEstado = {ACT: "success", INA: "default"};
+        var nameEstado = {ACT: "Activo", INA: "Inactivo"};
 
         record.colorEstado = colorEstado[record.estado];
         record.nameEstado = nameEstado[record.estado];
@@ -79,7 +79,7 @@ $(function () {
             var self = $(e.currentTarget);
             var id = self.attr("rel");
             bootbox.confirm({
-                message: "¿Está seguro que desea eliminar la oficina.",
+                message: "¿Está seguro que desea eliminar la oficina?",
                 size: 'small',
                 buttons: {
                     confirm: {label: 'Sí, Eliminar', className: "btn-danger"},
@@ -113,7 +113,7 @@ $(function () {
             var self = $(e.currentTarget);
             var id = self.attr("rel");
             var mialert = bootbox.alert({
-                message: "¿Está seguro que desea eliminar la oficina.",
+                message: "¿Está seguro que desea eliminar la oficina?",
                 title: "Colaboradores",
                 buttons: {
                     ok: {label: 'Cerrar', className: "btn-primary"},
@@ -140,8 +140,244 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        retirarJefe: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+            bootbox.confirm({
+                message: "¿Está seguro que desea retirar el jefe de la oficina?",
+                size: 'small',
+                buttons: {
+                    confirm: {label: 'Sí, Retirar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('general/oficina/retirarJefe'),
+                            type: 'POST',
+                            async: true,
+                            data: {id: id},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        retirarEncargado: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+            var officina = {};
+            officina.id = id;
+            var mimodal = bootbox.confirm({
+                message: "¿Está seguro que desea retirar el encargado de la oficina?",
+                size: 'small',
+                buttons: {
+                    confirm: {label: 'Sí, Retirar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        if (mimodal.find("[name='motivo']").parsley().validate() != true) {
+                            return false;
+                        }
+                        officina['motivo'] = mimodal.find("[name='motivo']").val();
+                        $.ajax({
+                            url: APP.url('general/oficina/retirarEncargado'),
+                            type: 'POST',
+                            async: true,
+                            data: officina,
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+            var html = $.templates("#jefeMotivoTemplate").render({});
+            mimodal.find('.bootbox-body').append(html);
+        },
+        asignarJefe: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+            var officina = {};
+            officina['id'] = id;
+            var mimodal = bootbox.confirm({
+                title: "Asignar Jefe",
+                message: "Seleccione un usuario  para asignar como jefe.",
+                buttons: {
+                    confirm: {label: 'Sí, Aceptar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        if (mimodal.find("[name='persona']").parsley().validate() == true) {
+                            officina['personaJefe.id'] = mimodal.find("[name='persona']").select2('val');
+                            officina['personaJefe.tituloAcademico'] = mimodal.find("[name='tituloAcademico']").val();
+                            Oficina.ajaxAsignarJefe(officina);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            });
+            var html = $.templates("#jefeTemplate").render({});
+            mimodal.find('.bootbox-body').append(html);
+            mimodal.find("[name='persona']").select2(Oficina.findPersona());
+        },
+        asignarEncargado: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr("rel");
+            var officina = {};
+            officina.id = id;
+            var mimodal = bootbox.confirm({
+                title: "Asignar Encargado",
+                message: "Seleccione un usuario  para asignar como encargado.",
+                buttons: {
+                    confirm: {label: 'Sí, Aceptar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        if (mimodal.find("[name='persona']").parsley().validate() != true) {
+                            return false;
+                        }
+                        if (mimodal.find("[name='motivo']").parsley().validate() != true) {
+                            return false;
+                        }
+                        officina['jefeEncargado.id'] = mimodal.find("[name='persona']").select2('val');
+                        officina['motivo'] = mimodal.find("[name='motivo']").val();
+                        officina['personaJefe.tituloAcademico'] = mimodal.find("[name='tituloAcademico']").val();
+                        Oficina.ajaxAsignarEncargado(officina);
+                    }
+                }
+            });
+            var html = $.templates("#jefeTemplate").render({});
+            mimodal.find('.bootbox-body').append(html);
+            var htmlMotivo = $.templates("#jefeMotivoTemplate").render({});
+            mimodal.find('.bootbox-body>.panel-body').append(htmlMotivo);
+            mimodal.find("[name='persona']").select2(Oficina.findPersona());
+
+        },
+        ajaxAsignarJefe: function (officina) {
+            $.ajax({
+                url: APP.url('general/oficina/asignarJefe'),
+                type: 'POST',
+                async: true,
+                data: officina,
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        ajaxAsignarEncargado: function (officina) {
+            $.ajax({
+                url: APP.url('general/oficina/asignarEncargado'),
+                type: 'POST',
+                async: true,
+                data: officina,
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        findPersona: function () {
+            return {
+                allowClear: true,
+                minimumInputLength: 2,
+                placeholder: " ",
+                ajax: {
+                    url: APP.url("general/oficina/allPersona"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function (response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    if (element.val() != "") {
+                        callback({id: element.val(), nombre: element.attr("rel"), titulo: element.attr("rev")});
+                    }
+                },
+                formatResult: function (info) {
+                    return '<b>' + info.tipo + ' : ' + info.dni + '</b>   ' + info.nombre;
+                },
+                formatSelection: function (info) {
+                    Oficina.formTituloAcademico(info);
+                    return info.nombre;
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            };
+        },
+        formTituloAcademico: function (info) {
+            var htmlTitulo = $.templates("#tituloAcademicoTemplate").render({});
+            if (info.hastitulo == 1) {
+                $('.panel-body>.addTitulo').html('');
+            } else {
+                $('.panel-body>.addTitulo').html(htmlTitulo);
+            }
         }
     };
+
+    Oficina.body.delegate(".asignar-jefe", "click", function (e) {
+        Oficina.asignarJefe(e);
+    });
+
+    Oficina.body.delegate(".asignar-encargado", "click", function (e) {
+        Oficina.asignarEncargado(e);
+    });
+
+    Oficina.body.delegate(".retirar-jefe", "click", function (e) {
+        Oficina.retirarJefe(e);
+    });
+
+    Oficina.body.delegate(".retirar-encargado", "click", function (e) {
+        Oficina.retirarEncargado(e);
+    });
+
 
     Oficina.body.delegate(".delete", "click", function (e) {
         Oficina.eliminar(e);

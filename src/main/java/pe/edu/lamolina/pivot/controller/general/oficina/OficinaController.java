@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.general.oficina;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.PerfilCompania;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -131,11 +133,20 @@ public class OficinaController {
                 node.put("colaboradores", colaboradorMap.size());
 
                 StringBuilder sb = new StringBuilder();
+                if (oficina.getPersonaJefe() != null) {
+                    sb.append(Strings.isNullOrEmpty(oficina.getPersonaJefe().getTituloAcademico()) ? "" : oficina.getPersonaJefe().getTituloAcademico() + "  ");
+                }
                 sb.append(oficina.getPersonaJefe() != null ? oficina.getPersonaJefe().getNombreCompleto() : "");
                 node.put("jefatura", sb.toString());
-                node.put("esencargado", oficina.getEsJefeEncargado());
-                array.add(node);
 
+                StringBuilder sbj = new StringBuilder();
+                if (oficina.getJefeEncargado() != null) {
+                    sb.append(Strings.isNullOrEmpty(oficina.getJefeEncargado().getTituloAcademico()) ? "" : oficina.getJefeEncargado().getTituloAcademico() + "  ");
+                }
+                sbj.append(oficina.getJefeEncargado() != null ? oficina.getJefeEncargado().getNombreCompleto() : "");
+                node.put("encargado", sbj.toString());
+                node.put("motivo", oficina.getMotivo());
+                array.add(node);
             }
 
             json.setData(array);
@@ -328,12 +339,20 @@ public class OficinaController {
 
             List<Persona> personas = service.allPersona(nombre);
             ArrayNode array = new ArrayNode(jsonFactory);
+
             for (Persona persona : personas) {
-                ObjectNode a = new ObjectNode(jsonFactory);
-                a.put("id", persona.getId());
-                a.put("nombre", persona.getNombreCompleto());
-                array.add(a);
+                ObjectNode per = new ObjectNode(jsonFactory);
+                per.put("id", persona.getId());
+                StringBuilder sb = new StringBuilder();
+                sb.append(Strings.isNullOrEmpty(persona.getTituloAcademico()) ? "" : persona.getTituloAcademico() + "  ");
+                sb.append(persona.getNombreCompleto());
+                per.put("nombre", sb.toString());
+                per.put("dni", persona.getNumeroDocIdentidad());
+                per.put("tipo", persona.getTipoDocumento().getSimbolo());
+                per.put("hastitulo", Strings.isNullOrEmpty(persona.getTituloAcademico())?0:1);
+                array.add(per);
             }
+
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
@@ -397,6 +416,86 @@ public class OficinaController {
             response.setTotal(array.size());
             response.setSuccess(true);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarJefe")
+    public JsonResponse asignarJefe(Oficina oficina, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+
+            service.asignarJefe(oficina, usuario);
+            response.setMessage("Jefe asignado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarEncargado")
+    public JsonResponse asignarEncargado(Oficina oficina, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+
+            service.asignarEncargado(oficina, usuario);
+            response.setMessage("Encargado asignado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("retirarJefe")
+    public JsonResponse retirarJefe(Oficina oficina, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+
+            service.retirarJefe(oficina, usuario);
+            response.setMessage("Jefe retirado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("retirarEncargado")
+    public JsonResponse retirarEncargado(Oficina oficina, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+
+            service.retirarEncargado(oficina, usuario);
+            response.setMessage("Encargado retirado satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
