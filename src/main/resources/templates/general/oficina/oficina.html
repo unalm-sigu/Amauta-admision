@@ -1,56 +1,65 @@
 <html layout:decorator="zlayout/layout">
     <head>
         <title>Administración de Oficinas</title>
-    </head>
-    <body>
-        <div layout:fragment="main">
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
 
-            <header class="page-header">
+        <header class="page-header">
 
-                <div class="pull-right">                
-                    <a class="btn btn-primary btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
-                </div>  
+            <div class="pull-right">                
+                <a class="btn btn-primary btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
+            </div>  
 
-                <h2>Lista de unidades de la organización.</h2>
+            <h2>Lista de unidades de la organización.</h2>
 
-            </header>
+        </header>
 
-            <section class="panel">
+        <section class="panel">
 
-                <section class="panel-body">
+            <section class="panel-body">
 
-                    <table id="dynaTable" class="table table-striped">
-                        <thead class="panel panel-heading">
-                            <tr>
-                                <th class="col-xs-6 v-middle">Unidad</th>                    
-                                <th class="col-xs-2 v-middle">Dependencia</th>                    
-                                <th class="col-xs-2 text-center"><span>Jefatura</span></th>
-                                <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
-                                <th class="col-xs-1 text-center"><span>Estado</span></th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <table id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th class="col-xs-6 v-middle">Unidad</th>                    
+                            <th class="col-xs-2 v-middle">Dependencia</th>                    
+                            <th class="col-xs-2 text-center"><span>Jefatura</span></th>
+                            <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
+                            <th class="col-xs-1 text-center"><span>Estado</span></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
 
-                </section>
-                
             </section>
 
-            <script id="oficinaTemplate" type="text/x-jsrender" class="hide" >
-                <div th:substituteby="general/oficina/oficinaTemplate"/>
-            </script>
-            
-            <script id="colaboradorTemplate" type="text/x-jsrender" class="hide" >
-                <div th:substituteby="general/oficina/colaboradorTemplate"/>
-            </script>
+        </section>
 
-        </div>
+        <script id="oficinaTemplate" type="text/x-jsrender" class="hide" >
+            <div th:substituteby="general/oficina/oficinaTemplate"/>
+        </script>
 
-        <div layout:fragment="js">
-            <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-            <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>
-        </div>
+        <script id="colaboradorTemplate" type="text/x-jsrender" class="hide" >
+            <div th:substituteby="general/oficina/colaboradorTemplate"/>
+        </script>
 
-    </body>
+        <script id="jefeTemplate" type="text/x-jsrender" class="hide" >
+            <div th:substituteby="general/oficina/jefeTemplate"/>
+        </script>
+
+        <script id="jefeMotivoTemplate" type="text/x-jsrender" class="hide" >
+            <div th:substituteby="general/oficina/jefeMotivoTemplate"/>
+        </script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>
+    </div>
+
+</body>
 </html>

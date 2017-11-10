@@ -10,10 +10,14 @@
         {{:dependencia}}
     </td>
 
-    <td class="v-middle">
-        {{:jefatura}}
-        {{if esencargado }}
+    <td class="v-middle text-center">
+        <span>{{:encargado}}</span>
+        {{if encargado }}
         <p class="text-sm">(Encargado)</p>
+        {{/if}}
+        <span>{{:jefatura}}</span>
+        {{if encargado }}
+        <p class="text-sm">({{:motivo}})</p>
         {{/if}}
     </td>
 
@@ -32,18 +36,25 @@
 
             <ul class="dropdown-menu pull-right" >
 
-                <li><a class="btn-link modificar" th:href="@{/general/oficina/{{:id}}/update}">Editar</a></li>
 
-                <li><a class="btn-link delete" rel="{{:id}}" href="#">Eliminar</a></li>
-                
+                <li role="presentation"><a class="btn-link modificar" th:href="@{/general/oficina/{{:id}}/update}">Editar</a></li>
+
                 <li role="presentation">
                     {{if estado == 'ACT'}}
                     <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
                     {{/if}}
-                    {{if estado == 'ANU'}}
+                    {{if estado == 'INA'}}
                     <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
                     {{/if}}
                 </li>
+
+                <li role="presentation" class="divider"></li>
+                <li><a class="btn-link asignar-jefe" rel="{{:id}}" href="#"> Asignar Jefe</a></li>
+                <li><a class="btn-link retirar-jefe" rel="{{:id}}" href="#">Retirar Jefe</a></li>
+                <li><a class="btn-link asignar-encargado" rel="{{:id}}" href="#">Asignar Encargado</a></li>
+                <li><a class="btn-link retirar-encargado" rel="{{:id}}" href="#">Retirar Encargado</a></li>
+                <li role="presentation" class="divider"></li>
+                <li><a class="btn-link delete" rel="{{:id}}" href="#">Eliminar</a></li>
 
             </ul>
 

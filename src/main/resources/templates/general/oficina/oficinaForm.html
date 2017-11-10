@@ -91,18 +91,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="personaJefe.id" class="col-sm-3 control-label">Jefe de oficina</label>
-                            <div class="col-sm-4">
-                                <input  type="text" 
-                                        class="inline form-control" 
-                                        required="true"
-                                        th:value="${oficina.personaJefe!=null?oficina.personaJefe.id:''}"
-                                        th:rel="${oficina.personaJefe!=null?oficina.personaJefe.nombreCompleto:''}"
-                                        name="personaJefe.id"/>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
                             <label for="cargoJefe.id" class="col-sm-3 control-label">Cargo Jefe</label>
                             <div class="col-sm-4">
                                 <input  type="text" 
@@ -114,20 +102,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="cargoJefe.id" class="col-sm-3 control-label">Es Jefe Encargado</label>
-                            <div class="col-sm-4">
-                                <div class="checkbox m-t-lg">
-                                    <label>
-                                        <input type="checkbox" value="1" name="esJefeEncargado" th:checked="${oficina.esJefeEncargado==1}"/> 
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group m-t-xxlg">
-                            <label class="col-sm-2 control-label"></label>
-                            <div id="footerOficina" class="col-sm-10">
+                            <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
                                 <button class="btn btn-primary" 
                                         type="submit"
                                         th:text="${oficina.id!=null?'Actualizar':'Guardar'}"
