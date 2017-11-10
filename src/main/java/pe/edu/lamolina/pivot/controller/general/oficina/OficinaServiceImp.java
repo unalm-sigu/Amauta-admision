@@ -182,6 +182,13 @@ public class OficinaServiceImp implements OficinaService {
         oficinaDb.setPersonaJefe(oficina.getPersonaJefe());
         oficinaDb.setFechaInicioJefatura(new Date());
         oficinaDAO.update(oficinaDb);
+
+        if (oficina.getPersonaJefe().getTituloAcademico() != null) {
+            Persona jefeDb = personaDAO.find(oficina.getPersonaJefe().getId());
+            jefeDb.setTituloAcademico(oficina.getPersonaJefe().getTituloAcademico());
+            personaDAO.update(jefeDb);
+        }
+
     }
 
     @Override
@@ -200,7 +207,13 @@ public class OficinaServiceImp implements OficinaService {
         oficinaDb.setJefeEncargado(oficina.getJefeEncargado());
         oficinaDb.setMotivo(oficina.getMotivo());
         oficinaDAO.update(oficinaDb);
-        
+
+        if (oficina.getJefeEncargado().getTituloAcademico() != null) {
+            Persona jefeDb = personaDAO.find(oficina.getJefeEncargado().getId());
+            jefeDb.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
+            personaDAO.update(jefeDb);
+        }
+
         AusenciaJefe ausenciaJefe = new AusenciaJefe();
         ausenciaJefe.setMotivo(oficina.getMotivo());
         ausenciaJefe.setEncargado(oficina.getJefeEncargado());
@@ -208,15 +221,15 @@ public class OficinaServiceImp implements OficinaService {
         ausenciaJefe.setOficina(oficinaDb);
         ausenciaJefe.setUsuario(usuario);
         ausenciaJefeDAO.save(ausenciaJefe);
-        
+
     }
 
     @Override
     @Transactional
     public void retirarEncargado(Oficina oficina, Usuario usuario) {
-        
+
         Oficina oficinaDb = oficinaDAO.find(oficina.getId());
-                
+
         AusenciaJefe ausenciaJefe = new AusenciaJefe();
         ausenciaJefe.setMotivo(oficina.getMotivo());
         ausenciaJefe.setEncargado(oficinaDb.getJefeEncargado());
@@ -224,7 +237,7 @@ public class OficinaServiceImp implements OficinaService {
         ausenciaJefe.setOficina(oficinaDb);
         ausenciaJefe.setUsuario(usuario);
         ausenciaJefeDAO.save(ausenciaJefe);
-        
+
         oficinaDb.setJefeEncargado(null);
         oficinaDAO.update(oficinaDb);
     }

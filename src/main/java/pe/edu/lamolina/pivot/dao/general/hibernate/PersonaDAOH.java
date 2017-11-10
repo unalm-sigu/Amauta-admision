@@ -10,6 +10,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
 
 @Repository
 public class PersonaDAOH extends AbstractDAO<Persona> implements PersonaDAO {
@@ -24,13 +25,15 @@ public class PersonaDAOH extends AbstractDAO<Persona> implements PersonaDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         StringBuilder sql = new StringBuilder();
         sql.append("  from ").append(Persona.class.getName()).append(" as per ");
-        sql.append(" where concat( coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',per.nombres) like :BUSQUEDA or ");
+        sql.append("  WHERE   per.estado =:ESTADO ");
+        sql.append("  AND  ( concat( coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',per.nombres) like :BUSQUEDA or ");
         sql.append("       concat( per.nombres,' ',coalesce(per.paterno,''),' ',coalesce(per.materno,'')) like :BUSQUEDA or ");
-        sql.append("       per.numeroDocIdentidad like :BUSQUEDA ");
+        sql.append("       per.numeroDocIdentidad like :BUSQUEDA ) ");
         sql.append(" order by per.paterno, per.materno, per.nombres ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setString("BUSQUEDA", nombre);
+        query.setString("ESTADO", PersonaEstadoEnum.ACT.name());
         query.setMaxResults(15);
 
         return query.list();

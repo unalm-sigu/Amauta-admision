@@ -134,14 +134,14 @@ public class OficinaController {
 
                 StringBuilder sb = new StringBuilder();
                 if (oficina.getPersonaJefe() != null) {
-                    sb.append(Strings.isNullOrEmpty(oficina.getPersonaJefe().getTituloAcademico()) ? "":oficina.getPersonaJefe().getTituloAcademico() + "  " );
+                    sb.append(Strings.isNullOrEmpty(oficina.getPersonaJefe().getTituloAcademico()) ? "" : oficina.getPersonaJefe().getTituloAcademico() + "  ");
                 }
                 sb.append(oficina.getPersonaJefe() != null ? oficina.getPersonaJefe().getNombreCompleto() : "");
                 node.put("jefatura", sb.toString());
 
                 StringBuilder sbj = new StringBuilder();
                 if (oficina.getJefeEncargado() != null) {
-                    sb.append(Strings.isNullOrEmpty(oficina.getJefeEncargado().getTituloAcademico()) ? "":oficina.getJefeEncargado().getTituloAcademico() + "  " );
+                    sb.append(Strings.isNullOrEmpty(oficina.getJefeEncargado().getTituloAcademico()) ? "" : oficina.getJefeEncargado().getTituloAcademico() + "  ");
                 }
                 sbj.append(oficina.getJefeEncargado() != null ? oficina.getJefeEncargado().getNombreCompleto() : "");
                 node.put("encargado", sbj.toString());
@@ -339,16 +339,20 @@ public class OficinaController {
 
             List<Persona> personas = service.allPersona(nombre);
             ArrayNode array = new ArrayNode(jsonFactory);
+
             for (Persona persona : personas) {
-                ObjectNode a = new ObjectNode(jsonFactory);
-                a.put("id", persona.getId());
-                a.put("nombre", persona.getNombreCompleto());
-                a.put("titulo",
-                        persona.getTituloAcademico() != null
-                        ? persona.getTituloAcademico()
-                        : (Strings.isNullOrEmpty(persona.getSexo()) ? "Sr." : (persona.getSexo() == "M" ? "Sr," : "Sra.")));
-                array.add(a);
+                ObjectNode per = new ObjectNode(jsonFactory);
+                per.put("id", persona.getId());
+                StringBuilder sb = new StringBuilder();
+                sb.append(Strings.isNullOrEmpty(persona.getTituloAcademico()) ? "" : persona.getTituloAcademico() + "  ");
+                sb.append(persona.getNombreCompleto());
+                per.put("nombre", sb.toString());
+                per.put("dni", persona.getNumeroDocIdentidad());
+                per.put("tipo", persona.getTipoDocumento().getSimbolo());
+                per.put("hastitulo", Strings.isNullOrEmpty(persona.getTituloAcademico())?0:1);
+                array.add(per);
             }
+
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);

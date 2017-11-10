@@ -234,6 +234,7 @@ $(function () {
                     if (result) {
                         if (mimodal.find("[name='persona']").parsley().validate() == true) {
                             officina['personaJefe.id'] = mimodal.find("[name='persona']").select2('val');
+                            officina['personaJefe.tituloAcademico'] = mimodal.find("[name='tituloAcademico']").val();
                             Oficina.ajaxAsignarJefe(officina);
                             return true;
                         }
@@ -268,6 +269,7 @@ $(function () {
                         }
                         officina['jefeEncargado.id'] = mimodal.find("[name='persona']").select2('val');
                         officina['motivo'] = mimodal.find("[name='motivo']").val();
+                        officina['personaJefe.tituloAcademico'] = mimodal.find("[name='tituloAcademico']").val();
                         Oficina.ajaxAsignarEncargado(officina);
                     }
                 }
@@ -339,15 +341,24 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return '<b>' + info.titulo + '</b>   ' + info.nombre;
+                    return '<b>' + info.tipo + ' : ' + info.dni + '</b>   ' + info.nombre;
                 },
                 formatSelection: function (info) {
-                    return '<b>' + info.titulo + '</b>   ' + info.nombre;
+                    Oficina.formTituloAcademico(info);
+                    return info.nombre;
                 },
                 escapeMarkup: function (m) {
                     return m;
                 }
             };
+        },
+        formTituloAcademico: function (info) {
+            var htmlTitulo = $.templates("#tituloAcademicoTemplate").render({});
+            if (info.hastitulo == 1) {
+                $('.panel-body>.addTitulo').html('');
+            } else {
+                $('.panel-body>.addTitulo').html(htmlTitulo);
+            }
         }
     };
 
