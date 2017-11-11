@@ -33,6 +33,7 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
@@ -156,13 +157,16 @@ public class CarreraController {
     }
 
     @RequestMapping("nuevo")
-    public String nuevoRol(Model model) {
+    public String nuevoRol(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Compania cia = ds.getCompania();
+
         Carrera carrera = new Carrera();
         carrera.setOrientacionCarrera(new ArrayList());
         model.addAttribute("carrera", carrera);
-        model.addAttribute("modalidades", service.allModalidades());
+        model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
-        model.addAttribute("tipos", TipoCarreraEnum.values());
+//        model.addAttribute("tipos", TipoCarreraEnum.values());
 
         return "academico/carrera/carreraForm";
     }
@@ -224,10 +228,12 @@ public class CarreraController {
     }
 
     @RequestMapping("editar/{id}")
-    public String editarCarrera(@PathVariable("id") Long id, Model model) {
+    public String editarCarrera(@PathVariable("id") Long id, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Compania cia = ds.getCompania();
 
         Carrera carrera = service.find(id);
-        model.addAttribute("modalidades", service.allModalidades());
+        model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
         model.addAttribute("tipos", TipoCarreraEnum.values());
 
@@ -318,6 +324,41 @@ public class CarreraController {
             service.cambioEstado(orientacion);
 
             response.setMessage("Se cambio de estado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allTiposCarrera")
+    public JsonResponse allTiposCarrera(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            TipoCarreraEnum[] tipos = new TipoCarreraEnum[2];
+            tipos[0] = TipoCarreraEnum.MAE;
+            tipos[1] = TipoCarreraEnum.DOC;
+
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (int i = 0; i < tipos.length; i++) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", tipos[i].name());
+                json.put("nombre", tipos[i].getValue());
+
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
             response.setSuccess(true);
 
         } catch (PhobosException e) {

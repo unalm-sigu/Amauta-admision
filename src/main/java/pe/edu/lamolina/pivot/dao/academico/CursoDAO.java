@@ -23,4 +23,6 @@ public interface CursoDAO extends Crud<Curso> {
 
     List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos);
 
+    Curso findLastCodigoByCurCodigo(String codigo);
+
 }

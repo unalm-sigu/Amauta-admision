@@ -16,7 +16,9 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoCarreraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Service
@@ -46,26 +48,26 @@ public class CarreraServiceImp implements CarreraService {
     @Transactional
     public void cambiarEstadoCarrera(Carrera carrera) {
         Carrera carrreraBD = carreraDAO.find(carrera.getId());
-        if (carrreraBD.getEstado().equals(EstadoEnum.ACT.name())) {
-            carrreraBD.setEstado(EstadoEnum.INA);
+        if (carrreraBD.getEstado().equals(EstadoCarreraEnum.ACT.name())) {
+            carrreraBD.setEstado(EstadoCarreraEnum.INA);
             carrreraBD.setMotivoAnulacion(carrera.getMotivoAnulacion());
             carrreraBD.setFechaAnulacion(new Date());
         } else {
-            carrreraBD.setEstado(EstadoEnum.ACT);
+            carrreraBD.setEstado(EstadoCarreraEnum.ACT);
         }
         carreraDAO.update(carrreraBD);
     }
 
     @Override
-    public List<ModalidadEstudio> allModalidades() {
-        return modalidadEstudioDAO.allActivos();
+    public List<ModalidadEstudio> allPrePostgrado(Compania cia) {
+        return modalidadEstudioDAO.allPrePostgrado(cia);
     }
 
     @Override
     @Transactional
     public void save(Carrera carrera, Usuario usuario) {
         if (carrera.getId() == null) {
-            carrera.setEstado(EstadoEnum.ACT);
+            carrera.setEstado(EstadoCarreraEnum.CRE);
             carrera.setIdUserRegistro(usuario.getId());
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);

@@ -16,110 +16,236 @@
                 <section class="panel-body">
                     <form data-parsley-validate="true" id="formularioCurso" method="POST" th:action="@{'/academico/curso/save'}">
 
+                        <!--<div class="row">-->
+                        <!--<div class="col-lg-8">-->
+                        <input type="hidden" th:value="${curso.id}" name="id"/>
                         <div class="row">
-                            <div class="col-lg-8">
-                                <input type="hidden" th:value="${curso.id}" name="id"/>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label>Nombre</label>
-                                            <input name="nombre" class="form-control" required="true" th:value="${curso} != null ? ${curso.nombre} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label>Código</label>
-                                            <input name="codigo" class="form-control" required="true" th:value="${curso} != null ? ${curso.codigo} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label>Código Anterior 1</label>
-                                            <input name="codigoAnterior1" class="form-control" required="true" th:value="${curso} != null ? ${curso.codigoAnterior1} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4">
-                                        <div class="form-group">
-                                            <label>Código Anterior 2</label>
-                                            <input name="codigoAnterior2" class="form-control" required="true" th:value="${curso} != null ? ${curso.codigoAnterior2} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="col-lg-12">
                                 <div class="form-group">
-                                    <label>Departamento</label>
-                                    <input type='text' name="departamentoAcademico.id" class='form-control' th:value="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.id}:''" 
-                                           th:rel="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.nombre}:''" required="true" data-trigger="change" />	
-                                </div>
-                                <div class="form-group">
-                                    <label>Coordinador</label>
-                                    <input type='text' name="coordinador.id" class='form-control' th:value="${curso.coordinador != null} ? ${curso.coordinador.id}:''" 
-                                           th:rel="${curso.id != null and curso.coordinador != null} ? ${curso.coordinador.persona.nombreCompleto}:''" required="true" data-trigger="change" />
-                                </div>
-                            </div>
-
-                            <div class="col-lg-4">
-                                <div class="row">
-                                    <div class="col-lg-6">
-
-                                        <div class="form-group">
-                                            <label>Horas Teoría</label>
-                                            <input name="horasTeoria" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasTeoria} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label>Horas Práctica</label>
-                                            <input name="horasPractica" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasPractica} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label>Tipo Curso</label>
-                                            <select class="form-control" name="tipoCurso" required="true" placeholder="Seleccione el tipo curso" data-trigger="change">
-                                                <option></option>
-                                                <option th:each="item : ${tiposCurso}"
-                                                        th:value="${item.name()}" 
-                                                        th:text="${item.value}"
-                                                        th:selected="${curso.tipoCurso} ? ${item.name() == curso.tipoCurso}"/>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-6">
-
-                                        <div class="form-group">
-                                            <label>Horas Teoría Verano</label>
-                                            <input name="horasTeoriaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasTeoriaVerano} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label>Horas Práctica Verano</label>
-                                            <input name="horasPracticaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasPracticaVerano} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label>Creditos</label>
-                                            <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label>Creditos Variables</label>
-                                            <input name="creditosVariables" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.creditosVariables} : ''"  data-trigger="change"/>
-                                        </div>
-                                    </div>
+                                    <label>Nombre</label>
+                                    <input name="nombre" class="form-control" required="true" th:value="${curso} != null ? ${curso.nombre} : ''"  data-trigger="change"/>
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label>Modalidad Estudio</label>
+                                    <select class="form-control" name="modalidadEstudio.id" required="true"  data-trigger="change"
+                                            th:unless="${curso.id}">
+                                        <option></option>
+                                        <option th:each="item : ${modalidadesEstudio}"
+                                                th:value="${item.id}" 
+                                                th:rel="${item.codigo}"
+                                                th:text="${item.nombre}"
+                                                th:selected="${curso.modalidadEstudio} ? ${item.id == curso.modalidadEstudio.id}"/>
+                                    </select>
+                                    <select class="form-control" name="modalidadEstudio.id"  th:if="${curso.id}" disabled="disabled">
+                                        <option></option>
+                                        <option th:each="item : ${modalidadesEstudio}"
+                                                th:value="${item.id}" 
+                                                th:rel="${item.codigo}"
+                                                th:text="${item.nombre}"
+                                                th:selected="${curso.modalidadEstudio} ? ${item.id == curso.modalidadEstudio.id}"/>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label>Nivel</label>
+                                    <input name="nivel" class="form-control" required="true" th:value="${curso} != null ? ${curso.nivel} : ''"  
+                                           data-trigger="change" th:unless="${curso.id}"/>
+                                    <input name="nivel" class="form-control" required="true" th:value="${curso} != null ? ${curso.nivel} : ''"  
+                                           data-trigger="change" th:if="${curso.id}"  disabled="disabled"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Departamento</label>
+                                    <input type='text' name="departamentoAcademico.id" class='form-control' 
+                                           th:value="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.id}:''" 
+                                           th:rel="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.nombre}:''" required="true" 
+                                           data-trigger="change"  th:unless="${curso.id}"/>	
+                                    <input type='text' name="departamentoAcademico.id" class='form-control' 
+                                           th:value="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.id}:''" 
+                                           th:rel="${curso.departamentoAcademico != null} ? ${curso.departamentoAcademico.nombre}:''" required="true"
+                                           th:if="${curso.id}" disabled="disabled"/>	
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group divEspecialidad hide">
+                                    <label>Especialidad</label>
+                                    <input type='text' name="carrera.id" class='form-control' th:value="${curso.carrera != null} ? ${curso.carrera.id}:''" 
+                                           th:rel="${curso.carrera != null} ? ${curso.carrera.nombre}:''" data-trigger="change" />	
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group divTipoCurricula hide">
+                                    <label>Tipo Curricula</label>
+                                    <select class="form-control" name="tipoCurricula" placeholder="Seleccione el tipo curricula" data-trigger="change">
+                                        <option></option>
+                                        <option th:each="item : ${tiposCurricula}"
+                                                th:value="${item.name()}" 
+                                                th:text="${item.value}"
+                                                th:selected="${curso} ? ${item.name() == curso.tipoCurricula} : ''"/>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Tipo Dictado</label>
+                                    <select class="form-control" name="tipoCurso" placeholder="Seleccione el tipo curso" data-trigger="change"
+                                            th:unless="${curso.id}">
+                                        <option></option>
+                                        <option th:each="item : ${tiposCurso}"
+                                                th:value="${item.name()}" 
+                                                th:text="${item.value}"
+                                                th:selected="${curso.tipoCurso} ? ${item.name() == curso.tipoCurso}"/>
+                                    </select>
+                                    <select class="form-control"  name="tipoCurso" th:if="${curso.id}" disabled="disabled">
+                                        <option></option>
+                                        <option th:each="item : ${tiposCurso}"
+                                                th:value="${item.name()}" 
+                                                th:text="${item.value}"
+                                                th:selected="${curso.tipoCurso} ? ${item.name() == curso.tipoCurso}"/>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label>Horas Teoría</label>
+                                    <input name="horasTeoria" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasTeoria} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label>Horas Práctica</label>
+                                    <input name="horasPractica" class="form-control text-right numerico" required="true" th:value="${curso} != null ? ${curso.horasPractica} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                        </div>  
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Creditos</label>
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <div class="col-sm-3">
+                                                <label class="radio inline">
+                                                    <input  type="radio" required="true" name="tipoCredito" id="credito" value="FIJO" th:checked="${curso.tipoCredito == 'FIJO'}"/> Fijos
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="radio inline">
+                                                    <input  type="radio" required="true" name="tipoCredito" id="credito" value="VAR" th:checked="${curso.tipoCredito == 'VAR'}"/> Variables
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>    
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label></label>
+                                    <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>  
+                        </div>  
+                        <hr/>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Horas Teoría Verano</label>
+                                    <input name="horasTeoriaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasTeoriaVerano} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label>Horas Práctica Verano</label>
+                                    <input name="horasPracticaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasPracticaVerano} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Coordinador</label>
+                                    <input type='text' name="coordinador.id" class='form-control' th:value="${curso.coordinador != null} ? ${curso.coordinador.id}:''"
+                                           th:rel="${curso.id != null and curso.coordinador != null} ? ${curso.coordinador.persona.nombreCompleto}:''" required="true" data-trigger="change" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    <label>Nombre en otros idiomas</label>
+                                    <table  class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Idioma</th>
+                                                <th>Nombre</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bodyTabla">
+
+
+                                            <tr th:if="${curso.nombreCurso.size() &gt; 0}"
+                                                th:each="itemPadre,iter : ${curso.nombreCurso}"
+                                                th:id="${iter.index}">
+                                                <td>
+                                                    <select class="form-control"  name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+                                                        <option></option>
+                                                        <option th:each="item, iter : ${idiomas}"
+                                                                th:value="${item.id}" 
+                                                                th:text="${item.nombre}"
+                                                                th:selected="${itemPadre.id != null} ? ${item.id == itemPadre.idioma.id} : '' "/>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" name="nombreIdioma" th:value='${itemPadre.nombre}' />
+                                                </td>
+                                                <td class="v-middle">
+                                                    <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
+                                                </td>
+                                            </tr>
+                                            <tr th:unless="${curso.nombreCurso.size() &gt; 0}" id="-999">
+                                                <td>
+                                                    <select class="form-control" name="idIdioma"  required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+                                                        <option></option>
+                                                        <option th:each="item,iter : ${idiomas}"
+                                                                th:value="${item.id}" 
+                                                                th:text="${item.nombre}"/>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" name="nombreIdioma"/>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
+                                                </td>
+
+                                            </tr>
+                                            <tr class="no-buscar">
+                                                <td class="text-center add-idioma" colspan="3"><a class="btn btn-info btn-sm"><i class="fa fa-plus" aria-hidden="true"><strong> Agregar Idioma</strong></i></a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>     
+                        </div>  
+
+                        <!--</div>-->
+                        <!--</div>-->
 
 
                         <div class=" text-center">
@@ -129,10 +255,29 @@
                     </form>
                 </section>
 
+                <script id="divNombreCurso" type="text/x-jsrender" class="hide" >
+                    <tr id="{{:id}}">
+                        <td>
+                            <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+                            <option></option>
+                            <option th:each="item : ${idiomas}"
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"/>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="nombreIdioma"/>
+                        </td>
+                        <td class="v-middle no-buscar"> 
+                            <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                </script>
             </section>
 
 
         </div>
+
 
     </div>
 

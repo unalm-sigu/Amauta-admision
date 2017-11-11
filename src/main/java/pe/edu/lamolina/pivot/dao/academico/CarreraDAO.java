@@ -18,4 +18,6 @@ public interface CarreraDAO extends Crud<Carrera> {
 
     List<Carrera> allByNombre(String forLike);
 
+    public List<Carrera> allByModalidadEstudioNombre(String idModEstudio, String forLike);
+
 }

@@ -48,7 +48,7 @@ public class Curso implements Serializable {
 
     @Column(name = "horas_practica")
     private Integer horasPractica;
-    
+
     @Column(name = "horas_teoria_verano")
     private Integer horasTeoriaVerano;
 
@@ -64,8 +64,17 @@ public class Curso implements Serializable {
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
+    @Column(name = "tipo_credito")
+    private String tipoCredito;
+
     @Column(name = "motivo_anulacion")
     private String motivoAnulacion;
+
+    @Column(name = "tipo_curricula")
+    private String tipoCurricula;
+
+    @Column(name = "nivel")
+    private Integer nivel;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "fecha_plan_calificacion")
@@ -93,6 +102,14 @@ public class Curso implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinador")
     private Docente coordinador;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_modalidad_estudio")
+    private ModalidadEstudio modalidadEstudio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_carrera")
+    private Carrera carrera;
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<AlumnoCicloCurso> alumnoCicloCurso;
@@ -424,4 +441,45 @@ public class Curso implements Serializable {
         this.horasPracticaVerano = horasPracticaVerano;
     }
 
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
+    }
+
+    public ModalidadEstudio getModalidadEstudio() {
+        return modalidadEstudio;
+    }
+
+    public void setModalidadEstudio(ModalidadEstudio modalidadEstudio) {
+        this.modalidadEstudio = modalidadEstudio;
+    }
+
+    public Carrera getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(Carrera carrera) {
+        this.carrera = carrera;
+    }
+
+    public String getTipoCurricula() {
+        return tipoCurricula;
+    }
+
+    public void setTipoCurricula(String tipoCurricula) {
+        this.tipoCurricula = tipoCurricula;
+    }
+
+    public String getTipoCredito() {
+        return tipoCredito;
+    }
+
+    public void setTipoCredito(String tipoCredito) {
+        this.tipoCredito = tipoCredito;
+    }
+
+    
 }

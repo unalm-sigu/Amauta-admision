@@ -3,7 +3,7 @@ $(function () {
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/curso/list'),
-            perPageDefault: 5
+            perPageDefault: 10
         },
         writers: {
             _rowWriter: ulWriter

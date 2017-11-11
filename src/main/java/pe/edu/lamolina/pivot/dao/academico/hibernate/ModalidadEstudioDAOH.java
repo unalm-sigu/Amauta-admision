@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -10,6 +11,8 @@ import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
 
 @Repository
 public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implements ModalidadEstudioDAO {
@@ -50,6 +53,17 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
                 .join("compania")
                 .filter("compania", compania)
                 .filter("estado", EstadoEnum.ACT.name());
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<ModalidadEstudio> allPrePostgrado(Compania cia) {
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "me")
+                .join("compania cia")
+                .filter("cia.id", cia.getId())
+                .filter("me.estado", EstadoEnum.ACT.name())
+                .in("me.codigo", Arrays.asList(PRE.name(), EPG.name()));
         return sql.all(getCurrentSession());
     }
 }

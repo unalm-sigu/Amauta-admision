@@ -18,7 +18,7 @@
     </td>
     <td class=" v-middle">
         <span class="clear">
-            {{if esActivo}}
+            {{if !esInactivo}}
             <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>
             {{/if}}
             {{if esInactivo}}
@@ -34,8 +34,11 @@
 
             <ul class="dropdown-menu pull-right">
                 <li><a class="btn-link pointer" th:href="@{'/academico/carrera/editar/{{:id}}'}">Editar</a></li>
-                {{if !esActivo}}
-                <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Activar</a></li>
+                {{if esCreado}}
+                <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Resolución Activación</a></li>
+                {{/if}}
+                {{if esInactivo}}
+                <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Reactivar</a></li>
                 {{/if}}
                 {{if esActivo}}
                 <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Desactivar</a></li>

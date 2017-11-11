@@ -3,20 +3,20 @@ package pe.edu.lamolina.pivot.zelper.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum EstadoEnum {
+public enum TipoCreditoEnum {
 
-    ACT("Activo"), CER("Cerrado"), CRE("Creado"), INA("Inactivo"), ANU("Anulado");
+    FIJO("Fijo"), VAR("Variables");
 
     private final String value;
-    private static final Map<String, EstadoEnum> lookup = new HashMap<>();
+    private static final Map<String, TipoCreditoEnum> lookup = new HashMap<>();
 
     static {
-        for (EstadoEnum d : EstadoEnum.values()) {
+        for (TipoCreditoEnum d : TipoCreditoEnum.values()) {
             lookup.put(d.getValue(), d);
         }
     }
 
-    private EstadoEnum(String value) {
+    private TipoCreditoEnum(String value) {
         this.value = value;
     }
 
@@ -24,13 +24,13 @@ public enum EstadoEnum {
         return value;
     }
 
-    public static EstadoEnum get(String abbreviation) {
+    public static TipoCreditoEnum get(String abbreviation) {
         return lookup.get(abbreviation);
     }
 
     public static String getNombre(String nombre) {
 
-        for (EstadoEnum d : EstadoEnum.values()) {
+        for (TipoCreditoEnum d : TipoCreditoEnum.values()) {
             if (d.name().equalsIgnoreCase(nombre)) {
                 return d.getValue();
             }

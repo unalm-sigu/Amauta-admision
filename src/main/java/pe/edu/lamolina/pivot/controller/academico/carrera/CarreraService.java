@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 public interface CarreraService {
@@ -14,7 +15,7 @@ public interface CarreraService {
 
     void cambiarEstadoCarrera(Carrera carrera);
 
-    List<ModalidadEstudio> allModalidades();
+    List<ModalidadEstudio> allPrePostgrado(Compania cia);
 
     void save(Carrera carrera, Usuario usuario);
 

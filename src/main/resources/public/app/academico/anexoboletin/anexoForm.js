@@ -14,7 +14,7 @@ $(function () {
                 placeholder: "Seleccione un departamento",
                 minimumInputLength: 1,
                 ajax: {
-                    url: APP.url("academico/anexo/allDepartamentos"),
+                    url: APP.url("comun/buscar/allDepartamentoAcademico"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {

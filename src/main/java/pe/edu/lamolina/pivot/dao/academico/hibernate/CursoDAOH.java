@@ -8,6 +8,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
@@ -118,6 +119,28 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
                 .searchFields("cu.nombre", "cu.codigo", "fa.nombre")
                 .orderBy("cu.id desc");
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Curso findLastCodigoByCurCodigo(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cu")
+                .join("departamentoAcademico da", "da.facultad fa")
+                .filter("cu.codigo", "like", codigo)
+                .orderBy("cu.codigo DESC")
+                .limit(1);
+//
+//        StringBuilder sql = new StringBuilder();
+//        sql.append(" from ").append(Curso.class.getName()).append(" as cu ");
+//        sql.append(" join cu.departamentoAcademico da ");
+//        sql.append(" where cu.codigo like :CODIGO ");
+//        sql.append(" order by cu.id desc  ");
+//
+//        Query query = getCurrentSession().createQuery(sql.toString());
+//        query.setString("CODIGO", codigo);
+//        query.getFirstResult();
+
+        return (Curso) sql.find(getCurrentSession());
     }
 
 }

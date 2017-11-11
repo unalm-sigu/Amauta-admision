@@ -177,40 +177,6 @@ public class AnexoBoletinController {
     }
 
     @ResponseBody
-    @RequestMapping("allDepartamentos")
-    public JsonResponse allDepartamentos(@RequestParam("nombre") String nombre, HttpSession session) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-
-        try {
-            List<DepartamentoAcademico> dptos = service.allDptosByNombre(nombre);
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-
-            for (DepartamentoAcademico dpto : dptos) {
-                ObjectNode json = new ObjectNode(jsonFactory);
-
-                json.put("id", dpto.getId());
-                json.put("nombre", dpto.getNombre());
-                json.put("facultad", dpto.getFacultad().getNombre());
-
-                jsonList.add(json);
-
-            }
-
-            response.setData(jsonList);
-            response.setTotal(jsonList.size());
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("allCarreras")
     public JsonResponse allCarreras(@RequestParam("nombre") String nombre, HttpSession session) {
 

@@ -14,6 +14,6 @@ public interface BuscarService {
 
     List<DepartamentoAcademico> allDepartamentosByName(String nombre);
 
-    List<Docente> allCoordinadoresByName(String nombre);
+    List<Docente> allCoordinadoresByIdDptoName(Long idDpto,String nombre);
 
 }

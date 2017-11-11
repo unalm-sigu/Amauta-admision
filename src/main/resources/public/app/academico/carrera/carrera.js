@@ -15,9 +15,10 @@ $(function () {
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {ACT: 'success', INA: 'danger'};
+        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
         record.esActivo = record.estado == 'ACT';
+        record.esCreado = record.estado == 'CRE';
         record.esInactivo = record.estado == 'INA';
         record.colorEstado = labelColor[record.estado];
         var html = $.templates("#carreraTemplate").render(record);
@@ -37,7 +38,7 @@ $(function () {
 
             var record = {
                 form: "formEstadoCarrera",
-                activo: estado == 'ACT',
+                activo: estado == 'ACT' || estado == 'CRE',
                 id: $this.attr("rel")
             };
 
