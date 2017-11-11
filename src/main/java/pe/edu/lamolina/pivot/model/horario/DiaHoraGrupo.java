@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Dia;
 
 @Entity
@@ -23,6 +24,10 @@ public class DiaHoraGrupo implements Serializable {
 
     @Column(name = "tipo_ciclo")
     private String tipoCiclo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ciclo_academico")
+    private CicloAcademico cicloAcademico;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_grupo_horario")
@@ -83,5 +88,12 @@ public class DiaHoraGrupo implements Serializable {
         this.hora = hora;
     }
 
-}
+    public CicloAcademico getCicloAcademico() {
+        return cicloAcademico;
+    }
 
+    public void setCicloAcademico(CicloAcademico cicloAcademico) {
+        this.cicloAcademico = cicloAcademico;
+    }
+
+}
