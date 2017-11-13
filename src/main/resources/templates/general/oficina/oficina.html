@@ -12,7 +12,7 @@
                 <a class="btn btn-primary btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
             </div>  
 
-            <h2>Lista de unidades de la organización.</h2>
+            <h2>Oficinas de la Institución</h2>
 
         </header>
 
@@ -23,9 +23,9 @@
                 <table id="dynaTable" class="table table-striped">
                     <thead class="panel panel-heading">
                         <tr>
-                            <th class="col-xs-6 v-middle">Unidad</th>                    
+                            <th class="col-xs-5 v-middle">Unidad</th>                    
                             <th class="col-xs-2 v-middle">Dependencia</th>                    
-                            <th class="col-xs-2 text-center"><span>Jefatura</span></th>
+                            <th class="col-xs-3 text-center"><span>Jefatura</span></th>
                             <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
                             <th class="col-xs-1 text-center"><span>Estado</span></th>
                             <th></th>
@@ -35,28 +35,12 @@
                 </table>
 
             </section>
-
+            
         </section>
-
-        <script id="oficinaTemplate" type="text/x-jsrender" class="hide" >
-            <div th:substituteby="general/oficina/oficinaTemplate"/>
-        </script>
-
-        <script id="colaboradorTemplate" type="text/x-jsrender" class="hide" >
-            <div th:substituteby="general/oficina/colaboradorTemplate"/>
-        </script>
-
-        <script id="jefeTemplate" type="text/x-jsrender" class="hide" >
-            <div th:substituteby="general/oficina/jefeTemplate"/>
-        </script>
-
-        <script id="jefeMotivoTemplate" type="text/x-jsrender" class="hide" >
-            <div th:substituteby="general/oficina/jefeMotivoTemplate"/>
-        </script>
-
-        <script id="tituloAcademicoTemplate" type="text/x-jsrender" class="hide" >
-            <div th:substituteby="general/oficina/tituloAcademicoTemplate"/>
-        </script>
+        
+        <div th:substituteby="templates/modal"/> 
+        <div th:substituteby="general/oficina/oficinaModals"/>
+        <script id="oficinaTemplate" type="text/x-jsrender" class="hide" ><div th:substituteby="general/oficina/oficinaTemplate"/></script>
 
     </div>
 

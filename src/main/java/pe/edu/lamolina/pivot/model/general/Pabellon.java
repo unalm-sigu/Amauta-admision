@@ -41,9 +41,6 @@ public class Pabellon implements Serializable {
     private List<DistanciaPabellon> distanciaPabellon;
 
     @OneToMany(mappedBy = "pabellon", fetch = FetchType.LAZY)
-    private List<Aula> aula;
-
-    @OneToMany(mappedBy = "pabellon", fetch = FetchType.LAZY)
     private List<PabellonExamen> pabellonExamen;
 
     public Pabellon() {
@@ -101,14 +98,6 @@ public class Pabellon implements Serializable {
         this.distanciaPabellon = distanciaPabellon;
     }
 
-    public List<Aula> getAula() {
-        return aula;
-    }
-
-    public void setAula(List<Aula> aula) {
-        this.aula = aula;
-    }
-
     public List<PabellonExamen> getPabellonExamen() {
         return pabellonExamen;
     }
@@ -118,4 +107,3 @@ public class Pabellon implements Serializable {
     }
 
 }
-

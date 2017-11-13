@@ -43,42 +43,42 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
-    
+
     @Autowired
     OAuthServiceConfig config;
-    
+
     @Autowired
     UsuarioDAO usuarioDAO;
-    
+
     @Autowired
     RolDAO rolDAO;
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @Autowired
     DocenteDAO docenteDAO;
-    
+
     @Autowired
     OficinaDAO oficinaDAO;
-    
+
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-    
+
     @Autowired
     CompaniaDAO companiaDAO;
-    
+
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-    
+
     @Autowired
     CarreraDAO carreraDAO;
-    
+
     @Autowired
     FacultadDAO facultadDAO;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Override
     public OAuthService getService() {
         return new ServiceBuilder()
@@ -90,48 +90,46 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                         + "https://www.googleapis.com/auth/userinfo.profile")
                 .build();
     }
-    
+
     @Override
     public void loginManually(String email, HttpSession session) {
-        
+
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
         Usuario usuario = usuarioDAO.findByEmail(email);
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
         }
-        
-        
-        
+
         Collection<GrantedAuthority> authorities = new ArrayList();
-        
+
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
         for (Rol rol : roles) {
             authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
         }
-        
+
         if (authorities.isEmpty()) {
             throw new PhobosException("Usuario sin rol asignado.");
         }
-        
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, email, authorities);
         SecurityContext cntx = SecurityContextHolder.getContext();
         cntx.setAuthentication(authentication);
-        
+
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
-        
+
         DataSessionPivot dataSession = new DataSessionPivot();
         dataSession.setEmail(email);
         dataSession.setUsuario(usuario);
         dataSession.setPersona(usuario.getPersona());
         dataSession.setRoles(roles);
         dataSession.setCicloAcademico(cicloAcademico);
-        
+
         Docente docente = docenteDAO.findPersona(usuario.getPersona());
         if (docente != null) {
             dataSession.setDocente(docente);
             dataSession.setDepartamentoAcademico(docente.getDepartamentoAcademico());
         }
-        
+
         List<Oficina> oficinas = oficinaDAO.allByJefe(usuario.getPersona());
         for (Oficina oficina : oficinas) {
             if (oficina.getTipoOficina().equals("DPTO")) {
@@ -139,23 +137,23 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 dataSession.setDepartamentoAcademico(dpto);
             }
         }
-        
+
         Compania compania = companiaDAO.find(1L);
         dataSession.setCompania(compania);
-        
+
         List<Facultad> facultades = facultadDAO.allByCompania(compania);
         dataSession.setFacultados(facultades);
-        
+
         List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allByCompania(compania);
         dataSession.setModalidades(modalidades);
-        
+
         List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.allByCompania(compania);
         dataSession.setDepartamentos(departamentos);
-        
+
         List<Carrera> carreras = carreraDAO.allByCompania(compania);
         dataSession.setCarreras(carreras);
-        
+
         session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
     }
-    
+
 }

@@ -1,12 +1,12 @@
 package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 
-public interface PersonaDAO extends Crud<Persona> {
+public interface PersonaDAO extends EasyDAO<Persona> {
 
     List<Persona> allByNombre(String nombre);
 

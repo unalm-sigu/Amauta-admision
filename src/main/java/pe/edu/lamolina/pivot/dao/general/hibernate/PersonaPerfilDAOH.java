@@ -3,84 +3,78 @@ package pe.edu.lamolina.pivot.dao.general.hibernate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
-public class PersonaPerfilDAOH extends AbstractDAO<PersonaPerfil> implements PersonaPerfilDAO {
-
+public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements PersonaPerfilDAO {
+    
     public PersonaPerfilDAOH() {
         super();
         setClazz(PersonaPerfil.class);
     }
-
+    
     @Override
     public PersonaPerfil find(long id) {
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pp")
-                .parents("left oficina ofi", "perfilCompania peco", "persona p")
+        Octavia sql = Octavia.query()
+                .from(PersonaPerfil.class, "pp")
+                .join("perfilCompania", "persona")
+                .leftJoin("oficina")
                 .filter("pp.id", id);
-
-        return this.find(sqlUtil);
-
+        
+        return find(sql);
+        
     }
-
+    
     @Override
     public List<PersonaPerfil> allByFiltersDynaTable(DynatableFilter filter) {
-
-        List<String> fieldsFiltro = Arrays.asList("pco.nombre");
-        filter.complexField("concat(p.paterno,' ',p.materno,' ',p.nombres)");
-        filter.complexField("concat(p.nombres,' ',p.paterno,' ',p.materno)");
-        filter.setFields(fieldsFiltro);
-
-        filter.setAlias("pp");
-        filter.setParents("left oficina ofi", "left compania com", "perfilCompania pco", "persona p");
-
-        filter.setTotal(this.count(filter));
-        filter.setFiltered(this.countByFilter(filter));
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
-        sqlUtil.parents(filter.getParents());
-
-        Map filtersFix = filter.getFiltersFixed();
-        for (Object key : filtersFix.keySet()) {
-            this.filterFixed(sqlUtil, (String) key, filtersFix.get(key));
-        }
-        Map filtersInFix = filter.getFiltersInFixed();
-        for (Object key : filtersInFix.keySet()) {
-            this.filterInFixed(sqlUtil, (String) key, (List) filtersInFix.get(key));
-        }
-
-        Map queries = filter.getQueries();
-        if (queries != null) {
-            for (Object key : queries.keySet()) {
-                if (!((String) key).equals("search")) {
-                    this.filterFixed(sqlUtil, (String) key, queries.get(key));
-                }
-            }
-        }
-
-        this.filter(sqlUtil, filter.getFields(), filter.getSearchValue(), filter.getComplexFields());
-        sqlUtil.setFirstResult(filter.getOffset())
-                .setPageSize(filter.getPerPage());
-
-        List<PersonaPerfil> lstPersonaPerfils = this.all(sqlUtil);
-
-        return lstPersonaPerfils;
+        
+        DynatableSql sql = new DynatableSql(filter)
+                .from(PersonaPerfil.class, "pp")
+                .join("perfilCompania peco", "persona per")
+                .leftJoin("oficina")
+                .searchFields("peco.nombre", "ofi.tipo", "ofi.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesceperpj.materno,''))")
+                .orderBy("pp.id DESC");
+        
+        return all(sql);
     }
-
+    
     @Override
     public List<PersonaPerfil> allByPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pp")
-                .parents("persona per")
+        Octavia sql = Octavia.query()
+                .from(PersonaPerfil.class, "pp")
+                .join("perfilCompania", "persona per")
+                .leftJoin("oficina")
                 .filter("per.id", persona);
-
-        return all(sqlUtil);
+        
+        return all(sql);
     }
-
+    
+    @Override
+    public PersonaPerfil findSinCerrar(Oficina oficina, Compania cia) {
+        Octavia sql = Octavia.query()
+                .from(PersonaPerfil.class, "pp")
+                .join("perfilCompania peco", "persona per", "compania cia", "oficina ofi")
+                .filter("ofi.id", oficina)
+                .filter("peco.id", oficina.getCargoJefe())
+                .filter("per.id", oficina.getPersonaJefe())
+                .filter("cia.id", cia)
+                .filter("pp.estado", EstadoEnum.ACT)
+                .isNull("pp.fechaFin");
+        
+        return find(sql);
+    }
+    
 }

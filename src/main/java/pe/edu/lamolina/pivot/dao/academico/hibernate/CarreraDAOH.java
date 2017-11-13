@@ -27,7 +27,7 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
     }
 
     @Override
-    public List<Carrera> allByModalidadEstudio(DynatableFilter filter) {
+    public List<Carrera> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
@@ -36,6 +36,7 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
         return sql.all(getCurrentSession());
     }
 
+    @Override
     public List<Carrera> allByCompania(Compania compania) {
         SqlUtil sqlUtil = new SqlUtil("ca")
                 .parents("modalidadEstudio mo", "_mo.compania co")
@@ -50,5 +51,14 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.id", id);
         return (Carrera) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<Carrera> allByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.nombre", "like", nombre);
+        return sql.all(getCurrentSession());
     }
 }

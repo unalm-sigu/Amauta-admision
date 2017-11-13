@@ -43,6 +43,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         sql.append(" left join fetch cur.departamentoAcademico da ");
         sql.append(" left join fetch cur.planCalificacion pc ");
         sql.append(" where 1=1 ");
+
         if (planCalificacion.isTipoCicloNivelacion()) {
             sql.append("  and   ( cur.planCalificacion.id != :PLAN_CAL or cur.planCalificacion is null) ");
         } else if (planCalificacion.isTipoCicloRegular()) {
@@ -50,6 +51,7 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
         } else {
             throw new PhobosException("El plan calificacion no tiene tipo de ciclo");
         }
+
         sql.append("  and    cur.id in ( select cu.id ");
         sql.append("                       from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
         sql.append("                      inner join gs.curso cu ");

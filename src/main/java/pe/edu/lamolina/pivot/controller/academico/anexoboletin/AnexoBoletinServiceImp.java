@@ -1,0 +1,88 @@
+package pe.edu.lamolina.pivot.controller.academico.anexoboletin;
+
+import java.util.Date;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+
+@Service
+@Transactional(readOnly = true)
+public class AnexoBoletinServiceImp implements AnexoBoletinService {
+
+    @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
+
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
+    @Override
+    public List<AnexoBoletin> allByDynatable(DynatableFilter filter) {
+        return anexoBoletinDAO.allByDynatable(filter);
+    }
+
+    @Override
+    public List<AnexoBoletin> allAnexosSuperiores() {
+        return anexoBoletinDAO.allAnexosSuperiores();
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDptosByNombre(String nombre) {
+        return departamentoAcademicoDAO.allDepartamentos(this.forLike(nombre));
+    }
+
+    @Override
+    public List<Carrera> allCarrerasByNombre(String nombre) {
+        return carreraDAO.allByNombre(this.forLike(nombre));
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    @Transactional
+    public void save(AnexoBoletin anexo, Usuario usuario) {
+        anexo.setCodigo("COD001");
+        anexo.setEstado(EstadoEnum.CRE.name());
+        anexoBoletinDAO.save(anexo);
+    }
+
+    @Override
+    public AnexoBoletin find(Long id) {
+        return anexoBoletinDAO.find(id);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstado(AnexoBoletin anexo) {
+        AnexoBoletin anexoBD = anexoBoletinDAO.find(anexo.getId());
+
+        if (anexoBD.getEstado().equals(EstadoEnum.ACT.name())) {
+            anexoBD.setEstado(EstadoEnum.INA.name());
+            anexoBD.setMotivoAnulacion(anexo.getMotivoAnulacion());
+            anexoBD.setFechaAnulacion(new Date());
+        } else {
+            anexoBD.setEstado(EstadoEnum.ACT.name());
+        }
+        anexoBoletinDAO.update(anexoBD);
+    }
+    
+    @Override
+    public AnexoResumen resumen() {
+        return anexoBoletinDAO.resumen();
+    }
+
+}
