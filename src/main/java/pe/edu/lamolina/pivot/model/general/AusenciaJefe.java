@@ -26,9 +26,21 @@ public class AusenciaJefe implements Serializable {
     @Column(name = "motivo")
     private String motivo;
 
-    @Column(name = "fecha")
+    @Column(name = "fecha_inicio_encargatura")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaInicioEncargatura;
+
+    @Column(name = "fecha_fin_encargatura")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaFinEncargatura;
+
+    @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date fecha;
+    private Date fechaRegistro;
+
+    @Column(name = "fecha_modificacion")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaModificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina")
@@ -43,8 +55,12 @@ public class AusenciaJefe implements Serializable {
     private Persona encargado;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario")
-    private Usuario usuario;
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_modificacion")
+    private Usuario userModificacion;
 
     public AusenciaJefe() {
     }
@@ -69,12 +85,12 @@ public class AusenciaJefe implements Serializable {
         this.motivo = motivo;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public Date getFechaRegistro() {
+        return fechaRegistro;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setFechaRegistro(Date fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 
     public Oficina getOficina() {
@@ -101,12 +117,44 @@ public class AusenciaJefe implements Serializable {
         this.encargado = encargado;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Usuario getUserRegistro() {
+        return userRegistro;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setUserRegistro(Usuario userRegistro) {
+        this.userRegistro = userRegistro;
+    }
+
+    public Date getFechaInicioEncargatura() {
+        return fechaInicioEncargatura;
+    }
+
+    public void setFechaInicioEncargatura(Date fechaInicioEncargatura) {
+        this.fechaInicioEncargatura = fechaInicioEncargatura;
+    }
+
+    public Date getFechaFinEncargatura() {
+        return fechaFinEncargatura;
+    }
+
+    public void setFechaFinEncargatura(Date fechaFinEncargatura) {
+        this.fechaFinEncargatura = fechaFinEncargatura;
+    }
+
+    public Date getFechaModificacion() {
+        return fechaModificacion;
+    }
+
+    public void setFechaModificacion(Date fechaModificacion) {
+        this.fechaModificacion = fechaModificacion;
+    }
+
+    public Usuario getUserModificacion() {
+        return userModificacion;
+    }
+
+    public void setUserModificacion(Usuario userModificacion) {
+        this.userModificacion = userModificacion;
     }
 
 }

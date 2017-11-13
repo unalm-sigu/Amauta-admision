@@ -146,19 +146,19 @@ MODAL = {
         MODAL.buttons("");
         MODAL.activateButtons();
     },
-    size : function(size){
+    size: function (size) {
         var divSize = MODAL.modalActivo.find("#" + MODAL.idSize);
         divSize.removeClass("modal-sm");
         divSize.removeClass("modal-lg");
         divSize.removeClass("modal-md");
-        
-       if (size == "sm") {
-           divSize.addClass("modal-sm");
+
+        if (size == "sm") {
+            divSize.addClass("modal-sm");
         } else if (size == "lg") {
-           divSize.addClass("modal-lg");
+            divSize.addClass("modal-lg");
         } else if (size == "md") {
-           divSize.addClass("modal-md");
-        } 
+            divSize.addClass("modal-md");
+        }
     },
     modalDefault: function () {
         if (MODAL.modalActivo == null) {
@@ -433,8 +433,15 @@ APP = {
         inext: "<i class='fa fa-chevron-right' aria-hidden='true'></i>",
         iprev: "<i class='fa fa-chevron-left' aria-hidden='true'></i>",
         fileLoad: '<form class="row text-center"><div id="archivoclick" style="border: dashed #cbd5dd 1px ;border-radius: 5px;" class="col-xs-10 col-xs-offset-1"><p id="archivoname" class="h4 m-t-lg m-b-lg text-muted pointer"  >archivo</p></div><input  class="hide" id="fileupload" type="file" value="Selecionar Archivo" name="file"/><input type="hidden" name="archivo" id="archivo" value="" /></form>',
-        wait:'<div class="m-t m-b text-center"><i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp; <span class="h3 bold">Espere un momento por favor..</span>'
+        wait: '<div class="m-t m-b text-center"><i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp; <span class="h3 bold">Espere un momento por favor..</span>'
     },
+    recDynatable: function (dynatable, e) {
+        var self = $(e.currentTarget);
+        var tr = self.closest("tr");
+        var idx = tr.attr("rel");
+        var rec = dynatable.settings.dataset.records[idx];
+        return rec;
+    }
 };
 
 MESSAGES = {

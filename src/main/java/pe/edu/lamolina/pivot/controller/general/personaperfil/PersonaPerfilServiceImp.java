@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
@@ -89,9 +89,9 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
             personaPerfil.setOficina(null);
         }
 
-        personaPerfil.setEstadoEnum(EstadoEnum.CRE);
+        personaPerfil.setEstado(EstadoEnum.ACT);
 
-        personaPerfil.setIdUserRegistro(usuario.getId());
+        personaPerfil.setUserRegistro(usuario);
         personaPerfil.setFechaRegistro(new Date());
         personaPerfilDAO.save(personaPerfil);
 
@@ -113,7 +113,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     public void activate(Long idPersonaPerfil) {
 
         PersonaPerfil personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
-        personaPerfil.setEstadoEnum(EstadoEnum.ACT);
+        personaPerfil.setEstado(EstadoEnum.ACT);
         personaPerfilDAO.update(personaPerfil);
 
         List<PerfilRol> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
@@ -125,7 +125,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
             for (PerfilRol rolCargo : allPerfilRol) {
 
                 usuarioRol = usuarioRolDAO.findByUsuarioAndRol(usuario, rolCargo.getRol());
-                
+
                 if (usuarioRol == null) {
                     usuarioRol = new UsuarioRol();
                     usuarioRol.setUsuario(usuario);
@@ -141,7 +141,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     public void desactivar(Long idPersonaPerfil) {
 
         PersonaPerfil personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
-        personaPerfil.setEstadoEnum(EstadoEnum.INA);
+        personaPerfil.setEstado(EstadoEnum.INA);
         personaPerfilDAO.update(personaPerfil);
 
         List<PerfilRol> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());

@@ -1,7 +1,7 @@
 package pe.edu.lamolina.pivot.controller.general.persona;
 
 import java.util.List;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;

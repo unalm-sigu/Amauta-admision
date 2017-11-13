@@ -1,19 +1,18 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
-import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
 
 @Repository
-public class PersonaDAOH extends AbstractDAO<Persona> implements PersonaDAO {
+public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO {
 
     public PersonaDAOH() {
         super();
@@ -23,162 +22,99 @@ public class PersonaDAOH extends AbstractDAO<Persona> implements PersonaDAO {
     @Override
     public List<Persona> allByNombre(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        StringBuilder sql = new StringBuilder();
-        sql.append("  from ").append(Persona.class.getName()).append(" as per ");
-        sql.append("  WHERE   per.estado =:ESTADO ");
-        sql.append("  AND  ( concat( coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',per.nombres) like :BUSQUEDA or ");
-        sql.append("       concat( per.nombres,' ',coalesce(per.paterno,''),' ',coalesce(per.materno,'')) like :BUSQUEDA or ");
-        sql.append("       per.numeroDocIdentidad like :BUSQUEDA ) ");
-        sql.append(" order by per.paterno, per.materno, per.nombres ");
 
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("BUSQUEDA", nombre);
-        query.setString("ESTADO", PersonaEstadoEnum.ACT.name());
-        query.setMaxResults(15);
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("estado", PersonaEstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
 
-        return query.list();
+        return all(sql);
     }
 
     @Override
     public List<Persona> allByFilter(DynatableFilter filter) {
 
-        {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Persona.class, "per")
+                .leftJoin("per.tipoDocumento td")
+                .searchFields("td.simbolo", "per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("per.id desc");
 
-            StringBuilder sql = new StringBuilder();
-            sql.append("select count(p) ");
-            sql.append("  from ").append(Persona.class.getName()).append("  p ");
-            sql.append(" inner join p.tipoDocumento td ");
+        return all(sql);
 
-            Query query = getCurrentSession().createQuery(sql.toString());
-
-            Long total = (Long) query.uniqueResult();
-            filter.setTotal(total.intValue());
-
-        }
-
-        {
-
-            StringBuilder sql = new StringBuilder();
-            sql.append("select count(p) ");
-            sql.append("  from ").append(Persona.class.getName()).append("  p ");
-            sql.append(" inner join p.tipoDocumento td ");
-            sql.append(" where 1=1");
-
-            if (!filter.getSearchValue().equalsIgnoreCase("")) {
-                sql.append(" and ( ");
-                sql.append("    concat( coalesce(p.paterno,''),' ',coalesce(p.materno,''),' ',p.nombres) like :SEARCH ");
-                sql.append("    or concat( p.nombres,' ',coalesce(p.paterno,''),' ',coalesce(p.materno,'')) like :SEARCH ");
-                sql.append("    or td.simbolo like :SEARCH ");
-                sql.append("    or p.numeroDocIdentidad like :SEARCH ");
-                sql.append("    or p.telefono like :SEARCH ");
-                sql.append("    or p.celular like :SEARCH ");
-                sql.append("    or p.emailCompania like :SEARCH ");
-                sql.append(" ) ");
-            }
-
-            Query query = getCurrentSession().createQuery(sql.toString());
-
-            if (!filter.getSearchValue().equalsIgnoreCase("")) {
-                query.setString("SEARCH", "%" + filter.getSearchValue() + "%");
-            }
-
-            Long total = (Long) query.uniqueResult();
-            filter.setFiltered(total.intValue());
-
-        }
-
-        {
-
-            StringBuilder sql = new StringBuilder();
-            sql.append(" from ").append(Persona.class.getName()).append("  p ");
-            sql.append(" inner join fetch p.tipoDocumento td ");
-            sql.append(" where 1=1");
-
-            if (!filter.getSearchValue().equalsIgnoreCase("")) {
-                sql.append(" and ( ");
-                sql.append("    concat( coalesce(p.paterno,''),' ',coalesce(p.materno,''),' ',p.nombres) like :SEARCH ");
-                sql.append("    or concat( p.nombres,' ',coalesce(p.paterno,''),' ',coalesce(p.materno,'')) like :SEARCH ");
-                sql.append("    or td.simbolo like :SEARCH ");
-                sql.append("    or p.numeroDocIdentidad like :SEARCH ");
-                sql.append("    or p.telefono like :SEARCH ");
-                sql.append("    or p.celular like :SEARCH ");
-                sql.append("    or p.emailCompania like :SEARCH ");
-                sql.append(" ) ");
-            }
-
-            sql.append("order by p.id desc");
-
-            Query query = getCurrentSession().createQuery(sql.toString());
-
-            if (!filter.getSearchValue().equalsIgnoreCase("")) {
-                query.setString("SEARCH", "%" + filter.getSearchValue() + "%");
-            }
-
-            query.setMaxResults(filter.getPerPage());
-            query.setFirstResult((filter.getPage() - 1) * filter.getPerPage());
-
-            return query.list();
-        }
     }
 
     @Override
     public Persona findByDocIdentidad(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pe")
-                .parents("tipoDocumento di")
-                .filter("pe.numeroDocIdentidad", numeroDocIdentidad)
-                .filter("di.id", tipoDocumento.getId());
-        return this.find(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("numeroDocIdentidad", numeroDocIdentidad)
+                .filter("td.id", tipoDocumento);
+
+        return find(sql);
     }
 
     @Override
     public List<Persona> allByEmail(String email) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("p")
-                .parents("tipoDocumento di")
-                .filter("p.email", email);
-        return this.all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.email", email);
+
+        return all(sql);
     }
 
     @Override
     public List<Persona> allByEmailWithoutPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("p")
-                .parents("tipoDocumento di")
-                .filter("p.email", persona.getEmail())
-                .filter("p.id <>", persona.getId());
-        return this.all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.email", persona.getEmail())
+                .filter("per.id", "<>", persona);
+
+        return all(sql);
     }
 
     @Override
     public List<Persona> allByEmailEmpresa(String email) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("p")
-                .parents("tipoDocumento di")
-                .filter("p.emailCompania", email);
-        return this.all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.emailCompania", email);
+
+        return all(sql);
     }
 
     @Override
     public List<Persona> allByEmailEmpresaWithoutPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("p")
-                .parents("tipoDocumento di")
-                .filter("p.emailCompania", persona.getEmailCompania())
-                .filter("p.id <>", persona.getId());
-        return this.all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.emailCompania", persona.getEmailCompania())
+                .filter("per.id", "<>", persona);
+
+        return all(sql);
     }
 
     @Override
     public List<Persona> allByApellidosNombres(Persona persona) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("  from ").append(Persona.class.getName()).append(" as per ");
-        sql.append("  left join fetch per.tipoDocumento ");
-        sql.append(" where per.paterno like :PATERNO ");
-        sql.append("   and per.materno like :MATERNO ");
-        sql.append("   and per.nombres like :NOMBRES ");
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.paterno", "like", persona.getPaterno())
+                .filter("per.materno", "like", persona.getMaterno())
+                .filter("per.nombres", "like", persona.getNombres());
 
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("PATERNO", persona.getPaterno());
-        query.setString("MATERNO", persona.getMaterno());
-        query.setString("NOMBRES", persona.getNombres());
-
-        return query.list();
+        return all(sql);
     }
 
     @Override

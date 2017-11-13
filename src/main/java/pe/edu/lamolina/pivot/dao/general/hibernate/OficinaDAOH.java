@@ -1,25 +1,23 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Persona;
 
 @Repository
-public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
+public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {
 
     public OficinaDAOH() {
         super();
@@ -27,99 +25,39 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
     }
 
     @Override
+    public Oficina find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior")
+                .filter("ofi.id", id);
+        return find(sql);
+    }
+
+    @Override
     public List<Oficina> allByJefe(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ofi")
-                .parents("personaJefe pj")
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("personaJefe pj")
                 .filter("pj.id", persona);
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
     public List<Oficina> allByFilter(DynatableFilter filter, Compania compania) {
 
-        StringBuilder sql;
-        Query query;
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Oficina.class, "ofi")
+                .join("compania cia")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca")
+                .filter("cia.id", compania)
+                .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre")
+                .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")
+                .searchComplexField("concat(coalesce(pj.nombres,''),' ',coalesce(pj.paterno,''),' ',coalesce(pj.materno,''))")
+                .searchComplexField("concat(coalesce(pje.paterno,''),' ',coalesce(pje.materno,''),' ',coalesce(pje.nombres,''))")
+                .searchComplexField("concat(coalesce(pje.nombres,''),' ',coalesce(pje.paterno,''),' ',coalesce(pje.materno,''))")
+                .orderBy("ofi.id DESC");
 
-        String search = filter.getSearchValue();
-
-        if (!StringUtils.isEmpty(search)) {
-            search = "%" + search.replaceAll(" ", "%") + "%";
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select count( distinct ofi ) ");
-            sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
-            sql.append("  inner join ofi.compania cia ");
-            sql.append("  where 1 = 1 ");
-            sql.append("  and cia.id =:COMPANIA ");
-
-            query = getCurrentSession().createQuery(sql.toString());
-            query.setLong("COMPANIA", compania.getId());
-
-            filter.setTotal(((Long) query.uniqueResult()).intValue());
-
-        }
-
-        {
-
-            sql = new StringBuilder();
-            sql.append("  select count( distinct ofi ) ");
-            sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
-            sql.append("  inner join  ofi.compania cia ");
-            sql.append("  left  join  ofi.oficinaSuperior sup ");
-            sql.append("  left  join  ofi.personaJefe jef ");
-            sql.append("  where 1 = 1 ");
-            sql.append("  and cia.id =:COMPANIA ");
-
-            if (!StringUtils.isEmpty(search)) {
-                sql.append("    and  ( ");
-                sql.append("    ofi.nombre like :SEARCH ");
-                sql.append("    or ofi.codigo like :SEARCH ");
-                sql.append("    )    ");
-            }
-
-            query = getCurrentSession().createQuery(sql.toString());
-
-            if (!StringUtils.isEmpty(search)) {
-                query.setString("SEARCH", search);
-            }
-
-            query.setLong("COMPANIA", compania.getId());
-            filter.setFiltered(((Long) query.uniqueResult()).intValue());
-
-        }
-
-        {
-
-            sql = new StringBuilder();
-            sql.append("  select distinct ofi ");
-            sql.append("  from ").append(Oficina.class.getName()).append(" as ofi ");
-            sql.append("  inner join  ofi.compania cia ");
-            sql.append("  left  join  ofi.oficinaSuperior sup ");
-            sql.append("  left  join  ofi.personaJefe jef ");
-            sql.append("  where 1 = 1 ");
-            sql.append("  and cia.id =:COMPANIA ");
-
-            if (!StringUtils.isEmpty(search)) {
-                sql.append("    and  ( ");
-                sql.append("    ofi.nombre like :SEARCH ");
-                sql.append("    or ofi.codigo like :SEARCH ");
-                sql.append("    )    ");
-            }
-
-            query = getCurrentSession().createQuery(sql.toString());
-            if (!StringUtils.isEmpty(search)) {
-                query.setString("SEARCH", search);
-            }
-
-            query.setLong("COMPANIA", compania.getId());
-            query.setFirstResult((filter.getPage() - 1) * filter.getPerPage());
-            query.setMaxResults(filter.getPerPage());
-
-            return query.list();
-
-        }
+        return all(sql);
     }
 
     @Override
@@ -144,8 +82,8 @@ public class OficinaDAOH extends AbstractDAO<Oficina> implements OficinaDAO {
     @Override
     public List<Oficina> allOficinasByName(String nombre) {
         Octavia sql = Octavia.query()
-                .from(Oficina.class, "se")
-                .filter("se.nombre", "like", nombre);
-        return sql.all(getCurrentSession());
+                .from(Oficina.class, "ofi")
+                .filter("ofi.nombre", "like", nombre);
+        return all(sql);
     }
 }

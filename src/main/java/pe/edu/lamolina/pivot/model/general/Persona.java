@@ -490,7 +490,13 @@ public class Persona implements Serializable {
     }
 
     public String getNombreCompleto() {
-        return this.nombres + (StringUtils.isEmpty(this.paterno) ? "" : (" " + this.paterno)) + (StringUtils.isEmpty(this.materno) ? "" : (" " + this.materno));
+        return this.nombres
+                + (StringUtils.isEmpty(this.paterno) ? "" : (" " + this.paterno))
+                + (StringUtils.isEmpty(this.materno) ? "" : (" " + this.materno));
+    }
+
+    public String getNombreConTitulo() {
+        return (StringUtils.isEmpty(this.tituloAcademico) ? "" : (this.tituloAcademico + " ")) + getNombreCompleto();
     }
 
     public String getApellidosNombres() {

@@ -10,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -27,15 +26,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
+import org.thymeleaf.util.StringUtils;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.general.AusenciaJefe;
 import pe.edu.lamolina.pivot.model.general.Colaborador;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
@@ -98,54 +101,35 @@ public class OficinaController {
             Compania compania = ds.getCompania();
 
             List<Oficina> oficinas = service.allByDynatable(filter, compania);
-            List<Colaborador> colaboradores = service.allColaborador(oficinas);
-
-            Map<Long, List<Colaborador>> colaboradoresMap = new LinkedHashMap();
-            colaboradores.forEach((item) -> {
-                Long key = item.getOficina().getId();
-                if (!(key == null)) {
-                    List<Colaborador> lista = (List) colaboradoresMap.get(key);
-                    if (lista == null) {
-                        lista = new ArrayList();
-                        colaboradoresMap.put(key, lista);
-                    }
-                    lista.add(item);
-                }
-            });
-
+            List<Colaborador> colaboradoresTodos = service.allColaborador(oficinas);
+            Map<Long, List<Colaborador>> colaboradoresMap = TypesUtil.convertListToMapList("oficina.id", colaboradoresTodos);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Oficina oficina : oficinas) {
 
-                List<Colaborador> colaboradorMap = colaboradoresMap.get(oficina.getId());
-
-                if (colaboradorMap == null) {
-                    colaboradorMap = new ArrayList();
+                List<Colaborador> colaboradores = colaboradoresMap.get(oficina.getId());
+                if (colaboradores == null) {
+                    colaboradores = new ArrayList();
                 }
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", oficina.getId());
                 node.put("nombre", oficina.getNombre());
                 node.put("codigo", oficina.getCodigo());
-                node.put("tipo", TipoOficinaEnum.valueOf(oficina.getTipoOficina()).getValue());
+                node.put("tipo", oficina.getTipoOficinaEnum().getValue());
                 node.put("estado", oficina.getEstado());
-                node.put("dependencia", oficina.getOficinaSuperior() != null ? oficina.getOficinaSuperior().getNombre() : "");
-                node.put("colaboradores", colaboradorMap.size());
+                node.put("estadoEnum", oficina.getEstadoEnum().getValue());
+                node.put("dependencia", (String) ObjectUtil.getParentTree(oficina, "oficinaSuperior.nombre"));
+                node.put("colaboradores", colaboradores.size());
+                node.put("motivoAusenciaJefe", oficina.getMotivoAusenciaJefe());
+                node.put("cargoJefe", (String) ObjectUtil.getParentTree(oficina, "cargoJefe.nombre"));
+                node.put("fechaInicioJefatura", TypesUtil.getStringDate(oficina.getFechaInicioJefatura(), "dd/MM/yyyy"));
+                node.put("fechaEncargatura", TypesUtil.getStringDate(oficina.getFechaEncargatura(), "dd/MM/yyyy"));
+                node.put("jefe", (String) ObjectUtil.getParentTree(oficina, "personaJefe.nombreConTitulo"));
+                node.put("encargado", (String) ObjectUtil.getParentTree(oficina, "jefeEncargado.nombreConTitulo"));
+                node.put("idJefe", (Long) ObjectUtil.getParentTree(oficina, "personaJefe.id"));
+                node.put("idEncargado", (Long) ObjectUtil.getParentTree(oficina, "jefeEncargado.id"));
 
-                StringBuilder sb = new StringBuilder();
-                if (oficina.getPersonaJefe() != null) {
-                    sb.append(Strings.isNullOrEmpty(oficina.getPersonaJefe().getTituloAcademico()) ? "" : oficina.getPersonaJefe().getTituloAcademico() + "  ");
-                }
-                sb.append(oficina.getPersonaJefe() != null ? oficina.getPersonaJefe().getNombreCompleto() : "");
-                node.put("jefatura", sb.toString());
-
-                StringBuilder sbj = new StringBuilder();
-                if (oficina.getJefeEncargado() != null) {
-                    sb.append(Strings.isNullOrEmpty(oficina.getJefeEncargado().getTituloAcademico()) ? "" : oficina.getJefeEncargado().getTituloAcademico() + "  ");
-                }
-                sbj.append(oficina.getJefeEncargado() != null ? oficina.getJefeEncargado().getNombreCompleto() : "");
-                node.put("encargado", sbj.toString());
-                node.put("motivo", oficina.getMotivo());
                 array.add(node);
             }
 
@@ -186,11 +170,12 @@ public class OficinaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             oficina.setCompania(compania);
+
             if (oficina.getId() != null) {
-                service.update(oficina);
+                service.update(oficina, ds);
                 Notificaciones.crearMsg("Oficina Actualizado", redirectAttr);
             } else {
-                service.save(oficina);
+                service.save(oficina, ds);
                 Notificaciones.crearMsg("Oficina Creada", redirectAttr);
             }
         } catch (PhobosException ex) {
@@ -343,13 +328,11 @@ public class OficinaController {
             for (Persona persona : personas) {
                 ObjectNode per = new ObjectNode(jsonFactory);
                 per.put("id", persona.getId());
-                StringBuilder sb = new StringBuilder();
-                sb.append(Strings.isNullOrEmpty(persona.getTituloAcademico()) ? "" : persona.getTituloAcademico() + "  ");
-                sb.append(persona.getNombreCompleto());
-                per.put("nombre", sb.toString());
+                per.put("nombre", persona.getNombreConTitulo());
                 per.put("dni", persona.getNumeroDocIdentidad());
-                per.put("tipo", persona.getTipoDocumento().getSimbolo());
-                per.put("hastitulo", Strings.isNullOrEmpty(persona.getTituloAcademico())?0:1);
+                per.put("tipo", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
+                per.put("titulo", persona.getTituloAcademico());
+                per.put("hastitulo", Strings.isNullOrEmpty(persona.getTituloAcademico()) ? 0 : 1);
                 array.add(per);
             }
 
@@ -429,11 +412,9 @@ public class OficinaController {
     public JsonResponse asignarJefe(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
 
-            service.asignarJefe(oficina, usuario);
+            service.asignarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -449,11 +430,9 @@ public class OficinaController {
     public JsonResponse asignarEncargado(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
 
-            service.asignarEncargado(oficina, usuario);
+            service.asignarEncargado(oficina, ds);
             response.setMessage("Encargado asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -469,11 +448,9 @@ public class OficinaController {
     public JsonResponse retirarJefe(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
 
-            service.retirarJefe(oficina, usuario);
+            service.retirarJefe(oficina, ds);
             response.setMessage("Jefe retirado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -486,14 +463,12 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("retirarEncargado")
-    public JsonResponse retirarEncargado(Oficina oficina, HttpSession session) {
+    public JsonResponse retirarEncargado(AusenciaJefe ausencia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Usuario usuario = ds.getUsuario();
 
-            service.retirarEncargado(oficina, usuario);
+            service.retirarEncargado(ausencia, ds);
             response.setMessage("Encargado retirado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
