@@ -1,0 +1,58 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Lista de estudiantes</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">
+
+            <h2><span th:text='|${curso.nombre} ${session["SESSION_USUARIO"].cicloAcademico.descripcion} - Lista de estudiantes |'>2016-II</span></h2>
+
+            <span class="block"><strong>Tipo sección:</strong>
+                <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
+            </span>
+            <span class="block"><strong>Clave:</strong> <span th:text="${seccion.codigo2}">2130</span></span>
+            <!--span class="block"><strong>Sistema Notas:</strong> <span th:text="${sistemaNotas.nombre}">2130</span></span-->
+            <input id="seccion" type="hidden" th:value="${seccion.id}"/>
+            <!--span class="block"><strong>Estado del Acta:</strong> <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span></span-->
+
+            <!--style>
+                body    {overflow-x:scroll;}
+                table { 
+                    border-collapse: separate; 
+                }
+            </style-->
+
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                <table class="table table-striped" id="dynaTable">
+                    <thead> 
+                        <tr>
+                            <th class="text-center v-middle"></th>
+                            <th class="text-center v-middle col-md-1"></th>
+                            <th class="text-center v-middle col-md-7">Estudiante</th>
+                            <th class="text-center v-middle col-md-4">Facultad<br/>Especialidad</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+        </section>
+
+        <div th:substituteby="templates/modal"/>
+        <script id="templateAlumnosDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/alumnos/templateAlumnosDocente"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/alumnos/alumnosDocente.js}" charset="utf-8"></script>
+    </div>
+
+
+</body>
+</html>
