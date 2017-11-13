@@ -84,22 +84,8 @@ public class HorarioGrupoController {
 
             List<GrupoHoras> grupoHoras = service.allGrupoHoras(filter);
             for (GrupoHoras grupoHora : grupoHoras) {
-                Alumno alumno = grupoHora.getCodigo();
-                Persona persona = alumno.getPersona();
-                Carrera carrera = alumno.getCarrera();
-                Facultad facultad = carrera.getFacultad();
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", grupoHora.getId());
-                node.put("nombre", persona.getApellidosNombres());
-                node.put("codigo", alumno.getCodigo());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-                node.put("simbolo", persona.getTipoDocumento().getSimbolo());
-                node.put("documento", persona.getNumeroDocIdentidad());
-                node.put("carrera", carrera.getNombre());
-                node.put("facultad", facultad.getNombre());
-
-                array.add(node);
+                array.add("");
             }
 
             json.setData(array);
