@@ -1,16 +1,18 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
 import java.util.List;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.general.AusenciaJefe;
 import pe.edu.lamolina.pivot.model.general.Colaborador;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.PerfilCompania;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OficinaService {
 
@@ -18,9 +20,9 @@ public interface OficinaService {
 
     Oficina find(Oficina oficina);
 
-    void update(Oficina oficina);
+    void update(Oficina oficina, DataSessionPivot ds);
 
-    void save(Oficina oficina);
+    void save(Oficina oficina, DataSessionPivot ds);
 
     void delete(Oficina oficina);
 
@@ -42,13 +44,14 @@ public interface OficinaService {
 
     List<PerfilCompania> allCargo(String nombre);
 
-     void fillReferencia(Oficina oficina);
+    void fillReferencia(Oficina oficina);
 
-     void asignarJefe(Oficina oficina, Usuario usuario);
+    void asignarJefe(Oficina oficina, DataSessionPivot ds);
 
-     void retirarJefe(Oficina oficina, Usuario usuario);
+    void retirarJefe(Oficina oficina, DataSessionPivot ds);
 
-     void retirarEncargado(Oficina oficina, Usuario usuario);
+    void asignarEncargado(Oficina oficina, DataSessionPivot ds);
 
-     void asignarEncargado(Oficina oficina, Usuario usuario);
+    void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
+
 }

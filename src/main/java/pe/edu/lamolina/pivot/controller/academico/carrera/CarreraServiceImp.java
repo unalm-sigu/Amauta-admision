@@ -39,7 +39,7 @@ public class CarreraServiceImp implements CarreraService {
 
     @Override
     public List<Carrera> allByDynatable(DynatableFilter filter) {
-        return carreraDAO.allByModalidadEstudio(filter);
+        return carreraDAO.allByDynatable(filter);
     }
 
     @Override

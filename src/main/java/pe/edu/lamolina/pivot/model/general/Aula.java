@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.general;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.inscripcion.AulaExamen;
@@ -36,9 +38,38 @@ public class Aula implements Serializable {
     @Column(name = "aforo_examen")
     private Integer aforoExamen;
 
+    @Column(name = "capacidad_aula")
+    private Integer capacidadAula;
+
+    @Column(name = "permite_cruce")
+    private Integer permiteCruce;
+
+    @Column(name = "tipo_ambiente")
+    private String tipoAmbiente;
+
+    @Column(name = "piso")
+    private Integer piso;
+
+    @Column(name = "pisos")
+    private Integer pisos;
+
+    @Column(name = "estado")
+    private String estado;
+    
+    @Column(name = "motivo_anulacion")
+    private String motivoAnulacion;
+    
+    @Column(name = "fecha_anulacion")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaAnulacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_pabellon")
-    private Pabellon pabellon;
+    @JoinColumn(name = "id_aula_superior")
+    private Aula aulaSuperior;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_sede")
+    private Sede sede;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tipo_aula")
@@ -54,6 +85,9 @@ public class Aula implements Serializable {
     @OneToMany(mappedBy = "aula", fetch = FetchType.LAZY)
     private List<AulaExamen> aulaExamen;
 
+    @OneToMany(mappedBy = "aulaSuperior", fetch = FetchType.LAZY)
+    private List<Aula> aula;
+
     public Aula() {
     }
 
@@ -67,14 +101,6 @@ public class Aula implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Pabellon getPabellon() {
-        return pabellon;
-    }
-
-    public void setPabellon(Pabellon pabellon) {
-        this.pabellon = pabellon;
     }
 
     public TipoAula getTipoAula() {
@@ -141,5 +167,92 @@ public class Aula implements Serializable {
         this.aulaExamen = aulaExamen;
     }
 
-}
+    public Integer getCapacidadAula() {
+        return capacidadAula;
+    }
 
+    public void setCapacidadAula(Integer capacidadAula) {
+        this.capacidadAula = capacidadAula;
+    }
+
+    public Integer getPermiteCruce() {
+        return permiteCruce;
+    }
+
+    public void setPermiteCruce(Integer permiteCruce) {
+        this.permiteCruce = permiteCruce;
+    }
+
+    public String getTipoAmbiente() {
+        return tipoAmbiente;
+    }
+
+    public void setTipoAmbiente(String tipoAmbiente) {
+        this.tipoAmbiente = tipoAmbiente;
+    }
+
+    public Integer getPiso() {
+        return piso;
+    }
+
+    public void setPiso(Integer piso) {
+        this.piso = piso;
+    }
+
+    public Integer getPisos() {
+        return pisos;
+    }
+
+    public void setPisos(Integer pisos) {
+        this.pisos = pisos;
+    }
+
+    public Aula getAulaSuperior() {
+        return aulaSuperior;
+    }
+
+    public void setAulaSuperior(Aula aulaSuperior) {
+        this.aulaSuperior = aulaSuperior;
+    }
+
+    public List<Aula> getAula() {
+        return aula;
+    }
+
+    public void setAula(List<Aula> aula) {
+        this.aula = aula;
+    }
+
+    public Sede getSede() {
+        return sede;
+    }
+
+    public void setSede(Sede sede) {
+        this.sede = sede;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getMotivoAnulacion() {
+        return motivoAnulacion;
+    }
+
+    public void setMotivoAnulacion(String motivoAnulacion) {
+        this.motivoAnulacion = motivoAnulacion;
+    }
+
+    public Date getFechaAnulacion() {
+        return fechaAnulacion;
+    }
+
+    public void setFechaAnulacion(Date fechaAnulacion) {
+        this.fechaAnulacion = fechaAnulacion;
+    }
+
+}

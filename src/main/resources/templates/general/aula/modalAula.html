@@ -1,0 +1,23 @@
+<div id="divEstadoAula" type="text/x-jsrender" class="hide" >
+
+    <form id="{{:form}}" method="POST">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <div class="row m-b-md">
+            <input class='hide' name="id"/>
+            <div class="form-group">
+                <div class="col-md-12">
+                    {{if seDesactiva}}
+                    <div class="form-group">
+                        <label class="bold">Indique el motivo por el cual esta desactivando el aula</label>
+                        <textarea class='form-control' name='motivoAnulacion' required='true'></textarea>
+                    </div>
+                    {{else}}
+                    ¿Desea realmente activar el aula?
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+

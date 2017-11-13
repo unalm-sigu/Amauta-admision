@@ -115,14 +115,12 @@
                 <hr/>
 
             </section>
-
-
         </div>
+        <div th:substituteby="templates/modal"/>
+        <div th:substituteby="academico/carrera/modalCarrera"/>
         <div th:if="${carrera.id}">
             <script id="orientacionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/carrera/orientacionTemplate"/></script>
         </div>
-        <div th:substituteby="academico/carrera/modalOrientacion"/>
-        <div th:substituteby="academico/carrera/modalCambioEstadoOrientacion"/>
 
     </div>
 

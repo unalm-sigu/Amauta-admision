@@ -26,7 +26,8 @@ $.dynatableSetup({
         recordCountTotalTemplate: '{recordsQueryCount}',
         recordCountFilteredTemplate: ' (Filtrados de un total de {recordsTotal} registros)',
         recordCountText: '',
-        recordCountTextTemplate: '{text} {pageTemplate} {totalTemplate} {filteredTemplate}'
+        recordCountTextTemplate: '{text} {pageTemplate} {totalTemplate} {filteredTemplate}',
+        processingText: '<span class="bg-dynatable-process"><i class="fa fa-spinner fa-spin"></i> Cargando información...</span>'
     },
     features: {
         sort: false,

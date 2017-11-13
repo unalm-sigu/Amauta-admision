@@ -1,0 +1,93 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Anexo Boletín</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+            <h2 th:text="${anexo.id != null ? 'Editar anexo' : 'Nueva anexo'}">Nuevo Anexo</h2>
+        </header>
+
+        <div class="col-lg-12">
+            <section class="panel">
+                <section class="panel-body">
+                    <form data-parsley-validate="true" id="formularioAula" method="POST" th:action="@{'/academico/anexo/save'}">
+
+                        <input type="hidden" th:value="${anexo.id} != null ? ${anexo.id} : ''" name="id"/>
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input name="nombre" class="form-control" required="true" th:value="${anexo} != null ? ${anexo.nombre} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="form-group">
+                                    <label>Grupos</label>
+                                    <select class="form-control" name="anexoSuperior.id" placeholder="Seleccione un anexo" data-trigger="change">
+                                        <option></option>
+                                        <option th:each="item : ${anexos}"
+                                                th:value="${item.id}"
+                                                th:text="${item.nombre}"
+                                                th:selected="${anexo.anexoSuperior} ? ${item.id == anexo.anexoSuperior.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="form-group">
+                                    <label>Departamento</label>
+                                    <input type='text' name="departamentoAcademico.id" class='form-control' th:value="${anexo.departamentoAcademico != null} ? ${anexo.departamentoAcademico.id}:''" 
+                                           th:rel="${anexo.id != null and anexo.departamentoAcademico != null} ? ${anexo.departamentoAcademico.nombre}:''" data-trigger="change" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="form-group">
+                                    <label>Carrera</label>
+                                    <input type='text' name="carrera.id" class='form-control' th:value="${anexo.carrera != null} ? ${anexo.carrera.id}:''" 
+                                           th:rel="${anexo.id != null and anexo.carrera != null} ? ${anexo.carrera.nombre}:''" data-trigger="change" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label>Orden</label>
+                                    <input name="orden" class="form-control numero" required="true" th:value="${anexo} != null ? ${anexo.orden} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class=" text-center">
+                            <a class="btn btn-link" th:href="@{'/academico/anexo'}">Regresar</a>
+                            <a class="btn btn-success save-update-anexo"  th:text="${anexo.id != null ? 'Actualizar' : 'Crear anexo'}">Crear anexo</a>
+                        </div>
+                    </form>
+                </section>
+            </section>
+        </div>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/anexoboletin/anexoForm.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

@@ -1,9 +1,9 @@
 <tr rel="{{:index}}">
 
     <td class="v-middle">
-        {{:nombre}}
-        <p class="text-sm"><b>Código:</b>{{:codigo}}</p>
-        <p class="text-sm"><b>Tipo:</b>{{:tipo}}</p>
+        <div class="h5 text-primary">{{:nombre}}</div>
+        <p class="text-sm">Código {{:codigo}}</p>
+        <p class="text-sm">Tipo {{:tipo}}</p>
     </td>
 
     <td class="v-middle">
@@ -11,22 +11,33 @@
     </td>
 
     <td class="v-middle text-center">
-        <span>{{:encargado}}</span>
+        <span class="block">{{:cargoJefe}}</span>
         {{if encargado }}
-        <p class="text-sm">(Encargado)</p>
+            <span class="text-primary block">{{:encargado}}</span>
+            {{if fechaEncargatura}}
+                <span class="text-sm block m-b">(Encargado desde el {{:fechaEncargatura}})</span>
+            {{else}}
+                <span class="text-sm block m-b">(Encargado)</span>
+                
+            {{/if}}
         {{/if}}
-        <span>{{:jefatura}}</span>
-        {{if encargado }}
-        <p class="text-sm">({{:motivo}})</p>
+        <span class="text-primary block">{{:jefe}}</span>
+        
+        {{if fechaInicioJefatura}}
+            <span class="text-sm block">Desde el {{:fechaInicioJefatura}}</span>
+        {{/if}}
+        
+        {{if motivoAusenciaJefe }}
+            <p class="text-sm block text-danger">({{:motivoAusenciaJefe}})</p>
         {{/if}}
     </td>
 
-    <td class="v-middle">
+    <td class="v-middle text-center">
         <span class="badge colaborador pointer"  rel="{{:id}}">{{:colaboradores}}</span>
     </td>
 
-    <td class="text-left-xs v-middle">
-        <label class="label label-{{:colorEstado}}" >{{:nameEstado}}</label>
+    <td class="v-middle text-center">
+        <label class="label label-{{:colorEstado}}" >{{:estadoEnum}}</label>
     </td>
 
     <td class="v-middle">
@@ -49,10 +60,19 @@
                 </li>
 
                 <li role="presentation" class="divider"></li>
-                <li><a class="btn-link asignar-jefe" rel="{{:id}}" href="#"> Asignar Jefe</a></li>
-                <li><a class="btn-link retirar-jefe" rel="{{:id}}" href="#">Retirar Jefe</a></li>
-                <li><a class="btn-link asignar-encargado" rel="{{:id}}" href="#">Asignar Encargado</a></li>
-                <li><a class="btn-link retirar-encargado" rel="{{:id}}" href="#">Retirar Encargado</a></li>
+                
+                {{if jefe }}
+                    <li><a class="btn-link retirar-jefe" rel="{{:id}}" href="#">Retirar Jefe</a></li>
+                {{else}}
+                    <li><a class="btn-link asignar-jefe" rel="{{:id}}" href="#"> Asignar Jefe</a></li>
+                {{/if}}
+                
+                {{if encargado }}
+                    <li><a class="btn-link retirar-encargado" rel="{{:id}}" href="#">Retirar Encargado</a></li>
+                {{else}}
+                    <li><a class="btn-link asignar-encargado" rel="{{:id}}" href="#">Asignar Encargado</a></li>
+                {{/if}}
+                
                 <li role="presentation" class="divider"></li>
                 <li><a class="btn-link delete" rel="{{:id}}" href="#">Eliminar</a></li>
 

@@ -15,6 +15,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.OficinaEstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 
 @Entity
 @Table(name = "gen_oficina")
@@ -37,12 +40,23 @@ public class Oficina implements Serializable {
     @Column(name = "instancia_oficina")
     private Long instanciaOficina;
 
-    @Column(name = "tipo_oficina_dependiente")
-    private String tipoOficinaDependiente;
+    @Column(name = "motivo_ausencia_jefe")
+    private String motivoAusenciaJefe;
+
+    @Column(name = "estado")
+    private String estado;
 
     @Column(name = "fecha_inicio_jefatura")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaInicioJefatura;
+
+    @Column(name = "fecha_encargatura")
+    @Temporal(javax.persistence.TemporalType.DATE)
+    private Date fechaEncargatura;
+
+    @Column(name = "fecha_registro")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compania")
@@ -64,11 +78,9 @@ public class Oficina implements Serializable {
     @JoinColumn(name = "id_cargo_jefe")
     private PerfilCompania cargoJefe;
 
-    @Column(name = "motivo")
-    private String motivo;
-
-    @Column(name = "estado")
-    private String estado;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
 
     @OneToMany(mappedBy = "oficinaSupervisora", fetch = FetchType.LAZY)
     private List<Aula> aula;
@@ -80,7 +92,7 @@ public class Oficina implements Serializable {
     private List<CoordinadorAmbientes> coordinadorAmbientes;
 
     @OneToMany(mappedBy = "oficinaSuperior", fetch = FetchType.LAZY)
-    private List<Oficina> oficina;
+    private List<Oficina> oficinasDependientes;
 
     @OneToMany(mappedBy = "oficina", fetch = FetchType.LAZY)
     private List<PersonaPerfil> personaPerfil;
@@ -90,6 +102,9 @@ public class Oficina implements Serializable {
 
     @Transient
     private String instanciaOficinaCodigo;
+
+    @Transient
+    private Date fechaFinJefatura;
 
     public Oficina() {
     }
@@ -134,8 +149,15 @@ public class Oficina implements Serializable {
         return tipoOficina;
     }
 
-    public void setTipoOficina(String tipoOficina) {
-        this.tipoOficina = tipoOficina;
+    public TipoOficinaEnum getTipoOficinaEnum() {
+        if (tipoOficina == null) {
+            return null;
+        }
+        return TipoOficinaEnum.valueOf(tipoOficina);
+    }
+
+    public void setTipoOficina(TipoOficinaEnum tipoOficina) {
+        this.tipoOficina = tipoOficina.name();
     }
 
     public Long getInstanciaOficina() {
@@ -152,14 +174,6 @@ public class Oficina implements Serializable {
 
     public void setOficinaSuperior(Oficina oficinaSuperior) {
         this.oficinaSuperior = oficinaSuperior;
-    }
-
-    public String getTipoOficinaDependiente() {
-        return tipoOficinaDependiente;
-    }
-
-    public void setTipoOficinaDependiente(String tipoOficinaDependiente) {
-        this.tipoOficinaDependiente = tipoOficinaDependiente;
     }
 
     public Persona getPersonaJefe() {
@@ -218,12 +232,12 @@ public class Oficina implements Serializable {
         this.coordinadorAmbientes = coordinadorAmbientes;
     }
 
-    public List<Oficina> getOficina() {
-        return oficina;
+    public List<Oficina> getOficinasDependientes() {
+        return oficinasDependientes;
     }
 
-    public void setOficina(List<Oficina> oficina) {
-        this.oficina = oficina;
+    public void setOficinasDependientes(List<Oficina> oficinasDependientes) {
+        this.oficinasDependientes = oficinasDependientes;
     }
 
     public List<PersonaPerfil> getPersonaPerfil() {
@@ -254,16 +268,55 @@ public class Oficina implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public OficinaEstadoEnum getEstadoEnum() {
+        if (estado == null) {
+            return null;
+        }
+        return OficinaEstadoEnum.valueOf(estado);
     }
 
-    public String getMotivo() {
-        return motivo;
+    public void setEstado(OficinaEstadoEnum estado) {
+        this.estado = estado.name();
     }
 
-    public void setMotivo(String motivo) {
-        this.motivo = motivo;
+    public String getMotivoAusenciaJefe() {
+        return motivoAusenciaJefe;
+    }
+
+    public void setMotivoAusenciaJefe(String motivoAusenciaJefe) {
+        this.motivoAusenciaJefe = motivoAusenciaJefe;
+    }
+
+    public Date getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(Date fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public Usuario getUserRegistro() {
+        return userRegistro;
+    }
+
+    public void setUserRegistro(Usuario userRegistro) {
+        this.userRegistro = userRegistro;
+    }
+
+    public Date getFechaEncargatura() {
+        return fechaEncargatura;
+    }
+
+    public void setFechaEncargatura(Date fechaEncargatura) {
+        this.fechaEncargatura = fechaEncargatura;
+    }
+
+    public Date getFechaFinJefatura() {
+        return fechaFinJefatura;
+    }
+
+    public void setFechaFinJefatura(Date fechaFinJefatura) {
+        this.fechaFinJefatura = fechaFinJefatura;
     }
 
 }

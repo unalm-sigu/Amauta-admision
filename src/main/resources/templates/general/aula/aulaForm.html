@@ -1,0 +1,77 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Aula</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+            <h2 th:text="${aula.id != null ? 'Editar aula' : 'Nueva aula'}">Nuevo aula</h2>
+        </header>
+
+        <div class="col-lg-12">
+            <section class="panel">
+                <section class="panel-body">
+                    <form data-parsley-validate="true" id="formularioAula" method="POST" th:action="@{'/general/aula/save'}">
+
+                        <input type="hidden" th:value="${aula.id} != null ? ${aula.id} : ''" name="id"/>
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label>Tipo Ambiente</label>
+                                    <select class="form-control" name="tipoAmbiente" required="true" placeholder="Seleccione el tipo ambiente" data-trigger="change">
+                                        <option></option>
+                                        <option th:each="item : ${tiposAmbiente}"
+                                                th:value="${item.name()}" 
+                                                th:text="${item.value}"
+                                                th:selected="${aula.tipoAmbiente} ? ${item.name() == aula.tipoAmbiente}"/>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label>Codigo</label>
+                                    <input name="codigo" class="form-control" required="true" th:value="${aula} != null ? ${aula.codigo} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-9">
+                                <div class="form-group">
+                                    <label>Nombre</label>
+                                    <input name="nombre" class="form-control" required="true" th:value="${aula} != null ? ${aula.nombre} : ''"  data-trigger="change"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="addBody">
+
+                        </div>
+
+
+                        <div class=" text-center">
+                            <a class="btn btn-link" th:href="@{'/general/aula'}">Regresar</a>
+                            <a class="btn btn-success save-update-aula"  th:text="${aula.id != null ? 'Actualizar' : 'Crear Aula'}">Crear aula</a>
+                        </div>
+                    </form>
+                </section>
+
+            </section>
+
+
+            <div th:substituteby="general/aula/divTipoAmbiente"/>
+        </div>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/general/aula/aulaForm.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

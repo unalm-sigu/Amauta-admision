@@ -28,25 +28,30 @@ $(function () {
         init: function () {
 
         },
-        modalCarrera: $("#modalCambioEstado"),
-        formCambioEstadoCarrera: $("#formCambioEstado"),
+        modalCarrera: $("#modalEstadoCarrera"),
+        form: null,
         viewModal: function (e, $this) {
             e.preventDefault();
-            Carrera.formCambioEstadoCarrera.parsley().destroy();
-            var modal = Carrera.modalCarrera;
 
-            modal.modal("show");
-            modal.find('[name="motivo"]').val("");
-            modal.find('[name="id"]').val($this.attr("rel"));
             var estado = $this.attr("rev");
-            estado == 'INA' ? $(".tituloCambioEstado").text("Activar Carrera") : $(".tituloCambioEstado").text("¿Por qué motivo desea desactivar la carrera?");
-            estado == 'INA' ?
-                    $(".campoMotivo").html('¿Desea realmente activar la carrera?') :
-                    $(".campoMotivo").html("<textarea class='form-control' name='motivoAnulacion' required='true'></textarea>");
+
+            var record = {
+                form: "formEstadoCarrera",
+                activo: estado == 'ACT',
+                id: $this.attr("rel")
+            };
+
+            MODAL.init("md");
+            MODAL.title("");
+            MODAL.body($.templates("#divEstadoCarrera").render(record));
+            MODAL.buttons('<button type="button" class="btn btn-primary cambio-estado-carrera">Aceptar</button>');
+            MODAL.show();
+            Carrera.form = $("#" + record.form);
+
         },
         cambioEstado: function (e) {
             e.preventDefault();
-            var form = Carrera.formCambioEstadoCarrera;
+            var form = Carrera.form;
             if (!form.parsley().validate()) {
                 return;
             }
@@ -58,7 +63,8 @@ $(function () {
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        Carrera.modalCarrera.modal("hide");
+//                        Carrera.modalCarrera.modal("hide");
+                        MODAL.hide();
                         notify(response.message, "info");
                         dynatable.process();
                     } else {

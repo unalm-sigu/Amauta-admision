@@ -10,10 +10,12 @@ public interface CarreraDAO extends Crud<Carrera> {
 
     Carrera findByCodigo(String cod);
 
-    public List<Carrera> allByModalidadEstudio(DynatableFilter filter);
+    public List<Carrera> allByDynatable(DynatableFilter filter);
 
     List<Carrera> allByCompania(Compania compania);
 
     Carrera find(Long id);
+
+    List<Carrera> allByNombre(String forLike);
 
 }
