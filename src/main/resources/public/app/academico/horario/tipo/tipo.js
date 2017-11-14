@@ -31,7 +31,7 @@ $(function () {
     }
 
     var TipoGrupo = {
-        form: [],
+        form: {},
         body: $('body'),
         init: function () {
         },
