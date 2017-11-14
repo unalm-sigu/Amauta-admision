@@ -15,6 +15,7 @@ import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
 
 @Repository
 public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
@@ -33,16 +34,10 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
 
     @Override
     public List<Carrera> allByDynatable(DynatableFilter filter) {
-        Octavia subquery = Octavia.query()
-                .from(AnexoBoletin.class, "as")
-                .join("anexoSuperior ass", "carrera cax");
-
-        DynatableSql sql = new DynatableSql(filter)
+      DynatableSql sql = new DynatableSql(filter)
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .searchFields("ca.nombre", "ca.codigo")
-                .searchSubquery(subquery)
-                .subqueryLinkedBy("ca.id", "cax.id")
                 .orderBy("ca.id desc");
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
@@ -56,21 +51,21 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
         }
 
         for (String key : queries.keySet()) {
-            if (!key.equals("ass.id")) {
+            if (!key.equals("me.codigo")) {
                 continue;
             }
             String values = (String) queries.get(key);
-            if (values.equals("ingresantes")) {
-                sql.filter("ass.id", GrupoAnexoEnum.INGRESANTE.getValue());
+            if (values.equals("pregrados")) {
+                sql.filter("me.codigo", ModalidadEstudioEnum.PRE.name());
 
-            } else if (values.equals("departamentos")) {
-                sql.filter("ass.id", GrupoAnexoEnum.DPTO.getValue());
+            } else if (values.equals("posgrados")) {
+                sql.filter("me.codigo", ModalidadEstudioEnum.EPG.name());
 
-            } else if (values.equals("postGrados")) {
-                sql.filter("ass.id", GrupoAnexoEnum.POSTGRADO.getValue());
+            } else if (values.equals("especiales")) {
+                sql.filter("me.codigo", ModalidadEstudioEnum.ESP.name());
 
-            } else if (values.equals("actividades")) {
-                sql.filter("ass.id", GrupoAnexoEnum.ACTIVIDADES.getValue());
+            } else if (values.equals("visitantes")) {
+                sql.filter("me.codigo", ModalidadEstudioEnum.VIS.name());
             }
         }
     }
@@ -116,21 +111,19 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
         StringBuilder sql = new StringBuilder();
         sql.append("select new ").append(CarreraResumen.class.getName());
         sql.append(" (   ");
-        sql.append("   sum(case abs.id when :INGRE then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :DPTO  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :POST  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :ACTI  then 1 else 0 end)   ");
+        sql.append("   sum(case me.codigo when :PRE then 1 else 0 end),   ");
+        sql.append("   sum(case me.codigo when :EPG  then 1 else 0 end),   ");
+        sql.append("   sum(case me.codigo when :ESP  then 1 else 0 end),   ");
+        sql.append("   sum(case me.codigo when :VIS  then 1 else 0 end)   ");
         sql.append(" )   ");
-        sql.append("  from ").append(AnexoBoletin.class.getName()).append(" as ab ");
-        sql.append(" inner join  ab.anexoSuperior abs ");
-        sql.append(" left join  ab.departamentoAcademico da ");
-        sql.append(" left join  ab.carrera ca ");
+        sql.append("  from ").append(Carrera.class.getName()).append(" as ca ");
+        sql.append(" inner join  ca.modalidadEstudio me ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());
-        query.setString("DPTO", GrupoAnexoEnum.DPTO.getValue());
-        query.setString("ACTI", GrupoAnexoEnum.ACTIVIDADES.getValue());
-        query.setString("POST", GrupoAnexoEnum.POSTGRADO.getValue());
+        query.setString("PRE", ModalidadEstudioEnum.PRE.name());
+        query.setString("EPG", ModalidadEstudioEnum.EPG.name());
+        query.setString("ESP", ModalidadEstudioEnum.ESP.name());
+        query.setString("VIS", ModalidadEstudioEnum.VIS.name());
 
         return (CarreraResumen) query.uniqueResult();
     }

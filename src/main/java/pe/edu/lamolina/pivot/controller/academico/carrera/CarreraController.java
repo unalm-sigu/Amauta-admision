@@ -156,7 +156,6 @@ public class CarreraController {
         }
         return response;
     }
-
     @RequestMapping("nuevo")
     public String nuevoRol(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

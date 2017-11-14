@@ -85,7 +85,7 @@ $(function () {
             var div = $this.closest("div");
             var classColor = 'bg-light';
             var tieneBgColor = div.hasClass(classColor);
-            dynatable.queries.remove("ass.id");
+            dynatable.queries.remove("me.codigo");
 
             if (Carrera.divElegido != null) {
                 Carrera.divElegido.removeClass(classColor);
@@ -96,7 +96,7 @@ $(function () {
                 div.addClass(classColor);
                 Carrera.divElegido = div;
                 var grupo = $this.attr("rel");
-                dynatable.queries.add("ass.id", grupo);
+                dynatable.queries.add("me.codigo", grupo);
             }
             dynatable.process();
         }

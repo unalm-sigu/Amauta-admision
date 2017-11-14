@@ -2,48 +2,48 @@ package pe.edu.lamolina.pivot.controller.academico.carrera;
 
 public class CarreraResumen {
 
-    private Long ingresantes;
-    private Long departamentos;
-    private Long postGrados;
-    private Long actividades;
+    private Long pregrados;
+    private Long posgrados;
+    private Long especiales;
+    private Long visitantes;
 
-    public CarreraResumen(Long ingresantes, Long departamentos, Long postGrados, Long actividades) {
-        this.ingresantes = ingresantes;
-        this.departamentos = departamentos;
-        this.postGrados = postGrados;
-        this.actividades = actividades;
+    public CarreraResumen(Long pregrados, Long posgrados, Long especiales, Long visitantes) {
+        this.pregrados = pregrados;
+        this.posgrados = posgrados;
+        this.especiales = especiales;
+        this.visitantes = visitantes;
     }
 
-    public Long getIngresantes() {
-        return ingresantes;
+    public Long getPregrados() {
+        return pregrados;
     }
 
-    public void setIngresantes(Long ingresantes) {
-        this.ingresantes = ingresantes;
+    public void setPregrados(Long pregrados) {
+        this.pregrados = pregrados;
     }
 
-    public Long getDepartamentos() {
-        return departamentos;
+    public Long getVisitantes() {
+        return visitantes;
     }
 
-    public void setDepartamentos(Long departamentos) {
-        this.departamentos = departamentos;
+    public void setVisitantes(Long visitantes) {
+        this.visitantes = visitantes;
     }
 
-    public Long getPostGrados() {
-        return postGrados;
+    public Long getPosgrados() {
+        return posgrados;
     }
 
-    public void setPostGrados(Long postGrados) {
-        this.postGrados = postGrados;
+    public void setPosgrados(Long posgrados) {
+        this.posgrados = posgrados;
     }
 
-    public Long getActividades() {
-        return actividades;
+    public Long getEspeciales() {
+        return especiales;
     }
 
-    public void setActividades(Long actividades) {
-        this.actividades = actividades;
+    public void setEspeciales(Long especiales) {
+        this.especiales = especiales;
     }
 
 }
