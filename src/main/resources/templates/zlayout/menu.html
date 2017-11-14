@@ -34,7 +34,7 @@
             <div class="contenedor-secciones">
                 <div class="menu-section">
                     <ul>
-                        <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                          <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
                             
                             <a th:href="@{/academico/systemcalifica/sistema}">
                                 <i class="fa fa-check-square"></i><span>Sist. Calificación</span>
@@ -50,6 +50,12 @@
                         <li class="hide">
                             <a th:href="@{/academico/docente/evaluacion}">
                                 <i class="fa fa-object-ungroup"></i><span>Resumen de Evaluaciones</span>
+                            </a>
+                        </li>
+
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/academico/horario}">
+                                <i class="fa fa-users"></i><span>Horario</span>
                             </a>
                         </li>
 

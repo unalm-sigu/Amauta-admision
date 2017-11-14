@@ -110,13 +110,37 @@ public class TipoGrupoHorasController {
     public JsonResponse save(TipoGrupoHoras tipoGrupo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TipoGrupoHoras tipoGrupoCode = service.findTipoGrupoHorasByCode(tipoGrupo.getCodigo());
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             if (tipoGrupo.getId() != null) {
-                service.update(tipoGrupo);
-                response.setMessage("Tipo Grupos actualizado satisfactoriamente");
+                if (tipoGrupoCode != null) {
+                    if (tipoGrupoCode.getId() == tipoGrupo.getId().longValue()) {
+                        service.update(tipoGrupo);
+                        response.setMessage("Tipo Grupos actualizado satisfactoriamente");
+
+                    } else {
+                        data.put("existecodigo", true);
+                        response.setMessage("Tipo Grupos con código ya registrado");
+                        response.setSuccess(Boolean.FALSE);
+                    }
+                } else {
+                    service.update(tipoGrupo);
+                    data.put("existecodigo", true);
+                    response.setMessage("Tipo Grupos actualizado satisfactoriamente");
+                    response.setSuccess(Boolean.TRUE);
+                }
             } else {
-                service.save(tipoGrupo);
-                response.setMessage("Tipo Grupos creado satisfactoriamente");
+                if (tipoGrupoCode == null) {
+                    service.save(tipoGrupo);
+                    response.setMessage("Tipo Grupos creado satisfactoriamente");
+                    response.setSuccess(Boolean.TRUE);
+                } else {
+                    data.put("existecodigo", true);
+                    response.setMessage("Tipo Grupos con código ya registrado");
+                    response.setSuccess(Boolean.FALSE);
+                }
             }
+            response.setData(data);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

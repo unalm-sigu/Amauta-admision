@@ -120,6 +120,12 @@ $(function () {
                 }
             });
         },
+        opengroup: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var id = self.attr('rel');
+            location.replace(APP.url('academico/horario/' + id + '/grupo'));
+        },
         saveTipoGrupo: function (mimodal) {
             $.ajax({
                 url: APP.url('academico/horario/save'),
@@ -128,8 +134,14 @@ $(function () {
                 data: mimodal.find('form').serialize(),
                 success: function (response) {
                     if (response.success) {
-                        dynatable.process();
-                        mimodal.modal('hide');
+                        if (response.data.existecodigo) {
+                            var inputCodigo = mimodal.find('[name="codigo"]').parsley();
+                            window.ParsleyUI.removeError(inputCodigo, "errorValidacionCodigo");
+                            window.ParsleyUI.addError(inputCodigo, "errorValidacionCodigo", "Código ya registrado");
+                        } else {
+                            dynatable.process();
+                            mimodal.modal('hide');
+                        }
                     } else {
                         notify(response.message, "error");
                         mimodal.modal('hide');
@@ -234,6 +246,9 @@ $(function () {
     });
     TipoGrupo.body.delegate('.editar', 'click', function (e) {
         TipoGrupo.update(e);
+    });
+    TipoGrupo.body.delegate('.opengroup', 'click', function (e) {
+        TipoGrupo.opengroup(e);
     });
     TipoGrupo.init();
 

@@ -49,6 +49,7 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
     @Transactional
     public void update(TipoGrupoHoras tipoGrupo) {
         TipoGrupoHoras tipoGrupoDb = tipoGrupoHorasDAO.find(tipoGrupo.getId());
+        TipoGrupoHoras tipoGrupoCode = tipoGrupoHorasDAO.findByCode(tipoGrupo.getCodigo());
         tipoGrupoDb.setCodigo(tipoGrupo.getCodigo());
         tipoGrupoDb.setTipoCiclo(tipoGrupo.getTipoCiclo());
         tipoGrupoHorasDAO.update(tipoGrupoDb);
@@ -57,6 +58,8 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
     @Override
     @Transactional
     public void save(TipoGrupoHoras tipoGrupo) {
+
+        TipoGrupoHoras tipoGrupoCode = tipoGrupoHorasDAO.findByCode(tipoGrupo.getCodigo());
         tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
         tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
         tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INC.name());
@@ -66,6 +69,11 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
     @Override
     public TipoGrupoHoras find(TipoGrupoHoras tipoGrupo) {
         return tipoGrupoHorasDAO.find(tipoGrupo.getId());
+    }
+
+    @Override
+    public TipoGrupoHoras findTipoGrupoHorasByCode(String codigo) {
+        return tipoGrupoHorasDAO.findByCode(codigo);
     }
 
 }

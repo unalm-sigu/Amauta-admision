@@ -18,4 +18,6 @@ public interface TipoGrupoHorasService {
 
     TipoGrupoHoras find(TipoGrupoHoras tipoGrupo);
 
+    TipoGrupoHoras findTipoGrupoHorasByCode(String codigo);
+
 }
