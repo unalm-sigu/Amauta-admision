@@ -36,15 +36,9 @@ public class Oficina implements Serializable {
     @Column(name = "instancia_oficina")
     private Long instanciaOficina;
 
-    @Column(name = "tipo_oficina_dependiente")
-    private String tipoOficinaDependiente;
-
     @Column(name = "fecha_inicio_jefatura")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaInicioJefatura;
-
-    @Column(name = "es_jefe_encargado")
-    private Integer esJefeEncargado;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compania")
@@ -140,14 +134,6 @@ public class Oficina implements Serializable {
         this.oficinaSuperior = oficinaSuperior;
     }
 
-    public String getTipoOficinaDependiente() {
-        return tipoOficinaDependiente;
-    }
-
-    public void setTipoOficinaDependiente(String tipoOficinaDependiente) {
-        this.tipoOficinaDependiente = tipoOficinaDependiente;
-    }
-
     public Persona getPersonaJefe() {
         return personaJefe;
     }
@@ -170,14 +156,6 @@ public class Oficina implements Serializable {
 
     public void setFechaInicioJefatura(Date fechaInicioJefatura) {
         this.fechaInicioJefatura = fechaInicioJefatura;
-    }
-
-    public Integer getEsJefeEncargado() {
-        return esJefeEncargado;
-    }
-
-    public void setEsJefeEncargado(Integer esJefeEncargado) {
-        this.esJefeEncargado = esJefeEncargado;
     }
 
     public List<Aula> getAula() {

@@ -431,8 +431,8 @@ public class Alumno implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setEstado(AlumnoEstadoEnum estado) {
+        this.estado = estado.name();
     }
 
     public AlumnoEstadoEnum getEstadoEnum() {
