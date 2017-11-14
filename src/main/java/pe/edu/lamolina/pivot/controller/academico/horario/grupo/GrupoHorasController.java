@@ -20,25 +20,18 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/horario/grupo")
-public class HorarioGrupoController {
+public class GrupoHorasController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    HorarioGrupoService service;
+    GrupoHorasService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -66,7 +59,7 @@ public class HorarioGrupoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        return "academico/docente/cargaacademica";
+        return "academico/horario/grupo/grupo";
     }
 
     @ResponseBody
@@ -74,17 +67,23 @@ public class HorarioGrupoController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            CicloAcademico ciclo = ds.getCicloAcademico();
+            List<GrupoHoras> grupos = service.allGrupoHoras(filter);
 
-            List<GrupoHoras> grupoHoras = service.allGrupoHoras(filter);
-            for (GrupoHoras grupoHora : grupoHoras) {
+            for (GrupoHoras grupo : grupos) {
 
-                array.add("");
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", grupo.getId());
+                node.put("codigo", grupo.getCodigo());
+                node.put("letra", grupo.getLetra());
+                node.put("tipoCiclo", grupo.getTipoCiclo());
+                node.put("tipoGrupoHoras", grupo.getTipoGrupoHoras()!=null?grupo.getTipoGrupoHoras().getCodigo():"");
+                node.put("tipoSeccion", grupo.getTipoSeccion());
+                node.put("color", grupo.getColor());
+                array.add(node);
             }
 
             json.setData(array);

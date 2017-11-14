@@ -20,20 +20,17 @@ public class TipoGrupoHoras implements Serializable {
     @Column(name = "codigo")
     private String codigo;
 
-    @Column(name = "letra")
-    private String letra;
-
     @Column(name = "tipo")
     private String tipo;
-
-    @Column(name = "tipo_ciclo")
-    private String tipoCiclo;
 
     @Column(name = "estado_grupos")
     private String estadoGrupos;
 
     @Column(name = "estado")
     private String estado;
+
+    @Column(name = "tipo_ciclo")
+    private String tipoCiclo;
 
     public TipoGrupoHoras() {
     }
@@ -58,28 +55,12 @@ public class TipoGrupoHoras implements Serializable {
         this.codigo = codigo;
     }
 
-    public String getLetra() {
-        return letra;
-    }
-
-    public void setLetra(String letra) {
-        this.letra = letra;
-    }
-
     public String getTipo() {
         return tipo;
     }
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public String getTipoCiclo() {
-        return tipoCiclo;
-    }
-
-    public void setTipoCiclo(String tipoCiclo) {
-        this.tipoCiclo = tipoCiclo;
     }
 
     public String getEstadoGrupos() {
@@ -96,6 +77,14 @@ public class TipoGrupoHoras implements Serializable {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public String getTipoCiclo() {
+        return tipoCiclo;
+    }
+
+    public void setTipoCiclo(String tipoCiclo) {
+        this.tipoCiclo = tipoCiclo;
     }
 
 }

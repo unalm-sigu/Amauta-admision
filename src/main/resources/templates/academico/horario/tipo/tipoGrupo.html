@@ -1,6 +1,6 @@
 <html layout:decorator="zlayout/layout">
     <head>
-        <title>Grupos</title>
+        <title>Tipo Grupos</title>
     <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
 </head>
 
@@ -9,8 +9,12 @@
 
         <header class="page-header">
 
-            <h2>Grupos</h2>
+            <div class="pull-right">                
+                <a class="btn btn-primary btn-sm" type="button" id="nuevo" href="#" >Nuevo</a>
+            </div>  
 
+            <h2>Tipo Grupos</h2>
+            
         </header>
 
         <section class="panel">
@@ -20,15 +24,15 @@
             </section>
         </section>
 
-        <script id="grupoTemplate" type="text/x-jsrender" class="hide">
-            <div th:substituteby="academico/horario/grupo/grupoTemplate"></div>
+        <script id="tipoGrupoTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="academico/horario/tipo/tipoGrupoTemplate"></div>
         </script>
 
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horario/tipo/tipo.js}" charset="utf-8"></script>
     </div>
 
 </body>
