@@ -4,14 +4,21 @@
         <input type="hidden" name="id" value="{{:id}}"/>
         <div class="row m-b-md">
             <input class='hide' name="id"/>
+            <input class='hide' name="estado" value="{{:estado}}"/>
             <div class="form-group">
                 <div class="col-md-12">
+                    {{if creado }}
+                    Se ingresa resolución
+                    {{/if}}
+
                     {{if activo }}
                     <div class="form-group">
                         <label class="bold">Indique el motivo por el cual esta desactivando la carrera</label>
                         <textarea class='form-control' name='motivoAnulacion' required='true'></textarea>
                     </div>
-                    {{else}}
+                    {{/if}}
+                    
+                    {{if inactivo }}
                     ¿Desea realmente activar la carrera?
                     {{/if}}
                 </div>

@@ -26,16 +26,18 @@ $(function () {
 
 
     var CarreraForm = {
+        modalidadEstudio: $('.modalidadEstudio'),
         formCarrera: $("#formularioCarrera"),
         modalOrientacion: $("#modalOrientacion"),
         formModalOrientacion: null,
         formCambioEstado: null,
         init: function () {
             $('[name="facultad.id"]').select2();
-            var modalidadEstudio = $('[name="modalidadEstudio.id"]').select2();
-            if (modalidadEstudio.val() != '') {
-                CarreraForm.loadTipoCarrera(modalidadEstudio.find("option:selected").attr("rel"));
-            }
+            CarreraForm.modalidadEstudio.select2();
+
+            if (CarreraForm.modalidadEstudio.val() != '') {
+                CarreraForm.loadTipoCarrera(CarreraForm.modalidadEstudio);
+            } 
         },
         viewModalAddOrientacion: function (e) {
             e.preventDefault();
@@ -207,11 +209,13 @@ $(function () {
                 }
             });
         },
-        loadTipoCarrera: function (codigo) {
+        loadTipoCarrera: function ($this) {
+            var codigo = $this.find("option:selected").attr("rel");
+            console.log("::: " + $this)
             if (codigo == 'EPG') {
                 $(".divTipoCarrera").removeClass("hide");
 
-                $('[name="tipo"]').select2({
+                $('.tipo').select2({
                     placeholder: "Seleccione un tipo de carrera",
                     minimumInputLength: -1,
                     ajax: {
@@ -244,10 +248,10 @@ $(function () {
                         return m;
                     }
                 });
-            } else {
+            } else if (codigo == 'PRE') {
                 $(".divTipoCarrera").addClass("hide");
                 $('[name="tipo"]').attr("value", "SEM");
-            }
+            } 
         }
     };
     CarreraForm.init();
@@ -274,6 +278,7 @@ $(function () {
         CarreraForm.cambioEstadoOrientacion(e);
     });
     $("body").delegate(".modalidadEstudio", "change", function (e) {
+        console.log("change!!!")
         CarreraForm.loadTipoCarrera($(this));
     });
 

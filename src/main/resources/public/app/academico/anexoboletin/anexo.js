@@ -27,7 +27,7 @@ $(function () {
 
     var Anexo = {
         form: null,
-        divElegido: null,
+        divSeleccionado: null,
         viewModal: function (e, $this) {
             e.preventDefault();
 
@@ -79,14 +79,14 @@ $(function () {
             var tieneBgColor = div.hasClass(classColor);
             dynatable.queries.remove("ass.id");
 
-            if (Anexo.divElegido != null) {
-                Anexo.divElegido.removeClass(classColor);
-                Anexo.divElegido = null;
+            if (Anexo.divSeleccionado != null) {
+                Anexo.divSeleccionado.removeClass(classColor);
+                Anexo.divSeleccionado = null;
             }
 
             if (!tieneBgColor) {
                 div.addClass(classColor);
-                Anexo.divElegido = div;
+                Anexo.divSeleccionado = div;
                 var grupo = $this.attr("rel");
                 dynatable.queries.add("ass.id", grupo);
             }

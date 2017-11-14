@@ -29,6 +29,7 @@ $(function () {
         init: function () {
 
         },
+        divseleccionado: null,
         modalCarrera: $("#modalEstadoCarrera"),
         form: null,
         viewModal: function (e, $this) {
@@ -37,9 +38,12 @@ $(function () {
             var estado = $this.attr("rev");
 
             var record = {
+                id: $this.attr("rel"),
+                estado: estado,
                 form: "formEstadoCarrera",
-                activo: estado == 'ACT' || estado == 'CRE',
-                id: $this.attr("rel")
+                activo: estado == 'ACT',
+                creado: estado == 'CRE',
+                inactivo: estado == 'INA'
             };
 
             MODAL.init("md");
@@ -64,7 +68,6 @@ $(function () {
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-//                        Carrera.modalCarrera.modal("hide");
                         MODAL.hide();
                         notify(response.message, "info");
                         dynatable.process();
@@ -76,6 +79,26 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        viewCount: function ($this, e) {
+            e.preventDefault();
+            var div = $this.closest("div");
+            var classColor = 'bg-light';
+            var tieneBgColor = div.hasClass(classColor);
+            dynatable.queries.remove("ass.id");
+
+            if (Carrera.divElegido != null) {
+                Carrera.divElegido.removeClass(classColor);
+                Carrera.divElegido = null;
+            }
+
+            if (!tieneBgColor) {
+                div.addClass(classColor);
+                Carrera.divElegido = div;
+                var grupo = $this.attr("rel");
+                dynatable.queries.add("ass.id", grupo);
+            }
+            dynatable.process();
         }
     }
 
@@ -86,6 +109,9 @@ $(function () {
     });
     $("body").delegate(".cambio-estado-carrera", "click", function (e) {
         Carrera.cambioEstado(e);
+    });
+    $("body").delegate(".view-count", "click", function (e) {
+        Carrera.viewCount($(this), e);
     });
 
 });

@@ -81,6 +81,7 @@ public class CarreraController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposEstudio", ModalidadEstudioEnum.values());
+        model.addAttribute("resumen", service.resumen());
         return "academico/carrera/carrera";
     }
 
@@ -166,7 +167,6 @@ public class CarreraController {
         model.addAttribute("carrera", carrera);
         model.addAttribute("modalidades", service.allPrePostgrado(cia));
         model.addAttribute("facultades", service.allFacultades());
-//        model.addAttribute("tipos", TipoCarreraEnum.values());
 
         return "academico/carrera/carreraForm";
     }

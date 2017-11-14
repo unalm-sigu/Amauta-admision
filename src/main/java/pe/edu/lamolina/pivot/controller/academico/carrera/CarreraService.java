@@ -33,4 +33,6 @@ public interface CarreraService {
 
     OrientacionCarrera editarOrientacion(Long id);
 
+    CarreraResumen resumen();
+
 }
