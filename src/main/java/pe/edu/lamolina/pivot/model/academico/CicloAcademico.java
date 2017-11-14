@@ -53,6 +53,12 @@ public class CicloAcademico implements Serializable {
     @Column(name = "id_user_registro")
     private Long idUserRegistro;
 
+    @Column(name = "ini_matricula")
+    private Integer iniMatricula;
+
+    @Column(name = "sgte_matricula")
+    private Integer sgteMatricula;
+
     @Column(name = "fecha_registro")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaRegistro;
@@ -289,6 +295,22 @@ public class CicloAcademico implements Serializable {
 
     public void setDescripcion2(String descripcion2) {
         this.descripcion2 = descripcion2;
+    }
+
+    public Integer getIniMatricula() {
+        return iniMatricula;
+    }
+
+    public void setIniMatricula(Integer iniMatricula) {
+        this.iniMatricula = iniMatricula;
+    }
+
+    public Integer getSgteMatricula() {
+        return sgteMatricula;
+    }
+
+    public void setSgteMatricula(Integer sgteMatricula) {
+        this.sgteMatricula = sgteMatricula;
     }
 
 }

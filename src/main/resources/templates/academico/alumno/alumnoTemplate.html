@@ -1,0 +1,54 @@
+<tr rel="{{:index}}">
+    <td class="v-middle">
+        <div class="pull-left m-r">
+            <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+        </div>
+
+        <div class="">
+            <a href="#"><span class="block text-primary bold detallePostulante" >{{:nombre}}</span></a>
+            <span class="block">
+                Matrícula: {{:codigo}} 
+            </span>
+            <span class="block">{{:tipoDoc}}: {{:numeroDoc}} <small class="text-white" style="font-size: 4px;">{{:lagos}}</small></span>
+        </div>
+    </td>
+
+    <td class="v-middle text-center">
+
+        <span class="block">Facultad: {{:facultad}}</span>
+        <span class="block">Carrera: {{:carrera}}</span>
+
+    </td>
+
+    <td class="v-middle">
+        <span class="block">Situacion Académica: {{:situacion}}</span>
+        <span class="block">Ciclo Ingreso: {{:cicloIngreso}}</span>
+        <span class="block">Ciclo Activo: {{:cicloActivo}}</span>
+    </td>
+
+    <td>
+        <span class="block">PPA: {{:ppa}}</span>
+        <span class="block">CCA: {{:cca}}</span>
+        <span class="block">CAPA: {{:capa}}</span>
+    </td>
+
+    <td class="text-center v-middle">
+        <span class="clear">
+            {{if estado == "ANU"}}
+            <a href="#" data-toggle="tooltip" data-html="true" data-placement="left" title='{{:motivo}}'><span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span></a>
+            {{else}}
+            <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>
+            {{/if}}
+        </span>
+    </td>
+
+
+    <td class="v-middle">
+        <div class="actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right">
+                <li><a class="modificar-datos" href="#">Modificar datos</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>

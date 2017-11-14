@@ -1,6 +1,8 @@
-package pe.edu.lamolina.pivot.controller.general.persona;
+package pe.edu.lamolina.pivot.controller.academico.alumno;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -8,41 +10,46 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
-import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
 
 @Service
 @Transactional(readOnly = true)
-public class PersonaServiceImp implements PersonaService {
-
-    @Autowired
-    PersonaDAO personaDAO;
-
-    @Autowired
-    RolDAO rolDAO;
-
-    @Autowired
-    TipoDocIdentidadDAO tipoDocIdentidadDAO;
+public class AlumnoEspecialServiceImp implements AlumnoEspecialService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    public List<Persona> allByDynatable(DynatableFilter filter) {
-        return personaDAO.allByFilter(filter);
-    }
-
-    @Override
-    public Persona find(Persona persona) {
-        return personaDAO.find(persona.getId());
-    }
+    @Autowired
+    TipoDocIdentidadDAO tipoDocIdentidadDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    SituacionAcademicaDAO situacionAcademicaDAO;
+    @Autowired
+    PersonaDAO personaDAO;
+    @Autowired
+    AlumnoDAO alumnoDAO;
+    @Autowired
+    CarreraDAO carreraDAO;
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
 
     @Override
     public List<TipoDocIdentidad> allDocumentos() {
@@ -50,13 +57,38 @@ public class PersonaServiceImp implements PersonaService {
     }
 
     @Override
-    @Transactional
-    public void savePersona(Persona persona, DataSessionPivot ds) {
+    public List<CicloAcademico> allCiclos() {
+        return cicloAcademicoDAO.all();
+    }
 
-        Persona personaForm = persona;
+    @Override
+    public List<SituacionAcademica> allSituaciones() {
+        return situacionAcademicaDAO.all();
+    }
+
+    @Override
+    public void saveAlumno(Alumno alumno, Usuario usuario) {
+
+        CicloAcademico ciclo = cicloAcademicoDAO.find(alumno.getCicloIngreso().getId());
+        if (StringUtils.isBlank(alumno.getCodigo())) {
+            String year = ciclo.getYear().toString();
+            String cod;
+            int sgt = ciclo.getSgteMatricula();
+            ciclo.getSgteMatricula();
+            ciclo.getIniMatricula();
+            if (ciclo.getIniMatricula() > sgt) {
+                cod = String.format("%04d", ciclo.getIniMatricula());
+            } else {
+                cod = String.format("%04d", sgt + 1);
+            }
+            alumno.setCodigo(year + cod);
+
+        }
+
+        Persona personaForm = alumno.getPersona();
         String emailCompania = StringUtils.isEmpty(personaForm.getEmailCompania()) ? null : personaForm.getEmailCompania();
         if (emailCompania == null) {
-            throw new PhobosException("El correo princiapal es obligatorio");
+            throw new PhobosException("El correo principal es obligatorio");
         }
 
         String email = StringUtils.isEmpty(personaForm.getEmail()) ? null : personaForm.getEmail();
@@ -64,27 +96,71 @@ public class PersonaServiceImp implements PersonaService {
         personaForm.setEmailCompania(emailCompania);
 
         this.validarDNI(personaForm);
+        this.validarCodigo(alumno.getCodigo());
         if (personaForm.getId() == null) {
             this.validarEmailsinPersona(personaForm.getEmail());
             this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
+            personaForm.setEstado(EstadoEnum.ACT.name());
+            personaForm.setUserRegistro(usuario);
+            personaForm.setFechaRegistro(new Date());
             personaDAO.save(personaForm);
 
         } else {
             this.validarEmailConPersona(email, personaForm);
             this.validarEmailEmpresaConPersona(emailCompania, personaForm);
-            Persona personaBD = this.getPersonaBD(personaForm, ds);
+            Persona personaBD = this.getPersonaBD(personaForm);
 
             personaForm = personaBD;
         }
 
-        if (persona.getId() == null) {
+        if (personaForm.getId() == null) {
+            personaForm.setUserRegistro(usuario);
+            personaForm.setEstado(EstadoEnum.ACT.name());
+            personaForm.setFechaRegistro(new Date());
             personaDAO.save(personaForm);
-
         } else {
             personaDAO.update(personaForm);
         }
 
-        logger.debug("PERSONA ID- {}", persona.getId());
+        if (alumno.getId() == null) {
+
+            Carrera carrera = carreraDAO.findByCodigo("000");
+            ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.ESP);
+            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
+
+            alumno.setPersona(personaForm);
+            alumno.setCarrera(carrera);
+            alumno.setModalidadEstudio(modalidadEstudio);
+            alumno.setCicloActivo(alumno.getCicloIngreso());
+            alumno.setSituacionAcademica(situacion);
+
+            alumno.setRetirosCursos(0);
+            alumno.setRetirosCiclos(0);
+            alumno.setRetirosExtemporaneos(0);
+            alumno.setCreditosCursados(0);
+            alumno.setCreditosAprobados(0);
+            alumno.setCursosInscritos(0);
+            alumno.setCursosAprobados(0);
+            alumno.setPromedioAcumulado(BigDecimal.ZERO);
+            alumno.setCreditosCarreraCursados(0);
+            alumno.setCreditosCarreraAprobados(0);
+            alumno.setCursosCarreraInscritos(0);
+            alumno.setCursosCarreraAprobados(0);
+            alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
+
+            alumnoDAO.save(alumno);
+            ciclo.setSgteMatricula(ciclo.getSgteMatricula() + 1);
+            cicloAcademicoDAO.update(ciclo);
+        }
+
+        logger.debug("PERSONA ID- {}", personaForm.getId());
+    }
+
+    private void validarCodigo(String codigo) {
+        Alumno alumnoDB = alumnoDAO.findByCodigo(codigo);
+        if (alumnoDB != null) {
+            throw new PhobosException("El código o matrícula ya se encuentra ocupado por otro alumno.");
+        }
     }
 
     private void validarDNI(Persona personaForm) {
@@ -143,7 +219,7 @@ public class PersonaServiceImp implements PersonaService {
         }
     }
 
-    private Persona getPersonaBD(Persona persona, DataSessionPivot ds) {
+    private Persona getPersonaBD(Persona persona) {
 
         Persona personaBD = personaDAO.find(persona.getId());
 
@@ -166,103 +242,4 @@ public class PersonaServiceImp implements PersonaService {
         personaDAO.update(personaBD);
         return personaBD;
     }
-
-    @Override
-    public String validarEmailByPersona(String email, Persona persona) {
-        List<Persona> personas = null;
-        if (persona.getId() == null) {
-            personas = personaDAO.allByEmail(email);
-
-        } else {
-            persona.setEmail(email);
-            personas = personaDAO.allByEmailWithoutPersona(persona);
-        }
-
-        if (personas.isEmpty()) {
-            return null;
-        }
-
-        int loop = 0;
-        String msg = "Este correo ya pertenece al: ";
-        for (Persona per : personas) {
-            TipoDocIdentidad tipo = per.getTipoDocumento();
-            msg += (loop == 0) ? "" : ", ";
-            msg += tipo.getSimbolo() + " " + per.getNumeroDocIdentidad();
-            loop++;
-        }
-        return msg;
-    }
-
-    @Override
-    public String validarEmailEmpresaByPersona(String email, Persona persona) {
-        List<Persona> personas = null;
-        if (persona.getId() == null) {
-            personas = personaDAO.allByEmailEmpresa(email);
-
-        } else {
-            persona.setEmailCompania(email);
-            personas = personaDAO.allByEmailEmpresaWithoutPersona(persona);
-        }
-
-        if (personas.isEmpty()) {
-            return null;
-        }
-
-        int loop = 0;
-        String msg = "Este correo ya pertenece al: ";
-        for (Persona per : personas) {
-            TipoDocIdentidad tipo = per.getTipoDocumento();
-            msg += (loop == 0) ? "" : ", ";
-            msg += tipo.getSimbolo() + " " + per.getNumeroDocIdentidad();
-            loop++;
-        }
-        return msg;
-    }
-
-    @Override
-    public Persona findPersona(Persona personaTmp) {
-        Persona persona = personaDAO.findByDocIdentidad(personaTmp.getTipoDocumento(), personaTmp.getNumeroDocIdentidad());
-        if (persona != null) {
-            throw new PhobosException("La persona con documento de identidad " + persona.getTipoDocumento().getSimbolo() + " " + persona.getNumeroDocIdentidad() + " ya se encuentra registrado como usuario del sistema.");
-        }
-
-        return new Persona();
-    }
-
-    @Override
-    public String validarEmailCompaniaByPersona(String email, Persona persona) {
-        List<Persona> personas;
-        if (persona.getId() == null) {
-            personas = personaDAO.allByEmailCompania(email);
-
-        } else {
-            persona.setEmailCompania(email);
-            personas = personaDAO.allByEmailCompaniaWithoutPersona(persona);
-        }
-
-        if (personas.isEmpty()) {
-            return null;
-        }
-
-        int loop = 0;
-        String msg = "Este correo ya pertenece al: ";
-        for (Persona per : personas) {
-            TipoDocIdentidad tipo = per.getTipoDocumento();
-            msg += (loop == 0) ? "" : ", ";
-            msg += tipo.getSimbolo() + " " + per.getNumeroDocIdentidad();
-            loop++;
-        }
-        return msg;
-    }
-
-    @Transactional
-    @Override
-    public void updatePersonaAlumno(Persona persona, Usuario usuario) {
-        Persona personaDB = personaDAO.find(persona.getId());
-
-        personaDB.setNombres(persona.getNombres());
-
-        personaDAO.update(personaDB);
-    }
-
 }

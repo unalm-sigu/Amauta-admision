@@ -13,12 +13,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.tramite.AutorizacionRegistro;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.zelper.enums.AlumnoEstadoEnum;
 
 @Entity
 @Table(name = "aca_alumno")
@@ -71,6 +73,9 @@ public class Alumno implements Serializable {
     @Column(name = "promedio_carrera_acumulado")
     private BigDecimal promedioCarreraAcumulado;
 
+    @Column(name = "estado")
+    private String estado;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona")
     private Persona persona;
@@ -94,6 +99,10 @@ public class Alumno implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_situacion_academica")
     private SituacionAcademica situacionAcademica;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_modalidad_estudio")
+    private ModalidadEstudio modalidadEstudio;
 
     @OneToMany(mappedBy = "alumno", fetch = FetchType.LAZY)
     private List<AlumnoCiclo> alumnoCiclo;
@@ -416,6 +425,29 @@ public class Alumno implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(AlumnoEstadoEnum estado) {
+        this.estado = estado.name();
+    }
+
+    public AlumnoEstadoEnum getEstadoEnum() {
+        if (StringUtils.isBlank(estado)) {
+            return null;
+        }
+        return AlumnoEstadoEnum.valueOf(estado);
+    }
+
+    public ModalidadEstudio getModalidadEstudio() {
+        return modalidadEstudio;
+    }
+
+    public void setModalidadEstudio(ModalidadEstudio modalidadEstudio) {
+        this.modalidadEstudio = modalidadEstudio;
     }
 
 }
