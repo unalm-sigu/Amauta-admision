@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 
 @Entity
@@ -25,6 +27,7 @@ public class CursoCurricula implements Serializable {
     @Column(name = "numero_ciclo")
     private Integer numeroCiclo;
 
+    @NotNull
     @Column(name = "creditos")
     private Integer creditos;
 
@@ -47,10 +50,10 @@ public class CursoCurricula implements Serializable {
     private Curso curso;
 
     @OneToMany(mappedBy = "cursoCurricula", fetch = FetchType.LAZY)
-    private List<RequisitoCursoCurricula> requisitoCursoCurricula;
+    private List<RequisitoCursoCurricula> cursosCurricula;
 
-    @OneToMany(mappedBy = "cursoRequisito", fetch = FetchType.LAZY)
-    private List<RequisitoCursoCurricula> requisitoCursoCurricula1;
+    @OneToMany(mappedBy = "cursoRequisito", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<RequisitoCursoCurricula> requisitosCurricula;
 
     public CursoCurricula() {
     }
@@ -123,21 +126,20 @@ public class CursoCurricula implements Serializable {
         this.creditosCurriculaRequisito = creditosCurriculaRequisito;
     }
 
-    public List<RequisitoCursoCurricula> getRequisitoCursoCurricula() {
-        return requisitoCursoCurricula;
+    public List<RequisitoCursoCurricula> getCursosCurricula() {
+        return cursosCurricula;
     }
 
-    public void setRequisitoCursoCurricula(List<RequisitoCursoCurricula> requisitoCursoCurricula) {
-        this.requisitoCursoCurricula = requisitoCursoCurricula;
+    public void setCursosCurricula(List<RequisitoCursoCurricula> cursosCurricula) {
+        this.cursosCurricula = cursosCurricula;
     }
 
-    public List<RequisitoCursoCurricula> getRequisitoCursoCurricula1() {
-        return requisitoCursoCurricula1;
+    public List<RequisitoCursoCurricula> getRequisitosCurricula() {
+        return requisitosCurricula;
     }
 
-    public void setRequisitoCursoCurricula1(List<RequisitoCursoCurricula> requisitoCursoCurricula1) {
-        this.requisitoCursoCurricula1 = requisitoCursoCurricula1;
+    public void setRequisitosCurricula(List<RequisitoCursoCurricula> requisitosCurricula) {
+        this.requisitosCurricula = requisitosCurricula;
     }
 
 }
-

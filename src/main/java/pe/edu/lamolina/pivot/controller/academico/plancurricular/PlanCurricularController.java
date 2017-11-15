@@ -34,6 +34,7 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
@@ -139,10 +140,44 @@ public class PlanCurricularController {
 
             for (CursoCurricula cursoCurEach : listaCursoCurricula) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", cursoCurEach.getId());
                 node.put("tipoCursoCurr", cursoCurEach.getTipoCursoCurricula().getNombre());
                 node.put("cursoNombre", cursoCurEach.getCurso().getNombre());
                 node.put("cursoCurrCredito", cursoCurEach.getCreditos());
 
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("listCurAdc")
+    public DynatableResponse listCurAdc(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
+            List<CursoAdicionalCurricula> listaCursoCurricula = planCurricularService.allCursosAdcByDynatable(filter);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            logger.debug("size cursso curricula {}", listaCursoCurricula.size());
+
+            for (CursoAdicionalCurricula cursoCurEach : listaCursoCurricula) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("cCurriculaAdcId", cursoCurEach.getId());
+                node.put("cursoCodigo", cursoCurEach.getCurso().getCodigo());
+                node.put("cursoNombre", cursoCurEach.getCurso().getNombre());
+                node.put("cursoCreditos", cursoCurEach.getCurso().getCreditos());
                 array.add(node);
             }
 
@@ -185,17 +220,30 @@ public class PlanCurricularController {
 
         List<TipoCursoCurricula> tiposCursoCurriculas = planCurricularService.allTiposCursoCurricula();
         PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(plancurricularId));
-        model.addAttribute("planCurricular", planCurricular);
+        CursoCurricula cursoCurricula = new CursoCurricula();
+        cursoCurricula.setTipoCursoCurricula(new TipoCursoCurricula());
+        cursoCurricula.setPlanCurricular(planCurricular);
+        model.addAttribute("cursoCurricula", cursoCurricula);
         model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
         return "academico/plancurricular/plan/agregarCurso";
     }
 
     @RequestMapping("{plancurricular}/agregarCursoElecPlan")
     public String agregarCursoElecPlan(
-            @PathVariable("plancurricular") Long plancurricular,
+            @PathVariable("plancurricular") Long plancurricularId,
             Model model, HttpSession session) {
-        model.addAttribute("planCurricular", new PlanCurricular());
+        PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(plancurricularId));
+        model.addAttribute("planCurricular", planCurricular);
         return "academico/plancurricular/plan/agregarCursoElec";
+    }
+
+    @RequestMapping("{plancurricular}/agregarCursoAdcPlan")
+    public String agregarCursoAdcPlan(
+            @PathVariable("plancurricular") Long plancurricularId,
+            Model model, HttpSession session) {
+        PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(plancurricularId));
+        model.addAttribute("planCurricular", planCurricular);
+        return "academico/plancurricular/plan/agregarCursoAdc";
     }
 
     @ResponseBody
@@ -289,8 +337,44 @@ public class PlanCurricularController {
 
             String message = "";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            planCurricularService.agregarCursoCurricula(cursoCurricula);
+            if (cursoCurricula.getId() == null) {
+                message = "Curso agregado exitosamente.";
+                planCurricularService.agregarCursoCurricula(cursoCurricula);
+            } else {
+                message = "Curso actualizado exitosamente.";
+                planCurricularService.updateCursoCurricula(cursoCurricula);
+            }
+
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAgregarCursoAdc")
+    public JsonResponse saveAgregarCursoAdc(
+            @ModelAttribute("cursoAdicionalCurricula") CursoAdicionalCurricula cursoAdicionalCurricula,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            String message = "";
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
             message = "Curso agregado exitosamente.";
+            planCurricularService.agregarCursoAdcCurricula(cursoAdicionalCurricula);
+
             response.setData(node);
             response.setSuccess(true);
             response.setMessage(message);
@@ -447,6 +531,78 @@ public class PlanCurricularController {
         }
 
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("incluirCursoReq")
+    public JsonResponse incluirCursoReq(@RequestParam("cursoCurriculaReq") Long cursoCurriculaReqId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            CursoCurricula cursoCurricula = planCurricularService.findCursoCurricula(cursoCurriculaReqId);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("cCurriculaId", cursoCurricula.getId());
+            node.put("cCurriculaNumeroCiclo", cursoCurricula.getNumeroCiclo());
+            node.put("cCurriculaCreditos", cursoCurricula.getCreditos());
+            node.put("cursoNombre", cursoCurricula.getCurso().getNombre());
+            node.put("cursoCodigo", cursoCurricula.getCurso().getCodigo());
+            response.setData(node);
+            response.setMessage("Curso asignado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteCurAdi")
+    public JsonResponse deleteCurAdi(@RequestParam("cursoCurriculaReq") Long cursoAdicionalId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            planCurricularService.deleteCursoAdicional(cursoAdicionalId);
+            response.setData(node);
+            response.setMessage("Curso adicional eliminado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @RequestMapping("{cursoCurricula}/editarCursoOblgPlan")
+    public String editarCursoOblgPlan(
+            @PathVariable("cursoCurricula") Long cursoCurriculaId,
+            Model model, HttpSession session) {
+
+        CursoCurricula cursoCurricula = planCurricularService.findCursoCurricula(cursoCurriculaId);
+        List<TipoCursoCurricula> tiposCursoCurriculas = planCurricularService.allTiposCursoCurricula();
+        //    PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(plancurricularId));
+        model.addAttribute("cursoCurricula", cursoCurricula);
+        model.addAttribute("planCurricular", cursoCurricula.getPlanCurricular());
+        model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
+        return "academico/plancurricular/plan/agregarCurso";
     }
 
 }

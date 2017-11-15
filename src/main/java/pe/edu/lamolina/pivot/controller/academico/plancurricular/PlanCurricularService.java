@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
@@ -39,4 +40,15 @@ public interface PlanCurricularService {
     List<CursoCurricula> allCursosOblByDynatable(DynatableFilter filter);
 
     List<CursoCurricula> allCursoCurriculaByNombre(Long planCurriculaId, Integer numeroCiclo, String nombre);
+
+    CursoCurricula findCursoCurricula(Long cursoCurricula);
+
+    void updateCursoCurricula(CursoCurricula cursoCurricula);
+
+    void agregarCursoAdcCurricula(CursoAdicionalCurricula cursoAdicionalCurricula);
+
+    List<CursoAdicionalCurricula> allCursosAdcByDynatable(DynatableFilter filter);
+
+    void deleteCursoAdicional(Long cursoAdicionalId);
+
 }

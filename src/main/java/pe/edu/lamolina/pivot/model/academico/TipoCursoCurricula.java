@@ -100,8 +100,9 @@ public class TipoCursoCurricula implements Serializable {
     }
 
     public boolean isTieneCreditoManual() {
-        if (TipoCursoCurriculaEnum.OBL.name().equals(this.getCodigo())
-                || TipoCursoCurriculaEnum.GEN.name().equals(this.getCodigo())) {
+        if (TipoCursoCurriculaEnum.ELC.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.ELF.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.ELE.name().equals(this.getCodigo())) {
             return true;
         }
         return false;

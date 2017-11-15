@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
@@ -16,6 +17,15 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
     public CursoCurriculaDAOH() {
         super();
         setClazz(CursoCurricula.class);
+    }
+
+    @Override
+    public CursoCurricula find(Long id) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "curso cur", "planCurricular pc", "cur.departamentoAcademico da", "da.facultad fac")
+                .filter("cc.id", id);
+        return (CursoCurricula) sql.find(getCurrentSession());
     }
 
     @Override
@@ -50,6 +60,17 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
                 .orderBy("cur.nombre")
                 .limit(limit);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public void updateCreditoRequisito(CursoCurricula cursoCurricula) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" update CursoCurricula set creditosRequisito=:prm_creditos_req where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setParameter("prm_creditos_req", cursoCurricula.getCreditosRequisito());
+        query.setParameter("prm_id", cursoCurricula.getId());
+        query.executeUpdate();
     }
 
 }

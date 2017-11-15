@@ -1,8 +1,15 @@
 <form id="frmAgregarCurso" >
 
-    <input  id="txtPlanCurricular" name="planCurricular.id" type="hidden" th:value="${planCurricular.id}"/>
-    <input  id="txtNumeroCiclo" type="hidden" name="numeroCiclo" />
+    <input  id="txtPlanCurricular" name="planCurricular.id" type="hidden" th:value="${cursoCurricula.planCurricular.id}"/>
+    <input  id="txtCursoCurricula" name="id" type="hidden" 
+            th:value="${cursoCurricula.id}"
+            th:if="${cursoCurricula.id}"/>
 
+    <input  id="txtNumeroCiclo" type="hidden" name="numeroCiclo" />
+    <input  id="txtTipoCurCur"
+            type="hidden" 
+            th:value="${cursoCurricula.tipoCursoCurricula.id}" 
+            th:if="${cursoCurricula.id}"/>
 
     <div class="form-group">
         <label for="cboTipoCursoCurricula">Tipo</label>
@@ -10,9 +17,11 @@
         <select id="cboTipoCursoCurricula" 
                 class="select2single form-control" 
                 name="tipoCursoCurricula.id"
+                th:disabled="${cursoCurricula.id!=null}"
                 required="">
             <option value="">Seleccione</option> 
             <option  th:each="item : ${tiposCursoCurriculas}" 
+                     th:selected="${cursoCurricula.tipoCursoCurricula.id==item.id}"
                      th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </div>
@@ -21,19 +30,28 @@
         <label for="cboCurso">Curso</label>
         <input id="cboCurso" class="form-control" 
                type="text" 
+               th:unless="${cursoCurricula.id}"
                required="yes"/>
-        <input id="txtCurso" type="hidden" name="curso.id"/>
+        <input id="txtCurso" type="hidden" 
+               name="curso.id"
+               th:unless="${cursoCurricula.id}"/>
+
+        <span class="form-control"
+              th:if="${cursoCurricula.id}"
+              th:text="|${cursoCurricula.curso.codigo} ${cursoCurricula.curso.nombre}|"></span>
 
     </div>
 
     <div class="form-group">
         <label for="txtCreditos">Creditos</label>
         <input id="txtCreditos" class="form-control" 
-               name="creditos"
+               name="creditos" 
+               th:value="${cursoCurricula.creditos}"
                type="text" 
                required="yes"
+               th:disabled="${cursoCurricula.id!=null}"
                data-parsley-type="digits"/>
-        <input id="txtCurso" type="hidden" name="curso.id"/>
+
 
     </div>
 
@@ -42,9 +60,10 @@
 
 
         <div class="form-group">
-            <label for="txtCredito">Creditos Requeridos</label>
+            <label for="txtCreditoReq">Creditos Requeridos</label>
             <input id="txtCreditoReq" 
                    name="creditosRequisito" 
+                   th:value="${cursoCurricula.creditosRequisito}"
                    type="text" 
                    class="form-control"
                    required="true" 
@@ -61,12 +80,12 @@
             <input id="txtCursoReq" 
                    type="hidden"/>
 
-            <a class="btn btn-success pull-right" id="cmbAdd">Agregar</a>
+            <a class="btn btn-success pull-right" id="cmbAddCurReq">Agregar</a>
         </div>
 
         <div class="form-group">
 
-            <table class="table table-striped" id="dynaTable">
+            <table id="tblCursosReq" class="table table-striped" >
                 <thead> 
                     <tr class=""> 
                         <th class="col-md-5">Código </th>
@@ -74,16 +93,17 @@
                         <th class="col-md-2"></th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>
+                <tbody id="tblCursosReqBody">
+                    <tr  th:if="${cursoCurricula.id}" th:each="item, iter  : ${cursoCurricula.requisitosCurricula}">
+                        <td >
+                            <input th:name="|requisitosCurricula[${iter.index}].id|" th:value="${item.id}" type="hidden"/>
+                            <span th:name="|codigoCurCur${iter.index}|" th:text="${item.cursoRequisito.curso.codigo}"></span>
+                        </td>
+                        <td th:text="${item.cursoRequisito.curso.nombre}">
 
                         </td>
-                        <td>
-
-                        </td>
-                        <td>
-
+                        <td class="v-middle text-center">
+                            <a  rel="{{:index}}" class="btn btn-default cbo-celete-cur-cur"><i class="fa fa-times text-danger"></i></a>
                         </td>
                     </tr>
                 </tbody>
@@ -96,9 +116,19 @@
 </form>
 
 
-<div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
-    <span class="block bold h5 text-success">{{:cursoNombre}}</span>
-    <span class="block"><strong>Código:</strong> {{:cursoCodigo}} - <strong>TPC:</strong> {{:cursoTpc}}</span>
-    <small class="block"><strong>Dpto. Académico:</strong> {{:departamentoAcademico}}</small>
-    <small class="block"><strong>Facultad:</strong> {{:facultadNombre}}</small>
-</div>
+
+
+<script id="templateCursosReqBody" type="text/x-jsrender" class="hide"><tr>
+    <td class="v-middle text-left col-md-5">
+    <span name="codigoCurCur{{:index}}">{{:cursoCodigo}}</span>
+    <input name="requisitosCurricula[{{:index}}].cursoRequisito.id"
+    value="{{:cCurriculaId}}" 
+    type="hidden"/>
+    </td>
+    <td class="v-middle text-left col-md-5">
+    <span>{{:cursoNombre}}</span>
+    </td>
+    <td class="col-md-2">
+    <a  rel="{{:index}}" class="btn btn-default cbo-celete-cur-cur"><i class="fa fa-times text-danger"></i></a>
+    </td>
+    </tr></script>

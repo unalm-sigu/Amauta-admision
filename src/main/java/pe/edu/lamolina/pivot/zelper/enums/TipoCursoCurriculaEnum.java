@@ -6,7 +6,10 @@ import java.util.Map;
 public enum TipoCursoCurriculaEnum {
 
     OBL("Obligatorio"),
-    GEN("Generales");
+    GEN("Generales"),
+    ELC("Obligatorio"), 
+    ELF("Obligatorio"),
+    ELE("Obligatorio");
 
     private final String value;
     private static final Map<String, TipoCursoCurriculaEnum> lookup = new HashMap<>();
