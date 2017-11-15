@@ -222,13 +222,19 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         try {
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
             GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
+            List<DiaHoraGrupo> diaHoraGrupos = service.allDiaHoraGrupo(grupoDb,cicloAcademico);
+
             List<Hora> horas = service.allHora();
             List<Dia> dias = service.allDia();
 
             Context ctx = new Context();
             ctx.setVariable("dias", dias);
             ctx.setVariable("horas", horas);
+            ctx.setVariable("diaHoraGrupos", diaHoraGrupos);
 
             String htmlContent = springHtml.process("academico/horario/grupo/horarioTemplate", ctx);
             response.setData(htmlContent);

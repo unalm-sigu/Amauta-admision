@@ -11,6 +11,7 @@ import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
@@ -101,6 +102,11 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             return;
         }
         diaHoraGrupoDAO.save(diaHoraGrupo);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        return diaHoraGrupoDAO.allDiaHoraGrupo(grupoHoras, cicloAcademico);
     }
 
 }

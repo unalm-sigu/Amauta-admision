@@ -11,7 +11,11 @@
                 <tr th:each="hora : ${horas}"  th:inline="text">
                     <td> [[${hora.descripcion}]]</td>
                     <td th:each="dia : ${dias}">
-                        <span class="form-control asignar-hora pointer" th:rel="${hora.id}" th:rev="${dia.id}"></span>
+                        <span class="asignar-hora pointer" th:rel="${hora.id}" th:rev="${dia.id}">
+                            <h5 th:each="item:${diaHoraGrupos}" 
+                                th:text="${item.grupoHorario.codigo}"
+                                th:if="${hora.id==item.hora.id AND dia.id==item.dia.id }"></h5>
+                        </span>
                     </td>
                 </tr>
             </tbody>
