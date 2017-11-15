@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.acta;
 
 import java.util.List;
-import java.util.Map;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
