@@ -124,7 +124,7 @@ $(function () {
             e.preventDefault();
             var self = $(e.currentTarget);
             var id = self.attr('rel');
-            location.replace(APP.url('academico/horario/' + id + '/grupo'));
+            location.replace(APP.url('academico/horario/grupo/' + id));
         },
         saveTipoGrupo: function (mimodal) {
             $.ajax({

@@ -1,0 +1,91 @@
+<form method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
+
+    <input type="hidden" name="id" th:value="${grupoHoras.id}"/>
+    <input type="hidden" name="tipoGrupoHoras.id" th:value="${idTipoGrupo}"/>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label" >Código</label>
+        <div class="col-sm-6">
+            <input  type="text" 
+                    name="codigo" 
+                    th:value="${grupoHoras.codigo}"
+                    required='true'
+                    maxlength="6"
+                    style="text-transform:uppercase"
+                    data-trigger="change"
+                    class="form-control"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label" >Color</label>
+        <div class="col-sm-6">
+            <div class="input-group cp colorpicker-component" >
+                <input  type="text" 
+                        name="color" 
+                        th:value="${grupoHoras.color}"
+                        required='true'
+                        maxlength="7"
+                        data-trigger="change"
+                        data-parsley-errors-container="#errorColor" 
+                        class="form-control"/>
+                <span class="input-group-addon pointer"><i></i></span>
+            </div>
+            <span id="errorColor"></span>
+        </div>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label" >Letra</label>
+        <div class="col-sm-6">
+            <input  type="text" 
+                    name="letra" 
+                    th:value="${grupoHoras.letra}"
+                    required='true'
+                    maxlength="1"
+                    style="text-transform:uppercase"
+                    data-trigger="change"
+                    class="form-control"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label">Tipo Ciclo</label>
+
+        <div class="col-sm-6">
+            <select name="tipoCiclo" 
+                    required="true" 
+                    class="form-control" >
+                <option></option>
+                <option th:each="item : ${tipoCiclos}"  
+                        th:text="${item.value}"
+                        th:selected="${grupoHoras.tipoCiclo!=null} ? ${grupoHoras.tipoCiclo==item.name()}"
+                        th:value="${item.name()}" ></option>
+            </select>
+        </div>
+
+    </div>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label">Tipo Sección</label>
+
+        <div class="col-sm-6">
+            <select name="tipoSeccion" 
+                    required="true" 
+                    class="form-control" >
+                <option></option>
+                <option th:each="item : ${tipoSecciones}"  
+                        th:text="${item.value}"
+                        th:selected="${grupoHoras.tipoSeccion!=null} ? ${grupoHoras.tipoSeccion==item.name()}"
+                        th:value="${item.name()}" ></option>
+            </select>
+        </div>
+
+    </div>
+</form>

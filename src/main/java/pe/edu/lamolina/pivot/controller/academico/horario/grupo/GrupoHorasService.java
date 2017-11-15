@@ -2,10 +2,29 @@ package pe.edu.lamolina.pivot.controller.academico.horario.grupo;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.model.horario.Hora;
 
 public interface GrupoHorasService {
 
-    public List<GrupoHoras> allGrupoHoras(DynatableFilter filter);
+    List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo);
+    
+    GrupoHoras findGrupoHoras(GrupoHoras grupoHoras);
+    
+    GrupoHoras findGrupoHoras(Long grupoHoras);
+
+    void delete(GrupoHoras grupoHoras);
+
+    void save(GrupoHoras grupoHoras);
+
+    void update(GrupoHoras grupoHoras);
+
+    GrupoHoras findGrupoHorasByCode(String codigo);
+
+    public List<Hora> allHora();
+
+    public List<Dia> allDia();
+
 
 }

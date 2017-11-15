@@ -9,6 +9,8 @@ public interface GrupoHorasDAO extends Crud<GrupoHoras> {
 
     GrupoHoras findByCode(String codigo);
 
-    List<GrupoHoras> allGrupoHoras(DynatableFilter filter);
+    GrupoHoras findGrupoHorasByCode(String codigo);
+
+    List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo);
 
 }

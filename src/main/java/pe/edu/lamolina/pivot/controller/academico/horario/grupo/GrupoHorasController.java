@@ -17,12 +17,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.model.horario.Hora;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionGrupoEnum;
 
 @Controller
 @RequestMapping("academico/horario/grupo")
@@ -32,6 +42,9 @@ public class GrupoHorasController {
 
     @Autowired
     GrupoHorasService service;
+
+    @Autowired
+    SpringTemplateEngine springHtml;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -57,21 +70,23 @@ public class GrupoHorasController {
         });
     }
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    @RequestMapping(method = RequestMethod.GET, value = "{tipo}")
+    public String index(@PathVariable("tipo") Long idTipoGrupo, Model model, HttpSession session) {
+
+        model.addAttribute("idTipoGrupo", idTipoGrupo);
         return "academico/horario/grupo/grupo";
     }
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, Long idTipoGrupo, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
 
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<GrupoHoras> grupos = service.allGrupoHoras(filter);
+            List<GrupoHoras> grupos = service.allGrupoHoras(filter, idTipoGrupo);
 
             for (GrupoHoras grupo : grupos) {
 
@@ -80,7 +95,7 @@ public class GrupoHorasController {
                 node.put("codigo", grupo.getCodigo());
                 node.put("letra", grupo.getLetra());
                 node.put("tipoCiclo", grupo.getTipoCiclo());
-                node.put("tipoGrupoHoras", grupo.getTipoGrupoHoras()!=null?grupo.getTipoGrupoHoras().getCodigo():"");
+                node.put("tipoGrupoHoras", grupo.getTipoGrupoHoras() != null ? grupo.getTipoGrupoHoras().getCodigo() : "");
                 node.put("tipoSeccion", grupo.getTipoSeccion());
                 node.put("color", grupo.getColor());
                 array.add(node);
@@ -96,4 +111,130 @@ public class GrupoHorasController {
         }
         return json;
     }
+
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(GrupoHoras grupoHoras, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            GrupoHoras grupoCode = service.findGrupoHorasByCode(grupoHoras.getCodigo());
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+            if (grupoHoras.getId() != null) {
+                if (grupoCode != null) {
+                    if (grupoCode.getId() == grupoHoras.getId().longValue()) {
+                        service.update(grupoHoras);
+                        response.setMessage("Grupo Horas actualizado satisfactoriamente");
+                    } else {
+                        data.put("existecodigo", true);
+                        response.setMessage("Grupo Horas con código ya registrado");
+                        response.setSuccess(Boolean.FALSE);
+                    }
+                } else {
+                    service.update(grupoHoras);
+                    response.setMessage("Grupo Horas actualizado satisfactoriamente");
+                    response.setSuccess(Boolean.TRUE);
+                }
+            } else {
+                if (grupoCode == null) {
+                    service.save(grupoHoras);
+                    response.setMessage("Grupo Horas creado satisfactoriamente");
+                    response.setSuccess(Boolean.TRUE);
+                } else {
+                    data.put("existecodigo", true);
+                    response.setMessage("Grupo Horas con código ya registrado");
+                    response.setSuccess(Boolean.FALSE);
+                }
+            }
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(GrupoHoras grupoHoras, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
+            Context ctx = new Context();
+            ctx.setVariable("grupoHoras", grupoDb);
+            ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
+            ctx.setVariable("tipoSecciones", TipoSeccionGrupoEnum.values());
+            String htmlContent = springHtml.process("academico/horario/grupo/grupoForm", ctx);
+            response.setData(htmlContent);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("nuevo")
+    public JsonResponse nuevo(Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            Context ctx = new Context();
+            ctx.setVariable("grupoHoras", new GrupoHoras());
+            ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
+            ctx.setVariable("tipoSecciones", TipoSeccionGrupoEnum.values());
+            String htmlContent = springHtml.process("academico/horario/grupo/grupoForm", ctx);
+            response.setData(htmlContent);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(GrupoHoras grupoHoras) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.delete(grupoHoras);
+            response.setMessage("Grupo Horas eliminada satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("horario")
+    public JsonResponse horario(GrupoHoras grupoHoras, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
+            List<Hora> horas = service.allHora();
+            List<Dia> dias = service.allDia();
+
+            Context ctx = new Context();
+            ctx.setVariable("dias", dias);
+            ctx.setVariable("horas", horas);
+
+            String htmlContent = springHtml.process("academico/horario/grupo/horarioTemplate", ctx);
+            response.setData(htmlContent);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

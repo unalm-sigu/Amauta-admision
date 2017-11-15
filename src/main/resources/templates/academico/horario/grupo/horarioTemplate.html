@@ -1,0 +1,18 @@
+<section class="panel">
+    <section class="panel-body">
+        <table class="table" style="width: 100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th th:each="dia : ${dias}" th:text="${dia.nombre}"> </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="hora : ${horas}"  th:inline="text">
+                    <td> [[${hora.descripcion}]]</td>
+                    <td th:each="dia : ${dias}" th:text="${dia.nombre}"> [[${hora.descripcion}]]</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</section>

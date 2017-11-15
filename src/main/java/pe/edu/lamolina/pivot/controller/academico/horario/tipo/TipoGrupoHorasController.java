@@ -125,7 +125,6 @@ public class TipoGrupoHorasController {
                     }
                 } else {
                     service.update(tipoGrupo);
-                    data.put("existecodigo", true);
                     response.setMessage("Tipo Grupos actualizado satisfactoriamente");
                     response.setSuccess(Boolean.TRUE);
                 }
