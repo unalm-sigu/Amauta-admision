@@ -21,10 +21,21 @@ $(function () {
         record.esActivo = record.estado == 'ACT' || record.estado == 'CRE';
         record.esInactivo = record.estado == 'INA';
         record.colorEstado = labelColor[record.estado];
+        record.cantSecciones = record.secciones.length;
+        record.cantDocentes = 0;
+        record.class = (rowIndex % 2 == 0) ? 'bg-row' : '';
 
-        for (var i = 0; record.secciones.length > i; i++) {
-            record.colorEstadoSec = labelColor[record.secciones[i].estadoSec];
-            console.log("=== " + record.colorEstadoSec)
+
+        for (var i = 0; record.cantSecciones > i; i++) {
+            record.secciones[i].index = i;
+            record.secciones[i].class = record.class;
+            record.secciones[i].colorEstadoSec = labelColor[record.secciones[i].estadoSec];
+            record.secciones[i].cantDocentes = record.secciones[i].docentes.length;
+            record.cantDocentes += record.secciones[i].cantDocentes;
+            for (var j = 0; j < record.secciones[i].docentes.length; j++) {
+                record.secciones[i].docentes[j].index = j;
+                record.secciones[i].docentes[j].class = record.class;
+            }
         }
         var html = $.templates("#gpoSeccionTemplate").render(record);
         return html;

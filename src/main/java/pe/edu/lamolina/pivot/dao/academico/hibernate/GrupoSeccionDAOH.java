@@ -186,8 +186,6 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
         sql.append(" )   ");
         sql.append("  from ").append(AnexoBoletin.class.getName()).append(" as ab ");
         sql.append(" inner join  ab.anexoSuperior abs ");
-        sql.append(" left join  ab.departamentoAcademico da ");
-        sql.append(" left join  ab.carrera ca ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setString("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());

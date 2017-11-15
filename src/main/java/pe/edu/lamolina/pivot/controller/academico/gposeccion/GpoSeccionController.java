@@ -91,7 +91,7 @@ public class GpoSeccionController {
 
                 node.put("id", gpoSeccion.getId());
                 node.put("curso", gpoSeccion.getCurso().getNombre());
-                node.put("codigo", gpoSeccion.getCodigo());
+                node.put("codigo", gpoSeccion.getCurso().getCodigo());
                 node.put("teoria", gpoSeccion.getCurso().getHorasTeoria());
                 node.put("practica", gpoSeccion.getCurso().getHorasPractica());
                 node.put("creditos", gpoSeccion.getCurso().getCreditos());
@@ -103,20 +103,21 @@ public class GpoSeccionController {
                 for (Seccion seccion : gpoSeccion.getSecciones()) {
                     ObjectNode node2 = new ObjectNode(JsonNodeFactory.instance);
                     node2.put("tipo", seccion.getTipoSeccion());
-                    node2.put("tipoValue", seccion.getTipoSeccionEnum().getValue());
+                    node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
                     node2.put("codigo", seccion.getCodigo());
                     node2.put("estadoSec", seccion.getEstado());
                     node2.put("estadoValueSec", seccion.getEstadoEnum().getValue());
                     secciones.add(node2);
 
-                    ArrayNode arrayDocentes = new ArrayNode(JsonNodeFactory.instance);
+                    ArrayNode docentes = new ArrayNode(JsonNodeFactory.instance);
                     for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
                         ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
+                        node3.put("principal", docSeccion.getPrincipal());
                         node3.put("codigo", docSeccion.getDocente().getCodigo());
                         node3.put("docente", docSeccion.getDocente().getPersona().getApellidosNombres());
-                        arrayDocentes.add(node3);
+                        docentes.add(node3);
                     }
-                    node2.set("docentes", arrayDocentes);
+                    node2.set("docentes", docentes);
                 }
 
                 node.set("secciones", secciones);
