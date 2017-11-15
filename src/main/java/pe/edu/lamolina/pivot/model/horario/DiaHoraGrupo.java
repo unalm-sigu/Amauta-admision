@@ -22,9 +22,6 @@ public class DiaHoraGrupo implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "tipo_ciclo")
-    private String tipoCiclo;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ciclo_academico")
     private CicloAcademico cicloAcademico;
@@ -62,14 +59,6 @@ public class DiaHoraGrupo implements Serializable {
 
     public void setGrupoHorario(GrupoHoras grupoHorario) {
         this.grupoHorario = grupoHorario;
-    }
-
-    public String getTipoCiclo() {
-        return tipoCiclo;
-    }
-
-    public void setTipoCiclo(String tipoCiclo) {
-        this.tipoCiclo = tipoCiclo;
     }
 
     public Dia getDia() {

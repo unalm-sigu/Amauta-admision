@@ -1,16 +1,18 @@
 <section class="panel">
-    <section class="panel-body">
-        <table class="table" style="width: 100%">
+    <section class="panel-body"  >
+        <table class="table table-horario" >
             <thead>
                 <tr>
-                    <th></th>
-                    <th th:each="dia : ${dias}" th:text="${dia.nombre}"> </th>
+                    <th style="width: 12.5%"></th>
+                    <th style="width: 12.5%" th:each="dia : ${dias}" th:text="${dia.nombre}"> </th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="table-horario-body">
                 <tr th:each="hora : ${horas}"  th:inline="text">
                     <td> [[${hora.descripcion}]]</td>
-                    <td th:each="dia : ${dias}" th:text="${dia.nombre}"> [[${hora.descripcion}]]</td>
+                    <td th:each="dia : ${dias}">
+                        <span class="form-control asignar-hora pointer" th:rel="${hora.id}" th:rev="${dia.id}"></span>
+                    </td>
                 </tr>
             </tbody>
         </table>

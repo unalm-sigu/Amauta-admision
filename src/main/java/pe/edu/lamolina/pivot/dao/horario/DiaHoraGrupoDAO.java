@@ -5,5 +5,7 @@ import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 
 public interface DiaHoraGrupoDAO extends Crud<DiaHoraGrupo> {
 
+    public DiaHoraGrupo findByDiaHoraCiclo(DiaHoraGrupo diaHoraGrupo);
+
 }
 

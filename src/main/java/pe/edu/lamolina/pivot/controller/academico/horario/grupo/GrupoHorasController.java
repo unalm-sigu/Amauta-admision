@@ -28,11 +28,15 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.Hora;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionGrupoEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/horario/grupo")
@@ -228,6 +232,25 @@ public class GrupoHorasController {
 
             String htmlContent = springHtml.process("academico/horario/grupo/horarioTemplate", ctx);
             response.setData(htmlContent);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarHora")
+    public JsonResponse asignarHora(DiaHoraGrupo diaHoraGrupo, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            diaHoraGrupo.setCicloAcademico(cicloAcademico);
+            service.saveDiaHoraGrupo(diaHoraGrupo);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

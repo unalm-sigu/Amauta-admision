@@ -29,6 +29,7 @@ $(function () {
         body: $('body'),
         init: function () {
         },
+        grupoActivo: null,
         update: function (e) {
 
             e.preventDefault();
@@ -106,7 +107,6 @@ $(function () {
                         mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('.cp').colorpicker({color: '#4116ff'});
-                        console.log($("#idTipoGrupo").val());
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
                         notify(response.message, "error");
@@ -184,20 +184,55 @@ $(function () {
             e.preventDefault();
             var self = $(e.currentTarget);
             var id = self.attr("rel");
+            this.toggleActivo(self);
+            Grupo.grupoActivo = id;
             this.getHorario(id);
         },
-        getHorario: function (id) {
+        toggleActivo: function (self) {
+            var activo = $(".list-group-item.grupoactivo");
+            if (activo.length > 0) {
+                activo.removeClass("grupoactivo");
+            }
+            var patter = self.parents(".list-group-item:first");
+            patter.addClass("grupoactivo");
+        },
+        getHorario: function () {
             $.ajax({
                 url: APP.url('academico/horario/grupo/horario'),
                 type: 'POST',
                 async: false,
-                data: {id: id},
+                data: {id: Grupo.grupoActivo},
                 success: function (response) {
                     if (response.success) {
                         $("#tablaHorario").html(response.data);
                     } else {
                         notify(response.message, "error");
                         $("#tablaHorario").html('');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tablaHorario").html('');
+                }
+            });
+        },
+        asignarHora: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var hora = self.attr("rel");
+            var dia = self.attr("rev");
+            $.ajax({
+                url: APP.url('academico/horario/grupo/asignarHora'),
+                type: 'POST',
+                async: false,
+                data: {
+                    'hora.id': hora,
+                    'dia.id': dia,
+                    'grupoHorario.id': Grupo.grupoActivo
+                },
+                success: function (response) {
+                    if (response.success) {
+                        Grupo.getHorario();
                     }
                 },
                 error: function () {
@@ -226,6 +261,10 @@ $(function () {
 
     Grupo.body.delegate('.verhorario', 'click', function (e) {
         Grupo.verhorario(e);
+    });
+
+    Grupo.body.delegate('.asignar-hora', 'dblclick', function (e) {
+        Grupo.asignarHora(e);
     });
 
     Grupo.init();

@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
+import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 
@@ -28,6 +30,9 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Autowired
     HoraDAO horaDAO;
+
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
 
     @Override
     public GrupoHoras findGrupoHoras(GrupoHoras grupoHoras) {
@@ -84,6 +89,18 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     @Override
     public List<Dia> allDia() {
         return diaDAO.allDia();
+    }
+
+    @Override
+    @Transactional
+    public void saveDiaHoraGrupo(DiaHoraGrupo diaHoraGrupo) {
+        DiaHoraGrupo diaHoraGrupoDb = diaHoraGrupoDAO.findByDiaHoraCiclo(diaHoraGrupo);
+        if (diaHoraGrupoDb != null) {
+            diaHoraGrupoDb.setGrupoHorario(diaHoraGrupo.getGrupoHorario());
+            diaHoraGrupoDAO.update(diaHoraGrupo);
+            return;
+        }
+        diaHoraGrupoDAO.save(diaHoraGrupo);
     }
 
 }
