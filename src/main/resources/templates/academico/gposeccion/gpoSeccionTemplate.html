@@ -24,12 +24,17 @@
             <tr>
         {{/if}}
         
-        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="block">{{:tipoValue}}</span>
-        </td>
         
         <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="block">{{:codigo}}</span>
+            <span class="block text-primary">{{:codigo}}</span>
+            <small class="block">{{:tipoValue}}</small>
+        </td>
+        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
+            <span class="block ">{{:aula}}</span>
+            <span class="block">{{:grupo}}</span>
+        </td>
+        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
+            <span class="block bold">{{:vacantes}}/{{:matriculados}}</span>
         </td>
         
         {{for docentes}}

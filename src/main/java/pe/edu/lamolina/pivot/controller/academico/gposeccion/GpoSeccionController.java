@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
@@ -105,6 +106,10 @@ public class GpoSeccionController {
                     node2.put("tipo", seccion.getTipoSeccion());
                     node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
                     node2.put("codigo", seccion.getCodigo());
+                    node2.put("vacantes", seccion.getVacantes());
+                    node2.put("matriculados", seccion.getMatriculados());
+                    node2.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
+                    node2.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
                     node2.put("estadoSec", seccion.getEstado());
                     node2.put("estadoValueSec", seccion.getEstadoEnum().getValue());
                     secciones.add(node2);
@@ -114,7 +119,7 @@ public class GpoSeccionController {
                         ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
                         node3.put("principal", docSeccion.getPrincipal());
                         node3.put("codigo", docSeccion.getDocente().getCodigo());
-                        node3.put("docente", docSeccion.getDocente().getPersona().getApellidosNombres());
+                        node3.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
                         docentes.add(node3);
                     }
                     node2.set("docentes", docentes);

@@ -35,4 +35,6 @@ public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     List<DocenteSeccion> allPendientePlan(CicloAcademico ciclo);
 
+    List<DocenteSeccion> allActivosBySecciones(List<Seccion> secciones);
+
 }

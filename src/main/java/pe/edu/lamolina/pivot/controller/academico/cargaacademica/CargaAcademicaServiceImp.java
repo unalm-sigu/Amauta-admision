@@ -186,7 +186,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         Map<Long, GrupoSeccion> mapGposSeccion = MapUtil.storeItems("id", gruposSeccion);
 
-        List<Seccion> secciones = seccionDAO.allByGposSeccion(gruposSeccion);
+        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gruposSeccion);
         Map<Long, Seccion> mapSecciones = MapUtil.storeItems("id", secciones);
         for (Seccion seccion : secciones) {
             seccion.setDocenteSeccion(new ArrayList());
@@ -246,7 +246,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         });
         Map<Long, GrupoSeccion> mapGposSeccion = MapUtil.storeItems("id", gruposSeccion);
 
-        List<Seccion> secciones = seccionDAO.allByGposSeccion(gruposSeccion);
+        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gruposSeccion);
         Map<Long, Seccion> mapSecciones = MapUtil.storeItems("id", secciones);
         for (Seccion seccion : secciones) {
             seccion.setDocenteSeccion(new ArrayList());

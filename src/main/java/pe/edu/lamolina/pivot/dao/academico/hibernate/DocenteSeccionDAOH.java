@@ -213,4 +213,15 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<DocenteSeccion> allActivosBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc","seccion s")
+                .leftJoin("doc.persona per")
+                .filter("ds.estado", EstadoEnum.ACT)
+                .in("s.id", secciones);
+        return sql.all(getCurrentSession());
+    }
+
 }
