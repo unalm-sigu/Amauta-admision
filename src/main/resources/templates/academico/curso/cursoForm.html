@@ -200,8 +200,7 @@
 
 
                                             <tr th:if="${curso.nombreCurso.size() &gt; 0}"
-                                                th:each="itemPadre,iter : ${curso.nombreCurso}"
-                                                th:id="${iter.index}">
+                                                th:each="itemPadre,iter : ${curso.nombreCurso}">
                                                 <td>
                                                     <select class="form-control"  name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
                                                         <option></option>
@@ -235,7 +234,7 @@
                                                 </td>
 
                                             </tr>
-                                            <tr class="no-buscar">
+                                            <tr>
                                                 <td class="text-center add-idioma" colspan="3"><a class="btn btn-info btn-sm"><i class="fa fa-plus" aria-hidden="true"><strong> Agregar Idioma</strong></i></a></td>
                                             </tr>
                                         </tbody>
@@ -256,7 +255,7 @@
                 </section>
 
                 <script id="divNombreCurso" type="text/x-jsrender" class="hide" >
-                    <tr id="{{:id}}">
+                    <tr>
                         <td>
                             <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
                             <option></option>
@@ -268,7 +267,7 @@
                         <td>
                             <input type="text" class="form-control" name="nombreIdioma"/>
                         </td>
-                        <td class="v-middle no-buscar"> 
+                        <td class="v-middle"> 
                             <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
                         </td>
                     </tr>

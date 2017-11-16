@@ -204,30 +204,21 @@ $(function () {
         existeIdioma: function ($this, e) {
             e.preventDefault();
             var idioma = $this.find("option:selected").val();
-            var existe = false;
+            var count = 0;
 
             $(".bodyTabla tr").each(function () {
-                var tr = $(this);
-                if (!$(this).hasClass("no-buscar")) {
-                    console.log(tr.attr("id"))
-                    var td = $(this).find("td:first");
-                    var valor = td.find('[name="idIdioma"]').select2();
 
-                    console.log(valor)
-                    console.log(valor.val() + ":::" + idioma)
-//                console.log(idioma)
-//
-                    if (idioma == valor.val()) {
-                        existe = true;
+                var td = $(this).find("td:first");
+                var valor = td.find('[name="idIdioma"]').select2();
+
+                if (idioma == valor.val()) {
+                    count++;
+                    if (count == 2) {
+                        bootbox.alert("Idioma existente!");
+                        CursoForm.deleteRowIdioma($this)
                     }
-
                 }
             });
-            console.log(existe)
-            if (existe) {
-                bootbox.alert("Idioma existente!");
-                CursoForm.deleteRowIdioma($this)
-            }
         },
         deleteRowIdioma: function ($this) {
             var tr = $this.closest("tr");
