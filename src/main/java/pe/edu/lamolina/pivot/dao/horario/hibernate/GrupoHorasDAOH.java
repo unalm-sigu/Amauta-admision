@@ -40,7 +40,7 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
                 .from(GrupoHoras.class, "gh")
                 .leftJoin("tipoGrupoHoras tgh")
                 .searchFields("codigo", "letra", "tipoCiclo", "tipoSeccion", "color")
-//                .filter("tgh.id", idTipoGrupo)
+                .filter("tgh.id", idTipoGrupo)
                 .orderBy("gh.id desc");
         return sql.all(getCurrentSession());
     }
