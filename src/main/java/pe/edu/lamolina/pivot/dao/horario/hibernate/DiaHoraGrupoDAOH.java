@@ -21,9 +21,7 @@ public class DiaHoraGrupoDAOH extends AbstractDAO<DiaHoraGrupo> implements DiaHo
     public DiaHoraGrupo findByDiaHoraCiclo(DiaHoraGrupo diaHoraGrupo) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
-                .left("cicloAcademico ciclo")
-                .join("dia dia")
-                .join("hora hora")
+                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
                 .filter("dia.id", diaHoraGrupo.getDia())
                 .filter("hora.id", diaHoraGrupo.getHora())
                 .filter("ciclo.id", diaHoraGrupo.getCicloAcademico());
@@ -34,11 +32,17 @@ public class DiaHoraGrupoDAOH extends AbstractDAO<DiaHoraGrupo> implements DiaHo
     public List<DiaHoraGrupo> allDiaHoraGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
-                .join("dia dia")
-                .join("hora hora")
-                .join("grupoHorario gh")
-                .join("cicloAcademico ciclo")
+                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
                 .filter("gh.id", grupoHoras);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
+        Octavia sql = Octavia.query()
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
+                .in("gh.id", grupos);
         return sql.all(getCurrentSession());
     }
 }

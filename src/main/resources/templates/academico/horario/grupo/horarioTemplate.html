@@ -1,24 +1,34 @@
 <section class="panel">
-    <section class="panel-body"  >
-        <table class="table table-horario" >
+    <section class="panel-body" >
+        <table class="table" >
             <thead>
                 <tr>
                     <th style="width: 12.5%"></th>
                     <th style="width: 12.5%" th:each="dia : ${dias}" th:text="${dia.nombre}"> </th>
                 </tr>
             </thead>
-            <tbody class="table-horario-body">
-                <tr th:each="hora : ${horas}"  th:inline="text">
-                    <td> [[${hora.descripcion}]]</td>
-                    <td th:each="dia : ${dias}">
-                        <span class="asignar-hora pointer" th:rel="${hora.id}" th:rev="${dia.id}">
-                            <h5 th:each="item:${diaHoraGrupos}" 
-                                th:text="${item.grupoHorario.codigo}"
-                                th:if="${hora.id==item.hora.id AND dia.id==item.dia.id }"></h5>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
         </table>
+
+        <div style="height:400px;overflow-y:scroll;">
+
+            <table class="table table-bordered" >
+                <tbody>
+                    <tr th:each="hora : ${horas}"  th:inline="text">
+                        <td> [[${hora.descripcion}]]</td>
+                        <td th:each="diaHora : ${hora.diaHoraGrupo}">
+                            <span 
+                                class="form-control pointer text-center"
+                                th:classappend="|${diaHora.grupoHorario.id==null ? 'asignar-hora' : 'desasignar-hora'}|"
+                                th:style="'border-color:'+${diaHora.grupoHorario.color}+';'"
+                                th:rel="${diaHora.hora.id}" 
+                                th:text="${diaHora.grupoHorario.codigo}"
+                                th:rev="${diaHora.dia.id}">
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
     </section>
 </section>

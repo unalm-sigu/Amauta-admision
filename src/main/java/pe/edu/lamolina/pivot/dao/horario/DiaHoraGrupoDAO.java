@@ -12,4 +12,6 @@ public interface DiaHoraGrupoDAO extends Crud<DiaHoraGrupo> {
 
     public List<DiaHoraGrupo> allDiaHoraGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
+    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+
 }

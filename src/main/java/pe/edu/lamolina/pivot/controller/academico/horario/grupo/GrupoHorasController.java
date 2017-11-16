@@ -7,8 +7,11 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +31,14 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.enums.LetraGrupoHoraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionGrupoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -91,7 +96,8 @@ public class GrupoHorasController {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<GrupoHoras> grupos = service.allGrupoHoras(filter, idTipoGrupo);
-
+            List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(grupos);
+            Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
             for (GrupoHoras grupo : grupos) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -102,6 +108,11 @@ public class GrupoHorasController {
                 node.put("tipoGrupoHoras", grupo.getTipoGrupoHoras() != null ? grupo.getTipoGrupoHoras().getCodigo() : "");
                 node.put("tipoSeccion", grupo.getTipoSeccion());
                 node.put("color", grupo.getColor());
+                List<DiaHoraGrupo> mapGrupohora = mapGrupohoras.get(grupo.getId());
+                node.put("horas", 0);
+                if (mapGrupohora != null) {
+                    node.put("horas", mapGrupohora.size());
+                }
                 array.add(node);
             }
 
@@ -169,6 +180,7 @@ public class GrupoHorasController {
             ctx.setVariable("grupoHoras", grupoDb);
             ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
             ctx.setVariable("tipoSecciones", TipoSeccionGrupoEnum.values());
+            ctx.setVariable("letras", LetraGrupoHoraEnum.values());
             String htmlContent = springHtml.process("academico/horario/grupo/grupoForm", ctx);
             response.setData(htmlContent);
             response.setSuccess(true);
@@ -189,6 +201,7 @@ public class GrupoHorasController {
             ctx.setVariable("grupoHoras", new GrupoHoras());
             ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
             ctx.setVariable("tipoSecciones", TipoSeccionGrupoEnum.values());
+            ctx.setVariable("letras", LetraGrupoHoraEnum.values());
             String htmlContent = springHtml.process("academico/horario/grupo/grupoForm", ctx);
             response.setData(htmlContent);
             response.setSuccess(true);
@@ -226,10 +239,38 @@ public class GrupoHorasController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
-            List<DiaHoraGrupo> diaHoraGrupos = service.allDiaHoraGrupo(grupoDb,cicloAcademico);
+            List<DiaHoraGrupo> diaHoraGrupos = service.allDiaHoraGrupo(grupoDb, cicloAcademico);
 
-            List<Hora> horas = service.allHora();
+            Map<String, DiaHoraGrupo> mapDiaHoraGrupo = new LinkedHashMap<>();
+
+            for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
+                Long dia = diaHoraGrupo.getDia().getId();
+                Long hora = diaHoraGrupo.getHora().getId();
+                mapDiaHoraGrupo.put("" + dia + "_" + hora, diaHoraGrupo);
+            }
+
             List<Dia> dias = service.allDia();
+            List<Hora> horas = service.allHora();
+
+            for (Hora hora : horas) {
+                hora.setDiaHoraGrupo(null);
+                List<DiaHoraGrupo> myDiaHoraGrupos = new ArrayList();
+                for (Dia dia : dias) {
+                    DiaHoraGrupo myDiaHoraGrupo = mapDiaHoraGrupo.get("" + dia.getId() + "_" + hora.getId());
+                    if (myDiaHoraGrupo == null) {
+                        myDiaHoraGrupo = new DiaHoraGrupo();
+                        myDiaHoraGrupo.setDia(dia);
+                        myDiaHoraGrupo.setHora(hora);
+                        GrupoHoras gh = new GrupoHoras();
+                        gh.setColor("#ffffff");
+                        myDiaHoraGrupo.setGrupoHorario(gh);
+                        myDiaHoraGrupos.add(myDiaHoraGrupo);
+                    } else {
+                        myDiaHoraGrupos.add(myDiaHoraGrupo);
+                    }
+                }
+                hora.setDiaHoraGrupo(myDiaHoraGrupos);
+            }
 
             Context ctx = new Context();
             ctx.setVariable("dias", dias);
@@ -257,6 +298,25 @@ public class GrupoHorasController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
             service.saveDiaHoraGrupo(diaHoraGrupo);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desasignarHora")
+    public JsonResponse desasignarHora(DiaHoraGrupo diaHoraGrupo, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            diaHoraGrupo.setCicloAcademico(cicloAcademico);
+            service.desasignarHora(diaHoraGrupo);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

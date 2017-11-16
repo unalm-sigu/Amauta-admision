@@ -11,6 +11,10 @@ $(function () {
         },
         table: {
             bodyRowSelector: 'div'
+        },
+        features: {pushState: false, search: false},
+        inputs: {
+            processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
         }
     }).data('dynatable');
 
@@ -64,6 +68,7 @@ $(function () {
                         mimodal.find('.bootbox-body').html(response.data);
                         mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
+                        mimodal.find('[name="letra"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('.cp').colorpicker({color: '#4116ff'});
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
@@ -78,6 +83,8 @@ $(function () {
             });
         },
         nuevo: function (e) {
+            e.preventDefault();
+
             var mimodal = bootbox.confirm({
                 title: "Nuevo Tipo Grupo Horas",
                 message: APP.template.spincenter,
@@ -88,7 +95,6 @@ $(function () {
                 callback: function (result) {
                     if (result) {
                         if (mimodal.find('form').parsley().validate() == true) {
-                            console.log(mimodal.find('form').parsley().validate());
                             Grupo.saveGrupo(mimodal);
                         }
                     } else {
@@ -106,6 +112,7 @@ $(function () {
                         mimodal.find('.bootbox-body').html(response.data);
                         mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
+                        mimodal.find('[name="letra"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('.cp').colorpicker({color: '#4116ff'});
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
@@ -233,6 +240,37 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         Grupo.getHorario();
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tablaHorario").html('');
+                }
+            });
+        },
+        desasignarHora: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var hora = self.attr("rel");
+            var dia = self.attr("rev");
+            $.ajax({
+                url: APP.url('academico/horario/grupo/desasignarHora'),
+                type: 'POST',
+                async: false,
+                data: {
+                    'hora.id': hora,
+                    'dia.id': dia,
+                    'grupoHorario.id': Grupo.grupoActivo
+                },
+                success: function (response) {
+                    if (response.success) {
+                        dynatable.process();
+                        Grupo.getHorario();
+                    } else {
+                        notify(response.message, "error");
                     }
                 },
                 error: function () {
@@ -251,10 +289,6 @@ $(function () {
         Grupo.eliminar(e);
     });
 
-    Grupo.body.delegate('.estado', 'click', function (e) {
-        Grupo.estado(e);
-    });
-
     Grupo.body.delegate('.editar', 'click', function (e) {
         Grupo.update(e);
     });
@@ -265,6 +299,10 @@ $(function () {
 
     Grupo.body.delegate('.asignar-hora', 'dblclick', function (e) {
         Grupo.asignarHora(e);
+    });
+
+    Grupo.body.delegate('.desasignar-hora', 'dblclick', function (e) {
+        Grupo.desasignarHora(e);
     });
 
     Grupo.init();

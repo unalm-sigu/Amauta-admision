@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -97,16 +98,37 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     public void saveDiaHoraGrupo(DiaHoraGrupo diaHoraGrupo) {
         DiaHoraGrupo diaHoraGrupoDb = diaHoraGrupoDAO.findByDiaHoraCiclo(diaHoraGrupo);
         if (diaHoraGrupoDb != null) {
-            diaHoraGrupoDb.setGrupoHorario(diaHoraGrupo.getGrupoHorario());
-            diaHoraGrupoDAO.update(diaHoraGrupo);
-            return;
+            StringBuilder sb = new StringBuilder();
+            sb.append("El grupo ");
+            sb.append(diaHoraGrupoDb.getDia().getNombre());
+            sb.append(" ");
+            sb.append(diaHoraGrupoDb.getHora().getDescripcion());
+            sb.append(" ya esta ocupado por: ");
+            sb.append(diaHoraGrupoDb.getGrupoHorario().getCodigo());
+            sb.append(".");
+            throw new PhobosException(sb.toString());
+        } else {
+            diaHoraGrupoDAO.save(diaHoraGrupo);
         }
-        diaHoraGrupoDAO.save(diaHoraGrupo);
     }
 
     @Override
     public List<DiaHoraGrupo> allDiaHoraGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         return diaHoraGrupoDAO.allDiaHoraGrupo(grupoHoras, cicloAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void desasignarHora(DiaHoraGrupo diaHoraGrupo) {
+        DiaHoraGrupo diaHoraGrupoDb = diaHoraGrupoDAO.findByDiaHoraCiclo(diaHoraGrupo);
+        if (diaHoraGrupoDb != null) {
+            diaHoraGrupoDAO.delete(diaHoraGrupoDb);
+        }
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
+        return diaHoraGrupoDAO.allDiaHoraGrupo(grupos);
     }
 
 }

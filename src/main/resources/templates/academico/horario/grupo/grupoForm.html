@@ -42,14 +42,17 @@
 
         <label class="col-sm-3 control-label" >Letra</label>
         <div class="col-sm-6">
-            <input  type="text" 
-                    name="letra" 
-                    th:value="${grupoHoras.letra}"
-                    required='true'
-                    maxlength="1"
-                    style="text-transform:uppercase"
-                    data-trigger="change"
-                    class="form-control"/>
+
+            <select name="letra" 
+                    required="true" 
+                    class="form-control" >
+                <option></option>
+                <option th:each="item : ${letras}"  
+                        th:text="${item.value}"
+                        th:selected="${grupoHoras.letra!=null} ? ${grupoHoras.letra==item.name()}"
+                        th:value="${item.name()}" ></option>
+            </select>
+
         </div>
     </div>
 

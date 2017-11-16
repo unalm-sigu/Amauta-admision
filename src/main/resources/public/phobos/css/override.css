@@ -978,27 +978,26 @@ div.notas {
 }
 /*colorpicker remove panel alpha*/
 .colorpicker-alpha {display:none !important;} .colorpicker{ min-width:128px !important;}
-/*style table horario*/
+/*style horario*/
 
 .grupoactivo{
     background-color: #eaeef1;
 }
-
-/*.table-horario{
-    width: 100%;
+.asignar-hora{
+    border-width: 2px
 }
-.table-horario-body{
-    width: 100%;
-    max-height: 250px;
-    overflow-x: hidden;
-}*/
 
-/*.table-horario{
-    width: 100%;
-    background-color: #f3f3f3;
+/*style table horario*/
+
+/*.panel-body-table{
+    height:200px !important;
+    overflow-y:scroll !important;
+}
+
+.table-fixed{
     tbody{
-        height:200px;
-        overflow-y:auto;
+        height:200px !important;
+        overflow-y:auto !important;
         width: 100%;
     }
     thead,tbody,tr,td,th{
@@ -1009,13 +1008,5 @@ div.notas {
             float:left;
         }
     }
-    thead {
-        tr{
-            th{
-                float:left;
-                background-color: #f39c12;
-                border-color:#e67e22;
-            }
-        }
-    }
 }*/
+

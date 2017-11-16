@@ -1,7 +1,6 @@
 <html layout:decorator="zlayout/layout">
     <head>
         <title>Grupos</title>
-    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
     <div th:substituteby="zlayout/includes :: styles-bootstrap-colorpicker"></div>
 </head>
 
@@ -25,12 +24,12 @@
                 <input type="hidden" name="idTipoGrupo" th:value="${idTipoGrupo}" />
 
                 <div id="dynaTable"></div>
-                
+
             </section>
             <section class="panel-body">
 
                 <div id="tablaHorario"></div>
-                
+
             </section>
         </section>
 
