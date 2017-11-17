@@ -31,7 +31,7 @@ $(function () {
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
-            location.href = APP.url("academico/systemcalifica/sistema/nuevo");
+            location.href = APP.url("academico/planCurricular/plan/" + rec.id + "/editarPlanCurricular");
         }
     }
 
@@ -41,7 +41,8 @@ $(function () {
         PlanCurricular.verNuevoPlanCurricular(e);
     });
 
-
-
+    $("body").delegate(".editar-plan-curricular", "click", function (e) {
+        PlanCurricular.editarPlanCurricular($(this), e);
+    });
 
 });

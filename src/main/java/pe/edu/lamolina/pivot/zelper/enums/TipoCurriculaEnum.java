@@ -7,7 +7,7 @@ public enum TipoCurriculaEnum {
 
     COMD("Comodin"),
     ADIC("Adicional"),
-    REG("Regular"),;
+    REG("Regular");
 
     private final String value;
     private static final Map<String, TipoCurriculaEnum> lookup = new HashMap<>();

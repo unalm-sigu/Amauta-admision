@@ -22,7 +22,7 @@ public class CursoAdicionalCurriculaDAOH extends AbstractDAO<CursoAdicionalCurri
                 .from(CursoAdicionalCurricula.class, "cc")
                 .join("curso cur", "planCurricular pc")
                 .searchFields("cur.nombre")
-                .filter("pc.id", filter.getQueries().get("pc.id"))
+                .filter("pc.id", filter.getQueries().get("planc"))
                 .orderBy("cur.nombre desc");
         return sql.all(getCurrentSession());
     }

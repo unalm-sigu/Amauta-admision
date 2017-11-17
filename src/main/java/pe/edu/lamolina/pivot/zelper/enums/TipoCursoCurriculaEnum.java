@@ -7,9 +7,9 @@ public enum TipoCursoCurriculaEnum {
 
     OBL("Obligatorio"),
     GEN("Generales"),
-    ELC("Obligatorio"), 
-    ELF("Obligatorio"),
-    ELE("Obligatorio");
+    ELC("Electivo Carrera"),
+    ELF("Electivo Facultad"),
+    ELE("Electivo Libre");
 
     private final String value;
     private static final Map<String, TipoCursoCurriculaEnum> lookup = new HashMap<>();

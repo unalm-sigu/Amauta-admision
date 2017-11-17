@@ -43,9 +43,11 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
                 .from(CursoCurricula.class, "cc")
                 .join("tipoCursoCurricula tcc", "curso cur", "planCurricular pc")
                 .searchFields("tcc.nombrecurtcc.nombre")
-                .filter("pc.id", filter.getQueries().get("pc.id"))
-                .filter("cc.numeroCiclo", filter.getQueries().get("cc.numeroCiclo"))
-                .orderBy("cur.nombre desc");
+                .filter("pc.id", filter.getQueries().get("planc"));
+        if (filter.getQueries().get("numCic") != null) {
+            sql.filter("cc.numeroCiclo", filter.getQueries().get("numCic"));
+        }
+        sql.orderBy("cur.nombre desc");
         return sql.all(getCurrentSession());
     }
 

@@ -29,6 +29,9 @@
                     <li th:if="${planCurricular.id}">
                         <a href="#4" data-toggle="tab">Adicionales</a>
                     </li>
+                    <li th:if="${planCurricular.id}" >
+                        <a href="#5" data-toggle="tab" >Resumen</a>
+                    </li>
                 </ul>
                 <section class="panel">
                     <div class="tab-content">
@@ -43,6 +46,9 @@
                         </div>
                         <div class="tab-pane" id="4" th:if="${planCurricular.id}">
                             <div th:substituteby="academico/plancurricular/plan/includes/adicionales"/>
+                        </div>
+                        <div class="tab-pane" id="5" th:if="${planCurricular.id}">
+                            <div th:substituteby="academico/plancurricular/plan/includes/resumen"/>
                         </div>
                     </div>
                 </section>

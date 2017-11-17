@@ -14,6 +14,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoAdicionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
@@ -23,12 +24,14 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
+import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -62,6 +65,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     CursoAdicionalCurriculaDAO cursoAdicionalCurriculaDAO;
+
+    @Autowired
+    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
 
     @Override
     public List<Carrera> allCarrerasByFilter(Facultad facultad, EstadoEnum estadoEnum) {
@@ -100,6 +106,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional(readOnly = false)
+    public void agregarCursoOpcCurricula(CursoOpcionalCurricula cursoOpcionalCurricula) {
+        cursoOpcionalCurriculaDAO.save(cursoOpcionalCurricula);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void updateCursoCurricula(CursoCurricula cursoCurricula) {
         CursoCurricula cursoCurriculaDB = cursoCurriculaDAO.find(cursoCurricula.getId());
         List<RequisitoCursoCurricula> requisitosDB = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
@@ -108,7 +120,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (RequisitoCursoCurricula requisitoDB : requisitosDB) {
 
-            RequisitoCursoCurricula requisitoFound = cursoCurricula.getRequisitosCurricula().stream().filter(req -> requisitoDB.getId().equals(req.getId())).findFirst().orElse(null);
+            RequisitoCursoCurricula requisitoFound = null;
+            if (cursoCurricula.getRequisitosCurricula() != null && !cursoCurricula.getRequisitosCurricula().isEmpty()) {
+                requisitoFound = cursoCurricula.getRequisitosCurricula().stream().filter(req -> requisitoDB.getId().equals(req.getId())).findFirst().orElse(null);
+            }
             if (requisitoFound == null) {
                 requisitoCursoCurriculaDAO.delete(requisitoDB);
             }
@@ -143,7 +158,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public List<CursoCurricula> allCursosOblByDynatable(DynatableFilter filter) {
         if (filter.getQueries() == null) {
-            new ArrayList<CursoCurricula>();
+            return new ArrayList<CursoCurricula>();
         }
         return cursoCurriculaDAO.allByDynatable(filter);
     }
@@ -151,9 +166,17 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public List<CursoAdicionalCurricula> allCursosAdcByDynatable(DynatableFilter filter) {
         if (filter.getQueries() == null) {
-            new ArrayList<CursoCurricula>();
+            return new ArrayList<CursoAdicionalCurricula>();
         }
         return cursoAdicionalCurriculaDAO.allByDynatable(filter);
+    }
+
+    @Override
+    public List<CursoOpcionalCurricula> allCursosElecByDynatable(DynatableFilter filter) {
+        if (filter.getQueries() == null) {
+            return new ArrayList<CursoOpcionalCurricula>();
+        }
+        return cursoOpcionalCurriculaDAO.allByDynatable(filter);
     }
 
     @Override
@@ -172,8 +195,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
-    public List<Curso> allCursoByNombre(String nombre) {
-        return cursoDAO.allByNombreFilter(nombre, 10);
+    public List<Curso> allCursoByNombreTipoCurricula(String nombre, List<TipoCurriculaEnum> tiposCurriculaEnum) {
+        List<String> tiposCurricula = null;
+        if (tiposCurriculaEnum != null && !tiposCurriculaEnum.isEmpty()) {
+            tiposCurricula = new ArrayList<>();
+            for (TipoCurriculaEnum tipoCurriculaEnum : tiposCurriculaEnum) {
+                tiposCurricula.add(tipoCurriculaEnum.name());
+            }
+        }
+        return cursoDAO.allByNombreFilter(nombre, tiposCurricula, 10);
     }
 
     @Override
@@ -193,6 +223,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional(readOnly = false)
     public void deleteCursoAdicional(Long cursoAdicionalId) {
         cursoAdicionalCurriculaDAO.delete(new CursoAdicionalCurricula(cursoAdicionalId));
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteCursoOpcional(Long cursoOpcionalId) {
+        cursoOpcionalCurriculaDAO.delete(new CursoOpcionalCurricula(cursoOpcionalId));
     }
 
 }

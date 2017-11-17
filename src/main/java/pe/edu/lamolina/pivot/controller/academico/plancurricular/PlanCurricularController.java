@@ -3,10 +3,13 @@ package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -29,6 +32,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
@@ -36,6 +40,7 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
+import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
@@ -44,6 +49,8 @@ import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -160,6 +167,40 @@ public class PlanCurricularController {
     }
 
     @ResponseBody
+    @RequestMapping("listCurResumen")
+    public DynatableResponse listCurResumen(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
+            List<CursoCurricula> listaCursoCurricula = planCurricularService.allCursosOblByDynatable(filter);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            logger.debug("size cursso curricula {}", listaCursoCurricula.size());
+
+            for (CursoCurricula cursoCurEach : listaCursoCurricula) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", cursoCurEach.getId());
+                node.put("tipoCursoCurr", cursoCurEach.getTipoCursoCurricula().getNombre());
+                node.put("cursoNombre", cursoCurEach.getCurso().getNombre());
+                node.put("cursoCurrCredito", cursoCurEach.getCreditos());
+
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("listCurAdc")
     public DynatableResponse listCurAdc(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
@@ -175,6 +216,39 @@ public class PlanCurricularController {
             for (CursoAdicionalCurricula cursoCurEach : listaCursoCurricula) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("cCurriculaAdcId", cursoCurEach.getId());
+                node.put("cursoCodigo", cursoCurEach.getCurso().getCodigo());
+                node.put("cursoNombre", cursoCurEach.getCurso().getNombre());
+                node.put("cursoCreditos", cursoCurEach.getCurso().getCreditos());
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("listCurElec")
+    public DynatableResponse listCurElec(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
+            List<CursoOpcionalCurricula> listaCursoCurricula = planCurricularService.allCursosElecByDynatable(filter);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            logger.debug("size cursso curricula {}", listaCursoCurricula.size());
+
+            for (CursoOpcionalCurricula cursoCurEach : listaCursoCurricula) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("cCurriculaOpcId", cursoCurEach.getId());
                 node.put("cursoCodigo", cursoCurEach.getCurso().getCodigo());
                 node.put("cursoNombre", cursoCurEach.getCurso().getNombre());
                 node.put("cursoCreditos", cursoCurEach.getCurso().getCreditos());
@@ -232,8 +306,21 @@ public class PlanCurricularController {
     public String agregarCursoElecPlan(
             @PathVariable("plancurricular") Long plancurricularId,
             Model model, HttpSession session) {
+        List<TipoCursoCurricula> tiposCursoCurriculas = planCurricularService.allTiposCursoCurricula();
+        List<TipoCursoCurricula> tiposCursoCurriculasAlt = new ArrayList();
         PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(plancurricularId));
+
+        for (TipoCursoCurricula tiposCursoCurricula : tiposCursoCurriculas) {
+
+            if (tiposCursoCurricula.getCodigo().equals(TipoCursoCurriculaEnum.ELC.name())
+                    || tiposCursoCurricula.getCodigo().equals(TipoCursoCurriculaEnum.ELE.name())
+                    || tiposCursoCurricula.getCodigo().equals(TipoCursoCurriculaEnum.ELF.name())) {
+                tiposCursoCurriculasAlt.add(tiposCursoCurricula);
+            }
+        }
+
         model.addAttribute("planCurricular", planCurricular);
+        model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculasAlt);
         return "academico/plancurricular/plan/agregarCursoElec";
     }
 
@@ -388,6 +475,36 @@ public class PlanCurricularController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("saveAgregarCursoEle")
+    public JsonResponse saveAgregarCursoEle(
+            @ModelAttribute("cursoAdicionalCurricula") CursoOpcionalCurricula cursoOpcionalCurricula,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            String message = "";
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            message = "Curso agregado exitosamente.";
+            planCurricularService.agregarCursoOpcCurricula(cursoOpcionalCurricula);
+
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("{planCurricular}/succesSave")
     public String succesSave(@PathVariable("planCurricular") Long planCurricularId,
             RedirectAttributes redirectAttr,
@@ -457,6 +574,8 @@ public class PlanCurricularController {
     @RequestMapping("buscarCursos")
     public JsonResponse buscarCursos(
             @RequestParam("nombre") String nombre,
+            @RequestParam(name = "tipoCurricula", required = false) String tipoCurricula,
+            @RequestParam(name = "tipoCursoCurricula", required = false) Long tipoCursoCurriculaId,
             HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -466,18 +585,34 @@ public class PlanCurricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Curso> cursos = planCurricularService.allCursoByNombre(nombre);
+            List<TipoCurriculaEnum> tiposCurricula = null;
+            TipoCursoCurricula tipoCursoCurricula = null;
+
+            if (tipoCurricula != null) {
+                tiposCurricula = new ArrayList<>();
+                tiposCurricula.add(TipoCurriculaEnum.valueOf(tipoCurricula));
+            }
+            if (tipoCursoCurriculaId != null) {
+                tipoCursoCurricula = planCurricularService.findTipoCurricula(tipoCursoCurriculaId);
+                tiposCurricula = tipoCursoCurricula.getTiposCursoCurricula();
+            }
+
+            List<Curso> cursos = planCurricularService.allCursoByNombreTipoCurricula(nombre, tiposCurricula);
 
             for (Curso cur : cursos) {
                 ObjectNode json = new ObjectNode(jsonFactory);
-
+                if (tipoCursoCurricula != null && tipoCursoCurricula.isTieneCreditoManual()) {
+                    if (!cur.getCodigo().equals(tipoCursoCurricula.getCodigo())) {
+                        continue;
+                    }
+                }
                 json.put("id", cur.getId());
                 json.put("cursoNombre", cur.getCodigo());
                 json.put("cursoCodigo", cur.getNombre());
                 json.put("cursoTpc", cur.getTpc());
                 json.put("cursoCreditos", cur.getCreditos());
-                json.put("departamentoNombre", cur.getDepartamentoAcademico().getNombre());
-                json.put("facultadNombre", cur.getDepartamentoAcademico().getFacultad().getNombre());
+                json.put("departamentoNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.nombre") != null ? cur.getDepartamentoAcademico().getNombre() : "");
+                json.put("facultadNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.facultad.nombre") != null ? cur.getDepartamentoAcademico().getFacultad().getNombre() : "");
                 jsonList.add(json);
             }
 
@@ -578,6 +713,32 @@ public class PlanCurricularController {
             planCurricularService.deleteCursoAdicional(cursoAdicionalId);
             response.setData(node);
             response.setMessage("Curso adicional eliminado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteCurElec")
+    public JsonResponse deleteCurElec(@RequestParam("cCurriculaOpcId") Long cCurriculaOpcId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            planCurricularService.deleteCursoOpcional(cCurriculaOpcId);
+            response.setData(node);
+            response.setMessage("Curso electivo eliminado.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

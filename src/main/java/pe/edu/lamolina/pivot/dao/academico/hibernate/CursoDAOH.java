@@ -17,6 +17,7 @@ import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 
 @Repository
 public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
@@ -122,10 +123,11 @@ public class CursoDAOH extends AbstractDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allByNombreFilter(String nombre, Integer limit) {
+    public List<Curso> allByNombreFilter(String nombre, List<String> tiposCurriculaEnum, Integer limit) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cur")
                 .like("cur.nombre", nombre)
+                .in("cur.tipoCurricula", tiposCurriculaEnum)
                 .orderBy("cur.nombre")
                 .limit(limit);
         return sql.all(getCurrentSession());

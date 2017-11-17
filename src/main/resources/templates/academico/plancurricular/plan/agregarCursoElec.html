@@ -1,35 +1,44 @@
 <form id="frmAgregarCursoElec" >
 
-    <input  id="txtPlanCurricular" name="id" type="hidden" th:value="${planCurricular.id}"/>
+    <input  id="txtPlanCurricularEle" 
+            name="planCurricular.id" 
+            type="hidden" 
+            th:value="${planCurricular.id}"/>
 
 
     <div class="form-group">
         <label for="txtTipo">Tipo</label>
 
-        <select id="cboTipoElec" class="select2single form-control" 
-                required="true">
-            <option></option>
+        <select id="cboTipoCursoCurriculaElec" 
+                class="select2single form-control" 
+                name="tipoCursoCurricula.id"
+                required="">
+            <option value="">Seleccione</option> 
+            <option  th:each="item : ${tiposCursoCurriculas}" 
+                     th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
     </div>
 
     <div class="form-group">
         <label for="txtCursoElec">Curso</label>
 
-        <select id="cboCursoElec" class="select2single form-control" 
-                required="true">
-            <option></option>
-        </select>
+        <input id="cboCursoElec" class="form-control" 
+               name="curso.id"
+               type="text" 
+               required="yes"/>
     </div>
 
     <div class="form-group">
-        <label for="txtCreditoCurElec">Credito</label>
-        <input id="txtCreditoCurElec" class="form-control"/>
+        <label for="txtCreditos">Creditos</label>
+        <input id="txtCreditosElec" class="form-control" 
+               name="creditos" 
+               type="text" 
+               required="yes"
+               data-parsley-type="digits"/>
+
+
     </div>
 
-    <div class="form-group">
-        <label for="txtCursoElec">Código</label>
-        <input id="txtCodigoCurElec" class="form-control"/>
-    </div>
 
 
 </form>

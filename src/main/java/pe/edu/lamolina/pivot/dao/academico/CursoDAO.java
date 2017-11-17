@@ -6,6 +6,7 @@ import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 
 public interface CursoDAO extends Crud<Curso> {
 
@@ -23,6 +24,6 @@ public interface CursoDAO extends Crud<Curso> {
 
     List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos);
 
-    List<Curso> allByNombreFilter(String nombre, Integer limit);
+    List<Curso> allByNombreFilter(String nombre, List<String> tiposCurriculaEnum, Integer limit);
 
 }

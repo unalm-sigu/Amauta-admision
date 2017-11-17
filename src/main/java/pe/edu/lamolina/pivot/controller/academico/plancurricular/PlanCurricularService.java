@@ -7,11 +7,13 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
+import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 
 public interface PlanCurricularService {
 
@@ -33,7 +35,7 @@ public interface PlanCurricularService {
 
     List<CursoCurricula> allCursosCurriculaByFilter(TipoCursoCurricula tipoCursoCurricula);
 
-    List<Curso> allCursoByNombre(String nombre);
+    List<Curso> allCursoByNombreTipoCurricula(String nombre, List<TipoCurriculaEnum> tiposCurriculaEnum);
 
     TipoCursoCurricula findTipoCurricula(Long tipoCursoCurricula);
 
@@ -50,5 +52,11 @@ public interface PlanCurricularService {
     List<CursoAdicionalCurricula> allCursosAdcByDynatable(DynatableFilter filter);
 
     void deleteCursoAdicional(Long cursoAdicionalId);
+
+    void agregarCursoOpcCurricula(CursoOpcionalCurricula cursoOpcionalCurricula);
+
+    List<CursoOpcionalCurricula> allCursosElecByDynatable(DynatableFilter filter);
+
+    void deleteCursoOpcional(Long cursoOpcionalId);
 
 }
