@@ -20,6 +20,9 @@ public class TipoGrupoHoras implements Serializable {
     @Column(name = "codigo")
     private String codigo;
 
+    @Column(name = "descripcion")
+    private String descripcion;
+
     @Column(name = "tipo")
     private String tipo;
 
@@ -87,5 +90,12 @@ public class TipoGrupoHoras implements Serializable {
         this.tipoCiclo = tipoCiclo;
     }
 
-}
+    public String getDescripcion() {
+        return descripcion;
+    }
 
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+}

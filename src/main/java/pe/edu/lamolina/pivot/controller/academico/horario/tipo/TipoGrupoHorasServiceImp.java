@@ -61,23 +61,33 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
 
         List<TipoGrupoHoras> tipoGrupoHoras = tipoGrupoHorasDAO.all();
 
+        tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
+        tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
+        tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INC.name());
+
         if (tipoGrupoHoras.isEmpty()) {
             tipoGrupo.setCodigo("HOR-001");
-            tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
-            tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
-            tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INC.name());
             tipoGrupoHorasDAO.save(tipoGrupo);
             return;
         }
-        
-        
-        Map<Long , Long> mapCodigos = new LinkedHashMap<>();
-        
-//        for (TipoGrupoHoras tipoGrupoHora : tipoGrupoHoras) {
-//            String c= tipoGrupoHora.getCodigo().substring(4);
-//            Long key = new Long(c);
-//            mapCodigos.put(key, key);
-//        }
+
+        Map<Long, Long> mapCodigos = new LinkedHashMap<>();
+
+        for (TipoGrupoHoras tipoGrupoHora : tipoGrupoHoras) {
+            String c = tipoGrupoHora.getCodigo().substring(4);
+            Long key = new Long(c);
+            mapCodigos.put(key, key);
+        }
+        Long codigo = 1L;
+        Long codigoDisp = mapCodigos.get(codigo);
+        while (codigoDisp != null) {
+            codigo++;
+            codigoDisp = mapCodigos.get(codigo);
+        }
+
+        tipoGrupo.setCodigo("HOR-"+codigo);
+        tipoGrupoHorasDAO.save(tipoGrupo);
+
     }
 
     @Override
