@@ -74,11 +74,9 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
         Map<Long , Long> mapCodigos = new LinkedHashMap<>();
         
 //        for (TipoGrupoHoras tipoGrupoHora : tipoGrupoHoras) {
-//            
-//            String p
-//            
-//            mapCodigos.put(Long.MIN_VALUE, Long.MIN_VALUE);
-//
+//            String c= tipoGrupoHora.getCodigo().substring(4);
+//            Long key = new Long(c);
+//            mapCodigos.put(key, key);
 //        }
     }
 
