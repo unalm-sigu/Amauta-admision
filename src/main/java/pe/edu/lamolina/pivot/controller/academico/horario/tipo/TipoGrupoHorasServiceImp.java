@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.controller.academico.horario.tipo;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +51,6 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
     @Transactional
     public void update(TipoGrupoHoras tipoGrupo) {
         TipoGrupoHoras tipoGrupoDb = tipoGrupoHorasDAO.find(tipoGrupo.getId());
-        TipoGrupoHoras tipoGrupoCode = tipoGrupoHorasDAO.findByCode(tipoGrupo.getCodigo());
-        tipoGrupoDb.setCodigo(tipoGrupo.getCodigo());
         tipoGrupoDb.setTipoCiclo(tipoGrupo.getTipoCiclo());
         tipoGrupoHorasDAO.update(tipoGrupoDb);
     }
@@ -59,11 +59,27 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
     @Transactional
     public void save(TipoGrupoHoras tipoGrupo) {
 
-        TipoGrupoHoras tipoGrupoCode = tipoGrupoHorasDAO.findByCode(tipoGrupo.getCodigo());
-        tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
-        tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
-        tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INC.name());
-        tipoGrupoHorasDAO.save(tipoGrupo);
+        List<TipoGrupoHoras> tipoGrupoHoras = tipoGrupoHorasDAO.all();
+
+        if (tipoGrupoHoras.isEmpty()) {
+            tipoGrupo.setCodigo("HOR-001");
+            tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
+            tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
+            tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INC.name());
+            tipoGrupoHorasDAO.save(tipoGrupo);
+            return;
+        }
+        
+        
+        Map<Long , Long> mapCodigos = new LinkedHashMap<>();
+        
+//        for (TipoGrupoHoras tipoGrupoHora : tipoGrupoHoras) {
+//            
+//            String p
+//            
+//            mapCodigos.put(Long.MIN_VALUE, Long.MIN_VALUE);
+//
+//        }
     }
 
     @Override

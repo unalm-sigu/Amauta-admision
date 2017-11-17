@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoCicloEnum {
-    NIV("Nivelacion"), REG("Regular");
+    NIV("Nivelacion"), REG("Regular"), AMB("Ambos");
 
     private final String value;
     private static final Map<String, TipoCicloEnum> lookup = new HashMap<>();
