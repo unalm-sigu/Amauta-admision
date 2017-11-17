@@ -140,6 +140,7 @@ $(function () {
                             window.ParsleyUI.addError(inputCodigo, "errorValidacionCodigo", "Código ya registrado");
                         } else {
                             dynatable.process();
+                            $("#tablaHorario").html('');
                             mimodal.modal('hide');
                         }
                     } else {
