@@ -133,7 +133,6 @@ public class OficinaController {
                 StringBuilder sb = new StringBuilder();
                 sb.append(oficina.getPersonaJefe() != null ? oficina.getPersonaJefe().getNombreCompleto() : "");
                 node.put("jefatura", sb.toString());
-                node.put("esencargado", oficina.getEsJefeEncargado());
                 array.add(node);
 
             }

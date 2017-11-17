@@ -76,7 +76,6 @@ public class OficinaServiceImp implements OficinaService {
         oficinaDb.setInstanciaOficina(oficina.getInstanciaOficina());
         oficinaDb.setCargoJefe(oficina.getCargoJefe());
         oficinaDb.setPersonaJefe(oficina.getPersonaJefe());
-        oficinaDb.setEsJefeEncargado(oficina.getEsJefeEncargado());
         oficinaDAO.update(oficinaDb);
     }
 
