@@ -18,6 +18,10 @@ $(function () {
         }
     }).data('dynatable');
 
+    $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
+        Grupo.grupoActivo = null;
+    });
+
     function ulWriter(rowIndex, record, columns, cellWriter) {
         var labelColor = {ACT: 'success', INA: 'danger'};
         var labelName = {ACT: 'Activo', INA: 'Inactivo'};
@@ -140,6 +144,7 @@ $(function () {
                             window.ParsleyUI.addError(inputCodigo, "errorValidacionCodigo", "Código ya registrado");
                         } else {
                             dynatable.process();
+                            Grupo.grupoActivo = null;
                             $("#tablaHorario").html('');
                             mimodal.modal('hide');
                         }
@@ -176,6 +181,7 @@ $(function () {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     dynatable.process();
+                                    Grupo.grupoActivo = null;
                                 } else {
                                     notify(response.message, "error");
                                 }
@@ -226,6 +232,10 @@ $(function () {
         },
         asignarHora: function (e) {
             e.preventDefault();
+            if (Grupo.grupoActivo == null) {
+                return;
+            }
+
             var self = $(e.currentTarget);
             var hora = self.attr("rel");
             var dia = self.attr("rev");
@@ -241,7 +251,7 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         Grupo.getHorario();
-                        dynatable.process();
+                        //dynatable.process();
                     } else {
                         notify(response.message, "error");
                     }
@@ -254,21 +264,25 @@ $(function () {
         },
         desasignarHora: function (e) {
             e.preventDefault();
+            if (Grupo.grupoActivo == null) {
+                return;
+            }
             var self = $(e.currentTarget);
-            var hora = self.attr("rel");
-            var dia = self.attr("rev");
+            var id = self.data("id");
+            var grupo = self.data("idgrupo");
+            if (Grupo.grupoActivo != grupo) {
+                return;
+            }
             $.ajax({
                 url: APP.url('academico/horario/grupo/desasignarHora'),
                 type: 'POST',
                 async: false,
                 data: {
-                    'hora.id': hora,
-                    'dia.id': dia,
-                    'grupoHorario.id': Grupo.grupoActivo
+                    'id': id
                 },
                 success: function (response) {
                     if (response.success) {
-                        dynatable.process();
+                        //dynatable.process();
                         Grupo.getHorario();
                     } else {
                         notify(response.message, "error");

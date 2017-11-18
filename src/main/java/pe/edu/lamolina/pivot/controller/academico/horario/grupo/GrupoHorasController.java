@@ -37,9 +37,11 @@ import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.Hora;
+import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.LetraGrupoHoraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionGrupoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -82,7 +84,8 @@ public class GrupoHorasController {
     @RequestMapping(method = RequestMethod.GET, value = "{tipo}")
     public String index(@PathVariable("tipo") Long idTipoGrupo, Model model, HttpSession session) {
 
-        model.addAttribute("idTipoGrupo", idTipoGrupo);
+        TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoras(idTipoGrupo);
+        model.addAttribute("tipoGrupoHoras", tipoGrupoHoras);
         return "academico/horario/grupo/grupo";
     }
 
@@ -239,8 +242,13 @@ public class GrupoHorasController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             GrupoHoras grupoDb = service.findGrupoHoras(grupoHoras);
-            List<DiaHoraGrupo> diaHoraGrupos = service.allDiaHoraGrupo(grupoDb, cicloAcademico);
-
+            TipoGrupoHoras tipoGrupoDb = grupoDb.getTipoGrupoHoras();
+            List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
+            if (TipoGrupoHorasEnum.ESPECIAL.name().equalsIgnoreCase(tipoGrupoDb.getTipo())) {
+                diaHoraGrupos = service.allDiaHoraGrupoByGrupo(grupoDb, cicloAcademico);
+            } else {
+                diaHoraGrupos = service.allDiaHoraGrupoByTipo(grupoDb.getTipoGrupoHoras(), cicloAcademico);
+            }
             Map<String, DiaHoraGrupo> mapDiaHoraGrupo = new LinkedHashMap<>();
 
             for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
@@ -266,6 +274,11 @@ public class GrupoHorasController {
                         myDiaHoraGrupo.setGrupoHorario(gh);
                         myDiaHoraGrupos.add(myDiaHoraGrupo);
                     } else {
+                        GrupoHoras ghoras=myDiaHoraGrupo.getGrupoHorario();
+                        if(ghoras.getId()!=grupoDb.getId().longValue()){
+                            ghoras.setColor(null);
+                            myDiaHoraGrupo.setGrupoHorario(ghoras);
+                        }
                         myDiaHoraGrupos.add(myDiaHoraGrupo);
                     }
                 }
@@ -317,6 +330,21 @@ public class GrupoHorasController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
             service.desasignarHora(diaHoraGrupo);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("gencolor")
+    public JsonResponse gencolor(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.gencolor();
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

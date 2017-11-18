@@ -15,13 +15,13 @@ $(function () {
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
 
-        var labelColor = {ACT: 'success', DES: 'danger', CRE: "default"};
-        var labelName = {ACT: 'Activo', CRE: "Creado", DES: "Desactivado"};
+        var labelColor = {ACT: 'success', INA: 'danger', CRE: "default"};
+        var labelName = {ACT: 'Activo', CRE: "Creado", INA: "Inactivo"};
         record.colorEstado = labelColor[record.estado];
         record.nameEstado = labelName[record.estado];
 
         var labelColorGrupos = {COM: 'success', INC: 'danger'};
-        var labelNameGrupos = {COM: 'Completo', INC: 'Incompleto'};
+        var labelNameGrupos = {COMP: 'Completo', INCOMP: 'Incompleto'};
         record.colorEstadoGrupos = labelColorGrupos[record.estadoGrupos];
         record.nameEstadoGrupos = labelNameGrupos[record.estadoGrupos];
 

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.horario.grupo;
 
 import java.util.List;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,14 @@ import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.Hora;
+import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,9 +40,12 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
 
+    @Autowired
+    TipoGrupoHorasDAO tipoGrupoHorasDAO;
+
     @Override
     public GrupoHoras findGrupoHoras(GrupoHoras grupoHoras) {
-        return grupoHorasDAO.find(grupoHoras.getId());
+        return grupoHorasDAO.find(grupoHoras);
     }
 
     @Override
@@ -96,6 +103,15 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     @Override
     @Transactional
     public void saveDiaHoraGrupo(DiaHoraGrupo diaHoraGrupo) {
+
+        GrupoHoras grupoHoras = grupoHorasDAO.find(diaHoraGrupo.getGrupoHorario());
+        TipoGrupoHoras tipoGrupoHoras = grupoHoras.getTipoGrupoHoras();
+
+        if (TipoGrupoHorasEnum.ESPECIAL.name().equalsIgnoreCase(tipoGrupoHoras.getTipo())) {
+            diaHoraGrupoDAO.save(diaHoraGrupo);
+            return;
+        }
+        diaHoraGrupo.setGrupoHorario(grupoHoras);
         DiaHoraGrupo diaHoraGrupoDb = diaHoraGrupoDAO.findByDiaHoraCiclo(diaHoraGrupo);
         if (diaHoraGrupoDb != null) {
             StringBuilder sb = new StringBuilder();
@@ -113,22 +129,44 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     }
 
     @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
-        return diaHoraGrupoDAO.allDiaHoraGrupo(grupoHoras, cicloAcademico);
+    public List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        return diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHoras, cicloAcademico);
     }
 
     @Override
     @Transactional
     public void desasignarHora(DiaHoraGrupo diaHoraGrupo) {
-        DiaHoraGrupo diaHoraGrupoDb = diaHoraGrupoDAO.findByDiaHoraCiclo(diaHoraGrupo);
-        if (diaHoraGrupoDb != null) {
-            diaHoraGrupoDAO.delete(diaHoraGrupoDb);
-        }
+        logger.debug("DELETE DIAHOARGRUPO {}", diaHoraGrupo.getId());
+        diaHoraGrupoDAO.delete(diaHoraGrupo);
     }
 
     @Override
     public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
         return diaHoraGrupoDAO.allDiaHoraGrupo(grupos);
+    }
+
+    @Override
+    public TipoGrupoHoras findTipoGrupoHoras(Long idTipoGrupo) {
+        return tipoGrupoHorasDAO.find(idTipoGrupo);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+        return diaHoraGrupoDAO.allDiaHoraGrupoByTipo(tipoGrupoHoras, cicloAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void gencolor() {
+
+        List<GrupoHoras> grupos = grupoHorasDAO.all();
+        for (GrupoHoras grupo : grupos) {
+            Random random = new Random();
+            int nextInt = random.nextInt(256 * 256 * 256);
+            String colorCode = String.format("#%06x", nextInt);
+            grupo.setColor(colorCode);
+            grupoHorasDAO.update(grupo);
+        }
     }
 
 }

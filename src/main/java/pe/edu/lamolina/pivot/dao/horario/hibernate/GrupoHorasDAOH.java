@@ -44,4 +44,13 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
                 .orderBy("gh.id desc");
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public GrupoHoras find(GrupoHoras grupoHoras) {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "grup")
+                .leftJoin("tipoGrupoHoras tgh")
+                .filter("grup.id", grupoHoras);
+        return (GrupoHoras) sql.find(getCurrentSession());
+    }
 }

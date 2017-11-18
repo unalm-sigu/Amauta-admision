@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum EstadoGrupoHorasEnum {
 
-    COM("Completo"), INC("Incompleto"),;
+    COMP("Completo"), INCOMP("Incompleto"),;
 
     private final String value;
     private static final Map<String, EstadoGrupoHorasEnum> lookup = new HashMap<>();

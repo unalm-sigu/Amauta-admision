@@ -7,6 +7,7 @@ import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.Hora;
+import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
 
 public interface GrupoHorasService {
 
@@ -30,10 +31,16 @@ public interface GrupoHorasService {
 
     void saveDiaHoraGrupo(DiaHoraGrupo diaHoraGrupo);
 
-    List<DiaHoraGrupo> allDiaHoraGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    public void desasignarHora(DiaHoraGrupo diaHoraGrupo);
+    void desasignarHora(DiaHoraGrupo diaHoraGrupo);
 
-    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+
+    TipoGrupoHoras findTipoGrupoHoras(Long idTipoGrupo);
+
+    List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+
+    public void gencolor();
 
 }

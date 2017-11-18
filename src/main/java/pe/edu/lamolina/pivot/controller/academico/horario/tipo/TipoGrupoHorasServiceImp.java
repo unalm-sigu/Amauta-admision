@@ -36,7 +36,7 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
         if (OficinaEstadoEnum.INA.name().equalsIgnoreCase(tipoGrupoDb.getEstado())) {
             tipoGrupoDb.setEstado(EstadoTipoGrupoHorasEnum.ACT.name());
         } else {
-            tipoGrupoDb.setEstado(EstadoTipoGrupoHorasEnum.DES.name());
+            tipoGrupoDb.setEstado(EstadoTipoGrupoHorasEnum.INA.name());
         }
         tipoGrupoHorasDAO.update(tipoGrupoDb);
     }
@@ -63,7 +63,7 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
 
         tipoGrupo.setTipo(TipoGrupoHorasEnum.REGULAR.name());
         tipoGrupo.setEstado(EstadoTipoGrupoHorasEnum.CRE.name());
-        tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INC.name());
+        tipoGrupo.setEstadoGrupos(EstadoGrupoHorasEnum.INCOMP.name());
 
         if (tipoGrupoHoras.isEmpty()) {
             tipoGrupo.setCodigo("HOR-001");

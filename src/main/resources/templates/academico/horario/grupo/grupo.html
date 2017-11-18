@@ -14,14 +14,14 @@
                 <a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>
             </div> 
 
-            <h2>Grupos</h2>
+            <h2 th:text="${ 'Grupo '+tipoGrupoHoras.codigo }" >Grupos</h2> 
 
         </header>
 
         <section class="panel">
             <section class="panel-body">
 
-                <input type="hidden" name="idTipoGrupo" th:value="${idTipoGrupo}" />
+                <input type="hidden" name="idTipoGrupo" th:value="${tipoGrupoHoras.id}" />
 
                 <div id="dynaTable"></div>
 

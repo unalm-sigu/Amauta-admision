@@ -13,4 +13,6 @@ public interface GrupoHorasDAO extends Crud<GrupoHoras> {
 
     List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo);
 
+    GrupoHoras find(GrupoHoras grupoHoras);
+
 }
