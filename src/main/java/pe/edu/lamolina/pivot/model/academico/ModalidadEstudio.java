@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.inscripcion.ModalidadIngreso;
+import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
 
 @Entity
 @Table(name = "aca_modalidad_estudio")
@@ -92,8 +93,15 @@ public class ModalidadEstudio implements Serializable {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public ModalidadEstudioEnum getCodigoEnum() {
+        if (codigo == null) {
+            return null;
+        }
+        return ModalidadEstudioEnum.valueOf(codigo);
+    }
+
+    public void setCodigo(ModalidadEstudioEnum codigo) {
+        this.codigo = codigo.name();
     }
 
     public List<Carrera> getCarrera() {
@@ -129,4 +137,3 @@ public class ModalidadEstudio implements Serializable {
     }
 
 }
-

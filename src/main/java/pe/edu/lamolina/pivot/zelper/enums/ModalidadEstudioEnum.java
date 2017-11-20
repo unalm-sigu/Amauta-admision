@@ -5,8 +5,8 @@ import java.util.Map;
 
 public enum ModalidadEstudioEnum {
 
-    PRE("Pre-Grado"),
-    EPG("Postgrado"),
+    PRE("Pregrado"),
+    EPG("Posgrado"),
     ESP("Especial"),
     VIS("Visitante");
 

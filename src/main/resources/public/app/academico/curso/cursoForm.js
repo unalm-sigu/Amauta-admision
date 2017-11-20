@@ -1,32 +1,47 @@
 $(function () {
 
     var CursoForm = {
+        idCurso: $("#idCurso").val(),
         init: function () {
+
             $(".numerico").numeric({negatice: false});
             $('[name="tipoCurso"]').select2({placeholder: "Seleccione el tipo curso"});
-            $('[name="modalidadEstudio.id"]').select2({placeholder: "Seleccione la modalidad de estudio"});
+
+            if (CursoForm.idCurso == '') {
+                $('[name="modalidadEstudio.id"]').select2({
+                    placeholder: "Seleccione la modalidad de estudio"
+                }).on("select2-selecting", function (e) {
+                    console.log("selecting val=" + e.val + " choice=" + JSON.stringify(e.choice));
+                });
+            }
             $('[name="tipoCurricula"]').select2({allowClear: true, placeholder: "Seleccione el tipo curricula"});
             $('[name="idIdioma"]').select2({placeholder: "Seleccione el idioma"});
 
-            if ($("[name='departamentoAcademico.id']").val() != '') {
-                CursoForm.loadCoordinadores($(this))
-            }
 
+            if ($("[name='departamentoAcademico.id']").val() != '') {
+                CursoForm.loadCoordinadores($("[name='departamentoAcademico.id']").val())
+            }
             CursoForm.loadDepartamentos();
 
-            var modEstudio = $("[name='modalidadEstudio.id']");
-            var modCodigo = modEstudio.find("option:selected").attr("rel");
 
-            if (modEstudio.val() != '' && modCodigo == 'PRE') {
-                CursoForm.loadNiveles(modEstudio);
+            //var modEstudio = $("[name='modalidadEstudio.id']");
+            var modCodigo = $("#codigoModalidad").val();
+            console.log(modCodigo)
+
+            if (modCodigo == 'PRE') {
+                //CursoForm.loadNiveles(modCodigo);
                 CursoForm.validarDivEspecialidad(modCodigo);
-            } else if (modEstudio.val() != '' && modCodigo == 'EPG') {
-                CursoForm.loadEspecialidades(modEstudio);
+            } else if (modCodigo == 'EPG') {
+                CursoForm.loadEspecialidades(modCodigo);
                 CursoForm.validarDivEspecialidad(modCodigo);
             }
 
         },
         loadDepartamentos: function () {
+            if (CursoForm.idCurso != '') {
+                return;
+            }
+
             $("[name='departamentoAcademico.id']").select2({
                 allowClear: true,
                 placeholder: "Seleccione un departamento",
@@ -53,7 +68,7 @@ $(function () {
                 },
                 formatResult: function (info) {
                     var data = '<span class="block bold">' + info.nombre + '</span>';
-                    data += '<span class="block"><strong>Facultad:</strong> ' + info.facultad + '</span>';
+                    data += '<span class="block">Facultad de ' + info.facultad + '</span>';
                     return data;
                 },
                 formatSelection: function (info) {
@@ -64,7 +79,7 @@ $(function () {
                 }
             });
         },
-        loadCoordinadores: function ($this) {
+        loadCoordinadores: function (idDpto) {
             $("[name='coordinador.id']").select2({
                 placeholder: "Seleccione un coordinador",
                 allowClear: true,
@@ -74,7 +89,7 @@ $(function () {
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
-                        return {dpto: $this.val(), nombre: term, page: page};
+                        return {dpto: idDpto, nombre: term, page: page};
                     },
                     results: function (response, page) {
                         return {results: response.data};
@@ -108,9 +123,17 @@ $(function () {
 
             form.submit();
         },
-        loadNiveles: function ($this) {
-            var codigo = $this.find("option:selected").attr("rel");
+        changeModalidad: function ($this, e) {
+            var codModalidad = $this.find(":selected").data("codigo");
+            $('[name="nivel"]').select2('val', "");
+            $('[name="carrera.id"]').select2("val", "");
+            $('[name="tipoCurricula"]').select2("val", "");
 
+            CursoForm.loadNiveles(codModalidad);
+            CursoForm.loadEspecialidades(codModalidad);
+        },
+        loadNiveles: function (codigo) {
+            console.log("creando niveles")
             $('[name="nivel"]').select2({
                 allowClear: true,
                 placeholder: "Seleccione",
@@ -146,8 +169,7 @@ $(function () {
                 }
             });
         },
-        loadEspecialidades: function ($this) {
-            var codigo = $this.find("option:selected").attr("rel");
+        loadEspecialidades: function (codigo) {
             CursoForm.validarDivEspecialidad(codigo);
             $('[name="carrera.id"]').select2({
                 allowClear: true,
@@ -174,7 +196,7 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    var data = '<span class="block text-black bold">' + info.nombre + ' - ' + info.codigo + '</span>';
+                    var data = '<span class="block bold">' + info.nombre + ' - ' + info.codigo + '</span>';
                     data += '<span class="block"> ' + (info.tipoEstudio != '' ? (info.tipoEstudio + ' - ') : '') + info.modalidadEstudio + '</span>';
                     return data;
                 },
@@ -260,17 +282,12 @@ $(function () {
     $("body").delegate("[name='tipoCurricula']", "change", function () {
         $(this).parsley().destroy();
     });
-    $("body").delegate("[name='modalidadEstudio.id']", "change", function () {
-        $(this).parsley().destroy();
-        $('[name="nivel"]').select2('val', "");
-        $('[name="carrera.id"]').select2("val", "");
-        $('[name="tipoCurricula"]').select2("val", "");
-        CursoForm.loadNiveles($(this));
-        CursoForm.loadEspecialidades($(this));
+    $("body").delegate("[name='modalidadEstudio.id']", "change", function (e) {
+        CursoForm.changeModalidad($(this), e);
     });
     $("body").delegate("[name='departamentoAcademico.id']", "change", function () {
         $(this).parsley().destroy();
-        CursoForm.loadCoordinadores($(this));
+        CursoForm.loadCoordinadores($(this).val());
     });
     $("body").delegate(".add-idioma", "click", function () {
         CursoForm.addIdioma();
