@@ -72,7 +72,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
-        model.addAttribute("resumen", service.resumen());
+        model.addAttribute("resumen", service.contadorByAnexoCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
 

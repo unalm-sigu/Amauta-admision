@@ -94,5 +94,14 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filterIn("gs.id", gruposSeccion);
         return all(sqlUtil);
     }
+    
+    @Override
+    public List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion) {
+        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
+                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
+                .parents("left _s.aula", "left _s.grupoHoras")
+                .filterIn("gs.id", gruposSeccion);
+        return all(sqlUtil);
+    }
 
 }

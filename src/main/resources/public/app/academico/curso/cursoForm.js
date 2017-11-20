@@ -66,8 +66,8 @@ $(function () {
         },
         loadCoordinadores: function ($this) {
             $("[name='coordinador.id']").select2({
-                allowClear: true,
                 placeholder: "Seleccione un coordinador",
+                allowClear: true,
                 minimumInputLength: 1,
                 ajax: {
                     url: APP.url("comun/buscar/allCoordinadores"),
@@ -223,8 +223,23 @@ $(function () {
         deleteRowIdioma: function ($this) {
             var tr = $this.closest("tr");
             tr.remove();
+        },
+        validandoHoras: function ($this) {
+            var tipo = $this.val();
+            if (tipo == 'TEO') {
+                $('[name="horasTeoria"]').attr("required", true);
+                $('[name="horasPractica"]').attr("readonly", true);
+                $('[name="horasPractica"]').val(0);
+            }else if(tipo == 'TEO'){
+                $('[name="horasTeoria"]').attr("required", true);
+                $('[name="horasPractica"]').attr("readonly", true);
+                $('[name="horasPractica"]').val(0);    
+            }
+
         }
+
     };
+
     CursoForm.init();
 
     $("body").delegate(".save-update-curso", "click", function (e) {
@@ -265,5 +280,8 @@ $(function () {
     });
     $("body").delegate(".delete-idioma", "click", function () {
         CursoForm.deleteRowIdioma($(this));
+    });
+    $("body").delegate('[name="tipoCurso"]', "change", function () {
+        CursoForm.validandoHoras($(this));
     });
 });

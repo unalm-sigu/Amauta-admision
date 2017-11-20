@@ -17,7 +17,7 @@ public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
 
     List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum);
 
-  List<GrupoSeccion> allByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter filter);
+    List<GrupoSeccion> allByFilter(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter filter);
 
     List<GrupoSeccion> allByPlan(PlanCalificacion plan);
 
@@ -29,6 +29,6 @@ public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
 
     List<GrupoSeccion> allByDynatable(pe.albatross.octavia.dynatable.DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public GpoSeccionResumen resumen();
+    GpoSeccionResumen contadorByAnexoCiclo(CicloAcademico ciclo);
 
 }
