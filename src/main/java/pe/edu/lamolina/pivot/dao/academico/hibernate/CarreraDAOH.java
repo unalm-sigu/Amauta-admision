@@ -10,6 +10,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
@@ -61,4 +63,14 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
                 .filter("ca.nombre", "like", nombre);
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<Carrera> allByFilter(Facultad facultad, EstadoEnum estadoEnum) {
+        SqlUtil sqlUtil = new SqlUtil("ca")
+                .parents("facultad fa")
+                .filter("fa.id", facultad)
+                .filter("ca.estado", estadoEnum.name());
+        return all(sqlUtil);
+    }
+
 }

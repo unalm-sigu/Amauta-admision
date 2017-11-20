@@ -1,0 +1,52 @@
+<section class="panel-body container">
+    <div class="form-group">
+        <label for="cboCarrera">Carrera</label>
+        <select class="form-control" 
+                id="cboCarrera"
+                name="carrera.id"
+                required="">
+            <option value="">Seleccione</option> 
+            <option  th:each="item : ${carrerasFacultad}" 
+                     th:selected="${planCurricular.carrera.id==item.id}"
+                     th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="cboOrientacion">Orienacion</label>
+        <select class="form-control" 
+                id="cboOrientacion"
+                name="orientacionCarrera.id">
+        </select>
+    </div>
+    <div class="form-group">
+        <label >Fecha Aprobación</label>
+
+
+        <div id='dateFechaVig' class="input-group date">
+            <input type="text" name="fechaAprobado"
+                   id="inpDateFechaVig"
+                   th:value="${planCurricular.fechaAprobado}? ${#dates.format(planCurricular.fechaAprobado,'dd/MM/yyyy')}" 
+                   data-parsley-errors-container="#errorfecha"
+                   required="true"
+                   class="form-control"/>
+            <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
+        </div>
+
+        <span id="errorfecha"></span>
+
+    </div>
+    <div class="form-group">
+        <label >Inicio Ciclo Vigencia</label>
+        <select class="form-control" 
+                id="cboOrientacion"
+                name="cicloInicioVigencia.id"
+                required="">
+            <option value="">Seleccione</option> 
+            <option  th:each="item : ${ciclosAcademicos}" 
+                     th:selected="${planCurricular.cicloInicioVigencia.id==item.id}"
+                     th:value="${item.id}"
+                     th:text="${item.codigo +' - '+ item.descripcion}"></option>
+        </select>
+    </div>
+
+</section>

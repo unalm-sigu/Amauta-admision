@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum;
 
 @Entity
 @Table(name = "aca_tipo_curso_curricula")
@@ -90,5 +94,40 @@ public class TipoCursoCurricula implements Serializable {
         this.resumenPlanCurricular = resumenPlanCurricular;
     }
 
-}
+    public boolean isTieneRequisitos() {
+        if (TipoCursoCurriculaEnum.OBL.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.GEN.name().equals(this.getCodigo())) {
+            return true;
+        }
+        return false;
+    }
 
+    public boolean isTieneCreditoManual() {
+        /*
+        if (TipoCursoCurriculaEnum.ELC.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.ELF.name().equals(this.getCodigo())
+                || TipoCursoCurriculaEnum.ELE.name().equals(this.getCodigo())) {
+         */
+        if (Arrays.asList(TipoCursoCurriculaEnum.ELC.name(), TipoCursoCurriculaEnum.ELF.name(), TipoCursoCurriculaEnum.ELE.name()).contains(this.getCodigo())) {
+            return true;
+        }
+        return false;
+    }
+
+    public List<TipoCurriculaEnum> getTiposCursoCurricula() {
+        List<TipoCurriculaEnum> tiposCurricula = null;
+        if (Arrays.asList(TipoCursoCurriculaEnum.GEN.name(), TipoCursoCurriculaEnum.OBL.name()).contains(this.getCodigo())) {
+            tiposCurricula = new ArrayList<>();
+            tiposCurricula.add(TipoCurriculaEnum.ADIC);
+            tiposCurricula.add(TipoCurriculaEnum.REG);
+        }
+        if (Arrays.asList(TipoCursoCurriculaEnum.ELC.name(),
+                TipoCursoCurriculaEnum.ELE.name(),
+                TipoCursoCurriculaEnum.ELF.name()).contains(this.getCodigo())) {
+            tiposCurricula = new ArrayList<>();
+            tiposCurricula.add(TipoCurriculaEnum.COMD);
+        }
+        return tiposCurricula;
+    }
+
+}

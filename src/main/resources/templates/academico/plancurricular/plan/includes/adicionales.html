@@ -1,0 +1,46 @@
+<section class="panel-body">
+
+    <section class="panel">
+        <section class="panel-body">
+            <div class="pull-right" >
+                <a class="btn btn-success agregar-curso-adc" href="#" >Agregar Curso Adicional</a>
+            </div>
+        </section>
+
+        <section class="panel-body">
+
+            <table id="dynaTableCurAdc" class="table table-striped">
+                <thead class="panel panel-heading">
+                    <tr>
+                        <th class="col-md-4 text-center">Código Curso</th>
+                        <th class="col-md-4 text-center">Curso</th>
+                        <th class="col-md-3 text-center">Creditos</th>
+                        <th class="col-md-1 text-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+        </section>
+
+    </section>
+
+</section>
+
+
+        <script id="templateCursoCurriculaAdc" type="text/x-jsrender" class="hide"><tr rel="{{:index}}">
+    <td class="v-middle text-left col-md-4" rel="{{:index}}">
+    <span name="codigoCurCur{{:index}}">{{:cursoCodigo}}</span>
+    
+    </td>
+    <td class="v-middle text-left col-md-4">
+    <span>{{:cursoNombre}}</span>
+    </td>
+    <td class="v-middle text-left col-md-3">
+    <span>{{:cursoCreditos}}</span>
+    </td>
+    <td class="col-md-1">
+    <a  rel="{{:index}}" class="btn btn-default delete-cur-adc"><i class="fa fa-times text-danger"></i></a>
+    </td>
+    </tr></script>

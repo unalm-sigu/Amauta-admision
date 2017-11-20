@@ -48,7 +48,7 @@ public class Curso implements Serializable {
 
     @Column(name = "horas_practica")
     private Integer horasPractica;
-    
+
     @Column(name = "horas_teoria_verano")
     private Integer horasTeoriaVerano;
 
@@ -77,6 +77,9 @@ public class Curso implements Serializable {
 
     @Column(name = "user_plan_calificacion")
     private Long userPlanCalificacion;
+
+    @Column(name = "tipo_curricula")
+    private String tipoCurricula;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
@@ -422,6 +425,14 @@ public class Curso implements Serializable {
 
     public void setHorasPracticaVerano(Integer horasPracticaVerano) {
         this.horasPracticaVerano = horasPracticaVerano;
+    }
+
+    public String getTipoCurricula() {
+        return tipoCurricula;
+    }
+
+    public void setTipoCurricula(String tipoCurricula) {
+        this.tipoCurricula = tipoCurricula;
     }
 
 }

@@ -12,4 +12,6 @@ public interface CicloAcademicoDAO extends Crud<CicloAcademico> {
 
     CicloAcademico findAnteriorRegular(CicloAcademico ciclo);
 
+    List<CicloAcademico> allRecientes(Integer year, Integer maxResultado);
+
 }

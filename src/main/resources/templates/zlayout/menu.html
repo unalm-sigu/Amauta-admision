@@ -35,9 +35,14 @@
                 <div class="menu-section">
                     <ul>
                         <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
-                            
                             <a th:href="@{/academico/systemcalifica/sistema}">
                                 <i class="fa fa-check-square"></i><span>Sist. Calificación</span>
+                            </a>
+                        </li>
+
+                        <li class="option" th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                            <a th:href="@{/academico/planCurricular/plan}">
+                                <i class="fa fa-check-square"></i><span>Plan Estudios</span>
                             </a>
                         </li>
 

@@ -1,0 +1,19 @@
+<form id="frmAgregarCursoAdc" >
+
+    <input  id="txtPlanCurricularAdc" 
+            name="planCurricular.id" 
+            type="hidden" 
+            th:value="${planCurricular.id}"/>
+
+
+    <div class="form-group">
+        <label for="txtTipo">Curso</label>
+
+        <input id="cboCursoAdc" class="form-control" 
+               type="text" 
+               name="curso.id"
+               required="yes"/>
+    </div>
+
+
+</form>
