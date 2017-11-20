@@ -1015,4 +1015,7 @@ div.notas {
   border-left:  1px solid #eaeef1;
   border-right: 1px solid #eaeef1;
 }
+.table-fixed > tbody{
+  border-bottom:  1px solid #eaeef1;
+}
 
