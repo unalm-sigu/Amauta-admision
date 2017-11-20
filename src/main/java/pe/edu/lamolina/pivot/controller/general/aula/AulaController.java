@@ -100,17 +100,17 @@ public class AulaController {
                 node.put("id", aula.getId());
                 node.put("codigo", aula.getCodigo());
                 node.put("nombre", aula.getNombre());
-                node.put("tipoAmbienteName", aula.getTipoAmbiente());
-                node.put("tipoAmbiente", TipoAmbienteEnum.valueOf(aula.getTipoAmbiente()).getValue());
+                node.put("tipoAmbienteName", aula.getTipoAmbiente() != null ? aula.getTipoAmbiente() : "");
+                node.put("tipoAmbiente", aula.getTipoAmbiente() != null ? TipoAmbienteEnum.valueOf(aula.getTipoAmbiente()).getValue() : "");
                 node.put("piso", aula.getPiso());
                 node.put("pisos", aula.getPisos());
                 node.put("aforo", aula.getAforo());
                 node.put("capacidad", aula.getCapacidadAula());
-                node.put("sede", aula.getSede().getNombre());
+                node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
                 node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
-                node.put("gestor", aula.getOficinaSupervisora().getNombre());
+                node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
                 node.put("estado", aula.getEstado());
-                node.put("estadoName", EstadoEnum.valueOf(aula.getEstado()).getValue());
+                node.put("estadoName", aula.getEstado() != null ? EstadoEnum.valueOf(aula.getEstado()).getValue() : "");
                 node.put("motivo", aula.getMotivoAnulacion());
 
                 array.add(node);
