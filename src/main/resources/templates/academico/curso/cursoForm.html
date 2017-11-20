@@ -44,7 +44,7 @@
                                         <option></option>
                                         <option th:each="item : ${modalidadesEstudio}"
                                                 th:value="${item.id}" 
-                                                th:rel="${item.codigo}"
+                                                th:attr="data-codigo=${item.codigo}"
                                                 th:text="${item.nombre}"/>
                                     </select>
                                     <span th:if="${curso.id}" class='form-control' th:text="${curso.modalidadEstudio.nombre}" ></span>
@@ -187,8 +187,9 @@
                             <div class="col-lg-12">
                                 <div class="form-group">
                                     <label>Coordinador</label>
-                                    <input type='text' name="coordinador.id" class='form-control' th:value="${curso.coordinador != null} ? ${curso.coordinador.id}:''"
-                                           th:rel="${curso.id != null and curso.coordinador != null} ? ${curso.coordinador.persona.nombreCompleto}:''" required="true" data-trigger="change" />
+                                    <input type='text' name="coordinador.id" class='form-control' required="true" data-trigger="change"
+                                           th:value="${curso.coordinador != null} ? ${curso.coordinador.id}:''"
+                                           th:rel="${curso.id != null and curso.coordinador != null} ? ${curso.coordinador.persona.nombreCompleto}:''"  />
                                 </div>
                             </div>
                         </div>

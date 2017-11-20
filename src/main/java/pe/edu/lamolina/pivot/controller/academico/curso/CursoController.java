@@ -117,7 +117,7 @@ public class CursoController {
 
                 array.add(node);
             }
-            
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -140,10 +140,14 @@ public class CursoController {
 
         Compania cia = ds.getCompania();
 
+        List tiposCurricula = new ArrayList();
+        tiposCurricula.add(TipoCurriculaEnum.REG);
+        tiposCurricula.add(TipoCurriculaEnum.ADIC);
+
         model.addAttribute("curso", curso);
         model.addAttribute("tiposCurso", TipoCursoEnum.values());
         model.addAttribute("modalidadesEstudio", service.modalidadesEstudioPrePost(cia));
-        model.addAttribute("tiposCurricula", TipoCurriculaEnum.values());
+        model.addAttribute("tiposCurricula", tiposCurricula);
         model.addAttribute("idiomas", service.allIdiomas());
 
         return "academico/curso/cursoForm";
@@ -175,11 +179,15 @@ public class CursoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
 
+        List tiposCurricula = new ArrayList();
+        tiposCurricula.add(TipoCurriculaEnum.REG);
+        tiposCurricula.add(TipoCurriculaEnum.ADIC);
+
         Curso curso = service.find(id);
         model.addAttribute("curso", curso);
         model.addAttribute("tiposCurso", TipoCursoEnum.values());
         model.addAttribute("modalidadesEstudio", service.modalidadesEstudioPrePost(cia));
-        model.addAttribute("tiposCurricula", TipoCurriculaEnum.values());
+        model.addAttribute("tiposCurricula", tiposCurricula);
         model.addAttribute("idiomas", service.allIdiomas());
 
         return "academico/curso/cursoForm";
