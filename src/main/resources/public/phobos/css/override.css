@@ -989,24 +989,30 @@ div.notas {
 
 /*style table horario*/
 
-/*.panel-body-table{
-    height:200px !important;
-    overflow-y:scroll !important;
+.table-fixed {
+  width: 100%;
+}
+.table-fixed tbody {
+  height: 400px;
+  overflow-y: auto;
+  width: 100%;
+}
+.table-fixed thead, 
+.table-fixed tbody, 
+.table-fixed tr, 
+.table-fixed td, 
+.table-fixed th {
+  display: block;
+}
+.table-fixed tbody td {
+  float: left;
+}
+.table-fixed thead tr th {
+  float: left;
 }
 
-.table-fixed{
-    tbody{
-        height:200px !important;
-        overflow-y:auto !important;
-        width: 100%;
-    }
-    thead,tbody,tr,td,th{
-        display:block;
-    }
-    tbody{
-        td{
-            float:left;
-        }
-    }
-}*/
+.table-fixed > tbody > tr > td{
+  border-left:  1px solid #eaeef1;
+  border-right: 1px solid #eaeef1;
+}
 

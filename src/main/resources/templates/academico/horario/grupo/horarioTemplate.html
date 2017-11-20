@@ -1,20 +1,31 @@
 <section class="panel">
     <section class="panel-body" >
-        <table class="table" >
-            <thead>
-                <tr>
-                    <th style="width: 12.5%"></th>
-                    <th style="width: 12.5%" th:each="dia : ${dias}" th:text="${dia.nombre}"> </th>
-                </tr>
-            </thead>
-        </table>
 
-        <div style="height:400px;overflow-y:scroll;">
 
-            <table class="table table-bordered" >
+        <div class="table-responsive">
+
+            <table class="table table-fixed" >
+
+                <thead>
+                    <tr>
+                        <th style="width: 12.5%" class="text-center">Hora</th>
+                        <th style="width: 12.5%" class="text-center" th:each="dia : ${dias}" th:text="${dia.nombre}" >
+                        </th>
+                    </tr>
+                </thead>
+
                 <tbody>
                     <tr th:each="hora : ${horas}"  th:inline="text">
-                        <td style="width: 12.5%"> [[${hora.descripcion}]]</td>
+                        <td style="width: 12.5%" class="v-middle">
+
+                            <span 
+                                class="form-control"
+                                th:style="'border-color:#fff;'"
+                                >
+                                [[${hora.descripcion}]]
+                            </span>
+
+                        </td>
                         <td style="width: 12.5%" th:each="diaHora : ${hora.diaHoraGrupo}">
                             <span 
                                 class="form-control pointer text-center"
