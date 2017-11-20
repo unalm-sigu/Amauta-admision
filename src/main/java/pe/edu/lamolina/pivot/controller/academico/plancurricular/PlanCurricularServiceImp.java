@@ -231,4 +231,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoOpcionalCurriculaDAO.delete(new CursoOpcionalCurricula(cursoOpcionalId));
     }
 
+    @Override
+    public List<Curso> allCursosByCodigo(String codigo) {
+        return cursoDAO.allByCodigo(codigo);
+    }
+
 }

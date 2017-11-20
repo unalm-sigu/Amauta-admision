@@ -59,4 +59,6 @@ public interface PlanCurricularService {
 
     void deleteCursoOpcional(Long cursoOpcionalId);
 
+    List<Curso> allCursosByCodigo(String codigo);
+
 }

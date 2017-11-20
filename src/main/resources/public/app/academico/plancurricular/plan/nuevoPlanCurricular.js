@@ -201,8 +201,6 @@ $(function () {
                     MODAL.body(response);
                     $("#txtNumeroCiclo").val(NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
 
-
-
                     $.ajax({
                         url: APP.url('academico/planCurricular/plan/' + $("#txtTipoCurCur").val() + '/cambiarTipoCursoCurricula'),
                         type: 'POST',
@@ -267,6 +265,23 @@ $(function () {
                         $("#cboCursoAdc").val(e.object.id);
                     });
 
+
+                    $.ajax({
+                        url: APP.url('academico/planCurricular/plan/cursoPorTipoCurricula'),
+                        type: 'POST',
+                        async: false,
+                        data: {
+                            tipoCurricula: "ADIC"
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                $("#cboCursoAdc").select2("data", response.data);
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        }
+                    });
 
 
                 },
@@ -380,6 +395,10 @@ $(function () {
                             if (response.data.tieneCreditoManual) {
                                 $('#txtCreditos').prop("readonly", false);
                                 $("#txtCreditos").val("");
+                            }
+                            if (response.data.cursoDefault != null && response.data.cursoDefault != undefined) {
+                                $("#txtCurso").val(response.data.cursoDefault.id);
+                                $("#cboCurso").select2("data", response.data.cursoDefault);
                             }
                         },
                         error: function () {

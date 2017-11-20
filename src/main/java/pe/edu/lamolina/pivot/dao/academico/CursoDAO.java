@@ -26,4 +26,6 @@ public interface CursoDAO extends Crud<Curso> {
 
     List<Curso> allByNombreFilter(String nombre, List<String> tiposCurriculaEnum, Integer limit);
 
+    List<Curso> allByCodigo(String codigo);
+
 }
