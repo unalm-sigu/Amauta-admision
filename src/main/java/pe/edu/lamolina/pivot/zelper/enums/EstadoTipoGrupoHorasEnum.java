@@ -3,19 +3,20 @@ package pe.edu.lamolina.pivot.zelper.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum TipoCicloEnum {
-    NIV("Nivelacion"), REG("Regular"), AMB("Ambos");
+public enum EstadoTipoGrupoHorasEnum {
+
+    ACT("Activo"),  CRE("Creado"), INA("Inactivo");
 
     private final String value;
-    private static final Map<String, TipoCicloEnum> lookup = new HashMap<>();
+    private static final Map<String, EstadoTipoGrupoHorasEnum> lookup = new HashMap<>();
 
     static {
-        for (TipoCicloEnum d : TipoCicloEnum.values()) {
+        for (EstadoTipoGrupoHorasEnum d : EstadoTipoGrupoHorasEnum.values()) {
             lookup.put(d.getValue(), d);
         }
     }
 
-    private TipoCicloEnum(String value) {
+    private EstadoTipoGrupoHorasEnum(String value) {
         this.value = value;
     }
 
@@ -23,18 +24,17 @@ public enum TipoCicloEnum {
         return value;
     }
 
-    public static TipoCicloEnum get(String abbreviation) {
+    public static EstadoTipoGrupoHorasEnum get(String abbreviation) {
         return lookup.get(abbreviation);
     }
 
     public static String getNombre(String nombre) {
 
-        for (TipoCicloEnum d : TipoCicloEnum.values()) {
+        for (EstadoTipoGrupoHorasEnum d : EstadoTipoGrupoHorasEnum.values()) {
             if (d.name().equalsIgnoreCase(nombre)) {
                 return d.getValue();
             }
         }
         return nombre;
     }
-
 }

@@ -6,7 +6,6 @@ $(function () {
             perPageDefault: 10
         },
         writers: {_rowWriter: ulWriter},
-        features: {pushState: false},
         table: {bodyRowSelector: 'tbody tr'}
     }).data('dynatable');
 

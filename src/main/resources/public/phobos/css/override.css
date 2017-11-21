@@ -968,11 +968,54 @@ div.notas {
 
 /*imgen xl*/
 .thumb-xlg {
-  width: 200px;
-  display: inline-block;
+    width: 200px;
+    display: inline-block;
 }
 .thumb-xlg img {
-  height: auto;
-  max-width: 100%;
-  vertical-align: middle;
+    height: auto;
+    max-width: 100%;
+    vertical-align: middle;
 }
+/*colorpicker remove panel alpha*/
+.colorpicker-alpha {display:none !important;} .colorpicker{ min-width:128px !important;}
+/*style horario*/
+
+.grupoactivo{
+    background-color: #b7e6ff;
+}
+.asignar-hora{
+    border-width: 2px
+}
+
+/*style table horario*/
+
+.table-fixed {
+  width: 100%;
+}
+.table-fixed tbody {
+  height: 400px;
+  overflow-y: auto;
+  width: 100%;
+}
+.table-fixed thead, 
+.table-fixed tbody, 
+.table-fixed tr, 
+.table-fixed td, 
+.table-fixed th {
+  display: block;
+}
+.table-fixed tbody td {
+  float: left;
+}
+.table-fixed thead tr th {
+  float: left;
+}
+
+.table-fixed > tbody > tr > td{
+  border-left:  1px solid #eaeef1;
+  border-right: 1px solid #eaeef1;
+}
+.table-fixed > tbody{
+  border-bottom:  1px solid #eaeef1;
+}
+

@@ -59,6 +59,12 @@
                         </li>
 
                         <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a th:href="@{/academico/horario}">
+                                <i class="fa fa-users"></i><span>Horario</span>
+                            </a>
+                        </li>
+
+                        <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a th:href="@{/general/personaperfil}">
                                 <i class="fa fa-users"></i><span>Colaboradores</span>
                             </a>
@@ -69,13 +75,13 @@
                                 <i class="fa fa-users"></i><span>Personas</span>
                             </a>
                         </li>
-                        
+
                         <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a th:href="@{/academico/alumno}">
                                 <i class="fa fa-graduation-cap"></i><span>Alumnos</span>
                             </a>
                         </li>
-                        
+
                         <li class="option"  th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a th:href="@{/academico/matriculable}">
                                 <i class="fa fa-graduation-cap"></i><span>Matriculables</span>

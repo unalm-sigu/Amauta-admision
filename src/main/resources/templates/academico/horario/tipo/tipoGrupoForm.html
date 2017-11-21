@@ -1,0 +1,36 @@
+<form method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
+
+    <input type="hidden" name="id" th:value="${tipoGrupo.id}"/>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label" >Descripción</label>
+        <div class="col-sm-6">
+            <input  type="text" 
+                    name="codigo" 
+                    th:value="${tipoGrupo.descripcion}"
+                    required='true'
+                    maxlength="100"
+                    data-trigger="change"
+                    class="form-control"/>
+        </div>
+    </div>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label">Tipo Ciclo</label>
+
+        <div class="col-sm-6">
+            <select name="tipoCiclo" 
+                    required="true" 
+                    class="form-control" >
+                <option></option>
+                <option th:each="item : ${tipoCiclos}"  
+                        th:text="${item.value}"
+                        th:selected="${tipoGrupo.tipoCiclo!=null} ? ${tipoGrupo.tipoCiclo==item.name()}"
+                        th:value="${item.name()}" ></option>
+            </select>
+        </div>
+
+    </div>
+</form>
