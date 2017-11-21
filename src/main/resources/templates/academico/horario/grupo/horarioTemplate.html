@@ -1,0 +1,46 @@
+<section class="panel">
+    <section class="panel-body" >
+
+
+        <div class="table-responsive">
+
+            <table class="table table-fixed" >
+
+                <thead>
+                    <tr>
+                        <th style="width: 12.5%" class="text-center">Hora</th>
+                        <th style="width: 12.5%" class="text-center" th:each="dia : ${dias}" th:text="${dia.nombre}" >
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="hora : ${horas}"  th:inline="text">
+                        <td style="width: 12.5%" class="v-middle">
+
+                            <span 
+                                class="form-control"
+                                th:style="'border-color:#fff;'"
+                                >
+                                [[${hora.descripcion}]]
+                            </span>
+
+                        </td>
+                        <td style="width: 12.5%" th:each="diaHora : ${hora.diaHoraGrupo}">
+                            <span 
+                                class="form-control pointer text-center"
+                                th:classappend="|${diaHora.grupoHorario.id==null ? 'asignar-hora' : 'desasignar-hora'}|"
+                                th:style="'border-color:'+${diaHora.grupoHorario.color}+';'"
+                                th:rel="${diaHora.hora.id}" 
+                                th:text="${diaHora.grupoHorario.codigo}"
+                                th:attr="data-id=${diaHora.id},data-idgrupo=${diaHora.grupoHorario.id}"
+                                th:rev="${diaHora.dia.id}">
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+</section>

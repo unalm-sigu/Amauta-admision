@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -55,9 +56,19 @@ public class AnexoBoletinServiceImp implements AnexoBoletinService {
     @Override
     @Transactional
     public void save(AnexoBoletin anexo, Usuario usuario) {
-        anexo.setCodigo("COD001");
-        anexo.setEstado(EstadoEnum.CRE.name());
-        anexoBoletinDAO.save(anexo);
+        ObjectUtil.eliminarAttrSinId(anexo, "departamentoAcademico");
+        ObjectUtil.eliminarAttrSinId(anexo, "carrera");
+        if (anexo.getId() == null) {
+            anexo.setCodigo("COD001");
+            anexo.setEstado(EstadoEnum.CRE.name());
+            anexoBoletinDAO.save(anexo);
+        } else {
+            AnexoBoletin anexoBD = anexoBoletinDAO.find(anexo.getId());
+            anexoBD.setNombre(anexo.getNombre());
+            anexoBD.setDepartamentoAcademico(anexo.getDepartamentoAcademico());
+            anexoBD.setCarrera(anexo.getCarrera());
+            anexoBoletinDAO.update(anexoBD);
+        }
     }
 
     @Override
@@ -79,7 +90,7 @@ public class AnexoBoletinServiceImp implements AnexoBoletinService {
         }
         anexoBoletinDAO.update(anexoBD);
     }
-    
+
     @Override
     public AnexoResumen resumen() {
         return anexoBoletinDAO.resumen();

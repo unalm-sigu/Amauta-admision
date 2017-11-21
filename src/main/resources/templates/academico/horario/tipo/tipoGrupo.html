@@ -1,0 +1,39 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Tipo Grupos</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <a class="btn btn-primary" type="button" id="nuevo" href="#" >Nuevo</a>
+            </div>  
+
+            <h2>Tipo Grupos</h2>
+            
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+                <div id="dynaTable">
+                </div>
+            </section>
+        </section>
+
+        <script id="tipoGrupoTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="academico/horario/tipo/tipoGrupoTemplate"></div>
+        </script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/horario/tipogrupo/tipogrupo.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

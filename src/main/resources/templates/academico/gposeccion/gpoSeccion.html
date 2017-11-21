@@ -1,0 +1,99 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Grupo Sección</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <style>
+        .td-vacio {
+            padding-right: 4px !important;
+            padding-left: 4px !important;
+        }
+        .bg-row {
+            background-color: #f9fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <!--                <div class="btn-group">
+                                    <a type="button" class="btn btn-success" th:href="@{/academico/anexo/nuevo}" >Nuevo</a>
+                                </div>-->
+            </div> 
+            <h2>Grupo Sección</h2>
+        </header>
+
+        <section class="panel m-b-xs">
+            <section class="panel-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-danger" rel="ingresantes">
+                            <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
+                            <small class="block m-b-xs">Ingresantes</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-black" rel="departamentos">
+                            <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
+                            <small class="block m-b-xs">Departamentos</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-success" rel="postGrados">
+                            <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
+                            <small class="block m-b-xs">Posgrado</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-warning" rel="actividades">
+                            <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
+                            <small class="block m-b-xs">Actividades Deportivas</small>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+
+
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <table class="table" id="dynaTable">
+                    <thead> 
+                        <tr> 
+                            <th class="col-md-4"></th>
+                            <th class="col-md-1 text-center">Clave</th>
+                            <th class="col-md-1 text-center">Aula Grupo</th>
+                            <th class="col-md-1 text-center">Vac. Mat.</th>
+
+
+                            <th class="td-vacio"></th>
+                            <th class="td-vacio"></th>
+                            <th class="col-md-3 text-center">Docente</th>
+                            <th class="col-md-1 text-center">% Carga </th>
+
+                            <th class="col-md-1 text-center">Restricción</th>
+                            <th class="col-md-1">Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+        </section>
+
+        <script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/gposeccion/gposeccion.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

@@ -27,6 +27,7 @@ $(function () {
 
     var Anexo = {
         form: null,
+        divSeleccionado: null,
         viewModal: function (e, $this) {
             e.preventDefault();
 
@@ -73,11 +74,23 @@ $(function () {
         },
         viewCount: function ($this, e) {
             e.preventDefault();
-            var grupo = $this.attr("rel");
-            dynatable.queries.add("ass.id", grupo);
+            var div = $this.closest("div");
+            var classColor = 'bg-light';
+            var tieneBgColor = div.hasClass(classColor);
+            dynatable.queries.remove("ass.id");
 
+            if (Anexo.divSeleccionado != null) {
+                Anexo.divSeleccionado.removeClass(classColor);
+                Anexo.divSeleccionado = null;
+            }
+
+            if (!tieneBgColor) {
+                div.addClass(classColor);
+                Anexo.divSeleccionado = div;
+                var grupo = $this.attr("rel");
+                dynatable.queries.add("ass.id", grupo);
+            }
             dynatable.process();
-
         }
 
     }

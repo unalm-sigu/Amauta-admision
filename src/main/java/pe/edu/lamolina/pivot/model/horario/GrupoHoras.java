@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -30,11 +32,18 @@ public class GrupoHoras implements Serializable {
     @Column(name = "tipo_ciclo")
     private String tipoCiclo;
 
-    @Column(name = "tipo_grupo_horas")
-    private String tipoGrupoHoras;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_grupo_horas")
+    private TipoGrupoHoras tipoGrupoHoras;
 
     @Column(name = "tipo_seccion")
     private String tipoSeccion;
+
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "con_horario")
+    private String conHorario;
 
     @OneToMany(mappedBy = "grupoHoras", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
@@ -81,12 +90,20 @@ public class GrupoHoras implements Serializable {
         this.tipoCiclo = tipoCiclo;
     }
 
-    public String getTipoGrupoHoras() {
+    public TipoGrupoHoras getTipoGrupoHoras() {
         return tipoGrupoHoras;
     }
 
-    public void setTipoGrupoHoras(String tipoGrupoHoras) {
+    public void setTipoGrupoHoras(TipoGrupoHoras tipoGrupoHoras) {
         this.tipoGrupoHoras = tipoGrupoHoras;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public String getTipoSeccion() {
@@ -113,5 +130,12 @@ public class GrupoHoras implements Serializable {
         this.diaHoraGrupo = diaHoraGrupo;
     }
 
-}
+    public String getConHorario() {
+        return conHorario;
+    }
 
+    public void setConHorario(String conHorario) {
+        this.conHorario = conHorario;
+    }
+
+}

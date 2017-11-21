@@ -31,7 +31,6 @@ public enum TipoCurriculaEnum {
     }
 
     public static String getNombre(String nombre) {
-
         for (TipoCurriculaEnum d : TipoCurriculaEnum.values()) {
             if (d.name().equalsIgnoreCase(nombre)) {
                 return d.getValue();

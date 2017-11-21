@@ -161,6 +161,7 @@ public class BuscarController {
 
                 json.put("id", departamento.getId());
                 json.put("nombre", departamento.getNombre());
+                json.put("facultad", departamento.getFacultad().getNombre());
 
                 jsonList.add(json);
 
@@ -180,13 +181,13 @@ public class BuscarController {
 
     @ResponseBody
     @RequestMapping("allCoordinadores")
-    public JsonResponse allCoordinadores(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse allCoordinadoresByDpto(@RequestParam("dpto") Long dpto, @RequestParam("nombre") String nombre, HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
-            List<Docente> coordinadores = buscarService.allCoordinadoresByName(nombre);
+            List<Docente> coordinadores = buscarService.allCoordinadoresByIdDptoName(dpto, nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Docente coordinador : coordinadores) {

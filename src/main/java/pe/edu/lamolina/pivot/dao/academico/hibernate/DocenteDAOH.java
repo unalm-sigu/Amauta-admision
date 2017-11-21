@@ -61,8 +61,8 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
                 .filter("me.id", modalidad);
         return all(sqlUtil);
     }
-    
-        @Override
+
+    @Override
     public List<Docente> allByFilter(DynatableFilter filter) {
 
         {
@@ -171,10 +171,11 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
     }
 
     @Override
-    public List<Docente> allCoordinadoresByName(String nombre) {
+    public List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre) {
         Octavia sql = Octavia.query()
                 .from(Docente.class, "do")
-                .join("persona per")
+                .join("persona per", "departamentoAcademico dpto")
+                .filter("dpto.id", idDpto)
                 .__().complexFilter("concat(per.paterno,' ',per.materno,' ',per.nombres)", "like", nombre)
                 .__().complexFilter("concat(per.nombres,' ',per.paterno,' ',per.materno)", "like", nombre)
                 .limit(15);

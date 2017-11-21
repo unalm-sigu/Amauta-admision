@@ -17,7 +17,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.inscripcion.CarreraPostula;
 import pe.edu.lamolina.pivot.model.inscripcion.Evaluado;
 import pe.edu.lamolina.pivot.model.inscripcion.Ingresante;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoCarreraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum;
 
 @Entity
@@ -141,11 +141,11 @@ public class Carrera implements Serializable {
         return estado;
     }
 
-    public EstadoEnum getEstadoEnum() {
-        return estado != null ? EstadoEnum.valueOf(estado) : null;
+    public EstadoCarreraEnum getEstadoEnum() {
+        return estado != null ? EstadoCarreraEnum.valueOf(estado) : null;
     }
 
-    public void setEstado(EstadoEnum estado) {
+    public void setEstado(EstadoCarreraEnum estado) {
         this.estado = estado.name();
     }
 

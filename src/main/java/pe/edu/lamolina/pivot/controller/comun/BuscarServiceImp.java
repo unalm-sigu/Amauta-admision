@@ -27,10 +27,10 @@ public class BuscarServiceImp implements BuscarService {
 
     @Autowired
     PlanCalificacionDAO planCalificacionDAO;
-    
+
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-    
+
     @Autowired
     DocenteDAO docenteDAO;
 
@@ -55,8 +55,8 @@ public class BuscarServiceImp implements BuscarService {
     }
 
     @Override
-    public List<Docente> allCoordinadoresByName(String nombre) {
-        return docenteDAO.allCoordinadoresByName(this.forLike(nombre));
+    public List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre) {
+        return docenteDAO.allCoordinadoresByIdDptoName(idDpto, this.forLike(nombre));
     }
 
 }

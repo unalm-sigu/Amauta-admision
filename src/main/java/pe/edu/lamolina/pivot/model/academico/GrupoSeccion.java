@@ -60,6 +60,10 @@ public class GrupoSeccion implements Serializable {
     private CicloAcademico cicloAcademico;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_anexo_boletin")
+    private AnexoBoletin anexoBoletin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_curso")
     private Curso curso;
 
@@ -325,6 +329,14 @@ public class GrupoSeccion implements Serializable {
 
     public void setDocenteResponsable(Docente docenteResponsable) {
         this.docenteResponsable = docenteResponsable;
+    }
+
+    public AnexoBoletin getAnexoBoletin() {
+        return anexoBoletin;
+    }
+
+    public void setAnexoBoletin(AnexoBoletin anexoBoletin) {
+        this.anexoBoletin = anexoBoletin;
     }
 
 }

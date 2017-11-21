@@ -1,0 +1,53 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Grupos</title>
+    <div th:substituteby="zlayout/includes :: styles-bootstrap-colorpicker"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="page-header">
+
+            <div class="pull-right">                
+                <a class="btn btn-link" th:href="@{/academico/horario}" >Regresar</a>
+                <a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>
+            </div> 
+
+            <h2 th:text="${ 'Grupo '+tipoGrupoHoras.codigo }" >Grupos</h2> 
+
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <input type="hidden" name="idTipoGrupo" th:value="${tipoGrupoHoras.id}" />
+
+                <div id="dynaTable"></div>
+
+            </section>
+            <section class="panel-body">
+
+                <div id="tablaHorario"></div>
+
+            </section>
+        </section>
+
+        <script id="grupoTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="academico/horario/grupo/grupoTemplate"></div>
+        </script>
+
+        <script id="horarioTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="academico/horario/grupo/horarioTemplate"></div>
+        </script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <div th:substituteby="zlayout/includes :: bootstrap-colorpicker"/>
+        <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>
