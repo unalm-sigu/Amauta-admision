@@ -15,7 +15,7 @@ $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     }).data('dynatable');
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {ACT: 'success', INA: 'danger'};
+        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
         record.esActivo = record.estado == 'ACT';
         record.esInactivo = record.estado == 'INA';
@@ -26,14 +26,18 @@ $(function () {
 
 
     var CarreraForm = {
+        modalidadEstudio: $('.modalidadEstudio'),
         formCarrera: $("#formularioCarrera"),
         modalOrientacion: $("#modalOrientacion"),
-        formModalOrientacion: null, //$("#formOrientacion"),
+        formModalOrientacion: null,
         formCambioEstado: null,
         init: function () {
             $('[name="facultad.id"]').select2();
-            $('[name="modalidadEstudio.id"]').select2();
-            $('[name="tipo"]').select2();
+            CarreraForm.modalidadEstudio.select2();
+
+            if (CarreraForm.modalidadEstudio.val() != '') {
+                CarreraForm.loadTipoCarrera(CarreraForm.modalidadEstudio);
+            } 
         },
         viewModalAddOrientacion: function (e) {
             e.preventDefault();
@@ -147,7 +151,7 @@ $(function () {
         viewEditarOrientacion: function (e, $this) {
             e.preventDefault();
             CarreraForm.formCarrera.parsley().destroy();
-            
+
             $.ajax({
                 url: APP.url('academico/carrera/editarOrientacion'),
                 type: 'POST',
@@ -159,7 +163,7 @@ $(function () {
                         var record = {
                             form: "formOrientacion",
                             idOrientacion: data.id,
-                            nombreOrientacion : data.nombreOrientacion
+                            nombreOrientacion: data.nombreOrientacion
                         };
 
                         MODAL.init("md");
@@ -204,6 +208,50 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        loadTipoCarrera: function ($this) {
+            var codigo = $this.find("option:selected").attr("rel");
+            console.log("::: " + $this)
+            if (codigo == 'EPG') {
+                $(".divTipoCarrera").removeClass("hide");
+
+                $('.tipo').select2({
+                    placeholder: "Seleccione un tipo de carrera",
+                    minimumInputLength: -1,
+                    ajax: {
+                        url: APP.url("academico/carrera/allTiposCarrera"),
+                        dataType: 'json',
+                        type: 'post',
+                        data: function (term, page) {
+                            return {nombre: term, page: page};
+                        },
+                        results: function (response, page) {
+                            return {results: response.data};
+                        }
+                    },
+                    initSelection: function (element, callback) {
+                        if (element.val() != "") {
+                            var datos = {
+                                id: element.val(),
+                                nombre: element.attr("rel")
+                            };
+                            callback(datos);
+                        }
+                    },
+                    formatResult: function (info) {
+                        return info.nombre;
+                    },
+                    formatSelection: function (info) {
+                        return info.nombre;
+                    },
+                    escapeMarkup: function (m) {
+                        return m;
+                    }
+                });
+            } else if (codigo == 'PRE') {
+                $(".divTipoCarrera").addClass("hide");
+                $('[name="tipo"]').attr("value", "SEM");
+            } 
         }
     };
     CarreraForm.init();
@@ -229,4 +277,9 @@ $(function () {
     $("body").delegate(".cambio-estado-orientacion", "click", function (e) {
         CarreraForm.cambioEstadoOrientacion(e);
     });
+    $("body").delegate(".modalidadEstudio", "change", function (e) {
+        console.log("change!!!")
+        CarreraForm.loadTipoCarrera($(this));
+    });
+
 });

@@ -14,7 +14,7 @@ $(function () {
                 placeholder: "Seleccione un departamento",
                 minimumInputLength: 1,
                 ajax: {
-                    url: APP.url("academico/anexo/allDepartamentos"),
+                    url: APP.url("comun/buscar/allDepartamentoAcademico"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
@@ -34,7 +34,9 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return info.nombre;
+                    var data = '<span class="block text-success bold">' + info.nombre + '</span>';
+                    data += '<span class="block"><strong>Facultad:</strong> ' + info.facultad + '</span>';
+                    return data;
                 },
                 formatSelection: function (info) {
                     return info.nombre;
@@ -70,7 +72,9 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return info.nombre;
+                    var data = '<span class="block text-success bold">' + info.nombre + ' - ' + info.codigo + '</span>';
+                    data += '<span class="block"> ' + (info.tipoEstudio != '' ? (info.tipoEstudio + ' - ') : '') + info.modalidadEstudio + '</span>';
+                    return data;
                 },
                 formatSelection: function (info) {
                     return info.nombre;
@@ -93,5 +97,8 @@ $(function () {
     AnexoForm.init();
     $("body").delegate(".save-update-anexo", "click", function (e) {
         AnexoForm.saveUpdate(e);
+    });
+    $("body").delegate('[name="anexoSuperior.id"]', "change", function () {
+        $(this).parsley().destroy();
     });
 });

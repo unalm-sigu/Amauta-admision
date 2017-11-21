@@ -16,6 +16,39 @@
             </div> 
             <h2>Carreras</h2>
         </header>
+        <section class="panel m-b-xs">
+            <section class="panel-body">
+                <!--<div class="col-md-6">-->
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-danger" rel="pregrados">
+                            <span class="h1 block bold" th:text="${resumen.pregrados}">23</span>
+                            <small class="block m-b-xs">Pregrado</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-black" rel="posgrados">
+                            <span class="h1 block bold" th:text="${resumen.posgrados}">23</span>
+                            <small class="block m-b-xs">Posgrado</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-success" rel="especiales">
+                            <span class="h1 block bold" th:text="${resumen.especiales}">23</span>
+                            <small class="block m-b-xs">Especial</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="#" class="view-count text-warning" rel="visitantes">
+                            <span class="h1 block bold" th:text="${resumen.visitantes}">23</span>
+                            <small class="block m-b-xs">Visitante</small>
+                        </a>
+                    </div>
+                </div>
+                <!--</div>-->
+            </section>
+        </section>
+
         <section class="panel">
             <section class="panel-body">
 
@@ -23,7 +56,7 @@
                     <thead> 
                         <tr class=""> 
                             <th class="col-md-4"></th>
-                            <th class="col-md-4 text-left">Modalidad / Tipo</th>
+                            <th class="col-md-4 text-center">Modalidad / Tipo</th>
                             <th class="col-md-3 text-left">Orientaciones</th>
                             <th class="col-md-1">Estado</th>
                             <th></th>

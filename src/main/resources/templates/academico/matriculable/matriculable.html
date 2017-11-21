@@ -17,7 +17,7 @@
                     <li><a id="agregarMatriculable">Modal Matriculable</a></li>
                 </ul>
             </div>
-            <h2>Alumnos - <span>2016-II</span></h2>
+            <h2>Alumnos Matriculables <span th:text="${ciclo.descripcion}">2016-II</span></h2>
         </header>
 
         <section class="panel m-b-xs">
@@ -33,13 +33,13 @@
                         <div class="col-md-3 text-center">
                             <a class="ver-modalidades text-black pointer" rel="postgrado">
                                 <span class="h1 block bold" th:text="${resumen.postgrado}">23</span>
-                                <small class="block m-b-xs">Postgrado</small>
+                                <small class="block m-b-xs">Posgrado</small>
                             </a>
                         </div>
                         <div class="col-md-3 text-center">
                             <a class="ver-modalidades text-success pointer" rel="visitante">
                                 <span class="h1 block bold" th:text="${resumen.visitante}">23</span>
-                                <small class="block m-b-xs">Visitante</small>
+                                <small class="block m-b-xs">Visitantes</small>
                             </a>
                         </div>
                         <div class="col-md-3 text-center">

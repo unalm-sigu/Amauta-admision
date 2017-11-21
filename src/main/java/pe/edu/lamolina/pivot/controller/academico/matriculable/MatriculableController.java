@@ -75,6 +75,7 @@ public class MatriculableController {
 
         MatriculableResumen resumen = service.findResumenByCiclo(ds.getCicloAcademico());
         model.addAttribute("resumen", resumen);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
         return "/academico/matriculable/matriculable";
     }
 

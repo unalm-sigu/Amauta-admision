@@ -17,6 +17,8 @@ import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCreditoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCursoEnum;
 
 @Entity
@@ -64,8 +66,17 @@ public class Curso implements Serializable {
     @Column(name = "tipo_curso")
     private String tipoCurso;
 
+    @Column(name = "tipo_credito")
+    private String tipoCredito;
+
     @Column(name = "motivo_anulacion")
     private String motivoAnulacion;
+
+    @Column(name = "tipo_curricula")
+    private String tipoCurricula;
+
+    @Column(name = "nivel")
+    private Integer nivel;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Column(name = "fecha_plan_calificacion")
@@ -77,9 +88,6 @@ public class Curso implements Serializable {
 
     @Column(name = "user_plan_calificacion")
     private Long userPlanCalificacion;
-
-    @Column(name = "tipo_curricula")
-    private String tipoCurricula;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_departamento_academico")
@@ -96,6 +104,14 @@ public class Curso implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_coordinador")
     private Docente coordinador;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_modalidad_estudio")
+    private ModalidadEstudio modalidadEstudio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_carrera")
+    private Carrera carrera;
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<AlumnoCicloCurso> alumnoCicloCurso;
@@ -117,10 +133,7 @@ public class Curso implements Serializable {
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<NombreCurso> nombreCurso;
-    /*
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<Seccion> seccion;
-     */
+
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<RetiroCurso> retiroCurso;
 
@@ -132,6 +145,59 @@ public class Curso implements Serializable {
 
     public Curso(Object id) {
         this.id = TypesUtil.getLong(id);
+    }
+
+    public String requiereEspecialidad() {
+        if (id == null) {
+            return "INDEFINIDO";
+        }
+        if (modalidadEstudio.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+            return "SI";
+        }
+        return "NO";
+    }
+
+    public String getTpc() {
+        if (horasTeoria == null || horasPractica == null || (creditos == null && creditosVariables == null)) {
+            return null;
+        }
+
+        StringBuilder tpc = new StringBuilder();
+        tpc.append(horasTeoria).append("-");
+        tpc.append(horasPractica).append("-");
+
+        if (creditos != null) {
+            tpc.append(creditos);
+        } else {
+            tpc.append("[1 a ").append(creditosVariables).append("]");
+        }
+
+        return tpc.toString();
+    }
+
+    public boolean isEstadoActive() {
+        return this.getEstadoEnum() == EstadoEnum.ACT;
+    }
+
+    public boolean isTieneCreditosVariables() {
+        if (this.getCreditosVariables() != null) {
+            return true;
+        }
+        return false;
+    }
+
+    //Se pone solo a o d, mas no la cantidad de creditos
+    public boolean isCreditosZero() {
+        if (this.getCreditosVariables() == null) {
+            if (this.getCreditos().compareTo(BigDecimal.ZERO.intValue()) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isPostgrado() {
+        return (modalidadEstudio.getCodigoEnum() == ModalidadEstudioEnum.EPG);
     }
 
     public Long getId() {
@@ -146,8 +212,15 @@ public class Curso implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public EstadoEnum getEstadoEnum() {
+        if (estado == null) {
+            return null;
+        }
+        return EstadoEnum.valueOf(codigo);
+    }
+
+    public void setEstado(EstadoEnum estado) {
+        this.estado = estado.name();
     }
 
     public String getCodigo() {
@@ -349,52 +422,6 @@ public class Curso implements Serializable {
         this.creditosVariables = creditosVariables;
     }
 
-    public String getTpc() {
-        StringBuilder tpc = new StringBuilder();
-        if (horasTeoria != null) {
-            tpc.append(horasTeoria).append("-");
-        }
-        if (horasPractica != null) {
-            tpc.append(horasPractica).append("-");
-        }
-        if (creditos != null) {
-            tpc.append(creditos);
-        }
-        return tpc.toString();
-    }
-
-    public boolean isEstadoActive() {
-        if (this.getEstado().equals(EstadoEnum.ACT.name())) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isTieneCreditosVariables() {
-        if (this.getCreditosVariables() != null) {
-            return true;
-        }
-        return false;
-    }
-
-    //Se pone solo a o d, mas no la cantidad de creditos
-    public boolean isCreditosZero() {
-        if (this.getCreditosVariables() == null) {
-            if (this.getCreditos().compareTo(BigDecimal.ZERO.intValue()) == 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isPostgrado() {
-        String caracter = this.getCodigo().charAt(2) + "";
-        if (Integer.parseInt(caracter) >= 7) {
-            return true;
-        }
-        return false;
-    }
-
     public String getMotivoAnulacion() {
         return motivoAnulacion;
     }
@@ -427,12 +454,51 @@ public class Curso implements Serializable {
         this.horasPracticaVerano = horasPracticaVerano;
     }
 
+    public Integer getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(Integer nivel) {
+        this.nivel = nivel;
+    }
+
+    public ModalidadEstudio getModalidadEstudio() {
+        return modalidadEstudio;
+    }
+
+    public void setModalidadEstudio(ModalidadEstudio modalidadEstudio) {
+        this.modalidadEstudio = modalidadEstudio;
+    }
+
+    public Carrera getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(Carrera carrera) {
+        this.carrera = carrera;
+    }
+
     public String getTipoCurricula() {
         return tipoCurricula;
     }
 
     public void setTipoCurricula(String tipoCurricula) {
         this.tipoCurricula = tipoCurricula;
+    }
+
+    public String getTipoCredito() {
+        return tipoCredito;
+    }
+
+    public TipoCreditoEnum getTipoCreditoEnum() {
+        if (tipoCredito == null) {
+            return null;
+        }
+        return TipoCreditoEnum.valueOf(tipoCredito);
+    }
+
+    public void setTipoCredito(TipoCreditoEnum tipoCredito) {
+        this.tipoCredito = tipoCredito.name();
     }
 
 }

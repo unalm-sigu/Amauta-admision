@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -16,7 +17,9 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoCarreraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Service
@@ -46,36 +49,40 @@ public class CarreraServiceImp implements CarreraService {
     @Transactional
     public void cambiarEstadoCarrera(Carrera carrera) {
         Carrera carrreraBD = carreraDAO.find(carrera.getId());
-        if (carrreraBD.getEstado().equals(EstadoEnum.ACT.name())) {
-            carrreraBD.setEstado(EstadoEnum.INA);
+        if (carrera.getEstado().equals(EstadoCarreraEnum.ACT.name())) {
+            carrreraBD.setEstado(EstadoCarreraEnum.INA);
             carrreraBD.setMotivoAnulacion(carrera.getMotivoAnulacion());
             carrreraBD.setFechaAnulacion(new Date());
         } else {
-            carrreraBD.setEstado(EstadoEnum.ACT);
+            carrreraBD.setEstado(EstadoCarreraEnum.ACT);
         }
         carreraDAO.update(carrreraBD);
     }
 
     @Override
-    public List<ModalidadEstudio> allModalidades() {
-        return modalidadEstudioDAO.allActivos();
+    public List<ModalidadEstudio> allPrePostgrado(Compania cia) {
+        return modalidadEstudioDAO.allPrePostgrado(cia);
     }
 
     @Override
     @Transactional
     public void save(Carrera carrera, Usuario usuario) {
         if (carrera.getId() == null) {
-            carrera.setEstado(EstadoEnum.ACT);
+            carrera.setEstado(EstadoCarreraEnum.CRE);
             carrera.setIdUserRegistro(usuario.getId());
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);
 
         } else {
             Carrera carreraBD = carreraDAO.find(carrera.getId());
-            carreraBD.setNombre(carrera.getNombre());
-            carreraBD.setFacultad(carrera.getFacultad());
-            carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
-            carreraBD.setTipo(carrera.getTipoEnum());
+            if (!carreraBD.getEstado().equals(EstadoCarreraEnum.INA.name())) {
+                carreraBD.setNombre(carrera.getNombre());
+            }
+            if (carreraBD.getEstado().equals(EstadoCarreraEnum.CRE.name())) {
+                carreraBD.setFacultad(carrera.getFacultad());
+                carreraBD.setModalidadEstudio(carrera.getModalidadEstudio());
+                carreraBD.setTipo(carrera.getTipoEnum());
+            }
             carreraDAO.update(carreraBD);
             if (carrera.getOrientacionCarrera() == null) {
                 return;
@@ -90,7 +97,7 @@ public class CarreraServiceImp implements CarreraService {
         }
     }
 
-    private Integer findLastCodigo(Carrera carrera) {
+    private String findLastCodigo(Carrera carrera) {
         OrientacionCarrera orientacion = orientacionCarreraDAO.findLastByCarrera(carrera);
 
         String correlativoTmp = "";
@@ -101,11 +108,12 @@ public class CarreraServiceImp implements CarreraService {
             correlativoTmp = codigo.substring(tamañoCodigo - 1, tamañoCodigo);
 
             correlativo = Integer.valueOf(correlativoTmp) + 1;
+
         } else {
             correlativo = 1;
         }
 
-        return correlativo;
+        return NumberFormat.codigo(correlativo, 2);
     }
 
     @Override
@@ -128,7 +136,7 @@ public class CarreraServiceImp implements CarreraService {
         try {
             if (idOrientacion == null) {
                 Carrera carrera = carreraDAO.find(idCarrera);
-                Integer correlativo = this.findLastCodigo(carrera);
+                String correlativo = this.findLastCodigo(carrera);
 
                 OrientacionCarrera oriCarrera = new OrientacionCarrera();
                 oriCarrera.setCarrera(carrera);
@@ -180,6 +188,11 @@ public class CarreraServiceImp implements CarreraService {
     @Override
     public OrientacionCarrera editarOrientacion(Long id) {
         return orientacionCarreraDAO.find(id);
+    }
+
+    @Override
+    public CarreraResumen resumen() {
+        return carreraDAO.resumen();
     }
 
 }
