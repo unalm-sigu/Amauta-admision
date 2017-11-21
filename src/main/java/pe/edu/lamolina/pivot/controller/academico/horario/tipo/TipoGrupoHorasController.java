@@ -91,6 +91,7 @@ public class TipoGrupoHorasController {
                 node.put("estadoGrupos", grupo.getEstadoGrupos());
                 node.put("tipoCiclo", TipoCicloEnum.valueOf(grupo.getTipoCiclo()).getValue());
                 node.put("tipo", grupo.getTipo());
+                node.put("descripcion", grupo.getDescripcion());
                 array.add(node);
             }
 

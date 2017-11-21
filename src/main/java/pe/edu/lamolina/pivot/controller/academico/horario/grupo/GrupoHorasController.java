@@ -41,6 +41,7 @@ import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.LetraGrupoHoraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorariosEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionGrupoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -183,6 +184,7 @@ public class GrupoHorasController {
             ctx.setVariable("grupoHoras", grupoDb);
             ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
             ctx.setVariable("tipoSecciones", TipoSeccionGrupoEnum.values());
+            ctx.setVariable("tipoHorarios", TipoGrupoHorariosEnum.values());
             ctx.setVariable("letras", LetraGrupoHoraEnum.values());
             String htmlContent = springHtml.process("academico/horario/grupo/grupoForm", ctx);
             response.setData(htmlContent);
@@ -204,6 +206,7 @@ public class GrupoHorasController {
             ctx.setVariable("grupoHoras", new GrupoHoras());
             ctx.setVariable("tipoCiclos", TipoCicloEnum.values());
             ctx.setVariable("tipoSecciones", TipoSeccionGrupoEnum.values());
+            ctx.setVariable("tipoHorarios", TipoGrupoHorariosEnum.values());
             ctx.setVariable("letras", LetraGrupoHoraEnum.values());
             String htmlContent = springHtml.process("academico/horario/grupo/grupoForm", ctx);
             response.setData(htmlContent);
@@ -274,8 +277,8 @@ public class GrupoHorasController {
                         myDiaHoraGrupo.setGrupoHorario(gh);
                         myDiaHoraGrupos.add(myDiaHoraGrupo);
                     } else {
-                        GrupoHoras ghoras=myDiaHoraGrupo.getGrupoHorario();
-                        if(ghoras.getId()!=grupoDb.getId().longValue()){
+                        GrupoHoras ghoras = myDiaHoraGrupo.getGrupoHorario();
+                        if (ghoras.getId() != grupoDb.getId().longValue()) {
                             ghoras.setColor(null);
                             myDiaHoraGrupo.setGrupoHorario(ghoras);
                         }
@@ -338,7 +341,7 @@ public class GrupoHorasController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("gencolor")
     public JsonResponse gencolor(HttpSession session) {

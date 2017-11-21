@@ -42,6 +42,9 @@ public class GrupoHoras implements Serializable {
     @Column(name = "color")
     private String color;
 
+    @Column(name = "con_horario")
+    private String conHorario;
+
     @OneToMany(mappedBy = "grupoHoras", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
 
@@ -125,6 +128,14 @@ public class GrupoHoras implements Serializable {
 
     public void setDiaHoraGrupo(List<DiaHoraGrupo> diaHoraGrupo) {
         this.diaHoraGrupo = diaHoraGrupo;
+    }
+
+    public String getConHorario() {
+        return conHorario;
+    }
+
+    public void setConHorario(String conHorario) {
+        this.conHorario = conHorario;
     }
 
 }

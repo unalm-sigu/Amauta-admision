@@ -77,6 +77,7 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
         grupoHorasDb.setTipoGrupoHoras(grupoHoras.getTipoGrupoHoras());
         grupoHorasDb.setTipoCiclo(grupoHoras.getTipoCiclo());
         grupoHorasDb.setTipoSeccion(grupoHoras.getTipoSeccion());
+        grupoHorasDb.setConHorario(grupoHoras.getConHorario());
         grupoHorasDAO.update(grupoHorasDb);
     }
 

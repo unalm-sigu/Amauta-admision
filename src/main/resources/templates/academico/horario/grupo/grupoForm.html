@@ -91,4 +91,22 @@
         </div>
 
     </div>
+
+    <div class="form-group">
+
+        <label class="col-sm-3 control-label">Tipo Horario</label>
+
+        <div class="col-sm-6">
+            <select name="conHorario" 
+                    required="true" 
+                    class="form-control" >
+                <option></option>
+                <option th:each="item : ${tipoHorarios}"  
+                        th:text="${item.value}"
+                        th:selected="${grupoHoras.conHorario!=null} ? ${grupoHoras.conHorario==item.name()}"
+                        th:value="${item.name()}" ></option>
+            </select>
+        </div>
+
+    </div>
 </form>

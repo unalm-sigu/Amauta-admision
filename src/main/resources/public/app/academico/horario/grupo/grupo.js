@@ -73,6 +73,7 @@ $(function () {
                         mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="letra"]').select2({minimumResultsForSearch: -1});
+                        mimodal.find('[name="conHorario"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('.cp').colorpicker({color: '#4116ff'});
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
@@ -117,6 +118,7 @@ $(function () {
                         mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="letra"]').select2({minimumResultsForSearch: -1});
+                        mimodal.find('[name="conHorario"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('.cp').colorpicker({color: '#4116ff'});
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
