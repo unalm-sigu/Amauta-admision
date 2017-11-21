@@ -8,7 +8,7 @@
                 <thead class="panel panel-heading">
                     <tr>
                         <th class="col-md-3 text-center">Tipo</th>
-                        <th class="col-md-3 text-center">Curso</th>
+
                         <th class="col-md-3 text-center">Credito</th>
                         <th class="col-md-3 text-center"></th>
                     </tr>
@@ -22,3 +22,23 @@
 </section>
 
 <script id="templateCursoCurriculaRes" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/plan/includes/templateCursosObl"/></script>
+
+
+    <script id="templateCursoCurriculaRes" type="text/x-jsrender" class="hide"><tr rel="{{:index}}">
+    <td  class="v-middle"> 
+        <span class="block">{{:tipoCursoCurr}}</span>
+    </td>
+    <td  class="v-middle"> 
+        <span class="block">{{:cursoCurrCredito}}</span>
+    </td>
+    <td  class="v-middle"> 
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                <li role="presentation">
+                    <a class="editar-cur-obl" href="#">Editar</a>
+                </li>
+            </ul>
+        </div>
+    </td>
+</tr></script>

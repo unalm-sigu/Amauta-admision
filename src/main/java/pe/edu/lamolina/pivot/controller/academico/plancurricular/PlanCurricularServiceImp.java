@@ -18,6 +18,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -29,6 +30,7 @@ import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.pivot.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
@@ -69,6 +71,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Autowired
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
 
+    @Autowired
+    ResumenPlanCurricularDAO resumenPlanCurricularDAO;
+
     @Override
     public List<Carrera> allCarrerasByFilter(Facultad facultad, EstadoEnum estadoEnum) {
         return carreraDAO.allByFilter(facultad, estadoEnum);
@@ -95,7 +100,25 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 reqCurricula.setCursoCurricula(cursoCurricula);
             }
         }
+
         cursoCurriculaDAO.save(cursoCurricula);
+        //    cursoCurricula = cursoCurriculaDAO.find(cursoCurricula.getId());
+        ResumenPlanCurricular resumenPlanCurricular = resumenPlanCurricularDAO.findByTipoCurCurPlan(
+                cursoCurricula.getTipoCursoCurricula(),
+                cursoCurricula.getPlanCurricular());
+
+        if (resumenPlanCurricular == null) {
+            resumenPlanCurricular = new ResumenPlanCurricular();
+            resumenPlanCurricular.setPlanCurricular(cursoCurricula.getPlanCurricular());
+            resumenPlanCurricular.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
+            resumenPlanCurricular.setCreditos(cursoCurricula.getCreditos());
+            resumenPlanCurricularDAO.save(resumenPlanCurricular);
+        } else {
+            Integer creditos = resumenPlanCurricular.getCreditos() + cursoCurricula.getCreditos();
+            resumenPlanCurricular.setCreditos(creditos);
+            resumenPlanCurricularDAO.update(resumenPlanCurricular);
+        }
+
     }
 
     @Override
@@ -161,6 +184,14 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             return new ArrayList<CursoCurricula>();
         }
         return cursoCurriculaDAO.allByDynatable(filter);
+    }
+
+    @Override
+    public List<ResumenPlanCurricular> allResPlanCurByDynatable(DynatableFilter filter) {
+        if (filter.getQueries() == null) {
+            return new ArrayList<ResumenPlanCurricular>();
+        }
+        return resumenPlanCurricularDAO.allByDynatable(filter);
     }
 
     @Override

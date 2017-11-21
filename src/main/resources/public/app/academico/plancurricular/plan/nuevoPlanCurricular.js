@@ -97,18 +97,23 @@ $(function () {
                 $(NuevoPlanCurricular.pestañaCicloCurOblElegida).attr("rel", "1")
                 NuevoPlanCurricular.pestañaCicloCurOblElegida = $("li.ver-tab-ciclo-cur-obl").first();
                 $("li.ver-tab-ciclo-cur-obl").first().addClass(("active"));
-                dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosObl.queries.add("numCic", 1);
-                dynatableCursosObl.process();
-
-                dynatableCursosRes.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosRes.process();
-
-                dynatableCursosAdc.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosAdc.process();
-
-                dynatableCursosElec.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosElec.process();
+                if (dynatableCursosObl != null) {
+                    dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosObl.queries.add("numCic", 1);
+                    dynatableCursosObl.process();
+                }
+                if (dynatableCursosRes != null) {
+                    dynatableCursosRes.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosRes.process();
+                }
+                if (dynatableCursosAdc != null) {
+                    dynatableCursosAdc.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosAdc.process();
+                }
+                if (dynatableCursosElec != null) {
+                    dynatableCursosElec.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosElec.process();
+                }
             }
         }, verPestañaCicloCurObl($this, e) {
             var pestaña = $this.attr("rel");
@@ -462,12 +467,16 @@ $(function () {
                                 if (response.success) {
                                     MODAL.hide();
                                     notify(response.message, "info");
-                                    location.href = APP.url('academico/planCurricular/plan/' + 1 + '/succesSave');
+                                    location.href = APP.url('academico/planCurricular/plan/' + response.data.planCurricular + '/succesSave');
                                 } else {
+                                    MODAL.hideWait();
+                                    MODAL.hide();
                                     notify(response.message, "error");
                                 }
                             },
                             error: function () {
+                                MODAL.hideWait();
+                                MODAL.hide();
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
