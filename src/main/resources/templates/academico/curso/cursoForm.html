@@ -15,7 +15,7 @@
         <div class="col-lg-12">
             <section class="panel">
                 <section class="panel-body">
-                    <form data-parsley-validate="true" id="formularioCurso" method="POST" th:action="@{'/academico/curso/save'}">
+                    <form data-parsley-validate="true" id="formularioCurso" method="POST" >
 
                         <input type="hidden" th:value="${curso.id}" name="id" id="idCurso"/>
                         <input type="hidden" th:value="${curso.requiereEspecialidad()}" id="requiereEspecialidad"/>
@@ -129,13 +129,13 @@
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label>Horas Teoría</label>
+                                    <label>Horas semanales de teoría</label>
                                     <input name="horasTeoria" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasTeoria} : ''"  data-trigger="change"/>
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label>Horas Práctica</label>
+                                    <label>Horas semanales de práctica</label>
                                     <input name="horasPractica" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasPractica} : ''"  data-trigger="change"/>
                                 </div>
                             </div>
@@ -164,7 +164,8 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label></label>
-                                    <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  data-trigger="change"/>
+                                    <input name="creditos" class="form-control text-right numerico" required="true"  th:value="${curso} != null ? ${curso.creditos} : ''"  
+                                           maxlength="2" data-trigger="change"/>
                                 </div>
                             </div>  
                         </div>  
@@ -172,13 +173,13 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label>Horas Teoría Verano</label>
+                                    <label>Horas semanales de teoría en verano</label>
                                     <input name="horasTeoriaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasTeoriaVerano} : ''"  data-trigger="change"/>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label>Horas Práctica Verano</label>
+                                    <label>Horas semanales de práctica en verano</label>
                                     <input name="horasPracticaVerano" class="form-control text-right numerico" th:value="${curso} != null ? ${curso.horasPracticaVerano} : ''"  data-trigger="change"/>
                                 </div>
                             </div>
@@ -213,7 +214,8 @@
                                             <tr th:if="${curso.nombreCurso.size() &gt; 0}"
                                                 th:each="itemPadre,iter : ${curso.nombreCurso}">
                                                 <td>
-                                                    <select class="form-control"  name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+
+                                                    <select class="form-control"  name="idIdioma" placeholder="Seleccione el idiomas" data-trigger="change">
                                                         <option></option>
                                                         <option th:each="item, iter : ${idiomas}"
                                                                 th:value="${item.id}" 
@@ -222,15 +224,16 @@
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <input type="text" class="form-control" name="nombreIdioma" th:value='${itemPadre.nombre}' />
+                                                    <input type="text" class="form-control" name="nombreIdioma" th:value='${itemPadre.nombre}'/>
                                                 </td>
                                                 <td class="v-middle">
                                                     <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
                                                 </td>
+
                                             </tr>
-                                            <tr th:unless="${curso.nombreCurso.size() &gt; 0}" id="-999">
+                                            <tr th:unless="${curso.nombreCurso.size() &gt; 0}">
                                                 <td>
-                                                    <select class="form-control" name="idIdioma"  required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+                                                    <select class="form-control" name="idIdioma" placeholder="Seleccione el idiomas" data-trigger="change">
                                                         <option></option>
                                                         <option th:each="item,iter : ${idiomas}"
                                                                 th:value="${item.id}" 
@@ -264,20 +267,20 @@
 
                 <script id="divNombreCurso" type="text/x-jsrender" class="hide" >
                     <tr>
-                    <td>
-                    <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
-                    <option></option>
-                    <option th:each="item : ${idiomas}"
-                    th:value="${item.id}" 
-                    th:text="${item.nombre}"/>
-                    </select>
-                    </td>
-                    <td>
-                    <input type="text" class="form-control" name="nombreIdioma"/>
-                    </td>
-                    <td class="v-middle"> 
-                    <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
-                    </td>
+                        <td>
+                            <select class="form-control" name="idIdioma" required="true" placeholder="Seleccione el idiomas" data-trigger="change">
+                            <option></option>
+                            <option th:each="item : ${idiomas}"
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"/>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="nombreIdioma"/>
+                        </td>
+                        <td class="v-middle"> 
+                            <a class="btn btn-warning btn-sm delete-idioma" ><i class="fa fa-times pointer" aria-hidden="true"></i></a>
+                        </td>
                     </tr>
                 </script>
             </section>

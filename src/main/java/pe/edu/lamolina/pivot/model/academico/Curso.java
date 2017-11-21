@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -140,6 +141,12 @@ public class Curso implements Serializable {
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<PlanCalificacionCurso> planesCalificacionCursos;
 
+    @Transient
+    private Long[] idIdioma;
+
+    @Transient
+    private String[] nombreIdioma;
+
     public Curso() {
     }
 
@@ -216,7 +223,7 @@ public class Curso implements Serializable {
         if (estado == null) {
             return null;
         }
-        return EstadoEnum.valueOf(codigo);
+        return EstadoEnum.valueOf(estado);
     }
 
     public void setEstado(EstadoEnum estado) {
@@ -499,6 +506,22 @@ public class Curso implements Serializable {
 
     public void setTipoCredito(TipoCreditoEnum tipoCredito) {
         this.tipoCredito = tipoCredito.name();
+    }
+
+    public Long[] getIdIdioma() {
+        return idIdioma;
+    }
+
+    public void setIdIdioma(Long[] idIdioma) {
+        this.idIdioma = idIdioma;
+    }
+
+    public String[] getNombreIdioma() {
+        return nombreIdioma;
+    }
+
+    public void setNombreIdioma(String[] nombreIdioma) {
+        this.nombreIdioma = nombreIdioma;
     }
 
 }

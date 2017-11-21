@@ -59,24 +59,24 @@ public class CursoServiceImp implements CursoService {
 
     @Override
     @Transactional
-    public void save(Curso curso, Long[] idIdioma, String[] nombreIdioma, Usuario usuario) {
+    public void save(Curso curso, Usuario usuario) {
         ObjectUtil.eliminarAttrSinId(curso, "carrera");
 
         if (curso.getId() == null) {
             this.saveCurso(curso);
         } else {
-            this.updateCurso(curso, idIdioma, nombreIdioma, usuario);
+            this.updateCurso(curso);
         }
 
-        if (idIdioma.length > 0 && nombreIdioma.length > 0) {
+        if (curso.getIdIdioma().length > 0 && curso.getNombreIdioma().length > 0) {
 
-            for (int i = 0; i < idIdioma.length; i++) {
+            for (int i = 0; i < curso.getIdIdioma().length; i++) {
                 NombreCurso nombreCurso = new NombreCurso();
                 nombreCurso.setCurso(curso);
                 nombreCurso.setFechaRegistro(new Date());
                 nombreCurso.setIdUserRegistro(usuario.getId());
-                nombreCurso.setIdioma(new Idioma(idIdioma[i]));
-                nombreCurso.setNombre(nombreIdioma[i]);
+                nombreCurso.setIdioma(new Idioma(curso.getIdIdioma()[i]));
+                nombreCurso.setNombre(curso.getNombreIdioma()[i]);
                 nombreCursoDAO.save(nombreCurso);
             }
         }
@@ -97,7 +97,7 @@ public class CursoServiceImp implements CursoService {
 
     }
 
-    private void updateCurso(Curso curso, Long[] idIdioma, String[] nombreIdioma, Usuario usuario) {
+    private void updateCurso(Curso curso) {
         Curso cursoBD = cursoDAO.find(curso.getId());
         cursoBD.setNombre(curso.getNombre());
         if (curso.getCarrera() != null) {
