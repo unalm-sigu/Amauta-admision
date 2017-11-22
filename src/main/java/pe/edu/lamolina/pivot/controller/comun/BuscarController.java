@@ -127,7 +127,7 @@ public class BuscarController {
                 json.put("distrito", ubicacion.getNombre());
                 json.put("provincia", provincia.getNombre());
                 json.put("departamento", departamento.getNombre());
-                json.put("nombre", ubicacion.getNombre());
+                json.put("nombre", ubicacion.getDistrito());
 
                 jsonList.add(json);
 

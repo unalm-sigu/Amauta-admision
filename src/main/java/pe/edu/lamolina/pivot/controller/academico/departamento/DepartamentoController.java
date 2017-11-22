@@ -220,6 +220,8 @@ public class DepartamentoController {
                 a.put("id", departamento.getId());
                 a.put("codigo", departamento.getCodigo());
                 a.put("nombre", departamento.getNombre());
+                a.put("facultadCod", departamento.getFacultad().getCodigo());
+                a.put("facultadName", departamento.getFacultad().getNombre());
                 array.add(a);
             }
 

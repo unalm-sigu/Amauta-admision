@@ -76,10 +76,10 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return '<b>' + info.codigo + '</b>  - ' + info.nombre;
+                    return '<p>' + info.nombre + '</p>  '+ '<p class="bold text-xs"> ' +  info.facultadName +'</p>' ;
                 },
                 formatSelection: function (info) {
-                    return '<b>' + info.codigo + '</b>  - ' + info.nombre;
+                    return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' +  info.facultadName +'</p>' ;
                 },
                 escapeMarkup: function (m) {
                     return m;

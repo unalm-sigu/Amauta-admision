@@ -259,22 +259,17 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
         return query.list();
     }
 
+    @Override
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
 
-        Criteria criteria = getCurrentSession().createCriteria(DepartamentoAcademico.class, "da");
-        criteria.createCriteria("facultad").add(Restrictions.eq("compania", compania));
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .join("facultad fa", "fa.compania cia")
+                .filter("da.nombre", "like", nombre)
+                .filter("cia.id", compania)
+                .limit(15);
+        return sql.all(getCurrentSession());
 
-        if (!"".equalsIgnoreCase(nombre)) {
-            String searchValue = nombre.trim().replaceAll("\\s+", "%");
-            Disjunction criteriaConjunction = Restrictions.disjunction();
-            criteriaConjunction.add(Restrictions.like("da.codigo", searchValue, MatchMode.ANYWHERE));
-            criteriaConjunction.add(Restrictions.like("da.nombre", searchValue, MatchMode.ANYWHERE));
-            criteria.add(criteriaConjunction);
-        }
-
-        criteria.addOrder(Order.asc("da.nombre"));
-        criteria.setMaxResults(10);
-        return criteria.list();
     }
 
     @Override

@@ -20,7 +20,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +34,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.fragment.DOMSelectorFragmentSpec;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
@@ -57,6 +59,9 @@ public class DocenteController {
 
     @Autowired
     DocenteService service;
+
+    @Autowired
+    SpringTemplateEngine springHtml;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -128,7 +133,7 @@ public class DocenteController {
 
                 node.put("facultad", fa.getNombre());
                 node.put("departamentoAcademico", da.getNombre());
-                node.put("situacion", "situacion");
+                node.put("situacion", "");
 
                 array.add(node);
             }
@@ -286,9 +291,7 @@ public class DocenteController {
 
         JsonResponse response = new JsonResponse();
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Persona persona = service.findPersona(docente.getPersona());
             node.put("existePersona", (persona != null));
@@ -296,15 +299,24 @@ public class DocenteController {
                 node.put("name", persona.getNombreCompleto());
                 Docente docenteDb = service.findDocenteByPersona(persona);
                 node.put("existeDocente", (docenteDb != null));
-                node.put("docModalidad", docenteDb.getModalidadEstudio().getId());
-                node.put("docModalidadName", docenteDb.getModalidadEstudio().getNombre());
-                node.put("docDepartamento", docenteDb.getDepartamentoAcademico().getId());
-                node.put("docDepartamentoName", docenteDb.getDepartamentoAcademico().getNombre());
-                node.put("docDepartamentoCodigo", docenteDb.getDepartamentoAcademico().getCodigo());
+                if (docenteDb == null) {
+                    docenteDb = new Docente();
+                    docenteDb.setPersona(persona);
+                }
+                Context ctx = new Context();
+                ctx.setVariable("docente", docenteDb);
+                
+//                ProcessingContext processingContext = new ProcessingContext(ctx);
+//                StandardFragment fragmentSpec
+//                        = StandardFragmentProcessor.computeStandardFragmentSpec(springHtml.getConfiguration(),
+//                                processingContext, "academico/docente/docente/docenteForm::form", "SpringStandard", "fragment");
+//                
+//                String htmlContent = springHtml.process("academico/docente/docente/docenteForm", ctx, fragmentSpec.getFragmentSpec());
+                String htmlContent = springHtml.process("academico/docente/docente/docenteForm", ctx, new DOMSelectorFragmentSpec("#formularioDocente"));
+                node.put("html", htmlContent);
             }
             response.setData(node);
             response.setSuccess(true);
-
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

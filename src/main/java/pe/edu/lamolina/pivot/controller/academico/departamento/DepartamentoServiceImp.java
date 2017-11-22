@@ -88,7 +88,11 @@ public class DepartamentoServiceImp implements DepartamentoService {
 
     @Override
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
-        return departamentoAcademicoDAO.allDepartemento(nombre, compania);
+        return departamentoAcademicoDAO.allDepartemento(this.forLike(nombre), compania);
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
 }
