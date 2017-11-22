@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 
 @Repository
@@ -29,11 +30,12 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
     }
 
     @Override
-    public List<PlanCurricular> allByDynatable(DynatableFilter filter, Facultad facultad) {
+    public List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(PlanCurricular.class, "pc")
                 .join("carrera car", "cicloInicioVigencia cic")
                 .left("orientacionCarrera ocar")
+                .in("car.id", carreras)
                 .searchFields("car.nombre")
                 .orderBy("pc.id desc");
         return sql.all(getCurrentSession());

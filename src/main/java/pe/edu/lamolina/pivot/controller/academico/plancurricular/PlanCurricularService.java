@@ -30,7 +30,7 @@ public interface PlanCurricularService {
 
     List<CicloAcademico> allRecientesCiclosAcad(Integer year, Integer limit);
 
-    List<PlanCurricular> allByDynatable(DynatableFilter filter, Facultad facultad);
+    List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 
     List<TipoCursoCurricula> allTiposCursoCurricula();
 

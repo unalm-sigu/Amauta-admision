@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
+import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 
 public interface CursoCurriculaDAO extends Crud<CursoCurricula> {
@@ -17,5 +18,7 @@ public interface CursoCurriculaDAO extends Crud<CursoCurricula> {
     List<CursoCurricula> allByNombreFilter(Long planCurriculaId, Integer numeroCiclo, String nombre, Integer limit);
 
     void updateCreditoRequisito(CursoCurricula cursoCurricula);
+
+    List<CursoCurricula> allByPlan(PlanCurricular planCurricular);
 
 }

@@ -102,7 +102,8 @@ public class PlanCurricularController {
 
         try {
             DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
-            List<PlanCurricular> listaPlanes = planCurricularService.allByDynatable(filter, dpto.getFacultad());
+
+            List<PlanCurricular> listaPlanes = planCurricularService.allByDynatable(filter, ds.getCarreras());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             logger.debug("size planes {}", listaPlanes.size());
@@ -281,7 +282,7 @@ public class PlanCurricularController {
 
         model.addAttribute("ciclosAcademicos", ciclosAcademicos);
         model.addAttribute("planCurricular", planCurricular);
-        model.addAttribute("carrerasFacultad", carreras);
+        model.addAttribute("carrerasFacultad", ds.getCarreras());
 
         return "academico/plancurricular/plan/nuevoPlanCurricular";
     }
