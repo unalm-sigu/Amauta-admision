@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
@@ -20,5 +21,7 @@ public interface CursoCurriculaDAO extends Crud<CursoCurricula> {
     void updateCreditoRequisito(CursoCurricula cursoCurricula);
 
     List<CursoCurricula> allByPlan(PlanCurricular planCurricular);
+
+    Map countByPlanesCurricular(List<PlanCurricular> planesCurricular);
 
 }

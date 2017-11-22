@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -56,6 +57,15 @@ public class PlanCurricular implements Serializable {
 
     @OneToMany(mappedBy = "planCurricular", fetch = FetchType.LAZY)
     private List<ResumenPlanCurricular> resumenPlanCurricular;
+
+    @Transient
+    private Integer cantidadCursosCurricula;
+
+    @Transient
+    private Integer cantidadCursosOpcionales;
+
+    @Transient
+    private Integer cantidadCursosAdicionales;
 
     public PlanCurricular() {
     }
@@ -158,6 +168,30 @@ public class PlanCurricular implements Serializable {
             return null;
         }
         return EstadoEnum.valueOf(this.getEstado());
+    }
+
+    public Integer getCantidadCursosCurricula() {
+        return cantidadCursosCurricula;
+    }
+
+    public void setCantidadCursosCurricula(Integer cantidadCursosCurricula) {
+        this.cantidadCursosCurricula = cantidadCursosCurricula;
+    }
+
+    public Integer getCantidadCursosOpcionales() {
+        return cantidadCursosOpcionales;
+    }
+
+    public void setCantidadCursosOpcionales(Integer cantidadCursosOpcionales) {
+        this.cantidadCursosOpcionales = cantidadCursosOpcionales;
+    }
+
+    public Integer getCantidadCursosAdicionales() {
+        return cantidadCursosAdicionales;
+    }
+
+    public void setCantidadCursosAdicionales(Integer cantidadCursosAdicionales) {
+        this.cantidadCursosAdicionales = cantidadCursosAdicionales;
     }
 
 }

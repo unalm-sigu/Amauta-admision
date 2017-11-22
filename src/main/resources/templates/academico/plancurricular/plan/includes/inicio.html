@@ -16,12 +16,24 @@
               th:text="|${planCurricular.carrera.codigo} - ${planCurricular.carrera.nombre}|"></span>
         <input name="carrera.id" type="hidden" th:value="${planCurricular.carrera.id}"/>
     </div>
-    <div class="form-group">
+    <div class="form-group" th:unless="${planCurricular.id}">
         <label for="cboOrientacion">Orientación</label>
         <select class="form-control" 
                 id="cboOrientacion"
-                name="orientacionCarrera.id">
+                name="orientacionCarrera.id"
+                >
         </select>
+    </div>
+    <div class="form-group" th:if="${planCurricular.id}">
+        <label th:if="${planCurricular.orientacionCarrera}">Orientación</label>
+
+        <span class="form-control" 
+              th:if="${planCurricular.orientacionCarrera}"
+              th:text="${planCurricular.orientacionCarrera.nombre}"></span>
+
+        <input name="orientacionCarrera.id" type="hidden" 
+               th:if="${planCurricular.orientacionCarrera}"
+               th:value="${planCurricular.orientacionCarrera.id}"/>
     </div>
     <div class="form-group">
         <label >Fecha Aprobación</label>
@@ -42,7 +54,7 @@
     </div>
     <div class="form-group">
         <label >Inicio Ciclo Vigencia</label>
-        <select class="form-control" 
+        <select class="form-control select2" 
                 id="cboOrientacion"
                 name="cicloInicioVigencia.id"
                 th:unless="${planCurricular.id}"

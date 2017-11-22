@@ -4,6 +4,11 @@ $(function () {
         dataset: {
             ajaxUrl: APP.url('academico/planCurricular/plan/listCurObl')
             , perPageDefault: 10
+        }, features: {
+            paginate: false,
+            recordCount: false,
+            sorting: false,
+            search: false
         },
         writers: {
             _rowWriter: ulWriter
@@ -20,6 +25,11 @@ $(function () {
         },
         writers: {
             _rowWriter: ulWriterRes
+        }, features: {
+            paginate: false,
+            recordCount: false,
+            sorting: false,
+            search: false
         },
         table: {
             bodyRowSelector: 'tbody tr'
@@ -36,6 +46,11 @@ $(function () {
         },
         table: {
             bodyRowSelector: 'tbody tr'
+        }, features: {
+            paginate: false,
+            recordCount: false,
+            sorting: false,
+            search: false
         }
     }).data('dynatable');
 

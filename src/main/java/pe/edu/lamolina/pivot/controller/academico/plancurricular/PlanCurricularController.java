@@ -119,6 +119,10 @@ public class PlanCurricularController {
                 node.put("carreraNombre", planCurEach.getCarrera().getNombre());
                 node.put("estadoDes", planCurEach.getEstadoEnum().getValue());
                 node.put("estadoEnum", planCurEach.getCarrera().getNombre());
+
+                node.put("cantObl", planCurEach.getCantidadCursosCurricula());
+                node.put("cantOpc", planCurEach.getCantidadCursosOpcionales());
+                node.put("cantAdc", planCurEach.getCantidadCursosAdicionales());
                 array.add(node);
             }
 
@@ -338,12 +342,13 @@ public class PlanCurricularController {
     @RequestMapping("{carrera}/orientacionCarrera")
     public String orientacionCarrera(@PathVariable("carrera") Long carrera,
             Model model, HttpSession session) {
-        List<OrientacionCarrera> orientacionesCarrera = planCurricularService.allOrientacionCarreraByFilter(new Carrera(carrera), EstadoEnum.ANU);
-        String template = "<option value=\"%d\">%s<option>";
+        List<OrientacionCarrera> orientacionesCarrera = planCurricularService.allOrientacionCarreraByFilter(new Carrera(carrera), EstadoEnum.ACT);
+        String template = "<option value=\"%s\">%s</option>";
         StringBuilder select = new StringBuilder();
+        select.append(String.format(template, "", "Seleccione"));
         if (!orientacionesCarrera.isEmpty()) {
             for (OrientacionCarrera orientacionCarrera : orientacionesCarrera) {
-                select.append(String.format(template, orientacionCarrera.getId(), orientacionCarrera.getNombre()));
+                select.append(String.format(template, orientacionCarrera.getId().toString(), orientacionCarrera.getNombre()));
             }
         }
         return select.toString();
@@ -400,10 +405,10 @@ public class PlanCurricularController {
 
             if (planCurricular.getId() == null) {
 
-                node.put("operation", "s");
-                node.put("planCurricular", planCurricular.getId());
                 message = "Creado exitosamente.";
                 planCurricularService.savePlanCurricular(planCurricular);
+                node.put("operation", "s");
+                node.put("planCurricular", planCurricular.getId());
             } else {
                 node.put("operation", "u");
                 message = "Actualizado exitosamente.";

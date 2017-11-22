@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,7 +201,19 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     public List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras) {
-        return planCurricularDAO.allByDynatable(filter, carreras);
+        List<PlanCurricular> planesCurriculares = planCurricularDAO.allByDynatable(filter, carreras);
+        Map cursosCurriculaCounts = cursoCurriculaDAO.countByPlanesCurricular(planesCurriculares);
+        Map cursosAdiCurriculaCounts = cursoAdicionalCurriculaDAO.countByPlanesCurricular(planesCurriculares);
+        Map cursosOpcCurriculaCounts = cursoOpcionalCurriculaDAO.countByPlanesCurricular(planesCurriculares);
+        for (PlanCurricular planCurricular : planesCurriculares) {
+            Integer curObl = (Integer) cursosCurriculaCounts.get(planCurricular.getId());
+            Integer curOpc = (Integer) cursosOpcCurriculaCounts.get(planCurricular.getId());
+            Integer curAdc = (Integer) cursosAdiCurriculaCounts.get(planCurricular.getId());
+            planCurricular.setCantidadCursosCurricula(curObl == null ? 0 : curObl);
+            planCurricular.setCantidadCursosOpcionales(curOpc == null ? 0 : curOpc);
+            planCurricular.setCantidadCursosAdicionales(curAdc == null ? 0 : curAdc);
+        }
+        return planesCurriculares;
     }
 
     @Override
