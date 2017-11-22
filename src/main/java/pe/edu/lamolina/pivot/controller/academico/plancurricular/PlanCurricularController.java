@@ -271,14 +271,14 @@ public class PlanCurricularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         DateTime today = new DateTime();
-        DepartamentoAcademico departamentoAcademico = ds.getDepartamentoAcademico();
-        Facultad facultad = departamentoAcademico.getFacultad();
+//        DepartamentoAcademico departamentoAcademico = ds.getDepartamentoAcademico();
+//        Facultad facultad = departamentoAcademico.getFacultad();
 
         PlanCurricular planCurricular = new PlanCurricular();
         planCurricular.init();
 
         List<CicloAcademico> ciclosAcademicos = planCurricularService.allRecientesCiclosAcad(today.getYear() - 2, 10);
-        List<Carrera> carreras = planCurricularService.allCarrerasByFilter(facultad, EstadoEnum.ACT);
+        List<Carrera> carreras = ds.getCarreras();
 
         model.addAttribute("ciclosAcademicos", ciclosAcademicos);
         model.addAttribute("planCurricular", planCurricular);
@@ -529,13 +529,13 @@ public class PlanCurricularController {
         logger.debug("entro a nuevo");
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        DepartamentoAcademico departamentoAcademico = ds.getDepartamentoAcademico();
-        Facultad facultad = departamentoAcademico.getFacultad();
+        //DepartamentoAcademico departamentoAcademico = ds.getDepartamentoAcademico();
+        //Facultad facultad = departamentoAcademico.getFacultad();
         DateTime today = new DateTime();
 
         PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(planCurricularId));
         List<CicloAcademico> ciclosAcademicos = planCurricularService.allRecientesCiclosAcad(today.getYear() - 2, 10);
-        List<Carrera> carreras = planCurricularService.allCarrerasByFilter(facultad, EstadoEnum.ACT);
+        List<Carrera> carreras = ds.getCarreras();  //planCurricularService.allCarrerasByFilter(facultad, EstadoEnum.ACT);
 
         model.addAttribute("ciclosAcademicos", ciclosAcademicos);
         model.addAttribute("planCurricular", planCurricular);
