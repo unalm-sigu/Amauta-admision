@@ -467,7 +467,9 @@ $(function () {
                                 if (response.success) {
                                     MODAL.hide();
                                     notify(response.message, "info");
-                                    location.href = APP.url('academico/planCurricular/plan/' + response.data.planCurricular + '/succesSave');
+                                    if (response.data.operation == "s") {
+                                        location.href = APP.url('academico/planCurricular/plan/' + response.data.planCurricular + '/succesSave');
+                                    }
                                 } else {
                                     MODAL.hideWait();
                                     MODAL.hide();
@@ -799,6 +801,9 @@ $(function () {
             var fin = nom.indexOf("]", ini);
             nom = nom.substring(0, ini + 1) + idx + nom.substring(fin, nom.length);
             return nom;
+        },
+        cancelarNuevo: function ($this, e) {
+            location.href = APP.url('academico/planCurricular/plan');
         }
     }
     NuevoPlanCurricular.init();
@@ -828,6 +833,10 @@ $(function () {
     });
 
     $("body").delegate("#cmbSavePlanCurricular", "click", function (e) {
+        NuevoPlanCurricular.savePlanCurricular();
+    });
+
+    $("body").delegate("#cmbUpdate", "click", function (e) {
         NuevoPlanCurricular.savePlanCurricular();
     });
 
@@ -865,5 +874,9 @@ $(function () {
 
     $("body").delegate(".delete-cur-elec", "click", function (e) {
         NuevoPlanCurricular.deleteCursoElec($(this), e);
+    });
+
+    $("body").delegate(".cancelar", "click", function (e) {
+        NuevoPlanCurricular.cancelarNuevo($(this), e);
     });
 });

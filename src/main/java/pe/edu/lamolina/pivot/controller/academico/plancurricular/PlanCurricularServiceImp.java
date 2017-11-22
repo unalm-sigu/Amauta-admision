@@ -95,6 +95,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional(readOnly = false)
+    public void updatePlanCurricular(PlanCurricular planCurricular) {
+        planCurricularDAO.updatePlanCurricular(planCurricular);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void agregarCursoCurricula(CursoCurricula cursoCurricula) {
 
         PlanCurricular planCurricular = planCurricularDAO.find(cursoCurricula.getPlanCurricular().getId());

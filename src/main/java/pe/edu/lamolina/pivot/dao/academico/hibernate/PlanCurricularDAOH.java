@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
@@ -9,7 +10,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
 
 @Repository
 public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements PlanCurricularDAO {
@@ -40,4 +40,16 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
                 .orderBy("pc.id desc");
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public void updatePlanCurricular(PlanCurricular planCurricular) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" update PlanCurricular set fechaAprobado=:prm_fecha_aprob where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(sql.toString());
+
+        query.setParameter("prm_fecha_aprob", planCurricular.getFechaAprobado());
+        query.setParameter("prm_id", planCurricular.getId());
+        query.executeUpdate();
+    }
+
 }

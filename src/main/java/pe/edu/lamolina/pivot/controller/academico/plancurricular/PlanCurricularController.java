@@ -90,7 +90,7 @@ public class PlanCurricularController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        //    model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         return "academico/plancurricular/plan/planCurricular";
     }
 
@@ -117,7 +117,8 @@ public class PlanCurricularController {
                 node.put("fechaAprobacion", new DateTime(planCurEach.getFechaAprobado()).toString("dd/MM/yyyy"));
                 node.put("carreraCodigo", planCurEach.getCarrera().getCodigo());
                 node.put("carreraNombre", planCurEach.getCarrera().getNombre());
-
+                node.put("estadoDes", planCurEach.getEstadoEnum().getValue());
+                node.put("estadoEnum", planCurEach.getCarrera().getNombre());
                 array.add(node);
             }
 
@@ -398,13 +399,15 @@ public class PlanCurricularController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
             if (planCurricular.getId() == null) {
-                planCurricularService.savePlanCurricular(planCurricular);
-                //    node.put("operation", "s");
+
+                node.put("operation", "s");
                 node.put("planCurricular", planCurricular.getId());
                 message = "Creado exitosamente.";
+                planCurricularService.savePlanCurricular(planCurricular);
             } else {
                 node.put("operation", "u");
                 message = "Actualizado exitosamente.";
+                planCurricularService.updatePlanCurricular(planCurricular);
             }
 
             response.setData(node);
@@ -530,12 +533,13 @@ public class PlanCurricularController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DepartamentoAcademico departamentoAcademico = ds.getDepartamentoAcademico();
-        Facultad facultad = departamentoAcademico.getFacultad();
+        //  Facultad facultad = departamentoAcademico.getFacultad();
         DateTime today = new DateTime();
 
         PlanCurricular planCurricular = planCurricularService.findPlanCurricularById(new PlanCurricular(planCurricularId));
         List<CicloAcademico> ciclosAcademicos = planCurricularService.allRecientesCiclosAcad(today.getYear() - 2, 10);
-        List<Carrera> carreras = planCurricularService.allCarrerasByFilter(facultad, EstadoEnum.ACT);
+        //   List<Carrera> carreras = planCurricularService.allCarrerasByFilter(facultad, EstadoEnum.ACT);
+        List<Carrera> carreras = ds.getCarreras();
 
         model.addAttribute("ciclosAcademicos", ciclosAcademicos);
         model.addAttribute("planCurricular", planCurricular);

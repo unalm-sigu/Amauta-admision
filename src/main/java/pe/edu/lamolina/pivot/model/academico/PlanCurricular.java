@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import org.apache.commons.lang3.StringUtils;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
@@ -150,6 +151,13 @@ public class PlanCurricular implements Serializable {
 
     public void setResumenPlanCurricular(List<ResumenPlanCurricular> resumenPlanCurricular) {
         this.resumenPlanCurricular = resumenPlanCurricular;
+    }
+
+    public EstadoEnum getEstadoEnum() {
+        if (StringUtils.isBlank(this.getEstado())) {
+            return null;
+        }
+        return EstadoEnum.valueOf(this.getEstado());
     }
 
 }

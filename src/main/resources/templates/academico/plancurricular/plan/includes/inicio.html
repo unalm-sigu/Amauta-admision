@@ -1,18 +1,23 @@
 <section class="panel-body container">
     <div class="form-group">
         <label for="cboCarrera">Carrera</label>
-        <select class="form-control" 
+        <select class="form-control select2" 
                 id="cboCarrera"
                 name="carrera.id"
-                required="">
+                required=""
+                th:unless="${planCurricular.id}"
+                >
             <option value="">Seleccione</option> 
             <option  th:each="item : ${carrerasFacultad}" 
-                     th:selected="${planCurricular.carrera.id==item.id}"
                      th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
         </select>
+        <span class="form-control" 
+              th:if="${planCurricular.id}"
+              th:text="|${planCurricular.carrera.codigo} - ${planCurricular.carrera.nombre}|"></span>
+        <input name="carrera.id" type="hidden" th:value="${planCurricular.carrera.id}"/>
     </div>
     <div class="form-group">
-        <label for="cboOrientacion">Orienacion</label>
+        <label for="cboOrientacion">Orientación</label>
         <select class="form-control" 
                 id="cboOrientacion"
                 name="orientacionCarrera.id">
@@ -40,13 +45,22 @@
         <select class="form-control" 
                 id="cboOrientacion"
                 name="cicloInicioVigencia.id"
+                th:unless="${planCurricular.id}"
                 required="">
             <option value="">Seleccione</option> 
             <option  th:each="item : ${ciclosAcademicos}" 
-                     th:selected="${planCurricular.cicloInicioVigencia.id==item.id}"
                      th:value="${item.id}"
                      th:text="${item.codigo +' - '+ item.descripcion}"></option>
         </select>
+
+        <span class="form-control" 
+              th:if="${planCurricular.id}"
+              th:text="${planCurricular.cicloInicioVigencia.codigo +' - '+ planCurricular.cicloInicioVigencia.descripcion}"></span>
+        <input name="cicloInicioVigencia.id" type="hidden" th:value="${planCurricular.cicloInicioVigencia.id}"/>
     </div>
+
+    <section class="pull-right">
+        <a href="#" th:if="${planCurricular.id}" id="cmbUpdate" class="btn btn-success">Actualizar</a>
+    </section>
 
 </section>

@@ -64,4 +64,6 @@ public interface PlanCurricularService {
 
     List<ResumenPlanCurricular> allResPlanCurByDynatable(DynatableFilter filter);
 
+    void updatePlanCurricular(PlanCurricular planCurricular);
+
 }

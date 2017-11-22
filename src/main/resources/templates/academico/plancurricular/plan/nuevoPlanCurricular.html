@@ -7,7 +7,8 @@
 <body>
     <div layout:fragment="main">
         <header class="page-header">
-            <h2>Nuevo Plan de Estudios</h2>
+            <h2 th:if="${planCurricular.id}">Editar Plan de Estudios</h2>
+            <h2 th:unless="${planCurricular.id}">Nuevo Plan de Estudios</h2>
         </header>
 
         <form id="frmPlanCurricular">
