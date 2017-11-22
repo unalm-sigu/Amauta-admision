@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoAdicionalCurriculaDAO;
@@ -95,6 +96,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional(readOnly = false)
     public void agregarCursoCurricula(CursoCurricula cursoCurricula) {
+
+        PlanCurricular planCurricular = planCurricularDAO.find(cursoCurricula.getPlanCurricular().getId());
+        List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByPlan(planCurricular);
+        CursoCurricula cursoCurriculaFound = cursosCurricula.stream().filter(curcur -> curcur.getCurso().getId().equals(cursoCurricula.getCurso().getId())).findFirst().orElse(null);
+
+        if (cursoCurriculaFound != null) {
+            throw new PhobosException("El curso ya se encuentra agregado en el plan curricular");
+        }
+
         if (cursoCurricula.getRequisitosCurricula() != null && !cursoCurricula.getRequisitosCurricula().isEmpty()) {
             for (RequisitoCursoCurricula reqCurricula : cursoCurricula.getRequisitosCurricula()) {
                 reqCurricula.setCursoCurricula(cursoCurricula);
@@ -124,6 +134,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional(readOnly = false)
     public void agregarCursoAdcCurricula(CursoAdicionalCurricula cursoAdicionalCurricula) {
+        PlanCurricular planCurricular = planCurricularDAO.find(cursoAdicionalCurricula.getPlanCurricular().getId());
+        List<CursoAdicionalCurricula> cursosAdicionalesPlan = cursoAdicionalCurriculaDAO.allByPlan(planCurricular);
+
+        CursoAdicionalCurricula cursoAdcCurriculaFound = cursosAdicionalesPlan.stream().filter(curadc -> curadc.getCurso().getId().equals(cursoAdicionalCurricula.getCurso().getId())).findFirst().orElse(null);
+
+        if (cursoAdcCurriculaFound != null) {
+            throw new PhobosException("El curso adicional ya se encuentra agregado en el plan curricular");
+        }
+
         cursoAdicionalCurriculaDAO.save(cursoAdicionalCurricula);
     }
 
@@ -174,8 +193,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
-    public List<PlanCurricular> allByDynatable(DynatableFilter filter, Facultad facultad) {
-        return planCurricularDAO.allByDynatable(filter, facultad);
+    public List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras) {
+        return planCurricularDAO.allByDynatable(filter, carreras);
     }
 
     @Override

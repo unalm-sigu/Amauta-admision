@@ -231,7 +231,7 @@ $(function () {
         }, agregarCursoElec($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : Ciclo ");
+            MODAL.title("Cursos Electivos");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnAddCurElec">Aceptar</a>');
             MODAL.body('');
@@ -255,7 +255,7 @@ $(function () {
         }, agregarCursoAdc($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : Ciclo ");
+            MODAL.title("Cursos Adicionales");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnAddCurAdc">Aceptar</a>');
             MODAL.body('');
@@ -519,11 +519,13 @@ $(function () {
                                 dynatableCursosObl.queries.add("numCic", NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
                                 dynatableCursosObl.process();
                             } else {
+                                MODAL.hideWait();
                                 MODAL.hide();
                                 notify(response.message, "error");
                             }
                         },
                         error: function () {
+                            MODAL.hideWait();
                             MODAL.hide();
                             notify(MESSAGES.errorComunicacion, "error");
                         }
@@ -563,11 +565,13 @@ $(function () {
                                 dynatableCursosAdc.queries.add("planc", $("#txtPlanCurricular").val());
                                 dynatableCursosAdc.process();
                             } else {
+                                MODAL.hideWait();
                                 MODAL.hide();
                                 notify(response.message, "error");
                             }
                         },
                         error: function () {
+                            MODAL.hideWait();
                             MODAL.hide();
                             notify(MESSAGES.errorComunicacion, "error");
                         }
