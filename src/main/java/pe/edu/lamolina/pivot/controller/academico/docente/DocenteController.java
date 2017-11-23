@@ -197,12 +197,14 @@ public class DocenteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            response.setMessage("Docente modificado satisfactoriamente");
+            
             if (docente.getId() == null) {
+                service.save(docente, ds);
                 response.setMessage("Docente creado satisfactoriamente");
+            } else {
+                service.update(docente, ds);
+                response.setMessage("Docente modificado satisfactoriamente");
             }
-
-            service.save(docente, ds);
 
             response.setSuccess(true);
             response.setData(node);
@@ -292,31 +294,83 @@ public class DocenteController {
         JsonResponse response = new JsonResponse();
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Persona persona = service.findPersona(docente.getPersona());
+            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
+            Compania compania = ds.getCompania();
+
+            node.put("existePersona", (persona != null));
+
+            if (persona == null) {
+                persona = new Persona();
+            }
+
+            node.put("name", persona.getApellidosNombres());
+            Docente docenteDb = null;
+
+            if (persona.getId() != null) {
+
+                node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
+                node.put("numeroDoc", persona.getNumeroDocIdentidad());
+
+                docenteDb = service.findDocenteByPersona(persona);
+            }
+
+            node.put("existeDocente", (docenteDb != null));
+
+            if (docenteDb == null) {
+                docenteDb = new Docente();
+                docenteDb.setPersona(persona);
+            }
+
+            Context ctx = new Context();
+            ctx.setVariable("docente", docenteDb);
+            ctx.setVariable("documentos", service.allDocumentos());
+            ctx.setVariable("modalidades", service.allModalidadEstudio(compania));
+
+            String htmlContent = springHtml.process("academico/docente/docente/docenteForm", ctx, new DOMSelectorFragmentSpec("#formularioDocente"));
+
+            node.put("html", htmlContent);
+            response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("disponibilidad")
+    public JsonResponse disponibilidadPersona(Docente docente, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        try {
+
+            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
+            Persona personaDb = service.findPersona(docente.getPersona());
+            node.put("numeroDocOriginal", personaDb.getNumeroDocIdentidad());
+
+            if (personaDb.getFechaValidacionReniec() != null) {
+                logger.debug("No puede editar el numero del documento de un registro ya validado");
+                response.setMessage("No puede editar el numero del documento de un registro ya validado");
+                node.put("validadoReniec", (personaDb.getFechaValidacionReniec() != null));
+            }
+
             node.put("existePersona", (persona != null));
             if (persona != null) {
-                node.put("name", persona.getNombreCompleto());
-                Docente docenteDb = service.findDocenteByPersona(persona);
-                node.put("existeDocente", (docenteDb != null));
-                if (docenteDb == null) {
-                    docenteDb = new Docente();
-                    docenteDb.setPersona(persona);
-                }
-                Context ctx = new Context();
-                ctx.setVariable("docente", docenteDb);
-                
-//                ProcessingContext processingContext = new ProcessingContext(ctx);
-//                StandardFragment fragmentSpec
-//                        = StandardFragmentProcessor.computeStandardFragmentSpec(springHtml.getConfiguration(),
-//                                processingContext, "academico/docente/docente/docenteForm::form", "SpringStandard", "fragment");
-//                
-//                String htmlContent = springHtml.process("academico/docente/docente/docenteForm", ctx, fragmentSpec.getFragmentSpec());
-                String htmlContent = springHtml.process("academico/docente/docente/docenteForm", ctx, new DOMSelectorFragmentSpec("#formularioDocente"));
-                node.put("html", htmlContent);
+                Persona personaForm = docente.getPersona();
+                node.put("passPersona", (personaForm.getId().longValue() == persona.getId()));
+                node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
+                node.put("numeroDoc", persona.getNumeroDocIdentidad());
+
             }
             response.setData(node);
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

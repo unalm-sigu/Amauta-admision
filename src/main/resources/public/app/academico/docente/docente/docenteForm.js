@@ -4,8 +4,7 @@ $(function () {
         form: $("form"),
         body: $("body"),
         init: function () {
-
-            $('#fileupload').fileupload({
+            Docente.form.find('#fileupload').fileupload({
                 url: APP.url('academico/docente/upload'),
                 maxNumberOfFiles: 1,
                 dataType: 'json',
@@ -54,8 +53,21 @@ $(function () {
                     notify(data.result.message, "error");
                 }
             });
+            Docente.form.find("[name='departamentoAcademico.id']").select2(Docente.departamentoAcademico());
+            Docente.form.find(".date").datepickerBoot();
+            Docente.form.find("#buscarDistrito").select2(Docente.buscarDistrito());
 
-            $("[name='departamentoAcademico.id']").select2({
+            Docente.form.find("[name='persona.tipoDocumento.id']").
+                    select2({minimumResultsForSearch: -1}).
+                    on("change", function () {
+                        if (Docente.form.find("[name='persona.numeroDocIdentidad']").parsley().validate() == true) {
+                            Docente.form.find("[name='persona.numeroDocIdentidad']").trigger('change');
+                        }
+                    });
+            Docente.form.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
+        },
+        departamentoAcademico: function () {
+            return {
                 allowClear: true,
                 minimumInputLength: 2,
                 placeholder: " ",
@@ -76,21 +88,21 @@ $(function () {
                     }
                 },
                 formatResult: function (info) {
-                    return '<p>' + info.nombre + '</p>  '+ '<p class="bold text-xs"> ' +  info.facultadName +'</p>' ;
+                    return '<p>' + info.nombre + '</p>  ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
                 },
                 formatSelection: function (info) {
-                    return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' +  info.facultadName +'</p>' ;
+                    return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
                 },
                 escapeMarkup: function (m) {
                     return m;
                 }
-            });
+            }
         },
         validaEmail: function ($this) {
 
             var form = $("#formPersonaEdit");
             var emailEmpresa = form.find("[name='emailEmpresa']").val();
-            console.log("email: " + emailEmpresa);
+
             if ($this.parsley().isValid()) {
 
                 var email = emailEmpresa;
@@ -111,6 +123,8 @@ $(function () {
 
                                 }
                             }
+
+
                         } else {
                             notify(response.message, "error");
                         }
@@ -220,50 +234,84 @@ $(function () {
             });
         },
         verificarPersona: function (self) {
-
-            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false})
-            var numeroDocIdentidad = $("[name='persona.numeroDocIdentidad']").parsley();
-
+            if (Docente.form.find("[name='persona.numeroDocIdentidad']").val() == "") {
+                return;
+            }
+            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
+            if (Docente.form.find("[name='id']").val() != "") {
+                console.log('modo editar');
+                $.ajax({
+                    url: APP.url('academico/docente/disponibilidad'),
+                    type: 'POST',
+                    async: true,
+                    data: Docente.form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            if (response.data.existePersona) {
+                                if (response.data.passPersona) {
+                                    if (response.data.validadoReniec) {
+                                        Docente.form.find("[name='persona.numeroDocIdentidad']").val(response.data.numeroDocOriginal);
+                                        notify(response.message, "error");
+                                    }
+                                    mibox.modal('hide');
+                                } else {
+                                    Docente.form.find("[name='persona.numeroDocIdentidad']").val(response.data.numeroDocOriginal);
+                                    var dnni = '<b>' + response.data.simboloDoc + '</b> :  ' + response.data.numeroDoc;
+                                    notify("Docente ya registrado con  " + dnni, "error");
+                                    mibox.modal('hide');
+                                }
+                            }
+                            mibox.modal('hide');
+                        } else {
+                            Docente.form.find("[name='persona.numeroDocIdentidad']").val('');
+                            mibox.modal('hide');
+                            notify(response.message, "error");
+                        }
+                    },
+                    error: function () {
+                        Docente.form.find("[name='persona.numeroDocIdentidad']").val('');
+                        mibox.modal('hide');
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                return;
+            }
             $('#nombreDocente').text('Nuevo Docente');
-
             $.ajax({
                 url: APP.url('academico/docente/findPersona'),
                 type: 'POST',
                 async: true,
-                data: $('form').serialize(),
+                data: Docente.form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        if (response.data.existePersona) {
-                            $('#nombreDocente').text(response.data.name);
-                            if (response.data.existeDocente) {
-                                Docente.form.find("select[name='modalidadEstudio.id']").select2('val', response.data.docModalidad);
-                                Docente.form.
-                                        find("[name='departamentoAcademico.id']").
-                                        select2('data', {id: response.data.docDepartamento,
-                                            nombre: response.data.docDepartamentoName,
-                                            codigo: response.data.docDepartamentoCodigo});
-                                Docente.form.find('#btnSavePersona').text('Actualizar Docente');
-                            } else {
-                                Docente.form.find('#btnSavePersona').text('Guardar Docente');
-                            }
-                            mibox.modal('hide');
-                            $("#formPersona").html('');
+
+                        if (response.data.existeDocente) {
+                            var dnni = '<b>' + response.data.simboloDoc + '</b> :  ' + response.data.numeroDoc;
+                            notify("Docente ya registrado con  " + dnni, "error");
+                            Docente.form.find("[name='persona.numeroDocIdentidad']").val('');
                         } else {
-                            var html = $.templates("#docentePersonaTemplate").render({});
-                            Docente.form.find("#formPersona").html(html);
-                            Docente.form.find(".date").datepickerBoot();
+
+                            if (response.data.existePersona) {
+                                $('#nombreDocente').text(response.data.name);
+                            }
+                            Docente.form.find('#formularioDocente').html(response.data.html);
+                            Docente.form.find("[name='departamentoAcademico.id']").select2(Docente.departamentoAcademico());
                             Docente.form.find("#buscarDistrito").select2(Docente.buscarDistrito());
-                            Docente.form.find('#btnSavePersona').text('Guardar Docente');
+                            Docente.form.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
+                            Docente.form.find(".date").datepickerBoot();
+
+                            mibox.modal('hide');
                         }
+
                         mibox.modal('hide');
                     } else {
-                        $("[name='persona.numeroDocIdentidad']").val('');
+                        Docente.form.find("[name='persona.numeroDocIdentidad']").val('');
                         mibox.modal('hide');
                         notify(response.message, "error");
                     }
                 },
                 error: function () {
-                    $("[name='persona.numeroDocIdentidad']").val('');
+                    Docente.form.find("[name='persona.numeroDocIdentidad']").val('');
                     mibox.modal('hide');
                     notify(MESSAGES.errorComunicacion, "error");
                 }
