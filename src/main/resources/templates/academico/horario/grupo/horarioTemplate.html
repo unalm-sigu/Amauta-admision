@@ -27,14 +27,15 @@
 
                         </td>
                         <td style="width: 12.5%" th:each="diaHora : ${hora.diaHoraGrupo}">
-                            <span 
+                            <span
                                 class="form-control pointer text-center"
                                 th:classappend="|${diaHora.grupoHorario.id==null ? 'asignar-hora' : 'desasignar-hora'}|"
-                                th:style="'border-color:'+${diaHora.grupoHorario.color}+';'"
+                                th:style="'border-color:'+${diaHora.grupoHorario.color}+';background-color:'+${diaHora.grupoHorario.color}"
                                 th:rel="${diaHora.hora.id}" 
-                                th:text="${diaHora.grupoHorario.codigo}"
+                                
                                 th:attr="data-id=${diaHora.id},data-idgrupo=${diaHora.grupoHorario.id}"
                                 th:rev="${diaHora.dia.id}">
+                                <p class="text-item-horario" th:text="${diaHora.grupoHorario.codigo}"></p>
                             </span>
                         </td>
                     </tr>

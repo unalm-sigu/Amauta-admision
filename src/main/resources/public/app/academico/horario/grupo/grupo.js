@@ -197,12 +197,14 @@ $(function () {
             });
         },
         verhorario: function (e) {
+            MODAL.showWait("Se está buscando la información ...");
             e.preventDefault();
             var self = $(e.currentTarget);
             var id = self.attr("rel");
             this.toggleActivo(self);
             Grupo.grupoActivo = id;
             this.getHorario(id);
+            MODAL.hideWait();
         },
         toggleActivo: function (self) {
             var activo = $(".list-group-item.grupoactivo");
