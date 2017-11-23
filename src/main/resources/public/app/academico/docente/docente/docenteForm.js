@@ -136,11 +136,13 @@ $(function () {
             }
 
         },
-        save: function () {
-            $('#btnSavePersona').btnDisabled();
+        save: function (e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            self.btnDisabled();
             var form = $("form");
-            if (!form.parsley().validate()) {
-                $('#btnSavePersona').btnEnable();
+            if (form.parsley().validate() != true) {
+                self.btnEnable();
                 return;
             }
             $.ajax({
@@ -150,19 +152,18 @@ $(function () {
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        window.location.replace(APP.url('academico/docente'));
                         notify(response.message, "info");
+                        window.location.replace(APP.url('academico/docente'));
                     } else {
                         notify(response.message, "error");
+                        self.btnEnable();
                     }
-                    $('#btnSavePersona').btnEnable();
                 },
                 error: function () {
-                    $('#btnSavePersona').btnEnable();
+                    self.btnEnable();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
         },
         validarEmail: function ($this, e) {
             if ($this.val() == "") {
@@ -239,7 +240,6 @@ $(function () {
             }
             var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             if (Docente.form.find("[name='id']").val() != "") {
-                console.log('modo editar');
                 $.ajax({
                     url: APP.url('academico/docente/disponibilidad'),
                     type: 'POST',
@@ -253,12 +253,17 @@ $(function () {
                                         Docente.form.find("[name='persona.numeroDocIdentidad']").val(response.data.numeroDocOriginal);
                                         notify(response.message, "error");
                                     }
-                                    mibox.modal('hide');
                                 } else {
                                     Docente.form.find("[name='persona.numeroDocIdentidad']").val(response.data.numeroDocOriginal);
+                                    Docente.form.find("[name='persona.tipoDocumento.id']").select2('val', response.data.tipoIdDocOriginal);
                                     var dnni = '<b>' + response.data.simboloDoc + '</b> :  ' + response.data.numeroDoc;
                                     notify("Docente ya registrado con  " + dnni, "error");
-                                    mibox.modal('hide');
+                                }
+                            } else {
+                                if (response.data.validadoReniec) {
+                                    Docente.form.find("[name='persona.numeroDocIdentidad']").val(response.data.numeroDocOriginal);
+                                    Docente.form.find("[name='persona.tipoDocumento.id']").select2('val', response.data.tipoIdDocOriginal);
+                                    notify(response.message, "error");
                                 }
                             }
                             mibox.modal('hide');
@@ -370,8 +375,8 @@ $(function () {
     Docente.body.delegate("[name='persona.numeroDocIdentidad']", "change", function () {
         Docente.verificarPersona($(this));
     });
-    Docente.body.delegate("#btnSavePersona", "click", function () {
-        Docente.save();
+    Docente.body.delegate("#btnSavePersona", "click", function (e) {
+        Docente.save(e);
     });
     Docente.body.delegate("#fileuploadtrigger", "click", function () {
         $('#fileupload').trigger('click');

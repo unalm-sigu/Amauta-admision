@@ -197,7 +197,7 @@ public class DocenteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             if (docente.getId() == null) {
                 service.save(docente, ds);
                 response.setMessage("Docente creado satisfactoriamente");
@@ -357,6 +357,8 @@ public class DocenteController {
             if (personaDb.getFechaValidacionReniec() != null) {
                 logger.debug("No puede editar el numero del documento de un registro ya validado");
                 response.setMessage("No puede editar el numero del documento de un registro ya validado");
+                node.put("tipoDocOriginal", personaDb.getTipoDocumento().getNombre());
+                node.put("tipoIdDocOriginal", personaDb.getTipoDocumento().getId());
                 node.put("validadoReniec", (personaDb.getFechaValidacionReniec() != null));
             }
 
