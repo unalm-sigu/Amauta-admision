@@ -19,7 +19,7 @@ $(function () {
     }).data('dynatable');
 
     $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
-        Grupo.grupoActivo = null;
+        Grupo.foccusActivo();
     });
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
@@ -74,7 +74,7 @@ $(function () {
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="letra"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="conHorario"]').select2({minimumResultsForSearch: -1});
-                        mimodal.find('.cp').colorpicker({color: '#4116ff'});
+                        mimodal.find('.cp').colorpicker();
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
                         notify(response.message, "error");
@@ -119,7 +119,7 @@ $(function () {
                         mimodal.find('[name="tipoSeccion"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="letra"]').select2({minimumResultsForSearch: -1});
                         mimodal.find('[name="conHorario"]').select2({minimumResultsForSearch: -1});
-                        mimodal.find('.cp').colorpicker({color: '#4116ff'});
+                        mimodal.find('.cp').colorpicker({color: '#000'});
                         mimodal.find('[name="tipoGrupoHoras.id"]').val($("[name=idTipoGrupo]").val());
                     } else {
                         notify(response.message, "error");
@@ -183,7 +183,9 @@ $(function () {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     dynatable.process();
-                                    Grupo.grupoActivo = null;
+                                    if (Grupo.grupoActivo == id) {
+                                        Grupo.grupoActivo = null;
+                                    }
                                 } else {
                                     notify(response.message, "error");
                                 }
@@ -197,14 +199,14 @@ $(function () {
             });
         },
         verhorario: function (e) {
-            MODAL.showWait("Se está buscando la información ...");
+            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             e.preventDefault();
             var self = $(e.currentTarget);
             var id = self.attr("rel");
             this.toggleActivo(self);
             Grupo.grupoActivo = id;
             this.getHorario(id);
-            MODAL.hideWait();
+            mibox.modal('hide');
         },
         toggleActivo: function (self) {
             var activo = $(".list-group-item.grupoactivo");
@@ -213,6 +215,15 @@ $(function () {
             }
             var patter = self.parents(".list-group-item:first");
             patter.addClass("grupoactivo");
+        },
+        foccusActivo: function () {
+            var activo = $(".list-group-item.grupoactivo");
+            if (activo.length < 1) {
+                if (Grupo.grupoActivo != null) {
+                    var patter = $(".verhorario[rel=" + Grupo.grupoActivo + "]").parents(".list-group-item:first");
+                    patter.addClass("grupoactivo");
+                }
+            }
         },
         getHorario: function () {
             $.ajax({
@@ -239,7 +250,7 @@ $(function () {
             if (Grupo.grupoActivo == null) {
                 return;
             }
-
+            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             var self = $(e.currentTarget);
             var hora = self.attr("rel");
             var dia = self.attr("rev");
@@ -255,12 +266,14 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         Grupo.getHorario();
-                        //dynatable.process();
+                        dynatable.process();
                     } else {
                         notify(response.message, "error");
                     }
+                    mibox.modal('hide');
                 },
                 error: function () {
+                    mibox.modal('hide');
                     notify(MESSAGES.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
@@ -271,6 +284,7 @@ $(function () {
             if (Grupo.grupoActivo == null) {
                 return;
             }
+            var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             var self = $(e.currentTarget);
             var id = self.data("id");
             var grupo = self.data("idgrupo");
@@ -286,13 +300,15 @@ $(function () {
                 },
                 success: function (response) {
                     if (response.success) {
-                        //dynatable.process();
+                        dynatable.process();
                         Grupo.getHorario();
                     } else {
                         notify(response.message, "error");
                     }
+                    mibox.modal('hide');
                 },
                 error: function () {
+                    mibox.modal('hide');
                     notify(MESSAGES.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
