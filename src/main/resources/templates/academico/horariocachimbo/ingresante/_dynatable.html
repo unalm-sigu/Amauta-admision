@@ -1,0 +1,54 @@
+<template id="dynatableTemplate">
+    <transition name="fade">
+
+        <div class="panel padder-v">
+            <div id="dynaTable">
+            </div>
+        </div>
+
+    </transition>
+</template>
+
+<template id="dynatableRowTemplate">
+    <transition name="fade">
+        <div>
+
+            <div class="col-md-3" >
+                <div class="list-group">
+
+                    <div href="#" class="list-group-item item " style="min-height: 140px;border-color: #2c3e50;" >
+
+                        <div class="dropdown actions pull-right">
+
+                            <a class="dropdown-toggle text-muted" href="#" data-toggle="dropdown">
+                                <i class="fa fa-cog" aria-hidden="true"></i>
+                            </a>
+
+                            <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
+                                <li role="presentation">
+                                    <a class="btn-link editar" href="#" rel='' >Editar</a>
+                                </li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation">
+                                    <a class="btn-link eliminar" rel=""  href="#">Eliminar</a>
+                                </li>
+                            </ul>
+
+                        </div>
+
+                        <div class="m-t-sm  pointer opengroup"  rel="">
+                            <h4 class="list-group-item-heading" > GRUPO  </h4>
+                            <h6 class="list-group-item-heading" ><b>Descripción:</b> </h6>
+                            <h6 class="list-group-item-heading" ><b>Grupo:</b> </h6>
+                            <h6 class="list-group-item-heading" ><b>Tipo Ciclo:</b> </h6>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </transition>
+</template>
+
+

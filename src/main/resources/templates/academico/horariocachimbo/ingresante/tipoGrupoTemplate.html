@@ -1,0 +1,54 @@
+<div class="col-md-3" >
+    <div class="list-group">
+
+        <div href="#" class="list-group-item item " style="min-height: 140px;border-color: #2c3e50;"  rel="{{item.id}}" >
+
+            <div class="dropdown actions pull-right">
+
+                <a class="dropdown-toggle text-muted" href="#" data-toggle="dropdown">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                </a>
+
+                <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
+                    <li role="presentation">
+                        <a class="btn-link editar" href="#" rel='{{:id}}' >Editar</a>
+                    </li>
+                    {{if estado=='CRE'}}
+                    <li role="presentation">
+                        <a class="btn-link estado" href="#" rel='{{:id}}' >Activar</a>
+                    </li>
+                    {{/if}}
+                    {{if estado=='DES'}}
+                    <li role="presentation">
+                        <a class="btn-link estado" href="#" rel='{{:id}}' >Activar</a>
+                    </li>
+                    {{/if}}
+                    {{if estado=='ACT'}}
+                    <li role="presentation">
+                        <a class="btn-link estado" href="#" rel='{{:id}}' >Desactivar</a>
+                    </li>
+                    {{/if}}
+                    <li role="presentation" class="divider"></li>
+                    <li role="presentation">
+                        <a class="btn-link eliminar" rel="{{:id}}"  href="#">Eliminar</a>
+                    </li>
+                </ul>
+
+            </div>
+
+            <div class="m-t-sm  pointer opengroup"  rel="{{:id}}">
+                
+                <h4 class="list-group-item-heading" > GRUPO {{:tipo}}  {{:codigo}}  </h4>
+                
+                <h6 class="list-group-item-heading" ><b>Descripción:</b> {{:descripcion}}</h6>
+
+                <h6 class="list-group-item-heading" ><b>Grupo:</b> {{:nameEstadoGrupos}}</h6>
+                <h6 class="list-group-item-heading" ><b>Tipo Ciclo:</b> {{:tipoCiclo}}</h6>
+
+                <label class="label label-{{:colorEstado}}" >{{:nameEstado}}</label>
+
+            </div>
+
+        </div>
+    </div>
+</div>
