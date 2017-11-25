@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.ingresante;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.carrera;
 
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
@@ -19,13 +19,13 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/horariocachimbo/ingresante")
-public class HorarioIngresanteController {
+@RequestMapping("academico/horariocachimbo/curso")
+public class HorarioCarreraController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    HorarioIngresanteService service;
+    HorarioCarreraService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
