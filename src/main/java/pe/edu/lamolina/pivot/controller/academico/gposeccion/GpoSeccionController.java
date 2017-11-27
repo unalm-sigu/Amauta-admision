@@ -246,8 +246,11 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            String message = "";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            String message = "Creado exitosamente.";
+            service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
+            node.put("operation", "s");
 
             response.setData(node);
             response.setSuccess(true);

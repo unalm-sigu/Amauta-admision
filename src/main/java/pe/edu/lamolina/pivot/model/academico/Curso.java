@@ -302,6 +302,18 @@ public class Curso implements Serializable {
         return TipoCursoEnum.valueOf(this.getTipoCurso());
     }
 
+    public boolean isTipoCursoTEO() {
+        return TipoCursoEnum.TEO.equals(getTipoCursoEnum());
+    }
+
+    public boolean isTipoCursoPRA() {
+        return TipoCursoEnum.PRA.equals(getTipoCursoEnum());
+    }
+
+    public boolean isTipoCursoTEOPRA() {
+        return TipoCursoEnum.TEOPRA.equals(getTipoCursoEnum());
+    }
+
     public List<AlumnoCicloCurso> getAlumnoCicloCurso() {
         return alumnoCicloCurso;
     }

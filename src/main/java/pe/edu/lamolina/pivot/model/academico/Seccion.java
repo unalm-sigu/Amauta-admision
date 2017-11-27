@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -78,7 +79,7 @@ public class Seccion implements Serializable {
     @JoinColumn(name = "id_grupo_seccion")
     private GrupoSeccion grupoSeccion;
 
-    @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<DocenteSeccion> docenteSeccion;
 
     @OneToMany(mappedBy = "seccionResponsable", fetch = FetchType.LAZY)

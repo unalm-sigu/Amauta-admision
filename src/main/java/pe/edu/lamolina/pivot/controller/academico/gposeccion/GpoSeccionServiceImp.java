@@ -1,8 +1,11 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,15 +13,22 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,6 +48,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     CursoDAO cursoDAO;
+
+    @Autowired
+    DocenteDAO docenteDAO;
 
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -61,9 +74,110 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public void saveGpoSeccionHeader(GrupoSeccion grupoSeccion) {
+    @Transactional(readOnly = false)
+    public void saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
         GrupoSeccion lastGrupoSeccion = grupoSeccionDAO.findLast();
         String codigo = generateCodigo(lastGrupoSeccion.getCodigo());
+        grupoSeccion.setCodigo(codigo);
+        grupoSeccion.setVersion(BigDecimal.ONE.toString());
+        grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
+        grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
+        grupoSeccion.setCicloAcademico(cicloAcademico);
+        Curso curso = cursoDAO.find(grupoSeccion.getCurso().getId());
+
+        Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+
+        DateTime today = new DateTime();
+
+        grupoSeccion.setSecciones(new ArrayList<Seccion>());
+        if (curso.isTipoCursoTEO()) {
+            Seccion seccionTEO = new Seccion();
+            seccionTEO.setGrupoSeccion(grupoSeccion);
+            seccionTEO.setCodigo(codigo + "0");
+            seccionTEO.setCodigo2(seccionTEO.getCodigo());
+            seccionTEO.setEstadoEnum(EstadoEnum.CRE);
+            seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
+            seccionTEO.setHorasPractica(curso.getHorasPractica());
+            seccionTEO.setHorasTeoria(curso.getHorasTeoria());
+
+            seccionTEO.setDocenteSeccion(new ArrayList<>());
+            DocenteSeccion docenteSeccion = new DocenteSeccion();
+            docenteSeccion.setDocente(docenteDefault);
+            docenteSeccion.setCodigoSeccion(seccionTEO.getCodigo());
+            docenteSeccion.setEstado(EstadoEnum.ACT.name());
+            docenteSeccion.setFechaInicio(today.toDate());
+            docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+            docenteSeccion.setSeccion(seccionTEO);
+            seccionTEO.getDocenteSeccion().add(docenteSeccion);
+
+            grupoSeccion.getSecciones().add(seccionTEO);
+        }
+        if (curso.isTipoCursoPRA()) {
+            Seccion seccionPRA = new Seccion();
+            seccionPRA.setGrupoSeccion(grupoSeccion);
+            seccionPRA.setCodigo(codigo + "1");
+            seccionPRA.setCodigo2(seccionPRA.getCodigo());
+            seccionPRA.setEstadoEnum(EstadoEnum.CRE);
+            seccionPRA.setTipoSeccionEnum(TipoSeccionEnum.PRA);
+            seccionPRA.setHorasPractica(curso.getHorasPractica());
+            seccionPRA.setHorasTeoria(curso.getHorasTeoria());
+
+            seccionPRA.setDocenteSeccion(new ArrayList<>());
+            DocenteSeccion docenteSeccion = new DocenteSeccion();
+            docenteSeccion.setDocente(docenteDefault);
+            docenteSeccion.setCodigoSeccion(seccionPRA.getCodigo());
+            docenteSeccion.setEstado(EstadoEnum.ACT.name());
+            docenteSeccion.setFechaInicio(today.toDate());
+            docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+            docenteSeccion.setSeccion(seccionPRA);
+            seccionPRA.getDocenteSeccion().add(docenteSeccion);
+
+            grupoSeccion.getSecciones().add(seccionPRA);
+        }
+        if (curso.isTipoCursoTEOPRA()) {
+            Seccion seccionTCUR = new Seccion();
+            seccionTCUR.setGrupoSeccion(grupoSeccion);
+            seccionTCUR.setCodigo(codigo + "0");
+            seccionTCUR.setCodigo2(seccionTCUR.getCodigo());
+            seccionTCUR.setEstadoEnum(EstadoEnum.CRE);
+            seccionTCUR.setTipoSeccionEnum(TipoSeccionEnum.TCUR);
+            seccionTCUR.setHorasPractica(curso.getHorasPractica());
+            seccionTCUR.setHorasTeoria(curso.getHorasTeoria());
+
+            seccionTCUR.setDocenteSeccion(new ArrayList<>());
+            DocenteSeccion docenteSeccion = new DocenteSeccion();
+            docenteSeccion.setDocente(docenteDefault);
+            docenteSeccion.setCodigoSeccion(seccionTCUR.getCodigo());
+            docenteSeccion.setEstado(EstadoEnum.ACT.name());
+            docenteSeccion.setFechaInicio(today.toDate());
+            docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+            docenteSeccion.setSeccion(seccionTCUR);
+            seccionTCUR.getDocenteSeccion().add(docenteSeccion);
+
+            grupoSeccion.getSecciones().add(seccionTCUR);
+
+            Seccion seccionPCUR = new Seccion();
+            seccionPCUR.setGrupoSeccion(grupoSeccion);
+            seccionPCUR.setCodigo(codigo + "1");
+            seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
+            seccionPCUR.setEstadoEnum(EstadoEnum.CRE);
+            seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
+            seccionPCUR.setHorasPractica(curso.getHorasPractica());
+            seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
+
+            seccionPCUR.setDocenteSeccion(new ArrayList<>());
+            DocenteSeccion docenteSeccion2 = new DocenteSeccion();
+            docenteSeccion2.setDocente(docenteDefault);
+            docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());
+            docenteSeccion2.setEstado(EstadoEnum.ACT.name());
+            docenteSeccion2.setFechaInicio(today.toDate());
+            docenteSeccion2.setPrincipal(BigDecimal.ONE.intValue());
+            docenteSeccion2.setSeccion(seccionPCUR);
+            seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
+
+            grupoSeccion.getSecciones().add(seccionPCUR);
+        }
+        grupoSeccionDAO.save(grupoSeccion);
     }
 
     public static String generateCodigo(String codigo) {

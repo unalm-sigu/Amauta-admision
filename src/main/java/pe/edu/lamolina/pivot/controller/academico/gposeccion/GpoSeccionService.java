@@ -23,6 +23,6 @@ public interface GpoSeccionService {
 
     Curso findCurso(Long id);
 
-    void saveGpoSeccionHeader(GrupoSeccion grupoSeccion);
+    void saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 
 }

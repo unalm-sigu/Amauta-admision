@@ -161,6 +161,7 @@ $(function () {
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
+                    MODAL.showWait("Espere un momento por favor");
                     if (result) {
                         $.ajax({
                             url: APP.url('academico/gposeccion/saveGpoHeader'),
@@ -169,6 +170,7 @@ $(function () {
                             data: form.serialize(),
                             success: function (response) {
                                 if (response.success) {
+                                    MODAL.hideWait();
                                     MODAL.hide();
                                     notify(response.message, "info");
 
