@@ -7,9 +7,9 @@
 <body>
     <div layout:fragment="main">
 
-         <header class="header b-b padder-lg">        
+        <header class="header b-b padder-lg">        
             <div class="btn-group pull-right">
-                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+                <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
                     <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
@@ -19,58 +19,60 @@
             </div>
             <h2>Alumnos Matriculables <span th:text="${ciclo.descripcion}">2016-II</span></h2>
         </header>
-
-        <section class="panel m-b-xs">
-            <section class="panel-body">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-3 text-center">
-                            <a class="ver-modalidades text-danger pointer" rel="pregrado">
-                                <span class="h1 block bold" th:text="${resumen.pregrado}">23</span>
-                                <small class="block m-b-xs">Pregrado</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a class="ver-modalidades text-black pointer" rel="postgrado">
-                                <span class="h1 block bold" th:text="${resumen.postgrado}">23</span>
-                                <small class="block m-b-xs">Posgrado</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a class="ver-modalidades text-success pointer" rel="visitante">
-                                <span class="h1 block bold" th:text="${resumen.visitante}">23</span>
-                                <small class="block m-b-xs">Visitantes</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a class="ver-modalidades text-warning pointer" rel="especiales">
-                                <span class="h1 block bold" th:text="${resumen.especiales}">23</span>
-                                <small class="block m-b-xs">Especiales</small>
-                            </a>
+        <section class="wrapper-lg">
+            <section class="panel m-b-md">
+                <section class="panel-body">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-danger pointer" rel="pregrado">
+                                    <span class="h1 block bold" th:text="${resumen.pregrado}">23</span>
+                                    <small class="block m-b-xs">Pregrado</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-black pointer" rel="postgrado">
+                                    <span class="h1 block bold" th:text="${resumen.postgrado}">23</span>
+                                    <small class="block m-b-xs">Posgrado</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-success pointer" rel="visitante">
+                                    <span class="h1 block bold" th:text="${resumen.visitante}">23</span>
+                                    <small class="block m-b-xs">Visitantes</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-warning pointer" rel="especiales">
+                                    <span class="h1 block bold" th:text="${resumen.especiales}">23</span>
+                                    <small class="block m-b-xs">Especiales</small>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
+            </section>
+
+            <section class="panel">
+                <section class="panel-body">
+                    <div class="hide" id="headDynatable"></div>
+                    <table  id="dynaTable" class="table table-striped">
+                        <thead class="panel panel-heading">
+                            <tr>
+                                <th class="col-md-4"></th>
+                                <th class="col-md-2 text-center">Campo 1</th>
+                                <th class="col-md-3 text-center v-middle">Campo 2</th>
+                                <th class="col-md-2 text-center v-middle">Campo 3</th>
+                                <th class="col-md-1 text-center v-middle">Estado</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
             </section>
         </section>
 
-        <section class="panel">
-            <section class="panel-body">
-                <div class="hide" id="headDynatable"></div>
-                <table  id="dynaTable" class="table table-striped">
-                    <thead class="panel panel-heading">
-                        <tr>
-                            <th class="col-md-4"></th>
-                            <th class="col-md-2 text-center">Campo 1</th>
-                            <th class="col-md-3 text-center v-middle">Campo 2</th>
-                            <th class="col-md-2 text-center v-middle">Campo 3</th>
-                            <th class="col-md-1 text-center v-middle">Estado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-        </section>
         <script id="matriculableTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/matriculable/matriculableTemplate"/></script>
         <div id="matriculableModal"></div>
         <div id="cursosModal"></div>
