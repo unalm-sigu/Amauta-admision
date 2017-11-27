@@ -19,9 +19,9 @@
         <header class="page-header">
 
             <div class="pull-right">                
-                <!--                <div class="btn-group">
-                                    <a type="button" class="btn btn-success" th:href="@{/academico/anexo/nuevo}" >Nuevo</a>
-                                </div>-->
+                <div class="btn-group">
+                    <a type="button" class="btn btn-success nuevo-grupo-sec">Nuevo Grupo</a>
+                </div>
             </div> 
             <h2>Grupo Sección</h2>
         </header>
@@ -88,6 +88,9 @@
         </section>
 
         <script id="gpoSeccionTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/gposeccion/gpoSeccionTemplate"/></script>
+      
+        <div th:substituteby="templates/modal"/>
+
     </div>
 
     <div layout:fragment="js">

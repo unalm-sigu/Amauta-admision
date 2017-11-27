@@ -49,7 +49,15 @@
                                     </a>
                                 </li>
 
-                            </ul>
+                            </ul> 
+                            <ul class="submenu">
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                                    <a th:href="@{/academico/programacion}">
+                                        <span>Programacion</span>
+                                    </a>
+                                </li>
+
+                            </ul> 
                         </li>
                         <li class="option"
                             th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>

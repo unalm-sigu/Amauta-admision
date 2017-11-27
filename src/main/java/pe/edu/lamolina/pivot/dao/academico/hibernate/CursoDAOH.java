@@ -170,4 +170,14 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         return find(sql);
     }
 
+    @Override
+    public List<Curso> allForProgramacion(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur");
+        sql.like("cur.nombre", nombre);
+        sql.orderBy("cur.nombre");
+        sql.limit(10);
+        return sql.all(getCurrentSession());
+    }
+
 }

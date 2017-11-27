@@ -17,19 +17,29 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -138,6 +148,118 @@ public class GpoSeccionController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @RequestMapping("editar")
+    public String editar(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        return "academico/gposeccion/editarGpoSeccion";
+    }
+
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("anexosHijos", service.allAnexoBoletionHijos());
+        return "academico/gposeccion/nuevoGpoSeccion";
+    }
+
+    @ResponseBody
+    @RequestMapping("buscarCursos")
+    public JsonResponse buscarCursos(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<Curso> cursos = service.allCursosForProgramacion(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            for (Curso cur : cursos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", cur.getId());
+                json.put("cursoNombre", cur.getCodigo());
+                json.put("cursoCodigo", cur.getNombre());
+                json.put("cursoTpc", cur.getTpc());
+                json.put("cursoCreditos", cur.getCreditos());
+                json.put("departamentoNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.nombre") != null ? cur.getDepartamentoAcademico().getNombre() : "");
+                json.put("facultadNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.facultad.nombre") != null ? cur.getDepartamentoAcademico().getFacultad().getNombre() : "");
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{anexo}/cambiarAnexo")
+    public JsonResponse cambiarAnexo(@PathVariable("anexo") Long anexo,
+            Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        AnexoBoletin anexoBoletin = service.findAnexoBoletin(anexo);
+        node.put("anexoId", anexoBoletin.getId());
+        node.put("anexoCodigo", anexoBoletin.getAnexoSuperior().getCodigo());
+        node.put("anexoNombre", anexoBoletin.getAnexoSuperior().getNombre());
+        response.setData(node);
+        response.setSuccess(Boolean.TRUE);
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{curso}/findCurso")
+    public JsonResponse findCurso(@PathVariable("curso") Long anexo,
+            Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        Curso curso = service.findCurso(anexo);
+        node.put("cursoId", curso.getId());
+        node.put("cursoNombre", curso.getNombre());
+        node.put("cursoCodigo", curso.getCodigo());
+        node.put("cursoTpc", curso.getTpc());
+        response.setData(node);
+        response.setSuccess(Boolean.TRUE);
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveGpoHeader")
+    public JsonResponse saveGpoHeader(
+            @ModelAttribute("grupoSeccion") GrupoSeccion grupoSeccion,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            String message = "";
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

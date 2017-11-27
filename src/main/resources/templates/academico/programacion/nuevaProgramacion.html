@@ -1,0 +1,107 @@
+<html layout:decorator="zlayout/layout">
+    <head>
+        <title>Calificacion de Postulantes</title>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <section layout:fragment="main">
+        <header class="page-header">
+            <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
+        </header>
+
+        <form id="frmPlanCurricular" class="form-horizontal m-t-lg">
+
+            <section class="panel">
+
+                <section class="panel-body bg-white b">
+
+                    <div class="form-group">
+                        <label for="cboAnexo" class="col-sm-2 control-label">Anexo</label>
+                        <div class="col-md-5">
+                            <select id="cboAnexo" 
+                                    required="true" 
+                                    class="form-control select2single" >
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboCategoria" class="col-sm-2 control-label">Categoria</label>
+                        <div class="col-md-5">
+                            <select id="cboCategoria" 
+                                    required="true" 
+                                    class="form-control select2single" >
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
+                        <div class="col-md-5">
+                            <select id="cboCurso" 
+                                    required="true" 
+                                    class="form-control select2single" >
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
+                        <div class="col-md-5">
+                            <select id="cboCurso" 
+                                    required="true" 
+                                    class="form-control select2single" >
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label  class="col-md-2 control-label">Estructura</label>
+                        <div class="col-md-2">
+                            <span class="form-control"></span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="form-control"></span>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="form-control"></span>
+                        </div>
+                    </div>
+
+                </section>
+            </section>
+
+            <section class="panel">
+                <section class="panel-body">
+                    <table class="table table-striped" id="dynaTable">
+                        <thead> 
+                            <tr class=""> 
+                                <th class="col-md-3">Carrera </th>
+                                <th class="col-md-2">Fecha Aprobación</th>
+                                <th class="col-md-2 text-center">Ciclo Inicio Vigencia</th>
+                                <th class="col-md-3">Resumen</th>
+                                <th class="col-md-1 text-center">Estado</th>
+                                <th class="1"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
+            </section>
+
+        </form>
+
+        <div th:substituteby="templates/modal"/>
+    </section>
+
+    <div layout:fragment="js">
+        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/programacion/nuevaProgramacion.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

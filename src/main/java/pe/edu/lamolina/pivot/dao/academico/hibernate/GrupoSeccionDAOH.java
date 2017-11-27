@@ -40,6 +40,15 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     }
 
     @Override
+    public GrupoSeccion findLast() {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .orderBy("id desc")
+                .limit(1);
+        return (GrupoSeccion) sql.find(getCurrentSession());
+    }
+
+    @Override
     public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, EstadoEnum estadoEnum) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
                 .parents("left planCalificacion pc", "curso cur", "cicloAcademico ca", "left _cur.planCalificacion pcc", "left _cur.planCalificacionRegular pcr")

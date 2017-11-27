@@ -5,12 +5,12 @@
 </head>
 
 <body>
-    <div layout:fragment="main">
+    <div layout:fragment="main" id="divProgramacion">
         <header class="page-header">
             <div class="pull-right" >
-                <a class="btn btn-success nueva-programacion" href="#" >Nueva Programación</a>
+                <a class="btn btn-success" v-on:click="nuevaProgramacion" href="#" >Nueva Programación</a>
             </div>
-            <h2>Plan de Estudios</h2>
+            <h2>Programación</h2>
             <span>Departamento Académico: <span >dfdf</span></span>
         </header>
 
@@ -31,12 +31,11 @@
             </section>
         </section>
 
-        <script id="templatePlanCurricular" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/plan/templatePlanCurricular"/></script>
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/plancurricular/plan/planCurricular.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/programacion/programacion.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>
