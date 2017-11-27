@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Roles de Sistema</title>
-    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <link rel="stylesheet" type="text/css" th:href="@{/nestable/nestable.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/iconpicker/css/fontawesome-iconpicker.min.css}" />
     <style>
@@ -87,7 +87,7 @@
     </div>
 
     <div layout:fragment="js" th:remove="tag">
-        <div th:substituteby="zlayout/includes :: javascript-dynatable"></div>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
         <script th:src="@{/nestable/nestable.js}" charset="utf-8"></script>
         <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
     </div>

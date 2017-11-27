@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout2">
+<html layout:decorator="_layout/layout2">
     <head>
         <title>Contactos</title>
-    <div th:substituteby="zlayout/includes :: styles-upload"></div>
+    <div th:substituteby="_layout/includes :: styles-upload"></div>
 </head>
 
 <body>
@@ -131,7 +131,7 @@
 
     <div layout:fragment="js">
         <script th:src="@{/jquery-form/jquery.form.min.js}" charset="utf-8"></script>
-        <div th:substituteby="zlayout/includes :: javascript-upload"></div>
+        <div th:substituteby="_layout/includes :: javascript-upload"></div>
         <script th:src="@{/app/academico/loadprogramacion/loadProgramacion.js}" charset="utf-8"></script>
     </div>
 

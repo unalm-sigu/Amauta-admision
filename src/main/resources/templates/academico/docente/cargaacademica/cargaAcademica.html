@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Carga Académica</title>
-    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -35,7 +35,7 @@
         <script id="templateCargaAcademica" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/cargaacademica/templateCargaAcademica"/></script>
     </div>
     <div layout:fragment="js">
-        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/academico/docente/cargaacademica/cargaAcademica.js}" charset="utf-8"></script>
     </div>
 </body>

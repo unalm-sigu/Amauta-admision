@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Grupos</title>
-    <div th:substituteby="zlayout/includes :: styles-bootstrap-colorpicker"></div>
+    <div th:substituteby="_layout/includes :: styles-bootstrap-colorpicker"></div>
 </head>
 
 <body>
@@ -44,8 +44,8 @@
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <div th:substituteby="zlayout/includes :: bootstrap-colorpicker"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
         <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
     </div>
 

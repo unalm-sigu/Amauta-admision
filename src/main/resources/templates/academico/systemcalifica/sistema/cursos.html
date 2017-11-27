@@ -1,4 +1,4 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Cursos del Sistema de Calificación</title>
     </head>
@@ -45,7 +45,7 @@
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <script th:src="@{/app/academico/systemcalifica/sistema/cursos.js}" charset="utf-8"></script>
         </div>
     </body>

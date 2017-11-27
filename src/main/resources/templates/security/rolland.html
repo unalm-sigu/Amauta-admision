@@ -2,8 +2,8 @@
 <html class="app">
     <head>
         <title>La Molina</title>
-        <base th:substituteby="zlayout/includes :: styles"/>
-        <base th:substituteby="zlayout/includes :: favicon"/>
+        <base th:substituteby="_layout/includes :: styles"/>
+        <base th:substituteby="_layout/includes :: favicon"/>
     </head>
 
     <body class="login-bg">
@@ -41,7 +41,7 @@
 
         <div class="login-footer"></div>
 
-        <div th:substituteby="zlayout/includes :: javascript"/>
+        <div th:substituteby="_layout/includes :: javascript"/>
         <script th:src="@{/app/security/landings.js}" charset="utf-8"/>
     </body>
 </html>

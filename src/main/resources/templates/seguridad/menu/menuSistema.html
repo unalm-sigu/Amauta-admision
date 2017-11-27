@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Menú</title>
-    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <link rel="stylesheet" type="text/css" th:href="@{/nestable/nestable.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/iconpicker/css/fontawesome-iconpicker.min.css}" />
     <style>

@@ -1,4 +1,4 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title th:if="${personaPerfil.id !=null}" th:text="| ${personaPerfil.persona.apellidosNombres} - ${personaPerfil.perfilCompania.nombre} |"> Juan Perez - Director Administrativo</title>
         <title th:unless="${personaPerfil.id !=null}">Asignar Cargo a Colaborador</title>

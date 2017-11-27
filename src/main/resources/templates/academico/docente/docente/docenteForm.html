@@ -1,4 +1,4 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title> Usuario </title>
     </head>
@@ -147,7 +147,7 @@
                 var datepicker = $.fn.datepicker.noConflict(); // return $.fn.datepicker to previously assigned value
                 $.fn.datepickerBoot = datepicker;
             </script>
-            <div th:substituteby="zlayout/includes :: javascript-upload"> </div>
+            <div th:substituteby="_layout/includes :: javascript-upload"> </div>
             <script th:src="@{/app/academico/docente/docente/docenteForm.js}" charset="utf-8"></script>
         </div>
 

@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Alumnos</title>
-    <div th:substituteby="zlayout/includes :: styles-dynatable" th:remove="tag"></div>
+    <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
 </head>
 
 <body>
@@ -78,7 +78,7 @@
         <script id="alumnoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/alumno/alumnoTemplate"/></script>
     </div>
     <div layout:fragment="js">
-        <div th:substituteby="zlayout/includes :: javascript-dynatable"></div>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
         <script th:src="@{/app/academico/alumno/alumno.js}" charset="utf-8"></script>
     </div>
 </body>
