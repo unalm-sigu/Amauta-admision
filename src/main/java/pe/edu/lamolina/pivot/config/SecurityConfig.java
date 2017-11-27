@@ -24,6 +24,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
+                .antMatchers("/academico/**").fullyAuthenticated()
+                .antMatchers("/ciclo/**").fullyAuthenticated()
+                .antMatchers("/comun/**").fullyAuthenticated()
+                .antMatchers("/general/**").fullyAuthenticated()
+                .antMatchers("/seguridad/**").fullyAuthenticated()
+                .antMatchers("/test/**").fullyAuthenticated()
                 .antMatchers("/**").permitAll();
 
         http.formLogin()

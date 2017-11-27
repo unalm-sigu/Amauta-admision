@@ -7,39 +7,39 @@
 <body>
     <div layout:fragment="main">
 
-        <header class="page-header">
+        <header class="header b-b padder-lg">
 
-            <div class="pull-right">                
-                <a class="btn btn-primary btn-sm" type="button" th:href="@{/academico/docente/nuevo}" >Nuevo</a>
+            <div class="pull-right m-t-md">                
+                <a class="btn btn-success btn-sm" type="button" th:href="@{/academico/docente/nuevo}" >Nuevo</a>
             </div>  
 
             <h2>Administración de Docentes</h2>
 
         </header>
+        <section class="wrapper-lg">
+            <section class="panel">
 
-        <section class="panel">
+                <section class="panel-body">
 
-            <section class="panel-body">
+                    <table id="dynaTable" class="table table-striped">
+                        <thead class="panel panel-heading">
+                            <tr>
+                                <th class="v-middle"></th>                    
+                                <th class="col-md-4 v-middle">Nombre</th>                    
+                                <th class="col-md-1 text-center"><span>Código</span></th>
+                                <th class="col-md-3 text-center"><span>Facultad</span></th>
+                                <th class="col-md-2 text-center"><span>Dpto. Académico</span></th>
+                                <th class="col-md-1 text-center"><span>Situación laboral</span></th>
+                                <th class="col-md-1 v-middle">Estado</th>                    
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
 
-                <table id="dynaTable" class="table table-striped">
-                    <thead class="panel panel-heading">
-                        <tr>
-                            <th class="v-middle"></th>                    
-                            <th class="col-md-4 v-middle">Nombre</th>                    
-                            <th class="col-md-1 text-center"><span>Código</span></th>
-                            <th class="col-md-3 text-center"><span>Facultad</span></th>
-                            <th class="col-md-2 text-center"><span>Dpto. Académico</span></th>
-                            <th class="col-md-1 text-center"><span>Situación laboral</span></th>
-                            <th class="col-md-1 v-middle">Estado</th>                    
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                
+                </section>
             </section>
         </section>
-
         <script id="docenteTemplate" type="text/x-jsrender" class="hide" >
             <div th:substituteby="academico/docente/docente/docenteTemplate"/>
         </script>

@@ -7,7 +7,7 @@
 <body>
     <div layout:fragment="main">
 
-        <header class="page-header">
+         <header class="header b-b padder-lg">
             <h2 th:unless="${curso.id}">Nuevo Curso</h2>
             <h2 th:if="${curso.id}" th:text="|${curso.codigo} - ${curso.nombre}|">Nuevo Curso</h2>
         </header>
