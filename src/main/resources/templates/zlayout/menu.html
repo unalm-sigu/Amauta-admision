@@ -65,6 +65,11 @@
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/ingresante}">
+                                        <span>Docente</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/alumno}">
                                         <span>Alumnos</span>
                                     </a>

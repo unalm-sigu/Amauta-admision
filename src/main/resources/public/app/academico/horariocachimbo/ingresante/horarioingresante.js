@@ -1,23 +1,27 @@
 $(function () {
-
-    let  dynatable = null;
-
-    Vue.component("dynatable", {
-        template: "#dynatableTemplate",
-        props: ["menupadre"],
-        components: {
-            dynatableRowTemplate: {
-                template: "#dynatableRowTemplate",
-                methods: {
-                    deleteItem() {
-                        $global.$emit("deleteItem", $(this).attr("rel"));
-                    },
-                    updateItem() {
-                        $global.$emit("updateItem", $(this).attr("rel"));
-                    }
-                }
+    var $global = new Vue({});
+    let  dynatableRow = null;
+    
+    var DynatableRowTemplate = Vue.component("dynatableRow", {
+        template: "#dynatableRowTemplate",
+        data: function () {
+            return {
+                horario: [{
+                        id: 0,
+                        estudiante: "",
+                        carrera: "",
+                        facultatd: "",
+                        horario: "",
+                        estado: ""
+                    }]
             }
         },
+    });
+    
+    let  dynatable = null;
+    Vue.component("dynatable", {
+        template: "#dynatableTemplate",
+        props: ["horario"],
         mounted: function () {
             var $vue = this;
             $vue.createDynatable();
@@ -27,36 +31,38 @@ $(function () {
                 var $vue = this;
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
-                        ajaxUrl: APP.url('academico/horario/list'),
+                        ajaxUrl: APP.url('academico/horariocachimbo/ingresante/list'),
                         perPageDefault: 4,
-                        ajaxData: {id: $vue.menupadre},
+                        ajaxData: {id: $vue.horario},
                     },
                     writers: {_rowWriter: $vue.writter},
-                    table: {bodyRowSelector: "div"}
+                    table: {bodyRowSelector: "tbody tr"}
                 }).data('dynatable');
+                
+                
+                dynatable.bind("dynatable:afterUpdate",function(){
 
-                $("body").delegate(".deleteItem", "click", function () {
-                    $global.$emit("deleteItem", $(this).attr("rel"));
+                    $("body").delegate(".buscarHorario", "click", function (e) {
+                        console.log('hola ssssssssssssssssss');
+                        $global.$emit("buscarHorario", e);
+                    });
+                    
                 });
-                $("body").delegate(".updateItem", "click", function () {
-                    $global.$emit("updateItem", $(this).attr("rel"));
-                });
+
             },
             writter: function (rowIndex, record, columns, cellWriter) {
-                record.index = rowIndex;
-                var html = $.templates("#dynatableRowTemplate").render(record);
-                return $(html).prop('outerHTML');
-
-
-
+                var dynatableRowTemplate = new DynatableRowTemplate();
+                dynatableRowTemplate.horario = record;
+                var component = dynatableRowTemplate.$mount();
+                var el = component.$el;
+                return el.innerHTML;
             }
         }
     });
-
     new Vue({
         el: '#main',
         data: {
-            curso: {}
+            horario: {}
         },
         created() {
             let $vue = this;
@@ -66,10 +72,9 @@ $(function () {
                 return estado == 'ACTIVO' ? 'label-success' : 'label-danger';
             },
             nuevo() {
-
                 this.curso = {id: null, nombre: '', codigo: '', estado: 'INACTIVO'};
                 var mimodal = bootbox.confirm({
-                    title: "Nuevo Tipo Grupo Horas",
+                    title: "Nuevo Alumno",
                     message: APP.template.spincenter,
                     buttons: {
                         confirm: {label: "Guardar", className: "btn-info"},
@@ -78,8 +83,6 @@ $(function () {
                     callback: function (result) {
                         if (result) {
                             if (mimodal.find('form').parsley().validate() == true) {
-                                console.log(mimodal.find('form').parsley().validate());
-                                TipoGrupo.saveTipoGrupo(mimodal);
                             }
                         } else {
                             mimodal.modal('hide');
@@ -105,25 +108,22 @@ $(function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
-
-
             },
             update(item) {
                 this.curso = item;
-                $("#myModal").modal('show');
             },
             save() {
                 let $vue = this;
-                console.log($vue.curso);
                 $vue.cursos.push($vue.curso);
-                $("#myModal").modal('hide');
             },
             remove(item) {
                 let $vue = this;
-                console.log(JSON.stringify(item));
                 $vue.cursos.pop(item);
+            },
+            buscarHorario(id) {
+                console.log('buscarrrrrrrrrrrr');
+                console.log(id);
             }
         }
     });
-
 });

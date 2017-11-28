@@ -1,10 +1,14 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.ingresante;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +19,12 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -55,7 +65,44 @@ public class HorarioIngresanteController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        return "academico/horariocachimbo/horarioingresante";
+        return "academico/horariocachimbo/ingresante/horarioingresante";
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+            
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(cicloAcademico);
+            List<Alumno> alumnos = service.allAlumnoByAlumnoHorario(filter, alumnosHorario, cicloAcademico);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            
+            for (Alumno alum : alumnos ) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", alum.getId());
+                node.put("estudiante", alum.getPersona().getApellidosNombres());
+                node.put("carrera", alum.getCarrera().getNombre());
+                node.put("facultad", alum.getCarrera().getFacultad().getNombre());
+                node.put("horario", "");
+                node.put("estado", alum.getEstado());
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+
+        return json;
     }
 
 }

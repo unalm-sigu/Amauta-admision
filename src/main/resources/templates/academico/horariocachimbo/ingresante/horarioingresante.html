@@ -18,25 +18,21 @@
             <section class="panel">
                 <section class="panel-body">
 
-                    <dynatable v-bind:menupadre="menu"/>
+                    <dynatable v-bind:horario="horario"/>
 
                 </section>
             </section>
 
         </div>
 
-        <th:block th:replace="academico/horario/ingresante/_dynatable"/>
+        <th:block th:replace="academico/horariocachimbo/ingresante/_dynatable"/>
 
     </div>
-
-    <script id="tipoGrupoTemplate" type="text/x-jsrender" class="hide">
-        <div th:substituteby="academico/horario/ingresante/tipoGrupoTemplate"></div>
-    </script>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
-        <script th:src="@{/app/academico/horario/ingresante/horarioingresante.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioingresante.js}" charset="utf-8"></script>
     </div>
 
 </body>

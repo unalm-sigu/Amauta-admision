@@ -2,6 +2,9 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -15,7 +18,12 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
+import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
@@ -255,6 +263,21 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
         query.setLong("CICLO", cicloAcademico.getId());
 
         return (MatriculableResumen) query.uniqueResult();
+    }
+
+    @Override
+    public List<Alumno> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico, List<Long> alumnos) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Alumno.class, "alu")
+                .join("persona per", "cicloActivo ciclo")
+                .leftJoin("orientacionCarrera oca", "carrera ca", "cicloIngreso ci", "situacionAcademica sia", "modalidadEstudio me")
+                .filter("ciclo.id", cicloAcademico)
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .in("alu.id", alumnos)
+                .orderBy("alu.id desc");
+        sql.beginRelativeFilters();
+        return sql.all(getCurrentSession());
     }
 
 }
