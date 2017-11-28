@@ -7,7 +7,7 @@
 <body>
     <div layout:fragment="main">
 
-         <header class="header b-b padder-lg">
+        <header class="header b-b padder-lg">
 
             <div class="pull-right m-t-md">                 
                 <div class="btn-group">
@@ -16,26 +16,28 @@
             </div> 
             <h2>Cursos</h2>
         </header>
-        <section class="panel">
-            <section class="panel-body">
+        <section class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
 
-                <table class="table table-striped" id="dynaTable">
-                    <thead> 
-                        <tr> 
-                            <th class="col-md-4"></th>
-                            <th class="col-md-4 text-center">Facultad / Departamento</th>
-                            <th class="col-md-2 text-left">Coordinador</th>
-                            <th class="col-md-1 text-center">Planes de Calificación</th>
-                            <th class="col-md-1 text-center">Estado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                    <table class="table table-striped" id="dynaTable">
+                        <thead> 
+                            <tr> 
+                                <th class="col-md-4"></th>
+                                <th class="col-md-4 text-center">Facultad / Departamento</th>
+                                <th class="col-md-2 text-left">Coordinador</th>
+                                <th class="col-md-1 text-center">Planes de Calificación</th>
+                                <th class="col-md-1 text-center">Estado</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </section>
             </section>
         </section>
-        
+
         <div th:substituteby="academico/curso/modalCambioEstado"/>
         <script id="cursoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/curso/cursoTemplate"/></script>
 

@@ -6,28 +6,29 @@
 
 <body>
     <div layout:fragment="main">
-         <header class="header b-b padder-lg">        
+        <header class="header b-b padder-lg">        
             <h2>Mi Carga Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
             <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
             <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
         </header>
-
-        <section class="panel">
-            <section class="panel-body">
-                <table class="table table-striped" id="dynaTable">
-                    <thead> 
-                        <tr class=""> 
-                            <th class="col-md-4">Curso</th>
-                            <th class="col-md-1 text-center">Tipo Ciclo</th>
-                            <th class="col-md-3 text-center">Claves</th>
-                            <th class="col-md-2 text-center">Sistema de Calificación</th>
-                            <th class="col-md-1 text-center">Estado Plan</th>
-                            <th class="col-md-1 text-center">Estado Acta</th>
-                            <th class="col-md-1"></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+        <section class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+                    <table class="table table-striped" id="dynaTable">
+                        <thead> 
+                            <tr class=""> 
+                                <th class="col-md-4">Curso</th>
+                                <th class="col-md-1 text-center">Tipo Ciclo</th>
+                                <th class="col-md-3 text-center">Claves</th>
+                                <th class="col-md-2 text-center">Sistema de Calificación</th>
+                                <th class="col-md-1 text-center">Estado Plan</th>
+                                <th class="col-md-1 text-center">Estado Acta</th>
+                                <th class="col-md-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
             </section>
         </section>
 

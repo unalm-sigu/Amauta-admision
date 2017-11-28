@@ -6,38 +6,39 @@
 <body>
     <div layout:fragment="main">
 
-         <header class="header b-b padder-lg">
+        <header class="header b-b padder-lg">
 
             <div class="pull-right m-t-md">                 
-                <a class="btn btn-primary btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
+                <a class="btn btn-success btn-sm" type="button" th:href="@{/general/oficina/nuevo}" >Nuevo</a>
             </div>  
 
             <h2>Oficinas de la Institución</h2>
 
         </header>
+        <section class="wrapper-lg">
+            <section class="panel">
 
-        <section class="panel">
+                <section class="panel-body">
 
-            <section class="panel-body">
+                    <table id="dynaTable" class="table table-striped">
+                        <thead class="panel panel-heading">
+                            <tr>
+                                <th class="col-xs-5 v-middle">Unidad</th>                    
+                                <th class="col-xs-2 v-middle">Dependencia</th>                    
+                                <th class="col-xs-3 text-center"><span>Jefatura</span></th>
+                                <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
+                                <th class="col-xs-1 text-center"><span>Estado</span></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
 
-                <table id="dynaTable" class="table table-striped">
-                    <thead class="panel panel-heading">
-                        <tr>
-                            <th class="col-xs-5 v-middle">Unidad</th>                    
-                            <th class="col-xs-2 v-middle">Dependencia</th>                    
-                            <th class="col-xs-3 text-center"><span>Jefatura</span></th>
-                            <th class="col-xs-1 text-center"><span>Colaboradores</span></th>
-                            <th class="col-xs-1 text-center"><span>Estado</span></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                </section>
 
             </section>
-            
         </section>
-        
+
         <div th:substituteby="templates/modal"/> 
         <div th:substituteby="general/oficina/oficinaModals"/>
         <script id="oficinaTemplate" type="text/x-jsrender" class="hide" ><div th:substituteby="general/oficina/oficinaTemplate"/></script>
