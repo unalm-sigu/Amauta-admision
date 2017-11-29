@@ -22,4 +22,6 @@ public interface SeccionDAO extends Crud<Seccion> {
 
     List<Seccion> allActivosByGposSeccion(List<GrupoSeccion> gruposSeccion);
 
+    List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion);
+
 }

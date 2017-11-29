@@ -27,15 +27,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -150,16 +151,49 @@ public class GpoSeccionController {
         return json;
     }
 
-    @RequestMapping("editar")
-    public String editar(Model model, HttpSession session) {
+    @RequestMapping("{gruposeccion}/editar")
+    public String editar(Model model, HttpSession session, @PathVariable("gruposeccion") Long gruposeccionId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        GrupoSeccion gpoSeccion = service.findGpoSeccion(gruposeccionId);
+        ObjectNode gpoSeccionJson = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance);
+
+        model.addAttribute("grupoSeccion", gpoSeccion);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
+
         return "academico/gposeccion/editarGpoSeccion";
+    }
+
+    @ResponseBody
+    @RequestMapping("{gruposeccion}/findSecciones")
+    public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId) {
+        JsonResponse jsonResponse = new JsonResponse();
+
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<Seccion> secciones = service.allSeccionesByGrupo(new GrupoSeccion(gruposeccionId));
+        for (Seccion seccion : secciones) {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("seccionId", seccion.getId());
+            node.put("seccionCodigo", seccion.getCodigo());
+            node.put("tipoSeccionValue", seccion.getTipoSeccionEnum().getValue());
+            node.put("aula", ObjectUtil.getParentTree(seccion, "aula.id") != null ? seccion.getAula().getNombre() : "");
+            node.put("grupoHoras", ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null ? seccion.getGrupoHoras().getCodigo() : "");
+            node.put("vacantes", seccion.getVacantes());
+            node.put("matriculados", seccion.getMatriculados());
+            node.put("cantidadDocentes", seccion.getDocentesCant());
+            node.put("estadoEnumValue", seccion.getEstadoEnum().getValue());
+            node.put("estadoEnumCode", seccion.getEstadoEnum().name());
+
+            array.add(node);
+        }
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(array);
+        return jsonResponse;
     }
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("anexosHijos", service.allAnexoBoletionHijos());
         return "academico/gposeccion/nuevoGpoSeccion";
@@ -249,9 +283,8 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
             String message = "Creado exitosamente.";
-            service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
-            node.put("operation", "s");
-
+            grupoSeccion = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
+            node.put("gruposeccion", grupoSeccion.getId());
             response.setData(node);
             response.setSuccess(true);
             response.setMessage(message);
@@ -263,6 +296,64 @@ public class GpoSeccionController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addSeccion")
+    public JsonResponse addSeccion(@RequestParam("grupoSeccion") Long grupoSeccion,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.addSeccion(new GrupoSeccion(grupoSeccion));
+
+            String message = "Sección agregada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteSeccion")
+    public JsonResponse deleteSeccion(@RequestParam("seccion") Long seccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.deleteSeccion(new Seccion(seccionId));
+
+            String message = "Sección eliminada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("{gruposeccion}/succesSave")
+    public String succesSave(@PathVariable("gruposeccion") Long grupoSeccionId,
+            RedirectAttributes redirectAttr,
+            Model model, HttpSession session) {
+        Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
+        return "redirect:/academico/gposeccion/" + grupoSeccionId + "/editar";
     }
 
 }

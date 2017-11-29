@@ -100,8 +100,8 @@ $(function () {
     }
 
     NuevoPlanCurricular = {
-        pestañaCicloCurOblElegida: null,
-        pestañaCicloCurElecElegida: null,
+        pestanaCicloCurOblElegida: null,
+        pestanaCicloCurElecElegida: null,
         tipoCursoCurricula: null,
         init: function () {
             //$('#dateFechaVig').datepicker("remove");
@@ -109,8 +109,8 @@ $(function () {
             $('#inpDateFechaVig').datepicker();
             //  $('#dateFechaVig').datepicker('update');
             if ($("#txtPlanCurricular").val() != null) {
-                $(NuevoPlanCurricular.pestañaCicloCurOblElegida).attr("rel", "1")
-                NuevoPlanCurricular.pestañaCicloCurOblElegida = $("li.ver-tab-ciclo-cur-obl").first();
+                $(NuevoPlanCurricular.pestanaCicloCurOblElegida).attr("rel", "1")
+                NuevoPlanCurricular.pestanaCicloCurOblElegida = $("li.ver-tab-ciclo-cur-obl").first();
                 $("li.ver-tab-ciclo-cur-obl").first().addClass(("active"));
                 if (dynatableCursosObl != null) {
                     dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
@@ -130,27 +130,27 @@ $(function () {
                     dynatableCursosElec.process();
                 }
             }
-        }, verPestañaCicloCurObl($this, e) {
-            var pestaña = $this.attr("rel");
-            if (NuevoPlanCurricular.pestañaCicloCurOblElegida !== null) {
-                NuevoPlanCurricular.pestañaCicloCurOblElegida.removeClass("active");
+        }, verPestanaCicloCurObl($this, e) {
+            var pestana = $this.attr("rel");
+            if (NuevoPlanCurricular.pestanaCicloCurOblElegida !== null) {
+                NuevoPlanCurricular.pestanaCicloCurOblElegida.removeClass("active");
             }
             $this.addClass("active");
-            NuevoPlanCurricular.pestañaCicloCurOblElegida = $this;
-            $("#spnCicloObl").html("Ciclo " + pestaña);
+            NuevoPlanCurricular.pestanaCicloCurOblElegida = $this;
+            $("#spnCicloObl").html("Ciclo " + pestana);
 
             dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
-            dynatableCursosObl.queries.add("numCic", pestaña);
+            dynatableCursosObl.queries.add("numCic", pestana);
             dynatableCursosObl.process();
 
-        }, verPestañaCicloCurElec($this, e) {
-            var pestaña = $this.attr("rel");
-            if (NuevoPlanCurricular.pestañaCicloCurElecElegida !== null) {
-                NuevoPlanCurricular.pestañaCicloCurElecElegida.removeClass("active");
+        }, verPestanaCicloCurElec($this, e) {
+            var pestana = $this.attr("rel");
+            if (NuevoPlanCurricular.pestanaCicloCurElecElegida !== null) {
+                NuevoPlanCurricular.pestanaCicloCurElecElegida.removeClass("active");
             }
             $this.addClass("active");
-            NuevoPlanCurricular.pestañaCicloCurElecElegida = $this;
-            $("#spnCicloElec").html("Ciclo " + pestaña);
+            NuevoPlanCurricular.pestanaCicloCurElecElegida = $this;
+            $("#spnCicloElec").html("Ciclo " + pestana);
         }, agregarCursoObl($this, e) {
             MODAL.hide();
             MODAL.init("md");
@@ -164,7 +164,7 @@ $(function () {
                 async: false,
                 success: function (response) {
                     MODAL.body(response);
-                    $("#txtNumeroCiclo").val(NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
+                    $("#txtNumeroCiclo").val(NuevoPlanCurricular.pestanaCicloCurOblElegida.attr("rel"));
 
                 },
                 error: function () {
@@ -219,7 +219,7 @@ $(function () {
                 async: false,
                 success: function (response) {
                     MODAL.body(response);
-                    $("#txtNumeroCiclo").val(NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
+                    $("#txtNumeroCiclo").val(NuevoPlanCurricular.pestanaCicloCurOblElegida.attr("rel"));
 
                     $.ajax({
                         url: APP.url('academico/planCurricular/plan/' + $("#txtTipoCurCur").val() + '/cambiarTipoCursoCurricula'),
@@ -436,7 +436,7 @@ $(function () {
                 data: function (term, page) {
                     return {nombre: term,
                         planCurricular: $("#txtPlanCurricular").val(),
-                        numeroCiclo: NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"),
+                        numeroCiclo: NuevoPlanCurricular.pestanaCicloCurOblElegida.attr("rel"),
                         page: page};
                 },
                 results: function (response, page) {
@@ -533,7 +533,7 @@ $(function () {
                                 notify(response.message, "info");
 
                                 dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
-                                dynatableCursosObl.queries.add("numCic", NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
+                                dynatableCursosObl.queries.add("numCic", NuevoPlanCurricular.pestanaCicloCurOblElegida.attr("rel"));
                                 dynatableCursosObl.process();
                             } else {
                                 MODAL.hideWait();
@@ -824,11 +824,11 @@ $(function () {
     NuevoPlanCurricular.init();
 
     $("body").delegate(".ver-tab-ciclo-cur-obl", "click", function (e) {
-        NuevoPlanCurricular.verPestañaCicloCurObl($(this), e);
+        NuevoPlanCurricular.verPestanaCicloCurObl($(this), e);
     });
 
     $("body").delegate(".ver-tab-ciclo-cur-elec", "click", function (e) {
-        NuevoPlanCurricular.verPestañaCicloCurElec($(this), e);
+        NuevoPlanCurricular.verPestanaCicloCurElec($(this), e);
     });
 
     $("body").delegate(".agregar-curso-obl", "click", function (e) {

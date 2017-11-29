@@ -173,7 +173,7 @@ $(function () {
                                     MODAL.hideWait();
                                     MODAL.hide();
                                     notify(response.message, "info");
-
+                                    location.href = APP.url('academico/gposeccion/' + response.data.gruposeccion + '/succesSave');
                                 } else {
                                     MODAL.hideWait();
                                     MODAL.hide();

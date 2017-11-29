@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -92,6 +93,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional(readOnly = false)
     public PlanCurricular savePlanCurricular(PlanCurricular planCurricular) {
         planCurricular.setEstadoEnum(EstadoEnum.ACT);
+
+        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
+            planCurricular.setOrientacionCarrera(null);
+        }
+
         planCurricularDAO.save(planCurricular);
         return planCurricular;
     }
@@ -99,6 +105,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional(readOnly = false)
     public void updatePlanCurricular(PlanCurricular planCurricular) {
+        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
+            planCurricular.setOrientacionCarrera(null);
+        }
         planCurricularDAO.updatePlanCurricular(planCurricular);
     }
 

@@ -5,103 +5,179 @@
 </head>
 
 <body>
-    <section layout:fragment="main">
+    <section  layout:fragment="main">
         <header class="page-header">
             <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
         </header>
+        <div id="pageGpoSeccion">
+            <form id="frmPlanCurricular" class="form-horizontal m-t-lg">
+                <input v-model="grupoSeccion.id" type="hidden" />
+                <section class="panel">
 
-        <form id="frmPlanCurricular" class="form-horizontal m-t-lg">
+                    <section class="panel-body bg-white b">
 
-            <section class="panel">
-
-                <section class="panel-body bg-white b">
-
-                    <div class="form-group">
-                        <label for="cboAnexo" class="col-sm-2 control-label">Anexo</label>
-                        <div class="col-md-5">
-                            <select id="cboAnexo" 
-                                    required="true" 
-                                    class="form-control select2single" >
-                                <option></option>
-                            </select>
+                        <div class="form-group">
+                            <label for="cboAnexo" class="col-sm-2 control-label">Anexo</label>
+                            <div class="col-md-5">
+                                <span class="form-control" th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="cboCategoria" class="col-sm-2 control-label">Categoria</label>
-                        <div class="col-md-5">
-                            <select id="cboCategoria" 
-                                    required="true" 
-                                    class="form-control select2single" >
-                                <option></option>
-                            </select>
+                        <div class="form-group">
+                            <label for="cboCategoria" class="col-sm-2 control-label">Categoria</label>
+                            <div class="col-md-5">
+                                <span class="form-control" th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
-                        <div class="col-md-5">
-                            <select id="cboCurso" 
-                                    required="true" 
-                                    class="form-control select2single" >
-                                <option></option>
-                            </select>
+                        <div class="form-group">
+                            <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
+                            <div class="col-md-5">
+                                <span class="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
-                        <div class="col-md-5">
-                            <select id="cboCurso" 
-                                    required="true" 
-                                    class="form-control select2single" >
-                                <option></option>
-                            </select>
+                        <div class="form-group">
+                            <label  class="col-md-2 control-label">Estructura</label>
+                            <div class="col-md-2">
+                                <span class="form-control" th:text="${grupoSeccion.curso.codigo}"></span>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="form-control" th:text="${grupoSeccion.curso.tpc}"></span>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="form-control"></span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label  class="col-md-2 control-label">Estructura</label>
-                        <div class="col-md-2">
-                            <span class="form-control"></span>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="form-control"></span>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="form-control"></span>
-                        </div>
-                    </div>
-
+                    </section>
                 </section>
-            </section>
 
-            <section class="panel">
-                <section class="panel-body">
-                    <table class="table table-striped" id="dynaTable">
-                        <thead> 
-                            <tr class=""> 
-                                <th class="col-md-3">Carrera </th>
-                                <th class="col-md-2">Fecha Aprobación</th>
-                                <th class="col-md-2 text-center">Ciclo Inicio Vigencia</th>
-                                <th class="col-md-3">Resumen</th>
-                                <th class="col-md-1 text-center">Estado</th>
-                                <th class="1"></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                <section class="panel">
+                    <section class="panel-body">
+                        <table class="table table-striped" id="dynaTable">
+                            <thead> 
+                                <tr class=""> 
+                                    <th class="col-md-1 text-center">Clave </th>
+                                    <th class="col-md-1 text-center">Tipo</th>
+                                    <th class="col-md-1 text-center">Aula</th>
+                                    <th class="col-md-1 text-center">Grupo</th>
+                                    <th class="col-md-1 text-center">Condición</th>
+                                    <th class="col-md-1 text-center">Carreras</th>
+                                    <th class="col-md-1 text-center">Facultades</th>
+                                    <th class="col-md-1 text-center">Vac</th>
+                                    <th class="col-md-1 text-center">Mat</th>
+                                    <th class="col-md-1 text-center">Docentes</th>
+                                    <th class="col-md-1 text-center">Estado</th>
+                                    <th class="col-md-1 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr  v-for="(seccion, index) in secciones">
+                                    <td>
+                                        {{ seccion.seccionCodigo }}
+                                    </td>
+                                    <td>
+                                        {{ seccion.tipoSeccionValue }}
+                                    </td>
+                                    <td>
+                                        {{ seccion.aula }}
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+                                        {{ seccion.vacantes }}
+                                    </td>
+                                    <td>
+                                        {{ seccion.matriculados }}
+                                    </td>
+                                    <td>
+                                        {{ seccion.cantidadDocentes }}
+                                    </td>
+                                    <td>
+                                        <span class="label" v-bind:class="getEstadoClass(seccion.estadoEnumCode)">{{ seccion.estadoEnumValue }}</span>
+                                    </td>
+                                    <td>
+                                        <a  v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
+                                            v-on:click="deleteSeccion(seccion)"
+                                            class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+
+                                    </td>
+                                </tr>
+                                <!-- 
+                                <tr  th:each="seccion : ${secciones}">
+                                    <td class="col-md-1 text-left">
+                                        <span th:text="${seccion.codigo}"></span>
+                                    </td>
+                                    <td class="col-md-2 text-left">
+                                        <span th:text="${seccion.tipoSeccionEnum.value}"></span>
+                                    </td>
+                                    <td class="col-md-1 text-left">
+                                        <span th:if="${seccion.aula}" 
+                                              th:text="${seccion.aula.nombre}"></span>
+                                    </td>
+                                    <td class="col-md-1 text-left">
+                                        <span th:if="${seccion.grupoHoras}" 
+                                              th:text="${seccion.grupoHoras.codigo}"></span>
+                                    </td>
+                                    <td class="col-md-1 text-left">
+
+                                    </td>
+                                    <td class="col-md-1 text-left">
+
+                                    </td>
+                                    <td class="col-md-1 text-left">
+
+                                    </td>
+                                    <td class="col-md-1 text-left">
+                                        <span th:text="${seccion.vacantes}"></span>
+                                    </td>
+                                    <td class="col-md-1 text-left">
+                                        <span th:text="${seccion.matriculados}"></span>
+                                    </td>
+                                    <td class="col-md-1 text-left">
+                                        <span th:text="${seccion.docentesCant}"></span>
+                                    </td>
+                                    <td class="col-md-1 text-left">
+                                        <span  th:class="|label label-${seccion.estadoEnum.classCss}|" th:text="${seccion.estadoEnum.value}"></span>
+
+
+                                    </td>
+                                </tr>
+                                -->
+                            </tbody>
+                        </table>
+
+                        <a class="btn btn-info btn-sm pull-right"
+                           th:if="${grupoSeccion.curso.tipoCursoTEOPRA}"
+                           v-on:click="addSeccion"
+                           >
+                            <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Seccion</strong></i>
+                        </a>
+                    </section>
                 </section>
-            </section>
 
-        </form>
-
+            </form>
+        </div>
         <div th:substituteby="templates/modal"/>
     </section>
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/programacion/nuevaProgramacion.js}" charset="utf-8"></script>
+        <script th:inline="javascript">
+            var gpoSeccionJson = [[${grupoSeccionJson}]];
+        </script>
+        <script th:src="@{/app/gposeccion/formGpoSeccion.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -75,7 +76,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
+    public GrupoSeccion saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
         GrupoSeccion lastGrupoSeccion = grupoSeccionDAO.findLast();
         String codigo = generateCodigo(lastGrupoSeccion.getCodigo());
         grupoSeccion.setCodigo(codigo);
@@ -178,6 +179,51 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccion.getSecciones().add(seccionPCUR);
         }
         grupoSeccionDAO.save(grupoSeccion);
+        return grupoSeccion;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void addSeccion(GrupoSeccion grupoSeccion) {
+        grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
+        Curso curso = grupoSeccion.getCurso();
+        Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
+        DateTime today = new DateTime();
+
+        Seccion seccionPCUR = new Seccion();
+        seccionPCUR.setGrupoSeccion(grupoSeccion);
+        seccionPCUR.setCodigo(grupoSeccion.getCodigo() + (secciones.size() + 1));
+        seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
+        seccionPCUR.setEstadoEnum(EstadoEnum.CRE);
+        seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
+        seccionPCUR.setHorasPractica(curso.getHorasPractica());
+        seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
+
+        seccionPCUR.setDocenteSeccion(new ArrayList<>());
+        DocenteSeccion docenteSeccion2 = new DocenteSeccion();
+        docenteSeccion2.setDocente(docenteDefault);
+        docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());
+        docenteSeccion2.setEstado(EstadoEnum.ACT.name());
+        docenteSeccion2.setFechaInicio(today.toDate());
+        docenteSeccion2.setPrincipal(BigDecimal.ONE.intValue());
+        docenteSeccion2.setSeccion(seccionPCUR);
+        seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
+
+        seccionDAO.save(seccionPCUR);
+
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteSeccion(Seccion seccion) {
+        seccion = seccionDAO.find(seccion.getId());
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(seccion.getGrupoSeccion());
+        if (secciones.size() == 1) {
+            throw new PhobosException("No se pueden eliminar todas las secciones del grupo");
+        }
+        docenteSeccionDAO.deleteDocenteSeccionBySeccion(seccion);
+        seccionDAO.delete(seccion);
     }
 
     public static String generateCodigo(String codigo) {
@@ -234,6 +280,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public Curso findCurso(Long id) {
         return cursoDAO.find(id);
+    }
+
+    @Override
+    public GrupoSeccion findGpoSeccion(Long id) {
+        return grupoSeccionDAO.find(id);
+    }
+
+    @Override
+    public List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion) {
+        return seccionDAO.allByGposSeccion(grupoSeccion);
     }
 
 }

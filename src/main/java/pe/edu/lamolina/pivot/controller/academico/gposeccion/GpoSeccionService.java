@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 
 public interface GpoSeccionService {
 
@@ -23,6 +24,14 @@ public interface GpoSeccionService {
 
     Curso findCurso(Long id);
 
-    void saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
+    GrupoSeccion saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
+
+    GrupoSeccion findGpoSeccion(Long id);
+
+    List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion);
+
+    void addSeccion(GrupoSeccion grupoSeccion);
+
+    void deleteSeccion(Seccion seccion);
 
 }

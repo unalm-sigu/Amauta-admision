@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
@@ -217,11 +218,20 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     public List<DocenteSeccion> allActivosBySecciones(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
-                .join("docente doc","seccion s")
+                .join("docente doc", "seccion s")
                 .leftJoin("doc.persona per")
                 .filter("ds.estado", EstadoEnum.ACT)
                 .in("s.id", secciones);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public void deleteDocenteSeccionBySeccion(Seccion seccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("delete from DocenteSeccion ds where ds.seccion.id=:prm_seccion ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_seccion", seccion.getId());
+        query.executeUpdate();
     }
 
 }
