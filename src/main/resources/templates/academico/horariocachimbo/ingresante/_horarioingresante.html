@@ -1,0 +1,15 @@
+<modal-vik ref="modalAddAlumno"
+           v-bind="addAlumnoModal"
+           v-bind:okaction="createAlumno">
+
+    <div slot="body">
+        <div class="form-group">
+            <label>Alumno</label>
+            <input type="text" 
+                   class="form-control"
+                   name="alumno.id"
+                   v-model="alumno.id"
+                   required="true"/>
+        </div>
+    </div>
+</modal-vik>

@@ -12,4 +12,16 @@ public interface HorarioIngresanteService {
 
     List<Alumno> allAlumnoByAlumnoHorario(DynatableFilter filter, List<AlumnoHorario> alumnosHorario, CicloAcademico cicloAcademico);
 
+    void addAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+
+    void activarMatricula(Alumno alumno, CicloAcademico cicloAcademico);
+
+    void suspenderMatricula(Alumno alumno, CicloAcademico cicloAcademico);
+
+    void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico);
+
+     void asignarHorario(AlumnoHorario alumnoHorario);
+
+    void retirarHorario(Alumno alumno, CicloAcademico cicloAcademico);
+
 }

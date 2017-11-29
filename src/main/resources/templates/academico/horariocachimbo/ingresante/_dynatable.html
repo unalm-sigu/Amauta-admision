@@ -12,7 +12,7 @@
                         <th></th>
                     </tr> 
                 </thead>
-                <tbody>
+                <tbody id="dynaTbody">
                     <tr></tr>
                 </tbody>
             </table>
@@ -21,50 +21,49 @@
     </transition>
 </template>
 
-<script id="dynatableRowTemplate">
-    <div>
-        <tr>
+<template  type="text/x-template" id="dynatableRowTemplate">
+    <tr>
 
-            <td class="v-middle">
-                <a :rel="horario.id" 
-                   href="#"
-                   class="h5 text-muted"> 
-                   {{ horario.estudiante}}
-                </a>
-            </td>
+        <td class="v-middle">
+            <a :rel="horario.id" 
+                href="#"
+                class="h5 text-muted"> 
+                {{ horario.estudiante}}
+            </a>
+        </td>
 
-            <td class="v-middle text-center">
-                    <p>{{horario.carrera}}</p> 
-                    <span>{{horario.facultad}}</span> 
-            </td>
+        <td class="v-middle text-center">
+            <p>{{horario.carrera}}</p> 
+            <span>{{horario.facultad}}</span> 
+        </td>
 
-            <td class="v-middle">
-                    <span>{{horario.horario}}</span> 
-            </td>
+        <td class="v-middle">
+            <span>{{horario.horario}}</span> 
+        </td>
 
-            <td class="v-middle">
-                    <span>{{horario.estado}}</span> 
-            </td>
+        <td class="v-middle">
+            <span>{{horario.estado}}</span> 
+        </td>
 
-            <td class="v-middle"> 
-                <div class="dropdown actions">
-                    <a class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="glyphicon glyphicon-option-vertical"></i>
-                    </a> 
+        <td class="v-middle"> 
+            <div class="dropdown actions">
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="glyphicon glyphicon-option-vertical"></i>
+                </a> 
 
-                    <ul class="dropdown-menu pull-right">
-                        <li><a class="buscarHorario" :rel="horario.id" href="#">Buscar Horario</a></li>
-                        <li><a class="buscarHorario" :rel="horario.id" href="#">Retirar de horario</a></li>
-                        <li><a class="buscarHorario" :rel="horario.id" href="#">Asignar horario</a></li>
-                        <li class="divider"></li>
-                        <li><a class="buscarHorario"  :rel="horario.id" href="#">Suspender matricula</a></li>
-                        <li><a class="buscarHorario"  :rel="horario.id"  href="#">Activar  matricula</a></li>
-                    </ul>
+                <ul class="dropdown-menu pull-right">
+                    <li><a class="buscarHorario"   v-on:click.prevent="buscarHorario(horario.id)"  href="#">Buscar Horario</a></li>
+                    <li class="divider"></li>
+                    <li><a class="buscarHorario"   v-on:click.prevent="asignarHorario(horario.id)"  href="#">Asignar horario</a></li>
+                    <li><a class="buscarHorario"   v-on:click.prevent="retirarHorario(horario.id)"  href="#">Retirar de horario</a></li>
+                    <li class="divider"></li>
+                    <li><a class="buscarHorario"   v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
+                    <li><a class="buscarHorario"   v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
+                </ul>
 
-                </div>
-            </td>
+            </div>
+        </td>
 
-        </tr>
-    </div>
-</script>
+    </tr>
+</template>
 

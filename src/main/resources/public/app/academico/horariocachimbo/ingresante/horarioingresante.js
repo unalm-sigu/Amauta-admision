@@ -1,24 +1,33 @@
 $(function () {
+
     var $global = new Vue({});
-    let  dynatableRow = null;
-    
+
     var DynatableRowTemplate = Vue.component("dynatableRow", {
         template: "#dynatableRowTemplate",
         data: function () {
-            return {
-                horario: [{
-                        id: 0,
-                        estudiante: "",
-                        carrera: "",
-                        facultatd: "",
-                        horario: "",
-                        estado: ""
-                    }]
-            }
+            return {horario: []};
         },
+        methods: {
+            buscarHorario(id) {
+                $global.$emit("buscarHorario", id);
+            },
+            asignarHorario(id) {
+                $global.$emit("asignarHorario", id);
+            },
+            retirarHorario(id) {
+                $global.$emit("retirarHorario", id);
+            },
+            suspenderMatricula(id) {
+                $global.$emit("suspenderMatricula", id);
+            },
+            activarMatricula(id) {
+                $global.$emit("activarMatricula", id);
+            },
+        }
     });
-    
+
     let  dynatable = null;
+
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
         props: ["horario"],
@@ -29,101 +38,264 @@ $(function () {
         methods: {
             createDynatable: function () {
                 var $vue = this;
+                $('#dynaTable').bind('dynatable:init', function (e, dynatable) {
+                    $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
+                    $('.dynatable-paginate, .dynatable-record-count').wrapAll('<div class="col-md-12"/>');
+                    $('.dynatable-search').addClass('col-md-2');
+                    $('.dynatable-search').find('input')
+                            .addClass('form-control input-sm')
+                            .attr('placeholder', 'Buscar');
+                });
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
                         ajaxUrl: APP.url('academico/horariocachimbo/ingresante/list'),
-                        perPageDefault: 4,
+                        perPageDefault: 1,
                         ajaxData: {id: $vue.horario},
                     },
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
+                }).bind("dynatable:afterUpdate", function (e) {
+                    $('.dynatable-paginate li').first().remove();
+                    var records = dynatable.settings.dataset.records;
+                    for (var i = 0, max = records.length; i < max; i++) {
+                        var dynatableRowTemplate = new DynatableRowTemplate();
+                        dynatableRowTemplate.horario = records[i];
+                        var component = dynatableRowTemplate.$mount();
+                        $('#dynaTbody').append(component.$el);
+                    }
                 }).data('dynatable');
-                
-                
-                dynatable.bind("dynatable:afterUpdate",function(){
-
-                    $("body").delegate(".buscarHorario", "click", function (e) {
-                        console.log('hola ssssssssssssssssss');
-                        $global.$emit("buscarHorario", e);
-                    });
-                    
-                });
-
             },
             writter: function (rowIndex, record, columns, cellWriter) {
-                var dynatableRowTemplate = new DynatableRowTemplate();
-                dynatableRowTemplate.horario = record;
-                var component = dynatableRowTemplate.$mount();
-                var el = component.$el;
-                return el.innerHTML;
+                return "";
             }
         }
     });
+
     new Vue({
         el: '#main',
         data: {
-            horario: {}
+            horario: {},
+            alumno: {},
+            addAlumnoModal: {
+                id: 'modalAddAlumno',
+                header: 'False',
+                tittle: 'Agregar Alumno',
+                okbtn: 'Agregar Alumno'
+            },
         },
         created() {
             let $vue = this;
         },
+        mounted: function () {
+            let $vue = this;
+            $global.$on("buscarHorario", function (id) {
+                $vue.buscarHorario(id);
+            });
+            $global.$on("asignarHorario", function (id) {
+                $vue.asignarHorario(id);
+            });
+            $global.$on("retirarHorario", function (id) {
+                $vue.retirarHorario(id);
+            });
+            $global.$on("suspenderMatricula", function (id) {
+                $vue.suspenderMatricula(id);
+            });
+            $global.$on("activarMatricula", function (id) {
+                $vue.activarMatricula(id);
+            });
+
+            $('name="alumno.id"').select2({
+                allowClear: true,
+                multiple: true,
+                minimumInputLength: -1,
+                placeholder: " ",
+                ajax: {
+                    url: APP.url("academico/horariocachimbo/ingresante/alumno"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function (term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function (response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function (element, callback) {
+                    if (element.val() != "") {
+                        callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev")});
+                    }
+                },
+                formatResult: function (info) {
+                    return '<b>' + info.codigo + '</b>    ' + info.nombre;
+                },
+                formatSelection: function (info) {
+                    return '<b>' + info.codigo + '</b>   ' + info.nombre;
+                },
+                escapeMarkup: function (m) {
+                    return m;
+                }
+            });
+
+        },
         methods: {
-            labeled(estado) {
-                return estado == 'ACTIVO' ? 'label-success' : 'label-danger';
-            },
             nuevo() {
-                this.curso = {id: null, nombre: '', codigo: '', estado: 'INACTIVO'};
-                var mimodal = bootbox.confirm({
-                    title: "Nuevo Alumno",
-                    message: APP.template.spincenter,
+                this.$refs.modalAddAlumno.open();
+            },
+            createAlumno(id) {
+                var $vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/ingresante/addAlumno"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            $vue.reloadDinatable();
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    }
+                });
+            },
+            reloadDinatable() {
+                dynatable.process();
+            },
+            buscarHorario(id) {
+                var $vue = this;
+                bootbox.confirm({
+                    message: '¿Seguro que desea buscar horario?',
                     buttons: {
-                        confirm: {label: "Guardar", className: "btn-info"},
-                        cancel: {label: "Cancelar", className: "btn-link"}
+                        confirm: {label: 'Si, activar', className: "btn-primary"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
                     },
                     callback: function (result) {
                         if (result) {
-                            if (mimodal.find('form').parsley().validate() == true) {
-                            }
-                        } else {
-                            mimodal.modal('hide');
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/buscarHorario'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                            });
                         }
-                        return false;
                     }
                 });
-                $.ajax({
-                    url: APP.url('academico/horario/nuevo'),
-                    type: 'POST',
-                    async: true,
-                    success: function (response) {
-                        if (response.success) {
-                            mimodal.find('.bootbox-body').html(response.data);
-                            mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
-                        } else {
-                            notify(response.message, "error");
-                            mimodal.modal('hide');
-                        }
+            },
+            asignarHorario(id) {
+                var $vue = this;
+                bootbox.confirm({
+                    message: '¿Seguro que desea asignar horario?',
+                    buttons: {
+                        confirm: {label: 'Si, activar', className: "btn-primary"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
                     },
-                    error: function () {
-                        mimodal.modal('hide');
-                        notify(MESSAGES.errorComunicacion, "error");
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/asignarHorario'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                            });
+                        }
                     }
                 });
             },
-            update(item) {
-                this.curso = item;
+            retirarHorario(id) {
+                var $vue = this;
+                bootbox.confirm({
+                    message: '¿Seguro que desea retirar el horario?',
+                    buttons: {
+                        confirm: {label: 'Si, retirar', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/retirarHorario'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             },
-            save() {
-                let $vue = this;
-                $vue.cursos.push($vue.curso);
+            suspenderMatricula(id) {
+                var $vue = this;
+                bootbox.confirm({
+                    message: '¿Seguro que desea suspender la matrícula?',
+                    buttons: {
+                        confirm: {label: 'Si, suspender', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/suspenderMatricula'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             },
-            remove(item) {
-                let $vue = this;
-                $vue.cursos.pop(item);
+            activarMatricula(id) {
+
+                var $vue = this;
+                bootbox.confirm({
+                    message: '¿Seguro que desea activar la matrícula?',
+                    buttons: {
+                        confirm: {label: 'Si, activar', className: "btn-primary"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/activarMatricula'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             },
-            buscarHorario(id) {
-                console.log('buscarrrrrrrrrrrr');
-                console.log(id);
-            }
         }
     });
 });

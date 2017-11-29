@@ -46,4 +46,55 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
         return alumnoDAO.allByAlumnoHorario(filter, cicloAcademico, alumnos);
     }
 
+    @Override
+    public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+
+        AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        if (alumnoHorario != null) {
+            alumnoHorario = new AlumnoHorario();
+            alumnoHorario.setAlumno(alumno);
+            alumnoHorario.setCicloAcademico(cicloAcademico);
+            alumnoHorarioDAO.save(alumnoHorario);
+        }
+
+    }
+
+    @Override
+    public void activarMatricula(Alumno alumno, CicloAcademico cicloAcademico) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void suspenderMatricula(Alumno alumno, CicloAcademico cicloAcademico) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    @Transactional
+    public void asignarHorario(AlumnoHorario alumnoHorario) {
+        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.findByAlumnoCiclo(alumnoHorario.getAlumno(), alumnoHorario.getCicloAcademico());
+        if (alumnoHorarioDb == null) {
+            alumnoHorarioDAO.save(alumnoHorario);
+            return;
+        }
+        alumnoHorarioDb.setHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
+        alumnoHorarioDAO.update(alumnoHorarioDb);
+    }
+
+    @Override
+    @Transactional
+    public void retirarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
+        AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        if (alumnoHorario == null) {
+            return;
+        }
+        alumnoHorario.setHorarioCachimbos(null);
+        alumnoHorarioDAO.update(alumnoHorario);
+    }
+
 }

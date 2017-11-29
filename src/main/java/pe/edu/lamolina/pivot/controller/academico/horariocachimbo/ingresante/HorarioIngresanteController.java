@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -75,14 +78,14 @@ public class HorarioIngresanteController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(cicloAcademico);
             List<Alumno> alumnos = service.allAlumnoByAlumnoHorario(filter, alumnosHorario, cicloAcademico);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
-            for (Alumno alum : alumnos ) {
+
+            for (Alumno alum : alumnos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", alum.getId());
                 node.put("estudiante", alum.getPersona().getApellidosNombres());
@@ -103,6 +106,121 @@ public class HorarioIngresanteController {
         }
 
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("addAlumno")
+    public JsonResponse addAlumno(Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.addAlumno(alumno, cicloAcademico);
+            response.setMessage("Alumno creado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activarMatricula")
+    public JsonResponse activarMatricula(Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.activarMatricula(alumno, cicloAcademico);
+            response.setMessage("Alumno creado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("suspenderMatricula")
+    public JsonResponse suspenderMatricula(Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.suspenderMatricula(alumno, cicloAcademico);
+            response.setMessage("Alumno creado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("buscarHorario")
+    public JsonResponse buscarHorario(Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.buscarHorario(alumno, cicloAcademico);
+            response.setMessage("Alumno creado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarHorario")
+    public JsonResponse asignarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            alumnoHorario.setCicloAcademico(cicloAcademico);
+            service.asignarHorario(alumnoHorario);
+            response.setMessage("Alumno creado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("retirarHorario")
+    public JsonResponse retirarHorario(Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.retirarHorario(alumno, cicloAcademico);
+            response.setMessage("Alumno creado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

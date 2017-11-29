@@ -1,7 +1,7 @@
 <html layout:decorator="zlayout/layout">
     <head>
         <title>Tipo Grupos</title>
-       <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -23,7 +23,11 @@
                 </section>
             </section>
 
+            <div th:substituteby="academico/horariocachimbo/ingresante/_horarioingresante"/>
+
         </div>
+
+        <div th:substituteby="_modules/vue-modal"/>
 
         <th:block th:replace="academico/horariocachimbo/ingresante/_dynatable"/>
 
@@ -31,7 +35,9 @@
 
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioingresante.js}" charset="utf-8"></script>
     </div>
 
