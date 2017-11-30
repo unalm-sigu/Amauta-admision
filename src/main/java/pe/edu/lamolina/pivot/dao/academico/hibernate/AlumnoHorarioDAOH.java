@@ -5,6 +5,8 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -36,5 +38,19 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("ciclo.id", cicloAcademico)
                 .filter("alu.id", alumno);
         return (AlumnoHorario) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoHorario.class, "alu")
+                .join("alumno alum","alum.persona per", "cicloAcademico ciclo")
+                .leftJoin("horarioCachimbos hora","alum.orientacionCarrera oca", "alum.carrera ca", "alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me")
+                .filter("ciclo.id", cicloAcademico)
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("alu.id desc");
+        sql.beginRelativeFilters();
+        return sql.all(getCurrentSession());
     }
 }

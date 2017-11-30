@@ -1,7 +1,7 @@
 <html layout:decorator="zlayout/layout">
     <head>
         <title>Tipo Grupos</title>
-       <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
 </head>
 
 <body>
@@ -9,34 +9,28 @@
 
         <div  id="main">
             <header class="page-header">
-                <div class="pull-right">                
-                    <a class="btn btn-info" type="button"    v-on:click="nuevo"          href="#" >Agregar Alumno</a>
-                </div>  
-                <h2 th:inline="text">Ingresantes con Horario [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Lista  Carrera  Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
 
             <section class="panel">
                 <section class="panel-body">
-
-                    <dynatable v-bind:menupadre="menu"/>
-
+                    <dynatable />
                 </section>
             </section>
 
         </div>
 
-        <th:block th:replace="academico/horario/ingresante/_dynatable"/>
+        <div th:substituteby="_modules/vue-modal"/>
+        <th:block th:replace="academico/horariocachimbo/carrera/_dynatable"/>
 
     </div>
 
-    <script id="tipoGrupoTemplate" type="text/x-jsrender" class="hide">
-        <div th:substituteby="academico/horario/ingresante/tipoGrupoTemplate"></div>
-    </script>
-
     <div layout:fragment="js">
         <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
-        <script th:src="@{/app/academico/horario/ingresante/horarioingresante.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script th:src="@{/app/academico/horariocachimbo/carrera/horariocarrera.js}" charset="utf-8"></script>
     </div>
 
 </body>

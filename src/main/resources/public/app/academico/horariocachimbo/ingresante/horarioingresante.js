@@ -30,7 +30,6 @@ $(function () {
 
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
-        props: ["horario"],
         mounted: function () {
             var $vue = this;
             $vue.createDynatable();
@@ -49,8 +48,7 @@ $(function () {
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
                         ajaxUrl: APP.url('academico/horariocachimbo/ingresante/list'),
-                        perPageDefault: 1,
-                        ajaxData: {id: $vue.horario},
+                        perPageDefault: 8
                     },
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
@@ -270,6 +268,7 @@ $(function () {
             activarMatricula(id) {
 
                 var $vue = this;
+                
                 bootbox.confirm({
                     message: '¿Seguro que desea activar la matrícula?',
                     buttons: {

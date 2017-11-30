@@ -10,27 +10,26 @@
         <div  id="main">
             <header class="page-header">
                 <div class="pull-right">                
-                    <a class="btn btn-info" type="button"    v-on:click="nuevo"          href="#" >Agregar Alumno</a>
+                    <a class="btn btn-info" type="button"    v-on:click="nuevo"          href="#" >Agregar Curso</a>
                 </div>  
-                <h2 th:inline="text">Ingresantes con Horario [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Cursos Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
 
             <section class="panel">
                 <section class="panel-body">
-
+  -
                     <dynatable />
 
                 </section>
             </section>
 
-            <div th:substituteby="academico/horariocachimbo/ingresante/_horarioingresante"/>
+            <div th:substituteby="academico/horariocachimbo/cursocarrera/_horariocursocarrera"/>
 
         </div>
 
-
         <div th:substituteby="_modules/vue-modal"/>
 
-        <th:block th:replace="academico/horariocachimbo/ingresante/_dynatable"/>
+        <th:block th:replace="academico/horariocachimbo/cursocarrera/_dynatable"/>
 
     </div>
 
@@ -39,7 +38,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioingresante.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/cursocarrera/horariocursocarrera.js}" charset="utf-8"></script>
     </div>
 
 </body>

@@ -265,19 +265,4 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
         return (MatriculableResumen) query.uniqueResult();
     }
 
-    @Override
-    public List<Alumno> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico, List<Long> alumnos) {
-        DynatableSql sql = new DynatableSql(filter)
-                .from(Alumno.class, "alu")
-                .join("persona per", "cicloActivo ciclo")
-                .leftJoin("orientacionCarrera oca", "carrera ca", "cicloIngreso ci", "situacionAcademica sia", "modalidadEstudio me")
-                .filter("ciclo.id", cicloAcademico)
-                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .in("alu.id", alumnos)
-                .orderBy("alu.id desc");
-        sql.beginRelativeFilters();
-        return sql.all(getCurrentSession());
-    }
-
 }

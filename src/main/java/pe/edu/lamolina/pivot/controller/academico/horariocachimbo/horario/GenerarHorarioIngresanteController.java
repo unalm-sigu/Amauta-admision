@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.carrera;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -22,19 +22,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.edu.lamolina.pivot.model.academico.CarreraCachimbos;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/horariocachimbo/carrera")
-public class HorarioCarreraController {
+@RequestMapping("academico/horariocachimbo/horario")
+public class GenerarHorarioIngresanteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    HorarioCarreraService service;
+    GenerarHorarioIngresanteService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -64,28 +68,28 @@ public class HorarioCarreraController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        return "academico/horariocachimbo/carrera/horariocarrera";
+        return "academico/horariocachimbo/generar/horariogenerar";
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<CarreraCachimbos> carreraCachimbos = service.allCarreraCachimbos(filter, cicloAcademico);
+            List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbos(filter, cicloAcademico);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (CarreraCachimbos carreraCachimbo : carreraCachimbos) {
+
+            for (HorarioCachimbos horarioCachimbo : horarioCachimbos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", carreraCachimbo.getId());
-                node.put("nombre", carreraCachimbo.getCarrera().getNombre());
-                node.put("facultad", carreraCachimbo.getCarrera().getFacultad().getNombre());
-                node.put("ingresantes", carreraCachimbo.getIngresantes());
-                node.put("suspendidos", carreraCachimbo.getSuspendidos());
-                node.put("conHorario", carreraCachimbo.getConHorario());
-                node.put("sinHorario", carreraCachimbo.getSinHorario());
+                node.put("id", horarioCachimbo.getId());
+                node.put("codigo", horarioCachimbo.getCodigo());
+                node.put("carrera", horarioCachimbo.getCarrera().getNombre());
+                node.put("cursoso", horarioCachimbo.getCursos());
+                node.put("suscritos", horarioCachimbo.getSuscritos());
+                node.put("matriculados", horarioCachimbo.getMatriculados());
                 array.add(node);
             }
             json.setData(array);
@@ -96,6 +100,22 @@ public class HorarioCarreraController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(HorarioCachimbos horarioCachimbos) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.delete(horarioCachimbos);
+            response.setMessage("Horario eliminado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

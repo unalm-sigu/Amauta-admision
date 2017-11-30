@@ -66,7 +66,22 @@
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/horariocachimbo/ingresante}">
-                                        <span>Docente</span>
+                                        <span>Horario cachimbo</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/curso}">
+                                        <span>Curso cachimbo</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/carrera}">
+                                        <span>Carrera cachimbo</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/horario}">
+                                        <span>Horario cachimbo</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>

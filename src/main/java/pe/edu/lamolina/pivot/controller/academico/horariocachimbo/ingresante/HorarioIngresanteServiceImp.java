@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.ingresante;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +12,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,28 +27,13 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     AlumnoDAO alumnoDAO;
 
     @Override
-    public List<AlumnoHorario> allAlumnoHorario(CicloAcademico cicloAcademico) {
-        return alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+    public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        return alumnoHorarioDAO.allByAlumnoHorario(filter, cicloAcademico);
     }
 
     @Override
-    public List<Alumno> allAlumnoByAlumnoHorario(
-            DynatableFilter filter,
-            List<AlumnoHorario> alumnosHorario,
-            CicloAcademico cicloAcademico) {
-        if (alumnosHorario.isEmpty()) {
-            return new ArrayList<>();
-        }
-        List<Long> alumnos = new ArrayList<>();
-        for (AlumnoHorario alumnoHorario : alumnosHorario) {
-            alumnos.add(alumnoHorario.getAlumno().getId());
-        }
-        return alumnoDAO.allByAlumnoHorario(filter, cicloAcademico, alumnos);
-    }
-
-    @Override
+    @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
-
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
         if (alumnoHorario != null) {
             alumnoHorario = new AlumnoHorario();
@@ -56,30 +41,29 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
             alumnoHorario.setCicloAcademico(cicloAcademico);
             alumnoHorarioDAO.save(alumnoHorario);
         }
-
     }
 
     @Override
-    public void activarMatricula(Alumno alumno, CicloAcademico cicloAcademico) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Transactional
+    public void activarMatricula(AlumnoHorario alumnoHorario) {
+        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario.getId());
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.MATR.name());
+        alumnoHorarioDAO.update(alumnoHorarioDb);
     }
 
     @Override
-    public void suspenderMatricula(Alumno alumno, CicloAcademico cicloAcademico) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Transactional
+    public void suspenderMatricula(AlumnoHorario alumnoHorario) {
+        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario.getId());
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+        alumnoHorarioDAO.update(alumnoHorarioDb);
     }
 
     @Override
     @Transactional
     public void asignarHorario(AlumnoHorario alumnoHorario) {
-        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.findByAlumnoCiclo(alumnoHorario.getAlumno(), alumnoHorario.getCicloAcademico());
+        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario.getId());
         if (alumnoHorarioDb == null) {
-            alumnoHorarioDAO.save(alumnoHorario);
             return;
         }
         alumnoHorarioDb.setHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
@@ -88,13 +72,18 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
 
     @Override
     @Transactional
-    public void retirarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
-        AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-        if (alumnoHorario == null) {
+    public void retirarHorario(AlumnoHorario alumnoHorario) {
+        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario.getId());
+        if (alumnoHorarioDb == null) {
             return;
         }
-        alumnoHorario.setHorarioCachimbos(null);
-        alumnoHorarioDAO.update(alumnoHorario);
+        alumnoHorarioDb.setHorarioCachimbos(null);
+        alumnoHorarioDAO.update(alumnoHorarioDb);
+    }
+
+    @Override
+    public void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

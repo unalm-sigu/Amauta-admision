@@ -1,23 +1,18 @@
 $(function () {
 
+    var $global = new Vue({});
+
+    var DynatableRowTemplate = Vue.component("dynatableRow", {
+        template: "#dynatableRowTemplate",
+        data: function () {
+            return {carrera: []};
+        },
+    });
+
     let  dynatable = null;
 
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
-        props: ["menupadre"],
-        components: {
-            dynatableRowTemplate: {
-                template: "#dynatableRowTemplate",
-                methods: {
-                    deleteItem() {
-                        $global.$emit("deleteItem", $(this).attr("rel"));
-                    },
-                    updateItem() {
-                        $global.$emit("updateItem", $(this).attr("rel"));
-                    }
-                }
-            }
-        },
         mounted: function () {
             var $vue = this;
             $vue.createDynatable();
@@ -25,30 +20,30 @@ $(function () {
         methods: {
             createDynatable: function () {
                 var $vue = this;
+                $('#dynaTable').bind('dynatable:init', function (e, dynatable) {
+                    $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
+                    $('.dynatable-paginate, .dynatable-record-count').wrapAll('<div class="col-md-12"/>');
+                    $('.dynatable-search').addClass('col-md-2');
+                    $('.dynatable-search').find('input')
+                            .addClass('form-control input-sm')
+                            .attr('placeholder', 'Buscar');
+                });
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
-                        ajaxUrl: APP.url('academico/horario/list'),
-                        perPageDefault: 4,
-                        ajaxData: {id: $vue.menupadre},
+                        ajaxUrl: APP.url('academico/horariocachimbo/carrera/list'),
+                        perPageDefault: 8
                     },
                     writers: {_rowWriter: $vue.writter},
-                    table: {bodyRowSelector: "div"}
+                    table: {bodyRowSelector: "tbody tr"}
+                }).bind("dynatable:afterUpdate", function (e) {
+                    $('.dynatable-paginate li').first().remove();
                 }).data('dynatable');
-
-                $("body").delegate(".deleteItem", "click", function () {
-                    $global.$emit("deleteItem", $(this).attr("rel"));
-                });
-                $("body").delegate(".updateItem", "click", function () {
-                    $global.$emit("updateItem", $(this).attr("rel"));
-                });
             },
             writter: function (rowIndex, record, columns, cellWriter) {
-                record.index = rowIndex;
-                var html = $.templates("#dynatableRowTemplate").render(record);
-                return $(html).prop('outerHTML');
-
-
-
+                var dynatableRowTemplate = new DynatableRowTemplate();
+                dynatableRowTemplate.carrera = record;
+                var component = dynatableRowTemplate.$mount();
+                return component.innerHtml;
             }
         }
     });
@@ -56,74 +51,14 @@ $(function () {
     new Vue({
         el: '#main',
         data: {
-            curso: {}
+            carrera: {},
         },
         created() {
             let $vue = this;
         },
-        methods: {
-            labeled(estado) {
-                return estado == 'ACTIVO' ? 'label-success' : 'label-danger';
-            },
-            nuevo() {
-
-                this.curso = {id: null, nombre: '', codigo: '', estado: 'INACTIVO'};
-                var mimodal = bootbox.confirm({
-                    title: "Nuevo Tipo Grupo Horas",
-                    message: APP.template.spincenter,
-                    buttons: {
-                        confirm: {label: "Guardar", className: "btn-info"},
-                        cancel: {label: "Cancelar", className: "btn-link"}
-                    },
-                    callback: function (result) {
-                        if (result) {
-                            if (mimodal.find('form').parsley().validate() == true) {
-                                console.log(mimodal.find('form').parsley().validate());
-                                TipoGrupo.saveTipoGrupo(mimodal);
-                            }
-                        } else {
-                            mimodal.modal('hide');
-                        }
-                        return false;
-                    }
-                });
-                $.ajax({
-                    url: APP.url('academico/horario/nuevo'),
-                    type: 'POST',
-                    async: true,
-                    success: function (response) {
-                        if (response.success) {
-                            mimodal.find('.bootbox-body').html(response.data);
-                            mimodal.find('[name="tipoCiclo"]').select2({minimumResultsForSearch: -1});
-                        } else {
-                            notify(response.message, "error");
-                            mimodal.modal('hide');
-                        }
-                    },
-                    error: function () {
-                        mimodal.modal('hide');
-                        notify(MESSAGES.errorComunicacion, "error");
-                    }
-                });
-
-
-            },
-            update(item) {
-                this.curso = item;
-                $("#myModal").modal('show');
-            },
-            save() {
-                let $vue = this;
-                console.log($vue.curso);
-                $vue.cursos.push($vue.curso);
-                $("#myModal").modal('hide');
-            },
-            remove(item) {
-                let $vue = this;
-                console.log(JSON.stringify(item));
-                $vue.cursos.pop(item);
-            }
-        }
+        mounted: function () {
+            let $vue = this;
+        },
     });
-
+    
 });

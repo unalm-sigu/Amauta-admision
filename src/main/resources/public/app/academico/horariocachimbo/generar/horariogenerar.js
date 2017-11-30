@@ -1,13 +1,24 @@
 $(function () {
 
     var $global = new Vue({});
-
     var DynatableRowTemplate = Vue.component("dynatableRow", {
         template: "#dynatableRowTemplate",
         data: function () {
-            return {curso: []};
+            return {horario: []};
         },
         methods: {
+            incluirAlumno(id) {
+                $global.$emit("incluirAlumno", id);
+            },
+            verHorario(id) {
+                $global.$emit("verHorario", id);
+            },
+            verCurso(id) {
+                $global.$emit("verCurso", id);
+            },
+            verAlumno(id) {
+                $global.$emit("verAlumno", id);
+            },
             eliminar(id) {
                 $global.$emit("eliminar", id);
             },
@@ -35,9 +46,8 @@ $(function () {
                 });
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
-                        ajaxUrl: APP.url('academico/horariocachimbo/curso/list'),
-                        perPageDefault: 8,
-                        ajaxData: {id: $vue.curso},
+                        ajaxUrl: APP.url('academico/horariocachimbo/horario/list'),
+                        perPageDefault: 8
                     },
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
@@ -46,7 +56,7 @@ $(function () {
                     var records = dynatable.settings.dataset.records;
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
-                        dynatableRowTemplate.curso = records[i];
+                        dynatableRowTemplate.horario = records[i];
                         var component = dynatableRowTemplate.$mount();
                         $('#dynaTbody').append(component.$el);
                     }
@@ -61,12 +71,13 @@ $(function () {
     new Vue({
         el: '#main',
         data: {
-            curso: {},
-            addCursoModal: {
-                id: 'modalAddCurso',
+            horario: {},
+            alumno: {},
+            addAlumnoModal: {
+                id: 'modalAddAlumno',
                 header: 'False',
-                tittle: 'Agregar Curso',
-                okbtn: 'Agregar Curso'
+                tittle: 'Agregar Alumno',
+                okbtn: 'Agregar Alumno'
             },
         },
         created() {
@@ -74,18 +85,29 @@ $(function () {
         },
         mounted: function () {
             let $vue = this;
+
+            $global.$on("incluirAlumno", function (id) {
+                $vue.incluirAlumno(id);
+            });
+            $global.$on("verHorario", function (id) {
+                $vue.verHorario(id);
+            });
+            $global.$on("verCurso", function (id) {
+                $vue.verCurso(id);
+            });
+            $global.$on("verAlumno", function (id) {
+                $vue.verAlumno(id);
+            });
             $global.$on("eliminar", function (id) {
                 $vue.eliminar(id);
             });
         },
         methods: {
             nuevo() {
-                this.$refs.modalAddCurso.open();
+                this.$refs.modalAddAlumno.open();
             },
-            createCurso(id) {
-                
+            createAlumno(id) {
                 var $vue = this;
-                
                 $.ajax({
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/ingresante/addAlumno"),
@@ -99,12 +121,14 @@ $(function () {
                     }
                 });
             },
+            incluirAlumno(id) {},
+            verHorario(id) {},
+            verCurso(id) {},
+            verAlumno(id) {},
             eliminar(id) {
-
                 var $vue = this;
-
                 bootbox.confirm({
-                    message: '¿Seguro que desea eliminar el curso?',
+                    message: '¿Seguro que desea eliminar el horario?',
                     buttons: {
                         confirm: {label: 'Si, eliminar', className: "btn-danger"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
@@ -113,7 +137,7 @@ $(function () {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/curso/delete'),
+                                url: APP.url('academico/horariocachimbo/horario/delete'),
                                 data: {id: id},
                                 success: function (response) {
                                     if (response.success) {
@@ -128,7 +152,7 @@ $(function () {
                     }
                 });
 
-            },
+            }
         }
     });
 });
