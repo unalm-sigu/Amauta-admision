@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -32,6 +33,10 @@ public interface GpoSeccionService {
 
     void addSeccion(GrupoSeccion grupoSeccion);
 
+    void addDocenteSeccion(Seccion seccion);
+
     void deleteSeccion(Seccion seccion);
+
+    List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
 }

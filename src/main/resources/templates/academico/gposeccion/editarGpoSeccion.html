@@ -55,7 +55,7 @@
 
                 <section class="panel">
                     <section class="panel-body">
-                        <table class="table table-striped" id="dynaTable">
+                        <table class="table table-striped" >
                             <thead> 
                                 <tr class=""> 
                                     <th class="col-md-1 text-center">Clave </th>
@@ -75,7 +75,9 @@
                             <tbody>
                                 <tr  v-for="(seccion, index) in secciones">
                                     <td>
-                                        {{ seccion.seccionCodigo }}
+                                        <a v-on:click="seleccionarSeccion(seccion)" 
+                                           style="cursor:pointer;">{{ seccion.seccionCodigo }}
+                                        </a>
                                     </td>
                                     <td>
                                         {{ seccion.tipoSeccionValue }}
@@ -114,47 +116,6 @@
 
                                     </td>
                                 </tr>
-                                <!-- 
-                                <tr  th:each="seccion : ${secciones}">
-                                    <td class="col-md-1 text-left">
-                                        <span th:text="${seccion.codigo}"></span>
-                                    </td>
-                                    <td class="col-md-2 text-left">
-                                        <span th:text="${seccion.tipoSeccionEnum.value}"></span>
-                                    </td>
-                                    <td class="col-md-1 text-left">
-                                        <span th:if="${seccion.aula}" 
-                                              th:text="${seccion.aula.nombre}"></span>
-                                    </td>
-                                    <td class="col-md-1 text-left">
-                                        <span th:if="${seccion.grupoHoras}" 
-                                              th:text="${seccion.grupoHoras.codigo}"></span>
-                                    </td>
-                                    <td class="col-md-1 text-left">
-
-                                    </td>
-                                    <td class="col-md-1 text-left">
-
-                                    </td>
-                                    <td class="col-md-1 text-left">
-
-                                    </td>
-                                    <td class="col-md-1 text-left">
-                                        <span th:text="${seccion.vacantes}"></span>
-                                    </td>
-                                    <td class="col-md-1 text-left">
-                                        <span th:text="${seccion.matriculados}"></span>
-                                    </td>
-                                    <td class="col-md-1 text-left">
-                                        <span th:text="${seccion.docentesCant}"></span>
-                                    </td>
-                                    <td class="col-md-1 text-left">
-                                        <span  th:class="|label label-${seccion.estadoEnum.classCss}|" th:text="${seccion.estadoEnum.value}"></span>
-
-
-                                    </td>
-                                </tr>
-                                -->
                             </tbody>
                         </table>
 
@@ -163,6 +124,59 @@
                            v-on:click="addSeccion"
                            >
                             <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Seccion</strong></i>
+                        </a>
+                    </section>
+                    <section class="panel-body" v-if="seccionSeleccionada">
+                        <table class="table table-striped" >
+                            <thead> 
+                                <tr > 
+                                    <th class="col-md-4 text-center">Nombre</th>
+                                    <th class="col-md-1 text-center">Principal</th>
+                                    <th class="col-md-1 text-center">%Carga</th>
+                                    <th class="col-md-2 text-center">Periodo</th>
+                                    <th class="col-md-2 text-center">Situación Laboral</th>
+                                    <th class="col-md-1 text-center">Estado</th>
+                                    <th class="col-md-1 text-center"></th>
+                                </tr>
+                                <tr v-for="(docSeccion, index) in docentesSeccion">
+                                    <td>
+                                        {{ docSeccion.tipoSeccionValue }}
+                                    </td>
+                                    <td>
+                                        <!--
+                                        <span class="block" v-if="docSeccion.principal==1">Si</span>
+                                        <span class="block" v-if="docSeccion.principal==0">No</span>
+                                        -->
+                                        <label class="switch">
+                                            <input type="checkbox" value="1"  v-model="docSeccion.principal" />
+                                            <span></span>
+                                        </label>
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+                                        {{ docSeccion.docSecFechaInicio }}
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+                                        <span class="label" v-bind:class="getEstadoClass(docSeccion.estadoEnumCode)">
+                                            {{ docSeccion.estadoEnumVal }}
+                                        </span>
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                </tr>
+                            </thead>
+
+                        </table>
+                        <a class="btn btn-info btn-sm pull-right"
+                           v-on:click="addDocSeccion"
+                           >
+                            <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Docente</strong></i>
                         </a>
                     </section>
                 </section>

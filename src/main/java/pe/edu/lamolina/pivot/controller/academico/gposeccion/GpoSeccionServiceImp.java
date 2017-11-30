@@ -216,14 +216,42 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
+    public void addDocenteSeccion(Seccion seccion) {
+        seccion = seccionDAO.find(seccion.getId());
+
+        Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+        DateTime today = new DateTime();
+
+        DocenteSeccion docenteSeccion = new DocenteSeccion();
+        docenteSeccion.setDocente(docenteDefault);
+        docenteSeccion.setCodigoSeccion(seccion.getCodigo());
+        docenteSeccion.setEstado(EstadoEnum.ACT.name());
+        docenteSeccion.setFechaInicio(today.toDate());
+        docenteSeccion.setPrincipal(BigDecimal.ZERO.intValue());
+        docenteSeccion.setSeccion(seccion);
+        docenteSeccionDAO.save(docenteSeccion);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void deleteSeccion(Seccion seccion) {
         seccion = seccionDAO.find(seccion.getId());
         List<Seccion> secciones = seccionDAO.allByGposSeccion(seccion.getGrupoSeccion());
         if (secciones.size() == 1) {
             throw new PhobosException("No se pueden eliminar todas las secciones del grupo");
         }
-        docenteSeccionDAO.deleteDocenteSeccionBySeccion(seccion);
+        //docenteSeccionDAO.deleteDocenteSeccionBySeccion(seccion);
+        List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
+        for (DocenteSeccion docenteSeccion : docentesSec) {
+            docenteSeccionDAO.delete(docenteSeccion);
+        }
         seccionDAO.delete(seccion);
+    }
+
+    @Override
+    public List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion) {
+        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccion);
+        return docentesSeccion;
     }
 
     public static String generateCodigo(String codigo) {

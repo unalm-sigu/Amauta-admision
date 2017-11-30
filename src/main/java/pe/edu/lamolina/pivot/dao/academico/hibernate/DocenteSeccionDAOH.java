@@ -228,7 +228,7 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     @Override
     public void deleteDocenteSeccionBySeccion(Seccion seccion) {
         StringBuilder strb = new StringBuilder();
-        strb.append("delete from DocenteSeccion ds where ds.seccion.id=:prm_seccion ");
+        strb.append("delete DocenteSeccion ds   where ds.seccion.id=:prm_seccion ");
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_seccion", seccion.getId());
         query.executeUpdate();

@@ -3,6 +3,8 @@ var app = new Vue({
     data: {
         grupoSeccion: {},
         secciones: [],
+        docentesSeccion: [],
+        seccionSeleccionada: null,
         colorEstado: {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"}
     }, methods: {
         addSeccion: function () {
@@ -11,7 +13,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/addSeccion'),
                 data: {
-                    grupoSeccion: this.grupoSeccion.id
+                    grupoSeccion: $vue.grupoSeccion.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -24,6 +26,30 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        addDocSeccion: function () {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/addDocSeccion'),
+                data: {
+                    seccion: $vue.seccionSeleccionada.seccionId
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.loadDocentesSec();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        seleccionarSeccion: function (seccion) {
+            this.seccionSeleccionada = seccion;
+            this.loadDocentesSec();
         },
         deleteSeccion: function (seccion) {
             let $vue = this;
@@ -75,8 +101,35 @@ var app = new Vue({
                     }
                 }
             });
+        }, loadSecciones: function () {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/findSecciones'),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.secciones = response.data;
+                    }
+                }
+            });
+        }, loadDocentesSec: function () {
+            let $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/findDocentesSecciones'),
+                data: {
+                    seccion: $vue.seccionSeleccionada.seccionId
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.docentesSeccion = response.data;
+                    }
+                }
+            });
         }
     }, created: function () {
+        this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.loadSecciones();
     }
 })

@@ -31,6 +31,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -192,6 +193,29 @@ public class GpoSeccionController {
         return jsonResponse;
     }
 
+    @ResponseBody
+    @RequestMapping("findDocentesSecciones")
+    public JsonResponse findDocentesSecciones(
+            @RequestParam("seccion") String seccionId) {
+        JsonResponse jsonResponse = new JsonResponse();
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<DocenteSeccion> docentesSeccion = service.allDocentesSeccionBySeccion(new Seccion(seccionId));
+        for (DocenteSeccion docSeccion : docentesSeccion) {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("docSeccionId", docSeccion.getId());
+            node.put("personaApeNombres", ObjectUtil.getParentTree(docSeccion.getDocente(), "persona.id") == null ? "" : docSeccion.getDocente().getPersona().getApellidosNombres());
+            node.put("docSecFechaInicio", TypesUtil.getStringDate(docSeccion.getFechaInicio(), "dd/MM/yyyy"));
+            node.put("docSecFechaFin", TypesUtil.getStringDate(docSeccion.getFechaFin(), "dd/MM/yyyy"));
+            node.put("estadoEnumVal", docSeccion.getEstadoEnum().getValue());
+            node.put("estadoEnumCode", docSeccion.getEstadoEnum().name());
+            node.put("principal", docSeccion.getPrincipal());
+            array.add(node);
+        }
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(array);
+        return jsonResponse;
+    }
+
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -324,6 +348,31 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("addDocSeccion")
+    public JsonResponse addDocSeccion(@RequestParam("seccion") Long seccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.addDocenteSeccion(new Seccion(seccionId));
+
+            String message = "Docente Sección agregada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("deleteSeccion")
     public JsonResponse deleteSeccion(@RequestParam("seccion") Long seccionId,
             Model model,
@@ -331,9 +380,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
             service.deleteSeccion(new Seccion(seccionId));
-
             String message = "Sección eliminada.";
             response.setSuccess(true);
             response.setMessage(message);
