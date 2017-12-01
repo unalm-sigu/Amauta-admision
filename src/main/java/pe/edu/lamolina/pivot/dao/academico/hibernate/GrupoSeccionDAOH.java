@@ -148,8 +148,8 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     public List<GrupoSeccion> allByDynatable(pe.albatross.octavia.dynatable.DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
-                .join("cicloAcademico ca", "anexoBoletin ab", "curso cu", "planCalificacion pc")
-                .leftJoin("ab.anexoSuperior ass")
+                .join("cicloAcademico ca", "anexoBoletin ab", "curso cu")
+                .leftJoin("ab.anexoSuperior ass", "planCalificacion pc")
                 .searchFields("cu.nombre")
                 .orderBy("gs.id desc");
         sql.beginRelativeFilters();

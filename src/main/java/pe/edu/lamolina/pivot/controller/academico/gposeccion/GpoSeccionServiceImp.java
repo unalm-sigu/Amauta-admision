@@ -56,14 +56,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, cicloAcademico);
-        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gsecciones);
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
 
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gseccion : gsecciones) {
             gseccion.setSecciones(mapSecciones.get(gseccion.getId()));
         }
 
-        List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allActivosBySecciones(secciones);
+        List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
 
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
 
@@ -249,6 +249,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    @Transactional(readOnly = false)
+    public void deleteDocSeccion(DocenteSeccion docenteSeccion) {
+        docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
+        docenteSeccionDAO.delete(docenteSeccion);
+    }
+
+    @Override
     public List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion) {
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccion);
         return docentesSeccion;
@@ -317,7 +324,37 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion) {
-        return seccionDAO.allByGposSeccion(grupoSeccion);
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
+        for (Seccion seccion : secciones) {
+            seccion.getSeccion().size();
+        }
+        return secciones;
+    }
+
+    @Override
+    public List<Docente> allDocenterByNombre(String nombre) {
+        return docenteDAO.allByNombreFilter(nombre, 10);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion) {
+        docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
+        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
+        for (DocenteSeccion docenteSeccionEach : docentesSeccion) {
+            docenteSeccionEach.setPrincipal(BigDecimal.ZERO.intValue());
+            docenteSeccionDAO.updatePrincipal(docenteSeccionEach);
+        }
+        docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
+        docenteSeccionDAO.updatePrincipal(docenteSeccion);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void actualizarDocente(Long docenteSeccionId, Long docenteId) {
+        DocenteSeccion docenteSeccion = new DocenteSeccion(docenteSeccionId);
+        docenteSeccion.setDocente(new Docente(docenteId));
+        docenteSeccionDAO.updateDocente(docenteSeccion);
     }
 
 }

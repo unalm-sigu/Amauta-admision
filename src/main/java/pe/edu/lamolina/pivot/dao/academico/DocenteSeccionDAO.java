@@ -39,4 +39,10 @@ public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     void deleteDocenteSeccionBySeccion(Seccion seccion);
 
+    List<DocenteSeccion> allBySecciones(List<Seccion> secciones);
+
+    void updatePrincipal(DocenteSeccion docenteSeccion);
+
+    void updateDocente(DocenteSeccion docenteSeccion);
+
 }

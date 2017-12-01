@@ -191,6 +191,12 @@ $(function () {
                     }
                 }
             });
+        }, editarGpoSeccion: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+            location.href = APP.url("academico/gposeccion/" + rec.id + "/editar");
         }
     }
 
@@ -209,5 +215,14 @@ $(function () {
     $("body").delegate("#btnSaveGpo", "click", function (e) {
         GrupoSeccion.saveHeaderGrupo();
     });
+
+    $("body").delegate(".editar-gpo", "click", function (e) {
+        GrupoSeccion.saveHeaderGrupo();
+    });
+
+    $("body").delegate(".editar-gpo-seccion", "click", function (e) {
+        GrupoSeccion.editarGpoSeccion($(this), e);
+    });
+
 
 });

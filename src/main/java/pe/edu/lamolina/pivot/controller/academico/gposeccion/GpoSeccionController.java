@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -113,31 +115,58 @@ public class GpoSeccionController {
                 node.put("estadoValue", gpoSeccion.getEstado() != null ? EstadoEnum.valueOf(gpoSeccion.getEstado()).getValue() : "");
 
                 ArrayNode secciones = new ArrayNode(JsonNodeFactory.instance);
-                for (Seccion seccion : gpoSeccion.getSecciones()) {
+                if (gpoSeccion.getSecciones() != null && !gpoSeccion.getSecciones().isEmpty()) {
+                    for (Seccion seccion : gpoSeccion.getSecciones()) {
+                        ObjectNode node2 = new ObjectNode(JsonNodeFactory.instance);
+                        node2.put("tipo", seccion.getTipoSeccion());
+                        node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
+                        node2.put("codigo", seccion.getCodigo());
+                        node2.put("vacantes", seccion.getVacantes());
+                        node2.put("matriculados", seccion.getMatriculados());
+                        node2.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
+                        node2.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
+                        node2.put("estadoSec", seccion.getEstado());
+                        node2.put("estadoValueSec", seccion.getEstadoEnum().getValue());
+                        secciones.add(node2);
+
+                        ArrayNode docentes = new ArrayNode(JsonNodeFactory.instance);
+                        for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
+                            ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
+                            node3.put("principal", docSeccion.getPrincipal());
+                            node3.put("codigo", docSeccion.getDocente().getCodigo());
+                            node3.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
+                            docentes.add(node3);
+                        }
+                        node2.set("docentes", docentes);
+                    }
+                    node.set("secciones", secciones);
+                } else {
+
                     ObjectNode node2 = new ObjectNode(JsonNodeFactory.instance);
-                    node2.put("tipo", seccion.getTipoSeccion());
-                    node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
-                    node2.put("codigo", seccion.getCodigo());
-                    node2.put("vacantes", seccion.getVacantes());
-                    node2.put("matriculados", seccion.getMatriculados());
-                    node2.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
-                    node2.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
-                    node2.put("estadoSec", seccion.getEstado());
-                    node2.put("estadoValueSec", seccion.getEstadoEnum().getValue());
+                    node2.put("tipo", "");
+                    node2.put("tipoValue", "");
+                    node2.put("codigo", "");
+                    node2.put("vacantes", "");
+                    node2.put("matriculados", "");
+                    node2.put("aula", "");
+                    node2.put("grupo", "");
+                    node2.put("estadoSec", "");
+                    node2.put("estadoValueSec", "");
                     secciones.add(node2);
 
                     ArrayNode docentes = new ArrayNode(JsonNodeFactory.instance);
-                    for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
-                        ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
-                        node3.put("principal", docSeccion.getPrincipal());
-                        node3.put("codigo", docSeccion.getDocente().getCodigo());
-                        node3.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
-                        docentes.add(node3);
-                    }
-                    node2.set("docentes", docentes);
+
+                    ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
+                    node3.put("principal", "");
+                    node3.put("codigo", "");
+                    node3.put("docente", "");
+                    docentes.add(node3);
+
+                    node2.put("docentes", "");
+
+                    node.put("secciones", "");
                 }
 
-                node.set("secciones", secciones);
                 array.add(node);
             }
 
@@ -203,12 +232,14 @@ public class GpoSeccionController {
         for (DocenteSeccion docSeccion : docentesSeccion) {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("docSeccionId", docSeccion.getId());
+            node.put("docenteId", docSeccion.getDocente().getId());
             node.put("personaApeNombres", ObjectUtil.getParentTree(docSeccion.getDocente(), "persona.id") == null ? "" : docSeccion.getDocente().getPersona().getApellidosNombres());
             node.put("docSecFechaInicio", TypesUtil.getStringDate(docSeccion.getFechaInicio(), "dd/MM/yyyy"));
             node.put("docSecFechaFin", TypesUtil.getStringDate(docSeccion.getFechaFin(), "dd/MM/yyyy"));
             node.put("estadoEnumVal", docSeccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", docSeccion.getEstadoEnum().name());
             node.put("principal", docSeccion.getPrincipal());
+            node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
             array.add(node);
         }
         jsonResponse.setSuccess(true);
@@ -395,12 +426,110 @@ public class GpoSeccionController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("deleteDocSeccion")
+    public JsonResponse deleteDocSeccion(@RequestParam("docSeccion") Long docSeccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.deleteDocSeccion(new DocenteSeccion(docSeccionId));
+            logger.debug("Docente Seccion {}", docSeccionId);
+
+            String message = "Docente eliminado.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("{gruposeccion}/succesSave")
     public String succesSave(@PathVariable("gruposeccion") Long grupoSeccionId,
             RedirectAttributes redirectAttr,
             Model model, HttpSession session) {
         Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
         return "redirect:/academico/gposeccion/" + grupoSeccionId + "/editar";
+    }
+
+    @ResponseBody
+    @RequestMapping("buscarDocentes")
+    public JsonResponse buscarDocentes(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            List<Docente> docentes = service.allDocenterByNombre(nombre);
+
+            for (Docente doc : docentes) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", doc.getId());
+                json.put("apellidosNombres", StringUtils.isBlank(doc.getPersona().getApellidosNombres()) ? "" : doc.getPersona().getApellidosNombres());
+                json.put("personaNombre", doc.getPersona().getNombres());
+                json.put("personaPaterno", doc.getPersona().getPaterno());
+                json.put("personaMaterno", doc.getPersona().getMaterno());
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarDocPrincipal")
+    public JsonResponse cambiarDocPrincipal(
+            @RequestParam("docSeccion") Long docSeccion,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            service.cambiarDocentePrincipal(new DocenteSeccion(docSeccion));
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Docente principal actualizado");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarDocenteSeccion")
+    public JsonResponse cambiarDocPrincipal(
+            @RequestParam("docSeccion") Long docSeccion,
+            @RequestParam("docente") Long docente,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            service.actualizarDocente(docSeccion, docente);
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Docente actualizado");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
