@@ -11,12 +11,10 @@
 
             <header class="page-header">
                 <div class="pull-right">                
-                    <a class="btn btn-info" type="button"    th:href="@{/academico/horariocachimbo/horario/generador}" >Generar Horarios</a>
+                    <a class="btn btn-info" type="button"   href="#" >Generar Horarios</a>
                 </div>  
-                <h2 th:inline="text">Horarios de  Ingresantes [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Generador  corregido de Horarios  [[${cicloAcademico.descripcion}]] </h2>
             </header>
-
-
 
             <section class="panel">
                 <section class="panel-body">
@@ -24,6 +22,7 @@
                     <a href="#" id="eliminarSeleccion"  class="btn btn-link inline text-danger btn-sm" v-on:click.prevent="eliminarSeleccion">Eliminar Seleccionados </a>
 
                     <dynatable />
+                    
                 </section>
             </section>
 
@@ -39,7 +38,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/horariocachimbo/generar/horariogenerar.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/generar/generador.js}" charset="utf-8"></script>
     </div>
 
 </body>

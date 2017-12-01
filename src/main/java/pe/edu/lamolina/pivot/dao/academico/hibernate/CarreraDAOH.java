@@ -137,4 +137,13 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
         return all(sqlUtil);
     }
 
+    @Override
+    public List<Carrera> allCarrera() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .orderBy("ca.codigo desc");
+        return sql.all(getCurrentSession());
+    }
+
 }

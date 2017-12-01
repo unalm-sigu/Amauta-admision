@@ -26,4 +26,6 @@ public interface CarreraDAO extends Crud<Carrera> {
 
     public CarreraResumen resumen();
 
+    public List<Carrera> allCarrera();
+
 }

@@ -25,8 +25,8 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -87,7 +87,8 @@ public class GenerarHorarioIngresanteController {
                 node.put("id", horarioCachimbo.getId());
                 node.put("codigo", horarioCachimbo.getCodigo());
                 node.put("carrera", horarioCachimbo.getCarrera().getNombre());
-                node.put("cursoso", horarioCachimbo.getCursos());
+                node.put("cursos", horarioCachimbo.getCursos());
+                node.put("capacidad", horarioCachimbo.getCapacidad());
                 node.put("suscritos", horarioCachimbo.getSuscritos());
                 node.put("matriculados", horarioCachimbo.getMatriculados());
                 array.add(node);
@@ -116,6 +117,32 @@ public class GenerarHorarioIngresanteController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteGrupo")
+    public JsonResponse deleteGrupo(HorarioCachimboForm form) {
+        JsonResponse response = new JsonResponse();
+        try {
+            logger.debug("CANTIDAD HORARIOS XXX {}", form.getHorarioCachimbos().size());
+            service.delete(form);
+            response.setMessage("Horarios eliminado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("generador")
+    public String generador(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Carrera> carreras = service.allCarrera();
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("carreras", carreras);
+        return "academico/horariocachimbo/generar/generador";
     }
 
 }
