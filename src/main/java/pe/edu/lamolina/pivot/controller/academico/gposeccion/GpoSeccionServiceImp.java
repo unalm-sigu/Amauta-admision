@@ -106,9 +106,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setDocente(docenteDefault);
             docenteSeccion.setCodigoSeccion(seccionTEO.getCodigo());
             docenteSeccion.setEstado(EstadoEnum.ACT.name());
-            docenteSeccion.setFechaInicio(today.toDate());
+            docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion.setSeccion(seccionTEO);
+            docenteSeccion.setPorcentajeCarga(BigDecimal.valueOf(100));
             seccionTEO.getDocenteSeccion().add(docenteSeccion);
 
             grupoSeccion.getSecciones().add(seccionTEO);
@@ -128,9 +129,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setDocente(docenteDefault);
             docenteSeccion.setCodigoSeccion(seccionPRA.getCodigo());
             docenteSeccion.setEstado(EstadoEnum.ACT.name());
-            docenteSeccion.setFechaInicio(today.toDate());
+            docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion.setSeccion(seccionPRA);
+            docenteSeccion.setPorcentajeCarga(BigDecimal.valueOf(100));
             seccionPRA.getDocenteSeccion().add(docenteSeccion);
 
             grupoSeccion.getSecciones().add(seccionPRA);
@@ -150,9 +152,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setDocente(docenteDefault);
             docenteSeccion.setCodigoSeccion(seccionTCUR.getCodigo());
             docenteSeccion.setEstado(EstadoEnum.ACT.name());
-            docenteSeccion.setFechaInicio(today.toDate());
+            docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion.setSeccion(seccionTCUR);
+            docenteSeccion.setPorcentajeCarga(BigDecimal.valueOf(50));
             seccionTCUR.getDocenteSeccion().add(docenteSeccion);
 
             grupoSeccion.getSecciones().add(seccionTCUR);
@@ -171,9 +174,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion2.setDocente(docenteDefault);
             docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());
             docenteSeccion2.setEstado(EstadoEnum.ACT.name());
-            docenteSeccion2.setFechaInicio(today.toDate());
+            docenteSeccion2.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion2.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion2.setSeccion(seccionPCUR);
+            docenteSeccion2.setPorcentajeCarga(BigDecimal.valueOf(50));
             seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
 
             grupoSeccion.getSecciones().add(seccionPCUR);
@@ -326,7 +330,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion) {
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         for (Seccion seccion : secciones) {
-            seccion.getSeccion().size();
+            seccion.getDocenteSeccion().size();
         }
         return secciones;
     }
@@ -355,6 +359,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         DocenteSeccion docenteSeccion = new DocenteSeccion(docenteSeccionId);
         docenteSeccion.setDocente(new Docente(docenteId));
         docenteSeccionDAO.updateDocente(docenteSeccion);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void updatePorcentajeAvance(DocenteSeccion docenteSeccion) {
+        docenteSeccionDAO.updatePorcentajeAvance(docenteSeccion);
     }
 
 }

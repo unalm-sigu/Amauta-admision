@@ -45,4 +45,6 @@ public interface DocenteSeccionDAO extends Crud<DocenteSeccion> {
 
     void updateDocente(DocenteSeccion docenteSeccion);
 
+    void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
+
 }

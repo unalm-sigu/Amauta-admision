@@ -92,7 +92,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional(readOnly = false)
     public PlanCurricular savePlanCurricular(PlanCurricular planCurricular) {
-        planCurricular.setEstadoEnum(EstadoEnum.ACT);
+        planCurricular.setEstadoEnum(EstadoEnum.CRE);
 
         if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
             planCurricular.setOrientacionCarrera(null);

@@ -15,7 +15,7 @@
             <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
         </header>
         <div id="pageGpoSeccion">
-            <form id="frmPlanCurricular" class="form-horizontal m-t-lg">
+            <form id="frmEditGpoSeccion" class="form-horizontal m-t-lg">
                 <input v-model="grupoSeccion.id" type="hidden" />
                 <section class="panel">
 
@@ -109,7 +109,10 @@
                                         {{ seccion.matriculados }}
                                     </td>
                                     <td>
-                                        {{ seccion.cantidadDocentes }}
+                                        <span v-if="seccion.porcentajeAvance==100">
+                                            {{ seccion.cantidadDocentes }}
+                                        </span>
+                                        <span v-if="seccion.porcentajeAvance!=100" class="label label-danger" >Error</span>
                                     </td>
                                     <td>
                                         <span class="label" v-bind:class="getEstadoClass(seccion.estadoEnumCode)">{{ seccion.estadoEnumValue }}</span>
@@ -132,7 +135,9 @@
                         </a>
                     </section>
                     <section class="panel-body" v-if="seccionSeleccionada">
-
+                        <header class="page-header">
+                            <h4>Seccion {{seccionSeleccionada.seccionCodigo}}</h4>
+                        </header>
                         <table class="table table-striped" >
                             <thead> 
                                 <tr > 
@@ -169,7 +174,13 @@
                                 </label>
                             </td>
                             <td>
-
+                                <input v-model="docSeccion.porcentajeCarga"
+                                       name="porcentajeCarga"
+                                       v-on:blur ="cambiarPorcentajeCarga(docSeccion)"
+                                       class="form-control"
+                                       data-parsley-group="porcentaje-car"
+                                       data-parsley-type="number"
+                                       />
                             </td>
                             <td>
                                 {{ docSeccion.docSecFechaInicio }}

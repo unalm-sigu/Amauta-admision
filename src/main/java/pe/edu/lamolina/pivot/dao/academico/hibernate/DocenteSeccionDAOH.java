@@ -264,4 +264,14 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
         query.executeUpdate();
     }
 
+    @Override
+    public void updatePorcentajeAvance(DocenteSeccion docenteSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update DocenteSeccion ds set ds.porcentajeCarga=:porcentaje_avance where ds.id=:prm_doc_seccion ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_doc_seccion", docenteSeccion.getId());
+        query.setParameter("porcentaje_avance", docenteSeccion.getPorcentajeCarga());
+        query.executeUpdate();
+    }
+
 }

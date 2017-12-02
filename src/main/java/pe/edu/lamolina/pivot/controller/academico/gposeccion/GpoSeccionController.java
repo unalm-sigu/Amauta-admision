@@ -211,7 +211,15 @@ public class GpoSeccionController {
             node.put("grupoHoras", ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null ? seccion.getGrupoHoras().getCodigo() : "");
             node.put("vacantes", seccion.getVacantes());
             node.put("matriculados", seccion.getMatriculados());
+
             node.put("cantidadDocentes", seccion.getDocentesCant());
+            BigDecimal porcentajeAvance = BigDecimal.ZERO;
+            for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
+                if (docSeccion.getPorcentajeCarga() != null) {
+                    porcentajeAvance = porcentajeAvance.add(docSeccion.getPorcentajeCarga());
+                }
+            }
+            node.put("porcentajeAvance", porcentajeAvance);
             node.put("estadoEnumValue", seccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", seccion.getEstadoEnum().name());
 
@@ -239,6 +247,7 @@ public class GpoSeccionController {
             node.put("estadoEnumVal", docSeccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", docSeccion.getEstadoEnum().name());
             node.put("principal", docSeccion.getPrincipal());
+            node.put("porcentajeCarga", docSeccion.getPorcentajeCarga());
             node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
             array.add(node);
         }
@@ -526,6 +535,26 @@ public class GpoSeccionController {
             service.actualizarDocente(docSeccion, docente);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Docente actualizado");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarPorcentajeAvance")
+    public JsonResponse cambiarPorcentajeAvance(
+            @RequestParam("docSeccion") Long docSeccion,
+            @RequestParam("porcentajeAvance") BigDecimal porcentajeAvance,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
+            docenteSeccion.setPorcentajeCarga(porcentajeAvance);
+            service.updatePorcentajeAvance(docenteSeccion);
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Porcentaje de avance actualizado");
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

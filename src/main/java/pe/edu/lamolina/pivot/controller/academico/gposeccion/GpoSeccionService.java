@@ -48,4 +48,6 @@ public interface GpoSeccionService {
 
     void actualizarDocente(Long docenteSeccionId, Long docenteId);
 
+    void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
+
 }

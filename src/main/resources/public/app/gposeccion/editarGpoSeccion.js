@@ -158,6 +158,39 @@ var app = new Vue({
                 }
             });
         },
+        cambiarPorcentajeCarga: function (docSeccion) {
+            let $vue = this;
+            let form = $("#frmEditGpoSeccion");
+            form.parsley().destroy();
+            //  form.parsley();
+            if (!form.parsley().validate("porcentaje-car")) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/cambiarPorcentajeAvance'),
+                data: {
+                    docSeccion: docSeccion.docSeccionId,
+                    porcentajeAvance: parseFloat(docSeccion.porcentajeCarga)
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.loadSecciones();
+                        // $vue.docentesSeccion = [];
+                        MODAL.hideWait();
+                    } else {
+                        notify(response.message, "error");
+                        MODAL.hideWait();
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+
+        },
         deleteSeccion: function (seccion) {
             let $vue = this;
             bootbox.confirm({
