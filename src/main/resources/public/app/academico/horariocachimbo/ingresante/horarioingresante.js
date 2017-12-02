@@ -76,8 +76,8 @@ $(function () {
             alumno: {},
             addAlumnoModal: {
                 id: 'modalAddAlumno',
-                header: 'False',
-                tittle: 'Agregar Alumno',
+                header: true,
+                title: 'Agregar Alumno',
                 okbtn: 'Agregar Alumno'
             },
         },
@@ -85,6 +85,7 @@ $(function () {
             let $vue = this;
         },
         mounted: function () {
+
             let $vue = this;
             $global.$on("buscarHorario", function (id) {
                 $vue.buscarHorario(id);
@@ -102,55 +103,85 @@ $(function () {
                 $vue.activarMatricula(id);
             });
 
-            $('name="alumno.id"').select2({
-                allowClear: true,
-                multiple: true,
-                minimumInputLength: -1,
-                placeholder: " ",
-                ajax: {
-                    url: APP.url("academico/horariocachimbo/ingresante/alumno"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: function (term, page) {
-                        return {nombre: term, page: page};
-                    },
-                    results: function (response, page) {
-                        return {results: response.data};
-                    }
-                },
-                initSelection: function (element, callback) {
-                    if (element.val() != "") {
-                        callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev")});
-                    }
-                },
-                formatResult: function (info) {
-                    return '<b>' + info.codigo + '</b>    ' + info.nombre;
-                },
-                formatSelection: function (info) {
-                    return '<b>' + info.codigo + '</b>   ' + info.nombre;
-                },
-                escapeMarkup: function (m) {
-                    return m;
-                }
-            });
-
         },
         methods: {
             nuevo() {
+                var vue = this;
                 this.$refs.modalAddAlumno.open();
+                $('[name="alumno.id"]').select2({
+                    allowClear: true,
+                    placeholder: "Seleccione un alumno",
+                    minimumInputLength: 1,
+                    ajax: {
+                        url: APP.url("academico/horariocachimbo/ingresante/searchAlumno"),
+                        dataType: 'json',
+                        type: 'post',
+                        data: function (term, page) {
+                            return {nombre: term, page: page};
+                        },
+                        results: function (response, page) {
+                            return {results: response.data};
+                        }
+                    },
+                    initSelection: function (element, callback) {
+                        if (element.val() != "") {
+                            var datos = {
+                                id: element.val(),
+                                nombre: element.attr("rel")
+                            };
+                            callback(datos);
+                        }
+                    },
+                    formatResult: function (info) {
+                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
+                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
+                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
+                        return data;
+                    },
+                    formatSelection: function (info) {
+                        vue.printFullData(info);
+                        return info.nombre;
+                    },
+                    escapeMarkup: function (m) {
+                        return m;
+                    }
+                }).on("change", function (e) {
+                    if (e && e.removed) {
+                        if (e.val == '') {
+                            vue.clearAlumno(e);
+                        }
+                    }
+                });
+                $('[name="alumno.id"]').select2('data', '');
+                vue.alumno = [];
+            },
+            printFullData(info) {
+                var vue = this;
+                vue.alumno = info;
+            },
+            clearAlumno(e) {
+                var vue = this;
+                vue.alumno = [];
             },
             createAlumno(id) {
-                var $vue = this;
+                var vue = this;
+                var valid = $('[name="alumno.id"]').parsley().validate();
+                if (valid != true) {
+                    return;
+                }
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/ingresante/addAlumno"),
-                    data: {id: id},
+                    url: APP.url('academico/horariocachimbo/ingresante/addAlumno'),
+                    data: {id: vue.alumno.id},
                     success: function (response) {
                         if (response.success) {
-                            $vue.reloadDinatable();
+                            vue.$refs.modalAddAlumno.close();
+                            vue.reloadDinatable();
                         } else {
                             notify(response.message, 'error');
                         }
+                    }, error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
             },
@@ -268,7 +299,7 @@ $(function () {
             activarMatricula(id) {
 
                 var $vue = this;
-                
+
                 bootbox.confirm({
                     message: '¿Seguro que desea activar la matrícula?',
                     buttons: {

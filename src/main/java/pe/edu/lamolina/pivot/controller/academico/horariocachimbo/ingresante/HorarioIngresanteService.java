@@ -22,4 +22,6 @@ public interface HorarioIngresanteService {
 
     void suspenderMatricula(AlumnoHorario alumnoHorario);
 
+    List<Alumno> allAlumnoByName(String nombre);
+
 }

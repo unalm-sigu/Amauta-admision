@@ -34,11 +34,13 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Override
     @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+        logger.debug("alumno {} cicloAcademico ",alumno.getId(),cicloAcademico.getId());
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-        if (alumnoHorario != null) {
+        if (alumnoHorario == null) {
             alumnoHorario = new AlumnoHorario();
             alumnoHorario.setAlumno(alumno);
             alumnoHorario.setCicloAcademico(cicloAcademico);
+            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
             alumnoHorarioDAO.save(alumnoHorario);
         }
     }
@@ -84,6 +86,11 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Override
     public void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByName(String nombre) {
+        return alumnoDAO.allAlumnoByName(nombre);
     }
 
 }

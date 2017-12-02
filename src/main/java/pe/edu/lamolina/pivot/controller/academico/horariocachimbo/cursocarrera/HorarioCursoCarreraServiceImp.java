@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 
 @Service
@@ -19,6 +21,9 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
     
     @Autowired
     CursoCachimbosDAO cursoCachimbosDAO;
+    
+    @Autowired
+    CursoDAO cursoDAO;
     
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -38,6 +43,11 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
     @Transactional
     public void delete(CursoCachimbos cursoCachimbos) {
         cursoCachimbosDAO.delete(cursoCachimbos);
+    }
+
+    @Override
+    public List<Curso> allCursoByName(String nombre) {
+       return  cursoDAO.allCursoByName(nombre);
     }
     
 }

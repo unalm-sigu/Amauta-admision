@@ -142,7 +142,7 @@ public class GenerarHorarioIngresanteController {
         List<Carrera> carreras = service.allCarrera();
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("carreras", carreras);
-        return "academico/horariocachimbo/generar/generador";
+        return "academico/horariocachimbo/generador/generador";
     }
 
 }

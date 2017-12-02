@@ -1,0 +1,33 @@
+<modal-vik ref="modalAddCurso"
+           v-bind="addCursoModal"
+           v-bind:okaction="createCurso">
+
+    <div slot="body">
+        <div class="form-group">
+            <label>Curso</label>
+            <input type="text" 
+                   class="form-control"
+                   name="curso.id"
+                   v-model="curso.id"
+                   required="true"/>
+        </div>
+
+        <div v-if="curso.id">
+
+            <span class="block">
+                <b>Dpta. Acad </b>:{{curso.departamentoAcademico}}
+            </span>
+            <span class="block">
+                <b>Facultad </b>:{{curso.facultad}}
+            </span>
+            <span class="block">
+                <b>{{curso.tipo}} </b>:{{curso.numero}}
+            </span>
+            <span class="block">
+                <b>Nro Mat. </b>:{{curso.codigoMatricula}}
+            </span>
+            
+        </div>
+
+    </div>
+</modal-vik>

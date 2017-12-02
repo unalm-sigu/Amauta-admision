@@ -27,9 +27,12 @@
                 </section>
             </section>
 
+            <div th:substituteby="academico/horariocachimbo/generar/_horariogenerar"/>
+
         </div>
 
         <div th:substituteby="_modules/vue-modal"/>
+
         <th:block th:replace="academico/horariocachimbo/generar/_dynatable"/>
 
     </div>

@@ -11,25 +11,33 @@
 
             <header class="page-header">
                 <div class="pull-right">                
-                    <a class="btn btn-info" type="button"   href="#" >Generar Horarios</a>
+                    <a class="btn btn-info" type="button"  v-on:click.prevent="generarHorario"  href="#" >Generar Horarios</a>
                 </div>  
-                <h2 th:inline="text">Generador  corregido de Horarios  [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Generador  de Horarios  [[${cicloAcademico.descripcion}]] </h2>
             </header>
 
             <section class="panel">
                 <section class="panel-body">
 
-                    <a href="#" id="eliminarSeleccion"  class="btn btn-link inline text-danger btn-sm" v-on:click.prevent="eliminarSeleccion">Eliminar Seleccionados </a>
+                    <div class="col-sm-4 col-xs-12  buscar-curso">
+                        <select name="carrera" 
+                                required="true" 
+                                class="form-control   input-sm " >
+                            <option></option>
+                            <option th:each="item : ${carreras}"  
+                                    th:text="${item.nombre}"
+                                    th:value="${item.id}" ></option>
+                        </select>
+                    </div>
 
                     <dynatable />
-                    
+
                 </section>
             </section>
 
         </div>
 
-        <div th:substituteby="_modules/vue-modal"/>
-        <th:block th:replace="academico/horariocachimbo/generar/_dynatable"/>
+        <th:block th:replace="academico/horariocachimbo/generador/_dynatable"/>
 
     </div>
 
@@ -38,7 +46,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/horariocachimbo/generar/generador.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/generador/generador.js}" charset="utf-8"></script>
     </div>
 
 </body>

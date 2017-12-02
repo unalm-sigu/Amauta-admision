@@ -16,6 +16,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoCursoCachimboEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
@@ -168,6 +169,19 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .limit(1);
 
         return find(sql);
+    }
+
+    @Override
+    public List<Curso> allCursoByName(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .join("departamentoAcademico dep")
+                .leftJoin( "carrera car", "car.facultad fa","planCalificacion  pc","planCalificacionRegular pcr","coordinador cor")
+                .filter("cur.estado", EstadoCursoCachimboEnum.ACT)
+                .filter("cur.nombre", "like", nombre)
+                .limit(15);
+        return sql.all(getCurrentSession());
     }
 
 }

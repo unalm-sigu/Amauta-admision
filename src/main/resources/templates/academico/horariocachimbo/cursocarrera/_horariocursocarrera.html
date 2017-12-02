@@ -1,15 +1,52 @@
-<modal-vik ref="modalAddCurso"
-           v-bind="addCursoModal"
-           v-bind:okaction="createCurso">
+<modal-vik ref="modalAddCursoCarrera"
+           v-bind="addCursoCarreraModal"
+           v-bind:okaction="createCursoCarrera">
+
 
     <div slot="body">
-        <div class="form-group">
-            <label>Curso</label>
-            <input type="text" 
-                   class="form-control"
-                   name="curso.id"
-                   v-model="curso.id"
-                   required="true"/>
-        </div>
+        <form id="formCursoCarrera"  data-parsley-validate="true">
+
+            <div class="form-group">
+                <label>Carrera</label>
+                <input type="text" 
+                       class="form-control"
+                       name="carrera.id"
+                       v-model="carrera.id"
+                       required="true"/>
+            </div>
+
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th class="col-xs-10">Curso</th>
+                        <th class="col-xs-1">Créditos</th>
+                        <th class="col-xs-1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" 
+                                   class="form-control"
+                                   name="curso.id"
+                                   v-model="curso.id"
+                                   required="true"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            5
+                        </td>
+                        <td class="text-center v-middle">
+                            <i class="fa fa-times pointer" aria-hidden="true"></i>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+
+            <div class="text-center m-t-lg">
+                <button type="button" v-on:click.prevent="agregarItem" class="btn btn-sm btn-default">Agregar ítem</button>
+            </div>
+
+        </form>
     </div>
 </modal-vik>

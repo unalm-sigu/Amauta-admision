@@ -27,4 +27,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allByCodigo(String codigo);
     Curso findLastCodigoByCurCodigo(String codigo);
 
+    public List<Curso> allCursoByName(String nombre);
+
 }

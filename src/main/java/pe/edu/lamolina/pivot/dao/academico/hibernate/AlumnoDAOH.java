@@ -2,9 +2,6 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
@@ -13,22 +10,19 @@ import pe.edu.lamolina.pivot.model.academico.Alumno;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
-import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 
 @Repository
@@ -263,6 +257,23 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
         query.setLong("CICLO", cicloAcademico.getId());
 
         return (MatriculableResumen) query.uniqueResult();
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByName(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per","carrera car","car.facultad fa")
+                .leftJoin("per.tipoDocumento td")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
     }
 
 }
