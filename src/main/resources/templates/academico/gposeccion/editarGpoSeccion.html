@@ -92,6 +92,13 @@
                                     </td>
                                     <td>
 
+                                        <a v-on:click="seleccionarSeccion(seccion)" 
+                                           v-if="seccion.grupoHoras==''"
+                                           style="cursor:pointer;">
+                                            Sin Grupo
+                                        </a>
+
+                                        <span v-if="seccion.grupoHoras!=''"> {{ seccion.grupoHoras }} </span>
                                     </td>
                                     <td>
 
@@ -209,6 +216,7 @@
                             <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Docente</strong></i>
                         </a>
                     </section>
+                    <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
                 </section>
 
             </form>
