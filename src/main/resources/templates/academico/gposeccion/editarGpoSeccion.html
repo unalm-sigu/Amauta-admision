@@ -177,6 +177,7 @@
                                 <input v-model="docSeccion.porcentajeCarga"
                                        name="porcentajeCarga"
                                        v-on:blur ="cambiarPorcentajeCarga(docSeccion)"
+                                       v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion)"
                                        class="form-control"
                                        data-parsley-group="porcentaje-car"
                                        data-parsley-type="number"
