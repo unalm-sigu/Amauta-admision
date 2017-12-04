@@ -181,4 +181,17 @@ public class DocenteDAOH extends AbstractDAO<Docente> implements DocenteDAO {
                 .limit(15);
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<Docente> allByNombreFilter(String nombre, Integer limit) {
+        Octavia sql = Octavia.query();
+        sql.from(Docente.class, "doc");
+        sql.join("persona per");
+        sql.beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .endBlock();
+        return sql.all(getCurrentSession());
+    }
+
 }

@@ -56,6 +56,9 @@ public class DocenteSeccion implements Serializable {
     @JoinColumn(name = "id_user_anulacion")
     private Usuario userAnulacion;
 
+    @Column(name = "porcentaje_carga")
+    private BigDecimal porcentajeCarga;
+
     @Transient
     private String codigoDocente;
     @Transient
@@ -176,6 +179,14 @@ public class DocenteSeccion implements Serializable {
 
     public void setUserAnulacion(Usuario userAnulacion) {
         this.userAnulacion = userAnulacion;
+    }
+
+    public BigDecimal getPorcentajeCarga() {
+        return porcentajeCarga;
+    }
+
+    public void setPorcentajeCarga(BigDecimal porcentajeCarga) {
+        this.porcentajeCarga = porcentajeCarga;
     }
 
     public boolean equals(Object obj) {

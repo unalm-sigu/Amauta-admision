@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoAdicionalCurriculaDAO;
@@ -22,6 +24,7 @@ import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -89,7 +92,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional(readOnly = false)
     public PlanCurricular savePlanCurricular(PlanCurricular planCurricular) {
-        planCurricular.setEstadoEnum(EstadoEnum.ACT);
+        planCurricular.setEstadoEnum(EstadoEnum.CRE);
+
+        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
+            planCurricular.setOrientacionCarrera(null);
+        }
+
         planCurricularDAO.save(planCurricular);
         return planCurricular;
     }
@@ -97,6 +105,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional(readOnly = false)
     public void updatePlanCurricular(PlanCurricular planCurricular) {
+        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
+            planCurricular.setOrientacionCarrera(null);
+        }
         planCurricularDAO.updatePlanCurricular(planCurricular);
     }
 

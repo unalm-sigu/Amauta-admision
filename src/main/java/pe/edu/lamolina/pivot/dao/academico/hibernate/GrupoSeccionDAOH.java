@@ -34,9 +34,18 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     @Override
     public GrupoSeccion find(Long idGrupoSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gp")
-                .parents("secciones s", "left planCalificacion pc", "left _pc.sistemaNotas", "curso cur")
+                .parents("secciones s", "anexoBoletin ab", "left _ab.anexoSuperior asup", "left planCalificacion pc", "left _pc.sistemaNotas", "curso cur")
                 .filter("gp.id", idGrupoSeccion);
         return find(sqlUtil);
+    }
+
+    @Override
+    public GrupoSeccion findLast() {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .orderBy("id desc")
+                .limit(1);
+        return (GrupoSeccion) sql.find(getCurrentSession());
     }
 
     @Override
@@ -139,8 +148,8 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     public List<GrupoSeccion> allByDynatable(pe.albatross.octavia.dynatable.DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
-                .join("cicloAcademico ca", "anexoBoletin ab", "curso cu", "planCalificacion pc")
-                .leftJoin("ab.anexoSuperior ass")
+                .join("cicloAcademico ca", "anexoBoletin ab", "curso cu")
+                .leftJoin("ab.anexoSuperior ass", "planCalificacion pc")
                 .searchFields("cu.nombre")
                 .orderBy("gs.id desc");
         sql.beginRelativeFilters();

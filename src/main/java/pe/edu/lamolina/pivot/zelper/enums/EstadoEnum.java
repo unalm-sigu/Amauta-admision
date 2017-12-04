@@ -5,9 +5,10 @@ import java.util.Map;
 
 public enum EstadoEnum {
 
-    ACT("Activo"), CER("Cerrado"), CRE("Creado"), INA("Inactivo"), ANU("Anulado");
+    ACT("Activo", "success"), CER("Cerrado", "danger"), CRE("Creado", "default"), INA("Inactivo", "danger"), ANU("Anulado", "danger");
 
     private final String value;
+    private final String classCss;
     private static final Map<String, EstadoEnum> lookup = new HashMap<>();
 
     static {
@@ -16,12 +17,17 @@ public enum EstadoEnum {
         }
     }
 
-    private EstadoEnum(String value) {
+    private EstadoEnum(String value, String classCss) {
         this.value = value;
+        this.classCss = classCss;
     }
 
     public String getValue() {
         return value;
+    }
+
+    public String getClassCss() {
+        return classCss;
     }
 
     public static EstadoEnum get(String abbreviation) {
