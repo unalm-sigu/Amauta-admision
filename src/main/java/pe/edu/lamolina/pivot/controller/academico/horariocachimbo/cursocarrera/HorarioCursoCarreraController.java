@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -26,6 +27,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
@@ -105,15 +107,20 @@ public class HorarioCursoCarreraController {
 
     @ResponseBody
     @RequestMapping("addCurso")
-    public JsonResponse addCurso(CursoCachimbos cursoCachimbos, HttpSession session) {
+    public JsonResponse addCurso(@RequestParam("curso") ArrayList<Curso> cursos, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             Usuario user = ds.getUsuario();
-            cursoCachimbos.setIdUserCreacion(user.getId());
-            cursoCachimbos.setCicloAcademico(cicloAcademico);
-            service.addCurso(cursoCachimbos);
+            logger.debug("OK");
+            logger.debug("CURSOS NRO {} ",cursos.size());
+            for (Curso curso : cursos) {
+                CursoCachimbos cursoCachimbos = new CursoCachimbos();
+                cursoCachimbos.setIdUserCreacion(user.getId());
+                cursoCachimbos.setCicloAcademico(cicloAcademico);
+                service.addCurso(cursoCachimbos);
+            }
             response.setMessage("Curso agregado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -153,12 +160,45 @@ public class HorarioCursoCarreraController {
                 json.put("id", curso.getId());
                 json.put("nombre", curso.getNombre());
                 json.put("codigo", curso.getCodigo());
+                json.put("creditos", curso.getCreditos());
                 json.put("tpc", curso.getCodigo());
                 json.put("departamentoAcademico", curso.getDepartamentoAcademico().getNombre());
-                json.put("carrera",curso.getCarrera()!=null? curso.getCarrera().getNombre():"");
-                json.put("facultad", curso.getCarrera()!=null?curso.getCarrera().getFacultad().getNombre():"");
+                json.put("carrera", curso.getCarrera() != null ? curso.getCarrera().getNombre() : "");
+                json.put("facultad", curso.getCarrera() != null ? curso.getCarrera().getFacultad().getNombre() : "");
                 jsonList.add(json);
             }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchCarrera")
+    public JsonResponse searchCarrera(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<Carrera> carreras = service.allCarreraByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Carrera carrera : carreras) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", carrera.getId());
+                json.put("nombre", carrera.getNombre());
+                json.put("codigo", carrera.getCodigo());
+                json.put("facultad", carrera.getFacultad().getNombre());
+                jsonList.add(json);
+            }
+
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);

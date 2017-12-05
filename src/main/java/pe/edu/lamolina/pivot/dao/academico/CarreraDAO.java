@@ -28,4 +28,6 @@ public interface CarreraDAO extends Crud<Carrera> {
 
     public List<Carrera> allCarrera();
 
+    public List<Carrera> allCarreraByName(String nombre);
+
 }

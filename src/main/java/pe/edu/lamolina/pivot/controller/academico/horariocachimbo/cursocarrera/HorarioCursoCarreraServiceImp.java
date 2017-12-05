@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
@@ -16,20 +18,23 @@ import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 @Service
 @Transactional(readOnly = true)
 public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     CursoCachimbosDAO cursoCachimbosDAO;
-    
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
     @Autowired
     CursoDAO cursoDAO;
-    
+
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return cursoCachimbosDAO.allCursoCachimbos(filter, cicloAcademico);
     }
-    
+
     @Override
     @Transactional
     public void addCurso(CursoCachimbos cursoCachimbos) {
@@ -38,7 +43,7 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
             cursoCachimbosDAO.save(cursoCachimbos);
         }
     }
-    
+
     @Override
     @Transactional
     public void delete(CursoCachimbos cursoCachimbos) {
@@ -47,7 +52,12 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
 
     @Override
     public List<Curso> allCursoByName(String nombre) {
-       return  cursoDAO.allCursoByName(nombre);
+        return cursoDAO.allCursoByName(nombre);
     }
-    
+
+    @Override
+    public List<Carrera> allCarreraByName(String nombre) {
+        return carreraDAO.allCarreraByName(nombre);
+    }
+
 }

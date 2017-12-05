@@ -15,7 +15,7 @@
                        required="true"/>
             </div>
 
-            <table class="table table-condensed">
+            <table class="table table-condensed" id="tableCurso">
                 <thead>
                     <tr>
                         <th class="col-xs-10">Curso</th>
@@ -27,16 +27,16 @@
                     <tr>
                         <td>
                             <input type="text" 
-                                   class="form-control"
+                                   class="form-control cursoItem"
+                                   rel="curso.id"
                                    name="curso.id"
                                    v-model="curso.id"
                                    required="true"/>
                         </td>
                         <td class="text-center v-middle">
-                            5
+                            {{curso.creditos}}
                         </td>
                         <td class="text-center v-middle">
-                            <i class="fa fa-times pointer" aria-hidden="true"></i>
                         </td>
                     </tr>
                 </tbody>

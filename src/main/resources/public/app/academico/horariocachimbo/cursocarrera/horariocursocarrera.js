@@ -2,6 +2,18 @@ $(function () {
 
     var $global = new Vue({});
 
+    var ItemCursoTemplate = Vue.component("itemCurso", {
+        template: "#itemCursoTemplate",
+        data: function () {
+            return {curso: []};
+        },
+        methods: {
+            deleteItem(id) {
+                $global.$emit("deleteItem", id);
+            },
+        }
+    });
+
     var DynatableRowTemplate = Vue.component("dynatableRow", {
         template: "#dynatableRowTemplate",
         data: function () {
@@ -62,6 +74,7 @@ $(function () {
         el: '#main',
         data: {
             curso: {},
+            cursos: [{id: null, creditos: null}],
             carrera: {},
             addCursoCarreraModal: {
                 id: 'modalAddCursoCarrera',
@@ -78,56 +91,24 @@ $(function () {
             $global.$on("eliminar", function (id) {
                 $vue.eliminar(id);
             });
+            $global.$on("deleteItem", function (id) {
+                $vue.deleteItem(id);
+            });
         },
         methods: {
             nuevo() {
                 var vue = this;
+                vue.cursos = [];
                 this.$refs.modalAddCursoCarrera.open();
                 $('#formCursoCarrera').parsley().destroy();
-                $('[name="curso.id"]').select2({
-                    allowClear: true,
-                    placeholder: "Seleccione un curso",
-                    minimumInputLength: 1,
-                    ajax: {
-                        url: APP.url("academico/horariocachimbo/curso/searchCurso"),
-                        dataType: 'json',
-                        type: 'post',
-                        data: function (term, page) {
-                            return {nombre: term, page: page};
-                        },
-                        results: function (response, page) {
-                            return {results: response.data};
-                        }
-                    },
-                    initSelection: function (element, callback) {
-                        if (element.val() != "") {
-                            var datos = {
-                                id: element.val(),
-                                nombre: element.attr("rel")
-                            };
-                            callback(datos);
-                        }
-                    },
-                    formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
-                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
-                        return data;
-                    },
-                    formatSelection: function (info) {
-                        vue.curso = info;
-                        return info.nombre;
-                    },
-                    escapeMarkup: function (m) {
-                        return m;
-                    }
-                }).on("change", function (e) {
+                $('[name="curso.id"]').select2(vue.selectCurso(vue)).on("change", function (e) {
                     if (e && e.removed) {
                         if (e.val == '') {
                             vue.curso = [];
                         }
                     }
                 });
+
                 $('[name="carrera.id"]').select2({
                     allowClear: true,
                     placeholder: "Seleccione un carrera",
@@ -154,8 +135,62 @@ $(function () {
                     },
                     formatResult: function (info) {
                         var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
-                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
+                        data += '<span class="block"> Facultad de ' + info.facultad + '</span>';
+                        return data;
+                    },
+                    formatSelection: function (info) {
+                        vue.carrera = info;
+                        return info.nombre;
+                    },
+                    escapeMarkup: function (m) {
+                        return m;
+                    }
+                }).on("change", function (e) {
+                    if (e && e.removed) {
+                        if (e.val == '') {
+                            vue.carrera = [];
+                        }
+                    }
+                });
+                
+                $('[name="curso.id"]').select2('data', '');
+                $('[name="carrera.id"]').select2('data', '');
+                
+                vue.curso = [];
+                vue.carrera = [];
+                
+                $('#tableCurso tbody tr').not(':first').remove();
+                
+            },
+            selectCurso(vue) {
+                return {
+                    allowClear: true,
+                    placeholder: "Seleccione un curso",
+                    minimumInputLength: 1,
+                    ajax: {
+                        url: APP.url("academico/horariocachimbo/curso/searchCurso"),
+                        dataType: 'json',
+                        type: 'post',
+                        data: function (term, page) {
+                            return {nombre: term, page: page};
+                        },
+                        results: function (response, page) {
+                            return {results: response.data};
+                        }
+                    },
+                    initSelection: function (element, callback) {
+                        if (element.val() != "") {
+                            var datos = {
+                                id: element.val(),
+                                nombre: element.attr("rel")
+                            };
+                            callback(datos);
+                        }
+                    },
+                    formatResult: function (info) {
+                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
+                        data += '<span class="block">Dep. Academico  ' + info.departamentoAcademico + '</span>';
+                        data += '<span class="text-sm block"> Código ' + info.codigo + ' T.P.C ' + info.codigo + '</span>';
                         return data;
                     },
                     formatSelection: function (info) {
@@ -165,17 +200,7 @@ $(function () {
                     escapeMarkup: function (m) {
                         return m;
                     }
-                }).on("change", function (e) {
-                    if (e && e.removed) {
-                        if (e.val == '') {
-                            vue.curso = [];
-                        }
-                    }
-                });
-                $('[name="curso.id"]').select2('data', '');
-                $('[name="carrera.id"]').select2('data', '');
-                vue.curso = [];
-                vue.carrera = [];
+                };
             },
             createCursoCarrera(id) {
                 var vue = this;
@@ -186,7 +211,7 @@ $(function () {
                 $.ajax({
                     method: 'POST',
                     url: APP.url('academico/horariocachimbo/curso/addCurso'),
-                    data: {'curso.id': vue.curso.id},
+                    data:$('#formCursoCarrera').serialize(),
                     success: function (response) {
                         if (response.success) {
                             vue.$refs.modalAddCursoCarrera.close();
@@ -225,10 +250,27 @@ $(function () {
                         }
                     }
                 });
-
             },
-            agregarItem(){
-                console.log('hola mama');
+            agregarItem() {
+                var vue = this;
+                var curso = {id: null, creditos: null};
+                
+                var itemCursoTemplate = new ItemCursoTemplate();
+                itemCursoTemplate.curso = curso;
+                var component = itemCursoTemplate.$mount();
+                $('#tableCurso tbody').append(component.$el);
+                $('#tableCurso tbody tr:last').find('.cursoItem').select2(vue.selectCurso(itemCursoTemplate)).on("change", function (e) {
+                    if (e && e.removed) {
+                        if (e.val == '') {
+                            itemCursoTemplate.curso = [];
+                        }
+                    }
+                });
+            },
+            deleteItem(e) {
+                var self = $(e.currentTarget);
+                var tr = self.closest('tr');
+                tr.remove();
             }
         }
     });
