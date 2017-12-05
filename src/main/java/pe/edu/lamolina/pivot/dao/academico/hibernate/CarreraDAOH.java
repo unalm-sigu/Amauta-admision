@@ -15,6 +15,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoCarreraEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -152,14 +153,27 @@ public class CarreraDAOH extends AbstractDAO<Carrera> implements CarreraDAO {
     }
 
     @Override
-    public List<Carrera> allCarreraByName(String nombre) {
+    public List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("car.estado", EstadoCarreraEnum.ACT)
                 .filter("car.nombre", "like", nombre)
+                .filter("me.id", modalidadEstudio)
                 .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Carrera> allCarreraByModalidadEstudio(ModalidadEstudio modalidadEstudio) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EstadoCarreraEnum.ACT)
+                .filter("me.id", modalidadEstudio)
+                .orderBy("ca.codigo desc")
+                .limit(12);
         return sql.all(getCurrentSession());
     }
 

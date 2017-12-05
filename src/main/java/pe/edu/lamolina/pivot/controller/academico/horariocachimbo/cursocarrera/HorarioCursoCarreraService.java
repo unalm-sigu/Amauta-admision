@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 
 public interface HorarioCursoCarreraService {
 
@@ -13,10 +14,12 @@ public interface HorarioCursoCarreraService {
 
     void delete(CursoCachimbos cursoCachimbos);
 
+    List<Curso> allCursoByName(String nombre);
+
+    List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio);
+
     void addCurso(CursoCachimbos cursoCachimbos);
 
-     List<Curso> allCursoByName(String nombre);
-
-     List<Carrera> allCarreraByName(String nombre);
+    List<CarreraCursoCachimbo> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
 
 }

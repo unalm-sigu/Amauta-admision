@@ -96,6 +96,29 @@ $(function () {
             });
         },
         methods: {
+            filtrarCurso(e) {
+                var vue = this;
+                var self = $(e.currentTarget);
+                var carrera = self.attr('rel');
+
+                e.preventDefault();
+                var div = self.closest("div");
+                var classColor = 'bg-light';
+                var tieneBgColor = div.hasClass(classColor);
+                dynatable.queries.remove("car.id");
+
+                if (vue.divElegido != null) {
+                    vue.divElegido.removeClass(classColor);
+                    vue.divElegido = null;
+                }
+
+                if (!tieneBgColor) {
+                    div.addClass(classColor);
+                    vue.divElegido = div;
+                    dynatable.queries.add("car.id", carrera);
+                }
+                dynatable.process();
+            },
             nuevo() {
                 var vue = this;
                 vue.cursos = [];
@@ -152,15 +175,15 @@ $(function () {
                         }
                     }
                 });
-                
+
                 $('[name="curso.id"]').select2('data', '');
                 $('[name="carrera.id"]').select2('data', '');
-                
+
                 vue.curso = [];
                 vue.carrera = [];
-                
+
                 $('#tableCurso tbody tr').not(':first').remove();
-                
+
             },
             selectCurso(vue) {
                 return {
@@ -211,11 +234,11 @@ $(function () {
                 $.ajax({
                     method: 'POST',
                     url: APP.url('academico/horariocachimbo/curso/addCurso'),
-                    data:$('#formCursoCarrera').serialize(),
+                    data: $('#formCursoCarrera').serialize(),
                     success: function (response) {
                         if (response.success) {
                             vue.$refs.modalAddCursoCarrera.close();
-                            vue.reloadDinatable();
+                            dynatable.process();
                         } else {
                             notify(response.message, 'error');
                         }
@@ -254,7 +277,7 @@ $(function () {
             agregarItem() {
                 var vue = this;
                 var curso = {id: null, creditos: null};
-                
+
                 var itemCursoTemplate = new ItemCursoTemplate();
                 itemCursoTemplate.curso = curso;
                 var component = itemCursoTemplate.$mount();

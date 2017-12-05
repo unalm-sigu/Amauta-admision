@@ -31,6 +31,7 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -71,7 +72,11 @@ public class HorarioCursoCarreraController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
+        List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio,cicloAcademico);
+        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("carreras", carreras);
         return "academico/horariocachimbo/cursocarrera/horariocursocarrera";
     }
 
@@ -107,18 +112,22 @@ public class HorarioCursoCarreraController {
 
     @ResponseBody
     @RequestMapping("addCurso")
-    public JsonResponse addCurso(@RequestParam("curso") ArrayList<Curso> cursos, HttpSession session) {
+    public JsonResponse addCurso(@RequestParam("curso.id") ArrayList<Long> cursos, @RequestParam("carrera.id") Long carrera, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            logger.debug("curso {} ", cursos.size());
             Usuario user = ds.getUsuario();
-            logger.debug("OK");
-            logger.debug("CURSOS NRO {} ",cursos.size());
-            for (Curso curso : cursos) {
+            for (Long curso : cursos) {
+                logger.debug("curso long1 {} ", curso);
                 CursoCachimbos cursoCachimbos = new CursoCachimbos();
-                cursoCachimbos.setIdUserCreacion(user.getId());
                 cursoCachimbos.setCicloAcademico(cicloAcademico);
+                cursoCachimbos.setCarrera(new Carrera(carrera));
+                cursoCachimbos.setIdUserCreacion(user.getId());
+                cursoCachimbos.setCurso(new Curso(curso));
+                cursoCachimbos.setClaves(0);
+                cursoCachimbos.setHorarios(0);
                 service.addCurso(cursoCachimbos);
             }
             response.setMessage("Curso agregado satisfactoriamente");
@@ -186,8 +195,8 @@ public class HorarioCursoCarreraController {
         JsonResponse response = new JsonResponse();
 
         try {
-
-            List<Carrera> carreras = service.allCarreraByName(nombre);
+            ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
+            List<Carrera> carreras = service.allCarreraByName(nombre, modalidadEstudio);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Carrera carrera : carreras) {

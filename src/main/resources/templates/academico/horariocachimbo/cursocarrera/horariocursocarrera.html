@@ -15,9 +15,22 @@
                 <h2 th:inline="text">Cursos Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
 
+            <section class="panel m-b-xs">
+                <section class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-1 text-center" th:each="item,counter:${carreras}"  >
+                            <a href="#" v-on:click.prevent="filtrarCurso" class="view-count text-success" th:rel="${item.carrera.id}">
+                                <span class="h1 block bold" th:text="${item.cantidad}">23</span>
+                                <small class="block m-b-xs" th:text="${item.carrera.nombre}"  >Pregrado</small>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
             <section class="panel">
                 <section class="panel-body">
-  
+
                     <dynatable />
 
                 </section>
