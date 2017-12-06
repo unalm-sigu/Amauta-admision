@@ -1,0 +1,28 @@
+<div>
+
+    <div class="panel padder-v m-t-lg">
+
+        <table id="" class="table table-striped table-hover">
+
+            <thead>
+                <tr>
+                    <th class=" ">Carrera</th>
+                    <th  th:each="hora:${horarioCachimbos}"  th:text="${hora.codigo}">
+                    </th>
+                </tr> 
+            </thead>
+
+
+            <tbody id="dynaTbody">
+                <tr  th:each="item:${cursoCachimbos}">
+                    <td th:text="${item.curso.nombre}">
+                    </td>
+                    <td  th:each="hora:${horarioCachimbos}"  th:text="${hora.codigo}">
+                    </td>
+                </tr>
+            </tbody>
+
+
+        </table>
+    </div>
+</div>

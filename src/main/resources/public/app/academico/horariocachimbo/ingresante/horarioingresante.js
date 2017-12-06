@@ -145,7 +145,7 @@ $(function () {
                     escapeMarkup: function (m) {
                         return m;
                     }
-                }).on("change", function (e) {
+                }).on("change.select2", function (e) {
                     if (e && e.removed) {
                         if (e.val == '') {
                             vue.clearAlumno(e);

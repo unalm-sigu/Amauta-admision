@@ -7,10 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
+import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 
 @Service
@@ -20,7 +25,13 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    CursoCachimbosDAO cursoCachimbosDAO;
+
+    @Autowired
     HorarioCachimbosDAO horarioCachimbosDAO;
+
+    @Autowired
+    AlumnoHorarioDAO alumnoHorarioDAO;
 
     @Autowired
     CarreraDAO carreraDAO;
@@ -45,8 +56,23 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     }
 
     @Override
-    public List<Carrera> allCarrera() {
-        return carreraDAO.allCarrera();
+    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico) {
+        return alumnoHorarioDAO.allAlumnoHorarioByName(nombre, cicloAcademico);
+    }
+
+    @Override
+    public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio) {
+        return carreraDAO.allCarreraByModalidadEstudio(modalidadEstudio);
+    }
+
+    @Override
+    public List<CursoCachimbos> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
+        return cursoCachimbosDAO.allByCicloAcademico(cicloAcademico, carrera);
+    }
+
+    @Override
+    public List<HorarioCachimbos> allHorarioCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
+        return horarioCachimbosDAO.allByCicloAcademico(cicloAcademico, carrera);
     }
 
 }

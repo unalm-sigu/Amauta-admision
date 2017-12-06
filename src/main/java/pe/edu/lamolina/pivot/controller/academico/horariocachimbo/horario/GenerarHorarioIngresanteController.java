@@ -19,14 +19,20 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -39,6 +45,9 @@ public class GenerarHorarioIngresanteController {
 
     @Autowired
     GenerarHorarioIngresanteService service;
+
+    @Autowired
+    SpringTemplateEngine springHtml;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -124,7 +133,6 @@ public class GenerarHorarioIngresanteController {
     public JsonResponse deleteGrupo(HorarioCachimboForm form) {
         JsonResponse response = new JsonResponse();
         try {
-            logger.debug("CANTIDAD HORARIOS XXX {}", form.getHorarioCachimbos().size());
             service.delete(form);
             response.setMessage("Horarios eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -139,10 +147,72 @@ public class GenerarHorarioIngresanteController {
     @RequestMapping("generador")
     public String generador(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<Carrera> carreras = service.allCarrera();
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
+        ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        List<Carrera> carreras = service.allCarrera(modalidadEstudio);
+        model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("carreras", carreras);
         return "academico/horariocachimbo/generador/generador";
+    }
+
+    @ResponseBody
+    @RequestMapping("allHorario")
+    public JsonResponse allHorario(Carrera carrera, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            List<CursoCachimbos> cursoCachimbos = service.allCursoCachimbosByCicloAcademico(cicloAcademico,carrera);
+            List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbosByCicloAcademico(cicloAcademico,carrera);
+            
+            Context ctx = new Context();
+            ctx.setVariable("cursoCachimbos", cursoCachimbos);
+            ctx.setVariable("horarioCachimbos", horarioCachimbos);
+            String htmlContent = springHtml.process("academico/horariocachimbo/generador/generadorHorario", ctx);
+            response.setData(htmlContent);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchAlumno")
+    public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            List<AlumnoHorario> alumnos = service.allAlumnoHorarioByName(nombre, cicloAcademico);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (AlumnoHorario alumnoHorario : alumnos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", alumnoHorario.getAlumno().getId());
+                json.put("nombre", alumnoHorario.getAlumno().getPersona().getNombreCompleto());
+                json.put("codigoMatricula", alumnoHorario.getAlumno().getCodigo());
+                json.put("carrera", alumnoHorario.getAlumno().getCarrera().getNombre());
+                json.put("facultad", alumnoHorario.getAlumno().getCarrera().getFacultad().getNombre());
+                json.put("tipo", alumnoHorario.getAlumno().getPersona().getTipoDocumento().getSimbolo());
+                json.put("numero", alumnoHorario.getAlumno().getPersona().getNumeroDocIdentidad());
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

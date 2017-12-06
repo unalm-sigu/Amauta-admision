@@ -2,8 +2,11 @@ package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 
 public interface GenerarHorarioIngresanteService {
@@ -14,6 +17,12 @@ public interface GenerarHorarioIngresanteService {
 
     public void delete(HorarioCachimboForm form);
 
-    public List<Carrera> allCarrera();
+    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico);
+
+    public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio);
+
+    public List<CursoCachimbos> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
+
+    public List<HorarioCachimbos> allHorarioCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 
 }

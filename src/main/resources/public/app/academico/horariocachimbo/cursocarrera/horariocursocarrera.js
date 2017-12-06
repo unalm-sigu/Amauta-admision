@@ -5,7 +5,7 @@ $(function () {
     var ItemCursoTemplate = Vue.component("itemCurso", {
         template: "#itemCursoTemplate",
         data: function () {
-            return {curso: []};
+            return {curso: [], total: 0};
         },
         methods: {
             deleteItem(id) {
@@ -75,6 +75,7 @@ $(function () {
         data: {
             curso: {},
             cursos: [{id: null, creditos: null}],
+            total: 0,
             carrera: {},
             addCursoCarreraModal: {
                 id: 'modalAddCursoCarrera',
@@ -122,16 +123,16 @@ $(function () {
             nuevo() {
                 var vue = this;
                 vue.cursos = [];
+                vue.total = 0;
                 this.$refs.modalAddCursoCarrera.open();
                 $('#formCursoCarrera').parsley().destroy();
-                $('[name="curso.id"]').select2(vue.selectCurso(vue)).on("change", function (e) {
+                $('[name="curso.id"]').select2(vue.selectCurso(vue)).on("change.select2", function (e) {
                     if (e && e.removed) {
                         if (e.val == '') {
                             vue.curso = [];
                         }
                     }
                 });
-
                 $('[name="carrera.id"]').select2({
                     allowClear: true,
                     placeholder: "Seleccione un carrera",
@@ -168,7 +169,7 @@ $(function () {
                     escapeMarkup: function (m) {
                         return m;
                     }
-                }).on("change", function (e) {
+                }).on("change.select2", function (e) {
                     if (e && e.removed) {
                         if (e.val == '') {
                             vue.carrera = [];
@@ -185,7 +186,8 @@ $(function () {
                 $('#tableCurso tbody tr').not(':first').remove();
 
             },
-            selectCurso(vue) {
+            selectCurso(self) {
+                var vue = this;
                 return {
                     allowClear: true,
                     placeholder: "Seleccione un curso",
@@ -217,7 +219,8 @@ $(function () {
                         return data;
                     },
                     formatSelection: function (info) {
-                        vue.curso = info;
+                        self.curso = info;
+                        vue.total = info.creditos + vue.total;
                         return info.nombre;
                     },
                     escapeMarkup: function (m) {
@@ -282,7 +285,7 @@ $(function () {
                 itemCursoTemplate.curso = curso;
                 var component = itemCursoTemplate.$mount();
                 $('#tableCurso tbody').append(component.$el);
-                $('#tableCurso tbody tr:last').find('.cursoItem').select2(vue.selectCurso(itemCursoTemplate)).on("change", function (e) {
+                $('#tableCurso tbody tr:last').find('.cursoItem').select2(vue.selectCurso(itemCursoTemplate)).on("change.select2", function (e) {
                     if (e && e.removed) {
                         if (e.val == '') {
                             itemCursoTemplate.curso = [];

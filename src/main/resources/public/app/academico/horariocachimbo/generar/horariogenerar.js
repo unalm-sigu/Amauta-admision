@@ -190,15 +190,16 @@ $(function () {
 
             },
             incluirAlumno(id) {
-                
+
+                var vue = this;
                 this.$refs.modalAddAlumno.open();
 
                 $('[name="alumno.id"]').select2({
                     allowClear: true,
-                    placeholder: "Seleccione un departamento",
+                    placeholder: "Seleccione un alumno",
                     minimumInputLength: 1,
                     ajax: {
-                        url: APP.url("comun/buscar/allDepartamentoAcademico"),
+                        url: APP.url("academico/horariocachimbo/ingresante/searchAlumno"),
                         dataType: 'json',
                         type: 'post',
                         data: function (term, page) {
@@ -218,18 +219,27 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Facultad de ' + info.facultad + '</span>';
+                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
+                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
+                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
                         return data;
                     },
                     formatSelection: function (info) {
+                        vue.alumno = info;
                         return info.nombre;
                     },
                     escapeMarkup: function (m) {
                         return m;
                     }
+                }).on("change.select2", function (e) {
+                    if (e && e.removed) {
+                        if (e.val == '') {
+                            vue.alumno = [];
+                        }
+                    }
                 });
-                
+                $('[name="alumno.id"]').select2('data', '');
+                vue.alumno = [];
 
             },
             verHorario(id) {},

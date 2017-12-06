@@ -12,6 +12,23 @@
                    v-model="alumno.id"
                    required="true"/>
         </div>
+        
+        <div v-if="alumno.id">
+
+            <span class="block">
+                <b>Carrera </b>:{{alumno.carrera}}
+            </span>
+            <span class="block">
+                <b>Facultad </b>:{{alumno.facultad}}
+            </span>
+            <span class="block">
+                <b>{{alumno.tipo}} </b>:{{alumno.numero}}
+            </span>
+            <span class="block">
+                <b>Nro Mat. </b>:{{alumno.codigoMatricula}}
+            </span>
+
+        </div>
 
     </div>
 </modal-vik>

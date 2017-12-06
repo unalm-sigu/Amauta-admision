@@ -15,5 +15,7 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     public List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico);
 
+    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico);
+
 }
 
