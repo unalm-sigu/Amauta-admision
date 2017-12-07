@@ -31,7 +31,7 @@ public class GrupoSeccion implements Serializable {
     private Long id;
 
     @Column(name = "codigo")
-    String codigo;
+    private String codigo;
 
     @Column(name = "orden")
     private Integer orden;

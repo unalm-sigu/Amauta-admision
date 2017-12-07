@@ -13,6 +13,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
@@ -177,10 +180,21 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cur")
                 .join("departamentoAcademico dep")
-                .leftJoin( "carrera car", "car.facultad fa","planCalificacion  pc","planCalificacionRegular pcr","coordinador cor")
+                .leftJoin("carrera car", "car.facultad fa", "planCalificacion  pc", "planCalificacionRegular pcr", "coordinador cor")
                 .filter("cur.estado", EstadoCursoCachimboEnum.ACT)
                 .filter("cur.nombre", "like", nombre)
                 .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .select("cur")
+                .from(CursoCachimbos.class, "cc")
+                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("car.id", carrera)
+                .filter("ciclo.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
 

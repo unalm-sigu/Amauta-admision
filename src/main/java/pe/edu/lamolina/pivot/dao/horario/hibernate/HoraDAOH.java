@@ -22,4 +22,5 @@ public class HoraDAOH extends AbstractDAO<Hora> implements HoraDAO {
                 .orderBy("ho.numero");
         return sql.all(getCurrentSession());
     }
+    
 }

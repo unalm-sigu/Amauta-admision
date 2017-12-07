@@ -5,9 +5,10 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 
 public interface GenerarHorarioIngresanteService {
 
@@ -21,8 +22,12 @@ public interface GenerarHorarioIngresanteService {
 
     public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio);
 
-    public List<CursoCachimbos> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
+    public List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 
     public List<HorarioCachimbos> allHorarioCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
+
+    public List<SeccionHorarioCachimbos> allSeccionHorarioCachimbosByCursoHora(Carrera carrera, List<Curso> cursos, CicloAcademico cicloAcademico);
+
+    public String getClave(String codigo, List<SeccionHorarioCachimbos> shcHorario);
 
 }
