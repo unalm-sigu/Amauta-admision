@@ -1,6 +1,6 @@
 <html layout:decorator="zlayout/layout">
     <head>
-        <title>Tipo Grupos</title>
+        <title> Generador</title>
     <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
 </head>
 
@@ -29,13 +29,15 @@
                                     th:value="${item.id}" ></option>
                         </select>
                     </div>
-                    
-                    <div id="tableHorario"></div>
+
+                    <dynatable/>           
 
                 </section>
             </section>
 
         </div>
+
+        <th:block th:replace="academico/horariocachimbo/generador/_generador"/>
 
     </div>
 

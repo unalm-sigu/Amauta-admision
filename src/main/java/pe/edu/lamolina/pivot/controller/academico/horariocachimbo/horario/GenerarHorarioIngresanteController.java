@@ -23,20 +23,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
@@ -162,62 +158,74 @@ public class GenerarHorarioIngresanteController {
 
     @ResponseBody
     @RequestMapping("allHorario")
-    public JsonResponse allHorario(Carrera carrera, HttpSession session) {
-        JsonResponse response = new JsonResponse();
+    public DynatableResponse allHorario(DynatableFilter filter, Carrera carrera, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            ArrayNode array = new ArrayNode(jsonFactory);
 
             List<Curso> cursos = service.allCursoCachimbosByCicloAcademico(cicloAcademico, carrera);
-            for (Curso curso : cursos) {
-                logger.debug("curso XXXX  {}", curso.getId());
-            }
-            ObjectNode node = new ObjectNode(jsonFactory);
-
             List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbosByCicloAcademico(cicloAcademico, carrera);
-            logger.debug("==== {} {} {} {}", horarioCachimbos.size(), cursos.size(), cicloAcademico.getId());
             List<SeccionHorarioCachimbos> seccionHorarioCachimbos = service.allSeccionHorarioCachimbosByCursoHora(carrera, cursos, cicloAcademico);
-            logger.debug("seccion Horario Cachimbos xxxxxxxx  ::: {}", seccionHorarioCachimbos.size());
-
             Map<Long, List<SeccionHorarioCachimbos>> seccionHorarioCachimbosMap = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", seccionHorarioCachimbos);
-            logger.debug("curso map size  {}", seccionHorarioCachimbosMap.size());
-            for (Long long1 : seccionHorarioCachimbosMap.keySet()) {
-                logger.debug("curso map  {}", long1);
-            }
 
             for (Curso curso : cursos) {
-                logger.debug("curso {}", curso.getNombre());
+
+                ObjectNode node = new ObjectNode(jsonFactory);
+
                 node.put("curso", curso.getNombre());
                 List<SeccionHorarioCachimbos> seccionHorarioCachimboLIst = seccionHorarioCachimbosMap.get(curso.getId());
-                logger.debug("has  seccionHorarioCachimboLIst {}", (seccionHorarioCachimboLIst != null));
-                if (seccionHorarioCachimboLIst == null) {
-                    continue;
-                }
-                Map<Long, List<SeccionHorarioCachimbos>> horarioCachimbosMap = TypesUtil.convertListToMapList("horarioCachimbos.id", seccionHorarioCachimboLIst);
-                ArrayNode array = new ArrayNode(jsonFactory);
-                for (HorarioCachimbos horarioCachimbo : horarioCachimbos) {
-                    ObjectNode hora = new ObjectNode(jsonFactory);
-                    List<SeccionHorarioCachimbos> shcHorario = horarioCachimbosMap.get(horarioCachimbo.getId());
-                    logger.debug("********curso {}", horarioCachimbo.getCodigo());
-                    hora.put("claveTeorica", service.getClave(TipoSeccionEnum.TEO.name(), shcHorario));
-                    hora.put("clavePractica", service.getClave(TipoSeccionEnum.PRA.name(), shcHorario));
-                    hora.put("grupoTeoria", service.getClave(TipoSeccionEnum.TEO.name(), shcHorario));
-                    hora.put("grupoPractica", service.getClave(TipoSeccionEnum.PRA.name(), shcHorario));
-                    array.add(hora);
-                }
-                node.set("horario", array);
-            }
 
-            response.setData(node);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
+                if (seccionHorarioCachimboLIst == null) {
+                    seccionHorarioCachimboLIst = new ArrayList();
+                }
+
+                Map<Long, List<SeccionHorarioCachimbos>> horarioCachimbosMap = TypesUtil.convertListToMapList("horarioCachimbos.id", seccionHorarioCachimboLIst);
+
+                ArrayNode arrayHorario = new ArrayNode(jsonFactory);
+
+                for (HorarioCachimbos horarioCachimbo : horarioCachimbos) {
+
+                    ObjectNode hora = new ObjectNode(jsonFactory);
+                    hora.put("hora", horarioCachimbo.getCodigo());
+
+                    List<SeccionHorarioCachimbos> shcHorario = horarioCachimbosMap.get(horarioCachimbo.getId());
+                    ArrayNode horarios = new ArrayNode(jsonFactory);
+
+                    ObjectNode horaSeccion = new ObjectNode(jsonFactory);
+                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.TEO.name(), shcHorario));
+                    horarios.add(horaSeccion);
+
+                    horaSeccion = new ObjectNode(jsonFactory);
+                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.PRA.name(), shcHorario));
+                    horarios.add(horaSeccion);
+
+                    horaSeccion = new ObjectNode(jsonFactory);
+                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.TEO.name(), shcHorario));
+                    horarios.add(horaSeccion);
+
+                    horaSeccion = new ObjectNode(jsonFactory);
+                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.PRA.name(), shcHorario));
+                    horarios.add(horaSeccion);
+
+                    hora.put("horarios", horarios);
+                    arrayHorario.add(hora);
+                }
+                node.set("horario", arrayHorario);
+                array.add(node);
+            }
+            json.setData(array);
+            json.setTotal(array.size());
+            json.setFiltered(array.size());
         } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
+            e.printStackTrace();
+            json.setTotal(0);
         }
-        return response;
+        return json;
     }
 
     @ResponseBody
@@ -252,6 +260,41 @@ public class GenerarHorarioIngresanteController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allHorarioHeader")
+    public JsonResponse allHorarioHeader(Carrera carrera, HttpSession session) {
+        
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            
+            List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbosByCicloAcademico(cicloAcademico, carrera);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (HorarioCachimbos alumnoHorario : horarioCachimbos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", alumnoHorario.getId());
+                json.put("codigo", alumnoHorario.getCodigo());
+                jsonList.add(json);
+            }
+            
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+            
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        
         return response;
     }
 

@@ -97,7 +97,11 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         }
         for (SeccionHorarioCachimbos shc : shcHorario) {
             if (shc.getSeccion().getGrupoHoras().getTipoSeccion().equalsIgnoreCase(codigo)) {
-                return ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString();
+                StringBuilder sb = new StringBuilder();
+                sb.append(ObjectUtil.getParentTree(shc, "seccion.codigo").toString());
+                sb.append(" ");
+                sb.append(ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
+                return sb.toString();
             }
         }
         return "";

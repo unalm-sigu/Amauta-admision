@@ -119,6 +119,9 @@ $(function () {
                         } else {
                             notify(response.message, 'error');
                         }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
             },

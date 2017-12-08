@@ -6,12 +6,10 @@
 
             <thead>
                 <tr>
-                    <th class=" ">Carrera</th>
-                    <th  th:each="hora:${horarioCachimbos}"  th:text="${hora.codigo}">
-                    </th>
+                    <td class=" ">Carrera</td>
+                    <td  th:each="hora:${horarioCachimbos}"  th:text="${hora.codigo}"></td>
                 </tr> 
             </thead>
-
 
             <tbody id="dynaTbody">
                 <tr  th:each="item:${cursoCachimbos}">
@@ -21,7 +19,6 @@
                     </td>
                 </tr>
             </tbody>
-
 
         </table>
     </div>

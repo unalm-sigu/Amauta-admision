@@ -1,0 +1,35 @@
+<template id="dynatableTemplate">
+    <transition name="fade">
+
+        <div class="panel padder-v">
+            <table id="dynaTable" class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Curso</th>
+                        <th  v-for="h in horarios" :rel="h.id" class="text-center">
+                            {{ h.codigo }}
+                        </th>
+                    </tr> 
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </transition>
+</template>
+
+<script type="text/x-jsrender" id="dynatableRowTemplate">
+    <tr>
+        <td class="v-middle">
+            {{:curso}}
+             <span class="badge">{{:hora}}</span>
+        </td>
+        {{for horario }}
+        <td class="v-middle text-center">
+            {{for horarios }}
+                    <span class="badge">{{:hora}}</span> 
+            {{/for}}
+        </td>
+        {{/for}}
+    </tr>
+</script>
