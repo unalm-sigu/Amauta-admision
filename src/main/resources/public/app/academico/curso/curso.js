@@ -16,9 +16,9 @@ $(function () {
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {ACT: 'success', INA: 'danger'};
+        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
         record.index = rowIndex;
-        record.esActivo = record.estado == 'ACT';
+        record.esActivo = (record.estado == 'ACT') || (record.estado = 'CRE');
         record.esInactivo = record.estado == 'INA';
         record.colorEstado = labelColor[record.estado];
         var html = $.templates("#cursoTemplate").render(record);

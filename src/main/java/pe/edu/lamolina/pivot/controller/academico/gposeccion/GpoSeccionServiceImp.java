@@ -12,7 +12,6 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -36,14 +35,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, cicloAcademico);
-        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gsecciones);
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
 
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gseccion : gsecciones) {
             gseccion.setSecciones(mapSecciones.get(gseccion.getId()));
         }
         
-        List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allActivosBySecciones(secciones);
+        List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
 
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
 
@@ -55,8 +54,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public GpoSeccionResumen resumen() {
-        return grupoSeccionDAO.resumen();
+    public GpoSeccionResumen contadorByAnexoCiclo(CicloAcademico ciclo) {
+        return grupoSeccionDAO.contadorByAnexoCiclo(ciclo);
     }
 
 }

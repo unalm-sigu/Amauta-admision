@@ -8,7 +8,7 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
-    
-    GpoSeccionResumen resumen();
-    
+
+    GpoSeccionResumen contadorByAnexoCiclo(CicloAcademico ciclo);
+
 }

@@ -136,11 +136,11 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     }
 
     @Override
-    public List<GrupoSeccion> allByDynatable(pe.albatross.octavia.dynatable.DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<GrupoSeccion> allByDynatable(pe.albatross.octavia.dynatable.DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
-                .join("cicloAcademico ca", "anexoBoletin ab", "curso cu", "planCalificacion pc")
-                .leftJoin("ab.anexoSuperior ass")
+                .join("cicloAcademico ca", "anexoBoletin ab", "ab.anexoSuperior ass","curso cu")
+                .filter("ca.id", ciclo)
                 .searchFields("cu.nombre")
                 .orderBy("gs.id desc");
         sql.beginRelativeFilters();
@@ -175,19 +175,23 @@ public class GrupoSeccionDAOH extends AbstractDAO<GrupoSeccion> implements Grupo
     }
 
     @Override
-    public GpoSeccionResumen resumen() {
+    public GpoSeccionResumen contadorByAnexoCiclo(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
         sql.append("select new ").append(GpoSeccionResumen.class.getName());
         sql.append(" (   ");
-        sql.append("   sum(case abs.id when :INGRE then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :DPTO  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :POST  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :ACTI  then 1 else 0 end)   ");
+        sql.append("   sum(case axs.id when :INGRE then 1 else 0 end),   ");
+        sql.append("   sum(case axs.id when :DPTO  then 1 else 0 end),   ");
+        sql.append("   sum(case axs.id when :POST  then 1 else 0 end),   ");
+        sql.append("   sum(case axs.id when :ACTI  then 1 else 0 end)   ");
         sql.append(" )   ");
-        sql.append("  from ").append(AnexoBoletin.class.getName()).append(" as ab ");
-        sql.append(" inner join  ab.anexoSuperior abs ");
+        sql.append("  from ").append(GrupoSeccion.class.getName()).append(" as gs ");
+        sql.append(" inner join  gs.anexoBoletin ax ");
+        sql.append(" inner join  ax.anexoSuperior axs ");
+        sql.append(" inner join  gs.cicloAcademico ca ");
+        sql.append(" where ca.id = :CICLO ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
         query.setString("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());
         query.setString("DPTO", GrupoAnexoEnum.DPTO.getValue());
         query.setString("ACTI", GrupoAnexoEnum.ACTIVIDADES.getValue());

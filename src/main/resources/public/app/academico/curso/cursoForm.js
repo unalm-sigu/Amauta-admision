@@ -81,8 +81,8 @@ $(function () {
         },
         loadCoordinadores: function (idDpto) {
             $("[name='coordinador.id']").select2({
-                allowClear: true,
                 placeholder: "Seleccione un coordinador",
+                allowClear: true,
                 minimumInputLength: 1,
                 ajax: {
                     url: APP.url("comun/buscar/allCoordinadores"),
@@ -121,7 +121,25 @@ $(function () {
                 return;
             }
 
-            form.submit();
+            $.ajax({
+                url: APP.url('academico/curso/save'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        setTimeout(function () {
+                            location.href = APP.url("academico/curso");
+                        }, 1500);
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         },
         changeModalidad: function ($this, e) {
             var codModalidad = $this.find(":selected").data("codigo");
@@ -245,8 +263,32 @@ $(function () {
         deleteRowIdioma: function ($this) {
             var tr = $this.closest("tr");
             tr.remove();
+        },
+        validandoHoras: function ($this) {
+            var tipo = $this.val();
+            console.log("tipo:: " + tipo)
+            if (tipo == 'TEO') {
+                $('[name="horasTeoria"]').attr("required", true);
+                $('[name="horasTeoria"]').attr("readonly", false);
+                $('[name="horasPractica"]').attr("readonly", true);
+                $('[name="horasPractica"]').val(0);
+            } else if (tipo == 'PRA') {
+                $('[name="horasPractica"]').attr("required", true);
+                $('[name="horasPractica"]').attr("readonly", false);
+                $('[name="horasTeoria"]').attr("readonly", true);
+                $('[name="horasTeoria"]').val(0);
+            }else{
+                $('[name="horasPractica"]').attr("required", true);
+                $('[name="horasPractica"]').attr("readonly", false);
+                $('[name="horasTeoria"]').attr("readonly", false);
+                $('[name="horasTeoria"]').attr("required", true);
+                $('[name="horasTeoria"]').val(0);
+            }
+
         }
+
     };
+
     CursoForm.init();
 
     $("body").delegate(".save-update-curso", "click", function (e) {
@@ -282,5 +324,8 @@ $(function () {
     });
     $("body").delegate(".delete-idioma", "click", function () {
         CursoForm.deleteRowIdioma($(this));
+    });
+    $("body").delegate('[name="tipoCurso"]', "change", function () {
+        CursoForm.validandoHoras($(this));
     });
 });
