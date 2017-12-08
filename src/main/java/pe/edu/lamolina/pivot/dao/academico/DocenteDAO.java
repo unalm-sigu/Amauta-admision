@@ -27,4 +27,6 @@ public interface DocenteDAO extends Crud<Docente> {
 
     public List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre);
 
+    List<Docente> allByNombreFilter(String nombre, Integer limit);
+
 }

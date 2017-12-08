@@ -135,10 +135,10 @@ public class CursoServiceImp implements CursoService {
 
     public String getCodigo(Curso curso) {
         DepartamentoAcademico dpto = departamentoAcademicoDAO.find(curso.getDepartamentoAcademico().getId());
-        String curCodFacultad = dpto.getFacultad().getCurCodigo();
+        String curCodFacultad = dpto.getFacultad().getCodigoCurso();
 
         String codigo = curCodFacultad + curso.getNivel();
-        Curso cursoBD = cursoDAO.findLastCodigoByCurCodigo(codigo.concat("%"));
+        Curso cursoBD = cursoDAO.findLastByCodigoFacultad(codigo.concat("%"));
 
         String codCurso = cursoBD.getCodigo();
         String numero = codCurso.substring(3);

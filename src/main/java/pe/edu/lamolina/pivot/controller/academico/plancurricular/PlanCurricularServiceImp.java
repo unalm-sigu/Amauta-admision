@@ -28,6 +28,7 @@ import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoOpcionalDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -104,7 +105,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public PlanCurricular savePlanCurricular(PlanCurricular planCurricular) {
-        planCurricular.setEstadoEnum(EstadoEnum.ACT);
+        planCurricular.setEstadoEnum(EstadoEnum.CRE);
+
+        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
+            planCurricular.setOrientacionCarrera(null);
+        }
+
         planCurricularDAO.save(planCurricular);
         return planCurricular;
     }
@@ -112,6 +118,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void updatePlanCurricular(PlanCurricular planCurricular) {
+        if (ObjectUtil.getParentTree(planCurricular, "orientacionCarrera.id") == null) {
+            planCurricular.setOrientacionCarrera(null);
+        }
         planCurricularDAO.updatePlanCurricular(planCurricular);
     }
 

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
@@ -217,11 +218,60 @@ public class DocenteSeccionDAOH extends AbstractDAO<DocenteSeccion> implements D
     public List<DocenteSeccion> allActivosBySecciones(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
-                .join("docente doc","seccion s")
+                .join("docente doc", "seccion s")
                 .leftJoin("doc.persona per")
                 .filter("ds.estado", EstadoEnum.ACT)
                 .in("s.id", secciones);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<DocenteSeccion> allBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "seccion s")
+                .leftJoin("doc.persona per")
+                .in("s.id", secciones);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public void deleteDocenteSeccionBySeccion(Seccion seccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("delete DocenteSeccion ds   where ds.seccion.id=:prm_seccion ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_seccion", seccion.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updatePrincipal(DocenteSeccion docenteSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update DocenteSeccion set principal=:prm_principal where id=:prm_doc_seccion ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_doc_seccion", docenteSeccion.getId());
+        query.setParameter("prm_principal", docenteSeccion.getPrincipal());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updateDocente(DocenteSeccion docenteSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update DocenteSeccion ds set ds.docente.id=:prm_docente where ds.id=:prm_doc_seccion ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_doc_seccion", docenteSeccion.getId());
+        query.setParameter("prm_docente", docenteSeccion.getDocente().getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updatePorcentajeAvance(DocenteSeccion docenteSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update DocenteSeccion ds set ds.porcentajeCarga=:porcentaje_avance where ds.id=:prm_doc_seccion ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_doc_seccion", docenteSeccion.getId());
+        query.setParameter("porcentaje_avance", docenteSeccion.getPorcentajeCarga());
+        query.executeUpdate();
     }
 
 }

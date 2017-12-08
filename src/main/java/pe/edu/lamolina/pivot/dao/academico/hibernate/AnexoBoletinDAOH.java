@@ -68,7 +68,15 @@ public class AnexoBoletinDAOH extends AbstractDAO<AnexoBoletin> implements Anexo
                 .leftJoin("departamentoAcademico da", "carrera ca", "anexoSuperior abs")
                 .isNull("abs.id");
         return sql.all(getCurrentSession());
+    }
 
+    @Override
+    public List<AnexoBoletin> allAnexosHijos() {
+        Octavia sql = Octavia.query()
+                .from(AnexoBoletin.class, "ab")
+                .leftJoin("departamentoAcademico da", "carrera ca", "anexoSuperior abs")
+                .isNotNull("abs.id");
+        return sql.all(getCurrentSession());
     }
 
     @Override

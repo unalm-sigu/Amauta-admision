@@ -32,6 +32,9 @@ public class DocenteSeccion implements Serializable {
     @Column(name = "estado")
     private String estado;
 
+    @Column(name = "porcentaje_carga")
+    private BigDecimal porcentajeCarga;
+
     @Column(name = "fecha_inicio")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaInicio;
@@ -176,6 +179,14 @@ public class DocenteSeccion implements Serializable {
 
     public void setUserAnulacion(Usuario userAnulacion) {
         this.userAnulacion = userAnulacion;
+    }
+
+    public BigDecimal getPorcentajeCarga() {
+        return porcentajeCarga;
+    }
+
+    public void setPorcentajeCarga(BigDecimal porcentajeCarga) {
+        this.porcentajeCarga = porcentajeCarga;
     }
 
     public boolean equals(Object obj) {

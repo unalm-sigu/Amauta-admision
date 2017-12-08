@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -78,7 +80,7 @@ public class Seccion implements Serializable {
     @JoinColumn(name = "id_grupo_seccion")
     private GrupoSeccion grupoSeccion;
 
-    @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<DocenteSeccion> docenteSeccion;
 
     @OneToMany(mappedBy = "seccionResponsable", fetch = FetchType.LAZY)
@@ -112,6 +114,9 @@ public class Seccion implements Serializable {
 
     public Seccion() {
         this.verInformacion = false;
+        this.vacantes = BigDecimal.ZERO.intValue();
+        this.matriculados = BigDecimal.ZERO.intValue();
+
     }
 
     public Seccion(String codigo, String codigo2, String codigoGrupoHorario, String codigoAula, String codigoGrupoSeccion, String codigoTipoSeccion) {
@@ -394,6 +399,14 @@ public class Seccion implements Serializable {
             return true;
         }
         return false;
+    }
+
+    public Integer getDocentesCant() {
+        Integer cant = 0;
+        if (this.getDocenteSeccion() != null && !this.getDocenteSeccion().isEmpty()) {
+            return this.getDocenteSeccion().size();
+        }
+        return cant;
     }
 
 }

@@ -16,4 +16,6 @@ public interface AnexoBoletinDAO extends Crud<AnexoBoletin> {
 
     AnexoResumen resumen();
 
+    List<AnexoBoletin> allAnexosHijos();
+
 }
