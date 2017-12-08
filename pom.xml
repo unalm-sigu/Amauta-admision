@@ -308,13 +308,13 @@
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <artifactId>octavia</artifactId>
-            <version>1.0.6</version>    
+            <version>1.0.7</version>    
         </dependency>
         
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <artifactId>zelpers</artifactId>
-            <version>0.1.16</version>
+            <version>0.1.22</version>
         </dependency>
         
         <dependency>

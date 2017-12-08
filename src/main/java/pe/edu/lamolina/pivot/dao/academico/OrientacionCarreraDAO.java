@@ -17,6 +17,8 @@ public interface OrientacionCarreraDAO extends Crud<OrientacionCarrera> {
 
     OrientacionCarrera find(Long id);
 
-    List<OrientacionCarrera> allByFilter(Carrera carrera, EstadoEnum estadoEnum);
+    List<OrientacionCarrera> allByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum);
+
+    List<OrientacionCarrera> allByCarreras(List<Carrera> carreras);
 
 }

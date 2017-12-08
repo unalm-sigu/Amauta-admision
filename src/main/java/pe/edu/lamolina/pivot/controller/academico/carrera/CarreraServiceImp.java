@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.carrera;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -25,26 +28,35 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 @Service
 @Transactional(readOnly = true)
 public class CarreraServiceImp implements CarreraService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     CarreraDAO carreraDAO;
-
+    
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-
+    
     @Autowired
     FacultadDAO facultadDAO;
-
+    
     @Autowired
     OrientacionCarreraDAO orientacionCarreraDAO;
-
+    
     @Override
     public List<Carrera> allByDynatable(DynatableFilter filter) {
-        return carreraDAO.allByDynatable(filter);
+        List<Carrera> carreras = carreraDAO.allByDynatable(filter);
+        List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarreras(carreras);
+        Map<Long, List<OrientacionCarrera>> mapOrientaciones = TypesUtil.convertListToMapList("carrera.id", orientaciones);
+        
+        for (Carrera carrera : carreras) {
+            List<OrientacionCarrera> orientacionesCarr = mapOrientaciones.get(carrera.getId());
+            orientacionesCarr = (orientacionesCarr == null) ? new ArrayList() : orientacionesCarr;
+            carrera.setOrientacionCarrera(orientacionesCarr);
+        }
+        return carreras;
     }
-
+    
     @Override
     @Transactional
     public void cambiarEstadoCarrera(Carrera carrera) {
@@ -58,12 +70,12 @@ public class CarreraServiceImp implements CarreraService {
         }
         carreraDAO.update(carrreraBD);
     }
-
+    
     @Override
     public List<ModalidadEstudio> allPrePostgrado(Compania cia) {
         return modalidadEstudioDAO.allPrePostgrado(cia);
     }
-
+    
     @Override
     @Transactional
     public void save(Carrera carrera, Usuario usuario) {
@@ -72,7 +84,7 @@ public class CarreraServiceImp implements CarreraService {
             carrera.setIdUserRegistro(usuario.getId());
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);
-
+            
         } else {
             Carrera carreraBD = carreraDAO.find(carrera.getId());
             if (!carreraBD.getEstado().equals(EstadoCarreraEnum.INA.name())) {
@@ -87,49 +99,49 @@ public class CarreraServiceImp implements CarreraService {
             if (carrera.getOrientacionCarrera() == null) {
                 return;
             }
-
+            
             for (OrientacionCarrera orientacion : carrera.getOrientacionCarrera()) {
                 OrientacionCarrera orientacionBD = orientacionCarreraDAO.find(orientacion.getId());
                 orientacionBD.setNombre(orientacion.getNombre());
                 orientacionCarreraDAO.update(orientacionBD);
             }
-
+            
         }
     }
-
+    
     private String findLastCodigo(Carrera carrera) {
         OrientacionCarrera orientacion = orientacionCarreraDAO.findLastByCarrera(carrera);
-
+        
         String correlativoTmp = "";
         Integer correlativo = null;
         if (orientacion != null) {
             String codigo = orientacion.getCodigo();
             Integer tamañoCodigo = orientacion.getCodigo().length();
             correlativoTmp = codigo.substring(tamañoCodigo - 1, tamañoCodigo);
-
+            
             correlativo = Integer.valueOf(correlativoTmp) + 1;
-
+            
         } else {
             correlativo = 1;
         }
-
+        
         return NumberFormat.codigo(correlativo, 2);
     }
-
+    
     @Override
     public List<Facultad> allFacultades() {
         return facultadDAO.allActivos();
     }
-
+    
     @Override
     public Carrera find(Long id) {
         Carrera carrera = carreraDAO.find(id);
         List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarrera(carrera);
         carrera.setOrientacionCarrera(orientaciones);
-
+        
         return carrera;
     }
-
+    
     @Override
     @Transactional
     public void saveOrientacion(Long idCarrera, Long idOrientacion, String nombreOrientacion, Usuario usuario) {
@@ -137,7 +149,7 @@ public class CarreraServiceImp implements CarreraService {
             if (idOrientacion == null) {
                 Carrera carrera = carreraDAO.find(idCarrera);
                 String correlativo = this.findLastCodigo(carrera);
-
+                
                 OrientacionCarrera oriCarrera = new OrientacionCarrera();
                 oriCarrera.setCarrera(carrera);
                 oriCarrera.setCodigo(carrera.getCodigo() + correlativo);
@@ -146,25 +158,25 @@ public class CarreraServiceImp implements CarreraService {
                 oriCarrera.setIdUserRegistro(usuario.getId());
                 oriCarrera.setFechaRegistro(new Date());
                 orientacionCarreraDAO.save(oriCarrera);
-
+                
             } else {
                 OrientacionCarrera orientacion = orientacionCarreraDAO.find(idOrientacion);
                 orientacion.setNombre(nombreOrientacion);
                 orientacionCarreraDAO.update(orientacion);
             }
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
     }
-
+    
     @Override
     @Transactional
     public void deleteOrientacion(Long idOrientacion) {
         orientacionCarreraDAO.delete(idOrientacion);
     }
-
+    
     @Override
     @Transactional
     public void cambioEstado(OrientacionCarrera orientacion) {
@@ -177,22 +189,22 @@ public class CarreraServiceImp implements CarreraService {
             orientacionBD.setEstado(EstadoEnum.ACT.name());
         }
         orientacionCarreraDAO.update(orientacionBD);
-
+        
     }
-
+    
     @Override
     public List<OrientacionCarrera> allByIdCarreraDynatable(DynatableFilter filter, Long idCarrera) {
         return orientacionCarreraDAO.allByIdCarreraDynatable(filter, idCarrera);
     }
-
+    
     @Override
     public OrientacionCarrera editarOrientacion(Long id) {
         return orientacionCarreraDAO.find(id);
     }
-
+    
     @Override
     public CarreraResumen resumen() {
         return carreraDAO.resumen();
     }
-
+    
 }

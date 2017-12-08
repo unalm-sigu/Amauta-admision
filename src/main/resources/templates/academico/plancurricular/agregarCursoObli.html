@@ -1,0 +1,126 @@
+<div class="wrapper scrollable">
+    <form id="frmAgregarCurso" >
+
+        <input id="txtPlanCurricular" name="planCurricular.id" type="hidden" th:value="${cursoCurricula.planCurricular.id}"/>
+        <input id="txtCursoCurricula" name="id" type="hidden" th:value="${cursoCurricula.id}"
+               th:if="${cursoCurricula.id}"/>
+
+        <input id="txtNumeroCiclo" type="hidden" name="numeroCiclo" />
+        <input id="txtTipoCurCur" type="hidden" th:value="${cursoCurricula.tipoCursoCurricula.id}" 
+               th:if="${cursoCurricula.id}"/>
+
+        <div class="row">
+            <div class="form-group col-md-4">
+                <input type="hidden" name="tipoCursoCurricula.id" th:value="${cursoCurricula.tipoCursoCurricula.id}"
+                       th:if="${cursoCurricula.id}" />
+                <label for="cboTipoCursoCurricula">Tipo</label>
+                <span class="form-control" th:if="${cursoCurricula.id}"
+                      th:inline="text">[[${cursoCurricula.tipoCursoCurricula.nombre}]]</span>
+
+                <select id="cboTipoCursoCurricula" class="form-control" name="tipoCursoCurricula.id" required=""
+                        th:unless="${cursoCurricula.id}">
+                    <option value=""></option> 
+                    <option  th:each="item : ${tiposCursoCurriculas}" 
+                             th:selected="${cursoCurricula.tipoCursoCurricula.id==item.id}"
+                             th:value="${item.id}" th:text="${item.codigo +' - '+ item.nombre}"></option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-8">
+                <label for="cboCurso">Curso</label>
+                <input id="cboCurso" class="form-control" name="curso.id" type="text" required="yes"
+                       th:unless="${cursoCurricula.id}"/>
+
+                <span class="form-control"
+                      th:if="${cursoCurricula.id}" th:inline="text">
+                    [[${cursoCurricula.curso.codigo}]] - [[${cursoCurricula.curso.nombre}]]
+                </span>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col-md-4">
+                <label for="txtCreditos">Créditos del curso</label>
+                <input id="txtCreditos" class="form-control" 
+                       name="creditos" 
+                       th:value="${cursoCurricula.creditos}"
+                       type="text" 
+                       required="yes"
+                       th:readonly="${cursoCurricula.id!=null}"
+                       data-parsley-type="digits"/>
+
+
+            </div>
+            <div class="form-group col-md-4">
+                <label for="txtCreditoReq">Créditos Aprobados Requeridos</label>
+                <input id="txtCreditoReq" 
+                       name="creditosRequisito" 
+                       th:value="${cursoCurricula.creditosRequisito}"
+                       type="text" 
+                       class="form-control"
+                       required="true" 
+                       data-parsley-type="digits"/>
+            </div>
+        </div>
+
+        <fieldset>
+            <legend>Cursos Requisitos</legend>
+            <div class="row">
+                <div class="form-group col-md-9">
+                    <label for="cboCursosReq">Buscar aquí los cursos requisitos</label>
+                    <input id="cboCursosReq" class="form-control" type="text" />
+                </div>
+                
+                <div class="form-group col-md-3">
+                    <label class="text-white"> . &nbsp;&nbsp;&nbsp; </label>
+                    <a class="btn btn-default btn-sm input-s-full" id="btnAddRequisitoCursoObli">Agregar requisito</a>
+                </div>
+            </div>
+
+            <table id="tableRequisitosObli" 
+                   th:class="|table table-striped ${cursoCurricula.cursosCurricula.isEmpty()? 'hide':''}|">
+                <thead> 
+                    <tr class=""> 
+                        <th class="col-md-2 text-center v-middle">Código </th>
+                        <th class="col-md-7 v-middle">Nombre</th>
+                        <th class="col-md-1 text-center v-middle">Simultáneo</th>
+                        <th class="col-md-2 text-center v-middle">Ciclo Origen</th>
+                        <th class=""></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBodyRequisitosObli">
+                    <tr th:if="${cursoCurricula.id}" 
+                        th:each="item, iter  : ${cursoCurricula.cursosCurricula}">
+                        <td class="v-middle text-center">
+                            <input th:name="|cursosCurricula[${iter.index}].cursoRequisito.id|" th:value="${item.cursoRequisito.id}" type="hidden"/>
+                            <span th:name="|codigoObli_${iter.index}|" th:text="${item.cursoRequisito.curso.codigo}">AG2030</span>
+                            <small class="block bold text-primary"
+                                   th:if="${item.cursoRequisito.curso.codigoAnterior1}"
+                                   th:text="${item.cursoRequisito.curso.codigoAnterior1}">FT505</small>
+                        </td>
+                        <td class="v-middle" th:text="${item.cursoRequisito.curso.nombre}">Quimica</td>
+                        <td class="v-middle text-center">
+                            <label class="switch">
+                                <input  type="checkbox" 
+                                        th:name="|cursosCurricula[${iter.index}].simultaneo|"
+                                        value="1"
+                                        th:attr="checked=${item.simultaneo==1}"/>
+                                <span></span>
+                            </label>
+                        </td>
+                        <td class="v-middle text-center font-roman" th:text="${format.roman(item.cursoRequisito.numeroCiclo)}">IV</td>
+                        <td class="v-middle text-center">
+                            <a rel="{{:index}}" class="btn-delete-requisito-obli pointer"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </fieldset>
+
+    </form>
+</div>
+
+<script id="templateRequisitoCursoObligatorio" 
+type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/agregarCursoObliTemplate"/></script>

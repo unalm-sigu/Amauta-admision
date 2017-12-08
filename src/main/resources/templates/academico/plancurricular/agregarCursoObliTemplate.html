@@ -1,0 +1,26 @@
+<tr>
+    <td class="v-middle text-center">
+        <input name="cursosCurricula[{{:index}}].cursoRequisito.id" value="{{:id}}" type="hidden"/>
+        <span name="codigoObli_{{:index}}">{{:codigo}}</span>
+        {{if codigo2}}
+            <small class="block bold text-primary">{{:codigo2}}</small>
+        {{/if}}
+    </td>
+    <td class="v-middle">
+        <span>{{:curso}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <label class="switch">
+            <input type="checkbox" 
+                   name="cursosCurricula[{{:index}}].simultaneo"
+                   value="1"/>
+            <span></span>
+        </label>
+    </td>
+    <td class="v-middle text-center">
+        <span>{{:numeroRomano}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <a rel="{{:index}}" class="cbo-delete-requisito-obli pointer"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+    </td>
+</tr>

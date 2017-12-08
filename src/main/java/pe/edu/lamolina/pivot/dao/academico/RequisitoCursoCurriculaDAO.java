@@ -9,4 +9,10 @@ public interface RequisitoCursoCurriculaDAO extends Crud<RequisitoCursoCurricula
 
     List<RequisitoCursoCurricula> allByCursoCurricula(CursoCurricula cursoCurricula);
 
+    List<RequisitoCursoCurricula> allByRequisito(CursoCurricula cursoCurricula);
+
+    List<RequisitoCursoCurricula> allByCursosCurricula(List<CursoCurricula> cursosCurricula);
+
+    List<RequisitoCursoCurricula> allPostRequisitosByCursosCurricula(List<CursoCurricula> cursosCurricula);
+
 }

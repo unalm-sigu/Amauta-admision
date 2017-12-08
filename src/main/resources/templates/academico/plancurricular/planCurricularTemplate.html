@@ -1,0 +1,71 @@
+<tr rel="{{:index}}">
+    <td  class="v-middle"> 
+        <h4 class="m-b-xs m-t-xs"><span class="block text-primary bold">{{:carrera}}</span></h4>
+        {{if orientacion}}
+            <h5 class="m-b-xs m-t-xs"><span class="block text-primary">Orientación {{:orientacion}}</span></h5>
+        {{/if}}
+        
+        {{if codigoModalidad == "EPG"}}
+            <span class="block"><b>Tipo</b> {{:tipoCarrera}}</span>
+        {{else}}
+            <span class="block"><b>Facultad</b> {{:facultad}}</span>
+        {{/if}}
+        <span class="block">{{:modalidad}}</span>
+    </td>
+    <td  class="v-middle text-center"> 
+        <span class="block">{{:fechaAprobacion}}</span>
+    </td>
+    <td  class="v-middle text-center"> 
+        <span class="badge">{{:ciclos}}</span>
+    </td>
+    <td  class="v-middle text-center"> 
+        <span class="block">{{:cicloInicioVigencia}}</span>
+    </td>
+    <td  class="v-middle"> 
+        <span class="block m-b-sm">
+            {{if cantObl>0}}
+                <span class="estado-green">{{:cantObl}}</span> 
+            {{else}}
+                <span class="estado-red">{{:cantObl}}</span> 
+            {{/if}}
+            Cursos definidos
+        </span>
+        <span class="block m-b-sm">
+            {{if cantOpc>0}}
+                <span class="estado-green">{{:cantOpc}}</span> 
+            {{else}}
+                <span class="estado-gray">{{:cantOpc}}</span> 
+            {{/if}}
+            <!--<span class="badge">{{:cantOpc}}</span>--> 
+            Cursos opcionales 
+        </span>
+        <span class="block">
+            {{if cantAdc>0}}
+                <span class="estado-green">{{:cantAdc}}</span> 
+            {{else}}
+                <span class="estado-gray">{{:cantAdc}}</span> 
+            {{/if}}
+            <!--<span class="badge">{{:cantAdc}}</span>--> 
+            Cursos adicionales 
+        </span>
+    </td>
+    <td  class="v-middle text-center"> 
+        <span class="label label-{{:colorEstado}}">{{:estadoEnum}}</span>
+    </td>
+    <td  class="v-middle"> 
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                <li role="presentation">
+                    <a class="editar-plan-curricular" href="#">Editar</a>
+                </li>
+                <li role="presentation">
+                    <a class="desactivar-plan" href="#">Desactivar</a>
+                </li>
+                <li role="presentation">
+                    <a class="clonar-plan" href="#">Clonar</a>
+                </li>
+            </ul>
+        </div>
+    </td>
+</tr>

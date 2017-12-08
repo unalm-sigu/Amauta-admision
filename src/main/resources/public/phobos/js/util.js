@@ -178,6 +178,9 @@ MODAL = {
     },
     buttons: function (html) {
         MODAL.modalDefault();
+        if (html == null) {
+            return MODAL.modalActivo.find("#" + MODAL.idDivButtons);
+        }
         MODAL.modalActivo.find("#" + MODAL.idDivButtons).html(html);
     },
     body: function (html) {
@@ -268,6 +271,13 @@ MODAL = {
         }, 1000);
     }
 };
+
+function pause(milliseconds) {
+    var dt = new Date();
+    while ((new Date()) - dt <= milliseconds) {
+        /* Do nothing */
+    }
+}
 
 APP = {
     cleanForm: function (f) {

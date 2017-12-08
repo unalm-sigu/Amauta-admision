@@ -62,13 +62,13 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
     }
 
     @Override
-    public List<CicloAcademico> allRecientes(Integer year, Integer maxResultado) {
+    public List<CicloAcademico> allUltimos(Integer cantidadCiclos) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
-                .filter("year", ">=", year)
-                .in("estado", Arrays.asList(ACT.name(), CER.name()))
+                .in("estado", Arrays.asList(ACT, CER))
+                .filter("tipo", "REG")
                 .orderBy("year desc", "numeroCiclo desc")
-                .limit(maxResultado);
+                .limit(cantidadCiclos);
 
         return sql.all(getCurrentSession());
     }

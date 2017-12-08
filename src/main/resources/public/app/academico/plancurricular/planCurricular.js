@@ -2,7 +2,7 @@ $(function () {
 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
-            ajaxUrl: APP.url('academico/planCurricular/plan/list'),
+            ajaxUrl: APP.url('academico/planCurricular/list'),
             perPageDefault: 10
         },
         writers: {
@@ -25,15 +25,15 @@ $(function () {
         init: function () {
         }, verNuevoPlanCurricular: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/planCurricular/plan/nuevo");
+            location.href = APP.url("academico/planCurricular/nuevo");
         }, editarPlanCurricular: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
-            location.href = APP.url("academico/planCurricular/plan/" + rec.id + "/editarPlanCurricular");
+            location.href = APP.url("academico/planCurricular/" + rec.id + "/editarPlanCurricular");
         }
-    }
+    };
 
     PlanCurricular.init();
 

@@ -1,0 +1,111 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Plan curricular</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="header b-b b-light padder-lg">
+
+            <div class="pull-right m-t-lg">
+                <a  href="#" class="btn btn-default btn-sm cancelar">Regresar</a>
+            </div>
+
+            <h2 th:if="${planCurricular.id}" th:inline="text" class="m-b-n">
+                Plan de Estudios de [[${planCurricular.carrera.nombre}]]
+            </h2>
+            <div th:if="${planCurricular.id}">
+                <span class="block" 
+                      th:if="${planCurricular.carrera.modalidadEstudio.codigo=='EPG'}" th:inline="text">
+                    [[${planCurricular.carrera.tipo}]]
+                </span>
+                <span class="block" 
+                      th:if="${planCurricular.carrera.modalidadEstudio.codigo=='PRE'}" th:inline="text">
+                    Facultad [[${planCurricular.carrera.facultad.nombre}]] - [[${planCurricular.carrera.modalidadEstudio.nombre}]]
+                </span>
+            </div>
+            <span th:if="${planCurricular.id}" th:inline="text" class="block bold m-b-lg">
+                Vigente desde [[${planCurricular.cicloInicioVigencia.descripcion}]]
+            </span>
+
+            <h2 th:unless="${planCurricular.id}">Nuevo Plan de Estudios</h2>
+
+            <div id="exTab2" class="tabbable-line">	
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a  href="#1" data-toggle="tab">Inicio</a>
+                    </li>
+                    <li th:if="${planCurricular.id}">
+                        <a href="#2" data-toggle="tab">Cursos</a>
+                    </li>
+                    <li th:if="${planCurricular.id}">
+                        <a href="#3" data-toggle="tab">Electivos</a>
+                    </li>
+                    <li th:if="${planCurricular.id}">
+                        <a href="#4" data-toggle="tab">Adicionales</a>
+                    </li>
+                    <li th:if="${planCurricular.id}" >
+                        <a href="#5" data-toggle="tab" >Resumen</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <div class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="1">
+                            <div th:substituteby="academico/plancurricular/includes/inicio"/>
+                        </div>
+                        <div class="tab-pane" id="2" th:if="${planCurricular.id}">
+                            <div th:substituteby="academico/plancurricular/includes/obligatorios"/>
+                        </div>
+                        <div class="tab-pane" id="3" th:if="${planCurricular.id}">
+                            <div th:substituteby="academico/plancurricular/includes/electivos"/>
+                        </div>
+                        <div class="tab-pane" id="4" th:if="${planCurricular.id}">
+                            <div th:substituteby="academico/plancurricular/includes/adicionales"/>
+                        </div>
+                        <div class="tab-pane" id="5" th:if="${planCurricular.id}">
+                            <div th:substituteby="academico/plancurricular/includes/resumen"/>
+                        </div>
+                    </div>
+
+                </section>
+
+                <section class="panel-footer text-center"
+                         th:unless="${planCurricular.id}">
+                    <a  href="#" id="cmbSavePlanCurricular" class="btn btn-primary btn-sm">Crear Plan de Estudios</a>
+                </section>
+            </section>
+        </div>
+
+        <div th:substituteby="templates/modal"/>
+        <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+            <span class="block bold h5 m-b-xs m-t-xs">{{:curso}}</span>
+            <small class="block">
+                {{:codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{:tpc}} &nbsp; 
+                {{if numeroCiclo}}
+                / &nbsp; Nº Ciclo {{:numeroRomano}} &nbsp; 
+                {{/if}}
+                / &nbsp; Dpto. Académico {{:departamento}}
+            </small>
+            {{if especialidad}}
+                <small class="block"><strong>Especialidad</strong> {{:tipoEspecialidad}} {{:especialidad}}</small>
+            {{/if}}
+            {{if tipoCursoCurricula}}
+                <small class="block bold text-danger">Tipo {{:tipoCursoCurricula}}</small>
+            {{/if}}
+        </div>
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/plancurricular/planCurricularForm.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

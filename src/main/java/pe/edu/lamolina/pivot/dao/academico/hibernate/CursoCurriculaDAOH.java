@@ -1,7 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +24,11 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
     }
 
     @Override
-    public CursoCurricula find(Long id) {
+    public CursoCurricula find(long id) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
-                .join("tipoCursoCurricula tcc", "curso cur", "planCurricular pc", "cur.departamentoAcademico da", "da.facultad fac")
+                .join("tipoCursoCurricula tcc", "curso cur", "planCurricular pc")
+                .leftJoin("cur.departamentoAcademico da", "da.facultad fac")
                 .filter("cc.id", id);
         return (CursoCurricula) sql.find(getCurrentSession());
     }
@@ -44,17 +43,16 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
     }
 
     @Override
-    public Map countByPlanesCurricular(List<PlanCurricular> planesCurricular) {
-        List<Long> ids = new ArrayList<>();
-        for (PlanCurricular planCurricular : planesCurricular) {
-            ids.add(planCurricular.getId());
-        }
-        StringBuilder sql = new StringBuilder();
-        sql.append("Select pc.id, count(cc) from CursoCurricula cc inner join cc.planCurricular pc where pc.id in (:prm_planes) group by pc.id");
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setParameterList("prm_planes", ids);
-        List<Object[]> resultado = query.list();
-        Map result = new HashMap();
+    public Map<Long, Integer> countByPlanesCurricular(List<PlanCurricular> curriculas) {
+        Octavia sql = Octavia.query()
+                .select("pc.id", "count(cc)")
+                .from(CursoCurricula.class, "cc")
+                .join("planCurricular pc")
+                .in("pc.id", curriculas)
+                .groupBy("pc.id");
+
+        List<Object[]> resultado = sql.all(getCurrentSession());
+        Map<Long, Integer> result = new HashMap();
         for (Object[] objects : resultado) {
             result.put(TypesUtil.getLong(objects[0]), TypesUtil.getInt(objects[1]));
         }
@@ -62,11 +60,11 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
     }
 
     @Override
-    public List<CursoCurricula> allByPlan(PlanCurricular planCurricular) {
+    public List<CursoCurricula> allByPlanCurricular(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
-                .join("tipoCursoCurricula tcc", "planCurricular pc")
-                .filter("pc.id", planCurricular.getId());
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .filter("pc.id", planCurricular);
         return sql.all(getCurrentSession());
     }
 
@@ -80,32 +78,26 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
         if (filter.getQueries().get("numCic") != null) {
             sql.filter("cc.numeroCiclo", filter.getQueries().get("numCic"));
         }
-        sql.orderBy("cur.nombre desc");
+        sql.orderBy("tcc.orden", "cur.nombre");
         return sql.all(getCurrentSession());
     }
 
     @Override
-    public List<CursoCurricula> allByNombreFilter(Long planCurriculaId, Integer numeroCiclo, String nombre, Integer limit) {
+    public List<CursoCurricula> allByNombrePlanNroCiclo(CursoCurricula cursoCurricula, Integer limit) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
                 .join("tipoCursoCurricula tcc", "curso cur", "planCurricular pc", "cur.departamentoAcademico da", "da.facultad fac")
-                .like("cur.nombre", nombre)
-                .filter("pc.id", planCurriculaId)
-                .filter("cc.numeroCiclo", "<", numeroCiclo)
+                .leftJoin("cur.carrera ca")
+                .beginBlock()
+                .__().like("cur.nombre", cursoCurricula.getCurso().getNombre())
+                .__().like("cur.codigo", cursoCurricula.getCurso().getNombre())
+                .endBlock()
+                .filter("pc.id", cursoCurricula.getPlanCurricular())
+                .filter("cc.numeroCiclo", "<", cursoCurricula.getNumeroCiclo())
+                .filter("cc.numeroCiclo", ">", 0)
                 .orderBy("cur.nombre")
                 .limit(limit);
         return sql.all(getCurrentSession());
-    }
-
-    @Override
-    public void updateCreditoRequisito(CursoCurricula cursoCurricula) {
-        StringBuilder sql = new StringBuilder();
-        sql.append(" update CursoCurricula set creditosRequisito=:prm_creditos_req where id=:prm_id ");
-        Query query = getCurrentSession().createQuery(sql.toString());
-
-        query.setParameter("prm_creditos_req", cursoCurricula.getCreditosRequisito());
-        query.setParameter("prm_id", cursoCurricula.getId());
-        query.executeUpdate();
     }
 
 }

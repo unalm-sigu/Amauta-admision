@@ -1,0 +1,30 @@
+<tr>
+    <td class="v-middle text-center">
+        <input name="cursosOpcionales[{{:index}}].cursoRequisitoCurricula.id" value="{{:idCursoCurricula}}" type="hidden"/>
+        <input name="cursosOpcionales[{{:index}}].cursoRequisitoOpcional.id" value="{{:idCursoOpcional}}" type="hidden"/>
+        <span name="codigoElec_{{:index}}">{{:codigo}}</span>
+        {{if codigo2}}
+            <small class="block bold text-primary">{{:codigo2}}</small>
+        {{/if}}
+    </td>
+    <td class="v-middle">
+        <span>{{:curso}}</span>
+        {{if numeroRomano}}
+            <small class="block bold text-primary">Nª Ciclo {{:numeroRomano}}</small>
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">
+        <label class="switch">
+            <input type="checkbox" 
+                   name="cursosOpcionales[{{:index}}].simultaneo"
+                   value="1"/>
+            <span></span>
+        </label>
+    </td>
+    <td class="v-middle text-center">
+        <span>{{:tipoCursoCurricula}}</span>
+    </td>
+    <td class="v-middle text-center">
+        <a rel="{{:index}}" class="btn-delete-requisito-elec pointer"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+    </td>
+</tr>

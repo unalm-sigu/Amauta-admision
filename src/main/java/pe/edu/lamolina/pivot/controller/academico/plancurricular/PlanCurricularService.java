@@ -8,31 +8,44 @@ import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
 import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
+import pe.edu.lamolina.pivot.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.pivot.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PlanCurricularService {
 
-    List<Carrera> allCarrerasByFilter(Facultad facultad, EstadoEnum estadoEnum);
+    List<Carrera> allCarreras(List<Carrera> carreras);
 
-    List<OrientacionCarrera> allOrientacionCarreraByFilter(Carrera carrera, EstadoEnum estadoEnum);
+    List<OrientacionCarrera> allOrientacionByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum);
 
     PlanCurricular savePlanCurricular(PlanCurricular planCurricular);
 
-    void agregarCursoCurricula(CursoCurricula cursoCurricula);
+    void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds);
+
+    void deleteCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds);
+
+    void trasladarCiclo(CursoCurricula cursoCurricula, DataSessionPivot ds);
+
+    void trasladarToElectivos(CursoCurricula cursoCurricula, DataSessionPivot ds);
+
+    void trasladarToObligatorios(CursoCurricula cursoCurricula, DataSessionPivot ds);
 
     PlanCurricular findPlanCurricularById(PlanCurricular planCurricular);
 
-    List<CicloAcademico> allRecientesCiclosAcad(Integer year, Integer limit);
+    List<CicloAcademico> allUltimosCiclos(Integer cantidadCiclos);
 
     List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 
     List<TipoCursoCurricula> allTiposCursoCurricula();
+
+    List<TipoCursoCurricula> allTiposCursoCurriculasElectivos();
+
+    List<TipoCursoCurricula> allTiposCursoCurriculasObligatorios();
 
     List<CursoCurricula> allCursosCurriculaByFilter(TipoCursoCurricula tipoCursoCurricula);
 
@@ -42,23 +55,29 @@ public interface PlanCurricularService {
 
     List<CursoCurricula> allCursosOblByDynatable(DynatableFilter filter);
 
-    List<CursoCurricula> allCursoCurriculaByNombre(Long planCurriculaId, Integer numeroCiclo, String nombre);
+    List<CursoCurricula> allCursoCurriculaByNombre(CursoCurricula cursoCurricula);
+
+    List<RequisitoCursoOpcional> allCursosObligatoriosAndElectivosByNombre(CursoCurricula cursoCurricula);
 
     CursoCurricula findCursoCurricula(Long cursoCurricula);
 
-    void updateCursoCurricula(CursoCurricula cursoCurricula);
+    CursoOpcionalCurricula findCursoElectivo(Long cursoElectivoId);
 
-    void agregarCursoAdcCurricula(CursoAdicionalCurricula cursoAdicionalCurricula);
+    void updateCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds);
+
+    void saveCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
 
     List<CursoAdicionalCurricula> allCursosAdcByDynatable(DynatableFilter filter);
 
     void deleteCursoAdicional(Long cursoAdicionalId);
 
-    void agregarCursoOpcCurricula(CursoOpcionalCurricula cursoOpcionalCurricula);
+    void saveCursoOpcional(CursoOpcionalCurricula cursoOpcionalCurricula, DataSessionPivot ds);
+
+    void updateCursoOpcional(CursoOpcionalCurricula cursoOpcional, DataSessionPivot ds);
 
     List<CursoOpcionalCurricula> allCursosElecByDynatable(DynatableFilter filter);
 
-    void deleteCursoOpcional(Long cursoOpcionalId);
+    void deleteCursoOpcional(CursoOpcionalCurricula cursoElectivo);
 
     List<Curso> allCursosByCodigo(String codigo);
 

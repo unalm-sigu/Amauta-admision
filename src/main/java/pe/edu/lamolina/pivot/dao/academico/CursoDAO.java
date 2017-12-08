@@ -6,7 +6,6 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 
 public interface CursoDAO extends EasyDAO<Curso> {
 
@@ -22,9 +21,10 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos);
 
-    List<Curso> allByNombreFilter(String nombre, List<String> tiposCurriculaEnum, Integer limit);
+    List<Curso> allByNombreTipoCurricula(String nombre, List<String> tiposCurriculaEnum, Integer limit);
 
     List<Curso> allByCodigo(String codigo);
+
     Curso findLastCodigoByCurCodigo(String codigo);
 
 }

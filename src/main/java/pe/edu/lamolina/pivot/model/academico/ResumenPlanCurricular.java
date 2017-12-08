@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -24,6 +23,9 @@ public class ResumenPlanCurricular implements Serializable {
 
     @Column(name = "creditos")
     private Integer creditos;
+
+    @Column(name = "cursos")
+    private Integer cursos;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,6 +74,14 @@ public class ResumenPlanCurricular implements Serializable {
 
     public void setCreditos(Integer creditos) {
         this.creditos = creditos;
+    }
+
+    public Integer getCursos() {
+        return cursos;
+    }
+
+    public void setCursos(Integer cursos) {
+        this.cursos = cursos;
     }
 
 }

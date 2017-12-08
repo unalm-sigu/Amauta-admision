@@ -17,6 +17,7 @@ import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import static pe.edu.lamolina.pivot.zelper.enums.EstadoEnum.ACT;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -128,22 +129,29 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Curso.class, "cu")
                 .join("departamentoAcademico da", "da.facultad fa")
-                .leftJoin("planCalificacion pc")
+                .leftJoin("planCalificacion pc", "carrera ca", "coordinador co", "co.persona per")
                 .in("da.id", departamentos)
-                .searchFields("cu.nombre", "cu.codigo", "fa.nombre")
+                .searchFields("cu.nombre", "cu.codigo", "cu.codigoAnterior1", "fa.nombre", "da.nombre", "cu.estado", "ca.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cu.id desc");
 
         return all(sql);
     }
 
     @Override
-    public List<Curso> allByNombreFilter(String nombre, List<String> tiposCurriculaEnum, Integer limit) {
+    public List<Curso> allByNombreTipoCurricula(String nombre, List<String> tiposCurriculaEnum, Integer limit) {
         Octavia sql = Octavia.query()
-                .from(Curso.class, "cur");
+                .from(Curso.class, "cur")
+                .left("departamentoAcademico da", "da.facultad", "carrera ca");
         if (StringUtils.isNotBlank(nombre)) {
-            sql.like("cur.nombre", nombre);
+            sql.beginBlock()
+                    .__().like("cur.nombre", nombre)
+                    .__().like("cur.codigo", nombre)
+                    .endBlock();
         }
         sql.in("cur.tipoCurricula", tiposCurriculaEnum)
+                .filter("estado", ACT)
                 .orderBy("cur.nombre")
                 .limit(limit);
         return sql.all(getCurrentSession());

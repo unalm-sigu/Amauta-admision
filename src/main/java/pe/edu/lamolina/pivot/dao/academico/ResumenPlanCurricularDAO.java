@@ -10,7 +10,7 @@ import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 
 public interface ResumenPlanCurricularDAO extends Crud<ResumenPlanCurricular> {
 
-    ResumenPlanCurricular findByTipoCurCurPlan(TipoCursoCurricula tipoCursoCurricula, PlanCurricular planCurricular);
+    ResumenPlanCurricular findByTipoCursoCurrPlan(TipoCursoCurricula tipoCursoCurricula, PlanCurricular planCurricular);
 
     List<ResumenPlanCurricular> allByDynatable(DynatableFilter filter);
 

@@ -8,8 +8,6 @@ import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 
 public interface PlanCurricularDAO extends Crud<PlanCurricular> {
 
-    PlanCurricular find(Long id);
-
     List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 
     void updatePlanCurricular(PlanCurricular planCurricular);

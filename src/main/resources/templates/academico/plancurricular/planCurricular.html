@@ -1,0 +1,45 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Lista de planes curriculares</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="header b-b padder-lg">
+            <div class="pull-right m-t-md" >
+                <a class="btn btn-primary btn-sm nuevo-plan-curricular" href="#" >Nuevo Plan de Estudios</a>
+            </div>
+            <h2>Planes de Estudios</h2>
+        </header>
+        
+        <section class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+                    <table class="table table-striped" id="dynaTable">
+                        <thead> 
+                            <tr class=""> 
+                                <th class="col-md-5 v-middle">Especialidad </th>
+                                <th class="col-md-1 v-middle text-center">Fecha aprobación</th>
+                                <th class="col-md-1 v-middle text-center">Ciclos</th>
+                                <th class="col-md-1 v-middle text-center">Ciclo inicio vigencia</th>
+                                <th class="col-md-3 v-middle text-center">Resumen</th>
+                                <th class="col-md-1 v-middle text-center">Estado</th>
+                                <th class="1"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
+            </section>
+        </section>
+
+        <script id="templatePlanCurricular" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/planCurricularTemplate"/></script>
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/plancurricular/planCurricular.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

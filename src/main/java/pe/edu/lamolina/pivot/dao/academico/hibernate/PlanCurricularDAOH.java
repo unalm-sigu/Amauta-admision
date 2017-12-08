@@ -20,11 +20,11 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
     }
 
     @Override
-    public PlanCurricular find(Long id) {
+    public PlanCurricular find(long id) {
         Octavia sql = Octavia.query()
                 .from(PlanCurricular.class, "pc")
-                .join("carrera car", "cicloInicioVigencia cic")
-                .left("orientacionCarrera ocar")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
                 .filter("pc.id", id);
         return (PlanCurricular) sql.find(getCurrentSession());
     }
@@ -33,8 +33,8 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
     public List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(PlanCurricular.class, "pc")
-                .join("carrera car", "cicloInicioVigencia cic")
-                .left("orientacionCarrera ocar")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
                 .in("car.id", carreras)
                 .searchFields("car.nombre")
                 .orderBy("pc.id desc");
@@ -44,11 +44,21 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
     @Override
     public void updatePlanCurricular(PlanCurricular planCurricular) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" update PlanCurricular set fechaAprobado=:prm_fecha_aprob where id=:prm_id ");
+        sql.append(" update ").append(PlanCurricular.class.getSimpleName()).append(" as pc ");
+        sql.append("    set fechaAprobado = :FECHA_APROBADO,  ");
+        sql.append("        orientacionCarrera.id = :ORIENTACION  ");
+        sql.append("  where id = :PLAN_CURRICULAR ");
         Query query = getCurrentSession().createQuery(sql.toString());
 
-        query.setParameter("prm_fecha_aprob", planCurricular.getFechaAprobado());
-        query.setParameter("prm_id", planCurricular.getId());
+        query.setParameter("FECHA_APROBADO", planCurricular.getFechaAprobado());
+        query.setParameter("PLAN_CURRICULAR", planCurricular.getId());
+
+        if (planCurricular.getOrientacionCarrera() == null) {
+            query.setParameter("ORIENTACION", null);
+        } else {
+            query.setParameter("ORIENTACION", planCurricular.getOrientacionCarrera().getId());
+        }
+
         query.executeUpdate();
     }
 

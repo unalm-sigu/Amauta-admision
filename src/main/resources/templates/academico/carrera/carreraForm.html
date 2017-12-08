@@ -7,8 +7,10 @@
 <body>
     <div layout:fragment="main">
 
-         <header class="header b-b padder-lg">
-            <h2 th:text="${carrera.id != null ? 'Editar Carrera' : 'Nueva Carrera'}">Nuevo Rol</h2>
+        <header class="header b-b padder-lg">
+            <h2 th:unless="${carrera.id}">Nueva Especialidad/Carrera</h2>
+            <h2 th:if="${carrera.id}" th:inline="text" class="m-b-n">[[${carrera.nombre}]] ([[${carrera.codigo}]])</h2>
+            <span th:if="${carrera.id}" th:inline="text" class="block m-b-lg">[[${carrera.modalidadEstudio.nombre}]]</span>
         </header>
 
         <div class="col-lg-12">
@@ -20,7 +22,7 @@
                             <a class="nav-link active bold" data-toggle="tab" href="#carrera" role="tab">Carrera</a>
                         </li>
                         <li class="nav-item"  th:if="${carrera.id != NULL AND carrera.modalidadEstudio.codigo == 'PRE'}">
-                            <a class="nav-link bold" data-toggle="tab" href="#orientacion" role="tab">Orientación</a>
+                            <a class="nav-link bold" data-toggle="tab" href="#orientacion" role="tab">Orientaciones</a>
                         </li>
                     </ul>
 
@@ -60,7 +62,7 @@
                                     <div class="form-group">
                                         <label>Modalidad</label>
                                         <select class="form-control modalidadEstudio" name="modalidadEstudio.id" placeholder="Seleccione la modalidad" 
-                                                th:if="${carrera.id == null or carrera.estado == 'CRE'}">
+                                                >
                                             <option></option>
                                             <option th:each="item : ${modalidades}"
                                                     th:value="${item.id}"
@@ -69,25 +71,25 @@
                                                     th:selected="${carrera.modalidadEstudio} ? ${item.id == carrera.modalidadEstudio.id}">
                                             </option>
                                         </select>
-                                        <input  name="modalidadEstudio.id" class="form-control modalidadEstudio" th:value="${carrera != null ? carrera.modalidadEstudio.nombre : ''}" 
+                                        <!--input  name="modalidadEstudio.id" class="form-control modalidadEstudio" th:value="${carrera != null ? carrera.modalidadEstudio.nombre : ''}" 
                                                 th:rel="${carrera != null ? carrera.modalidadEstudio.codigo : ''}" 
-                                                disabled='true' th:if="${carrera.id != null and carrera.estado != 'CRE'}"/>
+                                                disabled='true' th:if="${carrera.id != null and carrera.estado != 'CRE'}"/-->
                                     </div>
                                     <div class="form-group divTipoCarrera">
                                         <label>Tipo</label>
                                         <input type='text' name="tipo" class='form-control tipo' 
                                                th:value="${carrera.tipo != null ? T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).name():''}"
                                                th:rel=" ${carrera.tipo != null ? T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}"  required="true" 
-                                               data-trigger="change"  th:if="${carrera.id == null or carrera.estado == 'CRE'}"/>
-                                        <input type='text' name="tipo" class='form-control tipo' 
+                                               data-trigger="change"/>
+                                        <!--input type='text' name="tipo" class='form-control tipo' 
                                                th:value="${T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).value}" 
                                                th:rel=" ${T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).name()}" disabled="disabled"
-                                               th:if="${carrera.id != null and carrera.estado != 'CRE'}"/>
+                                               th:if="${carrera.id != null and carrera.estado != 'CRE'}"/-->
                                     </div>
                                 </form>
                                 <div class=" text-center">
                                     <a class="btn btn-link" th:href="@{'/academico/carrera'}">Regresar</a>
-                                    <a class="btn btn-success save-update-carrera"  th:text="${carrera.id != null ? 'Actualizar' : 'Crear Carrera'}">Crear Carrera</a>
+                                    <a class="btn btn-primary save-update-carrera"  th:text="${carrera.id != null ? 'Actualizar' : 'Crear Carrera'}">Crear Carrera</a>
                                 </div>
                             </div>
                         </div>
@@ -115,7 +117,7 @@
                                     </div>
                                 </section>
                                 <div class="text-center">
-                                    <a class="btn btn-info btn-sm add-orientacion"><i class="fa fa-plus" aria-hidden="true"><strong> Agregar Orientación</strong></i></a>
+                                    <a class="btn btn-primary btn-sm add-orientacion"><i class="fa fa-plus" aria-hidden="true"></i> <strong> Agregar Orientación</strong></a>
                                 </div>
 
                             </section>

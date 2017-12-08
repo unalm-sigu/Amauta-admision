@@ -1,13 +1,19 @@
 <tr rel="{{:index}}">
 
     <td class="v-middle">
-        <span class="block bold text-primary">{{:curso}}</span>
+        <span class="block text-primary h4 m-t-xs m-b-xs">{{:curso}}</span>
         <span class="block"><b>{{:codigo}}</b> &nbsp;&nbsp; <i class="fa fa-bookmark-o"></i> {{:tpc}}</span>
         <span class="block">{{:tipoCurso}}</span>
+        {{if codigo2}}
+            <small class="block bold">{{:codigo2}}</small>
+        {{/if}}
     </td>
-    <td class="v-middle text-center">
-        <span class="block text-info bold">{{:facultad}}</span>
-        <span class="block">{{:departamento}}</span>
+    <td class="v-middle">
+        <span class="block text-info bold">Facultad {{:facultad}}</span>
+        <span class="block"><b>Dpto. Acad.</b> {{:departamento}}</span>
+        {{if especialidad}}
+            <span class="block bold">{{:tipoEspecialidad}} {{:especialidad}}</span>
+        {{/if}}
     </td>
     <td class="v-middle">
         <span class="block">{{:coordinador}}</span>

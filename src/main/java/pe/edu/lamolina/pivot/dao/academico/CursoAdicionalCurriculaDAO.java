@@ -12,8 +12,8 @@ public interface CursoAdicionalCurriculaDAO extends Crud<CursoAdicionalCurricula
 
     List<CursoAdicionalCurricula> allByDynatable(DynatableFilter filter);
 
-    List<CursoAdicionalCurricula> allByPlan(PlanCurricular planCurricular);
+    List<CursoAdicionalCurricula> allByPlanCurricular(PlanCurricular curricula);
 
-    Map countByPlanesCurricular(List<PlanCurricular> planesCurricular);
+    Map<Long, Integer> countByPlanesCurricular(List<PlanCurricular> curriculas);
 
 }

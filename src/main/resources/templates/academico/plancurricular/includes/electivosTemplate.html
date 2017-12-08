@@ -1,0 +1,50 @@
+<tr rel="{{:index}}">
+    <td class="v-middle text-center" rel="{{:index}}">
+        <span name="codigoCurCur{{:index}}">{{:codigo}}</span>
+        {{if codigo2}}
+            <small class="block bold text-primary">{{:codigo2}}</small>
+        {{/if}}
+    </td>
+    <td class="v-middle text-left">
+        <span>{{:curso}}</span>
+    </td>
+    <td class="v-middle text-center">
+        {{if creditos==0}}
+            <span class="estado-red">{{:creditos}}</span>
+        {{else}}
+            <span class="estado-green">{{:creditos}}</span>
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">
+        {{if creditosRequisito > 0}}
+            <span class="estado-gray">{{:creditosRequisito}}</span>
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">
+        {{if cursosRequisito > 0}}
+            <a class="pointer ver-pre-requisitos-elec"><span class="estado-blue">{{:cursosRequisito}}</span></a>
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">
+        {{if esRequisitoDe > 0}}
+            <a class="pointer ver-post-requisitos-elec"><span class="estado-blue">{{:esRequisitoDe}}</span></a>
+        {{/if}}
+    </td>
+    <td class="v-middle text-center">{{:tipoCurso}}</td>
+    <td class="v-middle text-center">
+        <div class="dropdown actions">
+                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                <ul class="dropdown-menu pull-right" >
+                    <li role="presentation">
+                        <a class="editar-cur-elec" href="#">Editar</a>
+                    </li>
+                    <li role="presentation">
+                        <a class="delete-cur-elec" href="#">Eliminar</a>
+                    </li>
+                    <li role="presentation">
+                        <a class="trasladar-to-obligatorios" href="#">Trasladar a Obligatorios</a>
+                    </li>
+                </ul>
+            </div>
+    </td>
+</tr>

@@ -30,6 +30,9 @@ public class PlanCurricular implements Serializable {
     @Column(name = "estado")
     private String estado;
 
+    @Column(name = "ciclos")
+    private Integer ciclos;
+
     @Column(name = "fecha_aprobado")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaAprobado;
@@ -73,6 +76,19 @@ public class PlanCurricular implements Serializable {
     public void init() {
         this.setCicloInicioVigencia(new CicloAcademico());
         this.setCarrera(new Carrera());
+    }
+
+    public Integer getCursosByCiclo(int numeroCiclo) {
+        if (cursoCurricula == null) {
+            return 0;
+        }
+        int cant = 0;
+        for (CursoCurricula cursoPlan : cursoCurricula) {
+            if (cursoPlan.getNumeroCiclo() == numeroCiclo) {
+                cant++;
+            }
+        }
+        return cant;
     }
 
     public PlanCurricular(Object id) {
@@ -192,6 +208,14 @@ public class PlanCurricular implements Serializable {
 
     public void setCantidadCursosAdicionales(Integer cantidadCursosAdicionales) {
         this.cantidadCursosAdicionales = cantidadCursosAdicionales;
+    }
+
+    public Integer getCiclos() {
+        return ciclos;
+    }
+
+    public void setCiclos(Integer ciclos) {
+        this.ciclos = ciclos;
     }
 
 }

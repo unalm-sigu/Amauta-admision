@@ -2,18 +2,18 @@ package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dao.Crud;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
-public interface CarreraDAO extends Crud<Carrera> {
+public interface CarreraDAO extends EasyDAO<Carrera> {
 
     Carrera findByCodigo(String cod);
 
-    public List<Carrera> allByDynatable(DynatableFilter filter);
+    List<Carrera> allByDynatable(DynatableFilter filter);
 
     List<Carrera> allByCompania(Compania compania);
 
@@ -22,8 +22,11 @@ public interface CarreraDAO extends Crud<Carrera> {
     List<Carrera> allByNombre(String forLike);
 
     List<Carrera> allByFilter(Facultad facultad, EstadoEnum estadoEnum);
-    public List<Carrera> allByModalidadEstudioNombre(String idModEstudio, String forLike);
 
-    public CarreraResumen resumen();
+    List<Carrera> allByModalidadEstudioNombre(String idModEstudio, String forLike);
+
+    CarreraResumen resumen();
+
+    List<Carrera> allRegularesByCarreras(List<Carrera> carreras);
 
 }

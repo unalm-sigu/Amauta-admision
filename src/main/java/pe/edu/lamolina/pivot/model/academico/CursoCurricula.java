@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -12,8 +14,10 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.validation.constraints.NotNull;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "aca_curso_curricula")
@@ -37,6 +41,10 @@ public class CursoCurricula implements Serializable {
     @Column(name = "creditos_curricula_requisito")
     private Integer creditosCurriculaRequisito;
 
+    @Column(name = "fecha_registro")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plan_curricular")
     private PlanCurricular planCurricular;
@@ -49,11 +57,18 @@ public class CursoCurricula implements Serializable {
     @JoinColumn(name = "id_curso")
     private Curso curso;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
+
     @OneToMany(mappedBy = "cursoCurricula", fetch = FetchType.LAZY)
     private List<RequisitoCursoCurricula> cursosCurricula;
 
+    @OneToMany(mappedBy = "cursoRequisitoCurricula", fetch = FetchType.LAZY)
+    private List<RequisitoCursoOpcional> requisitosCursoOpcional;
+
     @OneToMany(mappedBy = "cursoRequisito", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<RequisitoCursoCurricula> requisitosCurricula;
+    private List<RequisitoCursoCurricula> requisitosCursoCurricula;
 
     public CursoCurricula() {
     }
@@ -134,12 +149,43 @@ public class CursoCurricula implements Serializable {
         this.cursosCurricula = cursosCurricula;
     }
 
-    public List<RequisitoCursoCurricula> getRequisitosCurricula() {
-        return requisitosCurricula;
+    public List<RequisitoCursoCurricula> getRequisitosCursoCurricula() {
+        return requisitosCursoCurricula;
     }
 
-    public void setRequisitosCurricula(List<RequisitoCursoCurricula> requisitosCurricula) {
-        this.requisitosCurricula = requisitosCurricula;
+    public void setRequisitosCursoCurricula(List<RequisitoCursoCurricula> requisitosCursoCurricula) {
+        this.requisitosCursoCurricula = requisitosCursoCurricula;
     }
 
+    public List<RequisitoCursoOpcional> getRequisitosCursoOpcional() {
+        return requisitosCursoOpcional;
+    }
+
+    public void setRequisitosCursoOpcional(List<RequisitoCursoOpcional> requisitosCursoOpcional) {
+        this.requisitosCursoOpcional = requisitosCursoOpcional;
+    }
+
+    public Date getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(Date fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public Usuario getUserRegistro() {
+        return userRegistro;
+    }
+
+    public void setUserRegistro(Usuario userRegistro) {
+        this.userRegistro = userRegistro;
+    }
+
+    public static class CompareNombre implements Comparator<CursoCurricula> {
+
+        @Override
+        public int compare(CursoCurricula c1, CursoCurricula c2) {
+            return c1.getCurso().getNombre().compareTo(c2.getCurso().getNombre());
+        }
+    }
 }

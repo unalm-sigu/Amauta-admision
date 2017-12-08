@@ -14,6 +14,11 @@ import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum;
+import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.ELC;
+import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.ELE;
+import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.ELF;
+import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.GEN;
+import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.OBL;
 
 @Entity
 @Table(name = "aca_tipo_curso_curricula")
@@ -29,6 +34,9 @@ public class TipoCursoCurricula implements Serializable {
 
     @Column(name = "codigo")
     private String codigo;
+
+    @Column(name = "orden")
+    private Integer orden;
 
     @OneToMany(mappedBy = "tipoCursoCurricula", fetch = FetchType.LAZY)
     private List<CursoCurricula> cursoCurricula;
@@ -66,8 +74,15 @@ public class TipoCursoCurricula implements Serializable {
         return codigo;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public TipoCursoCurriculaEnum getCodigoEnum() {
+        if (codigo == null) {
+            return null;
+        }
+        return TipoCursoCurriculaEnum.valueOf(codigo);
+    }
+
+    public void setCodigo(TipoCursoCurriculaEnum codigo) {
+        this.codigo = codigo.name();
     }
 
     public List<CursoCurricula> getCursoCurricula() {
@@ -94,6 +109,14 @@ public class TipoCursoCurricula implements Serializable {
         this.resumenPlanCurricular = resumenPlanCurricular;
     }
 
+    public Integer getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Integer orden) {
+        this.orden = orden;
+    }
+
     public boolean isTieneRequisitos() {
         if (TipoCursoCurriculaEnum.OBL.name().equals(this.getCodigo())
                 || TipoCursoCurriculaEnum.GEN.name().equals(this.getCodigo())) {
@@ -103,12 +126,7 @@ public class TipoCursoCurricula implements Serializable {
     }
 
     public boolean isTieneCreditoManual() {
-        /*
-        if (TipoCursoCurriculaEnum.ELC.name().equals(this.getCodigo())
-                || TipoCursoCurriculaEnum.ELF.name().equals(this.getCodigo())
-                || TipoCursoCurriculaEnum.ELE.name().equals(this.getCodigo())) {
-         */
-        if (Arrays.asList(TipoCursoCurriculaEnum.ELC.name(), TipoCursoCurriculaEnum.ELF.name(), TipoCursoCurriculaEnum.ELE.name()).contains(this.getCodigo())) {
+        if (Arrays.asList(ELC, ELF, ELE).contains(this.getCodigoEnum())) {
             return true;
         }
         return false;
@@ -116,15 +134,14 @@ public class TipoCursoCurricula implements Serializable {
 
     public List<TipoCurriculaEnum> getTiposCursoCurricula() {
         List<TipoCurriculaEnum> tiposCurricula = null;
-        if (Arrays.asList(TipoCursoCurriculaEnum.GEN.name(), TipoCursoCurriculaEnum.OBL.name()).contains(this.getCodigo())) {
-            tiposCurricula = new ArrayList<>();
+        if (Arrays.asList(GEN, OBL).contains(this.getCodigoEnum())) {
+            tiposCurricula = new ArrayList();
             tiposCurricula.add(TipoCurriculaEnum.ADIC);
             tiposCurricula.add(TipoCurriculaEnum.REG);
         }
-        if (Arrays.asList(TipoCursoCurriculaEnum.ELC.name(),
-                TipoCursoCurriculaEnum.ELE.name(),
-                TipoCursoCurriculaEnum.ELF.name()).contains(this.getCodigo())) {
-            tiposCurricula = new ArrayList<>();
+
+        if (Arrays.asList(ELC, ELF, ELE).contains(this.getCodigoEnum())) {
+            tiposCurricula = new ArrayList();
             tiposCurricula.add(TipoCurriculaEnum.COMD);
         }
         return tiposCurricula;

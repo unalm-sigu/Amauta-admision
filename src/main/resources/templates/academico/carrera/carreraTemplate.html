@@ -1,7 +1,7 @@
 <tr rel="{{:index}}">
 
     <td class="v-middle">
-        <span class="block text-primary bold h5"><strong></strong>{{:nombre}}</span>
+        <span class="block text-primary h4 m-b-xs m-t-xs"><strong></strong>{{:nombre}}</span>
         <span class="block"><strong>Facultad </strong>{{:facultad}}</span>
         <span class="block"><strong>Código </strong>{{:codigo}}</span>
     </td>
@@ -12,11 +12,11 @@
     <td class=" text-left">
         {{for oriCarreras}}
         <a target="_blank">
-            <span class="block"><i class="fa fa-check-square-o  fa-lg text-dark pointer" aria-hidden="true"></i>&nbsp;&nbsp;{{:nombre}} </span>
+            <span class="block m-b-xs m-t-xs"><i class="fa fa-check-square-o  fa-lg text-dark pointer" aria-hidden="true"></i>&nbsp;&nbsp;{{:nombre}} </span>
         </a>
         {{/for}}
     </td>
-    <td class=" v-middle">
+    <td class=" v-middle text-center">
         <span class="clear">
             {{if !esInactivo}}
             <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>

@@ -1,0 +1,188 @@
+<section class="panel-body">
+    <div class="pull-right" >
+        <a class="btn btn-primary btn-sm agregar-curso-obl" id="btnAddCursoObl" href="#" >Agregar Curso</a>
+    </div>
+    <h3 id="tituloObligatorios">Cursos del ciclo <span id="spnCicloObl" class="font-roman">I</span></h3>
+</section>
+
+<div class="tabbable-line" id="subBar">
+    <ul class="nav nav-tabs">
+        <li class="">
+            <a rel="0" style="text-transform: none;">
+                &nbsp; Ciclos &nbsp;
+            </a>
+        </li>
+        <li class="ver-tab-ciclo-cur-obl"   
+            th:each="ind : ${#numbers.sequence( 1, planCurricular.ciclos)}"
+            th:rel="${ind}" th:attr="roman=${format.roman(ind)}">
+            <a href="#" style="text-transform: none;"
+               th:inline="text">
+                &nbsp; [[${format.roman(ind)}]]
+                <small th:if="${planCurricular.getCursosByCiclo(ind)>0}"
+                       th:id="|cantCursosCiclo_${ind}|"
+                       class="text-primary">([[${planCurricular.getCursosByCiclo(ind)}]])</small>
+                <small th:if="${planCurricular.getCursosByCiclo(ind)==0}"
+                       th:id="|cantCursosCiclo_${ind}|"
+                       class="text-danger">([[${planCurricular.getCursosByCiclo(ind)}]])</small> 
+                &nbsp;
+            </a>
+        </li>
+        <li class="ver-tab-ciclo-cur-obl" rel="0">
+            <a href="#" style="text-transform: none;"
+               th:inline="text">
+                &nbsp; Sin ciclos 
+                <small th:if="${planCurricular.getCursosByCiclo(0)==0}"
+                       id="cantCursosCiclo_0"
+                       class="text-primary">([[${planCurricular.getCursosByCiclo(0)}]])</small>
+                <small th:if="${planCurricular.getCursosByCiclo(0)>0}"
+                       id="cantCursosCiclo_0"
+                       class="text-danger">([[${planCurricular.getCursosByCiclo(0)}]])</small> &nbsp;
+            </a>
+        </li>
+    </ul>
+</div>
+
+<section class="panel-body">
+
+    <table  id="dynaTableCurObl" class="table table-striped">
+        <thead class="panel panel-heading">
+            <tr>
+                <th class="col-md-1 v-middle text-center">Tipo</th>
+                <th class="col-md-1 v-middle"></th>
+                <th class="col-md-6 v-middle">Curso</th>
+                <th class="col-md-1 v-middle text-center">Créditos</th>
+                <th class="col-md-1 v-middle text-center">Créditos requisitos</th>
+                <th class="col-md-1 v-middle text-center">Cursos requisitos</th>
+                <th class="col-md-1 v-middle text-center">Pre requisito de</th>
+                <th class=""></th>
+            </tr>
+        </thead>
+    </table>
+
+</section>
+
+<div id="templateTrasladarCiclos" type="text/x-jsrender" class="hide">
+    <form id="{{:form}}">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
+        <div class="form-group">
+            <label>Curso</label>
+            <span class="form-control">{{:curso}}</span>
+        </div>
+        <div class="form-group">
+            <label>Ciclo original</label>
+            <span class="form-control">{{:numeroCiclo}}</span>
+        </div>
+        <div class="form-group">
+            <label>Elija el ciclo al cual trasladar</label>
+            <select class="form-control" id="{{:idSelect}}" name="numeroCiclo" required="yes">
+                <option></option>
+                <option th:each="ind : ${#numbers.sequence( 1, planCurricular.ciclos)}"
+                        th:text="|Ciclo ${format.roman(ind)}|"
+                        th:value="${ind}"></option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<div id="templateTrasladarElectivos" type="text/x-jsrender" class="hide">
+    <form id="{{:form}}">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
+        <div class="form-group">
+            <label>Curso</label>
+            <span class="form-control">{{:codigo}} - {{:curso}}</span>
+        </div>
+        <div class="form-group">
+            <label for="txtTipo">Seleccione a que tipo de electivo va a trasladar</label>
+            <select class="form-control" name="tipoCursoCurricula.id" required="yes" id="{{:idSelect}}">
+                <option value=""></option> 
+                <option  th:each="item : ${tiposCursoCurriculas}" 
+                         th:value="${item.id}" 
+                         th:text="${item.codigo +' - '+ item.nombre}"></option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<script id="templatePreRequisitos" type="text/x-jsrender" class="hide"><p class="h5 m-b-lg">
+    {{if tipoRequisitos=="pre"}}
+        Los pre-requisitos del curso <b class="text-primary">{{:curso}}</b> son:
+    {{else tipoRequisitos=="post"}}
+        El curso <b class="text-primary">{{:curso}}</b> es pre-requisito de los siguientes cursos:
+    {{/if}}
+    </p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-1 text-center v-middle">Código</th>
+                <th class="col-md-7 text-center v-middle">Nombre</th>
+                <th class="col-md-1 text-center v-middle">Simultáneo</th>
+                <th class="col-md-1 text-center v-middle">Nª Ciclo</th>
+                <th class="col-md-2 text-center v-middle">Tipo curso</th>
+            </tr>
+        </thead>
+        <tbody>
+        {{if tipoRequisitos=="pre"}}
+            {{for prerrequisitos}}
+            <tr>
+                <td class="text-center v-middle">
+                    <span class="block">{{:codigo}}</span>
+                    {{if codigo2}}
+                        <small class="block text-primary">{{:codigo2}}</small>
+                    {{/if}}
+                </td>
+                <td class="v-middle">{{:curso}}</td>
+                <td class="text-center v-middle">
+                {{if simultaneo==1}}
+                    <i class="fa fa-check-square-o fa-2x text-success"></i>
+                {{/if}}
+                </td>
+                <td class="text-center v-middle">{{:numeroRomano}}</td>
+                <td class="text-center v-middle">{{:tipoCurso}}</td>
+            </tr>
+            {{/for}}
+        {{else tipoRequisitos=="post"}}
+            {{for postrrequisitos}}
+            <tr>
+                <td class="text-center v-middle">
+                    <span class="block">{{:codigo}}</span>
+                    {{if codigo2}}
+                        <small class="block text-primary">{{:codigo2}}</small>
+                    {{/if}}
+                </td>
+                <td class="v-middle">{{:curso}}</td>
+                <td class="text-center v-middle">
+                {{if simultaneo==1}}
+                    <i class="fa fa-check-square-o fa-2x text-success"></i>
+                {{/if}}
+                </td>
+                <td class="text-center v-middle">{{:numeroRomano}}</td>
+                <td class="text-center v-middle">{{:tipoCurso}}</td>
+            </tr>
+            {{/for}}
+            {{for postrrequisitosOpc}}
+            <tr>
+                <td class="text-center v-middle">
+                    <span class="block">{{:codigo}}</span>
+                    {{if codigo2}}
+                        <small class="block text-primary">{{:codigo2}}</small>
+                    {{/if}}
+                </td>
+                <td class="v-middle">{{:curso}}</td>
+                <td class="text-center v-middle">
+                {{if simultaneo==1}}
+                    <i class="fa fa-check-square-o fa-2x text-success"></i>
+                {{/if}}
+                </td>
+                <td></td>
+                <td class="text-center v-middle">{{:tipoCurso}}</td>
+            </tr>
+            {{/for}}
+        {{/if}}
+        </tbody>
+    </table>
+</script>
+
+<script id="templateCursoCurricula" 
+type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/obligatoriosTemplate"/></script>

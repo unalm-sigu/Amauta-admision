@@ -3608,7 +3608,7 @@ body.container {
 }
 
 .tabbable-line > .nav-tabs > li {
-  margin-right: 30px;
+  /*margin-right: 30px;*/
 }
 
 .tabbable-line > .nav-tabs > li > a {
@@ -3617,8 +3617,8 @@ body.container {
   font-weight: bold;
   font-size: 12px;
   text-transform: uppercase;
-  padding-right: 0px;
-  padding-left: 0px;
+/*  padding-right: 0px;
+  padding-left: 0px;*/
   padding-top: 15px;
   padding-bottom: 10px;
 }
@@ -3743,4 +3743,53 @@ body.container {
 
 .fade-leave-active {
   transition: opacity .05s ease-out;
+}
+
+.estado-green {
+    border-radius: 20px;
+    /*border: 1px solid green;*/
+    background-color: green;
+    color: white;
+    padding: 10px; 
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.estado-blue {
+    border-radius: 20px;
+    /*border: 1px solid green;*/
+    background-color: #0275D8;
+    color: white;
+    padding: 10px; 
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.estado-red {
+    border-radius: 20px;
+    /*border: 1px solid #f1c40f;*/
+    background-color: #ff3333;
+    color: white;
+    padding: 10px; 
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.estado-gray {
+    border-radius: 20px;
+    /*border: 1px solid #f1c40f;*/
+    background-color: gray;
+    color: white;
+    padding: 10px; 
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.estado-dark {
+    border-radius: 20px;
+    /*border: 1px solid #f1c40f;*/
+    background-color: black;
+    color: white;
+    padding: 10px; 
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.font-roman {
+    font-family: "Times New Roman" !important;
 }

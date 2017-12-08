@@ -95,7 +95,6 @@ public class CarreraController {
             List<Carrera> carreras = service.allByDynatable(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            logger.debug("size carreras {}", carreras.size());
             for (Carrera carrera : carreras) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -156,6 +155,7 @@ public class CarreraController {
         }
         return response;
     }
+
     @RequestMapping("nuevo")
     public String nuevoRol(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

@@ -60,12 +60,21 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
     }
 
     @Override
-    public List<OrientacionCarrera> allByFilter(Carrera carrera, EstadoEnum estadoEnum) {
+    public List<OrientacionCarrera> allByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(OrientacionCarrera.class, "oc")
                 .join("carrera ca")
                 .filter("ca.id", carrera)
                 .filter("oc.estado", estadoEnum.name());
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<OrientacionCarrera> allByCarreras(List<Carrera> carreras) {
+        Octavia sql = Octavia.query()
+                .from(OrientacionCarrera.class, "oc")
+                .join("carrera ca")
+                .in("ca.id", carreras);
         return sql.all(getCurrentSession());
     }
 

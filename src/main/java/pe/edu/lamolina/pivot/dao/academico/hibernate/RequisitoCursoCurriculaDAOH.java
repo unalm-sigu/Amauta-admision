@@ -21,7 +21,35 @@ public class RequisitoCursoCurriculaDAOH extends AbstractDAO<RequisitoCursoCurri
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cr.curso cur")
-                .filter("cCur.id", cursoCurricula.getId());
+                .filter("cCur.id", cursoCurricula);
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<RequisitoCursoCurricula> allByRequisito(CursoCurricula cursoCurricula) {
+        Octavia sql = Octavia.query()
+                .from(RequisitoCursoCurricula.class, "rcc")
+                .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur")
+                .filter("cr.id", cursoCurricula);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<RequisitoCursoCurricula> allByCursosCurricula(List<CursoCurricula> cursosCurricula) {
+        Octavia sql = Octavia.query()
+                .from(RequisitoCursoCurricula.class, "rcc")
+                .join("cursoCurricula cCur", "cursoRequisito cr", "cr.curso cur", "cr.tipoCursoCurricula")
+                .in("cCur.id", cursosCurricula);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<RequisitoCursoCurricula> allPostRequisitosByCursosCurricula(List<CursoCurricula> cursosCurricula) {
+        Octavia sql = Octavia.query()
+                .from(RequisitoCursoCurricula.class, "rcc")
+                .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur", "cCur.tipoCursoCurricula")
+                .in("cr.id", cursosCurricula);
+        return sql.all(getCurrentSession());
+    }
+
 }

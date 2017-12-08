@@ -1,0 +1,57 @@
+<section class="panel-body">
+    <div class="pull-right" >
+        <a class="btn btn-primary btn-sm agregar-curso-elec" href="#" >Agregar Curso Electivo</a>
+    </div>
+    <h3 class="">Cursos Electivos</h3>
+</section>
+
+
+<table id="dynaTableCurElec" class="table table-striped">
+    <thead class="panel panel-heading">
+        <tr>
+            <th class="col-md-1 v-middle text-center"></th>
+            <th class="col-md-6 v-middle">Curso</th>
+            <th class="col-md-1 v-middle text-center">Créditos</th>
+            <th class="col-md-1 v-middle text-center">Créditos requisitos</th>
+            <th class="col-md-1 v-middle text-center">Cursos requisitos</th>
+            <th class="col-md-1 v-middle text-center">Pre requisito de</th>
+            <th class="col-md-1 v-middle text-center">Tipo</th>
+            <th class=""></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<div id="templateTrasladarObligatorios" type="text/x-jsrender" class="hide">
+    <form id="{{:form}}">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
+        <div class="form-group">
+            <label>Curso a trasladar</label>
+            <span class="form-control">{{:codigo}} - {{:curso}}</span>
+        </div>
+        <div class="form-group">
+            <label>Seleccione en que categoria va reubicar</label>
+            <select class="form-control" name="tipoCursoCurricula.id" required="yes" id="{{:idSelect}}">
+                <option value=""></option> 
+                <option  th:each="item : ${tiposCursoCurriculasObli}" 
+                         th:value="${item.id}" 
+                         th:text="${item.codigo +' - '+ item.nombre}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Seleccione en que ciclo va reubicar</label>
+            <select class="form-control" name="numeroCiclo" required="yes" id="{{:idSelect}}">
+                <option value=""></option> 
+                <option  th:each="ind : ${#numbers.sequence( 1, planCurricular.ciclos)}" 
+                         th:value="${ind}" 
+                         th:text="|Nª Ciclo ${format.roman(ind)}|"></option>
+            </select>
+        </div>
+    </form>
+</div>
+
+<script id="templateCursoCurriculaElec" 
+type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/electivosTemplate"/></script>
+

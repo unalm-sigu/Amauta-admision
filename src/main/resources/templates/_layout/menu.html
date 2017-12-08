@@ -43,7 +43,7 @@
                             </a>
                             <ul class="submenu">
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
-                                    <a th:href="@{/academico/planCurricular/plan}">
+                                    <a th:href="@{/academico/planCurricular}">
                                         <span>Plan Estudios</span>
                                     </a>
                                 </li>

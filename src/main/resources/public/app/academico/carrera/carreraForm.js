@@ -3,13 +3,18 @@ $(function () {
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/carrera/listOrientacion/' + $('[name="id"]').val()),
-            perPageDefault: 10
+            perPageDefault: 100
         },
         writers: {
             _rowWriter: ulWriter
         },
         table: {
             bodyRowSelector: 'tbody tr'
+        }, features: {
+            paginate: false,
+            recordCount: false,
+            sorting: false,
+            search: false
         }
     }).bind('dynatable:afterUpdate', function (e, dynatable) {
         $('[data-toggle="tooltip"]').tooltip();
@@ -37,7 +42,7 @@ $(function () {
 
             if (CarreraForm.modalidadEstudio.val() != '') {
                 CarreraForm.loadTipoCarrera(CarreraForm.modalidadEstudio);
-            } 
+            }
         },
         viewModalAddOrientacion: function (e) {
             e.preventDefault();
@@ -251,7 +256,7 @@ $(function () {
             } else if (codigo == 'PRE') {
                 $(".divTipoCarrera").addClass("hide");
                 $('[name="tipo"]').attr("value", "SEM");
-            } 
+            }
         }
     };
     CarreraForm.init();
