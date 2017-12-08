@@ -11,6 +11,7 @@ import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
+import pe.edu.lamolina.pivot.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
@@ -29,7 +30,7 @@ public interface PlanCurricularService {
 
     List<CicloAcademico> allRecientesCiclosAcad(Integer year, Integer limit);
 
-    List<PlanCurricular> allByDynatable(DynatableFilter filter, Facultad facultad);
+    List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 
     List<TipoCursoCurricula> allTiposCursoCurricula();
 
@@ -60,5 +61,7 @@ public interface PlanCurricularService {
     void deleteCursoOpcional(Long cursoOpcionalId);
 
     List<Curso> allCursosByCodigo(String codigo);
+
+    List<ResumenPlanCurricular> allResPlanCurByDynatable(DynatableFilter filter);
 
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import org.springframework.stereotype.Repository;
@@ -110,9 +111,14 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
-                .filter("per.paterno", "like", persona.getPaterno())
-                .filter("per.materno", "like", persona.getMaterno())
                 .filter("per.nombres", "like", persona.getNombres());
+
+        if (!StringUtils.isEmpty(persona.getPaterno())) {
+            sql.filter("per.paterno", "like", persona.getPaterno());
+        }
+        if (!StringUtils.isEmpty(persona.getMaterno())) {
+            sql.filter("per.materno", "like", persona.getMaterno());
+        }
 
         return all(sql);
     }

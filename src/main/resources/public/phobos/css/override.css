@@ -1026,3 +1026,20 @@ div.notas {
 }
 /*end style item horario*/
 
+
+.bg-dynatable-process {
+  font-weight: bold;
+  font-size: 18px;
+  background-color: #2E4053;
+  color: #F2F3F4;
+  padding: 20px;
+  border-radius: 5px;
+}
+.bg-alert-process {
+  font-weight: bold;
+  font-size: 18px;
+  background-color: #D9DDE1;
+  color: #2E4053;
+  padding: 20px;
+  border-radius: 5px;
+}

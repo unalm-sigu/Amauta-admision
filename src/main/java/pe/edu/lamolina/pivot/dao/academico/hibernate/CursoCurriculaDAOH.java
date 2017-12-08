@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 
 @Repository
@@ -32,8 +33,17 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
     public List<CursoCurricula> allByFilter(TipoCursoCurricula tipoCursoCurricula) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
-                .join("tipoCursoCurricula tcc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc")
                 .filter("ca.id", tipoCursoCurricula.getId());
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<CursoCurricula> allByPlan(PlanCurricular planCurricular) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc")
+                .filter("pc.id", planCurricular.getId());
         return sql.all(getCurrentSession());
     }
 

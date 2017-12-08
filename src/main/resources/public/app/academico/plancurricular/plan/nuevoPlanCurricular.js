@@ -97,18 +97,23 @@ $(function () {
                 $(NuevoPlanCurricular.pestañaCicloCurOblElegida).attr("rel", "1")
                 NuevoPlanCurricular.pestañaCicloCurOblElegida = $("li.ver-tab-ciclo-cur-obl").first();
                 $("li.ver-tab-ciclo-cur-obl").first().addClass(("active"));
-                dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosObl.queries.add("numCic", 1);
-                dynatableCursosObl.process();
-
-                dynatableCursosRes.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosRes.process();
-
-                dynatableCursosAdc.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosAdc.process();
-
-                dynatableCursosElec.queries.add("planc", $("#txtPlanCurricular").val());
-                dynatableCursosElec.process();
+                if (dynatableCursosObl != null) {
+                    dynatableCursosObl.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosObl.queries.add("numCic", 1);
+                    dynatableCursosObl.process();
+                }
+                if (dynatableCursosRes != null) {
+                    dynatableCursosRes.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosRes.process();
+                }
+                if (dynatableCursosAdc != null) {
+                    dynatableCursosAdc.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosAdc.process();
+                }
+                if (dynatableCursosElec != null) {
+                    dynatableCursosElec.queries.add("planc", $("#txtPlanCurricular").val());
+                    dynatableCursosElec.process();
+                }
             }
         }, verPestañaCicloCurObl($this, e) {
             var pestaña = $this.attr("rel");
@@ -226,7 +231,7 @@ $(function () {
         }, agregarCursoElec($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : Ciclo ");
+            MODAL.title("Cursos Electivos");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnAddCurElec">Aceptar</a>');
             MODAL.body('');
@@ -250,7 +255,7 @@ $(function () {
         }, agregarCursoAdc($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : Ciclo ");
+            MODAL.title("Cursos Adicionales");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnAddCurAdc">Aceptar</a>');
             MODAL.body('');
@@ -462,12 +467,16 @@ $(function () {
                                 if (response.success) {
                                     MODAL.hide();
                                     notify(response.message, "info");
-                                    location.href = APP.url('academico/planCurricular/plan/' + 1 + '/succesSave');
+                                    location.href = APP.url('academico/planCurricular/plan/' + response.data.planCurricular + '/succesSave');
                                 } else {
+                                    MODAL.hideWait();
+                                    MODAL.hide();
                                     notify(response.message, "error");
                                 }
                             },
                             error: function () {
+                                MODAL.hideWait();
+                                MODAL.hide();
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -510,11 +519,13 @@ $(function () {
                                 dynatableCursosObl.queries.add("numCic", NuevoPlanCurricular.pestañaCicloCurOblElegida.attr("rel"));
                                 dynatableCursosObl.process();
                             } else {
+                                MODAL.hideWait();
                                 MODAL.hide();
                                 notify(response.message, "error");
                             }
                         },
                         error: function () {
+                            MODAL.hideWait();
                             MODAL.hide();
                             notify(MESSAGES.errorComunicacion, "error");
                         }
@@ -554,11 +565,13 @@ $(function () {
                                 dynatableCursosAdc.queries.add("planc", $("#txtPlanCurricular").val());
                                 dynatableCursosAdc.process();
                             } else {
+                                MODAL.hideWait();
                                 MODAL.hide();
                                 notify(response.message, "error");
                             }
                         },
                         error: function () {
+                            MODAL.hideWait();
                             MODAL.hide();
                             notify(MESSAGES.errorComunicacion, "error");
                         }
