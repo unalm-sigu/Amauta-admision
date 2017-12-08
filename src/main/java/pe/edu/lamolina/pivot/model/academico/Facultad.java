@@ -28,8 +28,8 @@ public class Facultad implements Serializable {
     @Column(name = "codigo")
     private String codigo;
     
-    @Column(name = "curso_codigo")
-    private String cursoCodigo;
+    @Column(name = "codigo_curso")
+    private String codigoCurso;
 
     @Column(name = "nombre")
     private String nombre;
@@ -167,12 +167,12 @@ public class Facultad implements Serializable {
         this.fechaDesactivacion = fechaDesactivacion;
     }
 
-    public String getCursoCodigo() {
-        return cursoCodigo;
+    public String getCodigoCurso() {
+        return codigoCurso;
     }
 
-    public void setCursoCodigo(String cursoCodigo) {
-        this.cursoCodigo = cursoCodigo;
+    public void setCodigoCurso(String codigoCurso) {
+        this.codigoCurso = codigoCurso;
     }
 
 }
