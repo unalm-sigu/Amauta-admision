@@ -53,7 +53,7 @@ $(function () {
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
                 }).bind("dynatable:afterUpdate", function (e) {
-                    $('.dynatable-paginate li').first().remove();
+
                     var records = dynatable.settings.dataset.records;
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
