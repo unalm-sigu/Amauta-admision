@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,10 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
@@ -266,7 +270,7 @@ public class GenerarHorarioIngresanteController {
     @ResponseBody
     @RequestMapping("allHorarioHeader")
     public JsonResponse allHorarioHeader(Carrera carrera, HttpSession session) {
-        
+
         JsonResponse response = new JsonResponse();
 
         try {
@@ -274,7 +278,7 @@ public class GenerarHorarioIngresanteController {
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            
+
             List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbosByCicloAcademico(cicloAcademico, carrera);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
@@ -284,17 +288,119 @@ public class GenerarHorarioIngresanteController {
                 json.put("codigo", alumnoHorario.getCodigo());
                 jsonList.add(json);
             }
-            
+
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        
+
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("openHorario")
+    public JsonResponse openHorario(HorarioCachimbos horario, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
+            List<HorarioSeccion> seccionHorario = service.allSeccionHorarioCachimbosByHorarioCachimbos(horario);
+
+            Map<Long, List<HorarioSeccion>> seccionHorarioHoras = TypesUtil.convertListToMapList("hora.id", seccionHorario);
+            Map<Long, Hora> seccionHorarioHorasMap = TypesUtil.convertListToMap("hora.id", "hora", seccionHorario);
+
+            List<Dia> dias = service.allDia();
+
+            List<Hora> horas = new ArrayList();//service.allHora();
+            for (Hora hora : seccionHorarioHorasMap.values()) {
+                horas.add(hora);
+            }
+            if (horas.isEmpty()) {
+                horas = service.allHora();
+            }
+
+            ObjectNode dataObject = new ObjectNode(jsonFactory);
+            ArrayNode horaArray = new ArrayNode(jsonFactory);
+
+            for (Hora hora : horas) {
+
+                logger.debug("****hora {}", hora.getDescripcion());
+
+                ObjectNode horaNode = new ObjectNode(jsonFactory);
+                horaNode.put("hora", hora.getDescripcion());
+
+                List<HorarioSeccion> seccionHorarioHora = seccionHorarioHoras.get(hora.getId());
+
+                if (seccionHorarioHora == null) {
+                    seccionHorarioHora = new ArrayList();
+                }
+
+                Map<Long, List<HorarioSeccion>> seccionHorarioDias = TypesUtil.convertListToMapList("dia.id", seccionHorarioHora);
+
+                ArrayNode arrayDia = new ArrayNode(jsonFactory);
+
+                for (Dia dia : dias) {
+
+                    ObjectNode diaNode = new ObjectNode(jsonFactory);
+                    diaNode.put("hora", hora.getDescripcion());
+
+                    logger.debug("*******dia {}", dia.getNombre());
+                    diaNode.put("dia", dia.getNombre());
+
+                    List<HorarioSeccion> seccionHorarioDia = seccionHorarioDias.get(dia.getId());
+                    if (seccionHorarioDia == null) {
+                        seccionHorarioDia = new ArrayList();
+                    }
+
+                    ArrayNode arraySeccion = new ArrayNode(jsonFactory);
+
+                    for (HorarioSeccion horarioSeccion : seccionHorarioDia) {
+                        ObjectNode seccionNode = new ObjectNode(jsonFactory);
+                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        logger.debug("********seccion {}", horarioSeccion.getSeccion().getCodigo());
+                        arraySeccion.add(seccionNode);
+                    }
+
+                    diaNode.put("secciones", arraySeccion);
+                    arrayDia.add(diaNode);
+
+                }
+
+                horaNode.put("dias", arrayDia);
+                horaArray.add(horaNode);
+
+            }
+
+            ArrayNode diasArray = new ArrayNode(jsonFactory);
+            
+            for (Dia dia : dias) {
+                ObjectNode diaObjectNode = new ObjectNode(jsonFactory);
+                diaObjectNode.put("dia", dia.getNombre());
+                diasArray.add(diaObjectNode);
+            }
+
+            dataObject.put("horarios", horaArray);
+            dataObject.put("dias", diasArray);
+
+            response.setData(dataObject);
+            response.setTotal(horaArray.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 

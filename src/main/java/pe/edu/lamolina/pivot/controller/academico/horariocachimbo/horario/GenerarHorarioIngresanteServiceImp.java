@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +13,21 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.general.DiaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 
 @Service
@@ -42,6 +50,15 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     @Autowired
     CursoDAO cursoDAO;
+
+    @Autowired
+    DiaDAO diaDAO;
+
+    @Autowired
+    HoraDAO horaDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     @Autowired
     SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
@@ -92,7 +109,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     @Override
     public String getClave(String codigo, List<SeccionHorarioCachimbos> shcHorario) {
-        if(shcHorario==null){
+        if (shcHorario == null) {
             return "";
         }
         for (SeccionHorarioCachimbos shc : shcHorario) {
@@ -105,6 +122,29 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             }
         }
         return "";
+    }
+
+    @Override
+    public List<Dia> allDia() {
+        return diaDAO.allDia();
+    }
+
+    @Override
+    public List<Hora> allHora() {
+        return horaDAO.allHora();
+    }
+
+    @Override
+    public List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario) {
+        List<SeccionHorarioCachimbos> seccionHorarioCachimboses = seccionHorarioCachimbosDAO.allByHorario(horario);
+        List<Seccion> secciones = new ArrayList();
+        if (seccionHorarioCachimboses.isEmpty()) {
+            return new ArrayList();
+        }
+        for (SeccionHorarioCachimbos seccionHorarioCachimbose : seccionHorarioCachimboses) {
+            secciones.add(seccionHorarioCachimbose.getSeccion());
+        }
+        return horarioSeccionDAO.allBySeccion(secciones);
     }
 
 }

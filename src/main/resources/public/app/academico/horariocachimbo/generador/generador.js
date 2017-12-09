@@ -4,11 +4,13 @@ $(function () {
 
     let  dynatable = null;
 
+
+
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
         data: function () {
             return {
-                horarios: [ {}]
+                horarios: [{}]
             }
         },
         mounted: function () {
@@ -24,7 +26,20 @@ $(function () {
             updataHorario(datos) {
                 var vue = this;
                 vue.horarios = datos;
+            },
+            openHorario(id) {
+                $global.$emit("openHorario", id);
             }
+        }
+    });
+
+
+    var HorarioTemplate = Vue.component("horarioTemplate", {
+        template: "#horarioTemplate",
+        data: function () {
+            return {horarios: [], dias: []};
+        },
+        methods: {
         }
     });
 
@@ -48,6 +63,9 @@ $(function () {
                 dynatable.process();
             });
             vue.createDynatable();
+            $global.$on("openHorario", function (id) {
+                vue.openHorario(id);
+            });
         },
         methods: {
             generarHorario: function (id) {
@@ -92,7 +110,7 @@ $(function () {
                 var vue = this;
 
                 if (id == '') {
-                     $global.$emit("updataHorario", [{}]);
+                    $global.$emit("updataHorario", [{}]);
                     return;
                 }
 
@@ -112,7 +130,41 @@ $(function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
-                
+
+            },
+            openHorario(id) {
+
+                var boot = bootbox.alert({
+                    size: 'large',
+                    message: APP.template.spincenter,
+                    buttons: {
+                        ok: {label: 'Cerrar', className: "btn-link"},
+                    },
+                });
+
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/openHorario"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            console.log(response.data.horarios);
+                            console.log(response.data.dias);
+                            var horarioTemplate = new HorarioTemplate();
+                            horarioTemplate.horarios = response.data.horarios;
+                            horarioTemplate.dias = response.data.dias;
+                            var component = horarioTemplate.$mount();
+                            boot.find('.bootbox-body').html(component.$el);
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+
+
             }
         }
     });

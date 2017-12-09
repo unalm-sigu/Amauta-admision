@@ -7,7 +7,10 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 
 public interface GenerarHorarioIngresanteService {
@@ -29,5 +32,11 @@ public interface GenerarHorarioIngresanteService {
     public List<SeccionHorarioCachimbos> allSeccionHorarioCachimbosByCursoHora(Carrera carrera, List<Curso> cursos, CicloAcademico cicloAcademico);
 
     public String getClave(String codigo, List<SeccionHorarioCachimbos> shcHorario);
+
+    public List<Dia> allDia();
+
+    public List<Hora> allHora();
+
+    public List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario);
 
 }

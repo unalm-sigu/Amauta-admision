@@ -6,8 +6,8 @@
                 <thead>
                     <tr>
                         <th>Curso</th>
-                        <th  v-for="h in horarios" :rel="h.id" class="text-center">
-                            {{ h.codigo }}
+                        <th  v-for="h in horarios"  class="text-center">
+                            <span class="pointer" v-on:click="openHorario(h.id)">{{ h.codigo }}</span>
                         </th>
                     </tr> 
                 </thead>
@@ -18,18 +18,48 @@
     </transition>
 </template>
 
+<template  type="text/x-template" id="horarioTemplate">
+    <transition name="fade">
+
+        <div class="panel padder-v m-b-n-lg">
+            
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th  v-for="dia in dias"  class="text-center">
+                            <span class="pointer" >{{ dia.dia }}</span>
+                        </th>
+                    </tr> 
+                </thead>
+                <tbody>
+                    <tr v-for="item in horarios" >
+                        <th>{{item.hora}}</th>
+                        <th  v-for="dia in item.dias"  class="text-center">
+                            <span class="pointer secciones"  v-for="seccion in dia.secciones"  >{{ seccion.seccion }}</span>
+                        </th>
+                    </tr> 
+                </tbody>
+            </table>
+            
+        </div>
+
+    </transition>
+</template>
+
+
 <script type="text/x-jsrender" id="dynatableRowTemplate">
     <tr>
-        <td class="v-middle">
-            {{:curso}}
-             <span class="badge">{{:hora}}</span>
-        </td>
-        {{for horario }}
-        <td class="v-middle text-center">
-            {{for horarios }}
-                    <span class="badge">{{:hora}}</span> 
-            {{/for}}
-        </td>
-        {{/for}}
+    <td class="v-middle">
+    {{:curso}}
+    <span class="badge">{{:hora}}</span>
+    </td>
+    {{for horario }}
+    <td class="v-middle text-center">
+    {{for horarios }}
+    <span class="badge">{{:hora}}</span> 
+    {{/for}}
+    </td>
+    {{/for}}
     </tr>
 </script>
