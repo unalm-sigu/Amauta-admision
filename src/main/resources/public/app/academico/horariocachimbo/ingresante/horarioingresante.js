@@ -37,14 +37,7 @@ $(function () {
         methods: {
             createDynatable: function () {
                 var $vue = this;
-                $('#dynaTable').bind('dynatable:init', function (e, dynatable) {
-                    $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
-                    $('.dynatable-paginate, .dynatable-record-count').wrapAll('<div class="col-md-12"/>');
-                    $('.dynatable-search').addClass('col-md-2');
-                    $('.dynatable-search').find('input')
-                            .addClass('form-control input-sm')
-                            .attr('placeholder', 'Buscar');
-                });
+
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
                         ajaxUrl: APP.url('academico/horariocachimbo/ingresante/list'),
