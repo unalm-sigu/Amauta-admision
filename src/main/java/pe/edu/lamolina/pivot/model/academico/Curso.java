@@ -14,8 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCreditoEnum;
@@ -114,31 +114,16 @@ public class Curso implements Serializable {
     private Carrera carrera;
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<AlumnoCicloCurso> alumnoCicloCurso;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<CursoAdicionalCurricula> cursoAdicionalCurricula;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<CursoCurricula> cursoCurricula;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<CursoOpcionalCurricula> cursoOpcionalCurricula;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<FormatoCurso> formatoCurso;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<MatriculaCurso> matriculaCurso;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<NombreCurso> nombreCurso;
 
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
-    private List<RetiroCurso> retiroCurso;
-
-    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<PlanCalificacionCurso> planesCalificacionCursos;
+
+    @Transient
+    private Long[] idIdioma;
+
+    @Transient
+    private String[] nombreIdioma;
 
     public Curso() {
     }
@@ -200,6 +185,18 @@ public class Curso implements Serializable {
         return (modalidadEstudio.getCodigoEnum() == ModalidadEstudioEnum.EPG);
     }
 
+    public boolean isTipoCursoTEO() {
+        return TipoCursoEnum.TEO.equals(getTipoCursoEnum());
+    }
+
+    public boolean isTipoCursoPRA() {
+        return TipoCursoEnum.PRA.equals(getTipoCursoEnum());
+    }
+
+    public boolean isTipoCursoTEOPRA() {
+        return TipoCursoEnum.TEOPRA.equals(getTipoCursoEnum());
+    }
+
     public Long getId() {
         return id;
     }
@@ -216,7 +213,7 @@ public class Curso implements Serializable {
         if (estado == null) {
             return null;
         }
-        return EstadoEnum.valueOf(codigo);
+        return EstadoEnum.valueOf(estado);
     }
 
     public void setEstado(EstadoEnum estado) {
@@ -302,80 +299,12 @@ public class Curso implements Serializable {
         return TipoCursoEnum.valueOf(this.getTipoCurso());
     }
 
-    public boolean isTipoCursoTEO() {
-        return TipoCursoEnum.TEO.equals(getTipoCursoEnum());
-    }
-
-    public boolean isTipoCursoPRA() {
-        return TipoCursoEnum.PRA.equals(getTipoCursoEnum());
-    }
-
-    public boolean isTipoCursoTEOPRA() {
-        return TipoCursoEnum.TEOPRA.equals(getTipoCursoEnum());
-    }
-
-    public List<AlumnoCicloCurso> getAlumnoCicloCurso() {
-        return alumnoCicloCurso;
-    }
-
-    public void setAlumnoCicloCurso(List<AlumnoCicloCurso> alumnoCicloCurso) {
-        this.alumnoCicloCurso = alumnoCicloCurso;
-    }
-
-    public List<CursoAdicionalCurricula> getCursoAdicionalCurricula() {
-        return cursoAdicionalCurricula;
-    }
-
-    public void setCursoAdicionalCurricula(List<CursoAdicionalCurricula> cursoAdicionalCurricula) {
-        this.cursoAdicionalCurricula = cursoAdicionalCurricula;
-    }
-
-    public List<CursoCurricula> getCursoCurricula() {
-        return cursoCurricula;
-    }
-
-    public void setCursoCurricula(List<CursoCurricula> cursoCurricula) {
-        this.cursoCurricula = cursoCurricula;
-    }
-
-    public List<CursoOpcionalCurricula> getCursoOpcionalCurricula() {
-        return cursoOpcionalCurricula;
-    }
-
-    public void setCursoOpcionalCurricula(List<CursoOpcionalCurricula> cursoOpcionalCurricula) {
-        this.cursoOpcionalCurricula = cursoOpcionalCurricula;
-    }
-
-    public List<FormatoCurso> getFormatoCurso() {
-        return formatoCurso;
-    }
-
-    public void setFormatoCurso(List<FormatoCurso> formatoCurso) {
-        this.formatoCurso = formatoCurso;
-    }
-
-    public List<MatriculaCurso> getMatriculaCurso() {
-        return matriculaCurso;
-    }
-
-    public void setMatriculaCurso(List<MatriculaCurso> matriculaCurso) {
-        this.matriculaCurso = matriculaCurso;
-    }
-
     public List<NombreCurso> getNombreCurso() {
         return nombreCurso;
     }
 
     public void setNombreCurso(List<NombreCurso> nombreCurso) {
         this.nombreCurso = nombreCurso;
-    }
-
-    public List<RetiroCurso> getRetiroCurso() {
-        return retiroCurso;
-    }
-
-    public void setRetiroCurso(List<RetiroCurso> retiroCurso) {
-        this.retiroCurso = retiroCurso;
     }
 
     public Date getFechaPlanCalificacion() {
@@ -416,14 +345,6 @@ public class Curso implements Serializable {
 
     public void setPlanCalificacionRegular(PlanCalificacion planCalificacionRegular) {
         this.planCalificacionRegular = planCalificacionRegular;
-    }
-
-    public List<PlanCalificacionCurso> getPlanesCalificacionCursos() {
-        return planesCalificacionCursos;
-    }
-
-    public void setPlanesCalificacionCursos(List<PlanCalificacionCurso> planesCalificacionCursos) {
-        this.planesCalificacionCursos = planesCalificacionCursos;
     }
 
     public Integer getCreditosVariables() {
@@ -511,6 +432,30 @@ public class Curso implements Serializable {
 
     public void setTipoCredito(TipoCreditoEnum tipoCredito) {
         this.tipoCredito = tipoCredito.name();
+    }
+
+    public Long[] getIdIdioma() {
+        return idIdioma;
+    }
+
+    public void setIdIdioma(Long[] idIdioma) {
+        this.idIdioma = idIdioma;
+    }
+
+    public String[] getNombreIdioma() {
+        return nombreIdioma;
+    }
+
+    public void setNombreIdioma(String[] nombreIdioma) {
+        this.nombreIdioma = nombreIdioma;
+    }
+
+    public List<PlanCalificacionCurso> getPlanesCalificacionCursos() {
+        return planesCalificacionCursos;
+    }
+
+    public void setPlanesCalificacionCursos(List<PlanCalificacionCurso> planesCalificacionCursos) {
+        this.planesCalificacionCursos = planesCalificacionCursos;
     }
 
 }

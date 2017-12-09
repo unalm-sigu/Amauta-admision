@@ -157,25 +157,25 @@ public class CursoController {
         return "academico/curso/cursoForm";
     }
 
+    @ResponseBody
     @RequestMapping("save")
-    public String save(Curso curso,
-            @RequestParam("idIdioma") Long[] idioma,
-            @RequestParam("nombreIdioma") String[] nombreIdioma,
-            RedirectAttributes redirectAttr, HttpSession session) {
+    public JsonResponse save(Curso curso, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             String mensaje = curso.getId() != null ? Messages.UPDATED : Messages.CREATED;
-            service.save(curso, idioma, nombreIdioma, ds.getUsuario());
-            Notificaciones.crearMsg(mensaje, redirectAttr);
+            service.save(curso, ds.getUsuario());
+            response.setMessage(mensaje);
+            response.setSuccess(true);
 
-        } catch (PhobosException ex) {
-            ExceptionHandler.handleException(ex, redirectAttr);
-
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            ExceptionHandler.handleException(e, redirectAttr);
-
+            ExceptionHandler.handleException(e, response);
         }
-        return "redirect:/academico/curso";
+        return response;
     }
 
     @RequestMapping("editar/{id}")

@@ -71,9 +71,6 @@
                                                     th:selected="${carrera.modalidadEstudio} ? ${item.id == carrera.modalidadEstudio.id}">
                                             </option>
                                         </select>
-                                        <!--input  name="modalidadEstudio.id" class="form-control modalidadEstudio" th:value="${carrera != null ? carrera.modalidadEstudio.nombre : ''}" 
-                                                th:rel="${carrera != null ? carrera.modalidadEstudio.codigo : ''}" 
-                                                disabled='true' th:if="${carrera.id != null and carrera.estado != 'CRE'}"/-->
                                     </div>
                                     <div class="form-group divTipoCarrera">
                                         <label>Tipo</label>
@@ -81,10 +78,6 @@
                                                th:value="${carrera.tipo != null ? T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).name():''}"
                                                th:rel=" ${carrera.tipo != null ? T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}"  required="true" 
                                                data-trigger="change"/>
-                                        <!--input type='text' name="tipo" class='form-control tipo' 
-                                               th:value="${T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).value}" 
-                                               th:rel=" ${T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).name()}" disabled="disabled"
-                                               th:if="${carrera.id != null and carrera.estado != 'CRE'}"/-->
                                     </div>
                                 </form>
                                 <div class=" text-center">

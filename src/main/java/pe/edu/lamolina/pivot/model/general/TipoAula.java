@@ -11,6 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.FormatoCurso;
+import pe.edu.lamolina.pivot.zelper.enums.TipoAmbienteEnum;
 
 @Entity
 @Table(name = "gen_tipo_aula")
@@ -26,6 +27,9 @@ public class TipoAula implements Serializable {
 
     @Column(name = "codigo")
     private String codigo;
+
+    @Column(name = "tipo_ambiente")
+    private String tipoAmbiente;
 
     @OneToMany(mappedBy = "tipoAula", fetch = FetchType.LAZY)
     private List<FormatoCurso> formatoCurso;
@@ -80,5 +84,19 @@ public class TipoAula implements Serializable {
         this.aula = aula;
     }
 
-}
+    public String getTipoAmbiente() {
+        return tipoAmbiente;
+    }
 
+    public TipoAmbienteEnum getTipoAmbienteEnum() {
+        if (tipoAmbiente == null) {
+            return null;
+        }
+        return TipoAmbienteEnum.valueOf(tipoAmbiente);
+    }
+
+    public void setTipoAmbiente(TipoAmbienteEnum tipoAmbiente) {
+        this.tipoAmbiente = tipoAmbiente.name();
+    }
+
+}

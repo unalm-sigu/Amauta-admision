@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.albatross.zelpers.dao.SqlUtil;
 
 @Repository
 public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
@@ -20,9 +19,11 @@ public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
 
     @Override
     public Aula findByCode(String codigo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("au")
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .leftJoin("aulaSuperior", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .filter("au.codigo", codigo);
-        return find(sqlUtil);
+        return (Aula) sql.find(getCurrentSession());
     }
 
     @Override
@@ -50,9 +51,9 @@ public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
     public List<Aula> allAulasSuperioresByName(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
-                .left("aulaSuperior aus")
-                .isNull("aus.id")
-                .filter("au.nombre", "like", nombre);
+                .filter("au.tipoAmbiente", "EDI")
+                .filter("au.nombre", "like", nombre)
+                .orderBy("au.nombre", "au.codigo");
         return sql.all(getCurrentSession());
     }
 
@@ -61,7 +62,8 @@ public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
                 .join("aulaSuperior aus")
-                .filter("aus.id", aula);
+                .filter("aus.id", aula)
+                .orderBy("au.nombre", "au.codigo");
         return sql.all(getCurrentSession());
     }
 

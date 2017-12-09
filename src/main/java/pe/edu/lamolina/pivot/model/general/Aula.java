@@ -16,6 +16,9 @@ import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.inscripcion.AulaExamen;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoAmbienteEnum;
 
 @Entity
 @Table(name = "gen_aula")
@@ -55,13 +58,17 @@ public class Aula implements Serializable {
 
     @Column(name = "estado")
     private String estado;
-    
+
     @Column(name = "motivo_anulacion")
     private String motivoAnulacion;
-    
+
     @Column(name = "fecha_anulacion")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaAnulacion;
+
+    @Column(name = "fecha_registro")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_aula_superior")
@@ -78,6 +85,14 @@ public class Aula implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_oficina_supervisora")
     private Oficina oficinaSupervisora;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_registro")
+    private Usuario userRegistro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_anulacion")
+    private Usuario userAnulacion;
 
     @OneToMany(mappedBy = "aula", fetch = FetchType.LAZY)
     private List<Seccion> seccion;
@@ -187,6 +202,13 @@ public class Aula implements Serializable {
         return tipoAmbiente;
     }
 
+    public TipoAmbienteEnum getTipoAmbienteEnum() {
+        if (tipoAmbiente == null) {
+            return null;
+        }
+        return TipoAmbienteEnum.valueOf(tipoAmbiente);
+    }
+
     public void setTipoAmbiente(String tipoAmbiente) {
         this.tipoAmbiente = tipoAmbiente;
     }
@@ -235,8 +257,15 @@ public class Aula implements Serializable {
         return estado;
     }
 
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public EstadoEnum getEstadoEnum() {
+        if (estado == null) {
+            return null;
+        }
+        return EstadoEnum.valueOf(estado);
+    }
+
+    public void setEstado(EstadoEnum estado) {
+        this.estado = estado.name();
     }
 
     public String getMotivoAnulacion() {
@@ -253,6 +282,30 @@ public class Aula implements Serializable {
 
     public void setFechaAnulacion(Date fechaAnulacion) {
         this.fechaAnulacion = fechaAnulacion;
+    }
+
+    public Date getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(Date fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
+
+    public Usuario getUserRegistro() {
+        return userRegistro;
+    }
+
+    public void setUserRegistro(Usuario userRegistro) {
+        this.userRegistro = userRegistro;
+    }
+
+    public Usuario getUserAnulacion() {
+        return userAnulacion;
+    }
+
+    public void setUserAnulacion(Usuario userAnulacion) {
+        this.userAnulacion = userAnulacion;
     }
 
 }

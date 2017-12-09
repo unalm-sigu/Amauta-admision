@@ -28,23 +28,30 @@ $(function () {
 
     var Aula = {
         form: null,
-        inti: function () {
+        init: function () {
 
         },
         viewCambioEstado: function (e, $this) {
             e.preventDefault();
-            var estado = $this.attr('rev');
+            var rec = APP.recDynatable(dynatable, e);
 
             var record = {
                 form: 'formCambioEstado',
-                id: $this.attr('rel'),
-                seDesactiva: estado == 'ACT'
-            }
+                id: rec.id,
+                codigo: rec.codigo,
+                seDesactiva: rec.estado == 'ACT',
+                nuevoEstado: (rec.estado == 'ACT') ? 'INA' : 'ACT'
+            };
 
             MODAL.init("md");
-            MODAL.title("");
+            if (record.seDesactiva) {
+                MODAL.title("Desactivación de Ambiente");
+                MODAL.buttons('<button type="button" class="btn btn-danger cambio-estado-aula">Desactivar Ambiente</button>');
+            } else {
+                MODAL.title("Activación de Ambiente");
+                MODAL.buttons('<button type="button" class="btn btn-success cambio-estado-aula">Activar Ambiente</button>');
+            }
             MODAL.body($.templates("#divEstadoAula").render(record));
-            MODAL.buttons('<button type="button" class="btn btn-primary cambio-estado-aula">Aceptar</button>');
             MODAL.show();
             Aula.form = $("#" + record.form);
         },
@@ -74,12 +81,15 @@ $(function () {
                 }
             });
         }
-    }
+    };
 
     Aula.init();
+
     $("body").delegate(".change-estado", "click", function (e) {
+        console.log("dasdfasd")
         Aula.viewCambioEstado(e, $(this));
     });
+
     $("body").delegate(".cambio-estado-aula", "click", function (e) {
         Aula.cambioEstado(e);
     });

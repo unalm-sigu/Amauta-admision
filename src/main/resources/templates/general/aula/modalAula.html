@@ -2,17 +2,18 @@
 
     <form id="{{:form}}" method="POST">
         <input type="hidden" name="id" value="{{:id}}"/>
+        <input type='hidden' name="estado" value="{{:nuevoEstado}}"/>
+        
         <div class="row m-b-md">
-            <input class='hide' name="id"/>
             <div class="form-group">
                 <div class="col-md-12">
                     {{if seDesactiva}}
-                    <div class="form-group">
-                        <label class="bold">Indique el motivo por el cual esta desactivando el aula</label>
-                        <textarea class='form-control' name='motivoAnulacion' required='true'></textarea>
-                    </div>
+                        <div class="form-group m-b-xs">
+                            <label class="bold">Indique el motivo por el cual está desactivando el ambiente {{:codigo}}</label>
+                            <textarea class='form-control' name='motivoAnulacion' required='true' rows="3"></textarea>
+                        </div>
                     {{else}}
-                    ¿Desea realmente activar el aula?
+                        ¿Desea realmente activar el ambiente {{:codigo}}?
                     {{/if}}
                 </div>
             </div>

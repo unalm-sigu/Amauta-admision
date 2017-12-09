@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -59,31 +61,47 @@ public class CursoServiceImp implements CursoService {
 
     @Override
     @Transactional
-    public void save(Curso curso, Long[] idIdioma, String[] nombreIdioma, Usuario usuario) {
+    public void save(Curso curso, Usuario usuario) {
         ObjectUtil.eliminarAttrSinId(curso, "carrera");
 
+        Curso cursoBD;
         if (curso.getId() == null) {
-            this.saveCurso(curso);
+            cursoBD = this.saveCurso(curso);
         } else {
-            this.updateCurso(curso, idIdioma, nombreIdioma, usuario);
+            cursoBD = this.updateCurso(curso);
         }
 
-        if (idIdioma.length > 0 && nombreIdioma.length > 0) {
+        if (curso.getIdIdioma() == null) {
+            return;
+        }
 
-            for (int i = 0; i < idIdioma.length; i++) {
-                NombreCurso nombreCurso = new NombreCurso();
-                nombreCurso.setCurso(curso);
-                nombreCurso.setFechaRegistro(new Date());
-                nombreCurso.setIdUserRegistro(usuario.getId());
-                nombreCurso.setIdioma(new Idioma(idIdioma[i]));
-                nombreCurso.setNombre(nombreIdioma[i]);
-                nombreCursoDAO.save(nombreCurso);
-            }
+        List<NombreCurso> listaNombres = new ArrayList();
+        for (int i = 0; i < curso.getIdIdioma().length; i++) {
+            NombreCurso nombreCurso = new NombreCurso();
+            nombreCurso.setCurso(curso);
+            nombreCurso.setFechaRegistro(new Date());
+            nombreCurso.setIdUserRegistro(usuario.getId());
+            nombreCurso.setIdioma(new Idioma(curso.getIdIdioma()[i]));
+            nombreCurso.setNombre(curso.getNombreIdioma()[i]);
+            
+            listaNombres.add(nombreCurso);
+        }
+
+        ListsInspector inspector = TypesUtil.analizeLists(cursoBD.getNombreCurso(), listaNombres, "idioma.id");
+
+        List<NombreCurso> nuevos = inspector.getNewList();
+        for (NombreCurso nuevo : nuevos) {
+            nombreCursoDAO.save(nuevo);
+        }
+
+        List<NombreCurso> eliminables = inspector.getDeadList();
+        for (NombreCurso eliminable : eliminables) {
+            nombreCursoDAO.delete(eliminable);
         }
 
     }
 
-    private void saveCurso(Curso curso) {
+    private Curso saveCurso(Curso curso) {
         curso.setCodigo(this.getCodigo(curso));
         curso.setEstado(EstadoEnum.CRE);
         if (curso.getTipoCredito().equals(TipoCreditoEnum.FIJO.name())) {
@@ -94,10 +112,10 @@ public class CursoServiceImp implements CursoService {
             curso.setCreditos(null);
         }
         cursoDAO.save(curso);
-
+        return curso;
     }
 
-    private void updateCurso(Curso curso, Long[] idIdioma, String[] nombreIdioma, Usuario usuario) {
+    private Curso updateCurso(Curso curso) {
         Curso cursoBD = cursoDAO.find(curso.getId());
         cursoBD.setNombre(curso.getNombre());
         if (curso.getCarrera() != null) {
@@ -123,13 +141,9 @@ public class CursoServiceImp implements CursoService {
         cursoBD.setCoordinador(curso.getCoordinador());
         cursoDAO.update(cursoBD);
 
-        List<NombreCurso> nombresCurso = nombreCursoDAO.allByCurso(curso);
+        cursoBD.setNombreCurso(nombreCursoDAO.allByCurso(curso));
 
-        if (!nombresCurso.isEmpty()) {
-            for (NombreCurso nombreCurso : nombresCurso) {
-                nombreCursoDAO.delete(nombreCurso);
-            }
-        }
+        return cursoBD;
 
     }
 

@@ -14,7 +14,7 @@ public interface CursoService {
 
     List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos);
 
-    void save(Curso curso, Long[] idIdioma, String[] nombreIdioma, Usuario usuario);
+    void save(Curso curso, Usuario usuario);
 
     Curso find(Long id);
 

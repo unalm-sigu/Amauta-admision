@@ -1,32 +1,36 @@
 <tr rel="{{:index}}">
 
     <td class="v-middle">
-
-        {{if tipoAmbienteName =='AMB'}}
-        <span class="block bold">{{:codigo}}</span>
+        {{if nombre}}
+            <span class="block text-primary h4 m-b-xs m-t-xs">{{:nombre}}</span>
+        {{/if}}
+        
+        {{if codigo}}
+            <span class="block bold">{{:codigo}}</span>
         {{/if}}
 
-        {{if tipoAmbienteName =='EDI' || tipoAmbienteName =='ESP'}}
-        <span class="block">{{:nombre}}</span>
-        {{/if}}
-
-        <span class="block">{{:tipoAmbiente}}</span>
+        <span class="block">{{:tipoAmbienteEnum}}</span>
     </td>
     <td class="v-middle text-center">
-        <span class="block">Aforo: {{:aforo}}</span>
-        {{if tipoAmbienteName == 'AMB'}}
-        <span class="block">Capacidad: {{:capacidad}}</span>
+        {{if aforo}}
+            <span class="block"><b>Aforo</b> {{:aforo}}</span>
+        {{/if}}
+        
+        {{if capacidad}}
+            <span class="block"><b>Cap.</b> {{:capacidad}}</span>
         {{/if}}
     </td>
     <td class="v-middle">
-        <span class="block">{{:sede}}</span>
-        {{if  tipoAmbienteName =='AMB'}}
-        <span class="block">{{:nombre}}</span>
-        <span class="block">Planta {{:piso}}</span>
+        {{if pabellon}}
+            <span class="block">{{:pabellon}}</span>
         {{/if}}
-        {{if  tipoAmbienteName =='EDI'}}
-        <span class="block">Plantas {{:pisos}}</span>
+        {{if piso}}
+            <span class="block">Planta {{:piso}}</span>
         {{/if}}
+        {{if pisos}}
+            <span class="block">Plantas {{:pisos}}</span>
+        {{/if}}
+        <small class="block bold">{{:sede}}</small>
     </td>
     <td class="v-middle">
         <span class="block">{{:tipoAula}}</span>
@@ -40,10 +44,10 @@
     <td class=" v-middle">
         <span class="clear">
             {{if activar}}
-            <span class="label label-{{:colorEstado}}">{{:estadoName}} </span>
+            <span class="label label-{{:colorEstado}}"> {{:estadoEnum}} </span>
             {{/if}}
             {{if esInactivo}}
-            <label class="label label-{{:colorEstado}}"  data-toggle="tooltip" title="{{:motivo}}">Desactivado</label>
+            <label class="label label-{{:colorEstado}}"  data-toggle="tooltip" title="{{:motivo}}"> {{:estadoEnum}} </label>
             {{/if}}
         </span>
     </td> 
@@ -55,14 +59,16 @@
             </a> 
 
             <ul class="dropdown-menu pull-right">
+                <li><a class="" th:href="@{'/general/aula/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>
                 {{if estado == 'ACT'}}
-                <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Desactivar</a></li>
+                    <li><a class="change-estado pointer" >Desactivar</a></li>
                 {{/if}}
+                
                 {{if estado == 'INA' || estado == 'CRE'}}
-                <li><a class="btn-link pointer change-estado" rel="{{:id}}" rev="{{:estado}}">Activar</a></li>
+                    <li><a class="change-estado pointer" >Activar</a></li>
                 {{/if}}
+                <li><a class="eliminar-aula pointer" >Eliminar</a></li>
 
-                <li><a class="btn-link pointer" th:href="@{'/general/aula/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>
             </ul>
         </div>
     </td>

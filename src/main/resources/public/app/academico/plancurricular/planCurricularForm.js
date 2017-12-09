@@ -202,7 +202,6 @@ $(function () {
             }
             $this.addClass("active");
             NuevaCurricula.numeroCicloElegido = $this;
-            //$("#spnCicloObl").html(pestana);
             if (ciclo > 0) {
                 $("#tituloObligatorios").html('Cursos del ciclo <span id="spnCicloObl" class="font-roman">' + nroRomano + '</span>');
                 $("#btnAddCursoObl").show();
@@ -908,34 +907,35 @@ $(function () {
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
-                    MODAL.showWait("Espere un momento por favor");
-                    //$('#txtCreditos').removeAttr("readonly");
-                    $.ajax({
-                        url: APP.url('academico/planCurricular/saveCursoObligatorio'),
-                        type: 'POST',
-                        async: true,
-                        data: form.serialize(),
-                        success: function (response) {
-                            if (response.success) {
-                                MODAL.hideWait();
-                                MODAL.hide();
-                                notify(response.message, "info");
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('academico/planCurricular/saveCursoObligatorio'),
+                            type: 'POST',
+                            async: true,
+                            data: form.serialize(),
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hideWait();
+                                    MODAL.hide();
+                                    notify(response.message, "info");
 
-                                dynatableCursosObl.queries.add("planc", NuevaCurricula.idPlan);
-                                dynatableCursosObl.queries.add("numCic", NuevaCurricula.numeroCicloElegido.attr("rel"));
-                                dynatableCursosObl.process();
-                                dynatableCursosRes.process();
+                                    dynatableCursosObl.queries.add("planc", NuevaCurricula.idPlan);
+                                    dynatableCursosObl.queries.add("numCic", NuevaCurricula.numeroCicloElegido.attr("rel"));
+                                    dynatableCursosObl.process();
+                                    dynatableCursosRes.process();
 
-                            } else {
+                                } else {
+                                    MODAL.hideWait();
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
                                 MODAL.hideWait();
-                                notify(response.message, "error");
+                                notify(MESSAGES.errorComunicacion, "error");
                             }
-                        },
-                        error: function () {
-                            MODAL.hideWait();
-                            notify(MESSAGES.errorComunicacion, "error");
-                        }
-                    });
+                        });
+                    }
                 }
             });
         },
@@ -1183,8 +1183,6 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
-
-
 
                         $.ajax({
                             url: APP.url('academico/planCurricular/deleteCursoElectivo'),

@@ -6,6 +6,7 @@
                 <select class="form-control" name="tipoAula.id" placeholder="Seleccione el tipo aula" data-trigger="change">
                     <option></option>
                     <option th:each="item : ${tiposAula}"
+                            th:if="${item.tipoAmbiente=='AMB'}" 
                             th:value="${item.id}" 
                             th:text="${item.nombre}"
                             th:selected="${aula.tipoAula} ? ${item.id == aula.tipoAula.id}"/>
@@ -23,13 +24,13 @@
         </div>
         <div class="col-lg-3">
             <div class="form-group">
-                <label>Aforo</label>
+                <label>Aforo (Autorizado por INDECI)</label>
                 <input name="aforo" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.aforo} : ''"  data-trigger="change"/>
             </div>
         </div>
         <div class="col-lg-3">
             <div class="form-group">
-                <label>Capacidad</label>
+                <label>Capacidad (Cantidad de carpetas)</label>
                 <input name="capacidadAula" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.capacidadAula} : ''"  data-trigger="change"/>
             </div>
         </div>
@@ -45,7 +46,7 @@
         </div>
         <div class="col-lg-3">
             <div class="form-group">
-                <label>Planta(Piso)</label>
+                <label>Planta (Piso)</label>
                 <input name="piso" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.piso} : ''"  data-trigger="change"/>
             </div>
         </div>
@@ -55,8 +56,16 @@
         <div class="col-lg-6">
             <div class="form-group">
                 <label>Sede</label>
-                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
-                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />
+                <select class="form-control" name="sede.id" placeholder="Seleccione la sede" required="true" data-trigger="change">
+                    <option></option>
+                    <option th:each="item : ${sedes}"
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"
+                            th:selected="${aula.sede} ? ${item.id == aula.sede.id}"/>
+                </select>
+                
+<!--                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
+                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />-->
             </div>
         </div>
         <div class="col-lg-6">
@@ -74,15 +83,36 @@
     <div class="row">
         <div class="col-lg-3">
             <div class="form-group">
-                <label>Plantas(pisos)</label>
+                <label>Tipo Aula</label>
+                <select class="form-control" name="tipoAula.id" placeholder="Seleccione el tipo aula" data-trigger="change">
+                    <option></option>
+                    <option th:each="item : ${tiposAula}"
+                            th:if="${item.tipoAmbiente=='EDI'}" 
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"
+                            th:selected="${aula.tipoAula} ? ${item.id == aula.tipoAula.id}"/>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="form-group">
+                <label>Plantas (pisos)</label>
                 <input name="pisos" class="form-control text-right numerico" th:value="${aula} != null ? ${aula.pisos} : ''"  data-trigger="change"/>
             </div>
         </div>
-        <div class="col-lg-9">
+        <div class="col-lg-7">
             <div class="form-group">
                 <label>Sede</label>
-                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
-                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />
+                <select class="form-control" name="sede.id" placeholder="Seleccione la sede" required="true" data-trigger="change">
+                    <option></option>
+                    <option th:each="item : ${sedes}"
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"
+                            th:selected="${aula.sede} ? ${item.id == aula.sede.id}"/>
+                </select>
+                
+<!--                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
+                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />-->
             </div>
         </div>
     </div>
@@ -102,8 +132,16 @@
         <div class="col-lg-9">
             <div class="form-group">
                 <label>Sede</label>
-                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
-                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />
+                <select class="form-control" name="sede.id" placeholder="Seleccione la sede" required="true" data-trigger="change">
+                    <option></option>
+                    <option th:each="item : ${sedes}"
+                            th:value="${item.id}" 
+                            th:text="${item.nombre}"
+                            th:selected="${aula.sede} ? ${item.id == aula.sede.id}"/>
+                </select>
+                
+<!--                <input type='text' name="sede.id" class='form-control' th:value="${aula.sede != null} ? ${aula.sede.id}:''" 
+                       th:rel="${aula.id != null and aula.sede != null} ? ${aula.sede.nombre}:''" required="true" data-trigger="change" />-->
             </div>
         </div>
     </div>

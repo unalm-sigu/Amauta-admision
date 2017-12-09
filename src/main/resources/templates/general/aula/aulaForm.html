@@ -7,8 +7,16 @@
 <body>
     <div layout:fragment="main">
 
-         <header class="header b-b padder-lg">
-            <h2 th:text="${aula.id != null ? 'Editar aula' : 'Nueva aula'}">Nuevo aula</h2>
+        <header class="header b-b padder-lg">
+            <h2 th:unless="${aula.id}">Nuevo aula</h2>
+            <h2 th:if="${aula.id}" th:inline="text" class="m-b-xs">
+                <span th:if="${aula.nombre}" th:text="|${aula.codigo} - ${aula.nombre}|" class="block">QQW- Sala XYZ</span>
+                <span th:unless="${aula.nombre}" th:text="|Código ${aula.codigo}|" class="block">QQW</span>
+            </h2>
+            <div th:if="${aula.id}" class="m-b">
+                <span th:if="${aula.estado=='ACT'}" th:inline="text" class="label label-success"> &nbsp;&nbsp; [[${aula.estadoEnum.value}]] &nbsp;&nbsp; </span>
+                <span th:unless="${aula.estado=='ACT'}" th:inline="text" class="label label-warning"> &nbsp;&nbsp; [[${aula.estadoEnum.value}]] &nbsp;&nbsp; </span>
+            </div>
         </header>
 
         <div class="col-lg-12">
@@ -22,7 +30,7 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Tipo Ambiente</label>
-                                    <select class="form-control" name="tipoAmbiente" required="true" placeholder="Seleccione el tipo ambiente" data-trigger="change">
+                                    <select class="form-control" name="tipoAmbiente" id="tipoAmbiente" required="true" placeholder="Seleccione el tipo ambiente" data-trigger="change">
                                         <option></option>
                                         <option th:each="item : ${tiposAmbiente}"
                                                 th:value="${item.name()}" 
@@ -36,8 +44,8 @@
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label>Codigo</label>
-                                    <input name="codigo" class="form-control" required="true" th:value="${aula} != null ? ${aula.codigo} : ''"  data-trigger="change"/>
+                                    <label>Código</label>
+                                    <input name="codigo" id="codigo" class="form-control" required="true" th:value="${aula} != null ? ${aula.codigo} : ''"  data-trigger="change"/>
                                 </div>
                             </div>
                             <div class="col-lg-9">
@@ -69,6 +77,11 @@
     </div>
 
     <div layout:fragment="js">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var tiposAula = /*[[${tiposAula}]]*/ tiposAulax;
+            /*]]>*/
+        </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/general/aula/aulaForm.js}" charset="utf-8"></script>
     </div>

@@ -7,6 +7,7 @@ import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.Sede;
 import pe.edu.lamolina.pivot.model.general.TipoAula;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AulaService {
 
@@ -16,14 +17,16 @@ public interface AulaService {
 
     List<Aula> allAulasSuperioresByName(String nombre);
 
-    List<Sede> allSedesByName(String nombre);
-
     List<Oficina> allOficinasByName(String nombre);
+
+    List<Sede> allSedes();
 
     void save(Aula aula, Usuario usuario);
 
-    Aula find(Long id);
+    void update(Aula aula, Usuario usuario);
 
-    void cambioEstado(Aula aula);
+    Aula findAulaById(Long id);
+
+    void cambioEstado(Aula aula, DataSessionPivot ds);
 
 }

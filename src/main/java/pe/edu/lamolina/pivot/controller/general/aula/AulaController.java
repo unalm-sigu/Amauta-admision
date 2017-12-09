@@ -27,15 +27,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.general.Oficina;
-import pe.edu.lamolina.pivot.model.general.Sede;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -100,17 +99,18 @@ public class AulaController {
                 node.put("id", aula.getId());
                 node.put("codigo", aula.getCodigo());
                 node.put("nombre", aula.getNombre());
-                node.put("tipoAmbienteName", aula.getTipoAmbiente());
-                node.put("tipoAmbiente", TipoAmbienteEnum.valueOf(aula.getTipoAmbiente()).getValue());
+                node.put("tipoAmbienteEnum", aula.getTipoAmbienteEnum().getValue());
+                node.put("tipoAmbiente", aula.getTipoAmbiente());
                 node.put("piso", aula.getPiso());
                 node.put("pisos", aula.getPisos());
                 node.put("aforo", aula.getAforo());
+                node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
                 node.put("capacidad", aula.getCapacidadAula());
-                node.put("sede", aula.getSede().getNombre());
+                node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
                 node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
-                node.put("gestor", aula.getOficinaSupervisora().getNombre());
+                node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
                 node.put("estado", aula.getEstado());
-                node.put("estadoName", EstadoEnum.valueOf(aula.getEstado()).getValue());
+                node.put("estadoEnum", aula.getEstadoEnum().getValue());
                 node.put("motivo", aula.getMotivoAnulacion());
 
                 array.add(node);
@@ -136,6 +136,7 @@ public class AulaController {
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
         model.addAttribute("tiposAula", service.allTiposAula());
+        model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
 
@@ -144,7 +145,11 @@ public class AulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             String mensaje = aula.getId() != null ? Messages.UPDATED : Messages.CREATED;
-            service.save(aula, ds.getUsuario());
+            if (aula.getId() == null) {
+                service.save(aula, ds.getUsuario());
+            } else {
+                service.update(aula, ds.getUsuario());
+            }
             Notificaciones.crearMsg(mensaje, redirectAttr);
 
         } catch (PhobosException ex) {
@@ -161,12 +166,13 @@ public class AulaController {
     public String editar(@PathVariable("id") Long id, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        Aula aula = service.find(id);
+        Aula aula = service.findAulaById(id);
 
         model.addAttribute("aula", aula);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
         model.addAttribute("tiposAula", service.allTiposAula());
+        model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
 
@@ -186,39 +192,6 @@ public class AulaController {
 
                 json.put("id", aula.getId());
                 json.put("nombre", aula.getNombre());
-
-                jsonList.add(json);
-
-            }
-
-            response.setData(jsonList);
-            response.setTotal(jsonList.size());
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("allSedes")
-    public JsonResponse allSedes(@RequestParam("nombre") String nombre, HttpSession session) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-
-        try {
-            List<Sede> sedes = service.allSedesByName(nombre);
-            ArrayNode jsonList = new ArrayNode(jsonFactory);
-
-            for (Sede sede : sedes) {
-                ObjectNode json = new ObjectNode(jsonFactory);
-
-                json.put("id", sede.getId());
-                json.put("nombre", sede.getNombre());
 
                 jsonList.add(json);
 
@@ -271,12 +244,13 @@ public class AulaController {
 
     @ResponseBody
     @RequestMapping("cambioEstado")
-    public JsonResponse cambioEstadoOrientacionCarrera(Aula aula) {
+    public JsonResponse cambioEstadoOrientacionCarrera(Aula aula, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
         try {
-            service.cambioEstado(aula);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cambioEstado(aula, ds);
 
             response.setMessage("Se cambio de estado satisfactoriamente.");
             response.setSuccess(true);
