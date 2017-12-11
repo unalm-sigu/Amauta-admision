@@ -1,14 +1,18 @@
 <div class="col-sm-2 col-xs-1" >
     <div class="list-group">
 
-        <div href="#" class="list-group-item item" style="min-height: 100px;border-width: 1px;border-color:{{:color}};"  rel="{{item.id}}" >
+        <div 
+            href="#" 
+            class="list-group-item item" 
+            th:style="|min-height: 100px;border-width: 1px;border-color:{{:color}};|"  
+            rel="{{:id}}" >
 
             <div class="dropdown actions pull-right">
-                
+
                 <a class="dropdown-toggle text-muted" href="#" data-toggle="dropdown">
                     <i class="fa fa-cog" aria-hidden="true"></i>
                 </a>
-                
+
                 <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
                     <li role="presentation">
                         <a class="btn-link editar"  rel="{{:id}}" href="#" >Editar</a>
@@ -18,15 +22,19 @@
                         <a class="btn-link eliminar" rel="{{:id}}"  href="#">Eliminar</a>
                     </li>
                 </ul>
-                
+
             </div>
 
             <div class="m-t-sm pointer verhorario"  rel="{{:id}}">
                 <h4 class="list-group-item-heading" >{{:codigo}}</h4>
                 <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>
-                <h6 class="list-group-item-heading text-center m-t-md" >{{:horas}} horas</h6>
+
+                <h5 class="list-group-item-heading text-center m-t-md" >
+                    <span class="label label-{{:estado}}"> {{:horas}} horas </span>
+                </h5>
+
             </div>
-            
+
         </div>
     </div>
 </div>

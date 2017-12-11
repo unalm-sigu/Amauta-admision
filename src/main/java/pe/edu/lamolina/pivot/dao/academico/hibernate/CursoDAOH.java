@@ -13,9 +13,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoCursoCachimboEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import static pe.edu.lamolina.pivot.zelper.enums.EstadoEnum.ACT;
 
@@ -154,7 +158,8 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .filter("estado", ACT)
                 .orderBy("cur.nombre")
                 .limit(limit);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -163,7 +168,8 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .from(Curso.class, "cur")
                 .like("cur.codigo", codigo)
                 .orderBy("cur.nombre");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -185,7 +191,34 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         sql.like("cur.nombre", nombre);
         sql.orderBy("cur.nombre");
         sql.limit(10);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Curso> allCursoByName(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .join("departamentoAcademico dep")
+                .leftJoin("carrera car", "car.facultad fa", "planCalificacion  pc", "planCalificacionRegular pcr", "coordinador cor")
+                .filter("cur.estado", EstadoCursoCachimboEnum.ACT)
+                .filter("cur.nombre", "like", nombre)
+                .limit(15);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .select("cur")
+                .from(CursoCachimbos.class, "cc")
+                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("car.id", carrera)
+                .filter("ciclo.id", cicloAcademico);
+
+        return all(sql);
     }
 
 }

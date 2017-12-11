@@ -9,31 +9,21 @@
                 <a th:href="@{/academico/docente}" class="btn btn-default btn-sm pull-right">Regresar</a>
 
                 <h2  id="nombreDocente" th:text="${ docente.persona.id!=null ? docente.persona.apellidosNombres : 'Nuevo Docente' }" >Nuevo Docente</h2> 
-
             </header>
 
             <section class="panel">
-
                 <section class="panel-body bg-white b">
-
 
                     <form th:action="@{/academico/docente/save}" method="post"  class="form-horizontal m-t-lg" data-parsley-validate="true">
 
-                        <input type="hidden" name="persona.id" id="personaId"  th:value="${docente.persona}? ${docente.persona.id}"/>
-                        <input type="hidden" name="id" id="personaId" th:value="${docente.id}"/>
-
-
-
                         <div class="col-sm-10">
-
                             <div class="form-group">
-
                                 <label for="docIdentidad" class="col-sm-2 control-label">N° documento</label>
 
                                 <div class="col-sm-5">
                                     <select name="persona.tipoDocumento.id" 
                                             required="true" 
-                                            class="form-control select2single buscar-persona" >
+                                            class="form-control" >
                                         <option></option>
                                         <option th:each="item : ${documentos}"  
                                                 th:text="${item.nombre}"
@@ -51,54 +41,198 @@
                                             th:value="${docente.persona!=null} ? ${docente.persona.numeroDocIdentidad}"/>
 
                                 </div>
-
                             </div>
 
-                            <div id='formPersona'>
+                            <section id='formularioDocente'  >
 
-                            </div> 
+                                <input type="hidden" name="persona.id" id="personaId"  th:value="${docente.persona.id}"/>
+                                <input type="hidden" name="id" id="personaId" th:value="${docente.id}"/>
 
-
-                            <div class="form-group">
-
-                                <label class="col-sm-2 control-label" >Departamento Académico</label>
-                                <div class="col-sm-4">
-                                    <input  type="text" 
-                                            name="departamentoAcademico.id" 
-                                            th:value="${docente.departamentoAcademico!=null?docente.departamentoAcademico.id:''}"
-                                            th:rel="${docente.departamentoAcademico!=null?docente.departamentoAcademico.nombre:''}"
-                                            th:rev="${docente.departamentoAcademico!=null?docente.departamentoAcademico.codigo:''}"
-                                            required='true'
-                                            data-trigger="change"
-                                            class="form-control"/>
-                                </div>
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="" class="col-sm-2 control-label">Modalidad de Estudio</label>
-
-                                <div class="col-sm-4">
-                                    <select name="modalidadEstudio.id" 
-                                            required="true" 
-                                            class="form-control select2single buscar-persona" >
-                                        <option></option>
-                                        <option th:each="item : ${modalidades}"  
-                                                th:text="${item.nombre}"
-                                                th:selected="${docente.modalidadEstudio!=null} ? ${docente.modalidadEstudio.id==item.id}"
-                                                th:value="${item.id}" ></option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="emailEmpresa" class="col-sm-2 control-label">Correo  Principal</label>
+                                    <div class="col-sm-6">
+                                        <input  class="inline form-control validar-email-empresa" 
+                                                data-trigger="change" required="true" type="email" 
+                                                data-trim-value="true"
+                                                name="persona.emailCompania" id="emailCompania"
+                                                th:value=" ${docente.persona.emailCompania}"
+                                                /> 
+                                    </div>
                                 </div>
 
-                            </div>
+                                <div class="form-group">
+                                    <label for="paterno" class="col-sm-2 control-label">Apellido y Nombres</label>
+                                    <div class="col-sm-3">
+                                        <input  type="text" name="persona.paterno" 
+                                                required="true" 
+                                                class="form-control nombre-persona" 
+                                                th:value=" ${docente.persona.paterno}"
+                                                placeholder="Paterno"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input  type="text" 
+                                                name="persona.materno" 
+                                                required="true" 
+                                                class="form-control nombre-persona" 
+                                                th:value=" ${docente.persona.materno}"
+                                                placeholder="Materno"/>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input  type="text" 
+                                                name="persona.nombres" 
+                                                required="true" 
+                                                class="form-control nombre-persona" 
+                                                th:value=" ${docente.persona.nombres}"
+                                                placeholder="Nombres"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="sexo" class="col-sm-2 control-label">Sexo</label>
+                                    <div class="col-sm-5">
+                                        <div class="col-sm-6">
+                                            <label class="radio inline">
+                                                <input  type="radio" 
+                                                        required="true" 
+                                                        name="persona.sexo"
+                                                        th:checked="${docente.persona.sexo=='M'}"
+                                                        id="sexoM" value="M" /> Masculino
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="radio inline">
+                                                <input  type="radio" 
+                                                        required="true" 
+                                                        name="persona.sexo" 
+                                                        th:checked="${docente.persona.sexo=='F'}"
+                                                        id="sexoF" value="F" /> Femenino
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="fechaNacimiento" 
+                                           class="col-sm-2 control-label">Fecha de Nacimiento</label>
+                                    <div class="col-sm-4">
+                                        <div class="input-group date" >
+                                            <input  type="text" 
+                                                    class="form-control" 
+                                                    data-parsley-errors-container="#errorfechaNacimiento" 
+                                                    name="persona.fechaNacer" 
+                                                    th:value="${docente.persona.fechaNacer!=null ? #dates.format(docente.persona.fechaNacer,'dd/MM/yyyy'):''}"
+                                                    id="fechaNacer" />
+                                            <span class="input-group-addon pointer">
+                                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                                            </span>
+                                        </div>
+                                        <span id="errorfechaNacimiento"></span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="distrito" class="col-sm-2 control-label">Distrito</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" 
+                                               class="form-control input-s-full buscar-distrito" 
+                                               id="buscarDistrito" 
+                                               name="persona.ubicacionDomicilio.id" 
+                                               th:value="${docente.persona.ubicacionDomicilio!=null?docente.persona.ubicacionDomicilio.id:''}"
+                                               th:rel="${docente.persona.ubicacionDomicilio!=null?docente.persona.ubicacionDomicilio.distrito:''}"
+                                               data-trigger="change" 
+                                               required="true" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="direccion" class="col-sm-2 control-label">Dirección</label>
+                                    <div class="col-sm-9">
+                                        <input  type="text" 
+                                                name="persona.direccion" 
+                                                th:value=" ${docente.persona.direccion}"
+                                                class="input-xxlarge form-control domicilio"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="email" class="col-sm-2 control-label">Correo  Personal</label>
+                                    <div class="col-sm-4">
+                                        <input  type="email" 
+                                                class="inline form-control validar-email" 
+                                                data-type="email" 
+                                                name="persona.email" 
+                                                th:value=" ${docente.persona.email}"
+                                                id="email" />                                  
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="celular" class="col-sm-2 control-label">Celular</label>
+                                    <div class="col-sm-4">
+                                        <input  type="text" 
+                                                class="form-control sin-espacios"  
+                                                th:value=" ${docente.persona.celular}"
+                                                name="persona.celular" />
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="telefono" class="col-sm-2 control-label">Teléfono</label>
+                                    <div class="col-sm-4">
+                                        <input  type="text" 
+                                                class="form-control sin-espacios" 
+                                                name="persona.telefono" 
+                                                th:value=" ${docente.persona.telefono}"
+                                                id="telefono" />
+                                    </div>
+                                </div> 
+
+
+                                <div class="form-group">
+
+                                    <label class="col-sm-2 control-label" >Departamento Académico</label>
+                                    <div class="col-sm-9">
+                                        <input  type="text" 
+                                                name="departamentoAcademico.id" 
+                                                th:value="${docente.departamentoAcademico!=null?docente.departamentoAcademico.id:''}"
+                                                th:rel="${docente.departamentoAcademico!=null?docente.departamentoAcademico.nombre:''}"
+                                                th:rev="${docente.departamentoAcademico!=null?docente.departamentoAcademico.codigo:''}"
+                                                required='true'
+                                                data-trigger="change"
+                                                class="form-control"/>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="" class="col-sm-2 control-label">Modalidad de Estudio</label>
+
+                                    <div class="col-sm-4">
+                                        <select name="modalidadEstudio.id" 
+                                                required="true" 
+                                                class="form-control" >
+                                            <option></option>
+                                            <option th:each="item : ${modalidades}"  
+                                                    th:text="${item.nombre}"
+                                                    th:selected="${docente.modalidadEstudio!=null} ? ${docente.modalidadEstudio.id==item.id}"
+                                                    th:value="${item.id}" ></option>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                            </section>
 
                             <div class="form-group m-t-xxlg">
                                 <label class="col-sm-2 control-label"></label>
                                 <div id="footerUsuario" class="col-sm-10">
                                     <button class="btn btn-primary" 
                                             type="button"
-                                            th:text="${docente.id!=null?'Actualizar':'Guardar'}"
+                                            th:text="${docente.id!=null?'Actualizar Docente':'Guardar Docente'}"
                                             id="btnSavePersona">Guardar</button>                                        
                                     <a th:href="@{/academico/docente}" class="btn btn-link" >Cancelar</a>
                                 </div>
@@ -131,11 +265,6 @@
 
                     </form>
 
-                    <script id="docentePersonaTemplate" type="text/x-jsrender" class="hide" >
-                        <div th:substituteby="academico/docente/docente/docentePersonaTemplate"/>
-                    </script>
-
-
                 </section>
 
             </section>
@@ -144,7 +273,7 @@
 
         <div layout:fragment="js">
             <script charset="utf-8">
-                var datepicker = $.fn.datepicker.noConflict(); // return $.fn.datepicker to previously assigned value
+                var datepicker = $.fn.datepicker.noConflict();
                 $.fn.datepickerBoot = datepicker;
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload"> </div>

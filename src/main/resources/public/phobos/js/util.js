@@ -7,10 +7,8 @@ $(function () {
         var nav = $('.subbar');
 
         if ($(this).scrollTop() > limit) {
-
             nav.addClass("f-nav");
         } else {
-
             nav.removeClass("f-nav");
         }
     });
@@ -442,8 +440,7 @@ APP = {
         dynadiv: "<div class='panel-body'><div class='row' id='dynatable'></div></div>",
         inext: "<i class='fa fa-chevron-right' aria-hidden='true'></i>",
         iprev: "<i class='fa fa-chevron-left' aria-hidden='true'></i>",
-        fileLoad: '<form class="row text-center"><div id="archivoclick" style="border: dashed #cbd5dd 1px ;border-radius: 5px;" class="col-xs-10 col-xs-offset-1"><p id="archivoname" class="h4 m-t-lg m-b-lg text-muted pointer"  >archivo</p></div><input  class="hide" id="fileupload" type="file" value="Selecionar Archivo" name="file"/><input type="hidden" name="archivo" id="archivo" value="" /></form>',
-        wait: '<div class="m-t m-b text-center"><i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp; <span class="h3 bold">Espere un momento por favor..</span>',
+        wait: '<div class="m-t m-b text-center"><i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp; <span class="h3 bold">Espere un momento por favor...</span>',
         color: '<div class="colorpicker dropdown-menu"><div class="colorpicker-saturation"><i><b></b></i></div><div class="colorpicker-hue"><i></i></div><div class="colorpicker-color"><div /></div><div class="colorpicker-selectors"></div></div>'
     },
     recDynatable: function (dynatable, e) {

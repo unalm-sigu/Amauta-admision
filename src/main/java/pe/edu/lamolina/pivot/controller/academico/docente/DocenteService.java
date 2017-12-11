@@ -25,10 +25,14 @@ public interface DocenteService {
 
     void estado(Docente docente);
 
-    Persona findPersona(Persona personaTmp);
+    Persona findPersonaByDocIdentidad(Persona personaTmp);
 
     Docente findDocenteByPersona(Persona persona);
 
     List<ModalidadEstudio> allModalidadEstudio(Compania compania);
+
+    Persona findPersona(Persona persona);
+
+    void update(Docente docente, DataSessionPivot ds);
 
 }

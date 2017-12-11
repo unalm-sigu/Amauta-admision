@@ -981,43 +981,50 @@ div.notas {
 /*style horario*/
 
 .grupoactivo{
-    background-color: #b7e6ff;
+    background-color: #eaeef1;
 }
 .asignar-hora{
     border-width: 2px
 }
 
 /*style table horario*/
-
 .table-fixed {
-  width: 100%;
+    width: 100%;
 }
 .table-fixed tbody {
-  height: 400px;
-  overflow-y: auto;
-  width: 100%;
+    height: 400px;
+    overflow-y: auto;
+    width: 100%;
 }
 .table-fixed thead, 
 .table-fixed tbody, 
 .table-fixed tr, 
 .table-fixed td, 
 .table-fixed th {
-  display: block;
+    display: block;
 }
 .table-fixed tbody td {
-  float: left;
+    float: left;
 }
 .table-fixed thead tr th {
-  float: left;
+    float: left;
 }
-
 .table-fixed > tbody > tr > td{
-  border-left:  1px solid #eaeef1;
-  border-right: 1px solid #eaeef1;
+    border-left:  1px solid #eaeef1;
+    border-right: 1px solid #eaeef1;
 }
 .table-fixed > tbody{
-  border-bottom:  1px solid #eaeef1;
+    border-bottom:  1px solid #eaeef1;
 }
+/*end style table horario */
+
+
+/*style item horario*/
+.text-item-horario{
+    color: white;
+    mix-blend-mode: difference;
+}
+/*end style item horario*/
 
 
 .bg-dynatable-process {

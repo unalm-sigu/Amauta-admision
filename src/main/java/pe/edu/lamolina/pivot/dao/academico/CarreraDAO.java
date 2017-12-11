@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
@@ -27,6 +28,11 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     CarreraResumen resumen();
 
+    List<Carrera> allCarrera();
+
+    List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio);
+
+    List<Carrera> allCarreraByModalidadEstudio(ModalidadEstudio modalidadEstudio);
     List<Carrera> allRegularesByCarreras(List<Carrera> carreras);
 
 }

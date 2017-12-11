@@ -1,0 +1,59 @@
+<modal-vik ref="modalAddCursoCarrera"
+           v-bind="addCursoCarreraModal"
+           v-bind:okaction="createCursoCarrera">
+
+
+    <div slot="body">
+        <form id="formCursoCarrera"  data-parsley-validate="true">
+
+            <div class="form-group">
+                <label>Carrera</label>
+                <input type="text" 
+                       class="form-control"
+                       name="carrera.id"
+                       v-model="carrera.id"
+                       required="true"/>
+            </div>
+
+            <table class="table table-condensed" id="tableCurso">
+                <thead>
+                    <tr>
+                        <th class="col-xs-10">Curso</th>
+                        <th class="col-xs-1">Créditos</th>
+                        <th class="col-xs-1"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" 
+                                   class="form-control cursoItem"
+                                   rel="curso.id"
+                                   name="curso.id"
+                                   v-model="curso.id"
+                                   required="true"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            {{curso.creditos}}
+                        </td>
+                        <td class="text-center v-middle">
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="text-right v-middle">Total</td>
+                        <td class="text-center v-middle">{{total}}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+
+            </table>
+
+            <div class="text-center m-t-lg">
+                <button type="button" v-on:click.prevent="agregarItem" class="btn btn-sm btn-default">Agregar ítem</button>
+            </div>
+
+        </form>
+    </div>
+</modal-vik>

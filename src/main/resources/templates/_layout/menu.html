@@ -52,6 +52,37 @@
                         <li class="option"
                             th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a href="#" data-toggle="sidebar">
+                                <i class="fa fa-calendar"></i>
+                                <span>Horario Cachimbo</span>
+                                <i class="fa fa-chevron-down"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/ingresante}">
+                                        <span>Horario cachimbo</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/curso}">
+                                        <span>Curso cachimbo</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/carrera}">
+                                        <span>Carrera cachimbo</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/horariocachimbo/horario}">
+                                        <span>Horario cachimbo</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="option"
+                            th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a href="#" data-toggle="sidebar">
                                 <i class="fa fa-briefcase"></i>
                                 <span>Configuración</span>
                                 <i class="fa fa-chevron-down"></i>

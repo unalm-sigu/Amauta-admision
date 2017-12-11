@@ -113,9 +113,23 @@ public class GrupoHorasController {
                 node.put("tipoSeccion", grupo.getTipoSeccion());
                 node.put("color", grupo.getColor());
                 List<DiaHoraGrupo> mapGrupohora = mapGrupohoras.get(grupo.getId());
+                node.put("estado", "default");
                 node.put("horas", 0);
                 if (mapGrupohora != null) {
                     node.put("horas", mapGrupohora.size());
+                }
+                if (TipoGrupoHorariosEnum.FLX.name().equalsIgnoreCase(grupo.getConHorario())) {
+                    node.put("estado", "primary");
+                } else {
+                    if (mapGrupohora == null) {
+                        node.put("estado", "danger");
+                    } else {
+                        if (mapGrupohora.size()>0) {
+                            node.put("estado", "primary");
+                        } else {
+                            node.put("estado", "danger");
+                        }
+                    }
                 }
                 array.add(node);
             }

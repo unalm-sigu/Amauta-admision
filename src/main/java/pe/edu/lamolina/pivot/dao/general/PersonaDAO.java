@@ -28,4 +28,6 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     List<Persona> allByEmailCompaniaWithoutPersona(Persona persona);
 
+    public Persona findPersona(Long id);
+
 }

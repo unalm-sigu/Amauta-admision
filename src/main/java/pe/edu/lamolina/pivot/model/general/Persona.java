@@ -86,6 +86,10 @@ public class Persona implements Serializable {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaValidacion;
 
+    @Column(name = "fecha_validacion_reniec")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date fechaValidacionReniec;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ubicacion_nacer")
     private Ubicacion ubicacionNacer;
@@ -538,6 +542,14 @@ public class Persona implements Serializable {
         }
 
         return avatar;
+    }
+
+    public Date getFechaValidacionReniec() {
+        return fechaValidacionReniec;
+    }
+
+    public void setFechaValidacionReniec(Date fechaValidacionReniec) {
+        this.fechaValidacionReniec = fechaValidacionReniec;
     }
 
 }

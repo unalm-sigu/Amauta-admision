@@ -48,6 +48,14 @@ public class Ubicacion implements Serializable {
     public Ubicacion() {
     }
 
+    public String getDistrito() {
+        Ubicacion dpto = ubicacionSuperior.getUbicacionSuperior();
+        String provincia = ubicacionSuperior.getTipoUbicacion().getSimbolo() + ": " + ubicacionSuperior.getNombre();
+        String departamento = dpto.getTipoUbicacion().getSimbolo() + ": " + dpto.getNombre();
+        String distrito = tipoUbicacion.getSimbolo() + ": " + nombre;
+        return distrito + " / " + provincia + " / " + departamento;
+    }
+
     public Ubicacion(Object id) {
         this.id = TypesUtil.getLong(id);
     }
@@ -117,4 +125,3 @@ public class Ubicacion implements Serializable {
     }
 
 }
-
