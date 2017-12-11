@@ -112,6 +112,17 @@ public class AulaController {
                 node.put("estado", aula.getEstado());
                 node.put("estadoEnum", aula.getEstadoEnum().getValue());
                 node.put("motivo", aula.getMotivoAnulacion());
+                node.put("aulasContenido", aula.getAulasContenido().size());
+
+                ArrayNode arrayHijas = new ArrayNode(JsonNodeFactory.instance);
+                List<Aula> aulasHijas = aula.getAulasContenido();
+                for (Aula aulaHija : aulasHijas) {
+                    ObjectNode nodeHija = new ObjectNode(JsonNodeFactory.instance);
+                    nodeHija.put("codigo", aulaHija.getCodigo());
+                    nodeHija.put("nombre", aulaHija.getNombre());
+                    arrayHijas.add(nodeHija);
+                }
+                node.set("aulasHijas", arrayHijas);
 
                 array.add(node);
             }
@@ -120,7 +131,6 @@ public class AulaController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
-            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
@@ -257,6 +267,29 @@ public class AulaController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminar")
+    public JsonResponse eliminar(Aula aula, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.eliminarAula(aula, ds);
+
+            response.setMessage("Se cambio de estado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -175,12 +175,14 @@ public class ActaController {
     public DynatableResponse listGrupo(DynatableFilter filter, @RequestParam("departamento") Long idDepartamento, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
-            filter.filterFix("gp.estado", EstadoEnum.ACT.name());
-            List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), filter);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DepartamentoAcademico dpto = new DepartamentoAcademico(idDepartamento);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            //filter.filterFix("gp.estado", EstadoEnum.ACT.name());
+            List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ciclo, dpto, filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (GrupoSeccion grupo : allGruposSeccion) {

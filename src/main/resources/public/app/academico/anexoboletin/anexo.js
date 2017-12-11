@@ -75,8 +75,10 @@ $(function () {
         viewCount: function ($this, e) {
             e.preventDefault();
             var div = $this.closest("div");
+            console.log(div)
             var classColor = 'bg-light';
             var tieneBgColor = div.hasClass(classColor);
+            console.log(tieneBgColor)
             dynatable.queries.remove("ass.id");
 
             if (Anexo.divSeleccionado != null) {
@@ -86,6 +88,7 @@ $(function () {
 
             if (!tieneBgColor) {
                 div.addClass(classColor);
+                console.log(div)
                 Anexo.divSeleccionado = div;
                 var grupo = $this.attr("rel");
                 dynatable.queries.add("ass.id", grupo);

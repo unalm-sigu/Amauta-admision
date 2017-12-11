@@ -29,6 +29,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 
 @Service
@@ -54,8 +55,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     DocenteDAO docenteDAO;
 
     @Override
-    public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, cicloAcademico);
+    public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+        List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, ciclo);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
 
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
@@ -297,8 +298,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public GpoSeccionResumen resumen() {
-        return grupoSeccionDAO.resumen();
+    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
+        return grupoSeccionDAO.resumenByCiclo(ciclo);
     }
 
     @Override
@@ -365,6 +366,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional(readOnly = false)
     public void updatePorcentajeAvance(DocenteSeccion docenteSeccion) {
         docenteSeccionDAO.updatePorcentajeAvance(docenteSeccion);
+    }
+
+    @Override
+    public List<AnexoBoletin> allAnexosBySuperiorCiclo(String anexoSuperior, CicloAcademico ciclo) {
+        GrupoAnexoEnum gpoAnexoE = GrupoAnexoEnum.get2(anexoSuperior);
+        System.out.println(gpoAnexoE.name());
+        System.out.println(gpoAnexoE.getValue());
+
+        return anexoBoletinDAO.allBySuperiorCiclo(new AnexoBoletin(gpoAnexoE.getValue()), ciclo);
     }
 
 }

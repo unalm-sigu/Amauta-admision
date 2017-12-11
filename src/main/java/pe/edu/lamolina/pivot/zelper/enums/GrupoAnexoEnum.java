@@ -5,27 +5,44 @@ import java.util.Map;
 
 public enum GrupoAnexoEnum {
 
-    INGRESANTE("1"), DPTO("2"), ACTIVIDADES("3"), POSTGRADO("4"), OTROS("5"),;
+    INGRESANTE("1", "ingresantes"),
+    DPTO("2", "departamentos"),
+    ACTIVIDADES("3", "actividades"),
+    POSTGRADO("4", "postGrados"),
+    OTROS("5", "otros"),
+    TODO("0", "todos");
 
     private final String value;
-    private static final Map<String, GrupoAnexoEnum> lookup = new HashMap<>();
+    private final String descripcion;
+    private static final Map<String, GrupoAnexoEnum> lookup = new HashMap();
+    private static final Map<String, GrupoAnexoEnum> lookup2 = new HashMap();
 
     static {
         for (GrupoAnexoEnum d : GrupoAnexoEnum.values()) {
             lookup.put(d.getValue(), d);
+            lookup2.put(d.getDescripcion(), d);
         }
     }
 
-    private GrupoAnexoEnum(String value) {
+    private GrupoAnexoEnum(String value, String descripcion) {
         this.value = value;
+        this.descripcion = descripcion;
     }
 
     public String getValue() {
         return value;
     }
 
+    public String getDescripcion() {
+        return descripcion;
+    }
+
     public static GrupoAnexoEnum get(String abbreviation) {
         return lookup.get(abbreviation);
+    }
+
+    public static GrupoAnexoEnum get2(String abbreviation) {
+        return lookup2.get(abbreviation);
     }
 
     public static String getNombre(String nombre) {

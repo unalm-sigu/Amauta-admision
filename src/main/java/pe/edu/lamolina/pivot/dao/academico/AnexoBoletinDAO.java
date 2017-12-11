@@ -2,11 +2,12 @@ package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dao.Crud;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 
-public interface AnexoBoletinDAO extends Crud<AnexoBoletin> {
+public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
 
     List<AnexoBoletin> allByDynatable(DynatableFilter filter);
 
@@ -17,5 +18,7 @@ public interface AnexoBoletinDAO extends Crud<AnexoBoletin> {
     AnexoResumen resumen();
 
     List<AnexoBoletin> allAnexosHijos();
+
+    public List<AnexoBoletin> allBySuperiorCiclo(AnexoBoletin anexoSuperior, CicloAcademico ciclo);
 
 }

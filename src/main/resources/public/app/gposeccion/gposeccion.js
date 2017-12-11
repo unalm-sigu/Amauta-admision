@@ -1,5 +1,7 @@
 $(function () {
 
+    var contar = 0;
+
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/gposeccion/list'),
@@ -12,7 +14,14 @@ $(function () {
             bodyRowSelector: 'tbody tr'
         }
     }).bind('dynatable:afterUpdate', function (e, dynatable) {
-        $('[data-toggle="tooltip"]').tooltip();
+        $("#opopop").prepend($("#headDynatable"));
+        $('#headDynatable').removeClass('hide');
+
+        if (GrupoSeccion.loadAnexosActive) {
+            GrupoSeccion.loadAnexos();
+            GrupoSeccion.loadAnexosActive = false;
+        }
+
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
@@ -42,12 +51,18 @@ $(function () {
     }
 
     var GrupoSeccion = {
-        viewCount: function ($this, e) {
+        anexoSup: null,
+        loadAnexosActive: false,
+        verGposByAnexoSuperior: function ($this, e) {
             e.preventDefault();
             var div = $this.closest("div");
             var classColor = 'bg-light';
             var tieneBgColor = div.hasClass(classColor);
-            dynatable.queries.remove("ass.id");
+
+            dynatable.queries.remove("superior.id");
+            dynatable.queries.remove("anexo.id");
+            GrupoSeccion.anexoSup = null;
+            GrupoSeccion.loadAnexosActive = true;
 
             if (GrupoSeccion.divSeleccionado != null) {
                 GrupoSeccion.divSeleccionado.removeClass(classColor);
@@ -57,10 +72,21 @@ $(function () {
             if (!tieneBgColor) {
                 div.addClass(classColor);
                 GrupoSeccion.divSeleccionado = div;
-                var grupo = $this.attr("rel");
-                dynatable.queries.add("ass.id", grupo);
+                var anexoSup = $this.attr("rel");
+                dynatable.queries.add("superior.id", anexoSup);
+                GrupoSeccion.anexoSup = anexoSup;
             }
             dynatable.process();
+
+        }, verGposByAnexo: function () {
+            console.log("sdfsdfsdfsd")
+            dynatable.queries.remove("anexo.id");
+            var anx = $("#anexos").val();
+            if (anx != "") {
+                dynatable.queries.add("anexo.id", anx);
+            }
+            dynatable.process();
+
         }, nuevoGrupoSec: function ($this, e) {
             MODAL.hide();
             MODAL.init("md");
@@ -68,6 +94,7 @@ $(function () {
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnSaveGpo">Aceptar</a>');
             MODAL.body('');
+
             $.ajax({
                 url: APP.url('academico/gposeccion/nuevo'),
                 type: 'POST',
@@ -197,11 +224,48 @@ $(function () {
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
             location.href = APP.url("academico/gposeccion/" + rec.id + "/editar");
+        },
+        loadAnexos() {
+            $("#anexos").select2("destroy");
+            var anxSup = GrupoSeccion.anexoSup == null ? "todos" : GrupoSeccion.anexoSup;
+
+            $.ajax({
+                url: APP.url('academico/gposeccion/allAnexos'),
+                type: 'POST',
+                async: true,
+                data: {"anexoSuperior": anxSup},
+                success: function (response) {
+                    if (response.success) {
+
+                        $("#anexos").select2({
+                            data: {results: response.data, text: 'nombre'},
+                            allowClear: true,
+                            formatSelection(info) {
+                                return info.nombre;
+                            },
+                            formatResult(info) {
+                                var html = '<span class="block text-success bold h5 m-b-xs m-t-xs">' + info.nombre + '</span>';
+                                html += '<small class="block">' + info.superior + '</small>';
+                                return html;
+                            }
+                        }).on("change", function () {
+                            console.log("3453453454")
+                            GrupoSeccion.verGposByAnexo();
+                        });
+
+                    } else {
+                        notify("No se pudo cargar los anexos", "error");
+                    }
+                },
+                error: function () {
+                    notify("Conexión perdida para cargar los anexos", "error");
+                }
+            });
         }
-    }
+    };
 
     $("body").delegate(".view-count", "click", function (e) {
-        GrupoSeccion.viewCount($(this), e);
+        GrupoSeccion.verGposByAnexoSuperior($(this), e);
     });
 
     $("body").delegate(".nuevo-grupo-sec", "click", function (e) {
@@ -223,6 +287,8 @@ $(function () {
     $("body").delegate(".editar-gpo-seccion", "click", function (e) {
         GrupoSeccion.editarGpoSeccion($(this), e);
     });
+
+    GrupoSeccion.loadAnexos();
 
 
 });

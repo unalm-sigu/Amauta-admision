@@ -2,10 +2,10 @@ package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dao.Crud;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.model.general.Aula;
 
-public interface AulaDAO extends Crud<Aula> {
+public interface AulaDAO extends EasyDAO<Aula> {
 
     Aula findByCode(String codigo);
 
@@ -16,6 +16,8 @@ public interface AulaDAO extends Crud<Aula> {
     List<Aula> allAulasSuperioresByName(String forLike);
 
     List<Aula> allByAulaSuperior(Aula aula);
+
+    List<Aula> allByAulasSuperiores(List<Aula> aulas);
 
     Aula find(Long id);
 

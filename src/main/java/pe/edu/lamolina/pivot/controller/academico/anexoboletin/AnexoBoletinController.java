@@ -30,7 +30,6 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -73,7 +72,6 @@ public class AnexoBoletinController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         model.addAttribute("resumen", service.resumen());
-
         return "academico/anexoboletin/anexo";
     }
 

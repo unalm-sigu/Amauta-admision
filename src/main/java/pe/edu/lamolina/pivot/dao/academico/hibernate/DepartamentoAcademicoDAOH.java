@@ -1,37 +1,32 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCursoDocente;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
-public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico> implements DepartamentoAcademicoDAO {
+public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcademico> implements DepartamentoAcademicoDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -42,64 +37,32 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
 
     @Override
     public DepartamentoAcademico find(Long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("da");
-        sqlUtil.parents("facultad f");
-        sqlUtil.filter("da.id", id);
-        return find(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "da")
+                .join("facultad fa")
+                .filter("da.id", id);
+
+        return find(sql);
     }
 
     @Override
-    public List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        StringBuilder strb = new StringBuilder();
-        strb.append(" Select ");
-        strb.append("  distinct dep ");
-        strb.append(" from ");
-        strb.append("   GrupoSeccion gs ");
-        strb.append("    inner join  gs.curso cur ");
-        strb.append("    inner join  cur.departamentoAcademico dep ");
-        strb.append("    inner join  gs.cicloAcademico cic ");
-        strb.append("    inner join  gs.secciones secs ");
-        strb.append(" where ");
-        strb.append("   cic.id=:prm_ciclo and secs.estado='ACT'");
+    public List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, CicloAcademico ciclo) {
+        Octavia subquery = Octavia.query()
+                .from(Seccion.class, "se")
+                .join("se.grupoSeccion ggss")
+                .filter("se.estado", EstadoEnum.ACT);
 
-        Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("prm_ciclo", cicloAcademico.getId());
-        List<DepartamentoAcademico> listGrupos = query.list();
-        List<Long> lstDepartamentos = new ArrayList<Long>();
-        for (DepartamentoAcademico dep : listGrupos) {
-            lstDepartamentos.add(dep.getId());
-        }
-
-        List<String> fieldsFiltro = Arrays.asList("da.nombre", "da.codigo");
-
-        filter.setAlias("da");
-        filter.setFields(fieldsFiltro);
-        filter.setParents("facultad f");
-        filter.filterFix("da.estado", EstadoEnum.ACT.name());
-        if (!lstDepartamentos.isEmpty()) {
-            filter.filterInFix("da.id", lstDepartamentos);
-        }
-        filter.setTotal(this.count(filter));
-        filter.setFiltered(this.countByFilter(filter));
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
-        sqlUtil.parents(filter.getParents());
-
-        Map filtersFix = filter.getFiltersFixed();
-        for (Object key : filtersFix.keySet()) {
-            this.filterFixed(sqlUtil, (String) key, filtersFix.get(key));
-        }
-
-        Map filtersInFix = filter.getFiltersInFixed();
-        for (Object key : filtersInFix.keySet()) {
-            this.filterInFixed(sqlUtil, (String) key, (List) filtersInFix.get(key));
-        }
-        this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
-        sqlUtil.setFirstResult(filter.getOffset())
-                .setPageSize(filter.getPerPage())
+        DynatableSql sql = new DynatableSql(filter)
+                .selectDistinct("da")
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da", "da.facultad fa")
+                .filter("ca.id", ciclo)
+                .filter("da.estado", EstadoEnum.ACT)
+                .exists(subquery)
+                .linkedBy("gs.id", "ggss.id")
+                .searchFields("da.nombre", "da.codigo")
                 .orderBy("da.nombre");
-
-        return this.all(sqlUtil);
+        return sql.all(getCurrentSession());
     }
 
     @Override
@@ -145,10 +108,12 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
 
     @Override
     public List<DepartamentoAcademico> allByCompania(Compania compania) {
-        SqlUtil sqlUtil = new SqlUtil("de")
-                .parents("facultad fa", "_fa.compania co")
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "de")
+                .join("facultad fa", "fa.compania co")
                 .filter("co.id", compania);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
@@ -259,22 +224,20 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
         return query.list();
     }
 
+    @Override
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
+        Octavia sql = Octavia.query()
+                .from(DepartamentoAcademico.class, "de")
+                .join("facultad fa", "fa.compania co")
+                .beginBlock()
+                .__().like("da.codigo", nombre)
+                .__().like("da.nombre", nombre)
+                .endBlock()
+                .filter("co.id", compania)
+                .orderBy("da.nombre")
+                .limit(10);
 
-        Criteria criteria = getCurrentSession().createCriteria(DepartamentoAcademico.class, "da");
-        criteria.createCriteria("facultad").add(Restrictions.eq("compania", compania));
-
-        if (!"".equalsIgnoreCase(nombre)) {
-            String searchValue = nombre.trim().replaceAll("\\s+", "%");
-            Disjunction criteriaConjunction = Restrictions.disjunction();
-            criteriaConjunction.add(Restrictions.like("da.codigo", searchValue, MatchMode.ANYWHERE));
-            criteriaConjunction.add(Restrictions.like("da.nombre", searchValue, MatchMode.ANYWHERE));
-            criteria.add(criteriaConjunction);
-        }
-
-        criteria.addOrder(Order.asc("da.nombre"));
-        criteria.setMaxResults(10);
-        return criteria.list();
+        return all(sql);
     }
 
     @Override
@@ -283,6 +246,7 @@ public class DepartamentoAcademicoDAOH extends AbstractDAO<DepartamentoAcademico
                 .from(DepartamentoAcademico.class, "da")
                 .join("facultad fa")
                 .filter("da.nombre", "like", nombre);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 }

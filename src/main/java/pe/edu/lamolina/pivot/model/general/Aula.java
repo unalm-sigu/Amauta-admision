@@ -101,7 +101,7 @@ public class Aula implements Serializable {
     private List<AulaExamen> aulaExamen;
 
     @OneToMany(mappedBy = "aulaSuperior", fetch = FetchType.LAZY)
-    private List<Aula> aula;
+    private List<Aula> aulasContenido;
 
     public Aula() {
     }
@@ -237,12 +237,12 @@ public class Aula implements Serializable {
         this.aulaSuperior = aulaSuperior;
     }
 
-    public List<Aula> getAula() {
-        return aula;
+    public List<Aula> getAulasContenido() {
+        return aulasContenido;
     }
 
-    public void setAula(List<Aula> aula) {
-        this.aula = aula;
+    public void setAulasContenido(List<Aula> aulasContenido) {
+        this.aulasContenido = aulasContenido;
     }
 
     public Sede getSede() {

@@ -1,16 +1,16 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.model.general.Aula;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 
 @Repository
-public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
+public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
 
     public AulaDAOH() {
         super();
@@ -63,6 +63,16 @@ public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("aulaSuperior aus")
                 .filter("aus.id", aula)
+                .orderBy("au.nombre", "au.codigo");
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allByAulasSuperiores(List<Aula> aulas) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("aulaSuperior aus")
+                .in("aus.id", aulas)
                 .orderBy("au.nombre", "au.codigo");
         return sql.all(getCurrentSession());
     }

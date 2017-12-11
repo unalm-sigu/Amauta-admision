@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -11,7 +11,7 @@ import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
-public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
+public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     GrupoSeccion find(Long idGrupoSeccion);
 
@@ -27,9 +27,9 @@ public interface GrupoSeccionDAO extends Crud<GrupoSeccion> {
 
     List<DocenteCursoPlan> allDocenteCursoPlanByCiclo(CicloAcademico ciclo);
 
-    List<GrupoSeccion> allByDynatable(pe.albatross.octavia.dynatable.DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public GpoSeccionResumen resumen();
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
     GrupoSeccion findLast();
 

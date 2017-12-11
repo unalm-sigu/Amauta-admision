@@ -1,14 +1,14 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCursoDocente;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.general.Compania;
 
-public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
+public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico> {
 
     DepartamentoAcademico find(Long id);
 
@@ -23,7 +23,7 @@ public interface DepartamentoAcademicoDAO extends Crud<DepartamentoAcademico> {
     public DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
 
     public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList);
-    
+
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
 
     List<DepartamentoAcademico> allDepartamentos(String nombre);

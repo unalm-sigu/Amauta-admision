@@ -35,8 +35,16 @@
     <td class="v-middle">
         <span class="block">{{:tipoAula}}</span>
     </td>
-    <td class="v-middle text-center pointer">
-        <i class="fa fa-tasks" aria-hidden="true"></i>
+    <td class="v-middle text-center">
+        {{if tipoAmbiente=='EDI'}}
+            {{if aulasContenido>0}}
+                <a class="ver-aulas-contenido pointer"><span class="estado-blue">{{:aulasContenido}}</span></a>
+            {{else}}
+                <span class="estado-gray">{{:aulasContenido}}</span>
+            {{/if}}
+        {{else}}
+            <a class="ver-contenido-aula pointer"><i class="fa fa-tasks" aria-hidden="true"></i></a>
+        {{/if}}
     </td>
     <td class="v-middle">
         <span class="block">{{:gestor}}</span>

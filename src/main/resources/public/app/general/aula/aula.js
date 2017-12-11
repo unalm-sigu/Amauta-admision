@@ -31,7 +31,7 @@ $(function () {
         init: function () {
 
         },
-        viewCambioEstado: function (e, $this) {
+        verCambioEstado: function (e, $this) {
             e.preventDefault();
             var rec = APP.recDynatable(dynatable, e);
 
@@ -55,7 +55,7 @@ $(function () {
             MODAL.show();
             Aula.form = $("#" + record.form);
         },
-        cambioEstado: function (e) {
+        cambiarEstado: function (e) {
             e.preventDefault();
             var form = Aula.form;
             if (!form.parsley().validate()) {
@@ -80,18 +80,68 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        eliminarAula: function (e, $this) {
+            e.preventDefault();
+            var rec = APP.recDynatable(dynatable, e);
+            bootbox.confirm({
+                message: '¿Está seguro que desea eliminar el registro del aula <b>' + rec.codigo + '</b>?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('general/aula/eliminar'),
+                            type: 'POST',
+                            async: true,
+                            data: {id: rec.id},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        verAulasContenido: function (e, $this) {
+            e.preventDefault();
+            var rec = APP.recDynatable(dynatable, e);
+            bootbox.alert({
+                message: $.templates("#divAulasContenido").render(rec),
+                buttons:{
+                    ok:{label:'Aceptar',className:'btn-primary'}
+                }
+            });
+
         }
     };
 
     Aula.init();
 
     $("body").delegate(".change-estado", "click", function (e) {
-        console.log("dasdfasd")
-        Aula.viewCambioEstado(e, $(this));
+        Aula.verCambioEstado(e, $(this));
     });
 
     $("body").delegate(".cambio-estado-aula", "click", function (e) {
-        Aula.cambioEstado(e);
+        Aula.cambiarEstado(e);
+    });
+
+    $("body").delegate(".eliminar-aula", "click", function (e) {
+        Aula.eliminarAula(e, $(this));
+    });
+
+    $("body").delegate(".ver-aulas-contenido", "click", function (e) {
+        Aula.verAulasContenido(e, $(this));
     });
 
 });

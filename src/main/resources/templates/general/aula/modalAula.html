@@ -21,4 +21,33 @@
     </form>
 </div>
 
+<script id="divAulasContenido" type="text/x-jsrender" class="hide"><span>
+    </span>
+    <p>
+        En <b>{{:codigo}}
+        {{if nombre}}
+            - {{:nombre}}
+        {{/if}}
+        </b>
+        existen los siguientes ambientes:
+    </p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-3">Código</th>
+                <th class="col-md-9">Nombre</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{for aulasHijas}}
+            <tr>
+                <td>{{:codigo}}</td>
+                <td>{{:nombre}}</td>
+            </tr>
+            {{/for}}
+        </tbody>
+    </table>
+    
+</script>
+
 

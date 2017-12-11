@@ -14,7 +14,7 @@ public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    GpoSeccionResumen resumen();
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -49,5 +49,7 @@ public interface GpoSeccionService {
     void actualizarDocente(Long docenteSeccionId, Long docenteId);
 
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
+
+    List<AnexoBoletin> allAnexosBySuperiorCiclo(String anexoSuperior, CicloAcademico ciclo);
 
 }

@@ -2234,7 +2234,12 @@ body.container {
 
 .bg-light {
   color: #3C4043;
+  background-color: #EBEEF5; 
 }
+.bg-light.bg,
+.bg-light .bg {
+  background-color: #EBEEF5; 
+ }
 
 .bg-dark {
   color: #98a4af;

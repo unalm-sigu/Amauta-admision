@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 
 @Entity
 @Table(name = "aca_anexo_boletin")
@@ -29,13 +30,13 @@ public class AnexoBoletin implements Serializable {
 
     @Column(name = "estado")
     private String estado;
-    
+
     @Column(name = "motivo_anulacion")
     private String motivoAnulacion;
 
     @Column(name = "orden")
     private Integer orden;
-    
+
     @Column(name = "fecha_anulacion")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaAnulacion;
@@ -51,6 +52,13 @@ public class AnexoBoletin implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_anexo_superior")
     private AnexoBoletin anexoSuperior;
+
+    public AnexoBoletin() {
+    }
+
+    public AnexoBoletin(Object id) {
+        this.id = TypesUtil.getLong(id);
+    }
 
     public Long getId() {
         return id;
@@ -132,5 +140,4 @@ public class AnexoBoletin implements Serializable {
         this.fechaAnulacion = fechaAnulacion;
     }
 
-    
 }

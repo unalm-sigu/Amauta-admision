@@ -86,7 +86,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
-        model.addAttribute("resumen", service.resumen());
+        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
 
@@ -96,9 +96,7 @@ public class GpoSeccionController {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
             List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico());
-
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (GrupoSeccion gpoSeccion : gpoSecciones) {
@@ -115,57 +113,30 @@ public class GpoSeccionController {
                 node.put("estadoValue", gpoSeccion.getEstado() != null ? EstadoEnum.valueOf(gpoSeccion.getEstado()).getValue() : "");
 
                 ArrayNode secciones = new ArrayNode(JsonNodeFactory.instance);
-                if (gpoSeccion.getSecciones() != null && !gpoSeccion.getSecciones().isEmpty()) {
-                    for (Seccion seccion : gpoSeccion.getSecciones()) {
-                        ObjectNode node2 = new ObjectNode(JsonNodeFactory.instance);
-                        node2.put("tipo", seccion.getTipoSeccion());
-                        node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
-                        node2.put("codigo", seccion.getCodigo());
-                        node2.put("vacantes", seccion.getVacantes());
-                        node2.put("matriculados", seccion.getMatriculados());
-                        node2.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
-                        node2.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
-                        node2.put("estadoSec", seccion.getEstado());
-                        node2.put("estadoValueSec", seccion.getEstadoEnum().getValue());
-                        secciones.add(node2);
-
-                        ArrayNode docentes = new ArrayNode(JsonNodeFactory.instance);
-                        for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
-                            ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
-                            node3.put("principal", docSeccion.getPrincipal());
-                            node3.put("codigo", docSeccion.getDocente().getCodigo());
-                            node3.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
-                            docentes.add(node3);
-                        }
-                        node2.set("docentes", docentes);
-                    }
-                    node.set("secciones", secciones);
-                } else {
-
+                for (Seccion seccion : gpoSeccion.getSecciones()) {
                     ObjectNode node2 = new ObjectNode(JsonNodeFactory.instance);
-                    node2.put("tipo", "");
-                    node2.put("tipoValue", "");
-                    node2.put("codigo", "");
-                    node2.put("vacantes", "");
-                    node2.put("matriculados", "");
-                    node2.put("aula", "");
-                    node2.put("grupo", "");
-                    node2.put("estadoSec", "");
-                    node2.put("estadoValueSec", "");
+                    node2.put("tipo", seccion.getTipoSeccion());
+                    node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
+                    node2.put("codigo", seccion.getCodigo());
+                    node2.put("vacantes", seccion.getVacantes());
+                    node2.put("matriculados", seccion.getMatriculados());
+                    node2.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
+                    node2.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
+                    node2.put("estadoSec", seccion.getEstado());
+                    node2.put("estadoValueSec", seccion.getEstadoEnum().getValue());
                     secciones.add(node2);
 
                     ArrayNode docentes = new ArrayNode(JsonNodeFactory.instance);
-
-                    ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
-                    node3.put("principal", "");
-                    node3.put("codigo", "");
-                    node3.put("docente", "");
-                    docentes.add(node3);
-
-                    node2.put("docentes", "");
-
-                    node.put("secciones", "");
+                    for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
+                        ObjectNode node3 = new ObjectNode(JsonNodeFactory.instance);
+                        node3.put("principal", docSeccion.getPrincipal());
+                        node3.put("codigo", docSeccion.getDocente().getCodigo());
+                        node3.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.apellidosNombres"));
+                        docentes.add(node3);
+                    }
+                    node2.set("docentes", docentes);
                 }
+                node.set("secciones", secciones);
 
                 array.add(node);
             }
@@ -182,7 +153,7 @@ public class GpoSeccionController {
     }
 
     @RequestMapping("{gruposeccion}/editar")
-    public String editar(Model model, HttpSession session, @PathVariable("gruposeccion") Long gruposeccionId) {
+    public String editar(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gruposeccionId);
@@ -225,6 +196,30 @@ public class GpoSeccionController {
 
             array.add(node);
         }
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(array);
+        return jsonResponse;
+    }
+
+    @ResponseBody
+    @RequestMapping("allAnexos")
+    public JsonResponse allAnexos(@RequestParam("anexoSuperior") String anexoSuperior, HttpSession session) {
+        JsonResponse jsonResponse = new JsonResponse();
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<AnexoBoletin> anexos = service.allAnexosBySuperiorCiclo(anexoSuperior, ds.getCicloAcademico());
+
+        for (AnexoBoletin anexo : anexos) {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("id", anexo.getId());
+            node.put("nombre", anexo.getNombre());
+            node.put("superior", anexo.getAnexoSuperior().getNombre());
+
+            array.add(node);
+        }
+
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;

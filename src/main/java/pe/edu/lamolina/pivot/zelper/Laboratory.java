@@ -1,15 +1,14 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum;
 
 public class Laboratory {
 
     public static void main2(String[] args) {
 
-        for (int i = 0; i < 40; i++) {
-            System.out.println(RandomStringUtils.randomNumeric(4));
-
-        }
+        GrupoAnexoEnum gpoAnexoE = GrupoAnexoEnum.get2("ingresantes");
+        System.out.println(gpoAnexoE.name());
+        System.out.println(gpoAnexoE.getValue());
 
     }
 }

@@ -28,30 +28,32 @@
         <section class="wrapper-lg">
             <section class="panel m-b-md">
                 <section class="panel-body">
-                    <div class="row">
-                        <div class="col-md-3 text-center">
-                            <a href="#" class="view-count text-danger" rel="ingresantes">
-                                <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
-                                <small class="block m-b-xs">Ingresantes</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a href="#" class="view-count text-black" rel="departamentos">
-                                <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
-                                <small class="block m-b-xs">Departamentos</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a href="#" class="view-count text-success" rel="postGrados">
-                                <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
-                                <small class="block m-b-xs">Posgrado</small>
-                            </a>
-                        </div>
-                        <div class="col-md-3 text-center">
-                            <a href="#" class="view-count text-warning" rel="actividades">
-                                <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
-                                <small class="block m-b-xs">Actividades Deportivas</small>
-                            </a>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <a href="#" class="view-count text-danger" rel="ingresantes">
+                                    <span class="h1 block bold" th:text="${resumen.ingresantes}">23</span>
+                                    <small class="block m-b-xs">Ingresantes</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a href="#" class="view-count text-black" rel="departamentos">
+                                    <span class="h1 block bold" th:text="${resumen.departamentos}">23</span>
+                                    <small class="block m-b-xs">Departamentos</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a href="#" class="view-count text-success" rel="postGrados">
+                                    <span class="h1 block bold" th:text="${resumen.postGrados}">23</span>
+                                    <small class="block m-b-xs">Posgrado</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a href="#" class="view-count text-warning" rel="actividades">
+                                    <span class="h1 block bold" th:text="${resumen.actividades}">23</span>
+                                    <small class="block m-b-xs">Actividades Deportivas</small>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -60,22 +62,28 @@
             <section class="panel">
                 <section class="panel-body">
 
+                    <div class="hide" id="headDynatable">
+                        <div class="col-md-6">
+                            <input type="hidden" class="form-control" placeholder="Seleccione un anexo" id="anexos"/>
+                        </div>
+                    </div>
+
                     <table class="table" id="dynaTable">
                         <thead> 
                             <tr> 
                                 <th class="col-md-4"></th>
-                                <th class="col-md-1 text-center">Clave</th>
-                                <th class="col-md-1 text-center">Aula Grupo</th>
-                                <th class="col-md-1 text-center">Vac. Mat.</th>
+                                <th class="col-md-1 text-center v-middle">Clave</th>
+                                <th class="col-md-1 text-center v-middle"><span class="block">Aula</span> <span class="block">Grupo</span></th>
+                                <th class="col-md-1 text-center v-middle"><span class="block">Vacantes</span> <span class="block">Matric.</span></th>
 
 
                                 <th class="td-vacio"></th>
                                 <th class="td-vacio"></th>
-                                <th class="col-md-3 text-center">Docente</th>
-                                <th class="col-md-1 text-center">% Carga </th>
+                                <th class="col-md-3 text-center v-middle">Docente</th>
+                                <th class="col-md-1 text-center v-middle">% Carga </th>
 
-                                <th class="col-md-1 text-center">Restricción</th>
-                                <th class="col-md-1">Estado</th>
+                                <th class="col-md-1 text-center v-middle">Restricción</th>
+                                <th class="col-md-1 v-middle">Estado</th>
                                 <th></th>
                             </tr>
                         </thead>

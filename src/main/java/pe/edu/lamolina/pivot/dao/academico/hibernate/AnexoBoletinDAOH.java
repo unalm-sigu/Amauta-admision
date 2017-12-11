@@ -2,19 +2,24 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.albatross.zelpers.dao.AbstractDAO;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum;
+import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.ACTIVIDADES;
+import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.DPTO;
+import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.INGRESANTE;
+import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.POSTGRADO;
 
 @Repository
-public class AnexoBoletinDAOH extends AbstractDAO<AnexoBoletin> implements AnexoBoletinDAO {
+public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements AnexoBoletinDAO {
 
     public AnexoBoletinDAOH() {
         super();
@@ -58,7 +63,7 @@ public class AnexoBoletinDAOH extends AbstractDAO<AnexoBoletin> implements Anexo
 
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -67,7 +72,7 @@ public class AnexoBoletinDAOH extends AbstractDAO<AnexoBoletin> implements Anexo
                 .from(AnexoBoletin.class, "ab")
                 .leftJoin("departamentoAcademico da", "carrera ca", "anexoSuperior abs")
                 .isNull("abs.id");
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -76,7 +81,7 @@ public class AnexoBoletinDAOH extends AbstractDAO<AnexoBoletin> implements Anexo
                 .from(AnexoBoletin.class, "ab")
                 .leftJoin("departamentoAcademico da", "carrera ca", "anexoSuperior abs")
                 .isNotNull("abs.id");
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -86,32 +91,38 @@ public class AnexoBoletinDAOH extends AbstractDAO<AnexoBoletin> implements Anexo
                 .join("anexoSuperior abs")
                 .leftJoin("departamentoAcademico da", "carrera ca")
                 .filter("ab.id", id);
-        return (AnexoBoletin) sql.find(getCurrentSession());
+        return find(sql);
     }
 
     @Override
     public AnexoResumen resumen() {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select new ").append(AnexoResumen.class.getName());
-        sql.append(" (   ");
-        sql.append("   sum(case abs.id when :INGRE then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :DPTO  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :POST  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :ACTI  then 1 else 0 end)   ");
-        sql.append(" )   ");
-        sql.append("  from ").append(AnexoBoletin.class.getName()).append(" as ab ");
-        sql.append(" inner join  ab.anexoSuperior abs ");
-        sql.append(" left join  ab.departamentoAcademico da ");
-        sql.append(" left join  ab.carrera ca ");
+        Octavia sql = Octavia.query()
+                .select(
+                        "sum(case abs.id when " + INGRESANTE.getValue() + " then 1 else 0 end)",
+                        "sum(case abs.id when " + DPTO.getValue() + " then 1 else 0 end)",
+                        "sum(case abs.id when " + POSTGRADO.getValue() + " then 1 else 0 end)",
+                        "sum(case abs.id when " + ACTIVIDADES.getValue() + " then 1 else 0 end)")
+                .into(AnexoResumen.class)
+                .from(AnexoBoletin.class, "ab")
+                .join("anexoSuperior abs");
+        
+        return (AnexoResumen) sql.find(getCurrentSession());
+    }
 
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());
-        query.setString("DPTO", GrupoAnexoEnum.DPTO.getValue());
-        query.setString("ACTI", GrupoAnexoEnum.ACTIVIDADES.getValue());
-        query.setString("POST", GrupoAnexoEnum.POSTGRADO.getValue());
+    @Override
+    public List<AnexoBoletin> allBySuperiorCiclo(AnexoBoletin anexoSuperior, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("ab")
+                .from(GrupoSeccion.class, "gs")
+                .join("anexoBoletin ab", "ab.anexoSuperior abs", "cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .orderBy("ab.nombre");
 
-        return (AnexoResumen) query.uniqueResult();
+        if (anexoSuperior.getId() != 0) {
+            sql.filter("abs.id", anexoSuperior);
+        }
 
+        return all(sql);
     }
 
 }
