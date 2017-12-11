@@ -76,7 +76,7 @@ public class MatriculableController {
         MatriculableResumen resumen = service.findResumenByCiclo(ds.getCicloAcademico());
         model.addAttribute("resumen", resumen);
         model.addAttribute("ciclo", ds.getCicloAcademico());
-        return "/academico/matriculable/matriculable";
+        return "academico/matriculable/matriculable";
     }
 
     @ResponseBody
@@ -167,19 +167,19 @@ public class MatriculableController {
         List<ModalidadEstudio> modalidades = service.allModalidadEstudioByCodigos(codigos);
         model.addAttribute("modalidades", modalidades);
 
-        return "/academico/matriculable/matriculableModal";
+        return "academico/matriculable/matriculableModal";
     }
 
     @RequestMapping("generar")
     public String generar(Model model, HttpSession session) {
 
-        return "/academico/matriculable/generar";
+        return "academico/matriculable/generar";
     }
 
     @RequestMapping("estadoVisor")
     public String estadoVisor(Model model, HttpSession session) {
 
-        return "/academico/matriculable/estadoVisor";
+        return "academico/matriculable/estadoVisor";
     }
 
 }

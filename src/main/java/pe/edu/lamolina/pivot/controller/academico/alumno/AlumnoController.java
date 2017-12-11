@@ -84,7 +84,7 @@ public class AlumnoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("resumen", service.findResumen());
-        return "/academico/alumno/alumno";
+        return "academico/alumno/alumno";
     }
 
     @ResponseBody
@@ -173,7 +173,7 @@ public class AlumnoController {
         model.addAttribute("ciclos", especialService.allCiclos());
         model.addAttribute("situaciones", especialService.allSituaciones());
 
-        return "/academico/alumno/especial/alumnoEspecial";
+        return "academico/alumno/especial/alumnoEspecial";
     }
 
     @ResponseBody
@@ -220,7 +220,7 @@ public class AlumnoController {
         model.addAttribute("ciclos", especialService.allCiclos());
         model.addAttribute("modalidades", modalidades);
 
-        return "/academico/alumno/fisico/alumnoFisico";
+        return "academico/alumno/fisico/alumnoFisico";
     }
 
     @ResponseBody
@@ -261,7 +261,7 @@ public class AlumnoController {
         model.addAttribute("ciclos", especialService.allCiclos());
         model.addAttribute("situaciones", especialService.allSituaciones());
 
-        return "/academico/alumno/visitante/alumnoVisitante";
+        return "academico/alumno/visitante/alumnoVisitante";
     }
 
     @RequestMapping("{alumno}/matricula/origen/matriculable")
@@ -272,7 +272,7 @@ public class AlumnoController {
 
         model.addAttribute("cursos", cursos);
 
-        return "/academico/alumno/otros/alumnoMatricula";
+        return "academico/alumno/otros/alumnoMatricula";
     }
 
     @RequestMapping("{alumno}/horario/origen/matriculable")
@@ -283,7 +283,7 @@ public class AlumnoController {
         model.addAttribute("documentos", especialService.allDocumentos());
         model.addAttribute("ciclos", especialService.allCiclos());
 
-        return "/academico/alumno/alumnoHorario";
+        return "academico/alumno/alumnoHorario";
     }
 
     @RequestMapping("{alumno}/historia/origen/matriculable")
@@ -294,7 +294,7 @@ public class AlumnoController {
         model.addAttribute("documentos", especialService.allDocumentos());
         model.addAttribute("ciclos", especialService.allCiclos());
 
-        return "/academico/alumno/alumnoHistoria";
+        return "academico/alumno/alumnoHistoria";
     }
 
     @RequestMapping("{alumno}/avance/origen/matriculable")
@@ -305,7 +305,7 @@ public class AlumnoController {
         model.addAttribute("documentos", especialService.allDocumentos());
         model.addAttribute("ciclos", especialService.allCiclos());
 
-        return "/academico/alumno/alumnoAvance";
+        return "academico/alumno/alumnoAvance";
     }
 
 }
