@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dao.Crud;
 import pe.edu.lamolina.pivot.model.general.Aula;
+import pe.edu.lamolina.pivot.model.general.Oficina;
 
 public interface AulaDAO extends Crud<Aula> {
 
@@ -18,5 +19,9 @@ public interface AulaDAO extends Crud<Aula> {
     List<Aula> allByAulaSuperior(Aula aula);
 
     Aula find(Long id);
+
+    List<Aula> allAulasSuperiorByOficina(Oficina oficina);
+
+    List<Aula> allBySuperior(Aula aula);
 
 }

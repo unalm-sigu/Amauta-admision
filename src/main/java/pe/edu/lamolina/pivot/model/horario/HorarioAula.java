@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.horario;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,14 +9,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.general.Dia;
 
 @Entity
-@Table(name = "hor_dia_hora_grupo")
-public class DiaHoraGrupo implements Serializable {
+@Table(name = "hor_horario_aula")
+public class HorarioAula implements Serializable {
 
     @Id
     @GeneratedValue
@@ -23,12 +26,8 @@ public class DiaHoraGrupo implements Serializable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_ciclo_academico")
-    private CicloAcademico cicloAcademico;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_grupo_horario")
-    private GrupoHoras grupoHorario;
+    @JoinColumn(name = "id_aula")
+    private Aula aula;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_dia")
@@ -38,10 +37,14 @@ public class DiaHoraGrupo implements Serializable {
     @JoinColumn(name = "id_hora")
     private Hora hora;
 
-    public DiaHoraGrupo() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_seccion")
+    private Seccion seccion;
+
+    public HorarioAula() {
     }
 
-    public DiaHoraGrupo(Object id) {
+    public HorarioAula(Object id) {
         this.id = TypesUtil.getLong(id);
     }
 
@@ -53,12 +56,12 @@ public class DiaHoraGrupo implements Serializable {
         this.id = id;
     }
 
-    public GrupoHoras getGrupoHorario() {
-        return grupoHorario;
+    public Aula getAula() {
+        return aula;
     }
 
-    public void setGrupoHorario(GrupoHoras grupoHorario) {
-        this.grupoHorario = grupoHorario;
+    public void setAula(Aula aula) {
+        this.aula = aula;
     }
 
     public Dia getDia() {
@@ -77,12 +80,12 @@ public class DiaHoraGrupo implements Serializable {
         this.hora = hora;
     }
 
-    public CicloAcademico getCicloAcademico() {
-        return cicloAcademico;
+    public Seccion getSeccion() {
+        return seccion;
     }
 
-    public void setCicloAcademico(CicloAcademico cicloAcademico) {
-        this.cicloAcademico = cicloAcademico;
+    public void setSeccion(Seccion seccion) {
+        this.seccion = seccion;
     }
 
     @Override
@@ -93,13 +96,14 @@ public class DiaHoraGrupo implements Serializable {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof DiaHoraGrupo)) {
+        if (!(obj instanceof HorarioAula)) {
             return false;
         }
-        DiaHoraGrupo other = (DiaHoraGrupo) obj;
+        HorarioAula other = (HorarioAula) obj;
         if (id != other.id) {
             return false;
         }
         return true;
     }
+
 }

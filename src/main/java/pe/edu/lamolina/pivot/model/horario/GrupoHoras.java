@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -50,6 +51,12 @@ public class GrupoHoras implements Serializable {
 
     @OneToMany(mappedBy = "grupoHorario", fetch = FetchType.LAZY)
     private List<DiaHoraGrupo> diaHoraGrupo;
+
+    @Transient
+    private Boolean horasMismoDia;
+
+    @Transient
+    private Boolean horasMismaSemana;
 
     public GrupoHoras() {
     }
@@ -136,6 +143,27 @@ public class GrupoHoras implements Serializable {
 
     public void setConHorario(String conHorario) {
         this.conHorario = conHorario;
+    }
+
+    public boolean isHorasMismoDia() {
+        return horasMismoDia;
+    }
+
+    public void setHorasMismoDia(Boolean horasMismoDia) {
+        this.horasMismoDia = horasMismoDia;
+    }
+
+    public boolean isHorasMismaSemana() {
+        return horasMismaSemana;
+    }
+
+    public void setHorasMismaSemana(Boolean horasMismaSemana) {
+        this.horasMismaSemana = horasMismaSemana;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.inscripcion.AulaExamen;
@@ -55,10 +56,10 @@ public class Aula implements Serializable {
 
     @Column(name = "estado")
     private String estado;
-    
+
     @Column(name = "motivo_anulacion")
     private String motivoAnulacion;
-    
+
     @Column(name = "fecha_anulacion")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaAnulacion;
@@ -87,6 +88,9 @@ public class Aula implements Serializable {
 
     @OneToMany(mappedBy = "aulaSuperior", fetch = FetchType.LAZY)
     private List<Aula> aula;
+
+    @Transient
+    private Boolean disponible;
 
     public Aula() {
     }
@@ -253,6 +257,14 @@ public class Aula implements Serializable {
 
     public void setFechaAnulacion(Date fechaAnulacion) {
         this.fechaAnulacion = fechaAnulacion;
+    }
+
+    public Boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(Boolean disponible) {
+        this.disponible = disponible;
     }
 
 }

@@ -126,5 +126,22 @@ public class Hora implements Serializable {
         this.horarioSeccion = horarioSeccion;
     }
 
-}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Hora)) {
+            return false;
+        }
+        Hora other = (Hora) obj;
+        if (id != other.id) {
+            return false;
+        }
+        return true;
+    }
 
+}

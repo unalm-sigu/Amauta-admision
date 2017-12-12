@@ -3,7 +3,9 @@ package pe.edu.lamolina.pivot.dao.horario;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dao.Crud;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 public interface TipoGrupoHorasDAO extends Crud<TipoGrupoHoras> {
 
@@ -11,4 +13,5 @@ public interface TipoGrupoHorasDAO extends Crud<TipoGrupoHoras> {
 
     public TipoGrupoHoras findByCode(String codigo);
 
+    List<TipoGrupoHoras> allActiveByTipoCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 }

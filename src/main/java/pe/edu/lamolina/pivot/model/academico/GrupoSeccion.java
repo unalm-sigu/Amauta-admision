@@ -45,6 +45,12 @@ public class GrupoSeccion implements Serializable {
     @Column(name = "estado_plan")
     private String estadoPlan;
 
+    @Column(name = "horas_teoria")
+    private Integer horasTeoria;
+
+    @Column(name = "horas_practica")
+    private Integer horasPractica;
+
     @NotNull
     @Column(name = "estado_grupo")
     private String estadoGrupo;
@@ -338,6 +344,22 @@ public class GrupoSeccion implements Serializable {
 
     public void setAnexoBoletin(AnexoBoletin anexoBoletin) {
         this.anexoBoletin = anexoBoletin;
+    }
+
+    public Integer getHorasTeoria() {
+        return horasTeoria;
+    }
+
+    public void setHorasTeoria(Integer horasTeoria) {
+        this.horasTeoria = horasTeoria;
+    }
+
+    public Integer getHorasPractica() {
+        return horasPractica;
+    }
+
+    public void setHorasPractica(Integer horasPractica) {
+        this.horasPractica = horasPractica;
     }
 
 }

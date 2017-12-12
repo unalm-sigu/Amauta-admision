@@ -762,8 +762,20 @@ public class ProgDataServiceImp implements ProgDataService {
 
                 Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
                 Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
+
+                if (seccion.isTipoSeccionPRA()) {
+                    seccion.setHorasSemanales(horasPractica);
+                } else if (seccion.isTipoSeccionTEO()) {
+                    seccion.setHorasSemanales(horasTeoria);
+                } else if (seccion.isTipoSeccionTCUR()) {
+                    seccion.setHorasSemanales(horasTeoria);
+                } else if (seccion.isTipoSeccionPCUR()) {
+                    seccion.setHorasSemanales(horasPractica);
+                }
+                /*
                 seccionBD.setHorasTeoria(horasTeoria);
                 seccionBD.setHorasPractica(horasPractica);
+                 */
                 seccionBD.setHorasSemanales(horasTeoria + horasPractica);
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 //seccionBD.setSeccionSuperior(seccionBD);

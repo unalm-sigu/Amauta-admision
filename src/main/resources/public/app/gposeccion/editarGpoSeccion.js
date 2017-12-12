@@ -1,3 +1,5 @@
+Vue.component("multiselect", window.VueMultiselect.default)
+
 Vue.component("autocomplete-doc", {
     template: "#autocomplete-doc",
     props: {
@@ -85,6 +87,41 @@ Vue.component("autocomplete-doc", {
         $(this.$el).off().select2('destroy')
     }
 });
+
+
+Vue.component('select2', {
+    props: {
+        options: {required: false},
+        value: {required: false},
+        onchange: {type: Function, default: () => {
+            }}
+    },
+    template: '#select2-template',
+    mounted: function () {
+
+        var vm = this;
+        $(this.$el).select2({
+            data: this.options
+        }).on('change', function () {
+            vm.$emit('input', this.value);
+            vm.onchange();
+
+        })
+    }, watch: {
+        value: function (value) {
+            // update value
+            $(this.$el).val(value)
+        },
+        options: function (options) {
+            $(this.$el).empty().select2({data: options})
+        }
+    }, destroyed: function () {
+        $(this.$el).off().select2('destroy')
+    }
+});
+
+
+
 var app = new Vue({
     el: '#pageGpoSeccion',
     data: {
@@ -92,7 +129,41 @@ var app = new Vue({
         secciones: [],
         docentesSeccion: [],
         seccionSeleccionada: null,
-        colorEstado: {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"}
+        seccionModal: null,
+        colorEstado: {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"},
+        grupoModal: {
+            id: 'modalGrupo',
+            header: true,
+            title: 'Buscar Grupo Disponible',
+            okbtn: 'Aceptar'
+        },
+        aulaModal: {
+            id: 'modalAula',
+            header: true,
+            title: 'Buscar Aula/Ambiente Disponible',
+            okbtn: 'Aceptar'
+        },
+        aulOeraSel: null,
+        tblAulas: null,
+        modulosCombo: {},
+        tabAulas: {
+            oera: {
+                id: 50,
+                nombre: "oera",
+                moduloSel: null,
+                aulaSel: null,
+                modulosCombo: [],
+                tblAulas: null
+            }
+        },
+        tabGrupos: {
+            regulares: {
+                tipoGrupoHorasSeleccionado: null,
+                tblHorarioRegular: null,
+                grupoHorarioRegSel: null,
+                tipoGrupoHorasOpts: null
+            }
+        }
     }, methods: {
         addSeccion: function () {
             let $vue = this;
@@ -298,45 +369,292 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.docentesSeccion = response.data;
-                        /*
-                         for (var i = 0; i < $vue.docentesSeccion.length; i++) {
-                         
-                         $("#cboDocente" + i).select2(
-                         {
-                         minimumInputLength: 3,
-                         ajax: {
-                         url: APP.url("academico/planCurricular/plan/buscarCursos"),
-                         dataType: 'json',
-                         type: 'post',
-                         data: function (term, page) {
-                         return {
-                         nombre: term,
-                         page: page
-                         };
-                         },
-                         results: function (response, page) {
-                         return {results: response.data};
-                         }
-                         },
-                         formatResult: function (info) {
-                         return $.templates("#divBuscarCurso").render(info);
-                         },
-                         formatSelection: function (info) {
-                         return info.cursoCodigo + " - " + info.cursoNombre;
-                         },
-                         escapeMarkup: function (m) {
-                         return m;
-                         }
-                         }
-                         
-                         ).on('select2-selecting', function (e) {
-                         // $("#txtCurso").val(e.object.id);
-                         });
-                         }*/
+                    }
+                }
+            });
+        }, showModalGrupos(seccion) {
+            let $vue = this;
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/loadModalGrupo'),
+                data: {
+                    seccion: seccion.seccionId
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.seccionModal = response.data.seccion;
+
+                        $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
+                        $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
+
+                        if ($vue.tabGrupos['regulares'].grupoHorarioRegSel != "") {
+                            if ($vue.tabGrupos['regulares'].grupoHorarioRegSel.esTipoGrupoRegular) {
+                                $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = response.data.tipoGrupoHorasSeleccionado;
+                                console.dir($vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado);
+                                $vue.cambiarCboTipoGrupoHorReg();
+                            }
+                        }
+                    }
+                }
+            });
+            /*
+             $.ajax({
+             method: 'POST',
+             url: APP.url('academico/gposeccion/findTiposGruposHoras'),
+             data: {
+             },
+             success: function (response) {
+             if (response.success) {
+             
+             //  $vue.tipoGrupoHorasOpts = response.data;
+             let tiposGruposHoras = [];
+             response.data.forEach(function (element) {
+             var opt = {id: element.tipoGrupoHoraId, text: element.tipoGrupoHoraCodigo + " - " + element.tipoGrupoHoraDescripcion};
+             tiposGruposHoras.push(opt);
+             });
+             $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = tiposGruposHoras;
+             }
+             }
+             });
+             */
+            this.$refs.modalGrupo.open();
+
+            $("#cboTipoGrupoHorasReg").select2({
+                width: '100%'
+            }).val(this.value).trigger('change').on('change', function () {
+                $vue.$emit('input', this.value)
+            });
+
+        }, saveGrupo() {
+            if (this.tabGrupos['regulares'].grupoHorarioRegSel == null) {
+                alert("Seleccione un grupo horario");
+            }
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea grabar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    MODAL.showWait("Espere un momento por favor");
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('academico/gposeccion/saveSeccionGrupo'),
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                seccion: $vue.seccionModal.seccionId,
+                                grupoHorario: $vue.tabGrupos['regulares'].grupoHorarioRegSel.id
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hideWait();
+                                    $vue.$refs.modalGrupo.close();
+                                    notify(response.message, "info");
+                                    $vue.loadSecciones();
+                                } else {
+                                    MODAL.hideWait();
+                                    $vue.$refs.modalGrupo.close();
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
 
                     }
                 }
             });
+        }, saveAula() {
+
+            if (this.tabAulas['oera'].aulaSel == null) {
+                alert("Seleccione un aula");
+            }
+
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea grabar?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    MODAL.showWait("Espere un momento por favor");
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('academico/gposeccion/saveAula'),
+                            type: 'POST',
+                            async: true,
+                            data: {
+                                seccion: $vue.seccionModal.seccionId,
+                                aula: $vue.tabAulas['oera'].aulaSel.id
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    MODAL.hideWait();
+                                    $vue.$refs.modalAula.close();
+                                    notify(response.message, "info");
+                                    $vue.loadSecciones();
+                                } else {
+                                    MODAL.hideWait();
+                                    $vue.$refs.modalAula.close();
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+
+                    }
+                }
+            });
+        }, selectGrupoHoraReg(grupoHora) {
+
+            this.tabGrupos['regulares'].grupoHorarioRegSel = grupoHora;
+            var seleccionado = !this.tabGrupos['regulares'].grupoHorarioRegSel.seleccionado;
+
+            if (!seleccionado) {
+                this.tabGrupos['regulares'].grupoHorarioRegSel = null;
+            }
+            for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
+                if (this.tabGrupos['regulares'].grupoHorarioRegSel != null &&
+                        this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].id == this.tabGrupos['regulares'].grupoHorarioRegSel.id) {
+                    this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].seleccionado = seleccionado;
+                } else {
+                    this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].seleccionado = false;
+                }
+            }
+            // this.tblHorarioRegular = this.tblHorarioRegular;
+        }, selectAula(aula) {
+
+            this.tabAulas['oera'].aulaSel = aula;
+            let seleccionado = !aula.seleccionado;
+            if (!seleccionado) {
+                this.tabAulas['oera'].aulaSel = null;
+            }
+            for (let key in this.tabAulas['oera'].tblAulas) {
+                this.tabAulas['oera'].tblAulas[key].seleccionado = false;
+                if (this.tabAulas['oera'].tblAulas[key].id == aula.id) {
+                    this.tabAulas['oera'].tblAulas[key].seleccionado = seleccionado;
+                }
+            }
+
+        }, cambiarCboTipoGrupoHorReg() {
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/gposeccion/horario'),
+                type: 'POST',
+                async: false,
+                data: {
+                    tipoGrupoHorasId: $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado.id,
+                    seccionId: $vue.seccionModal.seccionId
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.tabGrupos['regulares'].tblHorarioRegular = response.data;
+                        console.dir($vue.tabGrupos['regulares'].tblHorarioRegular);
+                    } else {
+                        notify(response.message, "error");
+                        $vue.tabGrupos['regulares'].tblHorarioRegular = null;
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $("#tablaHorario").html('');
+                }
+            });
+
+        }, getClassGpoHorario(gpoHorario) {
+            if (gpoHorario.seleccionado) {
+                return "btn-primary";
+            }
+            if (this.tabGrupos['regulares'].grupoHorarioRegSel != null && this.tabGrupos['regulares'].grupoHorarioRegSel != "") {
+                if (gpoHorario.id == this.tabGrupos['regulares'].grupoHorarioRegSel.id) {
+                    return "btn-primary";
+                }
+            }
+            return "btn-default";
+        }, getClassAula(aula) {
+            if (aula.seleccionado || parseInt(aula.id) == parseInt(this.tabAulas['oera'].aulaSel.id)) {
+                return "btn-primary";
+            }
+            return "btn-default";
+        }, showModalAula(seccion) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/loadModalAula'),
+                data: {
+                    seccion: seccion.seccionId
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.seccionModal = response.data.seccion;
+                        $vue.tabAulas['oera'].modulosCombo = response.data.modulosOera;
+                        $vue.modulosCombo = response.data.modulosOera;
+
+                        if (response.data.modulosOeraSel != null) {
+                            $vue.tabAulas['oera'].moduloSel = response.data.modulosOeraSel;
+                            $vue.tabAulas['oera'].aulaSel = response.data.aulaSel;
+                            //  console.dir($vue.tabAulas['oera'].aulaSel);
+                            $vue.cambiarModulo();
+                        }
+
+                        console.dir($vue.modulosCombo);
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+            this.$refs.modalAula.open();
+        }, cambiarModulo() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/aulas'),
+                data: {
+                    seccion: $vue.seccionModal.seccionId,
+                    aula: $vue.tabAulas['oera'].moduloSel.id
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $vue.tabAulas['oera'].tblAulas = response.data;
+                        console.dir($vue.tabAulas['oera'].tblAulas);
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        }, asyncModuloOera(nombre) {
+            this.isLoading = true;
+            let $vue = this;
+            $.ajax({
+                url: APP.url("comun/buscar/allDistritos"),
+                data: {
+                    nombre: nombre,
+                    tipo: $vue.tabAulas['oera'].id
+                },
+                dataType: 'json',
+                type: 'post',
+            }).then(response => {
+                this.ubigeos = response.data
+                this.isLoading = false
+            })
         }
     }, created: function () {
         this.grupoSeccion = JSON.parse(gpoSeccionJson);

@@ -9,6 +9,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
@@ -72,6 +75,25 @@ public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .filter("au.id", id);
         return (Aula) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allAulasSuperiorByOficina(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("aus")
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.id", oficina);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allBySuperior(Aula aulaSuperior) {
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("aus.id", aulaSuperior);
+        return sql.all(getCurrentSession());
     }
 
 }

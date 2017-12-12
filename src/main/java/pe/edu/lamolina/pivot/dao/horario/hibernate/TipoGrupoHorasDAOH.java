@@ -7,7 +7,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
+import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 @Repository
 public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements TipoGrupoHorasDAO {
@@ -34,6 +36,16 @@ public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements T
                 .from(TipoGrupoHoras.class, "tipo")
                 .filter("codigo", codigo);
         return (TipoGrupoHoras) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<TipoGrupoHoras> allActiveByTipoCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+        System.out.println(tipoGrupoHorasEnum.name());
+        Octavia sql = Octavia.query()
+                .from(TipoGrupoHoras.class, "tipoGH")
+                .filter("tipoCiclo", cicloAcademico.getTipo())
+                .filter("tipo", tipoGrupoHorasEnum.name());
+        return sql.all(getCurrentSession());
     }
 
 }

@@ -6,6 +6,7 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -55,7 +56,9 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
     @Override
     public Seccion find(Long idSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2")
+                .parents("grupoSeccion gs", "_gs.curso cur", "left _cur.planCalificacion pc",
+                        "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2",
+                        "left grupoHoras gh","left aula au")
                 .filter("s.id", idSeccion);
         return find(sqlUtil);
     }
@@ -112,6 +115,20 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 //  .filter("s.estado", EstadoEnum.ACT.name())
                 .filter("gs.id", gruposSeccion);
         return all(sqlUtil);
+    }
+
+    @Override
+    public void updateSeccionGrupoHora(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "grupoHoras");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateSeccionAula(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "aula");
+        this.update(seccion);
     }
 
 }

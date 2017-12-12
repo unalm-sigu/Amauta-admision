@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -14,6 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
@@ -42,12 +46,6 @@ public class Seccion implements Serializable {
 
     @Column(name = "es_principal")
     private Integer esPrincipal;
-
-    @Column(name = "horas_teoria")
-    private Integer horasTeoria;
-
-    @Column(name = "horas_practica")
-    private Integer horasPractica;
 
     @Column(name = "horas_semanales")
     private Integer horasSemanales;
@@ -189,22 +187,6 @@ public class Seccion implements Serializable {
         this.esPrincipal = esPrincipal;
     }
 
-    public Integer getHorasTeoria() {
-        return horasTeoria;
-    }
-
-    public void setHorasTeoria(Integer horasTeoria) {
-        this.horasTeoria = horasTeoria;
-    }
-
-    public Integer getHorasPractica() {
-        return horasPractica;
-    }
-
-    public void setHorasPractica(Integer horasPractica) {
-        this.horasPractica = horasPractica;
-    }
-
     public Aula getAula() {
         return aula;
     }
@@ -324,6 +306,13 @@ public class Seccion implements Serializable {
         return false;
     }
 
+    public boolean isTipoSeccionPCUR() {
+        if (TipoSeccionEnum.PCUR.equals(this.getTipoSeccionEnum())) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean isTipoSeccionTEO() {
         if (TipoSeccionEnum.TEO.equals(this.getTipoSeccionEnum())) {
             return true;
@@ -407,6 +396,47 @@ public class Seccion implements Serializable {
             return this.getDocenteSeccion().size();
         }
         return cant;
+    }
+
+    public ObjectNode toJson() {
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        node.put("seccionId", this.getId());
+        node.put("seccionCodigo", this.getCodigo());
+        node.put("seccionCodigo2", this.getCodigo2());
+        node.put("seccionVacantes", this.getVacantes());
+        //   node.put("seccionHorasTeoria", this.getHorasTeoria());
+        node.put("horasSemanales", this.getHorasSemanales());
+
+        node.put("depAcadId", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getId());
+        node.put("depAcadCodigo", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getCodigo());
+        node.put("depAcadNombre", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getNombre());
+        node.put("depAcadNombreLargo", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getNombreLargo());
+
+        node.put("cursoId", this.getGrupoSeccion().getCurso().getId());
+        node.put("cursoNombre", this.getGrupoSeccion().getCurso().getNombre());
+        node.put("cursoCodigo", this.getGrupoSeccion().getCurso().getCodigo());
+
+        if (ObjectUtil.getParentTree(this, "grupoHoras.id") != null) {
+            ObjectNode gpoSeccion = JsonHelper.createJson(this.getGrupoHoras(), JsonNodeFactory.instance);
+            node.putPOJO("grupoHora", gpoSeccion);
+        } else {
+            node.putPOJO("grupoHora", "");
+        }
+
+        if (ObjectUtil.getParentTree(this, "aula.id") != null) {
+            ObjectNode aula = JsonHelper.createJson(this.getAula(), JsonNodeFactory.instance);
+
+            if (ObjectUtil.getParentTree(this.getAula(), "aulaSuperior.id") != null) {
+                aula.putPOJO("aulaSuperior", JsonHelper.createJson(this.getAula().getAulaSuperior(), JsonNodeFactory.instance));
+            } else {
+                aula.putPOJO("aulaSuperior", "");
+            }
+
+            node.putPOJO("aula", aula);
+        } else {
+            node.putPOJO("aula", "");
+        }
+        return node;
     }
 
 }

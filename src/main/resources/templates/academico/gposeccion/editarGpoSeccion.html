@@ -1,7 +1,7 @@
-<html layout:decorator="zlayout/layout">
+<html layout:decorator="_layout/layout">
     <head>
         <title>Calificacion de Postulantes</title>
-    <div th:substituteby="zlayout/includes :: styles-dynatable"></div>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <syle type="text/css">
         .diegoSelect {
         min-width: 300px;
@@ -88,17 +88,33 @@
                                         {{ seccion.tipoSeccionValue }}
                                     </td>
                                     <td>
-                                        {{ seccion.aula }}
+                                        <a v-if="seccion.aula==''"
+                                           v-on:click="showModalAula(seccion)" 
+                                           style="cursor:pointer;">
+                                            Sin Aula
+                                        </a>
+
+                                        <a v-if="seccion.aula!=''"
+                                           v-on:click="showModalAula(seccion)" 
+                                           style="cursor:pointer;">
+                                            {{ seccion.aula }}
+                                        </a>
                                     </td>
                                     <td>
 
-                                        <a v-on:click="seleccionarSeccion(seccion)" 
+                                        <a v-on:click="showModalGrupos(seccion)" 
                                            v-if="seccion.grupoHoras==''"
                                            style="cursor:pointer;">
                                             Sin Grupo
                                         </a>
 
-                                        <span v-if="seccion.grupoHoras!=''"> {{ seccion.grupoHoras }} </span>
+                                        <a v-on:click="showModalGrupos(seccion)" 
+                                           v-if="seccion.grupoHoras!=''"
+                                           style="cursor:pointer;">
+                                            {{ seccion.grupoHoras }}
+                                        </a>
+
+
                                     </td>
                                     <td>
 
@@ -216,28 +232,45 @@
                             <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Docente</strong></i>
                         </a>
                     </section>
-                    <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+
                 </section>
 
             </form>
+            <div th:substituteby="academico/gposeccion/modals/modalAula"/>
+            <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
         </div>
+
         <div th:substituteby="templates/modal"/>
+
+
+        <div th:substituteby="_modules/vue-modal"/>
 
         <div id="autocomplete-doc">
             <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
         </div>
 
+        <div id="tablaHorarioReg"></div>
+
+        <script type="text/x-template" id="select2-template">
+            <input class="input-s-full" type="text" />
+        </script>
+
         <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
             {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
         </div>
+
+
     </section>
 
     <div layout:fragment="js">
-        <div th:substituteby="zlayout/includes :: javascript-dynatable"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:inline="javascript">
             var gpoSeccionJson = [[${grupoSeccionJson}]];
         </script>
         <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
+
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+
     </div>
 </body>
 </html>

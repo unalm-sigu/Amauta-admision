@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 @Entity
 @Table(name = "hor_tipo_grupo_horas")
@@ -96,6 +97,13 @@ public class TipoGrupoHoras implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public boolean isTipoGrupoRegular() {
+        if (TipoGrupoHorasEnum.REGULAR.name().equals(this.getTipo())) {
+            return true;
+        }
+        return false;
     }
 
 }
