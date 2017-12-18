@@ -12,27 +12,51 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ProgDataService {
 
-    String extraerEmailCompania(Persona persona, DataSessionPivot ds);
+    String extraerEmailCompania(
+            Persona persona,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
-    Persona extraerDocumentoIdentidad(Persona persona, DataSessionPivot ds);
+    Persona extraerDocumentoIdentidad(
+            Persona persona,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
-    void changeDocumentoIdentidad(Persona persona, TipoDocIdentidad tipoDocumento, String numeroDocIdentidad, String emailCompania, DataSessionPivot ds);
+    void changeDocumentoIdentidad(
+            Persona persona,
+            TipoDocIdentidad tipoDocumento,
+            String numeroDocIdentidad,
+            String emailCompania,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
-    Persona savePersona(Persona persona, Map<String, TipoDocIdentidad> mapTiposDoc, DataSessionPivot ds);
+    Persona savePersona(
+            Persona persona,
+            Map<String, TipoDocIdentidad> mapTiposDoc,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
-    void saveAlumno(Alumno alumno, DataSessionPivot ds);
+    void saveAlumno(
+            Alumno alumno,
+            Map<Long, Persona> mapIdPersonas,
+            Map<String, Alumno> mapAlumnos,
+            Map<String, SituacionAcademica> mapSituaciones, DataSessionPivot ds);
 
     Docente saveDocente(Docente docente, ModalidadEstudio modalidad, Map<String, DepartamentoAcademico> mapDptos, DataSessionPivot ds);
 
     void anularDocentes(Map<String, Docente> mapDocentes, ModalidadEstudio modalidad, DataSessionPivot ds);
 
-    Persona revisarPersona(Persona persona, DataSessionPivot ds);
+    Persona revisarPersona(
+            Persona persona,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
     Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo);
 

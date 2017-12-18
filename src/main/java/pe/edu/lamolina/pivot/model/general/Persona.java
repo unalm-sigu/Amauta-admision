@@ -552,4 +552,17 @@ public class Persona implements Serializable {
         this.fechaValidacionReniec = fechaValidacionReniec;
     }
 
+    public String getKey() {
+        String key = (StringUtils.isEmpty(this.paterno) ? "" : this.paterno.replaceAll(" ", "-"));
+        key += "/" + (StringUtils.isEmpty(this.materno) ? "" : this.materno.replaceAll(" ", "-"));
+        key += "/" + this.nombres.replaceAll(" ", "-");
+        key = StringUtils.stripAccents(key).toLowerCase();
+        return key;
+    }
+
+    public String getIdentificacion() {
+        String identi = this.tipoDocumento.getSimbolo() + "-";
+        return identi + this.numeroDocIdentidad;
+    }
+
 }

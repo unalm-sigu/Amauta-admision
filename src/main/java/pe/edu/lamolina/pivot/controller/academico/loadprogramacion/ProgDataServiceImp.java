@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -62,6 +63,7 @@ import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -123,9 +125,12 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public String extraerEmailCompania(Persona perso, DataSessionPivot ds) {
+    public String extraerEmailCompania(
+            Persona perso,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         String email = null;
-        List<Persona> personas = allPersonasByPer(perso, ds);
+        List<Persona> personas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -151,9 +156,12 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Persona extraerDocumentoIdentidad(Persona perso, DataSessionPivot ds) {
+    public Persona extraerDocumentoIdentidad(
+            Persona perso,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         Persona dni = new Persona();
-        List<Persona> personas = allPersonasByPer(perso, ds);
+        List<Persona> personas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -180,8 +188,14 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void changeDocumentoIdentidad(Persona perso, TipoDocIdentidad tipoDocumento, String numeroDocIdentidad, String emailCompania, DataSessionPivot ds) {
-        List<Persona> personas = allPersonasByPer(perso, ds);
+    public void changeDocumentoIdentidad(
+            Persona perso,
+            TipoDocIdentidad tipoDocumento,
+            String numeroDocIdentidad,
+            String emailCompania,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
+        List<Persona> personas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
         for (Persona persona : personas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
@@ -212,7 +226,11 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Persona savePersona(Persona persona, Map<String, TipoDocIdentidad> mapTiposDoc, DataSessionPivot ds) {
+    public Persona savePersona(
+            Persona persona,
+            Map<String, TipoDocIdentidad> mapTiposDoc,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
         TipoDocIdentidad tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
         if (tipoDoc == null) {
@@ -223,30 +241,36 @@ public class ProgDataServiceImp implements ProgDataService {
         persona.setTipoDocumento(tipoDoc);
         logger.debug("buscando {} {} con tipoDoc {}", persona.getCodigoTipoDocumento(), persona.getNumeroDocIdentidad(), tipoDoc);
         if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
-            Persona tempo = personaDAO.findByDocIdentidad(tipoDoc, persona.getNumeroDocIdentidad());
+            Persona tempo = mapDNIPersonas.get(persona.getIdentificacion());
             if (tempo == null) {
                 persona.setUserRegistro(ds.getUsuario());
                 persona.setFechaRegistro(new Date());
                 persona.setEstado(EstadoEnum.ACT.name());
                 personaDAO.save(persona);
+
+                mapDNIPersonas.put(persona.getIdentificacion(), persona);
             }
 
-            return revisarPersona(persona, ds);
+            return revisarPersona(persona, mapKeyPersonas, mapDNIPersonas, ds);
         }
-        return revisarPersona(persona, ds);
+        return revisarPersona(persona, mapKeyPersonas, mapDNIPersonas, ds);
 
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void saveAlumno(Alumno alumno, DataSessionPivot ds) {
-        Persona persona = personaDAO.find(alumno.getPersona().getId());
+    public void saveAlumno(
+            Alumno alumno,
+            Map<Long, Persona> mapIdPersonas,
+            Map<String, Alumno> mapAlumnos,
+            Map<String, SituacionAcademica> mapSituaciones, DataSessionPivot ds) {
+        Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
         if (StringUtils.isEmpty(persona.getEmailCompania())) {
             persona.setEmailCompania(alumno.getEmail());
             personaDAO.update(persona);
         }
 
-        Alumno alu = alumnoDAO.findByCodigo(alumno.getCodigo());
+        Alumno alu = mapAlumnos.get(alumno.getCodigo());
         if (alu != null) {
             alu.setPersona(persona);
             alumnoDAO.update(alu);
@@ -255,7 +279,7 @@ public class ProgDataServiceImp implements ProgDataService {
             String cod = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
             Carrera carrera = carreraDAO.findByCodigo(cod);
             alumno.setCarrera(carrera);
-            SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo(alumno.getSituacion());
+            SituacionAcademica situacion = mapSituaciones.get(alumno.getSituacion());
             alumno.setSituacionAcademica(situacion);
             alumno.setCicloActivo(ds.getCicloAcademico());
             alumno.setCicloIngreso(ds.getCicloAcademico());
@@ -273,23 +297,41 @@ public class ProgDataServiceImp implements ProgDataService {
             alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
             alumno.setPromedioAcumulado(BigDecimal.ZERO);
             alumnoDAO.save(alumno);
+
+            mapAlumnos.put(alumno.getCodigo(), alumno);
+
+            saveUsuario(persona, RolEnum.ALU, ds);
         }
 
+    }
+
+    private void saveUsuario(Persona persona, RolEnum rol, DataSessionPivot ds) {
         Usuario user = usuarioDAO.allByPersona(persona);
         if (user != null) {
 
             boolean existeAlumno = false;
+            boolean existeDocente = false;
             List<UsuarioRol> userRoles = usuarioRolDAO.allByUser(user);
             for (UsuarioRol userRol : userRoles) {
-                if (userRol.getId() == 1) {
+                if (userRol.getId() == 1 && rol == RolEnum.ALU) {
                     existeAlumno = true;
                     break;
                 }
+                if (userRol.getId() == 2 && rol == RolEnum.DOC) {
+                    existeDocente = true;
+                    break;
+                }
             }
-            if (!existeAlumno) {
+            if (!existeAlumno && rol == RolEnum.ALU) {
                 UsuarioRol userRol = new UsuarioRol();
                 userRol.setUsuario(user);
                 userRol.setRol(new Rol(1));
+                usuarioRolDAO.save(userRol);
+            }
+            if (!existeDocente && rol == RolEnum.DOC) {
+                UsuarioRol userRol = new UsuarioRol();
+                userRol.setUsuario(user);
+                userRol.setRol(new Rol(2));
                 usuarioRolDAO.save(userRol);
             }
 
@@ -313,9 +355,13 @@ public class ProgDataServiceImp implements ProgDataService {
 
         UsuarioRol userRol = new UsuarioRol();
         userRol.setUsuario(user);
-        userRol.setRol(new Rol(1));
+        if (rol == RolEnum.ALU) {
+            userRol.setRol(new Rol(1));
+        }
+        if (rol == RolEnum.DOC) {
+            userRol.setRol(new Rol(2));
+        }
         usuarioRolDAO.save(userRol);
-
     }
 
     @Override
@@ -336,12 +382,13 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserRegistro(ds.getUsuario());
             docenteDAO.save(profeBD);
 
-        } else if (!profeBD.getEstado().equals(EstadoEnum.ACT.name())) {
+        } else if (profeBD.getEstadoEnum() != EstadoEnum.ACT) {
             profeBD.setEstadoEnum(EstadoEnum.ACT);
             profeBD.setFechaModifica(new Date());
             profeBD.setUserModifica(ds.getUsuario());
             docenteDAO.update(profeBD);
         }
+        saveUsuario(persona, RolEnum.DOC, ds);
         return profeBD;
     }
 
@@ -360,10 +407,18 @@ public class ProgDataServiceImp implements ProgDataService {
         }
     }
 
-    private List<Persona> allPersonasByPer(Persona persona, DataSessionPivot ds) {
-        List<Persona> personas = personaDAO.allByApellidosNombres(persona);
+    private List<Persona> allPersonasByPer(
+            Persona persona,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas,
+            DataSessionPivot ds) {
+
+        List<Persona> personas = mapKeyPersonas.get(persona.getKey());
+        if (personas == null) {
+            personas = new ArrayList();
+        }
         if (!StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
-            Persona per = personaDAO.findByDocIdentidad(persona.getTipoDocumento(), persona.getNumeroDocIdentidad());
+            Persona per = mapDNIPersonas.get(persona.getIdentificacion());
             if (per != null) {
                 boolean ok = false;
                 for (Persona pp : personas) {
@@ -386,6 +441,12 @@ public class ProgDataServiceImp implements ProgDataService {
             personaDAO.save(persona);
 
             personas.add(persona);
+            List<Persona> personax = mapKeyPersonas.get(persona.getKey());
+            if (personax == null) {
+                personax = new ArrayList();
+                mapKeyPersonas.put(persona.getKey(), personax);
+            }
+            personax.add(persona);
         }
         return personas;
 
@@ -393,8 +454,12 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional
-    public Persona revisarPersona(Persona persona, DataSessionPivot ds) {
-        List<Persona> personas = allPersonasByPer(persona, ds);
+    public Persona revisarPersona(
+            Persona persona,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
+
+        List<Persona> personas = allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
         logger.debug("existen {} duplicados parar {} {} {}", personas.size(), persona.getPaterno(), persona.getMaterno(), persona.getNombres());
 
         if (personas.isEmpty()) {
@@ -415,7 +480,6 @@ public class ProgDataServiceImp implements ProgDataService {
         }
 
         Persona main = findPersonaMain(personas);
-        //logger.debug("persona main es {}", main.getId());
         datoToMain(personas, main, ds);
         changePersonasNoMain(personas, main, ds);
 

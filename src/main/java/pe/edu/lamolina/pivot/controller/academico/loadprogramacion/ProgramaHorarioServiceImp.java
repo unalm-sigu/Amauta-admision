@@ -23,9 +23,12 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -37,6 +40,7 @@ import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -60,14 +64,20 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+    @Autowired
+    PersonaDAO personaDAO;
+    @Autowired
+    AlumnoDAO alumnoDAO;
+    @Autowired
+    SituacionAcademicaDAO situacionAcademicaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     @Transactional
     public void loadArchivosHorario(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
-        logger.debug("CICLO  {} {} {} ",ciclo.getId(),ciclo.getYear(),ciclo.getNumeroCiclo());
-        
+        logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
+
         String rutaFileGpoSecciones = saveFile(files[0]);
         String rutaFileSecciones = saveFile(files[1]);
         String rutaFilePersonas = saveFile(files[2]);
@@ -84,24 +94,52 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
+        List<Persona> personasDB = personaDAO.all();
+        Map<String, List<Persona>> mapKeyPersonas = TypesUtil.convertListToMapList("key", personasDB);
+        Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
+        Map<String, Persona> mapDNIPersonas = new LinkedHashMap();
+        for (Persona persona : personasDB) {
+            if (persona.getTipoDocumento() != null && persona.getNumeroDocIdentidad() != null) {
+                mapDNIPersonas.put(persona.getIdentificacion(), persona);
+            }
+        }
+
         Map<String, AlumnoBlocked> mapBloqueados = new LinkedHashMap();
         progDataService.revisarBloqueados(mapBloqueados);
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-        this.savePersonas(personas, ds);
+        this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
+        for (Persona persona : personas) {
+            if (mapIdPersonas.get(persona.getId()) == null) {
+                mapIdPersonas.put(persona.getId(), persona);
+            }
+        }
+
+        List<Alumno> alumnosDB = alumnoDAO.all();
+        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
+        for (Alumno alumno : alumnosDB) {
+            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
+            if (persona != null) {
+                alumno.setPersona(persona);
+            }
+        }
+
+        List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
+        Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
+
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, ds);
+        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
-        Map<String, Docente> mapDocentes = this.saveDocentes(docentes, ds);
+        Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
 
@@ -157,7 +195,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     }
 
-    private Map<String, Docente> saveDocentes(List<Docente> docentes, DataSessionPivot ds) {
+    private Map<String, Docente> saveDocentes(
+            List<Docente> docentes,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         Map<String, Docente> mapDocentes = new LinkedHashMap();
 
         List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
@@ -177,10 +218,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             }
 
             Persona persona = docente.getPersona();
-            persona = progDataService.savePersona(persona, mapTiposDoc, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, ds);
-            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, ds);
+            persona = progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
 
             docente.setPersona(persona);
             docente = progDataService.saveDocente(docente, modalidad, mapDptos, ds);
@@ -193,7 +234,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         return mapDocentes;
     }
 
-    private void saveAlumnos(List<Alumno> alumnos, DataSessionPivot ds) {
+    private void saveAlumnos(
+            List<Alumno> alumnos,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas,
+            Map<Long, Persona> mapIdPersonas,
+            Map<String, Alumno> mapAlumnos,
+            Map<String, SituacionAcademica> mapSituaciones, DataSessionPivot ds) {
         List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
         Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
         long loop = 1;
@@ -204,28 +251,32 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 //                continue;
 //            }
             Persona persona = alumno.getPersona();
-            persona = progDataService.savePersona(persona, mapTiposDoc, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, ds);
-            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, ds);
+            persona = progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
+
+            if (mapIdPersonas.get(persona.getId()) == null) {
+                mapIdPersonas.put(persona.getId(), persona);
+            }
 
             alumno.setPersona(persona);
-            progDataService.saveAlumno(alumno, ds);
+            progDataService.saveAlumno(alumno, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
             loop++;
         }
 
     }
 
-    private void savePersonas(List<Persona> personas, DataSessionPivot ds) {
+    private void savePersonas(List<Persona> personas, Map<String, List<Persona>> mapKeyPersonas, Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
         Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
         long loop = 1;
         for (Persona persona : personas) {
             logger.debug("Guardando persona {} de {}", loop, personas.size());
-            progDataService.savePersona(persona, mapTiposDoc, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, ds);
-            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, ds);
+            progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
             loop++;
         }
 
