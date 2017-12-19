@@ -53,28 +53,28 @@
                             th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a href="#" data-toggle="sidebar">
                                 <i class="fa fa-calendar"></i>
-                                <span>Horario Cachimbo</span>
+                                <span>Horario Ingresantes</span>
                                 <i class="fa fa-chevron-down"></i>
                             </a>
                             <ul class="submenu">
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/horariocachimbo/ingresante}">
-                                        <span>Horario cachimbo</span>
+                                        <span>Ingresantes</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/horariocachimbo/curso}">
-                                        <span>Curso cachimbo</span>
+                                        <span>Cursos</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/horariocachimbo/carrera}">
-                                        <span>Carrera cachimbo</span>
+                                        <span>Carreras</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/horariocachimbo/horario}">
-                                        <span>Horario cachimbo</span>
+                                        <span>Horarios</span>
                                     </a>
                                 </li>
                             </ul>
@@ -90,7 +90,7 @@
                             <ul class="submenu">
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/docente}">
-                                        <span>Docente</span>
+                                        <span>Docentes</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
@@ -99,18 +99,23 @@
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/facultad}">
+                                        <span>Facultades</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/carrera}">
-                                        <span>Carrera</span>
+                                        <span>Carreras</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/curso}">
-                                        <span>Curso</span>
+                                        <span>Cursos</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/general/oficina}">
-                                        <span>Oficina</span>
+                                        <span>Oficinas</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
@@ -141,17 +146,17 @@
                             <ul class="submenu">
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/horario}">
-                                        <span>Horario</span>
+                                        <span>Grupos</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/general/aula}">
-                                        <span>Aula</span>
+                                        <span>Aulas</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/anexo}">
-                                        <span>Anexo Boletin</span>
+                                        <span>Anexos</span>
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
