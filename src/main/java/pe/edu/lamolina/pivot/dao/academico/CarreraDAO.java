@@ -35,4 +35,6 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     List<Carrera> allCarreraByModalidadEstudio(ModalidadEstudio modalidadEstudio);
     List<Carrera> allRegularesByCarreras(List<Carrera> carreras);
 
+    public List<Carrera> allActivoByModalidad(ModalidadEstudio modalidadEstudio);
+
 }

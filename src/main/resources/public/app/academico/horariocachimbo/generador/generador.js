@@ -68,8 +68,27 @@ $(function () {
             });
         },
         methods: {
-            generarHorario: function (id) {
-                console.log('generando hoarrios');
+            generarHorario: function (e) {
+                var self = $(e.currentTarget);
+                self.btnDisabled();
+                $.ajax({
+                    method: 'POST',
+                    sync:false,
+                    url: APP.url("academico/horariocachimbo/horario/generar"),
+                    success: function (response) {
+                        if (response.success) {
+                            console.log(response.data);
+                            dynatable.process();
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                        self.btnEnable();
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                        self.btnEnable();
+                    }
+                });
             },
             getRecord: function (id) {
                 return dynatable.settings.dataset.records.find(item => item.id === id);

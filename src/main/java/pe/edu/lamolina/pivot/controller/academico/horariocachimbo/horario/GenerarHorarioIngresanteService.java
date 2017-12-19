@@ -7,6 +7,7 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
@@ -38,5 +39,7 @@ public interface GenerarHorarioIngresanteService {
     public List<Hora> allHora();
 
     public List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario);
+
+    public void generar(CicloAcademico cicloAcademico, Compania compania);
 
 }

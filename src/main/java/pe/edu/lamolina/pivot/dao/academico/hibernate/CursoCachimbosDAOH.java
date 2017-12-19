@@ -9,6 +9,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 
 @Repository
@@ -57,6 +58,16 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .from(CursoCachimbos.class, "cc")
                 .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("ciclo.id", cicloAcademico);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<CursoCachimbos> allByCarreraCiclo(CicloAcademico cicloAcademico, Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(CursoCachimbos.class, "cc")
+                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("ciclo.id", cicloAcademico)
+                .filter("car.id", carrera);
         return sql.all(getCurrentSession());
     }
 

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
@@ -268,6 +268,27 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
+    @RequestMapping("generar")
+    public JsonResponse generar(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            Compania compania = ds.getCompania();
+            service.generar(cicloAcademico,compania);
+            ArrayNode node = new ArrayNode(jsonFactory);
+            response.setData(node);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("allHorarioHeader")
     public JsonResponse allHorarioHeader(Carrera carrera, HttpSession session) {
 
@@ -381,7 +402,7 @@ public class GenerarHorarioIngresanteController {
             }
 
             ArrayNode diasArray = new ArrayNode(jsonFactory);
-            
+
             for (Dia dia : dias) {
                 ObjectNode diaObjectNode = new ObjectNode(jsonFactory);
                 diaObjectNode.put("dia", dia.getNombre());
