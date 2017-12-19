@@ -9,7 +9,7 @@ import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 
 public interface HorarioSeccionDAO extends Crud<HorarioSeccion> {
 
-    public List<HorarioSeccion> allBySeccion(List<Seccion> secciones);
+    public List<HorarioSeccion> allBySecciones(List<Seccion> secciones);
 
     public List<HorarioSeccion> allByCicloCurso(CicloAcademico cicloAcademico, List<Curso> cursos);
 

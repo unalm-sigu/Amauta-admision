@@ -6,9 +6,11 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -112,6 +114,15 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 //  .filter("s.estado", EstadoEnum.ACT.name())
                 .filter("gs.id", gruposSeccion);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                // FALTA COMPLETAR
+                .orderBy("sec.codigo");
+        return sql.all(getCurrentSession());
     }
 
 }

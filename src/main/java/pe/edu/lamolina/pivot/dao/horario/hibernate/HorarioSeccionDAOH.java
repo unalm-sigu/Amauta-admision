@@ -19,7 +19,7 @@ public class HorarioSeccionDAOH extends AbstractDAO<HorarioSeccion> implements H
     }
 
     @Override
-    public List<HorarioSeccion> allBySeccion(List<Seccion> secciones) {
+    public List<HorarioSeccion> allBySecciones(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(HorarioSeccion.class, "hs")
                 .join("dia di", "hora ho", "seccion sec")

@@ -17,6 +17,8 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
@@ -30,57 +32,69 @@ import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.general.Compania;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 
 @Service
 @Transactional(readOnly = true)
 public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresanteService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     CursoCachimbosDAO cursoCachimbosDAO;
-
+    
     @Autowired
     HorarioCachimbosDAO horarioCachimbosDAO;
-
+    
     @Autowired
     AlumnoHorarioDAO alumnoHorarioDAO;
-
+    
     @Autowired
     CarreraDAO carreraDAO;
-
+    
     @Autowired
     CursoDAO cursoDAO;
-
+    
     @Autowired
     DiaDAO diaDAO;
-
+    
     @Autowired
     HoraDAO horaDAO;
-
+    
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
-
+    
     @Autowired
     SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
-
+    
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
+    
+    @Autowired
+    SeccionDAO seccionDAO;
+    
+    @Override
+    public ModalidadEstudio findModalidadPregrado() {
+        return modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+    }
+    
     @Override
     public List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return horarioCachimbosDAO.allHorarioCachimbos(filter, cicloAcademico);
     }
-
+    
     @Override
     @Transactional
     public void delete(HorarioCachimbos horarioCachimbos) {
         horarioCachimbosDAO.delete(horarioCachimbos);
     }
-
+    
     @Override
     @Transactional
     public void delete(HorarioCachimboForm form) {
@@ -88,32 +102,32 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             horarioCachimbosDAO.delete(horarioCachimbos);
         }
     }
-
+    
     @Override
     public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico) {
         return alumnoHorarioDAO.allAlumnoHorarioByName(nombre, cicloAcademico);
     }
-
+    
     @Override
     public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio) {
         return carreraDAO.allCarreraByModalidadEstudio(modalidadEstudio);
     }
-
+    
     @Override
     public List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
         return cursoDAO.allCursoCachimbosByCicloAcademico(cicloAcademico, carrera);
     }
-
+    
     @Override
     public List<HorarioCachimbos> allHorarioCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
         return horarioCachimbosDAO.allByCicloAcademico(cicloAcademico, carrera);
     }
-
+    
     @Override
     public List<SeccionHorarioCachimbos> allSeccionHorarioCachimbosByCursoHora(Carrera carrera, List<Curso> cursos, CicloAcademico cicloAcademico) {
         return seccionHorarioCachimbosDAO.allByCursoHora(carrera, cursos, cicloAcademico);
     }
-
+    
     @Override
     public String getClave(String codigo, List<SeccionHorarioCachimbos> shcHorario) {
         if (shcHorario == null) {
@@ -130,17 +144,17 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         }
         return "";
     }
-
+    
     @Override
     public List<Dia> allDia() {
         return diaDAO.allDia();
     }
-
+    
     @Override
     public List<Hora> allHora() {
         return horaDAO.allHora();
     }
-
+    
     @Override
     public List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario) {
         List<SeccionHorarioCachimbos> seccionHorarioCachimboses = seccionHorarioCachimbosDAO.allByHorario(horario);
@@ -151,89 +165,173 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         for (SeccionHorarioCachimbos seccionHorarioCachimbose : seccionHorarioCachimboses) {
             secciones.add(seccionHorarioCachimbose.getSeccion());
         }
-        return horarioSeccionDAO.allBySeccion(secciones);
+        return horarioSeccionDAO.allBySecciones(secciones);
     }
-
+    
     @Override
-    public void generar(CicloAcademico cicloAcademico, Compania compania) {
-
-        List<Carrera> carreras = carreraDAO.allActivoByModalidad(new ModalidadEstudio(1));
-        Carrera carrera = carreraDAO.find(6L);
-        List<CursoCachimbos> cursoCachimbos = cursoCachimbosDAO.allByCarreraCiclo(cicloAcademico, carrera);
-
-        List<Curso> cursos = cursoCachimbos.stream().
-                map(CursoCachimbos::getCurso).
-                collect(Collectors.toList());
-
-        List<HorarioSeccion> horarioSecciones = horarioSeccionDAO.allByCicloCurso(cicloAcademico, cursos);
-
-        Map<Long, List<HorarioSeccion>> horarioSeccionesMap = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", horarioSecciones);
-        Map<Long, List<HorarioSeccion>> horarioSeccionesBySeccionMap = TypesUtil.convertListToMapList("seccion.id", horarioSecciones);
-
-        List<Seccion> sessiones = horarioSecciones.stream().
-                map(HorarioSeccion::getSeccion).
-                collect(Collectors.toList());
-
-        Map<Long, List<Seccion>> seccionesByCursoMap = TypesUtil.convertListToMapList("grupoSeccion.curso.id", sessiones);
-
-        List<GrupoSeccion> grupoSecciones = sessiones.stream().
-                map(Seccion::getGrupoSeccion).
-                collect(Collectors.toList());
-
-        Map<Long, List<GrupoSeccion>> grupoSeccionesMap = TypesUtil.convertListToMapList("curso.id", grupoSecciones);
-        Map<Long, List<Seccion>> seccionesMap = TypesUtil.convertListToMapList("grupoSeccion.id", sessiones);
-
-        for (Curso curso : cursos) {
-            logger.debug("CURSO {} {} ", curso.getId(), curso.getNombre());
-
-            List<GrupoSeccion> gss = grupoSeccionesMap.get(curso.getId());
-            if (gss == null) {
-                continue;
+    @Transactional
+    public void generar(CicloAcademico cicloAcademico, ModalidadEstudio modalidad) {
+        
+        List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
+        for (Carrera carrera : carreras) {
+            List<CursoCachimbos> cursoCachimbos = cursoCachimbosDAO.allByCarreraCiclo(cicloAcademico, carrera);
+            List<Curso> cursos = allCursosCarrera(cursoCachimbos);
+            List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursos, cicloAcademico);
+            Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
+            List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
+            Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
+            
+            for (Seccion seccion : secciones) {
+                List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
+                horariosSecc = (horariosSecc == null) ? new ArrayList() : horariosSecc;
+                seccion.setHorarioSeccion(horariosSecc);
             }
-            for (GrupoSeccion gs : gss) {
-                logger.debug("****GRUPOSECCION {} {} ", gs.getId(), gs.getCodigo());
-                List<Seccion> se = seccionesMap.get(gs.getId());
-                if (se == null) {
-                    continue;
-                }
-                for (Seccion seccion : se) {
-                    logger.debug("********SECCION {} {} ", seccion.getId(), seccion.getCodigo());
-                    List<HorarioSeccion> horarios = horarioSeccionesBySeccionMap.get(seccion.getId());
-                    if (horarios == null) {
-                        continue;
-                    }
-                    for (HorarioSeccion horario : horarios) {
-                        logger.debug("***********HORARIOS {} {} ", horario.getDia().getNombre(), horario.getHora().getCodigo());
-                    }
-                }
+            
+            List<List<Seccion>> horariosTotal = new ArrayList();
+            Map<String, String> mapHorasDias = new LinkedHashMap();
+            List<Seccion> horarioTempo = new ArrayList();
+            permutar(1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosTotal);
+        }
+        
+    }
+    
+    private void permutar(
+            int ordenCurso, int ordenSeccion,
+            List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
+            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera) {
+        
+        Curso curso = getCursoOrden(cursos, ordenCurso);
+        List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
+        int maxSecciones = cantPermutaSeccion(seccionesCurso);
+        List<Seccion> seccionesOrden = allSeccionByOrden(seccionesCurso, ordenSeccion);
+        if (seccionesOrden.isEmpty()) {
+            return;
+        }
+        
+        boolean hayCruceHorario = hayCruceHorario(mapHorasDias, seccionesOrden);
+        
+        if (!hayCruceHorario) {
+            List<Seccion> horarioTempo2 = clonarLista(horarioTempo);
+            Map<String, String> mapHorasDia2 = clonarMap(mapHorasDias);
+            addSecciones(mapHorasDia2, seccionesOrden);
+            for (Seccion seccion : seccionesOrden) {
+                horarioTempo2.add(seccion);
+            }
+            if (ordenCurso < cursos.size()) {
+                permutar(ordenCurso + 1, 1, cursos, mapSecciones, clonarMap(mapHorasDia2), clonarLista(horarioTempo2), horariosCarrera);
+            } else {
+                horariosCarrera.add(horarioTempo2);
+                printHorario(horarioTempo2);
             }
         }
-
-        for (Curso curso : cursos) {
-
-            int index = cursos.indexOf(curso);
-            index++;
-
-            if (index >= cursos.size()) {
+        
+        for (;;) {
+            if (ordenSeccion < maxSecciones) {
+                permutar(ordenCurso, ordenSeccion + 1, cursos, mapSecciones, clonarMap(mapHorasDias), clonarLista(horarioTempo), horariosCarrera);
+            } else {
                 break;
             }
-
-            List<Seccion> secciones = seccionesByCursoMap.get(curso.getId());
-
-            for (Seccion seccione : secciones) {
-                Curso cursoSecond = cursos.get(index);
-     
-                
-                List<Seccion> seccionesSecond = seccionesByCursoMap.get(cursoSecond.getId());
-                for (Seccion seccion : seccionesSecond) {
-                    logger.debug("********SECCION {} {} ", seccion.getId(), seccion.getCodigo());
-
-                }
-                index++;
-            }
-
         }
-
+        
     }
-
+    
+    private void printHorario(List<Seccion> horarioTempo) {
+        System.out.print("[");
+        for (Seccion seccion : horarioTempo) {
+            System.out.print(seccion.getCodigo() + ",");
+        }
+        System.out.println("]");
+    }
+    
+    private Map clonarMap(Map<String, String> mapHorasDias) {
+        Map<String, String> clonado = new LinkedHashMap();
+        List<String> values = new ArrayList(mapHorasDias.values());
+        for (String value : values) {
+            clonado.put(value, value);
+        }
+        return clonado;
+    }
+    
+    private List clonarLista(List<Seccion> tempo) {
+        List<Seccion> clonado = new ArrayList();
+        for (Seccion seccion : tempo) {
+            clonado.add(seccion);
+        }
+        return clonado;
+    }
+    
+    private Curso getCursoOrden(List<Curso> cursos, int orden) {
+        int loop = 1;
+        for (Curso curso : cursos) {
+            if (loop == orden) {
+                return curso;
+            }
+            loop++;
+        }
+        return null;
+    }
+    
+    private void addSecciones(Map<String, String> mapHorasDias, List<Seccion> secciones) {
+        for (Seccion seccion : secciones) {
+            List<HorarioSeccion> horasDias = seccion.getHorarioSeccion();
+            for (HorarioSeccion horaDia : horasDias) {
+                mapHorasDias.put(horaDia.getHoraDia(), horaDia.getHoraDia());
+            }
+        }
+    }
+    
+    private boolean hayCruceHorario(Map<String, String> mapHorasDias, List<Seccion> secciones) {
+        for (Seccion seccion : secciones) {
+            List<HorarioSeccion> horasDias = seccion.getHorarioSeccion();
+            for (HorarioSeccion horaDia : horasDias) {
+                String horaDiaMapeada = mapHorasDias.get(horaDia.getHoraDia());
+                if (horaDiaMapeada != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private Integer cantPermutaSeccion(List<Seccion> secciones) {
+        int loop = 0;
+        for (Seccion seccion : secciones) {
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
+                continue;
+            }
+            loop++;
+        }
+        return loop;
+    }
+    
+    private List<Seccion> allSeccionByOrden(List<Seccion> secciones, int orden) {
+        boolean existe = false;
+        int loop = 1;
+        List<Seccion> seleccionados = new ArrayList();
+        for (Seccion seccion : secciones) {
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
+                seleccionados.add(seccion);
+                continue;
+            }
+            if (loop == orden) {
+                seleccionados.add(seccion);
+                existe = true;
+                break;
+            }
+            loop++;
+        }
+        if (!existe) {
+            return new ArrayList();
+        }
+        return seleccionados;
+    }
+    
+    private List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos) {
+        List<Curso> cursos = new ArrayList();
+        for (CursoCachimbos cursoCachimbo : cursosCachimbos) {
+            cursos.add(cursoCachimbo.getCurso());
+        }
+        return cursos;
+    }
+    
 }

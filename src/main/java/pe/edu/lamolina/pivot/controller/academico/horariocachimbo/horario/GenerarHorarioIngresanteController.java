@@ -275,8 +275,8 @@ public class GenerarHorarioIngresanteController {
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            Compania compania = ds.getCompania();
-            service.generar(cicloAcademico,compania);
+            ModalidadEstudio modalidad = service.findModalidadPregrado();
+            service.generar(cicloAcademico, modalidad);
             ArrayNode node = new ArrayNode(jsonFactory);
             response.setData(node);
             response.setSuccess(true);

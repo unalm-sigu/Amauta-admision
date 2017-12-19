@@ -73,5 +73,8 @@ public class HorarioSeccion implements Serializable {
         this.hora = hora;
     }
 
-}
+    public String getHoraDia() {
+        return this.hora.getCodigo() + "-" + this.dia.getId();
+    }
 
+}
