@@ -118,6 +118,7 @@ public class GpoSeccionController {
                     node2.put("tipo", seccion.getTipoSeccion());
                     node2.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
                     node2.put("codigo", seccion.getCodigo());
+                    node2.put("codigo2", seccion.getCodigo2());
                     node2.put("vacantes", seccion.getVacantes());
                     node2.put("matriculados", seccion.getMatriculados());
                     node2.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));

@@ -17,24 +17,24 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
-
+    
     public SeccionDAOH() {
         super();
         setClazz(Seccion.class);
     }
-
+    
     @Override
     public List<Seccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
         filter.setAlias("sec");
         filter.setParents("grupoSeccion gs", "docenteSeccion ds", "aula au",
                 "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr");
-
+        
         filter.setTotal(this.count(filter));
         filter.setFiltered(this.countByFilter(filter));
-
+        
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
         sqlUtil.parents(filter.getParents());
-
+        
         Map filtersFix = filter.getFiltersFixed();
         if (filtersFix != null) {
             for (Object key : filtersFix.keySet()) {
@@ -50,10 +50,10 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
         this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
         sqlUtil.setFirstResult(filter.getOffset())
                 .setPageSize(filter.getPerPage());
-
+        
         return this.all(sqlUtil);
     }
-
+    
     @Override
     public Seccion find(Long idSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
@@ -61,7 +61,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filter("s.id", idSeccion);
         return find(sqlUtil);
     }
-
+    
     @Override
     public List<Seccion> allByFilter(Long idGrupo) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
@@ -69,7 +69,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filter("gs.id", idGrupo);
         return all(sqlUtil);
     }
-
+    
     @Override
     public Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
@@ -78,7 +78,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filter("ca.id", ciclo);
         return find(sqlUtil);
     }
-
+    
     @Override
     public List<Seccion> allByCiclo(CicloAcademico ciclo) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
@@ -86,7 +86,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filter("ca.id", ciclo);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<Seccion> allActivosByGposSeccion(List<GrupoSeccion> gruposSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
@@ -96,16 +96,17 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filterIn("gs.id", gruposSeccion);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
                 .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
                 .parents("left _s.aula", "left _s.grupoHoras")
-                .filterIn("gs.id", gruposSeccion);
+                .filterIn("gs.id", gruposSeccion)
+                .orderBy("s.codigo");
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion) {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
@@ -115,17 +116,18 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .filter("gs.id", gruposSeccion);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
-//                .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
+                .leftJoin("seccionSuperior")
+                //.leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
                 .filter("ca.id", cicloAcademico)
                 .in("cur.id", cursos)
                 .orderBy("sec.codigo");
         return sql.all(getCurrentSession());
     }
-
+    
 }
