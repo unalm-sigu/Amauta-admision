@@ -348,7 +348,7 @@ public class PlanCurricularController {
                     arrayPreRequisitos.add(nodeRequisito);
                 }
                 node.set("prerrequisitos", arrayPreRequisitos);
-                
+
                 ArrayNode arrayPostRequisitos = new ArrayNode(JsonNodeFactory.instance);
                 List<RequisitoCursoOpcional> cursosPostRequisitos = cursoOpcional.getRequisitosCursoOpcionales();
                 for (RequisitoCursoOpcional postrequisito : cursosPostRequisitos) {
@@ -362,7 +362,7 @@ public class PlanCurricularController {
                     arrayPostRequisitos.add(nodePostRequisito);
                 }
                 node.set("postrrequisitos", arrayPostRequisitos);
-                
+
                 ArrayNode arrayPostRequisitosOpc = new ArrayNode(JsonNodeFactory.instance);
                 node.set("postrrequisitosOpc", arrayPostRequisitosOpc);
 
@@ -994,6 +994,72 @@ public class PlanCurricularController {
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminarPlan")
+    public JsonResponse eliminarPlan(PlanCurricular plan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.deletePlanCurricular(plan);
+
+            response.setMessage("Plan curricular eliminado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desactivarPlan")
+    public JsonResponse desactivarPlan(PlanCurricular plan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.desactivarPlanCurricular(plan);
+
+            response.setMessage("Plan curricular eliminado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("clonarPlan")
+    public JsonResponse clonarPlan(PlanCurricular plan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            PlanCurricular planBD = service.clonarPlanCurricular(plan, ds);
+
+            response.setData(planBD.getId());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 
