@@ -185,8 +185,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.estado", EstadoCarreraEnum.ACT)
                 .filter("me.id", modalidadEstudio)
-                .orderBy("ca.codigo desc")
-                .limit(12);
+                .orderBy("ca.codigo desc");
         return sql.all(getCurrentSession());
     }
 

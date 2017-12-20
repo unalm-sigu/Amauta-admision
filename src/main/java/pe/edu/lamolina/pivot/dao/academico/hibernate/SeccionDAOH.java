@@ -120,7 +120,10 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
     public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                // FALTA COMPLETAR
+                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+//                .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
+                .filter("ca.id", cicloAcademico)
+                .in("cur.id", cursos)
                 .orderBy("sec.codigo");
         return sql.all(getCurrentSession());
     }

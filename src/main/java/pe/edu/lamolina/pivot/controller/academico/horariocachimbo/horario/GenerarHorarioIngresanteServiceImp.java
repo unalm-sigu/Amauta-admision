@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,6 @@ import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Dia;
@@ -174,19 +172,37 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
         List<List<Seccion>> horariosTotal = new ArrayList();
         List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
+        //logger.debug("***carreras**** {}", carreras.size());
         for (Carrera carrera : carreras) {
             List<CursoCachimbos> cursoCachimbos = cursoCachimbosDAO.allByCarreraCiclo(cicloAcademico, carrera);
+            //logger.debug("***cursoCachimbos**** {}", cursoCachimbos.size());
+            if (cursoCachimbos.isEmpty()) {
+                continue;
+            }
             List<Curso> cursos = allCursosCarrera(cursoCachimbos);
+            //logger.debug("***cursos*** {}", cursos.size());
             List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursos, cicloAcademico);
+            //logger.debug("***secciones*** {}", secciones.size());
             Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
+            //logger.debug("***mapSecciones*** {}", mapSecciones.size());
             List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
+            //logger.debug("***horarios*** {}", horarios.size());
             Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
+            //logger.debug("***mapHorarios*** {}", mapHorarios.size());
 
             for (Seccion seccion : secciones) {
+                ////logger.debug("===seccion {}", seccion.getId());
                 List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
                 horariosSecc = (horariosSecc == null) ? new ArrayList() : horariosSecc;
                 seccion.setHorarioSeccion(horariosSecc);
             }
+
+            logger.debug("*** carrera {} {} cursoCachimbos {} secciones {} cursos {} ",
+                    carrera.getId(),
+                    carrera.getNombre(),
+                    cursoCachimbos.size(),
+                    secciones.size(),
+                    cursos.size());
 
             Map<String, String> mapHorasDias = new LinkedHashMap();
             List<Seccion> horarioTempo = new ArrayList();
@@ -200,15 +216,23 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
             Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera) {
 
+        ////logger.debug("===call permutar {}");
+        logger.debug("ordenCurso {} ordenSeccion {} cursos {} {} {} {} ",
+                ordenCurso,
+                ordenSeccion,
+                cursos.size());
         Curso curso = getCursoOrden(cursos, ordenCurso);
         List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
+
         int maxSecciones = cantPermutaSeccion(seccionesCurso);
+//        //logger.debug("== maxSecciones {}", maxSecciones);
         List<Seccion> seccionesOrden = allSeccionByOrden(seccionesCurso, ordenSeccion);
         if (seccionesOrden.isEmpty()) {
             return;
         }
 
         boolean hayCruceHorario = hayCruceHorario(mapHorasDias, seccionesOrden);
+        logger.debug("== hayCruceHorario {}", hayCruceHorario);
 
         if (!hayCruceHorario) {
             List<Seccion> horarioTempo2 = clonarLista(horarioTempo);
@@ -217,9 +241,12 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             for (Seccion seccion : seccionesOrden) {
                 horarioTempo2.add(seccion);
             }
+            //logger.debug("== mapHorasDia2 {}", mapHorasDia2.size());
             if (ordenCurso < cursos.size()) {
+                //logger.debug("== call second permutacion {}", mapHorasDia2.size());
                 permutar(ordenCurso + 1, 1, cursos, mapSecciones, clonarMap(mapHorasDia2), clonarLista(horarioTempo2), horariosCarrera);
             } else {
+                //logger.debug("== nunca lega aqui ");
                 horariosCarrera.add(horarioTempo2);
                 printHorario(horarioTempo2);
             }
@@ -227,7 +254,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
         for (;;) {
             if (ordenSeccion < maxSecciones) {
-                permutar(ordenCurso, ordenSeccion + 1, cursos, mapSecciones, clonarMap(mapHorasDias), clonarLista(horarioTempo), horariosCarrera);
+                ordenSeccion++;
+                permutar(ordenCurso, ordenSeccion, cursos, mapSecciones, clonarMap(mapHorasDias), clonarLista(horarioTempo), horariosCarrera);
             } else {
                 break;
             }
@@ -295,6 +323,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     private Integer cantPermutaSeccion(List<Seccion> secciones) {
         int loop = 0;
+        if (secciones == null) {
+            return loop;
+        }
         for (Seccion seccion : secciones) {
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                 continue;
@@ -308,6 +339,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         boolean existe = false;
         int loop = 1;
         List<Seccion> seleccionados = new ArrayList();
+        if (secciones == null) {
+            return seleccionados;
+        }
         for (Seccion seccion : secciones) {
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                 seleccionados.add(seccion);
