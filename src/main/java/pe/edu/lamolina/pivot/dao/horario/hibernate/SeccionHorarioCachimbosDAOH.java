@@ -39,4 +39,13 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .filter("hc.id", horario);
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public List<SeccionHorarioCachimbos> allByHorarios(List<HorarioCachimbos> horarios) {
+        Octavia sql = Octavia.query()
+                .from(SeccionHorarioCachimbos.class, "shc")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .in("hc.id", horarios);
+        return sql.all(getCurrentSession());
+    }
 }

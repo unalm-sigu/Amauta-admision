@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -111,6 +112,8 @@ public class Seccion implements Serializable {
     private String codigoTipoSeccion;
     @Transient
     private Boolean verInformacion;
+    @Transient
+    private Integer suscritos;
 
     public Seccion() {
         this.verInformacion = false;
@@ -407,6 +410,27 @@ public class Seccion implements Serializable {
             return this.getDocenteSeccion().size();
         }
         return cant;
+    }
+
+    public Integer getSuscritos() {
+        return suscritos;
+    }
+
+    public void setSuscritos(Integer suscritos) {
+        this.suscritos = suscritos;
+    }
+
+    public Integer getDisponiblesCachimbos() {
+        this.suscritos = (this.suscritos == null) ? 0 : this.suscritos;
+        return this.vacantes - this.matriculados - this.suscritos;
+    }
+
+    public static class CompareCodigo implements Comparator<Seccion> {
+
+        @Override
+        public int compare(Seccion s1, Seccion s2) {
+            return s1.getCodigo().compareTo(s2.getCodigo());
+        }
     }
 
 }

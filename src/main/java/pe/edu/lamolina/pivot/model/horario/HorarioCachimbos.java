@@ -17,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "hor_horario_cachimbos")
@@ -42,9 +43,6 @@ public class HorarioCachimbos implements Serializable {
     @Column(name = "matriculados")
     private Integer matriculados;
 
-    @Column(name = "id_user_creacion")
-    private Long idUserCreacion;
-
     @Column(name = "fecha_creacion")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date fechaCreacion;
@@ -56,6 +54,10 @@ public class HorarioCachimbos implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_carrera")
     private Carrera carrera;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_creacion")
+    private Usuario userCreacion;
 
     @OneToMany(mappedBy = "horarioCachimbos", fetch = FetchType.LAZY)
     private List<AlumnoHorario> alumnoHorario;
@@ -134,14 +136,6 @@ public class HorarioCachimbos implements Serializable {
         this.matriculados = matriculados;
     }
 
-    public Long getIdUserCreacion() {
-        return idUserCreacion;
-    }
-
-    public void setIdUserCreacion(Long idUserCreacion) {
-        this.idUserCreacion = idUserCreacion;
-    }
-
     public Date getFechaCreacion() {
         return fechaCreacion;
     }
@@ -166,5 +160,12 @@ public class HorarioCachimbos implements Serializable {
         this.seccionHorarioCachimbos = seccionHorarioCachimbos;
     }
 
-}
+    public Usuario getUserCreacion() {
+        return userCreacion;
+    }
 
+    public void setUserCreacion(Usuario userCreacion) {
+        this.userCreacion = userCreacion;
+    }
+
+}
