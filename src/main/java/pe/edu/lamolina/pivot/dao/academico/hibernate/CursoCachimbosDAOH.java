@@ -14,12 +14,12 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 
 @Repository
 public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implements CursoCachimbosDAO {
-    
+
     public CursoCachimbosDAOH() {
         super();
         setClazz(CursoCachimbos.class);
     }
-    
+
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
@@ -32,7 +32,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
         this.setCarrera(filter, sql);
         return sql.all(getCurrentSession());
     }
-    
+
     private void setCarrera(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
@@ -40,7 +40,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
         }
         sql.filter("car.id", queries.get("car.id"));
     }
-    
+
     @Override
     public CursoCachimbos findByCursoCiclo(CursoCachimbos cursoCachimbos) {
         Octavia sql = Octavia.query()
@@ -51,7 +51,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .filter("ciclo.id", cursoCachimbos.getCicloAcademico());
         return (CursoCachimbos) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public List<CursoCachimbos> allCursoCachimbos(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -60,7 +60,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .filter("ciclo.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<CursoCachimbos> allByCarreraCiclo(CicloAcademico cicloAcademico, Carrera carrera) {
         Octavia sql = Octavia.query()
@@ -69,8 +69,19 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .filter("ca.id", cicloAcademico)
                 .filter("car.id", carrera)
                 .orderBy("car.id");
-        
+
         return sql.all(getCurrentSession());
     }
-    
+
+    @Override
+    public List<CursoCachimbos> allByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(CursoCachimbos.class, "cc")
+                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .orderBy("car.id");
+
+        return sql.all(getCurrentSession());
+    }
+
 }

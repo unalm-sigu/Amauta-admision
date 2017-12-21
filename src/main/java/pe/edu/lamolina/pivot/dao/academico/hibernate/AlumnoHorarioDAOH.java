@@ -10,9 +10,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
-import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
 
 @Repository
 public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements AlumnoHorarioDAO {

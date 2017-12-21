@@ -172,55 +172,70 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
         List<List<Seccion>> horariosTotal = new ArrayList();
         List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
-        //logger.debug("***carreras**** {}", carreras.size());
-        for (Carrera carrera : carreras) {
-            List<CursoCachimbos> cursoCachimbos = cursoCachimbosDAO.allByCarreraCiclo(cicloAcademico, carrera);
-            logger.debug("***cursoCachimbos**** {}", cursoCachimbos.size());
-            if (cursoCachimbos.isEmpty()) {
-                continue;
+
+        List<CursoCachimbos> cursoCachimbosTodos = cursoCachimbosDAO.allByCiclo(cicloAcademico);
+        Map<Long, List<CursoCachimbos>> mapCursosCachimbos = TypesUtil.convertListToMapList("carrera.id", cursoCachimbosTodos);
+        List<Curso> cursosTodos = allCursosCarrera(cursoCachimbosTodos);
+
+        List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursosTodos, cicloAcademico);
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
+        Map<Long, Seccion> mapSeccionId = TypesUtil.convertListToMap("id", secciones);
+        for (Seccion secc : secciones) {
+            Seccion sup = secc.getSeccionSuperior();
+            if (sup != null) {
+                Seccion superior = mapSeccionId.get(sup.getId());
+                secc.setSeccionSuperior(superior);
             }
-            List<Curso> cursos = allCursosCarrera(cursoCachimbos);
-            logger.debug("***cursos*** {}", cursos.size());
-            List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursos, cicloAcademico);
-            logger.debug("***secciones*** {}", secciones.size());
-            Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
-            Map<Long, Seccion> mapSeccionId = TypesUtil.convertListToMap("id", secciones);
-            for (Seccion secc : secciones) {
-                Seccion sup = secc.getSeccionSuperior();
-                if (sup != null) {
-                    Seccion superior = mapSeccionId.get(sup.getId());
-                    secc.setSeccionSuperior(superior);
+        }
+
+        List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
+
+        for (Seccion seccion : secciones) {
+            List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
+            horariosSecc = (horariosSecc == null) ? new ArrayList() : horariosSecc;
+            seccion.setHorarioSeccion(horariosSecc);
+        }
+
+        List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+        Map<Long, List<AlumnoHorario>> mapAlumnos = TypesUtil.convertListToMapList("alumno.carrera.id", alumnos);
+
+        for (;;) {
+            boolean noHayAlumnos = true;
+            for (Carrera carrera : carreras) {
+                List<AlumnoHorario> alumnoCarr = mapAlumnos.get(carrera.getId());
+                if (!alumnoCarr.isEmpty()) {
+                    noHayAlumnos = false;
                 }
+
+                if (alumnoCarr.isEmpty()) {
+                    continue;
+                }
+
+                AlumnoHorario alumno = alumnoCarr.get(0);
+
+                List<CursoCachimbos> cursoCachimbos = mapCursosCachimbos.get(carrera.getId());
+                if (cursoCachimbos.isEmpty()) {
+                    continue;
+                }
+                List<Curso> cursos = allCursosCarrera(cursoCachimbos);
+
+                Map<String, String> mapHorasDias = new LinkedHashMap();
+                List<Seccion> horarioTempo = new ArrayList();
+                logger.debug("Carrera {}", carrera.getNombre());
+                permutarUnico(1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosTotal);
+
+                // remove alumno
+                alumnoCarr.remove(alumno);
             }
-
-            //logger.debug("***mapSecciones*** {}", mapSecciones.size());
-            List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
-            logger.debug("***horarios*** {}", horarios.size());
-            Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
-//            logger.debug("***mapHorarios*** {}", mapHorarios.size());
-
-            for (Seccion seccion : secciones) {
-                ////logger.debug("===seccion {}", seccion.getId());
-                List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
-                horariosSecc = (horariosSecc == null) ? new ArrayList() : horariosSecc;
-                seccion.setHorarioSeccion(horariosSecc);
+            if (noHayAlumnos) {
+                break;
             }
-
-            logger.debug("*** carrera {} {} cursoCachimbos {} secciones {} cursos {} ",
-                    carrera.getId(),
-                    carrera.getNombre(),
-                    cursoCachimbos.size(),
-                    secciones.size(),
-                    cursos.size());
-
-            Map<String, String> mapHorasDias = new LinkedHashMap();
-            List<Seccion> horarioTempo = new ArrayList();
-            permutar(1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosTotal);
         }
 
     }
 
-    private void permutar(
+    private void permutarVarios(
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
             Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera) {
@@ -251,13 +266,14 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             //logger.debug("== mapHorasDia2 {}", mapHorasDia2.size());
             if (ordenCurso < cursos.size()) {
 //                logger.debug("\tpermuta otro curso");
-                permutar(ordenCurso + 1, 1, cursos, mapSecciones, clonarMap(mapHorasDia2), clonarLista(horarioTempo2), horariosCarrera);
+                permutarVarios(ordenCurso + 1, 1, cursos, mapSecciones, clonarMap(mapHorasDia2), clonarLista(horarioTempo2), horariosCarrera);
             } else {
                 //logger.debug("== nunca lega aqui ");
                 Integer vac = getVacanteMinima(horarioTempo2);
                 if (vac > 0) {
                     horariosCarrera.add(horarioTempo2);
                     logger.debug("\tHorario Final {} vacantes: {}", vac, getHorarioString(horarioTempo2));
+                    return;
                 }
             }
         }
@@ -267,7 +283,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 //        logger.debug("\tbuscar la seccion {} de {}", ordenSeccion, maxSecciones);
         if (ordenSeccion <= maxSecciones) {
 //            logger.debug("\tpermuta otra seccion");
-            permutar(ordenCurso, ordenSeccion, cursos, mapSecciones, clonarMap(mapHorasDias), clonarLista(horarioTempo), horariosCarrera);
+            permutarVarios(ordenCurso, ordenSeccion, cursos, mapSecciones, clonarMap(mapHorasDias), clonarLista(horarioTempo), horariosCarrera);
         } else {
 //            logger.debug("\tFin de permutaciones");
 //            break;
@@ -276,11 +292,55 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 //        logger.debug("\t******* FIN +++++++++++");
     }
 
+    private void permutarUnico(
+            int ordenCurso, int ordenSeccion,
+            List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
+            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera) {
+
+        Curso curso = getCursoOrden(cursos, ordenCurso);
+        List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
+        int maxSecciones = cantPermutaSeccion(seccionesCurso);
+
+        List<Seccion> seccionesOrden = allSeccionByOrden(seccionesCurso, ordenSeccion);
+        if (seccionesOrden.isEmpty()) {
+            return;
+        }
+
+        boolean hayCruceHorario = hayCruceHorario(mapHorasDias, seccionesOrden);
+
+        if (!hayCruceHorario) {
+//            List<Seccion> horarioTempo2 = clonarLista(horarioTempo);
+//            Map<String, String> mapHorasDia2 = clonarMap(mapHorasDias);
+            addSecciones(mapHorasDias, seccionesOrden);
+            for (Seccion seccion : seccionesOrden) {
+                horarioTempo.add(seccion);
+            }
+            if (ordenCurso < cursos.size()) {
+                permutarUnico(ordenCurso + 1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera);
+                if (!horariosCarrera.isEmpty()) {
+                    return;
+                }
+            } else {
+                Integer vac = getVacanteMinima(horarioTempo);
+                if (vac > 0) {
+                    horariosCarrera.add(horarioTempo);
+                    logger.debug("\tHorario Final {} vacantes: {}", vac, getHorarioString(horarioTempo));
+                    return;
+                }
+            }
+        }
+
+        ordenSeccion++;
+        if (ordenSeccion <= maxSecciones) {
+            permutarUnico(ordenCurso, ordenSeccion, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera);
+        }
+    }
+
     private Integer getVacanteMinima(List<Seccion> horarioTempo) {
         Integer vac = 1000;
         for (Seccion seccion : horarioTempo) {
             Integer vacSecc = seccion.getVacantes();
-            Integer matSecc = seccion.getMatriculados();
+            Integer matSecc = 0; //seccion.getMatriculados();
             if (vacSecc == null) {
                 vacSecc = 0;
             }
