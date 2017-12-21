@@ -17,5 +17,7 @@ public interface CursoCachimbosDAO extends EasyDAO<CursoCachimbos> {
 
     public List<CursoCachimbos> allByCarreraCiclo(CicloAcademico cicloAcademico, Carrera carrera);
 
+    public List<CursoCachimbos> allByCiclo(CicloAcademico cicloAcademico);
+
 }
 

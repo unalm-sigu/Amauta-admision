@@ -54,7 +54,7 @@ $(function () {
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
                 }).bind("dynatable:afterUpdate", function (e) {
-         
+
                     var records = dynatable.settings.dataset.records;
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
@@ -158,9 +158,7 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block"> Facultad de ' + info.facultad + '</span>';
-                        return data;
+                        return $.templates("#divBuscarCarrera").render(info);
                     },
                     formatSelection: function (info) {
                         vue.carrera = info;
@@ -213,15 +211,12 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Dep. Academico  ' + info.departamentoAcademico + '</span>';
-                        data += '<span class="text-sm block"> Código ' + info.codigo + ' T.P.C ' + info.codigo + '</span>';
-                        return data;
+                        return $.templates("#divBuscarCurso").render(info);
                     },
                     formatSelection: function (info) {
                         self.curso = info;
                         vue.total = info.creditos + vue.total;
-                        return info.nombre;
+                        return info.codigo + " - " + info.curso;
                     },
                     escapeMarkup: function (m) {
                         return m;

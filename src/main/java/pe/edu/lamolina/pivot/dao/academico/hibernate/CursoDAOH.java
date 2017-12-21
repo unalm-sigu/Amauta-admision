@@ -203,9 +203,11 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .join("departamentoAcademico dep")
                 .leftJoin("carrera car", "car.facultad fa", "planCalificacion  pc", "planCalificacionRegular pcr", "coordinador cor")
                 .filter("cur.estado", EstadoCursoCachimboEnum.ACT)
-                .filter("cur.nombre", "like", nombre)
+                .beginBlock()
+                .__().filter("cur.nombre", "like", nombre)
+                .__().filter("cur.codigo", "like", nombre)
+                .endBlock()
                 .limit(15);
-
         return all(sql);
     }
 

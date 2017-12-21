@@ -26,6 +26,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -167,13 +168,14 @@ public class HorarioCursoCarreraController {
             for (Curso curso : cursos) {
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", curso.getId());
-                json.put("nombre", curso.getNombre());
+                json.put("curso", curso.getNombre());
                 json.put("codigo", curso.getCodigo());
+                json.put("tpc", curso.getTpc());
                 json.put("creditos", curso.getCreditos());
-                json.put("tpc", curso.getCodigo());
-                json.put("departamentoAcademico", curso.getDepartamentoAcademico().getNombre());
-                json.put("carrera", curso.getCarrera() != null ? curso.getCarrera().getNombre() : "");
-                json.put("facultad", curso.getCarrera() != null ? curso.getCarrera().getFacultad().getNombre() : "");
+                json.put("departamento", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.nombre"));
+                json.put("facultad", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.facultad.nombre"));
+                json.put("especialidad", (String) ObjectUtil.getParentTree(curso, "carrera.nombre"));
+                json.put("tipoEspecialidad", (String) ObjectUtil.getParentTree(curso, "carrera.tipoEnum.value"));
                 jsonList.add(json);
             }
             response.setData(jsonList);
