@@ -12,6 +12,7 @@ import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 interface GenerarHorarioIngresanteService {
 
@@ -41,6 +42,6 @@ interface GenerarHorarioIngresanteService {
 
     List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario);
 
-    void generar(CicloAcademico cicloAcademico, ModalidadEstudio modalidad);
+    void generar(CicloAcademico cicloAcademico, ModalidadEstudio modalidad, DataSessionPivot ds);
 
 }

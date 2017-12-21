@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 
 @Entity
 @Table(name = "hor_seccion_horario_cachimbos")
@@ -22,9 +23,6 @@ public class SeccionHorarioCachimbos implements Serializable {
     @GeneratedValue
     @Column(name = "id")
     private Long id;
-
-    @Column(name = "id_user_creacion")
-    private Long idUserCreacion;
 
     @Column(name = "fecha_creacion")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -37,6 +35,10 @@ public class SeccionHorarioCachimbos implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_horario_cachimbos")
     private HorarioCachimbos horarioCachimbos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user_creacion")
+    private Usuario userCreacion;
 
     public SeccionHorarioCachimbos() {
     }
@@ -69,14 +71,6 @@ public class SeccionHorarioCachimbos implements Serializable {
         this.horarioCachimbos = horarioCachimbos;
     }
 
-    public Long getIdUserCreacion() {
-        return idUserCreacion;
-    }
-
-    public void setIdUserCreacion(Long idUserCreacion) {
-        this.idUserCreacion = idUserCreacion;
-    }
-
     public Date getFechaCreacion() {
         return fechaCreacion;
     }
@@ -85,5 +79,12 @@ public class SeccionHorarioCachimbos implements Serializable {
         this.fechaCreacion = fechaCreacion;
     }
 
-}
+    public Usuario getUserCreacion() {
+        return userCreacion;
+    }
 
+    public void setUserCreacion(Usuario userCreacion) {
+        this.userCreacion = userCreacion;
+    }
+
+}
