@@ -97,7 +97,7 @@ public class DiaHoraGrupo implements Serializable {
             return false;
         }
         DiaHoraGrupo other = (DiaHoraGrupo) obj;
-        if (id != other.id) {
+        if (id.compareTo(other.id) != 0) {
             return false;
         }
         return true;

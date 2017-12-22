@@ -401,16 +401,18 @@ public class Seccion implements Serializable {
     public ObjectNode toJson() {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         node.put("seccionId", this.getId());
-        node.put("seccionCodigo", this.getCodigo());
-        node.put("seccionCodigo2", this.getCodigo2());
-        node.put("seccionVacantes", this.getVacantes());
+        node.put("codigo", this.getCodigo());
+        node.put("codigo2", this.getCodigo2());
+        node.put("vacantes", this.getVacantes());
         //   node.put("seccionHorasTeoria", this.getHorasTeoria());
         node.put("horasSemanales", this.getHorasSemanales());
 
-        node.put("depAcadId", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getId());
+        /*  node.put("depAcadId", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getId());
         node.put("depAcadCodigo", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getCodigo());
         node.put("depAcadNombre", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getNombre());
-        node.put("depAcadNombreLargo", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getNombreLargo());
+        node.put("depAcadNombreLargo", this.getGrupoSeccion().getCurso().getDepartamentoAcademico().getNombreLargo());*/
+        node.putPOJO("curso", JsonHelper.createJson(this.getGrupoSeccion().getCurso(), JsonNodeFactory.instance));
+        node.putPOJO("departamentoAcademico", JsonHelper.createJson(this.getGrupoSeccion().getCurso().getDepartamentoAcademico(), JsonNodeFactory.instance));
 
         node.put("cursoId", this.getGrupoSeccion().getCurso().getId());
         node.put("cursoNombre", this.getGrupoSeccion().getCurso().getNombre());

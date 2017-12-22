@@ -126,7 +126,22 @@
 
                                     </td>
                                     <td>
-                                        {{ seccion.vacantes }}
+
+                                        <div v-show="!seccion.editVacantes">
+                                            <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
+                                        </div>
+
+                                        <input v-show="seccion.editVacantes" 
+                                               size="5"
+                                               data-parsley-type="digits"
+                                               v-model="seccion.vacantes"
+                                               v-on:blur="changeVacantes(seccion,$event)"
+                                               v-on:keyup.enter="changeVacantes(seccion)">
+                                        </input>
+                                        <!--
+                                         v-on:blur="seccion.editVacantes=false; $emit('update')"
+                                               v-on:keyup.enter = "seccion.editVacantes=false; $emit('update')"
+                                        -->
                                     </td>
                                     <td>
                                         {{ seccion.matriculados }}
@@ -238,10 +253,18 @@
             </form>
             <div th:substituteby="academico/gposeccion/modals/modalAula"/>
             <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
+
+
         </div>
 
         <div th:substituteby="templates/modal"/>
 
+        <th:block th:replace="academico/gposeccion/grupoZetaTemplate"/>
+        <!-- 
+                <script id="grupoTemplate" type="text/x-jsrender" class="hide">
+                    <div th:substituteby="academico/gposeccion/grupoZetaTemplate"></div>
+                </script>
+        -->
 
         <div th:substituteby="_modules/vue-modal"/>
 
@@ -260,7 +283,11 @@
         </div>
 
 
+
     </section>
+
+
+
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>

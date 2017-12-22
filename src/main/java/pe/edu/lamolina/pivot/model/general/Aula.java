@@ -267,4 +267,22 @@ public class Aula implements Serializable {
         this.disponible = disponible;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Aula)) {
+            return false;
+        }
+        Aula other = (Aula) obj;
+        if (id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
 }

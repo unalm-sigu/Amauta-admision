@@ -47,12 +47,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
+import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -102,6 +104,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
 
+    @Autowired
+    OficinaDAO oficinaDAO;
+
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, cicloAcademico);
@@ -121,6 +126,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         return gsecciones;
+    }
+
+    @Override
+    public List<GrupoHoras> allGrupoHorasZetasDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras,
+            CicloAcademico cicloAcademico) {
+        return grupoHorasDAO.allZetasByDynatable(filter, tipoGrupoHoras, cicloAcademico);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
+        return diaHoraGrupoDAO.allDiaHoraGrupo(grupos);
     }
 
     @Override
@@ -408,6 +425,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public List<Aula> searchAulaByName(String nombre) {
+        return aulaDAO.searchByNombreFilter(nombre, Integer.SIZE);
+    }
+
+    @Override
     @Transactional(readOnly = false)
     public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
@@ -426,6 +448,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         DocenteSeccion docenteSeccion = new DocenteSeccion(docenteSeccionId);
         docenteSeccion.setDocente(new Docente(docenteId));
         docenteSeccionDAO.updateDocente(docenteSeccion);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void actualizarSeccionVacantes(Seccion seccion) {
+        seccionDAO.updateSeccionVacantes(seccion);
     }
 
     @Override
@@ -449,6 +477,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.getGrupoSeccion().setCurso(curso);
 
         return seccion;
+    }
+
+    @Override
+    public List<GrupoHoras> allByTipoGrupoHorasCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+        return grupoHorasDAO.allByTipoGrupoHora(tipoGrupoHoras, cicloAcademico);
     }
 
     @Override
@@ -503,6 +536,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public TipoGrupoHoras findTipoGrupoHoraByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+        TipoGrupoHoras tipoGrupoHoraZeta = tipoGrupoHorasDAO.findByTipo(tipoGrupoHorasEnum);
+        return tipoGrupoHoraZeta;
+    }
+
+    @Override
     public List<TipoGrupoHoras> allGrupoHorasActivosTipoAndCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
         return tipoGrupoHorasDAO.allActiveByTipoCiclo(cicloAcademico, tipoGrupoHorasEnum);
     }
@@ -534,15 +573,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void saveSeccionGrupoHorario(Long seccionId, Long grupoHorarioId, CicloAcademico cicloAcademico) {
+    public void saveSeccionGrupoHorario(Long seccionId, List<DiaHoraGrupo> diasHorasGrupo, CicloAcademico cicloAcademico) {
         Seccion seccion = seccionDAO.find(seccionId);
-        GrupoHoras grupoHoras = grupoHorasDAO.find(grupoHorarioId);
+        GrupoHoras grupoHoras = grupoHorasDAO.find(diasHorasGrupo.get(0).getGrupoHorario().getId());
         seccion.setGrupoHoras(grupoHoras);
         List<HorarioAula> horariosAulasSeccion = null;
         List<HorarioAula> horariosAulas = null;
 
         if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
-            //  horariosAulasSeccion = horarioAulaDAO.allBySeccionAula(seccion, seccion.getAula());
             horariosAulas = horarioAulaDAO.allByAulaCiclo(seccion.getAula(), cicloAcademico);
         }
 
@@ -552,7 +590,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         // if (horariosAulasSeccion != null && !horariosAulasSeccion.isEmpty()) {
         horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         for (DiaHoraGrupo diaHoraGrupo : grupoHoras.getDiaHoraGrupo()) {
-
+            if (!diasHorasGrupo.contains(diaHoraGrupo)) {
+                continue;
+            }
             for (HorarioAula horarioAulaEach : horariosAulas) {
                 if (diaHoraGrupo.getDia().getId().equals(horarioAulaEach.getDia().getId())
                         && diaHoraGrupo.getHora().getId().equals(horarioAulaEach.getHora().getId())) {
@@ -678,6 +718,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public Aula findAula(Long aulaId) {
         Aula aula = aulaDAO.find(aulaId);
         return aula;
+    }
+
+    @Override
+    public List<Oficina> allOficinasWithAula(List<Oficina> oficinas) {
+        return oficinaDAO.allByOficinaWithAulas(oficinas);
+    }
+
+    @Override
+    public List<Aula> allAulaSuperiorByOficinasWithAula(List<Oficina> oficinas) {
+        return aulaDAO.allSuperiorByOficinaWithAulas(oficinas);
+    }
+
+    @Override
+    public GrupoHoras findGrupoHoras(GrupoHoras grupoHoras) {
+        return grupoHorasDAO.find(grupoHoras);
     }
 
 }

@@ -30,4 +30,6 @@ public interface SeccionDAO extends Crud<Seccion> {
 
     void updateSeccionAula(Seccion seccion);
 
+    void updateSeccionVacantes(Seccion seccion);
+
 }

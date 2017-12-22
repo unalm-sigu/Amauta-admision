@@ -1,6 +1,9 @@
 package pe.edu.lamolina.pivot.model.horario;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Aula;
@@ -86,6 +90,17 @@ public class HorarioAula implements Serializable {
 
     public void setSeccion(Seccion seccion) {
         this.seccion = seccion;
+    }
+
+    public ObjectNode toJson() {
+        JsonNodeFactory nf = JsonNodeFactory.instance;
+        ObjectNode node = new ObjectNode(nf);
+        node.put("id", this.getId());
+        node.putPOJO("dia", JsonHelper.createJson(this.getDia(), JsonNodeFactory.instance));
+        node.putPOJO("hora", JsonHelper.createJson(this.getHora(), JsonNodeFactory.instance));
+        node.putPOJO("seccion", JsonHelper.createJson(this.getSeccion(), JsonNodeFactory.instance));
+        node.putPOJO("aula", JsonHelper.createJson(this.getAula(), JsonNodeFactory.instance));
+        return node;
     }
 
     @Override

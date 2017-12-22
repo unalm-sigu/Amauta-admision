@@ -11,6 +11,7 @@ import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.seguridad.Menu;
 import pe.edu.lamolina.pivot.model.seguridad.Rol;
@@ -43,6 +44,8 @@ public class DataSessionPivot implements Serializable {
     private List<ModalidadEstudio> modalidades;
 
     private List<DepartamentoAcademico> departamentos;
+
+    private List<Oficina> oficinas;
 
     private List<Menu> menu;
 
@@ -162,6 +165,14 @@ public class DataSessionPivot implements Serializable {
 
     public void setMenu(List<Menu> menu) {
         this.menu = menu;
+    }
+
+    public List<Oficina> getOficinas() {
+        return oficinas;
+    }
+
+    public void setOficinas(List<Oficina> oficinas) {
+        this.oficinas = oficinas;
     }
 
 }

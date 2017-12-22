@@ -13,5 +13,7 @@ public interface TipoGrupoHorasDAO extends Crud<TipoGrupoHoras> {
 
     public TipoGrupoHoras findByCode(String codigo);
 
+    TipoGrupoHoras findByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum);
+
     List<TipoGrupoHoras> allActiveByTipoCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 }

@@ -39,6 +39,8 @@ public interface GpoSeccionService {
 
     GrupoSeccion findGpoSeccion(Long id);
 
+    List<GrupoHoras> allByTipoGrupoHorasCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+
     List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion);
 
     void addSeccion(GrupoSeccion grupoSeccion);
@@ -56,6 +58,8 @@ public interface GpoSeccionService {
     void cambiarDocentePrincipal(DocenteSeccion docenteSeccion);
 
     void actualizarDocente(Long docenteSeccionId, Long docenteId);
+
+    void actualizarSeccionVacantes(Seccion seccion);
 
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
 
@@ -75,7 +79,7 @@ public interface GpoSeccionService {
 
     List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
-    void saveSeccionGrupoHorario(Long seccionId, Long grupoHorarioId, CicloAcademico cicloAcademico);
+    void saveSeccionGrupoHorario(Long seccionId, List<DiaHoraGrupo> diasHorasGrupo, CicloAcademico cicloAcademico);
 
     void saveAula(Long seccionId, Long aulaId);
 
@@ -88,5 +92,21 @@ public interface GpoSeccionService {
     List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
 
     Aula findAula(Long aulaId);
+
+    List<Oficina> allOficinasWithAula(List<Oficina> oficinas);
+
+    List<Aula> allAulaSuperiorByOficinasWithAula(List<Oficina> oficinas);
+
+    List<Aula> searchAulaByName(String nombre);
+
+    TipoGrupoHoras findTipoGrupoHoraByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum);
+
+    List<GrupoHoras> allGrupoHorasZetasDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras,
+            CicloAcademico cicloAcademico);
+
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+
+    GrupoHoras findGrupoHoras(GrupoHoras grupoHoras);
 
 }

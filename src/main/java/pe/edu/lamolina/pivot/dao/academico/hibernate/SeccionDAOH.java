@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -58,7 +59,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
                 .parents("grupoSeccion gs", "_gs.curso cur", "left _cur.planCalificacion pc",
                         "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2",
-                        "left grupoHoras gh","left aula au")
+                        "left grupoHoras gh", "left aula au")
                 .filter("s.id", idSeccion);
         return find(sqlUtil);
     }
@@ -129,6 +130,16 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "aula");
         this.update(seccion);
+    }
+
+    @Override
+    public void updateSeccionVacantes(Seccion seccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update Seccion  set vacantes=:prm_vacantes where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", seccion.getId());
+        query.setParameter("prm_vacantes", seccion.getVacantes());
+        query.executeUpdate();
     }
 
 }

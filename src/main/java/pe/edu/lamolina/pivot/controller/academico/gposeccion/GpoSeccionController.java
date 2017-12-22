@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -239,7 +241,7 @@ public class GpoSeccionController {
             node.put("porcentajeAvance", porcentajeAvance);
             node.put("estadoEnumValue", seccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", seccion.getEstadoEnum().name());
-
+            node.put("editVacantes", Boolean.FALSE);
             array.add(node);
         }
         jsonResponse.setSuccess(true);
@@ -546,6 +548,36 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("asyncFindAulas")
+    public JsonResponse asyncFindAulas(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Aula> aulas = service.searchAulaByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Aula aula : aulas) {
+                ObjectNode json = JsonHelper.createJson(aula, jsonFactory);
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("cambiarDocPrincipal")
     public JsonResponse cambiarDocPrincipal(
             @RequestParam("docSeccion") Long docSeccion,
@@ -574,6 +606,29 @@ public class GpoSeccionController {
             service.actualizarDocente(docSeccion, docente);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Docente actualizado");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarVacantesSeccion")
+    public JsonResponse cambiarVacantesSeccion(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam("vacantes") Integer vacantes,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            logger.debug("seccion {}, vacantes {}", seccionId, vacantes);
+
+            Seccion seccion = new Seccion(seccionId);
+            seccion.setVacantes(vacantes);
+            service.actualizarSeccionVacantes(seccion);
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Vacantes actualizadas");
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -623,6 +678,7 @@ public class GpoSeccionController {
     @ResponseBody
     @RequestMapping("loadModalGrupo")
     public JsonResponse loadModalGrupo(@RequestParam("seccion") Long seccionId,
+            Model model,
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
@@ -654,6 +710,7 @@ public class GpoSeccionController {
                 tiposGrupoaHoras.addPOJO(tipoGrupoHorasNode);
             }
             node.set("tiposGruposHorasOpt", tiposGrupoaHoras);
+
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
 
@@ -670,32 +727,48 @@ public class GpoSeccionController {
     @RequestMapping("loadModalAula")
     public JsonResponse loadModalAula(
             @RequestParam("seccion") Long seccionId,
-            HttpSession session) {
+            HttpSession session,
+            Model model) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Seccion seccion = service.findSeccion(seccionId);
-            List<Aula> modulosOera = service.allAulasSuperiorByOficina(new Oficina(50));
+            List<Aula> modulosOera = service.allAulasSuperiorByOficina(new Oficina(Constantine.ID_OFICINA_OERA));
+            //       List<Oficina> oficinasDisponibless = service.allOficinasWithAula(ds.getOficinas());
+            List<Aula> oficinasAulasSuperiores = service.allAulaSuperiorByOficinasWithAula(ds.getOficinas());
 
             ArrayNode modulosOeraJson = new ArrayNode(jsonFactory);
             for (Aula aulaEach : modulosOera) {
                 modulosOeraJson.add(JsonHelper.createJson(aulaEach, jsonFactory));
             }
 
+            ArrayNode oficinasAulasSuperioresJson = new ArrayNode(jsonFactory);
+            for (Aula aulaEach : oficinasAulasSuperiores) {
+                oficinasAulasSuperioresJson.add(JsonHelper.createJson(aulaEach, jsonFactory));
+            }
+
             ObjectNode node = new ObjectNode(jsonFactory);
             node.putPOJO("seccion", seccion.toJson());
             node.set("modulosOera", modulosOeraJson);
+            node.set("oficinasDisponibles", oficinasAulasSuperioresJson);
             node.put("modulosOeraSel", "");
             node.put("aulaSel", "");
 
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 Aula aula = service.findAula(seccion.getAula().getId());
-                Aula moduloOera = modulosOera.stream().filter(req -> req.getId().equals(aula.getAulaSuperior().getId())).findFirst().orElse(null);
-                node.putPOJO("aulaSel", JsonHelper.createJson(aula, jsonFactory));
-                if (moduloOera != null) {
-                    node.putPOJO("modulosOeraSel", JsonHelper.createJson(moduloOera, jsonFactory));
-                }
 
+                //OERA
+                if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                    Aula moduloOera = modulosOera.stream().filter(req -> req.getId().equals(aula.getAulaSuperior().getId())).findFirst().orElse(null);
+
+                    ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
+                    aulaNode.put("seleccionado", Boolean.TRUE);
+                    node.putPOJO("aulaSel", aulaNode);
+                    if (moduloOera != null) {
+                        node.putPOJO("modulosOeraSel", JsonHelper.createJson(moduloOera, jsonFactory));
+                    }
+                }
             }
 
             response.setData(node);
@@ -749,14 +822,34 @@ public class GpoSeccionController {
                 Long diaId = diaHoraGrupo.getDia().getId();
                 Long horaId = diaHoraGrupo.getHora().getId();
 
+                ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupo, factory);
+                ObjectNode grupoHorarioJson = JsonHelper.createJson(diaHoraGrupo.getGrupoHorario(), factory);
+
+                if (diaHoraGrupo.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoRegular()) {
+                    grupoHorarioJson.put("esTipoGrupoRegular", Boolean.TRUE);
+                } else if (diaHoraGrupo.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoZeta()) {
+                    grupoHorarioJson.put("esTipoGrupoZeta", Boolean.TRUE);
+                }
+
+                jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
+                jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                    if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
+                        jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                    }
+                }
+                //
+/*
                 ObjectNode jsonGrupoHorario = JsonHelper.createJson(diaHoraGrupo.getGrupoHorario(), factory);
+                jsonGrupoHorario.put("diaHoraGrupo", diaHoraGrupo.getId());
+
                 jsonGrupoHorario.put("seleccionado", Boolean.FALSE);
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
                         jsonGrupoHorario.put("seleccionado", Boolean.TRUE);
                     }
-                }
-                jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonGrupoHorario);
+                }*/
+                jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
             }
 
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
@@ -764,10 +857,9 @@ public class GpoSeccionController {
                 for (HorarioAula horarioAulaEach : horariosAulas) {
                     Long diaId = horarioAulaEach.getDia().getId();
                     Long horaId = horarioAulaEach.getHora().getId();
-
-                    ObjectNode jsonNode = JsonHelper.createJson(horarioAulaEach, factory);
-                    jsonNode.putPOJO("seccion", horarioAulaEach.getSeccion());
-                    jsonHorarioAula.putPOJO(diaId + "_" + horaId, jsonNode);
+                    if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
+                        jsonHorarioAula.putPOJO(diaId + "_" + horaId, horarioAulaEach.toJson());
+                    }
                 }
             }
 
@@ -785,6 +877,7 @@ public class GpoSeccionController {
             data.set("dias", diasJson);
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
+            data.set("jsonHorarioAula", jsonHorarioAula);
 
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
@@ -797,10 +890,167 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
-    @RequestMapping("saveSeccionGrupo")
+    @RequestMapping("horariosZeta")
+    public JsonResponse horariosZeta(@RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
+            @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+
+            List<Dia> dias = service.allDia();
+            List<Hora> horasEncontradas = service.allHora();
+
+            /*
+                        TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipo(TipoGrupoHorasEnum.ZETA);
+            JsonResponse nodeZeta = horariosZeta(tipoGrupoHoras.getId(), seccionId, ds.getCicloAcademico());
+            node.putPOJO("zeta", nodeZeta.getData());
+            
+             */
+            GrupoHoras grupoHoras = service.findGrupoHoras(new GrupoHoras(grupoHorarioId));
+            Seccion seccion = service.findSeccion(seccionId);
+            /*     TipoGrupoHoras tipoGrupoDb = service.findTipoGrupoHoras(tipoGrupoHorasId);
+            List<GrupoHoras> gruposHoras = service.allByTipoGrupoHorasCiclo(tipoGrupoDb, cicloAcademico);*/
+            List<HorarioAula> horariosAulas = null;
+            if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+                horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+            }
+
+            List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
+
+            ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
+            for (Dia dia : dias) {
+                for (Hora horaEach : horasEncontradas) {
+                    Long diaId = dia.getId();
+                    Long horaId = horaEach.getId();
+
+                    ObjectNode jsonDiaHoraGrupoEach = new ObjectNode(factory);
+                    jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(dia, factory));
+                    jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(horaEach, factory));
+                    jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+
+                    ObjectNode jspnGrupoHoras = JsonHelper.createJson(grupoHoras, factory);
+                    if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
+                        jspnGrupoHoras.put("esTipoGrupoRegular", Boolean.TRUE);
+                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
+                        jspnGrupoHoras.put("esTipoGrupoZeta", Boolean.TRUE);
+                    }
+
+                    /*
+                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                    if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
+                        jsonGrupoHorario.put("seleccionado", Boolean.TRUE);
+                    }
+                }
+                     */
+                    jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
+                    jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
+                }
+            }
+            /*
+            for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
+                Long diaId = diaHoraGrupo.getDia().getId();
+                Long horaId = diaHoraGrupo.getHora().getId();
+
+                ObjectNode jsonGrupoHorario = JsonHelper.createJson(diaHoraGrupo.getGrupoHorario(), factory);
+                jsonGrupoHorario.put("seleccionado", Boolean.FALSE);
+                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                    if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
+                        jsonGrupoHorario.put("seleccionado", Boolean.TRUE);
+                    }
+                }
+                jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonGrupoHorario);
+            }*/
+
+            ObjectNode jsonHorarioAula = new ObjectNode(factory);
+            if (horariosAulas != null) {
+                for (HorarioAula horarioAulaEach : horariosAulas) {
+                    Long diaId = horarioAulaEach.getDia().getId();
+                    Long horaId = horarioAulaEach.getHora().getId();
+                    if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
+                        jsonHorarioAula.putPOJO(diaId + "_" + horaId, horarioAulaEach.toJson());
+                    }
+                }
+            }
+
+            ObjectNode data = new ObjectNode(factory);
+
+            ArrayNode diasJson = new ArrayNode(factory);
+            for (Dia dia : dias) {
+                diasJson.add(JsonHelper.createJson(dia, factory));
+            }
+            ArrayNode horasJson = new ArrayNode(factory);
+            for (Hora horasEncontrada : horasEncontradas) {
+                horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
+            }
+
+            data.set("dias", diasJson);
+            data.set("horas", horasJson);
+            data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
+            data.set("jsonHorarioAula", jsonHorarioAula);
+
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("listGrupoHorariosZetas")
+    public DynatableResponse listGrupoHorariosZetas(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+            TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipo(TipoGrupoHorasEnum.ZETA);
+            List<GrupoHoras> gruposHoras = service.allGrupoHorasZetasDyna(filter, tipoGrupoHoras, ds.getCicloAcademico());
+
+            List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(gruposHoras);
+            Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
+
+            JsonNodeFactory nf = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(nf);
+            for (GrupoHoras grupoHoraEach : gruposHoras) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", grupoHoraEach.getId());
+                node.put("codigo", grupoHoraEach.getCodigo());
+                node.put("letra", grupoHoraEach.getLetra());
+                node.put("tipoCiclo", grupoHoraEach.getTipoCiclo());
+                node.put("tipoGrupoHoras", grupoHoraEach.getTipoGrupoHoras() != null ? grupoHoraEach.getTipoGrupoHoras().getCodigo() : "");
+                node.put("tipoSeccion", grupoHoraEach.getTipoSeccion());
+                node.put("color", grupoHoraEach.getColor());
+                List<DiaHoraGrupo> mapGrupohora = mapGrupohoras.get(grupoHoraEach.getId());
+                node.put("horas", 0);
+                if (mapGrupohora != null) {
+                    node.put("horas", mapGrupohora.size());
+                }
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("{seccion}/saveSeccionGrupo")
     public JsonResponse saveSeccionGrupo(
-            @RequestParam(name = "seccion", required = false) Long seccionId,
-            @RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
+            @PathVariable("seccion") Long seccionId,
+            @RequestBody List<DiaHoraGrupo> diasHorasGrupo,
             RedirectAttributes redirectAttr,
             HttpSession session) {
 
@@ -809,9 +1059,11 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            for (DiaHoraGrupo diaHoraGrupo : diasHorasGrupo) {
 
+            }
             String message = "Grupo hora asignado correctamente.";
-            service.saveSeccionGrupoHorario(seccionId, grupoHorarioId, ds.getCicloAcademico());
+            service.saveSeccionGrupoHorario(seccionId, diasHorasGrupo, ds.getCicloAcademico());
 
             response.setSuccess(true);
             response.setMessage(message);
@@ -866,22 +1118,96 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             JsonNodeFactory nc = JsonNodeFactory.instance;
-            ObjectNode node = new ObjectNode(nc);
+            ObjectNode nodeData = new ObjectNode(nc);
+            Seccion seccion = service.findSeccion(seccionId);
+            Aula aula = null;
 
-            List<Aula> aulas = service.allAulasBySuperior(new Seccion(seccionId), new Aula(aulaId), ds.getCicloAcademico());
+            List<Aula> oficinasAulasSuperiores = service.allAulaSuperiorByOficinasWithAula(ds.getOficinas());
+
+            if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+                aula = seccion.getAula();
+                ObjectNode aulaNode = JsonHelper.createJson(aula, nc);
+                if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                    aulaNode.put("esOera", Boolean.TRUE);
+                } else if (oficinasAulasSuperiores.contains(aula.getAulaSuperior())) {
+                    aulaNode.put("esOficinas", Boolean.TRUE);
+                } else {
+                    aulaNode.put("esEspecifico", Boolean.TRUE);
+                }
+                nodeData.putPOJO("aulaSel", aulaNode);
+            }
+
+            List<Aula> aulas = service.allAulasBySuperior(seccion, new Aula(aulaId), ds.getCicloAcademico());
             ArrayNode argAulas = new ArrayNode(nc);
-            for (Aula aula : aulas) {
-                logger.debug("aula {}, disponible {}, secciones {}", aula.getId(), aula.isDisponible(), aula.getSeccion() == null ? 0 : aula.getSeccion().size());
-                ObjectNode aulaJson = JsonHelper.createJson(aula, nc);
+            for (Aula aulaEach : aulas) {
+                logger.debug("aula {}, disponible {}, secciones {}", aulaEach.getId(), aulaEach.isDisponible(), aulaEach.getSeccion() == null ? 0 : aulaEach.getSeccion().size());
+                ObjectNode aulaJson = JsonHelper.createJson(aulaEach, nc);
                 aulaJson.put("seleccionado", Boolean.FALSE);
+
+                if (aulaEach.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                    aulaJson.put("esOera", Boolean.TRUE);
+                } else if (oficinasAulasSuperiores.contains(aulaEach.getAulaSuperior())) {
+                    aulaJson.put("esOficinas", Boolean.TRUE);
+                } else {
+                    aulaJson.put("esEspecifico", Boolean.TRUE);
+                }
+
+                if (aula != null && aula.getId().equals(aulaEach.getId())) {
+                    aulaJson.put("seleccionado", Boolean.TRUE);
+                }
                 argAulas.add(aulaJson);
             }
             /*
             List<HorarioAula> horariosAulas = service.allHorarioAulaByAulaCiclo(new Aula(aulaId), new Seccion(seccionId),
                     ds.getCicloAcademico());*/
-
-            response.setData(argAulas);
+            nodeData.set("aulas", argAulas);
+            response.setData(nodeData);
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("seleccionarAula")
+    public JsonResponse seleccionarAula(
+            @RequestParam(name = "seccion", required = false) Long seccionId,
+            @RequestParam(name = "aula", required = false) Long aulaId,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            JsonNodeFactory nc = JsonNodeFactory.instance;
+            ObjectNode nodeData = new ObjectNode(nc);
+
+            Seccion seccion = service.findSeccion(seccionId);
+            Aula aula = service.findAula(aulaId);
+
+            ArrayNode arg = new ArrayNode(nc);
+            if (seccion.getVacantes() != null) {
+                if (aula.getAforo().intValue() < seccion.getVacantes().intValue()) {
+                    arg.add("Capacidad del aula menor que las vacantes.");
+                }
+            }
+            String message = "";
+            if (arg.size() == 0) {
+                response.setSuccess(true);
+                response.setData(JsonHelper.createJson(aula, nc));
+            } else {
+                response.setSuccess(false);
+                message = "Aula seleccionada con errores, verifique.";
+                response.setData(arg);
+            }
+            response.setTotal(arg.size());
+            response.setMessage(message);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {

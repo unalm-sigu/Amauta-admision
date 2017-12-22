@@ -5,7 +5,7 @@ import pe.albatross.zelpers.miscelanea.OSValidator;
 public interface Constantine {
 
     String SESSION_USUARIO = "SESSION_USUARIO";
-    
+
     String DOCENTE_INDETERMINADO = "N.N.";
 
     String TMP_DIR = OSValidator.isWindows() ? "C:/tmp/" : "/tmp/";
@@ -16,7 +16,9 @@ public interface Constantine {
 
     //String ADMISION_DIR = OSValidator.isWindows() ? "D:/dxtr/tmp/" : "/PIVOT/notas/";
     String ADMISION_DIR = OSValidator.isWindows() ? "C:/tmp/" : "/tmp/";
-    
+
     String AVATAR_DIR = OSValidator.isWindows() ? "C:/avatar/" : "/avatar/";
+
+    Long ID_OFICINA_OERA = 50L;
 
 }

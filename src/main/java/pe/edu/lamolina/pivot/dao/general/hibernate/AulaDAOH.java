@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
@@ -11,7 +12,9 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.general.Oficina;
 import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoOficinaEnum;
 
 @Repository
 public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
@@ -88,11 +91,46 @@ public class AulaDAOH extends AbstractDAO<Aula> implements AulaDAO {
     }
 
     @Override
+    public List<Aula> allAulasSuperiorByTipoOficina(TipoOficinaEnum tipoOficinaEnum) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("aus")
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.tipoOficina", tipoOficinaEnum.name());
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
     public List<Aula> allBySuperior(Aula aulaSuperior) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("aus.id", aulaSuperior);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allSuperiorByOficinaWithAulas(List<Oficina> oficinas) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("aus")
+                .from(Aula.class, "au")
+                .join("au.oficinaSupervisora ofi", "au.aulaSuperior aus")
+                .filter("au.estado", EstadoEnum.ACT.name())
+                .in("ofi.id", oficinas)
+                .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> searchByNombreFilter(String nombre, Integer limit) {
+        Octavia sql = Octavia.query();
+        sql.from(Aula.class, "au");
+        sql.join("aulaSuperior aus");
+        sql.filter("au.estado", EstadoEnum.ACT.name());
+        sql.beginBlock()
+                .__().complexFilter("concat(coalesce(au.codigo,''),' ',coalesce(au.nombre,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(au.nombre,''),' ',coalesce(au.codigo,''))", "like", nombre)
+                .endBlock();
         return sql.all(getCurrentSession());
     }
 

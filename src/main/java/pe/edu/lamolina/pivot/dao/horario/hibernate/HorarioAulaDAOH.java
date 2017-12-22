@@ -88,4 +88,9 @@ public class HorarioAulaDAOH extends AbstractDAO<HorarioAula> implements Horario
         return sql.all(getCurrentSession());
     }
 
+    public List<HorarioAula> allByDiaHoraCiclo(Dia dia, Hora hora, CicloAcademico cicloAcademico) {
+        
+        return null;
+    }
+
 }

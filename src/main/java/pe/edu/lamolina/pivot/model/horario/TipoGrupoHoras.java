@@ -106,4 +106,11 @@ public class TipoGrupoHoras implements Serializable {
         return false;
     }
 
+    public boolean isTipoGrupoZeta() {
+        if (TipoGrupoHorasEnum.ZETA.name().equals(this.getTipo())) {
+            return true;
+        }
+        return false;
+    }
+
 }
