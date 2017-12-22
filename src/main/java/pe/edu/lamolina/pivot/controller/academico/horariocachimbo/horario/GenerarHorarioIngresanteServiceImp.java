@@ -251,6 +251,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                     HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, ds);
                     horario.setSuscritos(horario.getSuscritos() + 1);
                     alumno.setHorarioCachimbos(horario);
+                    alumnoHorarioDAO.save(alumno);
                     List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
                     for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
                         Seccion secc = seccHorCachimbo.getSeccion();
@@ -258,7 +259,6 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                     }
                 }
 
-                // remove alumno
                 alumnoCarr.remove(alumno);
             }
             if (noHayAlumnos) {
@@ -268,6 +268,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     }
 
+    @Transactional
     private HorarioCachimbos createHorario(
             List<Seccion> horarioTempo,
             Carrera carrera,
@@ -290,6 +291,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         horario.setCursos(cursos);
         horario.setMatriculados(0);
         horario.setSuscritos(0);
+        horario.setSeccionHorarioCachimbos(new ArrayList());
+        horarioCachimbosDAO.save(horario);
 
         for (Seccion seccion : horarioTempo) {
             SeccionHorarioCachimbos sh = new SeccionHorarioCachimbos();
@@ -297,8 +300,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             sh.setSeccion(seccion);
             sh.setUserCreacion(ds.getUsuario());
             sh.setFechaCreacion(new Date());
+            seccionHorarioCachimbosDAO.save(sh);
+            horario.getSeccionHorarioCachimbos().add(sh);
         }
-
         mapHorario.put(huella, horario);
         return horario;
     }
@@ -360,6 +364,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 //        logger.debug("\t******* FIN +++++++++++");
     }
 
+    @Transactional
     private void permutarUnico(
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
