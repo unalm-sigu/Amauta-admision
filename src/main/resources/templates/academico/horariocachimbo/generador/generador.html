@@ -10,7 +10,8 @@
         <div  id="main">
 
             <header class="page-header">
-                <div class="pull-right">                
+                <div class="pull-right"> 
+                    <a class="btn btn-default" type="button"    th:href="@{/academico/horariocachimbo//horario}" >Regresar Horarios</a>
                     <button class="btn btn-info" type="button"  v-on:click.prevent="generarHorario"  >Generar Horarios</button>
                 </div>  
                 <h2 th:inline="text">Generador  de Horarios  [[${cicloAcademico.descripcion}]] </h2>
