@@ -73,7 +73,7 @@ $(function () {
                 self.btnDisabled();
                 $.ajax({
                     method: 'POST',
-                    sync:false,
+                    sync: false,
                     url: APP.url("academico/horariocachimbo/horario/generar"),
                     success: function (response) {
                         if (response.success) {
@@ -101,6 +101,9 @@ $(function () {
                         ajaxUrl: APP.url('academico/horariocachimbo/horario/allHorario'),
                         ajaxData: {id: 0},
                         perPageDefault: 16
+                    },
+                    features: {
+                        search: false
                     },
                     writers: {_rowWriter: vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
