@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -185,7 +186,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                 logger.debug("max code {}", codigo);
                 logger.debug("max code {}", numcode);
                 Integer numm = new Integer(numcode);
-                Integer seed = numm+1;
+                Integer seed = numm + 1;
                 code = new Acumulador(seed);
             } else {
                 code = new Acumulador(1);
@@ -605,6 +606,15 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                 logger.debug("\t" + seccion.getCodigo());
             }
         }
+    }
+
+    @Override
+    public String getClave(SeccionHorarioCachimbos shc) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ObjectUtil.getParentTree(shc, "seccion.codigo").toString());
+        sb.append(" ");
+        sb.append(ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
+        return sb.toString();
     }
 
 }

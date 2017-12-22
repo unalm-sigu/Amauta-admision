@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
@@ -43,5 +44,7 @@ interface GenerarHorarioIngresanteService {
     List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario);
 
     void generar(CicloAcademico cicloAcademico, ModalidadEstudio modalidad, DataSessionPivot ds);
+
+    String getClave(SeccionHorarioCachimbos shc);
 
 }

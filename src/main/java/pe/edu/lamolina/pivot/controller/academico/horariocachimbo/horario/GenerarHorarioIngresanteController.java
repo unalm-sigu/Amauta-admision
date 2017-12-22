@@ -198,26 +198,22 @@ public class GenerarHorarioIngresanteController {
 
                     List<SeccionHorarioCachimbos> shcHorario = horarioCachimbosMap.get(horarioCachimbo.getId());
                     ArrayNode horarios = new ArrayNode(jsonFactory);
-
-                    ObjectNode horaSeccion = new ObjectNode(jsonFactory);
-                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.TEO.name(), shcHorario));
-                    horarios.add(horaSeccion);
-
-                    horaSeccion = new ObjectNode(jsonFactory);
-                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.PRA.name(), shcHorario));
-                    horarios.add(horaSeccion);
-
-                    horaSeccion = new ObjectNode(jsonFactory);
-                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.TEO.name(), shcHorario));
-                    horarios.add(horaSeccion);
-
-                    horaSeccion = new ObjectNode(jsonFactory);
-                    horaSeccion.put("hora", service.getClave(TipoSeccionEnum.PRA.name(), shcHorario));
-                    horarios.add(horaSeccion);
-
+                    if (shcHorario != null) {
+                        for (SeccionHorarioCachimbos shc : shcHorario) {
+                            ObjectNode horaSeccion = new ObjectNode(jsonFactory);
+                            horaSeccion.put("hora", service.getClave(shc));
+                            horarios.add(horaSeccion);
+                        }
+                    }
+//                    for (TipoSeccionEnum ennum : TipoSeccionEnum.values()) {
+//                        ObjectNode horaSeccion = new ObjectNode(jsonFactory);
+//                        horaSeccion.put("hora", service.getClave(ennum.name(), shcHorario));
+//                        horarios.add(horaSeccion);
+//                    }
                     hora.put("horarios", horarios);
                     arrayHorario.add(hora);
                 }
+
                 node.set("horario", arrayHorario);
                 array.add(node);
             }

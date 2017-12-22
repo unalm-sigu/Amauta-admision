@@ -108,8 +108,6 @@ $(function () {
                     writers: {_rowWriter: vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
 
-                }).bind("dynatable:afterUpdate", function (e) {
-                    $('.dynatable-paginate li').first().remove();
                 }).data('dynatable');
 
                 $("body").delegate(".deletePost", "click", function () {
