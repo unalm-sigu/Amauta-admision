@@ -6,12 +6,14 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
@@ -39,6 +41,7 @@ import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -173,6 +176,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     @Transactional
     public void generar(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds) {
 
+        Acumulador code = new Acumulador(1);
+
         List<List<Seccion>> horariosTotal = new ArrayList();
         List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
 
@@ -246,13 +251,14 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                 Map<String, String> mapHorasDias = new LinkedHashMap();
                 List<Seccion> horarioTempo = new ArrayList();
                 logger.debug("Carrera {}", carrera.getNombre());
+                reordernarSeccion(cursos, mapSecciones);
                 permutarUnico(1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosTotal);
-                
+
                 if (!horarioTempo.isEmpty()) {
-                    HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, ds);
+                    HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
                     horario.setSuscritos(horario.getSuscritos() + 1);
                     alumno.setHorarioCachimbos(horario);
-                    alumnoHorarioDAO.save(alumno);
+
                     List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
                     for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
                         Seccion secc = seccHorCachimbo.getSeccion();
@@ -267,6 +273,10 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             }
         }
 
+        for (AlumnoHorario alumno : alumnos) {
+            alumnoHorarioDAO.update(alumno);
+        }
+
     }
 
     @Transactional
@@ -275,7 +285,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             Carrera carrera,
             CicloAcademico ciclo,
             int cursos,
-            Map<String, HorarioCachimbos> mapHorario, DataSessionPivot ds) {
+            Map<String, HorarioCachimbos> mapHorario,
+            Acumulador code, DataSessionPivot ds) {
 
         Collections.sort(horarioTempo, new Seccion.CompareCodigo());
         String huella = getHorarioString(horarioTempo);
@@ -293,7 +304,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         horario.setMatriculados(0);
         horario.setSuscritos(0);
         horario.setSeccionHorarioCachimbos(new ArrayList());
+        horario.setCodigo("H-" + NumberFormat.codigo(code.getValor(), 3));
         horarioCachimbosDAO.save(horario);
+        code.incrementar();
 
         for (Seccion seccion : horarioTempo) {
             SeccionHorarioCachimbos sh = new SeccionHorarioCachimbos();
@@ -561,6 +574,23 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             map.put(huella, horario);
         }
         return map;
+    }
+
+    private void reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones) {
+        for (Curso curso : cursos) {
+            logger.debug("Listado inicial");
+            List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
+            for (Seccion seccion : seccionesCurso) {
+                logger.debug("\t" + seccion.getCodigo());
+                seccion.setAleatorio(RandomStringUtils.randomAlphabetic(20));
+            }
+            Collections.sort(seccionesCurso, new Seccion.CompareAleatorio());
+
+            logger.debug("Listado reordenado");
+            for (Seccion seccion : seccionesCurso) {
+                logger.debug("\t" + seccion.getCodigo());
+            }
+        }
     }
 
 }

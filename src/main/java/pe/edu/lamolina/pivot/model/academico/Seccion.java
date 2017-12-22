@@ -114,6 +114,8 @@ public class Seccion implements Serializable {
     private Boolean verInformacion;
     @Transient
     private Integer suscritos;
+    @Transient
+    private String aleatorio;
 
     public Seccion() {
         this.verInformacion = false;
@@ -420,6 +422,14 @@ public class Seccion implements Serializable {
         this.suscritos = suscritos;
     }
 
+    public String getAleatorio() {
+        return aleatorio;
+    }
+
+    public void setAleatorio(String aleatorio) {
+        this.aleatorio = aleatorio;
+    }
+
     public Integer getDisponiblesCachimbos() {
         this.suscritos = (this.suscritos == null) ? 0 : this.suscritos;
         return this.vacantes - this.matriculados - this.suscritos;
@@ -430,6 +440,14 @@ public class Seccion implements Serializable {
         @Override
         public int compare(Seccion s1, Seccion s2) {
             return s1.getCodigo().compareTo(s2.getCodigo());
+        }
+    }
+
+    public static class CompareAleatorio implements Comparator<Seccion> {
+
+        @Override
+        public int compare(Seccion s1, Seccion s2) {
+            return s1.getAleatorio().compareTo(s2.getAleatorio());
         }
     }
 
