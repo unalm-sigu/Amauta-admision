@@ -176,7 +176,21 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     @Transactional
     public void generar(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds) {
 
-        Acumulador code = new Acumulador(1);
+        Acumulador code = null;
+        {
+            HorarioCachimbos maxcode = horarioCachimbosDAO.findMaxCodeOrderByCiclo(ciclo);
+            if (maxcode != null) {
+                String codigo = maxcode.getCodigo();
+                String numcode = codigo.substring(2);
+                logger.debug("max code {}", codigo);
+                logger.debug("max code {}", numcode);
+                Integer numm = new Integer(numcode);
+                Integer seed = numm+1;
+                code = new Acumulador(seed);
+            } else {
+                code = new Acumulador(1);
+            }
+        }
 
         List<List<Seccion>> horariosTotal = new ArrayList();
         List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
