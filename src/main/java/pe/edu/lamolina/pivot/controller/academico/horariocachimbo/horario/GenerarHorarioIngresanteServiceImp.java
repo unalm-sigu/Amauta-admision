@@ -192,8 +192,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             }
         }
 
-        List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
-        Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
+        List<HorarioSeccion> horaDiaSecciones = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horaDiaSecciones);
 
         for (Seccion seccion : secciones) {
             List<HorarioSeccion> horariosSecc = mapHorarios.get(seccion.getId());
@@ -247,6 +247,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                 List<Seccion> horarioTempo = new ArrayList();
                 logger.debug("Carrera {}", carrera.getNombre());
                 permutarUnico(1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosTotal);
+                
                 if (!horarioTempo.isEmpty()) {
                     HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, ds);
                     horario.setSuscritos(horario.getSuscritos() + 1);
