@@ -11,7 +11,15 @@
                         </th>
                     </tr> 
                 </thead>
-                <tbody id="dynaTbody"></tbody>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th class="headcollateral">Capacidad</th>
+                        <td  v-for="h in horarios"  class="text-center">
+                            <span>{{ h.capacidad }}</span>
+                        </td>
+                    </tr> 
+                </tfoot>
             </table>
         </div>
 
@@ -49,18 +57,18 @@
 
 
 <script  type="text/x-template" id="dynatableRowTemplate">
-    
+
     <tr>
-        <td class="v-middle headcollateral">
-            {{:curso}}
-        </td>
-        {{for horario }}
-        <td class="v-middle text-center">
-            {{for horarios }}
-            <span class="badge">{{:hora}}</span> 
-            {{/for}}
-        </td>
-        {{/for}}
+    <td class="v-middle headcollateral">
+    {{:curso}}
+    </td>
+    {{for horario }}
+    <td class="v-middle text-center">
+    {{for horarios }}
+    <span class="badge">{{:hora}}</span> 
+    {{/for}}
+    </td>
+    {{/for}}
     </tr>
-    
+
 </script>

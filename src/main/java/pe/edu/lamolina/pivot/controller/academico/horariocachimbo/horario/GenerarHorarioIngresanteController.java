@@ -302,6 +302,7 @@ public class GenerarHorarioIngresanteController {
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", alumnoHorario.getId());
                 json.put("codigo", alumnoHorario.getCodigo());
+                json.put("capacidad", alumnoHorario.getCapacidad());
                 jsonList.add(json);
             }
 
