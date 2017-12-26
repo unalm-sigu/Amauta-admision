@@ -29,12 +29,14 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
@@ -204,11 +206,7 @@ public class GenerarHorarioIngresanteController {
                             horarios.add(horaSeccion);
                         }
                     }
-//                    for (TipoSeccionEnum ennum : TipoSeccionEnum.values()) {
-//                        ObjectNode horaSeccion = new ObjectNode(jsonFactory);
-//                        horaSeccion.put("hora", service.getClave(ennum.name(), shcHorario));
-//                        horarios.add(horaSeccion);
-//                    }
+
                     hora.put("horarios", horarios);
                     arrayHorario.add(hora);
                 }
@@ -228,7 +226,7 @@ public class GenerarHorarioIngresanteController {
 
     @ResponseBody
     @RequestMapping("searchAlumno")
-    public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, @RequestParam("horario") Long horario, HttpSession session) {
         JsonResponse response = new JsonResponse();
 
         try {
@@ -236,18 +234,21 @@ public class GenerarHorarioIngresanteController {
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<AlumnoHorario> alumnos = service.allAlumnoHorarioByName(nombre, cicloAcademico);
+            List<AlumnoHorario> alumnos = service.allAlumnoHorarioByName(nombre, cicloAcademico, horario);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (AlumnoHorario alumnoHorario : alumnos) {
                 ObjectNode json = new ObjectNode(jsonFactory);
-                json.put("id", alumnoHorario.getAlumno().getId());
-                json.put("nombre", alumnoHorario.getAlumno().getPersona().getNombreCompleto());
+                Alumno alumno = alumnoHorario.getAlumno();
+                Persona persona = alumno.getPersona();
+                
+                json.put("id", alumnoHorario.getId());
+                json.put("nombre", persona.getNombreCompleto());
                 json.put("codigoMatricula", alumnoHorario.getAlumno().getCodigo());
-                json.put("carrera", alumnoHorario.getAlumno().getCarrera().getNombre());
-                json.put("facultad", alumnoHorario.getAlumno().getCarrera().getFacultad().getNombre());
-                json.put("tipo", alumnoHorario.getAlumno().getPersona().getTipoDocumento().getSimbolo());
-                json.put("numero", alumnoHorario.getAlumno().getPersona().getNumeroDocIdentidad());
+                json.put("carrera", alumno.getCarrera().getNombre());
+                json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+                json.put("tipo", persona.getTipoDocumento().getSimbolo());
+                json.put("numero", persona.getNumeroDocIdentidad());
                 jsonList.add(json);
             }
             response.setData(jsonList);
@@ -417,6 +418,23 @@ public class GenerarHorarioIngresanteController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addAlumno")
+    public JsonResponse addAlumno(AlumnoHorario alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            service.addAlumno(alumno);
+            response.setMessage("Alumno agregado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

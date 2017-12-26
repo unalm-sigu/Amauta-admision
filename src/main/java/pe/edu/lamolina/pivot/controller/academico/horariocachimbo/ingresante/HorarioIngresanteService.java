@@ -22,6 +22,6 @@ public interface HorarioIngresanteService {
 
     void suspenderMatricula(AlumnoHorario alumnoHorario);
 
-    List<AlumnoHorario> allAlumnoIngresanteByNameCiclo(String nombre, CicloAcademico cicloAcademico);
+    List<Alumno> allAlumnoByName(String nombre);
 
 }

@@ -9,9 +9,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
-import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
 
 @Repository
 public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements AlumnoHorarioDAO {
@@ -57,14 +57,16 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
     }
 
     @Override
-    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico) {
+    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Carrera carrera) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(AlumnoHorario.class, "ah")
-                .join("cicloAcademico ciclo ", "alumno alu", "alu.persona per")
+                .join("cicloAcademico ciclo ", "alumno alu","alu.carrera carr", "alu.persona per")
                 .leftJoin("per.tipoDocumento td", "horarioCachimbos hoca")
                 .filter("estado", EstadoAlumnoHorarioEnum.MATR)
                 .filter("ciclo.id", cicloAcademico)
+                .filter("carr.id", carrera)
+                .isNull("ah.horarioCachimbos")
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -84,23 +86,4 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         return (AlumnoHorario) sql.find(getCurrentSession());
     }
 
-    @Override
-    public List<AlumnoHorario> allAlumnoIngresanteByName(String nombre, CicloAcademico cicloAcademico) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        Octavia sql = Octavia.query()
-                .from(AlumnoHorario.class, "ah")
-                .join("cicloAcademico ci", "alumno alu", "alu.persona per", "alu.carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td")
-                .filter("per.estado", PersonaEstadoEnum.ACT)
-                .filter("ci.id", cicloAcademico)
-                .filter("ci.id", cicloAcademico)
-                .isNull("ah.horarioCachimbos") 
-                .beginBlock()
-                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
-                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
-                .__().filter("per.numeroDocIdentidad", "like", nombre)
-                .endBlock()
-                .limit(15);
-        return sql.all(getCurrentSession());
-    }
 }

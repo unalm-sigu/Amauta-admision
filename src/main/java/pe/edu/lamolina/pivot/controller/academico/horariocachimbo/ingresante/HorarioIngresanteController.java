@@ -221,14 +221,12 @@ public class HorarioIngresanteController {
             
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<AlumnoHorario> alumnoHorarios = service.allAlumnoIngresanteByNameCiclo(nombre, cicloAcademico);
+            List<Alumno> alumnos = service.allAlumnoByName(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             
-            for (AlumnoHorario alumnoHorario : alumnoHorarios) {
+            for (Alumno alumno : alumnos) {
                 
                 ObjectNode json = new ObjectNode(jsonFactory);
-                Alumno alumno = alumnoHorario.getAlumno();
-                
                 json.put("id", alumno.getId());
                 json.put("nombre", alumno.getPersona().getNombreCompleto());
                 json.put("codigoMatricula", alumno.getCodigo());

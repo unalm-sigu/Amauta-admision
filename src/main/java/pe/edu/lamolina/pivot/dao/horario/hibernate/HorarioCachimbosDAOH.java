@@ -60,7 +60,16 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .filter("ciclo.id", ciclo)
                 .orderBy("CONVERT( SUBSTRING(hoca.codigo, 3) ,  UNSIGNED )   desc")
                 .limit(1);
-        
+
+        return (HorarioCachimbos) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public HorarioCachimbos find(HorarioCachimbos horarioCachimbos) {
+        Octavia sql = Octavia.query()
+                .from(HorarioCachimbos.class, "hoca")
+                .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("hoca.id", horarioCachimbos);
         return (HorarioCachimbos) sql.find(getCurrentSession());
     }
 }

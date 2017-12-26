@@ -39,7 +39,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Override
     @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
-        logger.debug("alumno {} cicloAcademico ", alumno.getId(), cicloAcademico.getId());
+        logger.debug("alumno {} cicloAcademico {}", alumno.getId(), cicloAcademico.getId());
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
         if (alumnoHorario == null) {
             alumnoHorario = new AlumnoHorario();
@@ -99,8 +99,8 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     }
 
     @Override
-    public List<AlumnoHorario> allAlumnoIngresanteByNameCiclo(String nombre, CicloAcademico cicloAcademico) {
-        return alumnoHorarioDAO.allAlumnoIngresanteByName(nombre, cicloAcademico);
+    public List<Alumno> allAlumnoByName(String nombre) {
+        return alumnoDAO.allAlumnoByName(nombre);
     }
 
 }

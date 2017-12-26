@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
+import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 
 public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
@@ -15,9 +16,8 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     public List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico);
+    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Carrera carrera);
 
     public AlumnoHorario find(AlumnoHorario alumnoHorario);
 
-    public List<AlumnoHorario> allAlumnoIngresanteByName(String nombre, CicloAcademico cicloAcademico);
 }

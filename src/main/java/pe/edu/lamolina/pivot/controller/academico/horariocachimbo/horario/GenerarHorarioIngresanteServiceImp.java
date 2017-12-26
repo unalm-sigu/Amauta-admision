@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -109,8 +109,10 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     }
 
     @Override
-    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico) {
-        return alumnoHorarioDAO.allAlumnoHorarioByName(nombre, cicloAcademico);
+    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario) {
+        HorarioCachimbos horarioCachimbos = horarioCachimbosDAO.find(new HorarioCachimbos(horario));
+        Carrera carrera = horarioCachimbos.getCarrera();
+        return alumnoHorarioDAO.allAlumnoHorarioByName(nombre, cicloAcademico, carrera);
     }
 
     @Override
@@ -615,6 +617,21 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         sb.append(" ");
         sb.append(ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
         return sb.toString();
+    }
+
+    @Override
+    @Transactional
+    public void addAlumno(AlumnoHorario alumno) {
+        HorarioCachimbos horarioCachimbos = horarioCachimbosDAO.find(alumno.getHorarioCachimbos());
+        horarioCachimbos.setSuscritos(horarioCachimbos.getSuscritos() + 1);
+        if (horarioCachimbos.getSuscritos() > horarioCachimbos.getCapacidad()) {
+            throw new PhobosException("Sección sobrepaso su capacidad");
+        }
+        horarioCachimbosDAO.update(horarioCachimbos);
+        logger.debug("id AlumnoHorario {}", alumno.getId());
+        AlumnoHorario alumnoHorario = alumnoHorarioDAO.find(alumno);
+        alumnoHorario.setHorarioCachimbos(horarioCachimbos);
+        alumnoHorarioDAO.update(alumnoHorario);
     }
 
 }

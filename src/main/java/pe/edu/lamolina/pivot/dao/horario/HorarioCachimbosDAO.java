@@ -17,4 +17,6 @@ public interface HorarioCachimbosDAO extends EasyDAO<HorarioCachimbos> {
 
     public HorarioCachimbos findMaxCodeOrderByCiclo(CicloAcademico ciclo);
 
+    public HorarioCachimbos find(HorarioCachimbos horarioCachimbos);
+
 }

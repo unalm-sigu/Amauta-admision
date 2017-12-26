@@ -102,11 +102,16 @@ $(function () {
         },
         methods: {
             addAlumno(id) {
+
+                if ($('#formAlumno').parsley().validate() != true) {
+                    return;
+                }
+
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/ingresante/addAlumno"),
-                    data: {id: id},
+                    url: APP.url("academico/horariocachimbo/horario/addAlumno"),
+                    data: {id: vue.alumno.id, 'horarioCachimbos.id': vue.horario.id},
                     success: function (response) {
                         if (response.success) {
                             dynatable.process();
@@ -118,6 +123,7 @@ $(function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
+                this.$refs.modalAddAlumno.close();
             },
             eliminarSeleccion() {
 
@@ -189,6 +195,7 @@ $(function () {
             incluirAlumno(id) {
 
                 var vue = this;
+                vue.horario = {'id': id};
                 this.$refs.modalAddAlumno.open();
 
                 $('[name="alumno.id"]').select2({
@@ -196,11 +203,11 @@ $(function () {
                     placeholder: "Seleccione un alumno",
                     minimumInputLength: 1,
                     ajax: {
-                        url: APP.url("academico/horariocachimbo/ingresante/searchAlumno"),
+                        url: APP.url("academico/horariocachimbo/horario/searchAlumno"),
                         dataType: 'json',
                         type: 'post',
                         data: function (term, page) {
-                            return {nombre: term, page: page};
+                            return {nombre: term, page: page, horario: id};
                         },
                         results: function (response, page) {
                             return {results: response.data};
@@ -234,6 +241,7 @@ $(function () {
                 });
                 $('[name="alumno.id"]').select2('data', '');
                 vue.alumno = [];
+
 
             },
             verHorario(id) {},

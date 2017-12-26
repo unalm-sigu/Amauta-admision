@@ -25,4 +25,6 @@ public interface AlumnoDAO extends Crud<Alumno> {
 
     MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 
+    List<Alumno> allAlumnoByName(String nombre);
+
 }
