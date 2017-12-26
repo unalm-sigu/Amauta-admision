@@ -194,7 +194,7 @@ public class GenerarHorarioIngresanteController {
                 for (HorarioCachimbos horarioCachimbo : horarioCachimbos) {
 
                     ObjectNode hora = new ObjectNode(jsonFactory);
-                    hora.put("hora", horarioCachimbo.getCodigo());
+                    hora.put("codigo", horarioCachimbo.getCodigo());
 
                     List<SeccionHorarioCachimbos> shcHorario = horarioCachimbosMap.get(horarioCachimbo.getId());
                     ArrayNode horarios = new ArrayNode(jsonFactory);

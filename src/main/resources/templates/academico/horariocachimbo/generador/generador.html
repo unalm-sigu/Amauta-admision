@@ -6,13 +6,16 @@
         div.table-scroll-horario { 
             width: auto; 
             overflow-x:scroll;  
-            margin-left:240px; 
+            margin-left:300px; 
             overflow-y:visible;
         }
-        .headcol {
+        .headcollateral {
             position:absolute; 
-            width: 240px;
+            width: 300px;
             left:20.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
@@ -58,7 +61,7 @@
 
         </div>
 
-        <th:block th:replace="academico/horariocachimbo/generador/_generador"/>
+        <th:block th:replace="academico/horariocachimbo/generador/_dynatable"/>
 
     </div>
 

@@ -4,6 +4,14 @@ $(function () {
 
     let  dynatable = null;
 
+    var HorarioTemplate = Vue.component("horarioTemplate", {
+        template: "#horarioTemplate",
+        data: function () {
+            return {horarios: [], dias: []};
+        },
+        methods: {
+        }
+    });
 
 
     Vue.component("dynatable", {
@@ -33,15 +41,6 @@ $(function () {
         }
     });
 
-
-    var HorarioTemplate = Vue.component("horarioTemplate", {
-        template: "#horarioTemplate",
-        data: function () {
-            return {horarios: [], dias: []};
-        },
-        methods: {
-        }
-    });
 
     new Vue({
         el: '#main',
@@ -110,10 +109,6 @@ $(function () {
                     table: {bodyRowSelector: "tbody tr"}
 
                 }).data('dynatable');
-
-                $("body").delegate(".deletePost", "click", function () {
-                    $global.$emit("deletePost", $(this).attr("rel"));
-                });
 
             },
             writter: function (rowIndex, record, columns, cellWriter) {
