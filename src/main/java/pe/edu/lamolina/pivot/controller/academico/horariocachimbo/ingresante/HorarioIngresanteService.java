@@ -12,7 +12,7 @@ public interface HorarioIngresanteService {
 
     void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico);
 
-     void asignarHorario(AlumnoHorario alumnoHorario);
+    void asignarHorario(AlumnoHorario alumnoHorario);
 
     List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico);
 
@@ -22,6 +22,6 @@ public interface HorarioIngresanteService {
 
     void suspenderMatricula(AlumnoHorario alumnoHorario);
 
-    List<Alumno> allAlumnoByName(String nombre);
+    List<AlumnoHorario> allAlumnoIngresanteByNameCiclo(String nombre, CicloAcademico cicloAcademico);
 
 }

@@ -216,10 +216,7 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
-                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
-                        return data;
+                        return $.templates("#divBuscarAlumno").render(info);
                     },
                     formatSelection: function (info) {
                         vue.alumno = info;

@@ -19,23 +19,23 @@ import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
 @Service
 @Transactional(readOnly = true)
 public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     AlumnoHorarioDAO alumnoHorarioDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Autowired
     HorarioCachimbosDAO horarioCachimbosDAO;
-    
+
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
         return alumnoHorarioDAO.allByAlumnoHorario(filter, cicloAcademico);
     }
-    
+
     @Override
     @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
@@ -49,7 +49,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
             alumnoHorarioDAO.save(alumnoHorario);
         }
     }
-    
+
     @Override
     @Transactional
     public void activarMatricula(AlumnoHorario alumnoHorario) {
@@ -57,7 +57,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
         alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.MATR.name());
         alumnoHorarioDAO.update(alumnoHorarioDb);
     }
-    
+
     @Override
     @Transactional
     public void suspenderMatricula(AlumnoHorario alumnoHorario) {
@@ -65,7 +65,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
         alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
         alumnoHorarioDAO.update(alumnoHorarioDb);
     }
-    
+
     @Override
     @Transactional
     public void asignarHorario(AlumnoHorario alumnoHorario) {
@@ -76,7 +76,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
         alumnoHorarioDb.setHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
         alumnoHorarioDAO.update(alumnoHorarioDb);
     }
-    
+
     @Override
     @Transactional
     public void retirarHorario(AlumnoHorario alumnoHorario) {
@@ -85,22 +85,22 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
             return;
         }
         HorarioCachimbos horarioCachimbos = alumnoHorarioDb.getHorarioCachimbos();
-        if (horarioCachimbos != null&&horarioCachimbos.getSuscritos()>0) {
+        if (horarioCachimbos != null && horarioCachimbos.getSuscritos() > 0) {
             horarioCachimbos.setSuscritos(horarioCachimbos.getSuscritos() - 1);
             horarioCachimbosDAO.update(horarioCachimbos);
         }
         alumnoHorarioDb.setHorarioCachimbos(null);
         alumnoHorarioDAO.update(alumnoHorarioDb);
     }
-    
+
     @Override
     public void buscarHorario(Alumno alumno, CicloAcademico cicloAcademico) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     @Override
-    public List<Alumno> allAlumnoByName(String nombre) {
-        return alumnoDAO.allAlumnoByName(nombre);
+    public List<AlumnoHorario> allAlumnoIngresanteByNameCiclo(String nombre, CicloAcademico cicloAcademico) {
+        return alumnoHorarioDAO.allAlumnoIngresanteByName(nombre, cicloAcademico);
     }
-    
+
 }
