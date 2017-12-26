@@ -2,6 +2,19 @@
     <head>
         <title> Generador</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style>
+        div.table-scroll-horario { 
+            width: auto; 
+            overflow-x:scroll;  
+            margin-left:240px; 
+            overflow-y:visible;
+        }
+        .headcol {
+            position:absolute; 
+            width: 240px;
+            left:20.5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -9,30 +22,37 @@
 
         <div  id="main">
 
-            <header class="page-header">
-                <div class="pull-right"> 
+            <header class="header b-b padder-lg">
+                <div class="pull-right m-t-md">  
                     <a class="btn btn-default" type="button"    th:href="@{/academico/horariocachimbo//horario}" >Regresar Horarios</a>
                     <button class="btn btn-info" type="button"  v-on:click.prevent="generarHorario"  >Generar Horarios</button>
                 </div>  
                 <h2 th:inline="text">Generador  de Horarios  [[${cicloAcademico.descripcion}]] </h2>
             </header>
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
 
-            <section class="panel">
-                <section class="panel-body">
+                        <div class="row  m-b-lg m-t-lg">
+                            <div class="m-l-md col-md-4  col-xs-12 ">
+                                <select name="carrera" 
+                                        required="true" 
+                                        class="form-control   input-sm " >
+                                    <option></option>
+                                    <option th:each="item : ${carreras}"  
+                                            th:text="${item.nombre}"
+                                            th:value="${item.id}" ></option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <div class="col-sm-4 col-xs-12  buscar-curso m-b-lg">
-                        <select name="carrera" 
-                                required="true" 
-                                class="form-control   input-sm " >
-                            <option></option>
-                            <option th:each="item : ${carreras}"  
-                                    th:text="${item.nombre}"
-                                    th:value="${item.id}" ></option>
-                        </select>
-                    </div>
+                        <div class="col-xs-12">
+                            <div class="table-scroll-horario">
+                                <dynatable/>           
+                            </div>
+                        </div>
 
-                    <dynatable/>           
-
+                    </section>
                 </section>
             </section>
 

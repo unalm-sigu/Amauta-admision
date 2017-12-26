@@ -9,21 +9,22 @@
 
         <div  id="main">
 
-            <header class="page-header">
-                <div class="pull-right">                
+            <header class="header b-b padder-lg">
+                <div class="pull-right m-t-md">              
                     <a class="btn btn-info" type="button"    th:href="@{/academico/horariocachimbo/horario/generador}" >Generar Horarios</a>
                 </div>  
                 <h2 th:inline="text">Horarios de  Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
 
 
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
 
-            <section class="panel">
-                <section class="panel-body">
+                        <a href="#" id="eliminarSeleccion"  class="btn btn-link inline text-danger btn-sm" v-on:click.prevent="eliminarSeleccion">Eliminar Seleccionados </a>
 
-                    <a href="#" id="eliminarSeleccion"  class="btn btn-link inline text-danger btn-sm" v-on:click.prevent="eliminarSeleccion">Eliminar Seleccionados </a>
-
-                    <dynatable />
+                        <dynatable />
+                    </section>
                 </section>
             </section>
 

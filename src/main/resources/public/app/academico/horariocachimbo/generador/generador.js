@@ -99,11 +99,12 @@ $(function () {
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
                         ajaxUrl: APP.url('academico/horariocachimbo/horario/allHorario'),
-                        ajaxData: {id: 0},
-                        perPageDefault: 16
+                        ajaxData: {id: 0}
                     },
                     features: {
-                        search: false
+                        search: false,
+                        paginate: false,
+                        recordCount: false,
                     },
                     writers: {_rowWriter: vue.writter},
                     table: {bodyRowSelector: "tbody tr"}

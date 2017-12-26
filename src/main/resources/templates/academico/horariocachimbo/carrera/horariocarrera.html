@@ -8,13 +8,14 @@
     <div layout:fragment="main">
 
         <div  id="main">
-            <header class="page-header">
+            <header class="header b-b padder-lg">
                 <h2 th:inline="text">Lista  Carrera  Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
-
-            <section class="panel">
-                <section class="panel-body">
-                    <dynatable />
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <dynatable />
+                    </section>
                 </section>
             </section>
 

@@ -8,31 +8,33 @@
     <div layout:fragment="main">
 
         <div  id="main">
-            <header class="page-header">
-                <div class="pull-right">                
+            <header class="header b-b padder-lg">
+                <div class="pull-right m-t-md">             
                     <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"          href="#" >Agregar Curso</a>
                 </div>  
                 <h2 th:inline="text">Cursos Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
-
-            <section class="panel m-b-xs">
-                <section class="panel-body">
-                    <div class="row">
-                        <div class="col-xs-1 text-center" th:each="item,counter:${carreras}"  >
-                            <a href="#" v-on:click.prevent="filtrarCurso" class="view-count text-success" th:rel="${item.carrera.id}">
-                                <span class="h1 block bold" th:text="${item.cantidad}">23</span>
-                                <small class="block m-b-xs" th:text="${item.carrera.nombre}"  >Pregrado</small>
-                            </a>
+            <section class="wrapper-lg">
+                <section class="panel m-b-xs">
+                    <section class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-1 text-center" th:each="item,counter:${carreras}"  >
+                                <a href="#" v-on:click.prevent="filtrarCurso" class="view-count text-success" th:rel="${item.carrera.id}">
+                                    <span class="h1 block bold" th:text="${item.cantidad}">23</span>
+                                    <small class="block m-b-xs" th:text="${item.carrera.nombre}"  >Pregrado</small>
+                                </a>
+                            </div>
                         </div>
-                    </div>
+                    </section>
                 </section>
             </section>
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
 
-            <section class="panel">
-                <section class="panel-body">
+                        <dynatable />
 
-                    <dynatable />
-
+                    </section>
                 </section>
             </section>
 
