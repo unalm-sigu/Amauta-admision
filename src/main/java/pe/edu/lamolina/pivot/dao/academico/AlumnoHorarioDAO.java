@@ -17,5 +17,6 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico);
 
-}
+    public AlumnoHorario find(AlumnoHorario alumnoHorario);
 
+}
