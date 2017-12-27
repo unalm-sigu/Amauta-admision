@@ -25,20 +25,21 @@
     <tr>
 
         <td class="v-middle">
-            <a  href="#"
-                class="h5 text-muted"> 
+            <p  class="h5 bold"> 
                 {{ horario.estudiante}}
-            </a>
+            </p>
+            <span class="text-sm  text-muted block">Especialida de {{horario.carrera}}   Facultad de  {{horario.facultad}} </span>
+            <span class="text-sm  text-muted block"> {{horario.tipo}}  {{horario.numero}}    Nro Matrícula    {{horario.codigoMatricula}} </span>
         </td>
 
         <td class="v-middle text-center">
-            <p>{{horario.carrera}}</p> 
-            <span>{{horario.facultad}}</span> 
+            <p class="block">{{horario.carrera}}</p> 
+            <span class="text-sm  text-muted">{{horario.facultad}}</span> 
         </td>
 
         <td class="v-middle  text-center">
-            <span>{{horario.horario}}</span> 
-            <p v-if="horario.horario!=''" class="text-sm">{{horario.numCurso}}  cursos</p> 
+            <p class="block">{{horario.horario}}</p> 
+            <p v-if="horario.horario!=''" class="text-sm text-muted">{{horario.numCurso}}  cursos</p> 
         </td>
 
         <td class="v-middle  text-center">
@@ -65,4 +66,10 @@
 
     </tr>
 </template>
+
+<div id="divBuscarAlumno" type="text/x-jsrender" class="hide" >
+    <p class="h5">{{:nombre}}</p>
+    <span class="text-sm text-muted block">Especialida de {{:carrera}}   Facultad de  {{:facultad}} </span>
+    <span class="text-sm text-muted block"> {{:tipo}}  {{:numero}}    Nro Matrícula    {{:codigoMatricula}} </span>
+</div>
 
