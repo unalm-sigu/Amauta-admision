@@ -49,6 +49,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .join("alumno alum", "alum.persona per", "cicloAcademico ciclo")
                 .leftJoin("horarioCachimbos hora", "alum.orientacionCarrera oca", "alum.carrera ca", "alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me")
                 .filter("ciclo.id", cicloAcademico)
+                .searchFields("ca.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("alu.id desc");
@@ -61,7 +62,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(AlumnoHorario.class, "ah")
-                .join("cicloAcademico ciclo ", "alumno alu","alu.carrera carr", "alu.persona per")
+                .join("cicloAcademico ciclo ", "alumno alu", "alu.carrera carr", "alu.persona per")
                 .leftJoin("per.tipoDocumento td", "horarioCachimbos hoca")
                 .filter("estado", EstadoAlumnoHorarioEnum.MATR)
                 .filter("ciclo.id", cicloAcademico)
