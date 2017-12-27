@@ -2,7 +2,17 @@
     <head>
         <title>Plan curricular</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-
+    <style>
+        #divMalla {
+            /*padding: 20px;*/
+            /*width:80%; height: 400px;*/
+            border: 1px solid gray;
+        }
+        text {
+            width: 110px;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -50,6 +60,9 @@
                     <li th:if="${planCurricular.id}" >
                         <a href="#5" data-toggle="tab" >Resumen</a>
                     </li>
+                    <li th:if="${planCurricular.id}" >
+                        <a href="#6" data-toggle="tab" >Malla</a>
+                    </li>
                 </ul>
             </div>
         </header>
@@ -72,6 +85,9 @@
                         </div>
                         <div class="tab-pane" id="5" th:if="${planCurricular.id}">
                             <div th:substituteby="academico/plancurricular/includes/resumen"/>
+                        </div>
+                        <div class="tab-pane" id="6" th:if="${planCurricular.id}">
+                            <div th:substituteby="academico/plancurricular/includes/malla"/>
                         </div>
                     </div>
 
@@ -105,6 +121,7 @@
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.3/svg.min.js"></script>
         <script th:src="@{/app/academico/plancurricular/planCurricularForm.js}" charset="utf-8"></script>
     </div>
 </body>

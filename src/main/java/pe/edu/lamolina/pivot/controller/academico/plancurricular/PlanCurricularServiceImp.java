@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoOpcionalDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
-import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
@@ -42,6 +42,9 @@ import pe.edu.lamolina.pivot.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.pivot.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import static pe.edu.lamolina.pivot.zelper.enums.EstadoEnum.ACT;
+import static pe.edu.lamolina.pivot.zelper.enums.EstadoEnum.CRE;
+import static pe.edu.lamolina.pivot.zelper.enums.EstadoEnum.INA;
 import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
 import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.pivot.zelper.enums.TipoCursoCurriculaEnum.ELE;
@@ -291,25 +294,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoOpcional requisito : newRequisitos) {
             requisitoCursoOpcionalDAO.save(requisito);
         }
-
-//        ResumenPlanCurricular resumenB = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(
-//                cursoOpcional.getTipoCursoCurricula(),
-//                cursoOpcional.getPlanCurricular());
-//
-//        if (resumenB == null) {
-//            resumenB = new ResumenPlanCurricular();
-//            resumenB.setPlanCurricular(plan);
-//            resumenB.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
-//            resumenB.setCreditos(cursoCurricula.getCreditos());
-//            resumenB.setCursos(1);
-//            resumenPlanCurricularDAO.save(resumenB);
-//
-//        } else {
-//            resumenB.setCreditos(resumenB.getCreditos() + cursoOpcional.getCreditos());
-//            resumenB.setCursos(resumenB.getCursos() + 1);
-//            resumenPlanCurricularDAO.update(resumenB);
-//        }
-
     }
 
     @Override
@@ -459,7 +443,18 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public PlanCurricular findPlanCurricularById(PlanCurricular planCurricular) {
         PlanCurricular plan = planCurricularDAO.find(planCurricular.getId());
         List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+        Map<Long, CursoCurricula> mapCursosPlan = TypesUtil.convertListToMap("id", cursosPlan);
         plan.setCursoCurricula(cursosPlan);
+        for (CursoCurricula cursoCurricula : cursosPlan) {
+            cursoCurricula.setRequisitosCursoCurricula(new ArrayList());
+        }
+
+        List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosPlan);
+        for (RequisitoCursoCurricula requisito : requisitos) {
+            CursoCurricula cursoMain = mapCursosPlan.get(requisito.getCursoCurricula().getId());
+            cursoMain.getRequisitosCursoCurricula().add(requisito);
+        }
+
         return plan;
     }
 
@@ -693,6 +688,193 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<Long, CursoAdicionalCurricula> mapCursosAdicionales = TypesUtil.convertListToMap("curso.id", cursosAdicionales);
         CursoAdicionalCurricula cursoAdicional = mapCursosAdicionales.get(curso.getId());
         Assert.isNull(cursoAdicional, "Este curso ya existe en el grupo de adicionales");
+
+    }
+
+    @Override
+    @Transactional
+    public void deletePlanCurricular(PlanCurricular plan) {
+        PlanCurricular planBD = planCurricularDAO.find(plan.getId());
+        Assert.isTrue(planBD.getEstadoEnum() == EstadoEnum.CRE, "Solo puede eliminarse un plan con estado Creado");
+
+        List<CursoCurricula> cursos = cursoCurriculaDAO.allByPlanCurricular(planBD);
+        List<CursoAdicionalCurricula> adicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planBD);
+        List<CursoOpcionalCurricula> opcionales = cursoOpcionalCurriculaDAO.allByPlanCurricular(planBD);
+        List<ResumenPlanCurricular> resumenes = resumenPlanCurricularDAO.allByPlan(planBD);
+
+        List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursosCurricula(cursos);
+        List<RequisitoCursoOpcional> requisitosOpc = requisitoCursoOpcionalDAO.allRequisitosByCursosElectivos(opcionales);
+
+        for (RequisitoCursoOpcional req : requisitosOpc) {
+            requisitoCursoOpcionalDAO.delete(req);
+        }
+        for (RequisitoCursoCurricula req : requisitos) {
+            requisitoCursoCurriculaDAO.delete(req);
+        }
+        for (CursoAdicionalCurricula adi : adicionales) {
+            cursoAdicionalCurriculaDAO.delete(adi);
+        }
+        for (CursoOpcionalCurricula opcional : opcionales) {
+            cursoOpcionalCurriculaDAO.delete(opcional);
+        }
+        for (CursoCurricula curso : cursos) {
+            cursoCurriculaDAO.delete(curso);
+        }
+        for (ResumenPlanCurricular resumen : resumenes) {
+            resumenPlanCurricularDAO.delete(resumen);
+        }
+        planCurricularDAO.delete(planBD);
+    }
+
+    @Override
+    @Transactional
+    public void desactivarPlanCurricular(PlanCurricular plan) {
+        PlanCurricular planBD = planCurricularDAO.find(plan.getId());
+        Assert.isTrue(planBD.getEstadoEnum() == EstadoEnum.ACT, "Solo puede desactivarse un plan con estado Activo");
+        planBD.setEstadoEnum(EstadoEnum.INA);
+        planCurricularDAO.update(planBD);
+    }
+
+    @Override
+    @Transactional
+    public PlanCurricular clonarPlanCurricular(PlanCurricular planForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        PlanCurricular planBD = planCurricularDAO.find(planForm.getId());
+        Assert.isTrue(Arrays.asList(ACT, INA).contains(planBD.getEstadoEnum()), "No está permitido clonar planes curriculares a partir de este");
+
+        PlanCurricular planNew = new PlanCurricular();
+        planNew.setCarrera(planBD.getCarrera());
+        planNew.setCiclos(planBD.getCiclos());
+        planNew.setOrientacionCarrera(planBD.getOrientacionCarrera());
+        planNew.setEstadoEnum(CRE);
+        planNew.setCiclos(planBD.getCiclos());
+        planNew.setCicloInicioVigencia(ciclo);
+        planCurricularDAO.save(planNew);
+
+        List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricular(planBD);
+        List<CursoAdicionalCurricula> adicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planBD);
+        List<CursoOpcionalCurricula> opcionales = cursoOpcionalCurriculaDAO.allByPlanCurricular(planBD);
+        List<ResumenPlanCurricular> resumenes = resumenPlanCurricularDAO.allByPlan(planBD);
+
+        List<RequisitoCursoCurricula> requisitos = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosPlan);
+        List<RequisitoCursoOpcional> requisitosOpc = requisitoCursoOpcionalDAO.allRequisitosByCursosElectivos(opcionales);
+
+        Map<Long, CursoCurricula> mapCursoCurricula = new LinkedHashMap();
+        for (CursoCurricula curso : cursosPlan) {
+            CursoCurricula cc = new CursoCurricula();
+            cc.setCreditos(curso.getCreditos());
+            cc.setCreditosCurriculaRequisito(curso.getCreditosCurriculaRequisito());
+            cc.setCreditosRequisito(curso.getCreditosRequisito());
+            cc.setFechaRegistro(new Date());
+            cc.setNumeroCiclo(curso.getNumeroCiclo());
+            cc.setCurso(curso.getCurso());
+            cc.setPlanCurricular(planNew);
+            cc.setTipoCursoCurricula(curso.getTipoCursoCurricula());
+            cc.setUserRegistro(ds.getUsuario());
+            cc.setCursosCurricula(new ArrayList());
+
+            mapCursoCurricula.put(cc.getCurso().getId(), cc);
+            cursoCurriculaDAO.save(cc);
+        }
+
+        for (CursoAdicionalCurricula adi : adicionales) {
+            CursoAdicionalCurricula ca = new CursoAdicionalCurricula();
+            ca.setCurso(adi.getCurso());
+            ca.setFechaRegistro(new Date());
+            ca.setUserRegistro(ds.getUsuario());
+            ca.setPlanCurricular(planNew);
+
+            cursoAdicionalCurriculaDAO.save(ca);
+        }
+
+        Map<Long, CursoOpcionalCurricula> mapCursoOpcional = new LinkedHashMap();
+        for (CursoOpcionalCurricula opc : opcionales) {
+            CursoOpcionalCurricula coc = new CursoOpcionalCurricula();
+            coc.setCreditos(opc.getCreditos());
+            coc.setCreditosCurriculaRequisito(opc.getCreditosCurriculaRequisito());
+            coc.setCreditosRequisito(opc.getCreditosRequisito());
+            coc.setCurso(opc.getCurso());
+            coc.setFechaRegistro(new Date());
+            coc.setPlanCurricular(planNew);
+            coc.setTipoCursoCurricula(opc.getTipoCursoCurricula());
+            coc.setUserRegistro(ds.getUsuario());
+            coc.setRequisitosCursoOpcionales(new ArrayList());
+
+            mapCursoOpcional.put(coc.getCurso().getId(), coc);
+            cursoOpcionalCurriculaDAO.save(coc);
+        }
+
+        for (RequisitoCursoCurricula req : requisitos) {
+            RequisitoCursoCurricula rcc = new RequisitoCursoCurricula();
+            CursoCurricula cc = mapCursoCurricula.get(req.getCursoCurricula().getCurso().getId());
+            rcc.setCursoCurricula(cc);
+            rcc.setCursoRequisito(mapCursoCurricula.get(req.getCursoRequisito().getCurso().getId()));
+            rcc.setSimultaneo(req.getSimultaneo());
+            rcc.setFechaRegistro(new Date());
+            rcc.setUserRegistro(ds.getUsuario());
+
+            cc.getCursosCurricula().add(rcc);
+            requisitoCursoCurriculaDAO.save(rcc);
+        }
+
+        for (RequisitoCursoOpcional reqOpc : requisitosOpc) {
+            RequisitoCursoOpcional rco = new RequisitoCursoOpcional();
+            CursoOpcionalCurricula co = mapCursoOpcional.get(reqOpc.getCursoOpcional().getCurso().getId());
+            rco.setCursoOpcional(co);
+            rco.setSimultaneo(reqOpc.getSimultaneo());
+            rco.setFechaRegistro(new Date());
+            rco.setUserRegistro(ds.getUsuario());
+
+            if (reqOpc.getCursoRequisitoOpcional() != null) {
+                CursoOpcionalCurricula coc = mapCursoOpcional.get(reqOpc.getCursoRequisitoOpcional().getCurso().getId());
+                rco.setCursoRequisitoOpcional(coc);
+            }
+            if (reqOpc.getCursoRequisitoCurricula() != null) {
+                CursoCurricula rcc = mapCursoCurricula.get(reqOpc.getCursoRequisitoCurricula().getCurso().getId());
+                rco.setCursoRequisitoCurricula(rcc);
+            }
+            requisitoCursoOpcionalDAO.save(rco);
+        }
+
+        for (ResumenPlanCurricular resumen : resumenes) {
+            ResumenPlanCurricular rpc = new ResumenPlanCurricular();
+            rpc.setCreditos(resumen.getCreditos());
+            rpc.setCursos(resumen.getCursos());
+            rpc.setTipoCursoCurricula(resumen.getTipoCursoCurricula());
+            rpc.setPlanCurricular(planNew);
+            resumenPlanCurricularDAO.save(rpc);
+        }
+
+        return planNew;
+    }
+
+    @Override
+    @Transactional
+    public void moveCurso(CursoCurricula cursoCurrForm, String direccion, DataSessionPivot ds) {
+        CursoCurricula cursoCurrBD = cursoCurriculaDAO.find(cursoCurrForm.getId());
+
+        PlanCurricular planBD = cursoCurrBD.getPlanCurricular();
+        PlanCurricular planForm = cursoCurrForm.getPlanCurricular();
+        Assert.isTrue(planBD.getId() == planForm.getId().longValue(), "El curso no pertenece al plan que está modificando");
+        Assert.isTrue(cursoCurrBD.getNumeroCiclo() > 0, "Solo pueden moverse cursos ubicados en ciclos correctos");
+        Assert.isFalse(cursoCurrBD.getNumeroCurso() == 1 && direccion.equals("DOWN"), "No es correcto mover este curso");
+
+        List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricular(planBD);
+        Map<Integer, List<CursoCurricula>> mapCursosCicloCurr = TypesUtil.convertListToMapList("numeroCiclo", cursosCurr);
+        List<CursoCurricula> cursosCicloCurr = mapCursosCicloCurr.get(cursoCurrBD.getNumeroCiclo());
+        Map<Integer, CursoCurricula> mapCursosPosicion = TypesUtil.convertListToMap("numeroCurso", cursosCicloCurr);
+        Integer next = cursoCurrBD.getNumeroCurso() + (direccion.equals("DOWN") ? -1 : (direccion.equals("UP") ? 1 : 0));
+        CursoCurricula cursoNext = mapCursosPosicion.get(next);
+
+        if (cursoNext == null) {
+            cursoCurrBD.setNumeroCurso(next);
+            cursoCurriculaDAO.update(cursoCurrBD);
+
+        } else {
+            cursoNext.setNumeroCurso(cursoCurrBD.getNumeroCurso());
+            cursoCurriculaDAO.update(cursoNext);
+            cursoCurrBD.setNumeroCurso(next);
+            cursoCurriculaDAO.update(cursoCurrBD);
+        }
 
     }
 

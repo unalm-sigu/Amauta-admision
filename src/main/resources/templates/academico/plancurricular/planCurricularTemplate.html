@@ -56,15 +56,24 @@
         <div class="dropdown actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >
-                <li role="presentation">
-                    <a class="editar-plan-curricular" href="#">Editar</a>
-                </li>
-                <li role="presentation">
-                    <a class="desactivar-plan" href="#">Desactivar</a>
-                </li>
-                <li role="presentation">
-                    <a class="clonar-plan" href="#">Clonar</a>
-                </li>
+                {{if editar}}
+                    <li role="presentation">
+                        <a class="editar-plan" href="#">Editar</a>
+                    </li>
+                {{/if}}
+                {{if estado=='ACT'}}
+                    <li role="presentation">
+                        <a class="desactivar-plan" href="#">Desactivar</a>
+                    </li>
+                    <li role="presentation">
+                        <a class="clonar-plan" href="#">Clonar</a>
+                    </li>
+                {{/if}}
+                {{if estado=='CRE'}}
+                    <li role="presentation">
+                        <a class="delete-plan" href="#">Eliminar</a>
+                    </li>
+                {{/if}}
             </ul>
         </div>
     </td>

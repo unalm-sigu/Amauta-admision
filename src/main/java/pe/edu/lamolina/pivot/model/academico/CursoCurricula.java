@@ -31,6 +31,9 @@ public class CursoCurricula implements Serializable {
     @Column(name = "numero_ciclo")
     private Integer numeroCiclo;
 
+    @Column(name = "numero_curso")
+    private Integer numeroCurso;
+
     @NotNull
     @Column(name = "creditos")
     private Integer creditos;
@@ -115,6 +118,14 @@ public class CursoCurricula implements Serializable {
 
     public void setNumeroCiclo(Integer numeroCiclo) {
         this.numeroCiclo = numeroCiclo;
+    }
+
+    public Integer getNumeroCurso() {
+        return numeroCurso;
+    }
+
+    public void setNumeroCurso(Integer numeroCurso) {
+        this.numeroCurso = numeroCurso;
     }
 
     public Integer getCreditos() {

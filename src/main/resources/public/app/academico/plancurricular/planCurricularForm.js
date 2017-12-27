@@ -972,12 +972,10 @@ $(function () {
             });
         },
         addCursoElectivo: function (btn) {
-            console.log("sdfgsdfg")
             var form = $("[id='frmAgregarCursoElec']");
             form.parsley().destroy();
             form.parsley();
             if (!form.parsley().validate()) {
-                console.log("error de formulario")
                 return;
             }
 
@@ -1224,10 +1222,247 @@ $(function () {
         },
         cancelarNuevo: function ($this, e) {
             location.href = APP.url('academico/planCurricular');
+        },
+        verMalla() {
+            var id = $("#txtPlanCurricular").val();
+            $.ajax({
+                url: APP.url('academico/planCurricular/dataCurricula'),
+                type: 'POST',
+                async: true,
+                data: {id: id},
+                success: function (response) {
+                    if (response.success) {
+                        NuevaCurricula.buildMalla(response.data);
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        buildMalla(ciclos) {
+            var ww = 170;
+            var hh = 60;
+            var padx = 30;
+            var pady = 40;
+            var pad = 40;
+            var wwLine = 2;
+            var wwBoldLine = 6;
+
+            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8"};
+            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff"};
+            var colorLine = "#E74C3C";
+            var colorDot = "#34495E";
+            var colorArrow = "#D7DBDD";
+
+            var maxRows = 0;
+            for (var col = 0; col < ciclos.length; col++) {
+                var cursos = ciclos[col].cursos;
+                for (var row = 0; row < cursos.length; row++) {
+                    maxRows = (maxRows > cursos[row].numeroCurso) ? maxRows : cursos[row].numeroCurso;
+                }
+            }
+
+            $("#divMalla").html("");
+
+            var draw = SVG('divMalla').size((ww + 2 * padx) * ciclos.length, pad + (hh + pady) * maxRows);
+            for (var col = 0; col < ciclos.length; col++) {
+                var text = draw.text("Ciclo " + ciclos[col].numeroRomano).addClass("h4");
+                text.cx((ww + 2 * padx) / 2 + (ww + 2 * padx) * col);
+                text.cy(20);
+            }
+
+            var lazos = {};
+            for (var col = 0; col < ciclos.length; col++) {
+                var cursos = ciclos[col].cursos;
+                for (var row = 0; row < cursos.length; row++) {
+                    var x1 = padx + (ww + 2 * padx) * col;
+                    var x2 = x1 + ww;
+                    var yc = pad + (hh + pady) * (cursos[row].numeroCurso - 1) + hh / 2;
+
+                    lazos[cursos[row].id] = {
+                        "left-x": x1,
+                        "right-x": x2,
+                        "y": yc,
+                        "requisitos": []
+                    };
+                }
+            }
+
+            for (var col = 0; col < ciclos.length; col++) {
+                var cursos = ciclos[col].cursos;
+                for (var row = 0; row < cursos.length; row++) {
+                    var req = cursos[row].requisitos;
+                    for (var r = 0; r < req.length; r++) {
+                        var x1 = lazos[cursos[row].id]["left-x"];
+                        var y1 = lazos[cursos[row].id]["y"];
+                        var x2 = lazos[req[r].idReq]["right-x"];
+                        var y2 = lazos[req[r].idReq]["y"];
+
+                        var linea = draw.line(x1, y1, x2, y2).stroke({color: colorLine, width: wwLine});
+                    }
+                }
+            }
+
+            for (var col = 0; col < ciclos.length; col++) {
+                var cursos = ciclos[col].cursos;
+                for (var row = 0; row < cursos.length; row++) {
+                    var x1 = padx + (ww + 2 * padx) * col;
+                    var x2 = x1 + ww;
+                    var xc = x1 + ww / 2;
+                    var y1 = pad + (hh + pady) * (cursos[row].numeroCurso - 1);
+                    var y2 = y1 + hh;
+                    var yc = y1 + hh / 2;
+
+                    var polygon = draw.rect(ww, hh).radius(5).fill(colorBG[cursos[row]["tipo"]]).move(x1, y1).stroke({color: colorDot, width: 1});
+                    var dot1 = draw.rect(10, 10).fill("#fff").move(x1 - 5, yc - 5).stroke({color: colorDot, width: 1});
+                    var dot2 = draw.rect(10, 10).fill("#fff").move(x2 - 5, yc - 5).stroke({color: colorDot, width: 1});
+
+                    var arrowDown = draw.polygon("0,8 7,0 14,8 11,8 11,14 3,14 3,8 0,8").fill(colorArrow).move(x2 - 16, y1 + 2).stroke({color: colorDot, width: 1});
+                    var arrowUp = draw.polygon("0,6 3,6 3,0 11,0 11,6 14,6 7,14 0,6").fill(colorArrow).move(x2 - 16, y2 - 16).stroke({color: colorDot, width: 1});
+                    arrowDown.style('cursor', 'n-resize');
+                    arrowUp.style('cursor', 's-resize');
+
+                    arrowDown.data({"idCurso": cursos[row].id});
+                    arrowDown.click(function () {
+                        var idCurso = this.data("idCurso");
+                        NuevaCurricula.moveCurso(idCurso, "DOWN");
+                    });
+
+                    arrowUp.data({"idCurso": cursos[row].id});
+                    arrowUp.click(function () {
+                        var idCurso = this.data("idCurso");
+                        NuevaCurricula.moveCurso(idCurso, "UP");
+                    });
+
+                    var tncur = draw.text(cursos[row]["numeroCurso"] + "").move(x1 + 2, y2 - 14).fill(colorLetra[cursos[row]["tipo"]]).style("font-size", "7");
+                    var group = draw.group();
+                    group.add(polygon);
+                    group.add(dot1);
+                    group.add(dot2);
+                    group.add(arrowDown);
+                    group.add(arrowUp);
+                    group.add(tncur);
+
+                    var req = cursos[row].requisitos;
+                    if (req.length > 0) {
+                        var dot3 = draw.rect(10, 10).fill(colorDot).move(x1 - 5, yc - 5);
+                        group.add(dot3);
+                    }
+
+                    for (var r = 0; r < req.length; r++) {
+                        var x22 = lazos[req[r].idReq]["right-x"];
+                        var y22 = lazos[req[r].idReq]["y"];
+                        var dot4 = draw.rect(10, 10).fill(colorDot).move(x22 - 5, y22 - 5);
+                        group.add(dot4);
+                    }
+
+                    var data = NuevaCurricula.getConteCurso(cursos[row].curso, cursos[row].codigo, cursos[row].creditos);
+                    if (data.length == 2) {
+                        var t1 = draw.text(data[0]).cx(xc).cy(yc - 8).fill(colorLetra[cursos[row]["tipo"]]);
+                        var t2 = draw.text(data[1]).cx(xc).cy(yc + 8).fill(colorLetra[cursos[row]["tipo"]]);
+                        group.add(t1);
+                        group.add(t2);
+
+                    } else if (data.length == 3) {
+                        var t1 = draw.text(data[0]).cx(xc).cy(yc - 16).fill(colorLetra[cursos[row]["tipo"]]);
+                        var t2 = draw.text(data[1]).cx(xc).cy(yc).fill(colorLetra[cursos[row]["tipo"]]);
+                        var t3 = draw.text(data[2]).cx(xc).cy(yc + 16).fill(colorLetra[cursos[row]["tipo"]]);
+                        group.add(t1);
+                        group.add(t2);
+                        group.add(t3);
+                    }
+
+                    group.data({"idCurso": cursos[row].id});
+                    group.style('cursor', 'pointer');
+                    group.mouseover(function () {
+                        var idCurso = this.data("idCurso");
+                        var reqs = lazos[idCurso]["requisitos"];
+                        for (var i = 0; i < reqs.length; i++) {
+                            draw.get(reqs[i]).show();
+                        }
+                    });
+                    group.mouseout(function () {
+                        var idCurso = this.data("idCurso");
+                        var reqs = lazos[idCurso]["requisitos"];
+                        for (var i = 0; i < reqs.length; i++) {
+                            draw.get(reqs[i]).hide();
+                        }
+                    });
+                }
+            }
+
+            for (var col = 0; col < ciclos.length; col++) {
+                var cursos = ciclos[col].cursos;
+                for (var row = 0; row < cursos.length; row++) {
+                    var req = cursos[row].requisitos;
+                    for (var r = 0; r < req.length; r++) {
+                        var x1 = lazos[cursos[row].id]["left-x"];
+                        var y1 = lazos[cursos[row].id]["y"];
+                        var x2 = lazos[req[r].idReq]["right-x"];
+                        var y2 = lazos[req[r].idReq]["y"];
+
+                        var linea = draw.line(x1, y1, x2, y2).stroke({color: colorLine, width: wwBoldLine}).hide();
+                        var reqs = lazos[cursos[row].id]["requisitos"];
+                        lazos[cursos[row].id]["requisitos"][reqs.length] = draw.index(linea);
+                    }
+                }
+            }
+        },
+        getConteCurso(cur, cod, cred) {
+            var data = [];
+            if (cur.length <= 22) {
+                data[0] = cur;
+                data[1] = cod + " - " + cred + " crédito";
+                data[1] += (cred == 1) ? "" : "s";
+                return data;
+            }
+
+            var idx = 0;
+            var partes = cur.split(" ");
+            data[idx] = "";
+            for (var i = 0; i < partes.length; i++) {
+                if (data[idx].length + partes[i].length < 22) {
+                    data[idx] += (data[idx].length == 0 ? "" : " ") + partes[i];
+                } else if (idx < 1) {
+                    idx++;
+                    data[idx] = partes[i].substring(0, 22);
+                } else if (idx == 1) {
+                    data[idx] += (data[idx].length == 0 ? "" : " ") + partes[i];
+                    data[idx] = data[idx].substring(0, 20) + "..";
+                }
+            }
+            idx++;
+            data[idx] = cod + " - " + cred + " crédito";
+            data[idx] += (cred == 1) ? "" : "s";
+            return data;
+        },
+        moveCurso(idCurso, direccion) {
+            MODAL.showWait();
+            var idPlan = $("#txtPlanCurricular").val();
+            $.ajax({
+                url: APP.url('academico/planCurricular/moveCurso'),
+                type: 'POST',
+                async: true,
+                data: {id: idCurso, "planCurricular.id": idPlan, direccion: direccion},
+                success: function (response) {
+                    MODAL.hideWait();
+                    if (response.success) {
+                        NuevaCurricula.verMalla();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    MODAL.hideWait();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
-
-    NuevaCurricula.init();
 
     $("body").delegate(".ver-tab-ciclo-cur-obl", "click", function (e) {
         NuevaCurricula.verPestanaCicloCurObl($(this), e);
@@ -1280,6 +1515,7 @@ $(function () {
     $("body").delegate("#btnAddRequisitoCursoObli", "click", function (e) {
         NuevaCurricula.addRequisitoCursoObli(e);
     });
+
     $("body").delegate("#btnAddRequisitoCursoElec", "click", function (e) {
         NuevaCurricula.addRequisitoCursoElec(e);
     });
@@ -1355,4 +1591,7 @@ $(function () {
     $("body").delegate(".cancelar", "click", function (e) {
         NuevaCurricula.cancelarNuevo($(this), e);
     });
+
+    NuevaCurricula.init();
+    NuevaCurricula.verMalla();
 });
