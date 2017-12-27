@@ -99,6 +99,7 @@ public class HorarioCursoCarreraController {
                 node.put("facultad", cursoCachimbo.getCarrera().getFacultad().getNombre());
                 node.put("departamentoAcademico", cursoCachimbo.getCurso().getDepartamentoAcademico().getNombre());
                 node.put("curso", cursoCachimbo.getCurso().getNombre());
+                node.put("tpc", cursoCachimbo.getCurso().getTpc());
                 array.add(node);
             }
             json.setData(array);

@@ -25,7 +25,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CursoCachimbos.class, "cuca")
-                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .join("curso cur", "carrera car", "car.facultad fac", "cur.departamentoAcademico dep", "cicloAcademico ciclo")
                 .filter("ciclo.id", cicloAcademico)
                 .searchFields("cur.nombre", "car.nombre")
                 .orderBy("cuca.id desc");
@@ -37,6 +37,9 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
     private void setCarrera(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
+            return;
+        }
+        if (queries.get("car.id") == null) {
             return;
         }
         sql.filter("car.id", queries.get("car.id"));
