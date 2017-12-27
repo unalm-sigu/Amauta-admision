@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.ACT;
 import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CER;
+import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CFG;
 import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.PEND;
 
 @Repository
@@ -65,7 +66,7 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
     public List<CicloAcademico> allUltimos(Integer cantidadCiclos) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
-                .in("estado", Arrays.asList(ACT, CER))
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .filter("tipo", "REG")
                 .orderBy("year desc", "numeroCiclo desc")
                 .limit(cantidadCiclos);

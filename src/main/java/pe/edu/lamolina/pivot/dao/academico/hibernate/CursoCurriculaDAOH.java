@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
@@ -64,7 +63,8 @@ public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements C
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
-                .filter("pc.id", planCurricular);
+                .filter("pc.id", planCurricular)
+                .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return sql.all(getCurrentSession());
     }
 

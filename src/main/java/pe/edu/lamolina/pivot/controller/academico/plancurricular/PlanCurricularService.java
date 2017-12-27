@@ -89,6 +89,8 @@ public interface PlanCurricularService {
 
     void desactivarPlanCurricular(PlanCurricular plan);
 
-    PlanCurricular clonarPlanCurricular(PlanCurricular plan, DataSessionPivot ds);
+    PlanCurricular clonarPlanCurricular(PlanCurricular plan, CicloAcademico ciclo, DataSessionPivot ds);
+
+    void moveCurso(CursoCurricula cursoCurricula, String direccion, DataSessionPivot ds);
 
 }

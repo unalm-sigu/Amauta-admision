@@ -2,7 +2,7 @@
 
 <form id="frmPlanCurricular">
     <input name="id" id="txtPlanCurricular" type="hidden" th:value="${planCurricular.id}"/>
-    
+
     <div class="form-group">
         <label for="cboCarrera">Especialidad</label>
         <select class="form-control" name="carrera.id" id="cboCarrera" required=""
@@ -20,11 +20,6 @@
     </div>
 
     <div th:if="${planCurricular.id}">
-        <!--    <div class="form-group" th:if="${planCurricular.orientacionCarrera}">
-                <label>Orientación</label>
-                <span class="form-control" 
-                      th:text="${planCurricular.orientacionCarrera.nombre}">Agronomia</span>
-            </div>-->
         <div th:unless="${orientaciones.isEmpty()}">
             <div class="form-group" >
                 <label>Orientación</label>
@@ -115,10 +110,24 @@
                              th:text="${item.descripcion}"></option>
                 </select>
 
-                <span class="form-control" 
-                      th:if="${planCurricular.id}"
-                      th:text="${planCurricular.cicloInicioVigencia.descripcion}"></span>
-                <input name="cicloInicioVigencia.id" type="hidden" th:value="${planCurricular.cicloInicioVigencia.id}"/>
+                <span th:if="${planCurricular.id}">
+                    <select class="form-control select2" 
+                            name="cicloInicioVigencia.id"
+                            th:if="${planCurricular.estado=='CRE'}"
+                            required="">
+                        <option></option>
+                        <option  th:each="item : ${ciclos}" 
+                                 th:value="${item.id}"
+                                 th:text="${item.descripcion}"
+                                 th:selected="${item.id==planCurricular.cicloInicioVigencia.id}"></option>
+                    </select>
+
+                    <span class="form-control" 
+                          th:if="${planCurricular.estado != 'CRE'}"
+                          th:text="${planCurricular.cicloInicioVigencia.descripcion}"></span>
+                    <input th:if="${planCurricular.estado != 'CRE'}"
+                           name="cicloInicioVigencia.id" type="hidden" th:value="${planCurricular.cicloInicioVigencia.id}"/>
+                </span>
             </div>
         </div>
 

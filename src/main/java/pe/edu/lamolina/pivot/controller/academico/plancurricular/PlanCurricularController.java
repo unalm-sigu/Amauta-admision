@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -33,6 +34,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
@@ -1047,7 +1049,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            PlanCurricular planBD = service.clonarPlanCurricular(plan, ds);
+            PlanCurricular planBD = service.clonarPlanCurricular(plan, ds.getCicloAcademico(), ds);
 
             response.setData(planBD.getId());
             response.setSuccess(true);
@@ -1056,6 +1058,94 @@ public class PlanCurricularController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("dataCurricula")
+    public JsonResponse dataCurricula(PlanCurricular plan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            PlanCurricular planBD = service.findPlanCurricularById(plan);
+
+            List<CursoCurricula> cursosCurr = planBD.getCursoCurricula();
+            Map<Integer, List<CursoCurricula>> mapCursosCurr = TypesUtil.convertListToMapList("numeroCiclo", cursosCurr);
+
+            for (Map.Entry<Integer, List<CursoCurricula>> entry : mapCursosCurr.entrySet()) {
+                Integer nroCiclo = entry.getKey();
+                if (nroCiclo == 0) {
+                    continue;
+                }
+
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("numeroCiclo", nroCiclo);
+                node.put("numeroRomano", NumberFormat.roman(nroCiclo));
+
+                ArrayNode arrayCursos = new ArrayNode(JsonNodeFactory.instance);
+                List<CursoCurricula> cursosCiclo = entry.getValue();
+                for (CursoCurricula cursoCurr : cursosCiclo) {
+                    Curso curso = cursoCurr.getCurso();
+                    ObjectNode nodeCurso = new ObjectNode(JsonNodeFactory.instance);
+                    nodeCurso.put("id", cursoCurr.getId());
+                    nodeCurso.put("tipo", cursoCurr.getTipoCursoCurricula().getCodigo());
+                    nodeCurso.put("curso", curso.getNombre());
+                    nodeCurso.put("codigo", curso.getCodigo());
+                    nodeCurso.put("creditos", cursoCurr.getCreditos());
+                    nodeCurso.put("numeroCurso", cursoCurr.getNumeroCurso());
+                    nodeCurso.put("creditosRequisito", cursoCurr.getCreditosRequisito());
+
+                    ArrayNode arrayRequisitos = new ArrayNode(JsonNodeFactory.instance);
+                    List<RequisitoCursoCurricula> requisitos = cursoCurr.getRequisitosCursoCurricula();
+                    for (RequisitoCursoCurricula requisito : requisitos) {
+                        CursoCurricula cursoReq = requisito.getCursoRequisito();
+                        ObjectNode nodeReq = new ObjectNode(JsonNodeFactory.instance);
+                        nodeReq.put("idReq", cursoReq.getId());
+                        nodeReq.put("simultaneo", requisito.getSimultaneo());
+                        arrayRequisitos.add(nodeReq);
+                    }
+
+                    nodeCurso.set("requisitos", arrayRequisitos);
+                    arrayCursos.add(nodeCurso);
+                }
+
+                node.set("cursos", arrayCursos);
+                array.add(node);
+            }
+
+            response.setData(array);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("moveCurso")
+    public JsonResponse moveCurso(
+            CursoCurricula cursoCurricula,
+            @RequestParam("direccion") String direccion, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.moveCurso(cursoCurricula, direccion, ds);
+
+            response.setSuccess(true);
+            response.setMessage("El curso se ha movido satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

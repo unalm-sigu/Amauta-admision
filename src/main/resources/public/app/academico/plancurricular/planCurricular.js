@@ -115,7 +115,7 @@ $(function () {
                         $.ajax({
                             method: 'POST',
                             data: {id: rec.id},
-                            url: APP.url('academico/planCurricular/clonarPlaan'),
+                            url: APP.url('academico/planCurricular/clonarPlan'),
                             success: function (response) {
                                 if (response.success) {
                                     location.href = APP.url("academico/planCurricular/" + response.data + "/editarPlanCurricular");
