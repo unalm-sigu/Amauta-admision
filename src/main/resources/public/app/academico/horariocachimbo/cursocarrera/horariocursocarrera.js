@@ -5,12 +5,20 @@ $(function () {
     var ItemCursoTemplate = Vue.component("itemCurso", {
         template: "#itemCursoTemplate",
         data: function () {
-            return {curso: [], total: 0};
+            return {curso: {}, total: 0};
         },
         methods: {
             deleteItem(id) {
                 $global.$emit("deleteItem", id);
-            },
+            }
+        },
+        watch: {
+            curso: {
+                handler: function (after, before) {
+                    $global.$emit("updateTotalCredito", after, before);
+                },
+                deep: true,
+            }
         }
     });
 
@@ -87,6 +95,9 @@ $(function () {
             $global.$on("deleteItem", function (id) {
                 $vue.deleteItem(id);
             });
+            $global.$on("updateTotalCredito", function (after, before) {
+                $vue.updateTotalCredito(after, before);
+            });
         },
         methods: {
             filtrarCurso(e) {
@@ -115,8 +126,9 @@ $(function () {
             nuevo() {
                 var vue = this;
                 vue.cursos = [];
-                vue.total = 0;
+
                 this.$refs.modalAddCursoCarrera.open();
+
                 $('#formCursoCarrera').parsley().destroy();
                 $('[name="curso.id"]').select2(vue.selectCurso(vue)).on("change.select2", function (e) {
                     if (e && e.removed) {
@@ -172,9 +184,11 @@ $(function () {
 
                 vue.curso = [];
                 vue.carrera = [];
-
-                $('#tableCurso tbody tr').not(':first').remove();
-
+                vue.total = 0;
+                $('#tableCurso tbody tr').remove();
+                vue.agregarItem();
+                console.log($('#tableCurso tbody tr:first').find('td:last-child'));
+                $('#tableCurso tbody tr:first').find('td:last-child').html('');
             },
             selectCurso(self) {
                 var vue = this;
@@ -207,13 +221,26 @@ $(function () {
                     },
                     formatSelection: function (info) {
                         self.curso = info;
-                        vue.total = info.creditos + vue.total;
                         return info.codigo + " - " + info.curso;
                     },
                     escapeMarkup: function (m) {
                         return m;
                     }
                 };
+            },
+            updateTotalCredito(after, before) {
+                var vue = this;
+                var newTotal = 0;
+                if (!vue.total) {
+                    vue.total = 0;
+                }
+                if (before.creditos) {
+                    newTotal = newTotal - before.creditos;
+                }
+                if (after.creditos) {
+                    newTotal = newTotal + after.creditos;
+                }
+                vue.total = vue.total + newTotal;
             },
             createCursoCarrera(id) {
                 var vue = this;
@@ -267,7 +294,6 @@ $(function () {
             agregarItem() {
                 var vue = this;
                 var curso = {id: null, creditos: null};
-
                 var itemCursoTemplate = new ItemCursoTemplate();
                 itemCursoTemplate.curso = curso;
                 var component = itemCursoTemplate.$mount();
@@ -281,7 +307,12 @@ $(function () {
                 });
             },
             deleteItem(e) {
+                var vue = this;
                 var self = $(e.currentTarget);
+                var cre = self.attr("rel");
+                if (cre != '') {
+                    vue.total = vue.total - parseInt(cre);
+                }
                 var tr = self.closest('tr');
                 tr.remove();
             }

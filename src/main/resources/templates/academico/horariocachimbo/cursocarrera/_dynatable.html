@@ -72,7 +72,7 @@
             {{curso.creditos}}
         </td>
         <td class="text-center v-middle">
-            <i class="fa fa-times pointer"  v-on:click.prevent="deleteItem"   aria-hidden="true"></i>
+            <i class="fa fa-times pointer"  v-on:click.prevent="deleteItem" :rel="curso.creditos"  aria-hidden="true"></i>
         </td>
     </tr>
 </template>
