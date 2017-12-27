@@ -414,8 +414,6 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         boolean hayVacantes = hayVacantes(seccionesOrden);
 
         if (!hayCruceHorario && hayVacantes) {
-//            List<Seccion> horarioTempo2 = clonarLista(horarioTempo);
-//            Map<String, String> mapHorasDia2 = clonarMap(mapHorasDias);
             addSecciones(mapHorasDias, seccionesOrden);
             for (Seccion seccion : seccionesOrden) {
                 horarioTempo.add(seccion);
@@ -632,6 +630,27 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.find(alumno);
         alumnoHorario.setHorarioCachimbos(horarioCachimbos);
         alumnoHorarioDAO.update(alumnoHorario);
+    }
+
+    @Override
+    public List<AlumnoHorario> allAlumnoHorarioByHorario(HorarioCachimbos horario) {
+        return alumnoHorarioDAO.allByHorario(horario);
+    }
+
+    @Override
+    public List<CursoCachimbos> allCursoCachimbosByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico) {
+        List<SeccionHorarioCachimbos> seccionesHorCachimbos = seccionHorarioCachimbosDAO.allByHorario(horario);
+        HorarioCachimbos horarioCachimbos = horarioCachimbosDAO.find(horario);
+        Carrera carrera = horarioCachimbos.getCarrera();
+        List<Curso> cursos = new ArrayList();
+        for (SeccionHorarioCachimbos seccionesHorCachimbo : seccionesHorCachimbos) {
+            Curso cur = (Curso) ObjectUtil.getParentTree(seccionesHorCachimbo, "seccion.grupoSeccion.curso");
+            cursos.add(cur);
+        }
+        if (cursos.isEmpty()) {
+            return new ArrayList();
+        }
+        return cursoCachimbosDAO.allByCursoCiclo(cursos, cicloAcademico, carrera);
     }
 
 }

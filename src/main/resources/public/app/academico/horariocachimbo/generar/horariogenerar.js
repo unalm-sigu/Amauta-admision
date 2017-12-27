@@ -70,12 +70,33 @@ $(function () {
         data: {
             horario: {},
             alumno: {},
+            alumnos: [],
+            cursos: [],
+            horarios: [],
             addAlumnoModal: {
                 id: 'modalAddAlumno',
                 header: true,
                 title: 'Agregar Alumno',
                 okbtn: 'Agregar Alumno'
-            }
+            },
+            verAlumnoModal: {
+                id: 'modalVerAlumno',
+                header: true,
+                title: 'Alumnos',
+                okbtn: 'Aceptar'
+            },
+            verCursoModal: {
+                id: 'modalVerCurso',
+                header: true,
+                title: 'Curso',
+                okbtn: 'Aceptar'
+            },
+            verHorarioModal: {
+                id: 'modalVerHorario',
+                header: true,
+                title: 'Horario',
+                okbtn: 'Aceptar'
+            },
         },
         created() {
             let vue = this;
@@ -101,103 +122,10 @@ $(function () {
             });
         },
         methods: {
-            addAlumno(id) {
-
-                if ($('#formAlumno').parsley().validate() != true) {
-                    return;
-                }
-
-                var vue = this;
-                $.ajax({
-                    method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/addAlumno"),
-                    data: {id: vue.alumno.id, 'horarioCachimbos.id': vue.horario.id},
-                    success: function (response) {
-                        if (response.success) {
-                            dynatable.process();
-                        } else {
-                            notify(response.message, 'error');
-                        }
-                    },
-                    error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
-                    }
-                });
-                this.$refs.modalAddAlumno.close();
-            },
-            eliminarSeleccion() {
-
-                var $vue = this;
-                var items = $('#dynaTable>tbody').find('input[type="checkbox"]:checked');
-
-
-                if (items.length < 1) {
-                    swal({
-                        text: "Tiene que seleccionar por lo menos un horario",
-                        icon: "error",
-                        dangerMode: true,
-                        button: "Aceptar",
-                        timer: 2000
-                    });
-                    return;
-                }
-                var horarios = {};
-                $.each(items, function (i, v) {
-                    var indx = 'horarioCachimbos[' + i + '].id';
-                    horarios[indx] = $(v).val();
-                });
-
-                swal('¿Seguro que desea eliminar los registros seleccionados?', {
-                    icon: "warning",
-                    closeOnClickOutside: false,
-                    closeOnEsc: false,
-                    dangerMode: true,
-                    buttons: {
-                        cancel: {text: "Cancelar", closeModal: true, visible: true},
-                        confirm: {text: "Aceptar", closeModal: false}
-                    }
-                }).then((value) => {
-                    if (value != true) {
-                        return;
-                    }
-                    console.log((value));
-                    $.ajax({
-                        method: 'POST',
-                        async: false,
-                        url: APP.url('academico/horariocachimbo/horario/deleteGrupo'),
-                        data: horarios,
-                        success: function (response) {
-                            if (response.success) {
-                                notify(response.message, 'info');
-                                dynatable.process();
-                                return  swal({text: response.message, icon: "success", button: false, timer: 1000});
-                            } else {
-                                notify(response.message, 'error');
-                                return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-                            }
-                        },
-                        error: function () {
-                            notify(MESSAGES.errorComunicacion, "error");
-                            return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
-                        }
-                    });
-                }).catch(err => {
-                    if (err) {
-                        console.log(err);
-                        swal(APP.errorComunicacion, "error");
-                    } else {
-                        swal.stopLoading();
-                        swal.close();
-                    }
-                });
-
-            },
             incluirAlumno(id) {
-
                 var vue = this;
                 vue.horario = {'id': id};
                 this.$refs.modalAddAlumno.open();
-
                 $('[name="alumno.id"]').select2({
                     allowClear: true,
                     placeholder: "Seleccione un alumno",
@@ -241,12 +169,150 @@ $(function () {
                 });
                 $('[name="alumno.id"]').select2('data', '');
                 vue.alumno = [];
-
-
             },
-            verHorario(id) {},
-            verCurso(id) {},
-            verAlumno(id) {},
+            addAlumno(id) {
+
+                if ($('#formAlumno').parsley().validate() != true) {
+                    return;
+                }
+
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/addAlumno"),
+                    data: {id: vue.alumno.id, 'horarioCachimbos.id': vue.horario.id},
+                    success: function (response) {
+                        if (response.success) {
+                            dynatable.process();
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalAddAlumno.close();
+            },
+            eliminarSeleccion() {
+                var $vue = this;
+                var items = $('#dynaTable>tbody').find('input[type="checkbox"]:checked');
+                if (items.length < 1) {
+                    swal({
+                        text: "Tiene que seleccionar por lo menos un horario",
+                        icon: "error",
+                        dangerMode: true,
+                        button: "Aceptar",
+                        timer: 2000
+                    });
+                    return;
+                }
+                var horarios = {};
+                $.each(items, function (i, v) {
+                    var indx = 'horarioCachimbos[' + i + '].id';
+                    horarios[indx] = $(v).val();
+                });
+                swal('¿Seguro que desea eliminar los registros seleccionados?', {
+                    icon: "warning",
+                    closeOnClickOutside: false,
+                    closeOnEsc: false,
+                    dangerMode: true,
+                    buttons: {
+                        cancel: {text: "Cancelar", closeModal: true, visible: true},
+                        confirm: {text: "Aceptar", closeModal: false}
+                    }
+                }).then((value) => {
+                    if (value != true) {
+                        return;
+                    }
+                    console.log((value));
+                    $.ajax({
+                        method: 'POST',
+                        async: false,
+                        url: APP.url('academico/horariocachimbo/horario/deleteGrupo'),
+                        data: horarios,
+                        success: function (response) {
+                            if (response.success) {
+                                notify(response.message, 'info');
+                                dynatable.process();
+                                return  swal({text: response.message, icon: "success", button: false, timer: 1000});
+                            } else {
+                                notify(response.message, 'error');
+                                return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                            return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        }
+                    });
+                }).catch(err => {
+                    if (err) {
+                        console.log(err);
+                        swal(APP.errorComunicacion, "error");
+                    } else {
+                        swal.stopLoading();
+                        swal.close();
+                    }
+                });
+            },
+            verHorario(id) {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verHorario"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.horarios = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalVerHorario.open();
+            },
+            verCurso(id) {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verCurso"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.cursos = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalVerCurso.open();
+            },
+            verAlumno(id) {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verAlumno"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.alumnos = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalVerAlumno.open();
+            },
             getRecord(id) {
                 return dynatable.settings.dataset.records.find(item => item.id === id);
             },

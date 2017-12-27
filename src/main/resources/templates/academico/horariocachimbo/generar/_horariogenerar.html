@@ -37,3 +37,108 @@
 
     </div>
 </modal-vik>
+
+<modal-vik ref="modalVerAlumno"
+           v-bind="verAlumnoModal">
+
+    <div slot="body">
+
+        <div class="panel padder-v">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th class="col-xs-8">Estudiante</th>
+                        <th class="col-xs-3  text-center">Carrera</th>
+                        <th class="col-xs-1  text-center">Estado</th>
+                    </tr> 
+                </thead>
+
+                <tbody>
+                    <tr v-for="alumno in alumnos">
+                        <td class="v-middle">
+                            <p class="h5 text-muted"> 
+                                {{ alumno.estudiante}}
+                            </p>
+                        </td>
+                        <td class="v-middle text-center">
+                            <p>{{alumno.carrera}}</p> 
+                            <span>{{alumno.facultad}}</span> 
+                        </td>
+                        <td class="v-middle  text-center">
+                            <span v-if="alumno.estado=='PEND'" class="label label-default" >{{alumno.estadoName}}</span> 
+                            <span v-if="alumno.estado=='MATR'" class="label label-primary" >{{alumno.estadoName}}</span> 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalVerCurso"
+           v-bind="verCursoModal">
+
+    <div slot="body">
+
+        <div class="panel padder-v">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th class="col-xs-7">Curso</th>
+                        <th class="col-xs-5  text-center">Carrera</th>
+                    </tr> 
+                </thead>
+
+                <tbody>
+                    <tr v-for="curso in cursos">
+
+                        <td class="v-middle">
+                            <p class="h5 text-muted"> 
+                                {{ curso.nombre}}
+                            </p>
+                        </td>
+
+                        <td class="v-middle text-center">
+                            <p>{{curso.carrera}}</p> 
+                            <span>{{curso.facultad}}</span> 
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalVerHorario"
+           v-bind="verHorarioModal">
+
+    <div slot="body">
+
+        <div class="panel padder-v m-b-n-lg">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th  v-for="dia in horarios.dias"  class="text-center">
+                            <span class="pointer" >{{ dia.dia }}</span>
+                        </th>
+                    </tr> 
+                </thead>
+                <tbody>
+                    <tr v-for="item in horarios.horarios" >
+                        <th class="">{{item.hora}}</th>
+                        <td  v-for="dia in item.dias"  class="text-center">
+                            <span class="pointer secciones"  v-for="seccion in dia.secciones"  >{{ seccion.seccion }}</span>
+                        </td>
+                    </tr> 
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+</modal-vik>

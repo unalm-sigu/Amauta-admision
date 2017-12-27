@@ -11,6 +11,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
 
 @Repository
@@ -85,6 +86,16 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .leftJoin("horarioCachimbos hoca")
                 .filter("ah.id", alumnoHorario.getId());
         return (AlumnoHorario) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoHorario> allByHorario(HorarioCachimbos horario) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoHorario.class, "ah")
+                .join("cicloAcademico ciclo ", "alumno alu")
+                .leftJoin("horarioCachimbos hoca")
+                .filter("hoca.id", horario);
+        return sql.all(getCurrentSession());
     }
 
 }

@@ -7,6 +7,7 @@ import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 
 public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
@@ -19,5 +20,7 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
     public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Carrera carrera);
 
     public AlumnoHorario find(AlumnoHorario alumnoHorario);
+
+    public List<AlumnoHorario> allByHorario(HorarioCachimbos horario);
 
 }
