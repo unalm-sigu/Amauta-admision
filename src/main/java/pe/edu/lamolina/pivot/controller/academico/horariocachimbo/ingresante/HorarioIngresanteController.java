@@ -98,6 +98,11 @@ public class HorarioIngresanteController {
                 node.put("numCurso", hc != null ? hc.getCursos() : 0);
                 node.put("estado", alumHorario.getEstado());
                 node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
+                
+                node.put("codigoMatricula", alumno.getCodigo());
+                node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
+                node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+
                 array.add(node);
             }
             json.setData(array);
@@ -218,14 +223,14 @@ public class HorarioIngresanteController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<Alumno> alumnos = service.allAlumnoByName(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            
+
             for (Alumno alumno : alumnos) {
-                
+
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", alumno.getId());
                 json.put("nombre", alumno.getPersona().getNombreCompleto());
