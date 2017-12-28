@@ -295,9 +295,10 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         }
 
     }
-
+    
+    @Override
     @Transactional
-    private HorarioCachimbos createHorario(
+    public HorarioCachimbos createHorario(
             List<Seccion> horarioTempo,
             Carrera carrera,
             CicloAcademico ciclo,
@@ -395,8 +396,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 //        logger.debug("\t******* FIN +++++++++++");
     }
 
+    @Override
     @Transactional
-    private void permutarUnico(
+    public void permutarUnico(
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
             Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera) {
@@ -560,7 +562,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         return seleccionados;
     }
 
-    private List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos) {
+    @Override
+    public List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos) {
         List<Curso> cursos = new ArrayList();
         for (CursoCachimbos cursoCachimbo : cursosCachimbos) {
             cursos.add(cursoCachimbo.getCurso());
@@ -577,7 +580,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         return true;
     }
 
-    private Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios) {
+    @Override
+    public Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios) {
         Map<String, HorarioCachimbos> map = new LinkedHashMap();
         for (HorarioCachimbos horario : horarios) {
             List<Seccion> secciones = new ArrayList();
@@ -591,7 +595,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         return map;
     }
 
-    private void reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones) {
+    @Override
+    public void reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones) {
         for (Curso curso : cursos) {
             logger.debug("Listado inicial");
             List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());

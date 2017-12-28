@@ -82,8 +82,8 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
     public AlumnoHorario find(AlumnoHorario alumnoHorario) {
         Octavia sql = Octavia.query()
                 .from(AlumnoHorario.class, "ah")
-                .join("cicloAcademico ciclo", "alumno alu")
-                .leftJoin("horarioCachimbos hoca")
+                .join("cicloAcademico ciclo", "alumno alu", "alu.carrera carr", "alu.persona per")
+                .leftJoin("per.tipoDocumento td", "horarioCachimbos hoca")
                 .filter("ah.id", alumnoHorario.getId());
         return (AlumnoHorario) sql.find(getCurrentSession());
     }

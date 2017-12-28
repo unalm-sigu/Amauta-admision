@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
@@ -8,14 +9,16 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-interface GenerarHorarioIngresanteService {
+public interface GenerarHorarioIngresanteService {
 
     ModalidadEstudio findModalidadPregrado();
 
@@ -52,5 +55,24 @@ interface GenerarHorarioIngresanteService {
     List<AlumnoHorario> allAlumnoHorarioByHorario(HorarioCachimbos horario);
 
     List<CursoCachimbos> allCursoCachimbosByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico);
+
+    List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos);
+
+    void reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones);
+
+    void permutarUnico(
+            int ordenCurso, int ordenSeccion,
+            List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
+            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera);
+
+    public Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios);
+
+    public HorarioCachimbos createHorario(
+            List<Seccion> horarioTempo,
+            Carrera carrera,
+            CicloAcademico ciclo,
+            int cursos,
+            Map<String, HorarioCachimbos> mapHorario,
+            Acumulador code, DataSessionPivot ds);
 
 }

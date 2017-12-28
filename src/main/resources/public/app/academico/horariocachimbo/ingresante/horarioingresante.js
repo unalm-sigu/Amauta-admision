@@ -208,9 +208,9 @@ $(function () {
             asignarHorario(id) {
                 var $vue = this;
                 bootbox.confirm({
-                    message: '¿Seguro que desea asignar horario?',
+                    message: '¿Seguro que desea asignar horario al alumno?',
                     buttons: {
-                        confirm: {label: 'Si, activar', className: "btn-primary"},
+                        confirm: {label: 'Si, Asignar', className: "btn-primary"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
                     },
                     callback: function (result) {

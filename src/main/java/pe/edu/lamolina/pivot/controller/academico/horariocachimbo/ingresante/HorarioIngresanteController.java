@@ -98,7 +98,7 @@ public class HorarioIngresanteController {
                 node.put("numCurso", hc != null ? hc.getCursos() : 0);
                 node.put("estado", alumHorario.getEstado());
                 node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
-                
+
                 node.put("codigoMatricula", alumno.getCodigo());
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
@@ -168,10 +168,11 @@ public class HorarioIngresanteController {
 
     @ResponseBody
     @RequestMapping("asignarHorario")
-    public JsonResponse asignarHorario(AlumnoHorario alumnoHorario) {
+    public JsonResponse asignarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.asignarHorario(alumnoHorario);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.asignarHorario(alumnoHorario, ds);
             response.setMessage("Horario asignado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
