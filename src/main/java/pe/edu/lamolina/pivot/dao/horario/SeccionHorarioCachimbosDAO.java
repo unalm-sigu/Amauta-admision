@@ -16,4 +16,6 @@ public interface SeccionHorarioCachimbosDAO extends EasyDAO<SeccionHorarioCachim
 
     List<SeccionHorarioCachimbos> allByHorarios(List<HorarioCachimbos> horarios);
 
+    public List<SeccionHorarioCachimbos> allByCursoCiclo(CicloAcademico cicloAcademico, List<Curso> cursos);
+
 }
