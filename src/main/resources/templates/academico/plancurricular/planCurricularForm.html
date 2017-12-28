@@ -4,9 +4,7 @@
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style>
         #divMalla {
-            /*padding: 20px;*/
-            /*width:80%; height: 400px;*/
-            border: 1px solid gray;
+            overflow-x: auto;
         }
         text {
             width: 110px;
@@ -111,10 +109,10 @@
                 / &nbsp; Dpto. Académico {{:departamento}}
             </small>
             {{if especialidad}}
-                <small class="block"><strong>Especialidad</strong> {{:tipoEspecialidad}} {{:especialidad}}</small>
+            <small class="block"><strong>Especialidad</strong> {{:tipoEspecialidad}} {{:especialidad}}</small>
             {{/if}}
             {{if tipoCursoCurricula}}
-                <small class="block bold text-danger">Tipo {{:tipoCursoCurricula}}</small>
+            <small class="block bold text-danger">Tipo {{:tipoCursoCurricula}}</small>
             {{/if}}
         </div>
     </div>
