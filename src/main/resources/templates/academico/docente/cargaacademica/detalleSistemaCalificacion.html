@@ -46,7 +46,7 @@
             <th class="col-md-4">Tipo Calificación</th>
             <th class="col-md-2 text-center">Cantidad</th>
             <th class="col-md-1 text-center">Peso</th>
-            <th class="col-md-2 text-center">Nota Min. Anulable</th>
+            <!--   <th class="col-md-2 text-center">Nota Min. Anulable</th> -->
             <th class="col-md-1 text-center">Porcentaje Var.</th>
             <!--   <th class="col-md-3 text-center">Profesor</th> -->
         </tr>
@@ -65,10 +65,12 @@
             <td class="text-center v-middle">
                 <span class="block"  th:text="${evas.pesoTotal + ' %'}"  >20 %</span>
             </td>
-            <td class="text-center v-middle">
-                <span class="block"  th:if='${evas.notaMinimaAnulable==1}'>Si</span>
-                <span class="block"  th:if='${evas.notaMinimaAnulable==0}'>No</span>
-            </td>
+            <!-- 
+           <td class="text-center v-middle">
+               <span class="block"  th:if='${evas.notaMinimaAnulable==1}'>Si</span>
+               <span class="block"  th:if='${evas.notaMinimaAnulable==0}'>No</span>
+           </td>
+            -->
             <td class="text-center v-middle">
                 <span class="block"  th:if='${evas.indPorcentajeVariable==1}'>Si</span>
                 <span class="block"  th:if='${evas.indPorcentajeVariable==0}'>No</span>
