@@ -142,6 +142,13 @@ public class DocenteSeccion implements Serializable {
         this.estado = estado;
     }
 
+    public boolean isEstadoActivado() {
+        if (EstadoEnum.ACT.name().equals(this.getEstado())) {
+            return true;
+        }
+        return false;
+    }
+
     public EstadoEnum getEstadoEnum() {
         if (estado == null) {
             return null;

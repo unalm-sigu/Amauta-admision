@@ -158,6 +158,7 @@ public class CargaAcademicaController {
                 node.put("codigo", grupoSeccion.getCurso().getCodigo());
                 node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
                 //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
+                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                 String secciones = "";
 
                 for (Seccion seccion : grupoSeccion.getSecciones()) {
