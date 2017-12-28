@@ -65,10 +65,25 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
     public GrupoHoras find(GrupoHoras grupoHoras) {
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "grup")
-                .join("diaHoraGrupo dhg")
+                .leftJoin("diaHoraGrupo dhg")
                 .leftJoin("tipoGrupoHoras tgh")
                 .filter("grup.id", grupoHoras);
         return (GrupoHoras) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<GrupoHoras> allByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+        DynatableSql sql = new DynatableSql(filter)
+                .selectDistinct("gh")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
+                .filter("tgh.id", tipoGrupoHoras)
+                .filter("ca.id", cicloAcademico);
+
+        sql.beginRelativeFilters();
+
+        return sql.all(getCurrentSession());
     }
 
     @Override

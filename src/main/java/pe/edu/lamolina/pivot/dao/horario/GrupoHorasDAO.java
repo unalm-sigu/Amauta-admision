@@ -24,4 +24,7 @@ public interface GrupoHorasDAO extends Crud<GrupoHoras> {
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico);
 
+    List<GrupoHoras> allByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+
 }

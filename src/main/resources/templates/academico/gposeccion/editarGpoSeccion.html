@@ -2,11 +2,12 @@
     <head>
         <title>Calificacion de Postulantes</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <syle type="text/css">
+    <style type="text/css">
         .diegoSelect {
-        min-width: 300px;
+            min-width: 300px;
         }
-    </syle>
+
+    </style>
 </head>
 
 <body>
@@ -15,6 +16,8 @@
             <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
         </header>
         <div id="pageGpoSeccion">
+
+
             <form id="frmEditGpoSeccion" class="form-horizontal m-t-lg">
                 <input v-model="grupoSeccion.id" type="hidden" />
                 <section class="panel">
@@ -126,12 +129,17 @@
 
                                     </td>
                                     <td>
+                                        <div v-if="seccion.esTipoSeccionTcur" >
+                                            {{ seccion.vacantes }}
+                                        </div>
 
-                                        <div v-show="!seccion.editVacantes">
+                                        <div v-if="!seccion.esTipoSeccionTcur" 
+                                             v-show="!seccion.editVacantes">
                                             <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
                                         </div>
 
-                                        <input v-show="seccion.editVacantes" 
+                                        <input v-if="!seccion.esTipoSeccionTcur" 
+                                               v-show="seccion.editVacantes" 
                                                size="5"
                                                data-parsley-type="digits"
                                                v-model="seccion.vacantes"

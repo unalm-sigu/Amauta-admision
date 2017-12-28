@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 @Repository
@@ -49,10 +51,20 @@ public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements T
     }
 
     @Override
+    public TipoGrupoHoras findByTipoCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(TipoGrupoHoras.class, "tg")
+                .filter("tipo", tipoGrupoHorasEnum.getValue())
+                .filter("estado", EstadoEnum.ACT.name())
+                .in("tipoCiclo", Arrays.asList(cicloAcademico.getTipo(), TipoCicloEnum.AMB.name()));
+        return (TipoGrupoHoras) sql.find(getCurrentSession());
+    }
+
+    @Override
     public List<TipoGrupoHoras> allActiveByTipoCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
-        System.out.println(tipoGrupoHorasEnum.name());
         Octavia sql = Octavia.query()
                 .from(TipoGrupoHoras.class, "tipoGH")
+                .filter("estado", EstadoEnum.ACT.name())
                 .filter("tipoCiclo", cicloAcademico.getTipo())
                 .filter("tipo", tipoGrupoHorasEnum.name());
         return sql.all(getCurrentSession());

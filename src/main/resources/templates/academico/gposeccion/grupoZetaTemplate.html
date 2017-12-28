@@ -6,6 +6,14 @@
     </transition>
 </template>
 
+<template id="dynatableTemplateEspecial">
+    <transition name="fade">
+        <div class="panel padder-v">
+            <div id="dynaTableEspecial"></div>
+        </div>
+    </transition>
+</template>
+
 <template id="dynatableRowTemplate">
     <div class="col-sm-2 col-xs-1" >
         <div class="list-group">
@@ -18,6 +26,28 @@
 
 
                 <div class="m-t-sm pointer cls-grupos-sel"  rel="{{:id}}"  >
+                    <h4 class="list-group-item-heading" >{{:codigo}}</h4>
+                    <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>
+                    <h6 class="list-group-item-heading text-center" >{{:horas}} horas</h6>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="dynatableRowTemplateEsp">
+    <div class="col-sm-2 col-xs-1" >
+        <div class="list-group">
+            <!--
+            onclick="alert($(this).attr('rel'))"
+            -->
+            <div href="#" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
+                 rel="{{:id}}" 
+                 >
+
+
+                <div class="m-t-sm pointer cls-grupos-sel-esp"  rel="{{:id}}"  >
                     <h4 class="list-group-item-heading" >{{:codigo}}</h4>
                     <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>
                     <h6 class="list-group-item-heading text-center" >{{:horas}} horas</h6>

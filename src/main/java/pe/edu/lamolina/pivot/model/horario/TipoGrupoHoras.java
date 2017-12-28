@@ -113,4 +113,11 @@ public class TipoGrupoHoras implements Serializable {
         return false;
     }
 
+    public boolean isTipoGrupoEspecial() {
+        if (TipoGrupoHorasEnum.ESPECIAL.name().equals(this.getTipo())) {
+            return true;
+        }
+        return false;
+    }
+
 }

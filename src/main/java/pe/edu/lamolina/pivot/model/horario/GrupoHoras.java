@@ -1,6 +1,10 @@
 package pe.edu.lamolina.pivot.model.horario;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +16,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 
@@ -164,6 +170,15 @@ public class GrupoHoras implements Serializable {
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+
+    public ObjectNode toJson() {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ObjectNode jsonObj = JsonHelper.createJson(this, JsonNodeFactory.instance);
+        if (ObjectUtil.getParentTree(this, "tipoGrupoHoras.id") != null) {
+            jsonObj.putPOJO("tipoGrupoHoras", JsonHelper.createJson(this.getTipoGrupoHoras(), jsonFactory));
+        }
+        return jsonObj;
     }
 
 }

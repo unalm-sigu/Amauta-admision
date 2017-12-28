@@ -109,4 +109,10 @@ public interface GpoSeccionService {
 
     GrupoHoras findGrupoHoras(GrupoHoras grupoHoras);
 
+    TipoGrupoHoras findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico);
+
+    List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras,
+            CicloAcademico cicloAcademico);
+
 }

@@ -136,6 +136,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras,
+            CicloAcademico cicloAcademico) {
+        return grupoHorasDAO.allByTipoGrupoHoraDyna(filter, tipoGrupoHoras, cicloAcademico);
+    }
+
+    @Override
     public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
         return diaHoraGrupoDAO.allDiaHoraGrupo(grupos);
     }
@@ -538,6 +545,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public TipoGrupoHoras findTipoGrupoHoraByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum) {
         TipoGrupoHoras tipoGrupoHoraZeta = tipoGrupoHorasDAO.findByTipo(tipoGrupoHorasEnum);
+        return tipoGrupoHoraZeta;
+    }
+
+    @Override
+    public TipoGrupoHoras findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
+        TipoGrupoHoras tipoGrupoHoraZeta = tipoGrupoHorasDAO.findByTipoCiclo(tipoGrupoHorasEnum, cicloAcademico);
         return tipoGrupoHoraZeta;
     }
 
