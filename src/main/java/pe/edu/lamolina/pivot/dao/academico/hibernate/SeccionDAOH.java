@@ -123,7 +123,7 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
                 .leftJoin("seccionSuperior")
-                //.leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
+                .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
                 .filter("ca.id", cicloAcademico)
                 .in("cur.id", cursos)
                 .orderBy("sec.codigo");

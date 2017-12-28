@@ -2,6 +2,17 @@
     <head>
         <title>Tipo Grupos</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style>
+        .no-style-table > tbody > tr > td,
+        .no-style-table > tbody > tr > th,
+        .no-style-table > tfoot > tr > td,
+        .no-style-table > tfoot > tr > th,
+        .no-style-table > thead > tr > td,
+        .no-style-table > thead > tr > th {
+            border: none !important;
+            padding: 0 8px 0 8px !important;
+        }
+    </style>
 </head>
 
 <body>

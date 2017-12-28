@@ -34,7 +34,9 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -93,13 +95,17 @@ public class HorarioCursoCarreraController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
             List<CursoCachimbos> cursoCachimbos = service.allCursoCachimbos(filter, cicloAcademico);
             Map<Long, Map<Long, HorarioCachimbos>> carsoHorarioCachimbosMap = service.allSeccionHorarioCachimbos(cursoCachimbos, cicloAcademico);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            service.fillGrupoSeccion(cursoCachimbos, cicloAcademico);
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jsonFactory);
 
             for (CursoCachimbos cursoCachimbo : cursoCachimbos) {
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                ObjectNode node = new ObjectNode(jsonFactory);
 
                 Curso curso = cursoCachimbo.getCurso();
                 Carrera carrera = cursoCachimbo.getCarrera();
@@ -113,12 +119,33 @@ public class HorarioCursoCarreraController {
                 node.put("departamentoAcademico", departamento.getNombre());
                 node.put("curso", curso.getNombre());
                 node.put("tpc", curso.getTpc());
-                
+
                 node.put("showfacultad", !carrera.getFacultad().getCodigo().equalsIgnoreCase(carrera.getCodigo()));
-                
+
                 Map<Long, HorarioCachimbos> horarios = carsoHorarioCachimbosMap.get(curso.getId());
                 node.put("horarios", horarios != null ? horarios.size() : 0);
-                
+
+                List<GrupoSeccion> gruposSeccion = curso.getGrupoSeccion();
+
+                ArrayNode gruposSeccionArray = new ArrayNode(jsonFactory);
+
+                for (GrupoSeccion grupoSeccion : gruposSeccion) {
+                    ObjectNode grupoSeccionNode = new ObjectNode(jsonFactory);
+                    ArrayNode clavesArray = new ArrayNode(jsonFactory);
+
+                    for (Seccion seccione : grupoSeccion.getSecciones()) {
+                        ObjectNode claveNode = new ObjectNode(jsonFactory);
+                        claveNode.put("codigo", seccione.getCodigo());
+                        claveNode.put("suscritos", seccione.getSuscritos());
+                        clavesArray.add(claveNode);
+                    }
+
+                    grupoSeccionNode.put("claves", clavesArray);
+                    gruposSeccionArray.add(grupoSeccionNode);
+                }
+
+                node.put("grupos", gruposSeccionArray);
+
                 array.add(node);
             }
 

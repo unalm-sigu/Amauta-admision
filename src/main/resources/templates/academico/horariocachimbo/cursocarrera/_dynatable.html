@@ -5,8 +5,9 @@
             <table id="dynaTable" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th class="col-xs-7">Curso</th>
-                        <th class="col-xs-4  text-center">Carrera</th>
+                        <th class="col-xs-4">Curso</th>
+                        <th class="col-xs-5  text-center">Claves y Suscritos</th>
+                        <th class="col-xs-2  text-center">Carrera</th>
                         <th class="col-xs-1  text-center">Horarios</th>
                         <th></th>
                     </tr> 
@@ -36,6 +37,19 @@
             </small>
             <small v-if="especialidad" class="block  text-muted"><strong>Especialidad</strong> {{curso.tipoEspecialidad}} {{curso.especialidad}}</small>
             <small v-if="tipoCursoCurricula" class="block text-danger  text-muted">Tipo {{curso.tipoCursoCurricula}}</small>
+        </td>
+
+        <td class="v-middle text-center">
+
+            <table class="no-style-table">
+                <tr v-for="grupe in curso.grupos">
+                    <td  v-for="clave in grupe.claves">
+                        <span class="block bold text-muted"> {{clave.codigo}}</span>
+                        <span class="block text-muted"> {{clave.suscritos}}</span>
+                    </td>
+                </tr>
+            </table>
+
         </td>
 
         <td class="v-middle text-center">

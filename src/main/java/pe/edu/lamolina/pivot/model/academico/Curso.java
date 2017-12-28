@@ -119,6 +119,9 @@ public class Curso implements Serializable {
     @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
     private List<PlanCalificacionCurso> planesCalificacionCursos;
 
+    @OneToMany(mappedBy = "curso", fetch = FetchType.LAZY)
+    private List<GrupoSeccion> grupoSeccion;
+
     @Transient
     private Long[] idIdioma;
 
@@ -456,6 +459,14 @@ public class Curso implements Serializable {
 
     public void setPlanesCalificacionCursos(List<PlanCalificacionCurso> planesCalificacionCursos) {
         this.planesCalificacionCursos = planesCalificacionCursos;
+    }
+
+    public List<GrupoSeccion> getGrupoSeccion() {
+        return grupoSeccion;
+    }
+
+    public void setGrupoSeccion(List<GrupoSeccion> grupoSeccion) {
+        this.grupoSeccion = grupoSeccion;
     }
 
 }
