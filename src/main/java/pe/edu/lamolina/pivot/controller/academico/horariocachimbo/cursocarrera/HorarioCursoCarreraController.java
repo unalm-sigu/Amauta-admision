@@ -114,6 +114,8 @@ public class HorarioCursoCarreraController {
                 node.put("curso", curso.getNombre());
                 node.put("tpc", curso.getTpc());
                 
+                node.put("showfacultad", !carrera.getFacultad().getCodigo().equalsIgnoreCase(carrera.getCodigo()));
+                
                 Map<Long, HorarioCachimbos> horarios = carsoHorarioCachimbosMap.get(curso.getId());
                 node.put("horarios", horarios != null ? horarios.size() : 0);
                 

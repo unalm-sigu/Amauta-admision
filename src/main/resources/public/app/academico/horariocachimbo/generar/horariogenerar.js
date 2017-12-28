@@ -83,19 +83,23 @@ $(function () {
                 id: 'modalVerAlumno',
                 header: true,
                 title: 'Alumnos',
-                okbtn: 'Aceptar'
+                cancelbtn: 'Aceptar',
+                showaccept: false
             },
             verCursoModal: {
                 id: 'modalVerCurso',
                 header: true,
                 title: 'Curso',
-                okbtn: 'Aceptar'
+                cancelbtn: 'Aceptar',
+                showaccept: false
             },
             verHorarioModal: {
                 id: 'modalVerHorario',
                 header: true,
                 title: 'Horario',
-                okbtn: 'Aceptar'
+                modalSize: 'modal-lg',
+                cancelbtn: 'Aceptar',
+                showaccept: false
             },
         },
         created() {

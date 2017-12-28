@@ -18,10 +18,10 @@
                 <section class="panel m-b-xs">
                     <section class="panel-body">
                         <div class="row">
-                            <div class="col-xs-1 text-center" style="min-height: 150px;" th:each="item,counter:${carreras}"  >
+                            <div class="col-xs-1 text-center"  th:each="item,counter:${carreras}"  >
                                 <a href="#" v-on:click.prevent="filtrarCurso" class="view-count " th:rel="${item.carrera.id}">
                                     <span class="h1 block bold text-success"  th:style="|color: ${item.getColor(counter.index)}|" th:text="${item.cantidad}">23</span>
-                                    <small class="block m-b-xs bold text-muted" th:text="${item.carrera.nombre}"  >Pregrado</small>
+                                    <small class="block m-b-xs bold text-muted" th:text="${item.carrera.nombreCorto}"  >Pregrado</small>
                                 </a>
                             </div>
                         </div>

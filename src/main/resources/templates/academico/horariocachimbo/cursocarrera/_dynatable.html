@@ -30,7 +30,9 @@
             <small class="block  text-muted">
                 {{curso.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{curso.tpc}} &nbsp; 
                 <span v-if="numeroCiclo">/ &nbsp; Nº Ciclo {{curso.numeroRomano}} &nbsp; </span>
-                / &nbsp; Dpto. Académico {{curso.departamento}}
+            </small>
+            <small class="block  text-muted">
+                Dpto. Académico: {{curso.departamentoAcademico}}
             </small>
             <small v-if="especialidad" class="block  text-muted"><strong>Especialidad</strong> {{curso.tipoEspecialidad}} {{curso.especialidad}}</small>
             <small v-if="tipoCursoCurricula" class="block text-danger  text-muted">Tipo {{curso.tipoCursoCurricula}}</small>
@@ -38,7 +40,7 @@
 
         <td class="v-middle text-center">
             <p class="">{{curso.carrera}}</p> 
-            <span class="text-muted">{{curso.facultad}}</span> 
+            <span v-if="curso.showfacultad" class="text-muted">Facultad de {{curso.facultad}}</span> 
         </td>
 
         <td class="v-middle  text-center">
