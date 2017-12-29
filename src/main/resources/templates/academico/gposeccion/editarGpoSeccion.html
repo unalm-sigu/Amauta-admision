@@ -91,6 +91,7 @@
                                         {{ seccion.tipoSeccionValue }}
                                     </td>
                                     <td>
+
                                         <a v-if="seccion.aula==''"
                                            v-on:click="showModalAula(seccion)" 
                                            style="cursor:pointer;">
@@ -100,7 +101,8 @@
                                         <a v-if="seccion.aula!=''"
                                            v-on:click="showModalAula(seccion)" 
                                            style="cursor:pointer;">
-                                            {{ seccion.aula }}
+                                            {{ seccion.aula.codigo }}
+                                            (aforo {{ seccion.aula.aforo }})
                                         </a>
                                     </td>
                                     <td>
@@ -141,10 +143,10 @@
                                         <input v-if="!seccion.esTipoSeccionTcur" 
                                                v-show="seccion.editVacantes" 
                                                size="5"
-                                               data-parsley-type="digits"
+
                                                v-model="seccion.vacantes"
                                                v-on:blur="changeVacantes(seccion,$event)"
-                                               v-on:keyup.enter="changeVacantes(seccion)">
+                                               v-on:keyup.enter="changeVacantes(seccion,$event)">
                                         </input>
                                         <!--
                                          v-on:blur="seccion.editVacantes=false; $emit('update')"

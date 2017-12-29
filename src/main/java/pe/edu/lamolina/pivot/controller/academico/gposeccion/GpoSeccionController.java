@@ -218,15 +218,21 @@ public class GpoSeccionController {
     @RequestMapping("{gruposeccion}/findSecciones")
     public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId) {
         JsonResponse jsonResponse = new JsonResponse();
-
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        JsonNodeFactory nc = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(nc);
         List<Seccion> secciones = service.allSeccionesByGrupo(new GrupoSeccion(gruposeccionId));
         for (Seccion seccion : secciones) {
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            ObjectNode node = new ObjectNode(nc);
             node.put("seccionId", seccion.getId());
             node.put("seccionCodigo", seccion.getCodigo());
             node.put("tipoSeccionValue", seccion.getTipoSeccionEnum().getValue());
-            node.put("aula", ObjectUtil.getParentTree(seccion, "aula.id") != null ? seccion.getAula().getCodigo() : "");
+            //       node.put("aula", ObjectUtil.getParentTree(seccion, "aula.id") != null ? seccion.getAula().getCodigo() : "");
+            if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+                node.putPOJO("aula", JsonHelper.createJson(seccion.getAula(), JsonNodeFactory.instance));
+            } else {
+                node.put("aula", "");
+            }
+
             node.put("grupoHoras", ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null ? seccion.getGrupoHoras().getCodigo() : "");
             node.put("vacantes", seccion.getVacantes());
             node.put("matriculados", seccion.getMatriculados());

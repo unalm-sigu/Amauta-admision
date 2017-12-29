@@ -946,10 +946,21 @@ var app = new Vue({
             seccion.editVacantes = false;
             if (event != null) {
                 let form = $(event.target);
+
+                form.attr("data-parsley-type", "digits");
+                if (seccion.aula != "") {
+                    form.attr("data-parsley-max", seccion.aula.aforo);
+                } else {
+                    form.removeAttr("data-parsley-max");
+                }
+
                 form.parsley().destroy();
-                if (!form.parsley().validate()) {
+                form.parsley();
+
+                if (form.parsley().validate() !== true) {
                     return;
                 }
+
                 $.ajax({
                     url: APP.url('academico/gposeccion/cambiarVacantesSeccion'),
                     type: 'POST',
