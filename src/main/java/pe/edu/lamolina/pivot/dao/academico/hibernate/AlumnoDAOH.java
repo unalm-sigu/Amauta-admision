@@ -6,7 +6,6 @@ import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,16 +13,17 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.zelpers.dao.SqlUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
-import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 
 @Repository
 public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {

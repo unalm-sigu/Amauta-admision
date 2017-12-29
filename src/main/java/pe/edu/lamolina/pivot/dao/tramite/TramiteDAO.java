@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.tramite;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.tramite.Tramite;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.tramite.Tramite;
 
-public interface TramiteDAO extends Crud<Tramite> {
+public interface TramiteDAO extends EasyDAO<Tramite> {
 
 }
-

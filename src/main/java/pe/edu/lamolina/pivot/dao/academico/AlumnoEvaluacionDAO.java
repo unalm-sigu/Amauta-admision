@@ -1,14 +1,14 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Evaluacion;
 
-public interface AlumnoEvaluacionDAO extends Crud<AlumnoEvaluacion> {
+public interface AlumnoEvaluacionDAO extends EasyDAO<AlumnoEvaluacion> {
 
     List<AlumnoEvaluacion> allByEvaluacionExp(Long idEvaluacionExpandida);
 

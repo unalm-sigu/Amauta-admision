@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.general;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
-public interface TipoDocIdentidadDAO extends Crud<TipoDocIdentidad> {
+public interface TipoDocIdentidadDAO extends EasyDAO<TipoDocIdentidad> {
 
 }
-

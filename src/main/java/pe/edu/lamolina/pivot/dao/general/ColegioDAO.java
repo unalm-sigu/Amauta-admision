@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.general;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.Colegio;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Colegio;
 
-public interface ColegioDAO extends Crud<Colegio> {
+public interface ColegioDAO extends EasyDAO<Colegio> {
 
 }
-

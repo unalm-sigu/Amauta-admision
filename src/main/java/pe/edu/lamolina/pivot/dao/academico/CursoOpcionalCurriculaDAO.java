@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
-import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 
 public interface CursoOpcionalCurriculaDAO extends EasyDAO<CursoOpcionalCurricula> {
 

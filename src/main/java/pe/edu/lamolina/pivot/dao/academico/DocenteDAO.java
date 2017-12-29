@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
+import pe.albatross.octavia.easydao.EasyDAO;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.general.Persona;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Persona;
 
-public interface DocenteDAO extends Crud<Docente> {
+public interface DocenteDAO extends EasyDAO<Docente> {
 
     Docente find(Long idDocente);
 

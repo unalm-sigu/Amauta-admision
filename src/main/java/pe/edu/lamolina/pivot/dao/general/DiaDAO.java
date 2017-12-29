@@ -1,12 +1,11 @@
 package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.Dia;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Dia;
 
-public interface DiaDAO extends Crud<Dia> {
+public interface DiaDAO extends EasyDAO<Dia> {
 
-    public List<Dia> allDia();
+    List<Dia> allDia();
 
 }
-

@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.LoggerPlanCalificacion;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.LoggerPlanCalificacion;
 
-public interface LoggerPlanCalificacionDAO extends Crud<LoggerPlanCalificacion> {
+public interface LoggerPlanCalificacionDAO extends EasyDAO<LoggerPlanCalificacion> {
 
 }
-

@@ -2,12 +2,12 @@ package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 
-public interface OrientacionCarreraDAO extends Crud<OrientacionCarrera> {
+public interface OrientacionCarreraDAO extends EasyDAO<OrientacionCarrera> {
 
     List<OrientacionCarrera> allByCarrera(Carrera carrera);
 

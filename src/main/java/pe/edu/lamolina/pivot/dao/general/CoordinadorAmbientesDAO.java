@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.general;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.CoordinadorAmbientes;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.CoordinadorAmbientes;
 
-public interface CoordinadorAmbientesDAO extends Crud<CoordinadorAmbientes> {
+public interface CoordinadorAmbientesDAO extends EasyDAO<CoordinadorAmbientes> {
 
 }
-

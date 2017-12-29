@@ -2,8 +2,8 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
-import pe.edu.lamolina.pivot.model.academico.AlumnoCiclo;
 import org.springframework.stereotype.Repository;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -13,4 +13,3 @@ public class AlumnoCicloDAOH extends AbstractDAO<AlumnoCiclo> implements AlumnoC
         setClazz(AlumnoCiclo.class);
     }
 }
-

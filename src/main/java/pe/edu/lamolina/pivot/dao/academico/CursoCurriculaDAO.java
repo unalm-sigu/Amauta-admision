@@ -3,12 +3,12 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
-import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 
-public interface CursoCurriculaDAO extends Crud<CursoCurricula> {
+public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
 
     List<CursoCurricula> allByFilter(TipoCursoCurricula tipoCursoCurricula);
 

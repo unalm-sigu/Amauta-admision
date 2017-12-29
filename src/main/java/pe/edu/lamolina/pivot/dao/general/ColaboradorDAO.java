@@ -1,15 +1,14 @@
 package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.Colaborador;
-import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Oficina;
 
-public interface ColaboradorDAO extends Crud<Colaborador> {
+public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
-    public List<Colaborador> allColaborador(List<Oficina> oficinas);
+    List<Colaborador> allColaborador(List<Oficina> oficinas);
 
-    public List<Colaborador> allColaboradorByOficina(Oficina oficina);
+    List<Colaborador> allColaboradorByOficina(Oficina oficina);
 
 }
-

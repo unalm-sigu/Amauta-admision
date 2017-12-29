@@ -3,8 +3,8 @@ package pe.edu.lamolina.pivot.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
 public interface PersonaDAO extends EasyDAO<Persona> {
 
@@ -28,6 +28,6 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     List<Persona> allByEmailCompaniaWithoutPersona(Persona persona);
 
-    public Persona findPersona(Long id);
+    Persona findPersona(Long id);
 
 }

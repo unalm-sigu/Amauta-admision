@@ -1,11 +1,11 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.ReclamoNota;
 
-public interface ReclamoNotaDAO extends Crud<ReclamoNota> {
+public interface ReclamoNotaDAO extends EasyDAO<ReclamoNota> {
 
     List<ReclamoNota> allByFilter(Evaluacion evaluacion);
 

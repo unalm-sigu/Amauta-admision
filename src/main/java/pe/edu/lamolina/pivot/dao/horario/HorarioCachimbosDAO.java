@@ -3,9 +3,9 @@ package pe.edu.lamolina.pivot.dao.horario;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
 
 public interface HorarioCachimbosDAO extends EasyDAO<HorarioCachimbos> {
 
@@ -15,8 +15,8 @@ public interface HorarioCachimbosDAO extends EasyDAO<HorarioCachimbos> {
 
     List<HorarioCachimbos> allByCiclo(CicloAcademico cicloAcademicoa);
 
-    public HorarioCachimbos findMaxCodeOrderByCiclo(CicloAcademico ciclo);
+    HorarioCachimbos findMaxCodeOrderByCiclo(CicloAcademico ciclo);
 
-    public HorarioCachimbos find(HorarioCachimbos horarioCachimbos);
+    HorarioCachimbos find(HorarioCachimbos horarioCachimbos);
 
 }

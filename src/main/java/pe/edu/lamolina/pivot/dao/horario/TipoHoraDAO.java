@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.horario;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.horario.TipoHora;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.horario.TipoHora;
 
-public interface TipoHoraDAO extends Crud<TipoHora> {
+public interface TipoHoraDAO extends EasyDAO<TipoHora> {
 
 }
-

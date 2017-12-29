@@ -1,12 +1,12 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Compania;
 
-public interface ModalidadEstudioDAO extends Crud<ModalidadEstudio> {
+public interface ModalidadEstudioDAO extends EasyDAO<ModalidadEstudio> {
 
     ModalidadEstudio findByCodigo(ModalidadEstudioEnum codigo);
 
@@ -17,6 +17,7 @@ public interface ModalidadEstudioDAO extends Crud<ModalidadEstudio> {
     List<ModalidadEstudio> allActivoByCompania(Compania compania);
 
     List<ModalidadEstudio> allByCodigos(List<String> codigos);
+
     List<ModalidadEstudio> allPrePostgrado(Compania cia);
 
 }

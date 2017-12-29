@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 
-public interface TipoCursoCurriculaDAO extends Crud<TipoCursoCurricula> {
+public interface TipoCursoCurriculaDAO extends EasyDAO<TipoCursoCurricula> {
 
 }
-

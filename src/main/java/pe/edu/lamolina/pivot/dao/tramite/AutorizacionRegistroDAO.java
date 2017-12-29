@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.tramite;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.tramite.AutorizacionRegistro;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 
-public interface AutorizacionRegistroDAO extends Crud<AutorizacionRegistro> {
+public interface AutorizacionRegistroDAO extends EasyDAO<AutorizacionRegistro> {
 
 }
-
