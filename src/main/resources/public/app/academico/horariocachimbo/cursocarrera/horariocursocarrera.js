@@ -58,6 +58,13 @@ $(function () {
                     var records = dynatable.settings.dataset.records;
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
+                        for (var g = 0; g < records[i].grupos.length; g++) {
+                            records[i].grupos[g].classGpoSeccion = "col-md-" + records[i].grupos[g].cantidadSecciones;
+                            for (var s = 0; s < records[i].grupos[g].secciones.length; s++) {
+                                var tipo = records[i].grupos[g].secciones[s].tipo;
+                                records[i].grupos[g].secciones[s].classTipo = (tipo === "TCUR") ? "text-warning" : "";
+                            }
+                        }
                         dynatableRowTemplate.curso = records[i];
                         var component = dynatableRowTemplate.$mount();
                         $('#dynaTbody').append(component.$el);
@@ -82,7 +89,7 @@ $(function () {
                 header: true,
                 title: 'Agregar Curso',
                 okbtn: 'Agregar Curso'
-            },
+            }
         },
         created() {
             let $vue = this;

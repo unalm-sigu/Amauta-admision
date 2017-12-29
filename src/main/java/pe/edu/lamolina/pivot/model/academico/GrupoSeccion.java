@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -338,6 +339,14 @@ public class GrupoSeccion implements Serializable {
 
     public void setAnexoBoletin(AnexoBoletin anexoBoletin) {
         this.anexoBoletin = anexoBoletin;
+    }
+
+    public static class CompareCodigo implements Comparator<GrupoSeccion> {
+
+        @Override
+        public int compare(GrupoSeccion gs1, GrupoSeccion gs2) {
+            return gs1.getCodigo().compareTo(gs2.getCodigo());
+        }
     }
 
 }

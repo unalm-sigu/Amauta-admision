@@ -34,6 +34,7 @@ import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.Facultad;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -109,18 +110,19 @@ public class HorarioCursoCarreraController {
 
                 Curso curso = cursoCachimbo.getCurso();
                 Carrera carrera = cursoCachimbo.getCarrera();
+                Facultad facultad = carrera.getFacultad();
                 DepartamentoAcademico departamento = curso.getDepartamentoAcademico();
 
                 node.put("id", cursoCachimbo.getId());
                 node.put("codigo", curso.getCodigo());
                 node.put("nombre", curso.getNombre());
                 node.put("carrera", carrera.getNombre());
-                node.put("facultad", carrera.getFacultad().getNombre());
+                node.put("facultad", facultad.getNombre());
                 node.put("departamentoAcademico", departamento.getNombre());
                 node.put("curso", curso.getNombre());
                 node.put("tpc", curso.getTpc());
 
-                node.put("showfacultad", !carrera.getFacultad().getCodigo().equalsIgnoreCase(carrera.getCodigo()));
+                node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
 
                 Map<Long, HorarioCachimbos> horarios = carsoHorarioCachimbosMap.get(curso.getId());
                 node.put("horarios", horarios != null ? horarios.size() : 0);
@@ -131,16 +133,19 @@ public class HorarioCursoCarreraController {
 
                 for (GrupoSeccion grupoSeccion : gruposSeccion) {
                     ObjectNode grupoSeccionNode = new ObjectNode(jsonFactory);
-                    ArrayNode clavesArray = new ArrayNode(jsonFactory);
+                    ArrayNode seccionesArray = new ArrayNode(jsonFactory);
 
-                    for (Seccion seccione : grupoSeccion.getSecciones()) {
+                    for (Seccion seccion : grupoSeccion.getSecciones()) {
                         ObjectNode claveNode = new ObjectNode(jsonFactory);
-                        claveNode.put("codigo", seccione.getCodigo());
-                        claveNode.put("suscritos", seccione.getSuscritos());
-                        clavesArray.add(claveNode);
+                        claveNode.put("codigo", seccion.getCodigo());
+                        claveNode.put("tipo", seccion.getTipoSeccion());
+                        claveNode.put("suscritos", seccion.getSuscritos());
+                        seccionesArray.add(claveNode);
                     }
 
-                    grupoSeccionNode.put("claves", clavesArray);
+                    int cant = (grupoSeccion.getSecciones().size() > 12) ? 12 : grupoSeccion.getSecciones().size();
+                    grupoSeccionNode.put("cantidadSecciones", cant);
+                    grupoSeccionNode.put("secciones", seccionesArray);
                     gruposSeccionArray.add(grupoSeccionNode);
                 }
 
