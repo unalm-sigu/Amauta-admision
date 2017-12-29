@@ -38,12 +38,6 @@ $(function () {
             createDynatable: function () {
                 var vue = this;
                 $('#dynaTable').bind('dynatable:init', function (e, dynatable) {
-                    $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
-                    $('.dynatable-paginate, .dynatable-record-count').wrapAll('<div class="col-md-12"/>');
-                    $('.dynatable-search').addClass('col-md-2');
-                    $('.dynatable-search').find('input')
-                            .addClass('form-control input-sm')
-                            .attr('placeholder', 'Buscar');
                     $('#opopop').append($('#eliminarSeleccion'));
                 });
                 dynatable = $('#dynaTable').dynatable({
@@ -76,12 +70,37 @@ $(function () {
         data: {
             horario: {},
             alumno: {},
+            alumnos: [],
+            cursos: [],
+            horarios: [],
             addAlumnoModal: {
                 id: 'modalAddAlumno',
                 header: true,
                 title: 'Agregar Alumno',
                 okbtn: 'Agregar Alumno'
-            }
+            },
+            verAlumnoModal: {
+                id: 'modalVerAlumno',
+                header: true,
+                title: 'Alumnos',
+                cancelbtn: 'Aceptar',
+                showaccept: false
+            },
+            verCursoModal: {
+                id: 'modalVerCurso',
+                header: true,
+                title: 'Curso',
+                cancelbtn: 'Aceptar',
+                showaccept: false
+            },
+            verHorarioModal: {
+                id: 'modalVerHorario',
+                header: true,
+                title: 'Horario',
+                modalSize: 'modal-lg',
+                cancelbtn: 'Aceptar',
+                showaccept: false
+            },
         },
         created() {
             let vue = this;
@@ -107,12 +126,65 @@ $(function () {
             });
         },
         methods: {
+            incluirAlumno(id) {
+                var vue = this;
+                vue.horario = {'id': id};
+                this.$refs.modalAddAlumno.open();
+                $('[name="alumno.id"]').select2({
+                    allowClear: true,
+                    placeholder: "Seleccione un alumno",
+                    minimumInputLength: 1,
+                    ajax: {
+                        url: APP.url("academico/horariocachimbo/horario/searchAlumno"),
+                        dataType: 'json',
+                        type: 'post',
+                        data: function (term, page) {
+                            return {nombre: term, page: page, horario: id};
+                        },
+                        results: function (response, page) {
+                            return {results: response.data};
+                        }
+                    },
+                    initSelection: function (element, callback) {
+                        if (element.val() != "") {
+                            var datos = {
+                                id: element.val(),
+                                nombre: element.attr("rel")
+                            };
+                            callback(datos);
+                        }
+                    },
+                    formatResult: function (info) {
+                        return $.templates("#divBuscarAlumno").render(info);
+                    },
+                    formatSelection: function (info) {
+                        vue.alumno = info;
+                        return info.nombre;
+                    },
+                    escapeMarkup: function (m) {
+                        return m;
+                    }
+                }).on("change.select2", function (e) {
+                    if (e && e.removed) {
+                        if (e.val == '') {
+                            vue.alumno = [];
+                        }
+                    }
+                });
+                $('[name="alumno.id"]').select2('data', '');
+                vue.alumno = [];
+            },
             addAlumno(id) {
+
+                if ($('#formAlumno').parsley().validate() != true) {
+                    return;
+                }
+
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/ingresante/addAlumno"),
-                    data: {id: id},
+                    url: APP.url("academico/horariocachimbo/horario/addAlumno"),
+                    data: {id: vue.alumno.id, 'horarioCachimbos.id': vue.horario.id},
                     success: function (response) {
                         if (response.success) {
                             dynatable.process();
@@ -124,13 +196,11 @@ $(function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
+                this.$refs.modalAddAlumno.close();
             },
             eliminarSeleccion() {
-
                 var $vue = this;
                 var items = $('#dynaTable>tbody').find('input[type="checkbox"]:checked');
-
-
                 if (items.length < 1) {
                     swal({
                         text: "Tiene que seleccionar por lo menos un horario",
@@ -146,7 +216,6 @@ $(function () {
                     var indx = 'horarioCachimbos[' + i + '].id';
                     horarios[indx] = $(v).val();
                 });
-
                 swal('¿Seguro que desea eliminar los registros seleccionados?', {
                     icon: "warning",
                     closeOnClickOutside: false,
@@ -190,64 +259,64 @@ $(function () {
                         swal.close();
                     }
                 });
-
             },
-            incluirAlumno(id) {
-
+            verHorario(id) {
                 var vue = this;
-                this.$refs.modalAddAlumno.open();
-
-                $('[name="alumno.id"]').select2({
-                    allowClear: true,
-                    placeholder: "Seleccione un alumno",
-                    minimumInputLength: 1,
-                    ajax: {
-                        url: APP.url("academico/horariocachimbo/ingresante/searchAlumno"),
-                        dataType: 'json',
-                        type: 'post',
-                        data: function (term, page) {
-                            return {nombre: term, page: page};
-                        },
-                        results: function (response, page) {
-                            return {results: response.data};
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verHorario"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.horarios = response.data;
+                        } else {
+                            notify(response.message, 'error');
                         }
                     },
-                    initSelection: function (element, callback) {
-                        if (element.val() != "") {
-                            var datos = {
-                                id: element.val(),
-                                nombre: element.attr("rel")
-                            };
-                            callback(datos);
-                        }
-                    },
-                    formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
-                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
-                        return data;
-                    },
-                    formatSelection: function (info) {
-                        vue.alumno = info;
-                        return info.nombre;
-                    },
-                    escapeMarkup: function (m) {
-                        return m;
-                    }
-                }).on("change.select2", function (e) {
-                    if (e && e.removed) {
-                        if (e.val == '') {
-                            vue.alumno = [];
-                        }
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
-                $('[name="alumno.id"]').select2('data', '');
-                vue.alumno = [];
-
+                this.$refs.modalVerHorario.open();
             },
-            verHorario(id) {},
-            verCurso(id) {},
-            verAlumno(id) {},
+            verCurso(id) {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verCurso"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.cursos = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalVerCurso.open();
+            },
+            verAlumno(id) {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verAlumno"),
+                    data: {id: id},
+                    success: function (response) {
+                        if (response.success) {
+                            vue.alumnos = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalVerAlumno.open();
+            },
             getRecord(id) {
                 return dynatable.settings.dataset.records.find(item => item.id === id);
             },

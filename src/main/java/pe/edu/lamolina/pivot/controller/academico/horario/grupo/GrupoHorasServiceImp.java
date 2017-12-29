@@ -112,6 +112,12 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             diaHoraGrupoDAO.save(diaHoraGrupo);
             return;
         }
+
+        if (TipoGrupoHorasEnum.ZETA.name().equalsIgnoreCase(tipoGrupoHoras.getTipo())) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("No puede agregar horarios a un grupo ZETA");
+            throw new PhobosException(sb.toString());
+        }
         diaHoraGrupo.setGrupoHorario(grupoHoras);
         DiaHoraGrupo diaHoraGrupoDb = diaHoraGrupoDAO.findByDiaHoraCiclo(diaHoraGrupo);
         if (diaHoraGrupoDb != null) {

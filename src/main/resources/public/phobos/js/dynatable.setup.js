@@ -1,7 +1,7 @@
 $(document.body).on('dynatable:init', '#dynaTable,#dynatable', function (e, dynatable) {
     $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
 
-    $('.dynatable-record-count, .dynatable-paginate').wrapAll('<div class="footer m-t-lg"/>');
+    $('.dynatable-record-count, .dynatable-paginate').wrapAll('<div class="footer col-xs-12 m-t-lg"/>');
 
     $('.dynatable-search').addClass('col-md-2 pull-right');
     $('.dynatable-search').find('input')

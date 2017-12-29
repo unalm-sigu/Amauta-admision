@@ -236,7 +236,7 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("persona per","carrera car","car.facultad fa")
+                .join("persona per", "carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .beginBlock()

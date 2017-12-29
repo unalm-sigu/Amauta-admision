@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.Alumno;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -84,15 +85,24 @@ public class HorarioIngresanteController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (AlumnoHorario alumHorario : alumnosHorario) {
+
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                Alumno alumno = alumHorario.getAlumno();
+                HorarioCachimbos hc = alumHorario.getHorarioCachimbos();
+
                 node.put("id", alumHorario.getId());
-                node.put("estudiante", alumHorario.getAlumno().getPersona().getApellidosNombres());
-                node.put("carrera", alumHorario.getAlumno().getCarrera().getNombre());
-                node.put("facultad", alumHorario.getAlumno().getCarrera().getFacultad().getNombre());
-                node.put("horario", alumHorario.getHorarioCachimbos() != null ? alumHorario.getHorarioCachimbos().getCodigo() : "");
-                node.put("numCurso", alumHorario.getHorarioCachimbos() != null ? alumHorario.getHorarioCachimbos().getCursos() : 0);
+                node.put("estudiante", alumno.getPersona().getApellidosNombres());
+                node.put("carrera", alumno.getCarrera().getNombre());
+                node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+                node.put("horario", hc != null ? hc.getCodigo() : "");
+                node.put("numCurso", hc != null ? hc.getCursos() : 0);
                 node.put("estado", alumHorario.getEstado());
                 node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
+
+                node.put("codigoMatricula", alumno.getCodigo());
+                node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
+                node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+
                 array.add(node);
             }
             json.setData(array);
@@ -158,10 +168,11 @@ public class HorarioIngresanteController {
 
     @ResponseBody
     @RequestMapping("asignarHorario")
-    public JsonResponse asignarHorario(AlumnoHorario alumnoHorario) {
+    public JsonResponse asignarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.asignarHorario(alumnoHorario);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.asignarHorario(alumnoHorario, ds);
             response.setMessage("Horario asignado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -213,9 +224,14 @@ public class HorarioIngresanteController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<Alumno> alumnos = service.allAlumnoByName(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
+
             for (Alumno alumno : alumnos) {
+
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", alumno.getId());
                 json.put("nombre", alumno.getPersona().getNombreCompleto());

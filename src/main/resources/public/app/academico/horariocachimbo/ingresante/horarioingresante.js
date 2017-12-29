@@ -126,10 +126,7 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Especialida de ' + info.carrera + '  Facultad de ' + info.facultad + '</span>';
-                        data += '<span class="text-sm block">' + info.tipo + '  ' + info.numero + '  Nro Matrícula ' + info.codigoMatricula + '</span>';
-                        return data;
+                        return $.templates("#divBuscarAlumno").render(info);
                     },
                     formatSelection: function (info) {
                         vue.printFullData(info);
@@ -211,9 +208,9 @@ $(function () {
             asignarHorario(id) {
                 var $vue = this;
                 bootbox.confirm({
-                    message: '¿Seguro que desea asignar horario?',
+                    message: '¿Seguro que desea asignar horario al alumno?',
                     buttons: {
-                        confirm: {label: 'Si, activar', className: "btn-primary"},
+                        confirm: {label: 'Si, Asignar', className: "btn-primary"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
                     },
                     callback: function (result) {

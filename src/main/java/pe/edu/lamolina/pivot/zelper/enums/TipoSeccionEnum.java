@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoSeccionEnum {
+    TEO("Teoría", TipoSeccionEvalEnum.TEO, TipoCursoEnum.TEO), //TEO
     PRA("Práctica", TipoSeccionEvalEnum.PRAC, TipoCursoEnum.TEOPRA), //PRA
-    PCUR("Práctica Curso", TipoSeccionEvalEnum.PRAC, TipoCursoEnum.TEOPRA), //TEOPRA,,, la primira vez no se hace el merge
     TCUR("Teoría Curso", TipoSeccionEvalEnum.TEO, TipoCursoEnum.TEOPRA), //TEOPRA
-    TEO("Teoría", TipoSeccionEvalEnum.TEO, TipoCursoEnum.TEO); //TEO
+    PCUR("Práctica Curso", TipoSeccionEvalEnum.PRAC, TipoCursoEnum.TEOPRA); //TEOPRA,,, la primira vez no se hace el merge
 
     private final String value;
     private final TipoSeccionEvalEnum tipoSeccionEvalEnum;

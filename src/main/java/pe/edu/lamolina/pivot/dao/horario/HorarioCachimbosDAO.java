@@ -9,9 +9,14 @@ import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 
 public interface HorarioCachimbosDAO extends EasyDAO<HorarioCachimbos> {
 
-    public List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<HorarioCachimbos> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public List<HorarioCachimbos> allByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
+    List<HorarioCachimbos> allByCicloCarrera(CicloAcademico cicloAcademico, Carrera carrera);
+
+    List<HorarioCachimbos> allByCiclo(CicloAcademico cicloAcademicoa);
+
+    public HorarioCachimbos findMaxCodeOrderByCiclo(CicloAcademico ciclo);
+
+    public HorarioCachimbos find(HorarioCachimbos horarioCachimbos);
 
 }
-

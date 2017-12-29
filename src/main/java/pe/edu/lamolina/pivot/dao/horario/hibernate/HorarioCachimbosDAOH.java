@@ -20,11 +20,11 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
     }
 
     @Override
-    public List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<HorarioCachimbos> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(HorarioCachimbos.class, "hoca")
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
-                .filter("ciclo.id", cicloAcademico)
+                .filter("ciclo.id", ciclo)
                 .searchFields("car.nombre")
                 .orderBy("hoca.id desc");
         sql.beginRelativeFilters();
@@ -32,13 +32,44 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
     }
 
     @Override
-    public List<HorarioCachimbos> allByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera) {
+    public List<HorarioCachimbos> allByCicloCarrera(CicloAcademico ciclo, Carrera carrera) {
         Octavia sql = Octavia.query()
                 .from(HorarioCachimbos.class, "hoca")
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
-                .filter("ciclo.id", cicloAcademico)
+                .filter("ciclo.id", ciclo)
                 .filter("car.id", carrera)
                 .orderBy("hoca.id desc");
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<HorarioCachimbos> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(HorarioCachimbos.class, "hoca")
+                .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("ciclo.id", ciclo)
+                .orderBy("hoca.id desc");
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public HorarioCachimbos findMaxCodeOrderByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(HorarioCachimbos.class, "hoca")
+                .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("ciclo.id", ciclo)
+                .orderBy("CONVERT( SUBSTRING(hoca.codigo, 3) ,  UNSIGNED )   desc")
+                .limit(1);
+
+        return (HorarioCachimbos) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public HorarioCachimbos find(HorarioCachimbos horarioCachimbos) {
+        Octavia sql = Octavia.query()
+                .from(HorarioCachimbos.class, "hoca")
+                .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
+                .filter("hoca.id", horarioCachimbos);
+        return (HorarioCachimbos) sql.find(getCurrentSession());
     }
 }

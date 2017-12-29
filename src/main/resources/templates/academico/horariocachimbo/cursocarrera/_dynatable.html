@@ -5,8 +5,9 @@
             <table id="dynaTable" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th class="col-xs-7">Curso</th>
-                        <th class="col-xs-4  text-center">Carrera</th>
+                        <th class="col-xs-4">Curso</th>
+                        <th class="col-xs-5  text-center">Claves y Suscritos</th>
+                        <th class="col-xs-2  text-center">Carrera</th>
                         <th class="col-xs-1  text-center">Horarios</th>
                         <th></th>
                     </tr> 
@@ -24,15 +25,36 @@
     <tr>
 
         <td class="v-middle">
-            <a href="#"
-               class="h5 text-muted"> 
+            <p class="h5 bold"> 
                 {{ curso.nombre}}
-            </a>
+            </p>
+            <small class="block  text-muted">
+                {{curso.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{curso.tpc}} &nbsp; 
+                <span v-if="numeroCiclo">/ &nbsp; Nº Ciclo {{curso.numeroRomano}} &nbsp; </span>
+            </small>
+            <small class="block  text-muted">
+                Dpto. Académico: {{curso.departamentoAcademico}}
+            </small>
+            <small v-if="especialidad" class="block  text-muted"><strong>Especialidad</strong> {{curso.tipoEspecialidad}} {{curso.especialidad}}</small>
+            <small v-if="tipoCursoCurricula" class="block text-danger  text-muted">Tipo {{curso.tipoCursoCurricula}}</small>
         </td>
 
         <td class="v-middle text-center">
-            <p>{{curso.carrera}}</p> 
-            <span>{{curso.facultad}}</span> 
+
+            <table class="no-style-table">
+                <tr v-for="grupe in curso.grupos">
+                    <td  v-for="clave in grupe.claves">
+                        <span class="block bold text-muted"> {{clave.codigo}}</span>
+                        <span class="block text-muted"> {{clave.suscritos}}</span>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+
+        <td class="v-middle text-center">
+            <p class="">{{curso.carrera}}</p> 
+            <span v-if="curso.showfacultad" class="text-muted">Facultad de {{curso.facultad}}</span> 
         </td>
 
         <td class="v-middle  text-center">
@@ -66,8 +88,32 @@
             {{curso.creditos}}
         </td>
         <td class="text-center v-middle">
-            <i class="fa fa-times pointer"  v-on:click.prevent="deleteItem"   aria-hidden="true"></i>
+            <i class="fa fa-times pointer"  v-on:click.prevent="deleteItem" :rel="curso.creditos"  aria-hidden="true"></i>
         </td>
     </tr>
 </template>
+
+<div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+    <span class="block bold h5 m-b-xs m-t-xs">{{:curso}}</span>
+    <small class="block">
+        {{:codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{:tpc}} &nbsp; 
+        {{if numeroCiclo}}
+        / &nbsp; Nº Ciclo {{:numeroRomano}} &nbsp; 
+        {{/if}}
+        / &nbsp; Dpto. Académico {{:departamento}}
+    </small>
+    {{if especialidad}}
+    <small class="block"><strong>Especialidad</strong> {{:tipoEspecialidad}} {{:especialidad}}</small>
+    {{/if}}
+    {{if tipoCursoCurricula}}
+    <small class="block bold text-danger">Tipo {{:tipoCursoCurricula}}</small>
+    {{/if}}
+</div>
+
+<div id="divBuscarCarrera" type="text/x-jsrender" class="hide" >
+    <span class="block bold h5 m-b-xs m-t-xs">{{:nombre}}</span>
+    <small class="block">
+        Facultad de &nbsp; {{:facultad}} &nbsp; 
+    </small>
+</div>
 

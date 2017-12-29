@@ -1,42 +1,78 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.general.Dia;
 import pe.edu.lamolina.pivot.model.horario.Hora;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GenerarHorarioIngresanteService {
 
-    public List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
+    ModalidadEstudio findModalidadPregrado();
 
-    public void delete(HorarioCachimbos horarioCachimbos);
+    List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public void delete(HorarioCachimboForm form);
+    void delete(HorarioCachimbos horarioCachimbos);
 
-    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico);
+    void delete(HorarioCachimboForm form);
 
-    public List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio);
+    List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario);
 
-    public List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
+    List<Carrera> allCarrera(ModalidadEstudio modalidadEstudio);
 
-    public List<HorarioCachimbos> allHorarioCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
+    List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 
-    public List<SeccionHorarioCachimbos> allSeccionHorarioCachimbosByCursoHora(Carrera carrera, List<Curso> cursos, CicloAcademico cicloAcademico);
+    List<HorarioCachimbos> allHorarioCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 
-    public String getClave(String codigo, List<SeccionHorarioCachimbos> shcHorario);
+    List<SeccionHorarioCachimbos> allSeccionHorarioCachimbosByCursoHora(Carrera carrera, List<Curso> cursos, CicloAcademico cicloAcademico);
 
-    public List<Dia> allDia();
+    String getClave(String codigo, List<SeccionHorarioCachimbos> shcHorario);
 
-    public List<Hora> allHora();
+    List<Dia> allDia();
 
-    public List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario);
+    List<Hora> allHora();
+
+    List<HorarioSeccion> allSeccionHorarioCachimbosByHorarioCachimbos(HorarioCachimbos horario);
+
+    void generar(CicloAcademico cicloAcademico, ModalidadEstudio modalidad, DataSessionPivot ds);
+
+    String getClave(SeccionHorarioCachimbos shc);
+
+    void addAlumno(AlumnoHorario alumno);
+
+    List<AlumnoHorario> allAlumnoHorarioByHorario(HorarioCachimbos horario);
+
+    List<CursoCachimbos> allCursoCachimbosByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico);
+
+    List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos);
+
+    void reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones);
+
+    void permutarUnico(
+            int ordenCurso, int ordenSeccion,
+            List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
+            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera);
+
+    public Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios);
+
+    public HorarioCachimbos createHorario(
+            List<Seccion> horarioTempo,
+            Carrera carrera,
+            CicloAcademico ciclo,
+            int cursos,
+            Map<String, HorarioCachimbos> mapHorario,
+            Acumulador code, DataSessionPivot ds);
 
 }

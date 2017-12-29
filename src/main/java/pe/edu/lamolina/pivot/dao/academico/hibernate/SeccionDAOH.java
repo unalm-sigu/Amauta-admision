@@ -6,9 +6,11 @@ import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.zelpers.dao.SqlUtil;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
@@ -100,7 +102,8 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
         SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
                 .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
                 .parents("left _s.aula", "left _s.grupoHoras")
-                .filterIn("gs.id", gruposSeccion);
+                .filterIn("gs.id", gruposSeccion)
+                .orderBy("s.codigo");
         return all(sqlUtil);
     }
 
@@ -112,6 +115,19 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
                 //  .filter("s.estado", EstadoEnum.ACT.name())
                 .filter("gs.id", gruposSeccion);
         return all(sqlUtil);
+    }
+
+    @Override
+    public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+                .leftJoin("seccionSuperior")
+                .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
+                .filter("ca.id", cicloAcademico)
+                .in("cur.id", cursos)
+                .orderBy("sec.codigo");
+        return sql.all(getCurrentSession());
     }
 
 }

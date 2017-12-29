@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.zelpers.dao.Crud;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.Seccion;
@@ -25,5 +26,7 @@ public interface SeccionDAO extends Crud<Seccion> {
     List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion);
 
     List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion);
+
+    List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico);
 
 }

@@ -9,6 +9,7 @@ import pe.albatross.octavia.Octavia;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 
 @Repository
@@ -37,6 +38,37 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .from(SeccionHorarioCachimbos.class, "shc")
                 .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .filter("hc.id", horario);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<SeccionHorarioCachimbos> allByHorarios(List<HorarioCachimbos> horarios) {
+        Octavia sql = Octavia.query()
+                .from(SeccionHorarioCachimbos.class, "shc")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .in("hc.id", horarios);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<SeccionHorarioCachimbos> allByCursoCiclo(CicloAcademico cicloAcademico, List<Curso> cursos) {
+        Octavia sql = Octavia.query()
+                .from(SeccionHorarioCachimbos.class, "shc")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .filter("ci.id", cicloAcademico)
+                .filter("ciclo.id", cicloAcademico)
+                .in("cur.id", cursos);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<SeccionHorarioCachimbos> allBySeccions(CicloAcademico cicloAcademico, List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(SeccionHorarioCachimbos.class, "shc")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .filter("ci.id", cicloAcademico)
+                .filter("ciclo.id", cicloAcademico)
+                .in("sec.id", secciones);
         return sql.all(getCurrentSession());
     }
 }

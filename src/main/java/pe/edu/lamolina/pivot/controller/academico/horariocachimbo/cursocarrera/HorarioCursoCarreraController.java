@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +27,17 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.model.academico.Carrera;
 import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
+import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -74,7 +80,7 @@ public class HorarioCursoCarreraController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
-        List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio,cicloAcademico);
+        List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio, cicloAcademico);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("carreras", carreras);
         return "academico/horariocachimbo/cursocarrera/horariocursocarrera";
@@ -84,22 +90,65 @@ public class HorarioCursoCarreraController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
+
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
             List<CursoCachimbos> cursoCachimbos = service.allCursoCachimbos(filter, cicloAcademico);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            Map<Long, Map<Long, HorarioCachimbos>> carsoHorarioCachimbosMap = service.allSeccionHorarioCachimbos(cursoCachimbos, cicloAcademico);
+            service.fillGrupoSeccion(cursoCachimbos, cicloAcademico);
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jsonFactory);
+
             for (CursoCachimbos cursoCachimbo : cursoCachimbos) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                ObjectNode node = new ObjectNode(jsonFactory);
+
+                Curso curso = cursoCachimbo.getCurso();
+                Carrera carrera = cursoCachimbo.getCarrera();
+                DepartamentoAcademico departamento = curso.getDepartamentoAcademico();
+
                 node.put("id", cursoCachimbo.getId());
-                node.put("codigo", cursoCachimbo.getCurso().getCodigo());
-                node.put("nombre", cursoCachimbo.getCurso().getNombre());
-                node.put("carrera", cursoCachimbo.getCarrera().getNombre());
-                node.put("facultad", cursoCachimbo.getCarrera().getFacultad().getNombre());
-                node.put("departamentoAcademico", cursoCachimbo.getCurso().getDepartamentoAcademico().getNombre());
-                node.put("curso", cursoCachimbo.getCurso().getNombre());
+                node.put("codigo", curso.getCodigo());
+                node.put("nombre", curso.getNombre());
+                node.put("carrera", carrera.getNombre());
+                node.put("facultad", carrera.getFacultad().getNombre());
+                node.put("departamentoAcademico", departamento.getNombre());
+                node.put("curso", curso.getNombre());
+                node.put("tpc", curso.getTpc());
+
+                node.put("showfacultad", !carrera.getFacultad().getCodigo().equalsIgnoreCase(carrera.getCodigo()));
+
+                Map<Long, HorarioCachimbos> horarios = carsoHorarioCachimbosMap.get(curso.getId());
+                node.put("horarios", horarios != null ? horarios.size() : 0);
+
+                List<GrupoSeccion> gruposSeccion = curso.getGrupoSeccion();
+
+                ArrayNode gruposSeccionArray = new ArrayNode(jsonFactory);
+
+                for (GrupoSeccion grupoSeccion : gruposSeccion) {
+                    ObjectNode grupoSeccionNode = new ObjectNode(jsonFactory);
+                    ArrayNode clavesArray = new ArrayNode(jsonFactory);
+
+                    for (Seccion seccione : grupoSeccion.getSecciones()) {
+                        ObjectNode claveNode = new ObjectNode(jsonFactory);
+                        claveNode.put("codigo", seccione.getCodigo());
+                        claveNode.put("suscritos", seccione.getSuscritos());
+                        clavesArray.add(claveNode);
+                    }
+
+                    grupoSeccionNode.put("claves", clavesArray);
+                    gruposSeccionArray.add(grupoSeccionNode);
+                }
+
+                node.put("grupos", gruposSeccionArray);
+
                 array.add(node);
             }
+
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -167,13 +216,14 @@ public class HorarioCursoCarreraController {
             for (Curso curso : cursos) {
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", curso.getId());
-                json.put("nombre", curso.getNombre());
+                json.put("curso", curso.getNombre());
                 json.put("codigo", curso.getCodigo());
+                json.put("tpc", curso.getTpc());
                 json.put("creditos", curso.getCreditos());
-                json.put("tpc", curso.getCodigo());
-                json.put("departamentoAcademico", curso.getDepartamentoAcademico().getNombre());
-                json.put("carrera", curso.getCarrera() != null ? curso.getCarrera().getNombre() : "");
-                json.put("facultad", curso.getCarrera() != null ? curso.getCarrera().getFacultad().getNombre() : "");
+                json.put("departamento", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.nombre"));
+                json.put("facultad", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.facultad.nombre"));
+                json.put("especialidad", (String) ObjectUtil.getParentTree(curso, "carrera.nombre"));
+                json.put("tipoEspecialidad", (String) ObjectUtil.getParentTree(curso, "carrera.tipoEnum.value"));
                 jsonList.add(json);
             }
             response.setData(jsonList);

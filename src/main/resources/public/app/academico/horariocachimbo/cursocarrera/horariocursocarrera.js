@@ -5,12 +5,20 @@ $(function () {
     var ItemCursoTemplate = Vue.component("itemCurso", {
         template: "#itemCursoTemplate",
         data: function () {
-            return {curso: [], total: 0};
+            return {curso: {}, total: 0};
         },
         methods: {
             deleteItem(id) {
                 $global.$emit("deleteItem", id);
-            },
+            }
+        },
+        watch: {
+            curso: {
+                handler: function (after, before) {
+                    $global.$emit("updateTotalCredito", after, before);
+                },
+                deep: true,
+            }
         }
     });
 
@@ -37,14 +45,6 @@ $(function () {
         methods: {
             createDynatable: function () {
                 var $vue = this;
-                $('#dynaTable').bind('dynatable:init', function (e, dynatable) {
-                    $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
-                    $('.dynatable-paginate, .dynatable-record-count').wrapAll('<div class="col-md-12"/>');
-                    $('.dynatable-search').addClass('col-md-2');
-                    $('.dynatable-search').find('input')
-                            .addClass('form-control input-sm')
-                            .attr('placeholder', 'Buscar');
-                });
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
                         ajaxUrl: APP.url('academico/horariocachimbo/curso/list'),
@@ -54,7 +54,7 @@ $(function () {
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
                 }).bind("dynatable:afterUpdate", function (e) {
-         
+
                     var records = dynatable.settings.dataset.records;
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
@@ -95,6 +95,9 @@ $(function () {
             $global.$on("deleteItem", function (id) {
                 $vue.deleteItem(id);
             });
+            $global.$on("updateTotalCredito", function (after, before) {
+                $vue.updateTotalCredito(after, before);
+            });
         },
         methods: {
             filtrarCurso(e) {
@@ -123,8 +126,9 @@ $(function () {
             nuevo() {
                 var vue = this;
                 vue.cursos = [];
-                vue.total = 0;
+
                 this.$refs.modalAddCursoCarrera.open();
+
                 $('#formCursoCarrera').parsley().destroy();
                 $('[name="curso.id"]').select2(vue.selectCurso(vue)).on("change.select2", function (e) {
                     if (e && e.removed) {
@@ -158,9 +162,7 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block"> Facultad de ' + info.facultad + '</span>';
-                        return data;
+                        return $.templates("#divBuscarCarrera").render(info);
                     },
                     formatSelection: function (info) {
                         vue.carrera = info;
@@ -182,9 +184,11 @@ $(function () {
 
                 vue.curso = [];
                 vue.carrera = [];
-
-                $('#tableCurso tbody tr').not(':first').remove();
-
+                vue.total = 0;
+                $('#tableCurso tbody tr').remove();
+                vue.agregarItem();
+                console.log($('#tableCurso tbody tr:first').find('td:last-child'));
+                $('#tableCurso tbody tr:first').find('td:last-child').html('');
             },
             selectCurso(self) {
                 var vue = this;
@@ -213,20 +217,30 @@ $(function () {
                         }
                     },
                     formatResult: function (info) {
-                        var data = '<span class="h5 block bold">' + info.nombre + '</span>';
-                        data += '<span class="block">Dep. Academico  ' + info.departamentoAcademico + '</span>';
-                        data += '<span class="text-sm block"> Código ' + info.codigo + ' T.P.C ' + info.codigo + '</span>';
-                        return data;
+                        return $.templates("#divBuscarCurso").render(info);
                     },
                     formatSelection: function (info) {
                         self.curso = info;
-                        vue.total = info.creditos + vue.total;
-                        return info.nombre;
+                        return info.codigo + " - " + info.curso;
                     },
                     escapeMarkup: function (m) {
                         return m;
                     }
                 };
+            },
+            updateTotalCredito(after, before) {
+                var vue = this;
+                var newTotal = 0;
+                if (!vue.total) {
+                    vue.total = 0;
+                }
+                if (before.creditos) {
+                    newTotal = newTotal - before.creditos;
+                }
+                if (after.creditos) {
+                    newTotal = newTotal + after.creditos;
+                }
+                vue.total = vue.total + newTotal;
             },
             createCursoCarrera(id) {
                 var vue = this;
@@ -280,7 +294,6 @@ $(function () {
             agregarItem() {
                 var vue = this;
                 var curso = {id: null, creditos: null};
-
                 var itemCursoTemplate = new ItemCursoTemplate();
                 itemCursoTemplate.curso = curso;
                 var component = itemCursoTemplate.$mount();
@@ -294,7 +307,12 @@ $(function () {
                 });
             },
             deleteItem(e) {
+                var vue = this;
                 var self = $(e.currentTarget);
+                var cre = self.attr("rel");
+                if (cre != '') {
+                    vue.total = vue.total - parseInt(cre);
+                }
                 var tr = self.closest('tr');
                 tr.remove();
             }

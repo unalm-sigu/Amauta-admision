@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.model.academico;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,6 +19,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.model.general.Aula;
 import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
+import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
@@ -101,6 +103,9 @@ public class Seccion implements Serializable {
     @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
     private List<RetiroCurso> retiroCurso;
 
+    @OneToMany(mappedBy = "seccion", fetch = FetchType.LAZY)
+    private List<SeccionHorarioCachimbos> seccionHorarioCachimbos;
+
     @Transient
     private String codigoGrupoHorario;
     @Transient
@@ -111,6 +116,10 @@ public class Seccion implements Serializable {
     private String codigoTipoSeccion;
     @Transient
     private Boolean verInformacion;
+    @Transient
+    private Integer suscritos;
+    @Transient
+    private String aleatorio;
 
     public Seccion() {
         this.verInformacion = false;
@@ -407,6 +416,51 @@ public class Seccion implements Serializable {
             return this.getDocenteSeccion().size();
         }
         return cant;
+    }
+
+    public Integer getSuscritos() {
+        return suscritos;
+    }
+
+    public void setSuscritos(Integer suscritos) {
+        this.suscritos = suscritos;
+    }
+
+    public String getAleatorio() {
+        return aleatorio;
+    }
+
+    public void setAleatorio(String aleatorio) {
+        this.aleatorio = aleatorio;
+    }
+
+    public Integer getDisponiblesCachimbos() {
+        this.suscritos = (this.suscritos == null) ? 0 : this.suscritos;
+        return this.vacantes - this.matriculados - this.suscritos;
+    }
+
+    public static class CompareCodigo implements Comparator<Seccion> {
+
+        @Override
+        public int compare(Seccion s1, Seccion s2) {
+            return s1.getCodigo().compareTo(s2.getCodigo());
+        }
+    }
+
+    public static class CompareAleatorio implements Comparator<Seccion> {
+
+        @Override
+        public int compare(Seccion s1, Seccion s2) {
+            return s1.getAleatorio().compareTo(s2.getAleatorio());
+        }
+    }
+
+    public List<SeccionHorarioCachimbos> getSeccionHorarioCachimbos() {
+        return seccionHorarioCachimbos;
+    }
+
+    public void setSeccionHorarioCachimbos(List<SeccionHorarioCachimbos> seccionHorarioCachimbos) {
+        this.seccionHorarioCachimbos = seccionHorarioCachimbos;
     }
 
 }

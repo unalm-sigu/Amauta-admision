@@ -12,7 +12,9 @@ Vue.component('modal-vik', {
         okclass:{type: String, default: 'btn-success'},
         cancelbtn: {type: String, default: 'Cancelar'},
         cancelaction: {type: Function, default: () => {}},
-        cancelclass:{type: String, default: 'btn-default'}
+        cancelclass:{type: String, default: 'btn-default'},
+        modalSize:{type:String, default:"modal-md"},
+        showaccept:{type: Boolean, default: true}
     },
     methods: {
         open() {

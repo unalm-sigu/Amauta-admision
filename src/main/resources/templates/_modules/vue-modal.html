@@ -2,7 +2,7 @@
     <transition name="modal">
 
         <div v-bind:id="id" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog" v-bind:class="modalSize" role="document">
 
                 <div class="modal-content">
                     <div v-if="header" class="modal-header">
@@ -24,7 +24,7 @@
                     <div v-if="footer"  class="modal-footer">
                         <slot name="footer">
                             <button v-on:click="close" type="button" class="btn" v-bind:class="cancelclass" data-dismiss="modal">{{cancelbtn}}</button>
-                            <button v-on:click="okaction" type="button" class="btn" v-bind:class="okclass">{{okbtn}}</button>
+                            <button  v-if="showaccept" v-on:click="okaction" type="button" class="btn" v-bind:class="okclass">{{okbtn}}</button>
                         </slot>
                     </div>
                 </div>
