@@ -62,20 +62,21 @@
     </td>
     <td class="text-center v-middle">
         <span class="label label-success">{{:estadoGrupoEnum}}</span>
-      
+
     </td>
     <td class="text-center v-middle">
         <input value="{{:id}}" type="hidden"/>
         <div class="dropdown actions">
-           
+
             {{if verOpciones==true}}
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >
                 {{if estado=="EXPR" || estado=="ACEP"}}
-                {{if estadoGrupoCerrado==false}}
+
                 <li role="presentation">
                     <a class="aceptar-expandir-sistema" href="#">Asignar evaluadores</a>
                 </li>
+                {{if estadoGrupoCerrado==false}}
                 <li role="presentation">
                     <a class="desvincular-expandir-sistema" href="#">Desvincular Sistema Calificación</a>
                 </li>
@@ -89,7 +90,7 @@
 
             </ul>
             {{/if}}
-           
+
         </div>
     </td>
 </tr>
