@@ -4,13 +4,13 @@ import java.util.Arrays;
 import java.util.List;
 import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.ACT;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CER;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CFG;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.PEND;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CFG;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CER;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements CicloAcademicoDAO {

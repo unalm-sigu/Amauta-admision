@@ -3,19 +3,19 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
-import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
-import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 
 @Repository
-public class CursoCurriculaDAOH extends AbstractDAO<CursoCurricula> implements CursoCurriculaDAO {
+public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implements CursoCurriculaDAO {
 
     public CursoCurriculaDAOH() {
         super();

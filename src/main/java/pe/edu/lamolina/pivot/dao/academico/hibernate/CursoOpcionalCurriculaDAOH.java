@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
-import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 
 @Repository
 public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCurricula> implements CursoOpcionalCurriculaDAO {

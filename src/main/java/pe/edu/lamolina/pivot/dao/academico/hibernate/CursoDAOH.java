@@ -6,22 +6,21 @@ import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
-import pe.edu.lamolina.pivot.model.academico.Curso;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoCursoCachimboEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import static pe.edu.lamolina.pivot.zelper.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
+import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -105,7 +104,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cu")
                 .leftJoin("planCalificacion pc", "planCalificacionRegular pcr")
-                .filter("pc.estado", EstadoEnum.ACT);
+                .filter("pc.estado", EstadoPlanCalificaEnum.ACT);
 
         if (plan.isTipoCicloNivelacion()) {
             sql.filter("pc.id", plan);
@@ -202,7 +201,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .from(Curso.class, "cur")
                 .join("departamentoAcademico dep")
                 .leftJoin("carrera car", "car.facultad fa", "planCalificacion  pc", "planCalificacionRegular pcr", "coordinador cor")
-                .filter("cur.estado", EstadoCursoCachimboEnum.ACT)
+                .filter("cur.estado", ACT)
                 .beginBlock()
                 .__().filter("cur.nombre", "like", nombre)
                 .__().filter("cur.codigo", "like", nombre)

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -12,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -26,7 +25,7 @@ import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
 
 @Repository
-public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
+public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     public AlumnoDAOH() {
         super();
@@ -35,10 +34,12 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public Alumno findByCodigo(String codigoAlumno) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("alu")
-                .parents("persona")
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per")
                 .filter("alu.codigo", codigoAlumno);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
@@ -49,10 +50,12 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<Alumno> allByPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("alu")
-                .parents("persona per")
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per")
                 .filter("per.id", persona);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override

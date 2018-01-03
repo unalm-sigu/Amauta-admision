@@ -2,17 +2,17 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoHorario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
 
 @Repository
 public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements AlumnoHorarioDAO {

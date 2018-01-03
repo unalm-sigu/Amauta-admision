@@ -3,15 +3,15 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
 
 @Repository
 public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implements CursoCachimbosDAO {
