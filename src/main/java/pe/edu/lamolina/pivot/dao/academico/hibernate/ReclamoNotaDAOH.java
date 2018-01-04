@@ -4,16 +4,15 @@ import java.util.List;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
-import pe.edu.lamolina.pivot.model.academico.ReclamoNota;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.ReclamoNota;
 
 @Repository
-public class ReclamoNotaDAOH extends AbstractDAO<ReclamoNota> implements ReclamoNotaDAO {
+public class ReclamoNotaDAOH extends AbstractEasyDAO<ReclamoNota> implements ReclamoNotaDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -24,16 +23,18 @@ public class ReclamoNotaDAOH extends AbstractDAO<ReclamoNota> implements Reclamo
 
     @Override
     public List<ReclamoNota> allByFilter(Evaluacion evaluacion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("rn");
-        sqlUtil.parents("alumno alu", "evaluacion eva");
-        sqlUtil.filter("eva.id", evaluacion.getId());
-        return this.all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(ReclamoNota.class, "rn")
+                .join("alumno alu", "evaluacion eva")
+                .filter("eva.id", evaluacion);
+
+        return all(sql);
     }
 
     @Override
     public void deleteByEvaluacion(Evaluacion evaluacion) {
-        String strQuery = "delete from ReclamoNota rn where rn.evaluacion.id=:prm_evaluacion";
-        Query query = getCurrentSession().createQuery(strQuery);
+        String sql = "delete from ReclamoNota rn where rn.evaluacion.id=:prm_evaluacion";
+        Query query = getCurrentSession().createQuery(sql);
         query.setLong("prm_evaluacion", evaluacion.getId());
         query.executeUpdate();
     }

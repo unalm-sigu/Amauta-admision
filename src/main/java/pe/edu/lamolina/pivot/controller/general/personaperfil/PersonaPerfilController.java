@@ -31,14 +31,14 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.general.Oficina;
-import pe.edu.lamolina.pivot.model.general.PerfilCompania;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.PersonaPerfil;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller

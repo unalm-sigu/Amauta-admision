@@ -1,17 +1,16 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
-import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 
 @Repository
-public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHorasDAO {
+public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements GrupoHorasDAO {
 
     public GrupoHorasDAOH() {
         super();
@@ -20,9 +19,11 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
 
     @Override
     public GrupoHoras findByCode(String codigo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("gh")
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
                 .filter("gh.codigo", codigo);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
@@ -30,7 +31,8 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "grup")
                 .filter("codigo", codigo);
-        return (GrupoHoras) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -42,7 +44,8 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
                 .searchFields("codigo", "letra", "tipoCiclo", "tipoSeccion", "color")
                 .filter("tgh.id", idTipoGrupo)
                 .orderBy("gh.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -51,6 +54,7 @@ public class GrupoHorasDAOH extends AbstractDAO<GrupoHoras> implements GrupoHora
                 .from(GrupoHoras.class, "grup")
                 .leftJoin("tipoGrupoHoras tgh")
                 .filter("grup.id", grupoHoras);
-        return (GrupoHoras) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 }

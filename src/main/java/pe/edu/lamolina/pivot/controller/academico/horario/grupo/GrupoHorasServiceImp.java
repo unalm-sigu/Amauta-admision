@@ -9,18 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.general.Dia;
-import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
-import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.model.horario.Hora;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 @Service
 @Transactional(readOnly = true)

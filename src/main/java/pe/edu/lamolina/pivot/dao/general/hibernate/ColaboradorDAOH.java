@@ -1,17 +1,15 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.criterion.Restrictions;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
-import pe.edu.lamolina.pivot.model.general.Colaborador;
 import org.springframework.stereotype.Repository;
-import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Oficina;
 
 @Repository
-public class ColaboradorDAOH extends AbstractDAO<Colaborador> implements ColaboradorDAO {
+public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements ColaboradorDAO {
 
     public ColaboradorDAOH() {
         super();
@@ -20,19 +18,21 @@ public class ColaboradorDAOH extends AbstractDAO<Colaborador> implements Colabor
 
     @Override
     public List<Colaborador> allColaborador(List<Oficina> oficinas) {
-        Criteria criteria = getCurrentSession().createCriteria(Colaborador.class);
-        criteria.add(Restrictions.in("oficina", oficinas));
-        criteria.setFetchMode("cargo", FetchMode.JOIN);
-        criteria.setFetchMode("persona", FetchMode.JOIN);
-        return criteria.list();
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("oficina ofi", "cargo car", "persona per")
+                .in("ofi.id", oficinas);
+
+        return all(sql);
     }
 
     @Override
     public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
-        Criteria criteria = getCurrentSession().createCriteria(Colaborador.class);
-        criteria.add(Restrictions.eq("oficina", oficina));
-        criteria.setFetchMode("cargo", FetchMode.JOIN);
-        criteria.setFetchMode("persona", FetchMode.JOIN);
-        return criteria.list();
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("oficina ofi", "cargo car", "persona per")
+                .filter("ofi.id", oficina);
+
+        return all(sql);
     }
 }

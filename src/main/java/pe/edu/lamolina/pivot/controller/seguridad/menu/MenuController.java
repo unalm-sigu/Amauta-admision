@@ -26,10 +26,10 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
 
 @Controller
 @RequestMapping("seguridad/menu")

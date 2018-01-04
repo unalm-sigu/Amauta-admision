@@ -1,6 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
 
-import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 public class CarreraCursoCachimbo {

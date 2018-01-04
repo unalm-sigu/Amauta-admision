@@ -3,14 +3,14 @@ package pe.edu.lamolina.pivot.dao.horario.hibernate;
 import java.util.List;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
-import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 
 @Repository
 public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioCachimbos> implements SeccionHorarioCachimbosDAO {
@@ -29,7 +29,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .filter("ci.id", cicloAcademico)
                 .filter("ciclo.id", cicloAcademico)
                 .in("cur.id", cursos);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -38,7 +39,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .from(SeccionHorarioCachimbos.class, "shc")
                 .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .filter("hc.id", horario);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -47,7 +49,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .from(SeccionHorarioCachimbos.class, "shc")
                 .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .in("hc.id", horarios);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -58,7 +61,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .filter("ci.id", cicloAcademico)
                 .filter("ciclo.id", cicloAcademico)
                 .in("cur.id", cursos);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
                 .filter("ci.id", cicloAcademico)
                 .filter("ciclo.id", cicloAcademico)
                 .in("sec.id", secciones);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 }

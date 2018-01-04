@@ -1,16 +1,16 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
 
 @Repository
-public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements TipoGrupoHorasDAO {
+public class TipoGrupoHorasDAOH extends AbstractEasyDAO<TipoGrupoHoras> implements TipoGrupoHorasDAO {
 
     public TipoGrupoHorasDAOH() {
         super();
@@ -24,7 +24,8 @@ public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements T
                 .from(TipoGrupoHoras.class, "tgh")
                 .searchFields("codigo", "tipo", "estadoGrupos", "estado")
                 .orderBy("tgh.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
 
     }
 
@@ -33,7 +34,8 @@ public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements T
         Octavia sql = Octavia.query()
                 .from(TipoGrupoHoras.class, "tipo")
                 .filter("codigo", codigo);
-        return (TipoGrupoHoras) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
 }

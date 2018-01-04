@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.edu.lamolina.pivot.model.academico.CarreraCachimbos;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -66,8 +66,7 @@ public class HorarioCarreraController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "academico/horariocachimbo/carrera/horariocarrera";
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {

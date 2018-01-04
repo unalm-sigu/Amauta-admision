@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
-import pe.edu.lamolina.pivot.model.tramite.TipoTramite;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 
 @Repository
-public class TipoTramiteDAOH extends AbstractDAO<TipoTramite> implements TipoTramiteDAO {
+public class TipoTramiteDAOH extends AbstractEasyDAO<TipoTramite> implements TipoTramiteDAO {
 
     public TipoTramiteDAOH() {
         super();
         setClazz(TipoTramite.class);
     }
 }
-

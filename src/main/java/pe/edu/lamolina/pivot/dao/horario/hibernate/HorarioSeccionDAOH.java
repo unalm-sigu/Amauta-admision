@@ -1,17 +1,17 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
-import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Repository
-public class HorarioSeccionDAOH extends AbstractDAO<HorarioSeccion> implements HorarioSeccionDAO {
+public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implements HorarioSeccionDAO {
 
     public HorarioSeccionDAOH() {
         super();
@@ -24,7 +24,8 @@ public class HorarioSeccionDAOH extends AbstractDAO<HorarioSeccion> implements H
                 .from(HorarioSeccion.class, "hs")
                 .join("dia di", "hora ho", "seccion sec")
                 .in("sec.id", secciones);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -34,6 +35,7 @@ public class HorarioSeccionDAOH extends AbstractDAO<HorarioSeccion> implements H
                 .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gru", "gru.cicloAcademico ciclo", "gru.curso cu")
                 .filter("ciclo.id", cicloAcademico)
                 .in("cu.id", cursos);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 }

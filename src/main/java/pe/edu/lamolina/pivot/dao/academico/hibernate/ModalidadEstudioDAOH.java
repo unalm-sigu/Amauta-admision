@@ -2,20 +2,19 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.model.general.Compania;
 
 @Repository
-public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implements ModalidadEstudioDAO {
+public class ModalidadEstudioDAOH extends AbstractEasyDAO<ModalidadEstudio> implements ModalidadEstudioDAO {
 
     public ModalidadEstudioDAOH() {
         super();
@@ -24,17 +23,21 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
 
     @Override
     public ModalidadEstudio findByCodigo(ModalidadEstudioEnum codigo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .filter("me.codigo", codigo.name());
-        return this.find(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "me")
+                .filter("me.codigo", codigo);
+
+        return find(sql);
     }
 
     @Override
     public List<ModalidadEstudio> allByCompania(Compania compania) {
-        SqlUtil sqlUtil = new SqlUtil("mo")
-                .parents("compania co")
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "me")
+                .join("compania co")
                 .filter("co.id", compania);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
@@ -42,8 +45,9 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
         Octavia sql = Octavia.query()
                 .from(ModalidadEstudio.class, "mo")
                 .join("compania")
-                .filter("estado", EstadoEnum.ACT.name());
-        return sql.all(getCurrentSession());
+                .filter("estado", EstadoEnum.ACT);
+
+        return all(sql);
     }
 
     @Override
@@ -52,8 +56,9 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
                 .from(ModalidadEstudio.class, "mo")
                 .join("compania")
                 .filter("compania", compania)
-                .filter("estado", EstadoEnum.ACT.name());
-        return sql.all(getCurrentSession());
+                .filter("estado", EstadoEnum.ACT);
+
+        return all(sql);
     }
 
     @Override
@@ -62,10 +67,10 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
                 .from(ModalidadEstudio.class, "me")
                 .join("compania cia")
                 .filter("cia.id", cia.getId())
-                .filter("me.estado", EstadoEnum.ACT.name())
-                .in("me.codigo", Arrays.asList(PRE.name(), EPG.name()));
+                .filter("me.estado", EstadoEnum.ACT)
+                .in("me.codigo", Arrays.asList(PRE, EPG));
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -74,6 +79,6 @@ public class ModalidadEstudioDAOH extends AbstractDAO<ModalidadEstudio> implemen
                 .from(ModalidadEstudio.class)
                 .in("codigo", codigos);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 }

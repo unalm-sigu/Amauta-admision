@@ -24,17 +24,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-
 
 @Controller
 @RequestMapping("academico/facultad")
@@ -83,11 +82,11 @@ public class FacultadController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            logger.debug("COMPANIA {}",ds.getCompania().getId());
-            logger.debug("FACULTADES {}",ds.getFacultados().size());
-            logger.debug("DEPARTAMENTOS {}",ds.getDepartamentos().size());
-            logger.debug("CARRERAS {}",ds.getCarreras().size());
-            logger.debug("MODALIDADES {}",ds.getModalidades().size());
+            logger.debug("COMPANIA {}", ds.getCompania().getId());
+            logger.debug("FACULTADES {}", ds.getFacultados().size());
+            logger.debug("DEPARTAMENTOS {}", ds.getDepartamentos().size());
+            logger.debug("CARRERAS {}", ds.getCarreras().size());
+            logger.debug("MODALIDADES {}", ds.getModalidades().size());
 
             List<Facultad> facultades = service.allFacultad(filter);
 
@@ -124,7 +123,7 @@ public class FacultadController {
         model.addAttribute("facultad", facultad);
         return "academico/facultad/facultadForm";
     }
-    
+
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
@@ -150,15 +149,14 @@ public class FacultadController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, redirectAttr);
         }
-        
+
         return "redirect:/academico/facultad";
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("delete")
     public JsonResponse delete(Facultad facultad) {
-        
+
         JsonResponse response = new JsonResponse();
 
         try {
@@ -175,12 +173,11 @@ public class FacultadController {
 
         return response;
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("estado")
     public JsonResponse estado(Facultad facultad) {
-        
+
         JsonResponse response = new JsonResponse();
 
         try {
@@ -197,8 +194,7 @@ public class FacultadController {
 
         return response;
     }
-    
-    
+
     @ResponseBody
     @RequestMapping("allFacultad")
     public JsonResponse allFacultad(@RequestParam("nombre") String nombre, HttpSession session) {
@@ -220,7 +216,7 @@ public class FacultadController {
                 a.put("nombre", facultad.getNombre());
                 array.add(a);
             }
-            
+
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
@@ -232,5 +228,5 @@ public class FacultadController {
         }
         return response;
     }
-    
+
 }

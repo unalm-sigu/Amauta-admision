@@ -3,13 +3,13 @@ package pe.edu.lamolina.pivot.dao.horario.hibernate;
 import java.util.List;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
 
 @Repository
 public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> implements HorarioCachimbosDAO {
@@ -28,7 +28,8 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .searchFields("car.nombre")
                 .orderBy("hoca.id desc");
         sql.beginRelativeFilters();
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -39,7 +40,8 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .filter("ciclo.id", ciclo)
                 .filter("car.id", carrera)
                 .orderBy("hoca.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -49,7 +51,8 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("ciclo.id", ciclo)
                 .orderBy("hoca.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -61,7 +64,7 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .orderBy("CONVERT( SUBSTRING(hoca.codigo, 3) ,  UNSIGNED )   desc")
                 .limit(1);
 
-        return (HorarioCachimbos) sql.find(getCurrentSession());
+        return find(sql);
     }
 
     @Override
@@ -70,6 +73,7 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .from(HorarioCachimbos.class, "hoca")
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("hoca.id", horarioCachimbos);
-        return (HorarioCachimbos) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 }

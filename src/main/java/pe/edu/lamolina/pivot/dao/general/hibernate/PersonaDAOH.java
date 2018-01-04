@@ -3,14 +3,14 @@ package pe.edu.lamolina.pivot.dao.general.hibernate;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.model.general.Persona;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
 @Repository
 public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO {
@@ -130,7 +130,7 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
                 .leftJoin("tipoDocumento td")
                 .filter("emailCompania", email);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -141,16 +141,17 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
                 .filter("emailCompania", persona.getEmailCompania())
                 .filter("per.id", "<>", persona.getId());
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
     public Persona findPersona(Long id) {
-                Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
                 .leftJoin("ubicacionDomicilio ud")
                 .filter("per.id", id);
+
         return find(sql);
     }
 

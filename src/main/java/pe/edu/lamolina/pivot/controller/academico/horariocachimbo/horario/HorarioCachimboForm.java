@@ -1,7 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
 
 public class HorarioCachimboForm {
 

@@ -1,17 +1,18 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
-import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
 
 @Repository
-public class MatriculaResumenDAOH extends AbstractDAO<MatriculaResumen> implements MatriculaResumenDAO {
+public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
 
     public MatriculaResumenDAOH() {
         super();
@@ -20,35 +21,42 @@ public class MatriculaResumenDAOH extends AbstractDAO<MatriculaResumen> implemen
 
     @Override
     public MatriculaResumen findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
-        SqlUtil sqlUtil = new SqlUtil("mr")
-                .parents("alumno alu", "cicloAcademico ca")
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
                 .filter("alu.id", alumno)
                 .filter("ca.id", ciclo);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public List<MatriculaResumen> allByCiclo(CicloAcademico ciclo) {
-        SqlUtil sqlUtil = new SqlUtil("mr")
-                .parents("alumno alu", "cicloAcademico ca")
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
                 .filter("ca.id", ciclo);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaCursoEnum estadoMatriculaCursoEnum) {
-        SqlUtil sqlUtil = new SqlUtil("mr")
-                .parents("alumno alu", "cicloAcademico ca");
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca");
+
         if (ciclo != null) {
-            sqlUtil.filter("ca.id", ciclo);
+            sql.filter("ca.id", ciclo);
         }
         if (alumno != null) {
-            sqlUtil.filter("alu.id", alumno);
+            sql.filter("alu.id", alumno);
         }
         if (estadoMatriculaCursoEnum != null) {
-            sqlUtil.filter("mr.estado", estadoMatriculaCursoEnum.name());
+            sql.filter("mr.estado", estadoMatriculaCursoEnum);
         }
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
 }

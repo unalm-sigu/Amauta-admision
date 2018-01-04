@@ -17,6 +17,20 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AlumnoHorario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
@@ -28,20 +42,6 @@ import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
-import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.general.Dia;
-import pe.edu.lamolina.pivot.model.horario.Hora;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
-import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
-import pe.edu.lamolina.pivot.model.horario.SeccionHorarioCachimbos;
-import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -295,7 +295,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         }
 
     }
-    
+
     @Override
     @Transactional
     public HorarioCachimbos createHorario(

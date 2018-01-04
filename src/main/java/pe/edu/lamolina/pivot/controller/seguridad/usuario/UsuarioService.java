@@ -1,12 +1,12 @@
 package pe.edu.lamolina.pivot.controller.seguridad.usuario;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface UsuarioService {

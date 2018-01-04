@@ -2,12 +2,12 @@ package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
-import pe.edu.lamolina.pivot.model.general.Aula;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.Aula;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
@@ -23,7 +23,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .filter("au.codigo", codigo);
-        return (Aula) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -33,7 +34,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
                 .orderBy("au.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -54,7 +56,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("au.tipoAmbiente", "EDI")
                 .filter("au.nombre", "like", nombre)
                 .orderBy("au.nombre", "au.codigo");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -64,7 +67,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .join("aulaSuperior aus")
                 .filter("aus.id", aula)
                 .orderBy("au.nombre", "au.codigo");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -74,7 +78,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .join("aulaSuperior aus")
                 .in("aus.id", aulas)
                 .orderBy("au.nombre", "au.codigo");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -83,7 +88,8 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .filter("au.id", id);
-        return (Aula) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
 }

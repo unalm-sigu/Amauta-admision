@@ -1,9 +1,9 @@
 package pe.edu.lamolina.pivot.controller.seguridad.menucolaborador;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.model.seguridad.ColaboradorMenu;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.ColaboradorMenu;
+import pe.edu.lamolina.model.seguridad.Menu;
 
 public interface MenuColaboradorService {
 

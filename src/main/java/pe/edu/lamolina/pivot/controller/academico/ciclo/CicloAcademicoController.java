@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -44,7 +44,7 @@ public class CicloAcademicoController {
         CicloAcademico cicloAcademico = service.getCicloAcademico(ciclo);
         ds.setCicloAcademico(cicloAcademico);
         session.setAttribute(Constantine.SESSION_USUARIO, ds);
-        
+
     }
 
 }

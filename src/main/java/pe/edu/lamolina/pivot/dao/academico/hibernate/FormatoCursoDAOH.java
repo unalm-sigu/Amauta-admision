@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.FormatoCursoDAO;
-import pe.edu.lamolina.pivot.model.academico.FormatoCurso;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.FormatoCurso;
 
 @Repository
-public class FormatoCursoDAOH extends AbstractDAO<FormatoCurso> implements FormatoCursoDAO {
+public class FormatoCursoDAOH extends AbstractEasyDAO<FormatoCurso> implements FormatoCursoDAO {
 
     public FormatoCursoDAOH() {
         super();
         setClazz(FormatoCurso.class);
     }
 }
-

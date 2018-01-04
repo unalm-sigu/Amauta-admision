@@ -4,18 +4,18 @@ import java.util.List;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.EvaluacionExpandida;
+import pe.edu.lamolina.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
-public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> implements EvaluacionExpandidaDAO {
+public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida> implements EvaluacionExpandidaDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -26,32 +26,29 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     @Override
     public EvaluacionExpandida find(long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva")
-                .parents("tipoEvaluacion te", "left evaluacionSuperior es", "evaluacionSeccion sc", "left evaluaciones evals")
-                .parents("_sc.grupoSeccion gs")
+        Octavia sql = Octavia.query()
+                .from(EvaluacionExpandida.class, "eva")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .leftJoin("evaluacionSuperior esup")
                 .filter("eva.id", id);
+        EvaluacionExpandida evaluacionExpandida = find(sql);
 
-        EvaluacionExpandida evaluacionExpandida = this.find(sqlUtil);
+        List<EvaluacionExpandida> evalExpanHijas = allHijas(evaluacionExpandida);
 
-        sqlUtil = SqlUtil.creaSqlUtil("eva")
-                .parents("tipoEvaluacion te", "evaluacionSuperior es", "evaluacionSeccion sc")
-                .parents("_sc.grupoSeccion gs")
-                .filter("es.id", id);
-
-        List<EvaluacionExpandida> evaluacionesHija = this.all(sqlUtil);
-        evaluacionExpandida.setEvaluacionesExpandidas(evaluacionesHija);
-
-        for (EvaluacionExpandida evaluacionExp : evaluacionExpandida.getEvaluacionesExpandidas()) {
-
-            sqlUtil = SqlUtil.creaSqlUtil("eva")
-                    .parents("tipoEvaluacion te", "evaluacionSuperior es", "evaluacionSeccion sc")
-                    .parents("_sc.grupoSeccion gs")
-                    .filter("es.id", evaluacionExp.getId());
-            List<EvaluacionExpandida> evaluacionNietas = this.all(sqlUtil);
-            evaluacionExp.setEvaluacionesExpandidas(evaluacionNietas);
+        for (EvaluacionExpandida evaExp : evalExpanHijas) {
+            evaExp.setEvaluacionesExpandidas(allHijas(evaExp));
         }
 
+        evaluacionExpandida.setEvaluacionesExpandidas(evalExpanHijas);
         return evaluacionExpandida;
+    }
+
+    private List<EvaluacionExpandida> allHijas(EvaluacionExpandida evalExpan) {
+        Octavia sql = Octavia.query()
+                .from(EvaluacionExpandida.class, "eva")
+                .join("tipoEvaluacion te", "evaluacionSuperior esup", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .filter("esup.id", evalExpan.getId());
+        return all(sql);
     }
 
     @Override
@@ -61,39 +58,39 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     @Override
     public List<EvaluacionExpandida> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idEvaluacionExpSup, EstadoEnum estadoEnum) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva")
-                .parents("evaluacionSeccion es", "tipoEvaluacion te")
-                .parents("_es.grupoSeccion gs")
-                .parents("left evaluacionSuperior esup")
+        Octavia sql = Octavia.query()
+                .from(EvaluacionExpandida.class, "eva")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .leftJoin("evaluacionSuperior esup")
                 .orderBy("te.orden", "eva.numero");
+
         if (idEvaluacionExpSup == null) {
-            sqlUtil.filterIsNull("esup.id");
+            sql.isNull("esup.id");
         }
         if (idEvaluacionSeccion != null) {
-            sqlUtil.filter("es.id", idEvaluacionSeccion);
+            sql.filter("es.id", idEvaluacionSeccion);
         }
         if (idGrupoSeccion != null) {
-            sqlUtil.filter("gs.id", idGrupoSeccion);
+            sql.filter("gs.id", idGrupoSeccion);
         }
         if (idEvaluacionExpSup != null) {
-            sqlUtil.filter("esup.id", idEvaluacionExpSup);
+            sql.filter("esup.id", idEvaluacionExpSup);
         }
 
         if (estadoEnum != null) {
-            sqlUtil.filter("eva.estado", estadoEnum.name());
+            sql.filter("eva.estado", estadoEnum.name());
         }
 
-        List<EvaluacionExpandida> lstEvaluaciones = this.all(sqlUtil);
+        List<EvaluacionExpandida> evaluacionesExpandidas = all(sql);
 
-        for (EvaluacionExpandida objEvaluacion : lstEvaluaciones) {
-            if (objEvaluacion.getEvaluacionesExpandidas() != null) {
-                for (EvaluacionExpandida eva : objEvaluacion.getEvaluacionesExpandidas()) {
-                    eva.getId();
-                    eva.getTipoEvaluacion().getId();
-                }
+        for (EvaluacionExpandida evaExpAbuelo : evaluacionesExpandidas) {
+            evaExpAbuelo.setEvaluacionesExpandidas(allHijas(evaExpAbuelo));
+            for (EvaluacionExpandida evaExpPadre : evaExpAbuelo.getEvaluacionesExpandidas()) {
+                evaExpPadre.setEvaluacionesExpandidas(allHijas(evaExpPadre));
             }
         }
-        return lstEvaluaciones;
+
+        return evaluacionesExpandidas;
     }
 
     @Override
@@ -107,32 +104,24 @@ public class EvaluacionExpandidaDAOH extends AbstractDAO<EvaluacionExpandida> im
 
     @Override
     public List<EvaluacionExpandida> allByEvaluacionSeccion(EvaluacionSeccion evalSecc) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev");
-        sqlUtil.parents("evaluacionSeccion es");
-        sqlUtil.filter("es.id", evalSecc);
+        Octavia sql = Octavia.query()
+                .from(EvaluacionExpandida.class, "eva")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .leftJoin("evaluacionSuperior esup")
+                .filter("es.id", evalSecc);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
     public List<EvaluacionExpandida> allByGpoSeccionPlan(GrupoSeccion gpoSeccion, PlanCalificacion plan) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior")
-                .parents("_es.grupoSeccion gs", "_es.planCalificacion p")
+        Octavia sql = Octavia.query()
+                .from(EvaluacionExpandida.class, "eva")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs", "es.planCalificacion p")
+                .leftJoin("evaluacionSuperior esup")
                 .filter("gs.id", gpoSeccion)
                 .filter("p.id", plan);
 
-        return all(sqlUtil);
+        return all(sql);
     }
-
-//    @Override
-//    public List<EvaluacionExpandida> allByGpoSeccion(GrupoSeccion gpoSeccion) {
-//        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-//                .parents("evaluacionSeccion es", "tipoEvaluacion", "left evaluacionSuperior")
-//                .parents("_es.grupoSeccion gs", "_es.planCalificacion p")
-//                .filter("gs.id", gpoSeccion)
-//                .filter("ev.estado", EstadoEnum.ACT.name());
-//
-//        return all(sqlUtil);
-//    }
 }

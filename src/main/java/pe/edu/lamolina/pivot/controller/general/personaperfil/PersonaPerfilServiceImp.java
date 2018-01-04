@@ -11,6 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.seguridad.PerfilRol;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
@@ -18,16 +28,6 @@ import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.PerfilRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.general.PerfilCompania;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
-import pe.edu.lamolina.pivot.model.seguridad.PerfilRol;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)

@@ -1,15 +1,15 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
 import pe.edu.lamolina.pivot.dao.seguridad.RolSistemaDAO;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.RolSistema;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.RolSistema;
+import pe.edu.lamolina.model.seguridad.Sistema;
 
 @Repository
-public class RolSistemaDAOH extends AbstractDAO<RolSistema> implements RolSistemaDAO {
+public class RolSistemaDAOH extends AbstractEasyDAO<RolSistema> implements RolSistemaDAO {
 
     public RolSistemaDAOH() {
         super();
@@ -24,7 +24,7 @@ public class RolSistemaDAOH extends AbstractDAO<RolSistema> implements RolSistem
                 .filter("rol.id", rol)
                 .filter("s.id", sistema);
 
-        return (RolSistema) sql.find(getCurrentSession());
+        return find(sql);
     }
 
 }

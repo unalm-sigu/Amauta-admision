@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.plancalificacurso;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,18 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -47,7 +44,7 @@ public class PlanCalificaCursoServiceImp implements PlanCalificaCursoService {
         CicloAcademico cicloAnterior = cicloAcademicoDAO.findAnteriorRegular(ciclo);
         List<DocenteCursoPlan> profeCursoPlanesAntes = grupoSeccionDAO.allDocenteCursoPlanByCiclo(cicloAnterior);
         Map<String, Long> mapPlanesStr = new LinkedHashMap();
-        
+
         for (DocenteCursoPlan profeCursoPlan : profeCursoPlanesAntes) {
             if (profeCursoPlan.getCantidadPlanes() > 1) {
                 continue;

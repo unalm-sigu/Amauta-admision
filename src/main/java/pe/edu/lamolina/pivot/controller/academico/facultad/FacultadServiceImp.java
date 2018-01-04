@@ -5,11 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.FacultadEstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.enums.FacultadEstadoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class FacultadServiceImp implements FacultadService {
 
     @Override
     public List<Facultad> allFacultad(String nombre, Compania compania) {
-        return facultadDAO.allFacultad(nombre,compania);
+        return facultadDAO.allFacultad(nombre, compania);
     }
 
 }

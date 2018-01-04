@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
-import pe.edu.lamolina.pivot.model.academico.CarreraCachimbos;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,7 +22,7 @@ public class HorarioCarreraServiceImp implements HorarioCarreraService {
 
     @Override
     public List<CarreraCachimbos> allCarreraCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        return carreraCachimbosDAO.allCarreraCachimbos(filter,cicloAcademico);
+        return carreraCachimbosDAO.allCarreraCachimbos(filter, cicloAcademico);
     }
 
 }

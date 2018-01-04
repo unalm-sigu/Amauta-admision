@@ -27,8 +27,8 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 @Controller
 @RequestMapping("academico/horario")

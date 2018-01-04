@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.LoggerMatriculaDAO;
-import pe.edu.lamolina.pivot.model.academico.LoggerMatricula;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.LoggerMatricula;
 
 @Repository
-public class LoggerMatriculaDAOH extends AbstractDAO<LoggerMatricula> implements LoggerMatriculaDAO {
+public class LoggerMatriculaDAOH extends AbstractEasyDAO<LoggerMatricula> implements LoggerMatriculaDAO {
 
     public LoggerMatriculaDAOH() {
         super();
         setClazz(LoggerMatricula.class);
     }
 }
-

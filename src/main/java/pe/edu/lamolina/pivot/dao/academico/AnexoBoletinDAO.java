@@ -19,6 +19,6 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
 
     List<AnexoBoletin> allAnexosHijos();
 
-    public List<AnexoBoletin> allBySuperiorCiclo(AnexoBoletin anexoSuperior, CicloAcademico ciclo);
+    List<AnexoBoletin> allBySuperiorCiclo(AnexoBoletin anexoSuperior, CicloAcademico ciclo);
 
 }

@@ -2,12 +2,12 @@ package pe.edu.lamolina.pivot.controller.academico.carrera;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface CarreraService {
 

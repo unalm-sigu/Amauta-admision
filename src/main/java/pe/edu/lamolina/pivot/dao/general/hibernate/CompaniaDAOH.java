@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
-import pe.edu.lamolina.pivot.model.general.Compania;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.Compania;
 
 @Repository
-public class CompaniaDAOH extends AbstractDAO<Compania> implements CompaniaDAO {
+public class CompaniaDAOH extends AbstractEasyDAO<Compania> implements CompaniaDAO {
 
     public CompaniaDAOH() {
         super();
         setClazz(Compania.class);
     }
 }
-

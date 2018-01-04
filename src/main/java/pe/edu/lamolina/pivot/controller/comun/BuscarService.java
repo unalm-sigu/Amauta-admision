@@ -1,10 +1,10 @@
 package pe.edu.lamolina.pivot.controller.comun;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.general.Ubicacion;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.general.Ubicacion;
 
 public interface BuscarService {
 
@@ -14,6 +14,6 @@ public interface BuscarService {
 
     List<DepartamentoAcademico> allDepartamentosByName(String nombre);
 
-    List<Docente> allCoordinadoresByIdDptoName(Long idDpto,String nombre);
+    List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre);
 
 }

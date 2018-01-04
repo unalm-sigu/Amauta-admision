@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.PlanCalificacionCurso;

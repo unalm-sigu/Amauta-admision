@@ -1,14 +1,14 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
-import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
-import pe.edu.lamolina.pivot.model.general.PerfilCompania;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.PerfilCompania;
 
 @Repository
-public class PerfilCompaniaDAOH extends AbstractDAO<PerfilCompania> implements PerfilCompaniaDAO {
+public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implements PerfilCompaniaDAO {
 
     public PerfilCompaniaDAOH() {
         super();
@@ -17,16 +17,12 @@ public class PerfilCompaniaDAOH extends AbstractDAO<PerfilCompania> implements P
 
     @Override
     public List<PerfilCompania> allByNombre(String nombre) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        StringBuilder sql = new StringBuilder();
-        sql.append("  from ").append(PerfilCompania.class.getName()).append(" as pc ");
-        sql.append("  where pc.nombreDocumento like :BUSQUEDA ");
-        sql.append("  order by pc.nombreDocumento ");
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .like("pc.nombreDocumento", nombre)
+                .orderBy("pc.nombreDocumento")
+                .limit(15);
 
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("BUSQUEDA", nombre);
-        query.setMaxResults(15);
-
-        return query.list();
+        return all(sql);
     }
 }

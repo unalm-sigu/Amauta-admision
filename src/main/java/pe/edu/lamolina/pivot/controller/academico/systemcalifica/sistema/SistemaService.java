@@ -2,14 +2,14 @@ package pe.edu.lamolina.pivot.controller.academico.systemcalifica.sistema;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
-import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
-import pe.edu.lamolina.pivot.model.academico.TipoEvaluacion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
+import pe.edu.lamolina.model.academico.SistemaNotas;
+import pe.edu.lamolina.model.academico.TipoEvaluacion;
+import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface SistemaService {

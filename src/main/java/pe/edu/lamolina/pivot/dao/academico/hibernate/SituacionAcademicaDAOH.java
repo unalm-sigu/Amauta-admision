@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
-import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 
 @Repository
-public class SituacionAcademicaDAOH extends AbstractDAO<SituacionAcademica> implements SituacionAcademicaDAO {
+public class SituacionAcademicaDAOH extends AbstractEasyDAO<SituacionAcademica> implements SituacionAcademicaDAO {
 
     public SituacionAcademicaDAOH() {
         super();
@@ -16,8 +16,10 @@ public class SituacionAcademicaDAOH extends AbstractDAO<SituacionAcademica> impl
 
     @Override
     public SituacionAcademica findByCodigo(String codigo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("sa")
+        Octavia sql = Octavia.query()
+                .from(SituacionAcademica.class, "sa")
                 .filter("sa.codigo", codigo);
-        return this.find(sqlUtil);
+
+        return find(sql);
     }
 }

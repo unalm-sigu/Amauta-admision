@@ -2,10 +2,10 @@ package pe.edu.lamolina.pivot.controller.academico.anexoboletin;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface AnexoBoletinService {
 
@@ -22,7 +22,7 @@ public interface AnexoBoletinService {
     AnexoBoletin find(Long id);
 
     void cambiarEstado(AnexoBoletin anexo);
-    
+
     AnexoResumen resumen();
 
 }

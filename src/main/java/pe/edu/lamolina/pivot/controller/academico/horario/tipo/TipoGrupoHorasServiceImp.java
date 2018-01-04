@@ -9,12 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.enums.EstadoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.EstadoTipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoHorasEnum;
-import pe.edu.lamolina.pivot.zelper.enums.OficinaEstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoTipoGrupoHorasEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -85,7 +85,7 @@ public class TipoGrupoHorasServiceImp implements TipoGrupoHorasService {
             codigoDisp = mapCodigos.get(codigo);
         }
 
-        tipoGrupo.setCodigo("HOR-"+codigo);
+        tipoGrupo.setCodigo("HOR-" + codigo);
         tipoGrupoHorasDAO.save(tipoGrupo);
 
     }
