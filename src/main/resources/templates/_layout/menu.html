@@ -38,6 +38,21 @@
                             th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                             <a href="#" data-toggle="sidebar">
                                 <i class="fa fa-magic"></i>
+                                <span>Alumno</span>
+                                <i class="fa fa-chevron-down"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                                    <a th:href="@{/academico/visitante/alumno}">
+                                        <span>Alumno Visitante</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="option"
+                            th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                            <a href="#" data-toggle="sidebar">
+                                <i class="fa fa-magic"></i>
                                 <span>Procesos</span>
                                 <i class="fa fa-chevron-down"></i>
                             </a>
