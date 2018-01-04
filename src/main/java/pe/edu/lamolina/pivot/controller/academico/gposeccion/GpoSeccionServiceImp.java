@@ -329,18 +329,42 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void deleteSeccion(Seccion seccion) {
-        seccion = seccionDAO.find(seccion.getId());
-        List<Seccion> secciones = seccionDAO.allByGposSeccion(seccion.getGrupoSeccion());
+    public void deleteSeccion(Seccion seccionToDelete) {
+        seccionToDelete = seccionDAO.find(seccionToDelete.getId());
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(seccionToDelete.getGrupoSeccion());
         if (secciones.size() == 1) {
             throw new PhobosException("No se pueden eliminar todas las secciones del grupo");
         }
+
+        Seccion seccionTCUR = null;
+        Integer vacantes = BigDecimal.ZERO.intValue();
+        for (Seccion seccionEach : secciones) {
+            if (seccionEach.isTipoSeccionTCUR()) {
+                seccionTCUR = seccionEach;
+            }
+            if (seccionEach.getId().compareTo(seccionToDelete.getId()) != 0) {
+                if (seccionEach.isTipoSeccionPCUR()) {
+                    vacantes = vacantes + seccionEach.getVacantes();
+                }
+            }
+
+        }
+        if (seccionTCUR != null) {
+            seccionTCUR.setVacantes(vacantes);
+            if (ObjectUtil.getParentTree(seccionTCUR, "aula.id") != null) {
+                if (seccionTCUR.getAula().getAforo().compareTo(seccionTCUR.getVacantes()) < 0) {
+                    throw new PhobosException("Las vacantes de la sección superan, el aforo del aula de teoria");
+                }
+            }
+            seccionDAO.updateSeccionVacantes(seccionTCUR);
+        }
+
         //docenteSeccionDAO.deleteDocenteSeccionBySeccion(seccion);
-        List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
+        List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccionToDelete);
         for (DocenteSeccion docenteSeccion : docentesSec) {
             docenteSeccionDAO.delete(docenteSeccion);
         }
-        seccionDAO.delete(seccion);
+        seccionDAO.delete(seccionToDelete);
     }
 
     @Override
@@ -460,7 +484,36 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public void actualizarSeccionVacantes(Seccion seccion) {
+        Seccion seccioDB = seccionDAO.find(seccion.getId());
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(seccioDB.getGrupoSeccion());
+        //todo verificar cantidad de matriculados
+        Seccion seccionTCUR = null;
+        Integer vacantes = BigDecimal.ZERO.intValue();
+
+        for (Seccion seccionEach : secciones) {
+            if (seccionEach.getId().compareTo(seccion.getId()) == 0) {
+                seccionEach.setVacantes(seccion.getVacantes());
+            }
+            if (seccionEach.isTipoSeccionTCUR()) {
+                seccionTCUR = seccionEach;
+            }
+            if (seccionEach.isTipoSeccionPCUR()) {
+                vacantes = vacantes + seccionEach.getVacantes();
+            }
+        }
+        if (seccionTCUR != null) {
+            seccionTCUR.setVacantes(vacantes);
+            if (ObjectUtil.getParentTree(seccionTCUR, "aula.id") != null) {
+                if (seccionTCUR.getAula().getAforo().compareTo(seccionTCUR.getVacantes()) < 0) {
+                    throw new PhobosException("Las vacantes de la sección superan, el aforo del aula de teoria");
+                }
+            }
+            seccionDAO.updateSeccionVacantes(seccionTCUR);
+        }
+        //  List<Seccion> secciones = service.allSeccionesByGrupo(new GrupoSeccion(gruposeccionId));
+
         seccionDAO.updateSeccionVacantes(seccion);
+
     }
 
     @Override
@@ -641,6 +694,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Aula aula = aulaDAO.find(aulaId);
         seccion.setAula(aula);
 
+        if (seccion.getVacantes() != null) {
+            if (seccion.getVacantes().compareTo(aula.getAforo()) > 0) {
+                throw new PhobosException("El aforo del aula no abarca las vacantes de la sección.");
+            }
+        }
         if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
             GrupoHoras grupoHoras = grupoHorasDAO.find(seccion.getGrupoHoras().getId());
             seccion.setGrupoHoras(grupoHoras);

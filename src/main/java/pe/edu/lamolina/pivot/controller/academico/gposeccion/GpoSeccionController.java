@@ -237,6 +237,7 @@ public class GpoSeccionController {
             node.put("vacantes", seccion.getVacantes());
             node.put("matriculados", seccion.getMatriculados());
             node.put("esTipoSeccionTcur", seccion.isTipoSeccionTCUR());
+            node.put("esTipoSeccionPcur", seccion.isTipoSeccionPCUR());
 
             node.put("cantidadDocentes", seccion.getDocentesCant());
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
@@ -636,6 +637,10 @@ public class GpoSeccionController {
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Vacantes actualizadas");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -656,6 +661,10 @@ public class GpoSeccionController {
             service.updatePorcentajeAvance(docenteSeccion);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

@@ -524,18 +524,6 @@ var app = new Vue({
             return "label-" + this.colorEstado[estadoCode];
         }, loadSecciones: function () {
             let $vue = this;
-            this.grupoSeccion = JSON.parse(gpoSeccionJson);
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/findSecciones'),
-                success: function (response) {
-                    if (response.success) {
-                        $vue.secciones = response.data;
-                    }
-                }
-            });
-        }, loadSecciones: function () {
-            let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/findSecciones'),
@@ -943,7 +931,9 @@ var app = new Vue({
 
             }
         }, changeVacantes(seccion, event) {
+            alert(1);
             seccion.editVacantes = false;
+            let $vue = this;
             if (event != null) {
                 let form = $(event.target);
 
@@ -970,7 +960,13 @@ var app = new Vue({
                         vacantes: seccion.vacantes
                     },
                     success: function (response) {
-                        notify(response.message, "info");
+                        console.dir(response);
+                        if (response.success) {
+                            notify(response.message, "info");
+                            $vue.loadSecciones();
+                        } else {
+                            notify(response.message, "error");
+                        }
                     },
                     error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
