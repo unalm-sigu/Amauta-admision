@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum.MAT;
 
 @Repository
 public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements EvaluacionDAO {
@@ -295,7 +296,8 @@ public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements Evalu
         Octavia subquery = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("ms.seccion ss", "matriculaResumen mr", "mr.alumno alu")
-                .filter("alu.id", alumno);
+                .filter("alu.id", alumno)
+                .filter("ms.estado", MAT);
 
         Octavia sql = Octavia.query()
                 .from(Evaluacion.class, "eva")

@@ -149,7 +149,7 @@ public class PdfServiceImp implements PdfService {
                 ctx.setVariable("matriculaCurso", matriculaCursoMap);
 
                 if (matriculasSeccionByFilter.size() <= cantReg
-                        || (matriculasSeccionByFilter.size() - cantReg) >= ind) {
+                        || matriculasSeccionByFilter.size() == ind) {
                     ctx.setVariable("ultimaPagina", true);
 
                     SimpleDateFormat sdf = new SimpleDateFormat("'Lima, ' dd 'de' MMMMM 'del' yyyy", new Locale("es", "ES"));

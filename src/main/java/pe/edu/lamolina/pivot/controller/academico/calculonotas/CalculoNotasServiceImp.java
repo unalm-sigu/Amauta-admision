@@ -160,7 +160,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance.getValue(18)));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom.getValue(18)));
-
+        logger.debug("peso con nota {} peso total {}", pesoConNota, pesoTotal);
         if (pesoConNota.compareTo(pesoTotal) == 0) {
             BigDecimal notaFinal = calularNota(dividendo, pesoTotal, 0);
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));
