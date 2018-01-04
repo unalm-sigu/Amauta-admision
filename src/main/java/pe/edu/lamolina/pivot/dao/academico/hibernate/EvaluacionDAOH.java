@@ -353,6 +353,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
         sql.append("          inner join mr.alumno alu ");
         sql.append("          where ss.id = sec.id ");
         sql.append("            and alu.id = :ALUMNO ");
+        sql.append("            and ms.estado = 'MAT' ");
         sql.append("   ) ");
         sql.append(" and  ee.estado='ACT' ");
 
