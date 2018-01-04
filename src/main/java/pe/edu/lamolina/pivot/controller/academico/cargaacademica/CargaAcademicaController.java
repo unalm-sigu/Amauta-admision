@@ -267,6 +267,9 @@ public class CargaAcademicaController {
 
         logger.debug("la evaluacion seccion {}", evaluacionSeccionId);
         try {
+            EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvaluacionSeccion(evaluacionSeccionId);
+            GrupoSeccion grupoSeccion = evaluacionSeccion.getGrupoSeccion();
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             List<EvaluacionExpandida> lstEvaluacionPlan = cargaAcademicaService.allEvaluacionesExpByEvalSeccion(new EvaluacionSeccion(evaluacionSeccionId));
@@ -290,7 +293,7 @@ public class CargaAcademicaController {
                 for (Evaluacion eval : evaluacionExpandida.getEvaluaciones()) {
                     estaEvaluado = (eval.getFechaIngresoNota() != null);
                 }
-
+                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                 array.add(node);
                 /*
                 BigDecimal totalHija = BigDecimal.ZERO;
@@ -312,7 +315,7 @@ public class CargaAcademicaController {
                     } else {
                         nodeHijo.put("porcentajeFail", true);
                     }*/
-
+                    nodeHijo.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                     array.add(nodeHijo);
                     /*
                     BigDecimal totalNietas = BigDecimal.ZERO;
@@ -334,6 +337,7 @@ public class CargaAcademicaController {
                             nodeNieta.put("porcentajeFail", true);
                         }*/
 
+                        nodeNieta.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                         array.add(nodeNieta);
                     }
 
