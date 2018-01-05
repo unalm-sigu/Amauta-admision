@@ -1,0 +1,110 @@
+<template id="dynatableTemplate">
+    <transition name="fade">
+        <div class="panel padder-v">
+            <div id="dynaTable"></div>
+        </div>
+    </transition>
+</template>
+
+<template id="dynatableTemplateEspecial">
+    <transition name="fade">
+        <div class="panel padder-v">
+            <div id="dynaTableEspecial"></div>
+        </div>
+    </transition>
+</template>
+
+<template id="dynatableRowTemplate">
+    <div class="col-sm-2 col-xs-1" >
+        <div class="list-group">
+            <!--
+            onclick="alert($(this).attr('rel'))"
+            -->
+            <div href="#" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
+                 rel="{{:id}}" 
+                 >
+
+
+                <div class="m-t-sm pointer cls-grupos-sel"  rel="{{:id}}"  >
+                    <h4 class="list-group-item-heading" >{{:codigo}}</h4>
+                    <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>
+                    <h6 class="list-group-item-heading text-center" >{{:horas}} horas</h6>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="dynatableRowTemplateEsp">
+    <div class="col-sm-2 col-xs-1" >
+        <div class="list-group">
+            <!--
+            onclick="alert($(this).attr('rel'))"
+            -->
+            <div href="#" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
+                 rel="{{:id}}" 
+                 >
+
+
+                <div class="m-t-sm pointer cls-grupos-sel-esp"  rel="{{:id}}"  >
+                    <h4 class="list-group-item-heading" >{{:codigo}}</h4>
+                    <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>
+                    <h6 class="list-group-item-heading text-center" >{{:horas}} horas</h6>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</template>
+
+
+
+
+
+
+
+
+<!-- 
+<template id="dynatableRowTemplate">
+    <tr>
+        <td class="v-middle col-md-4">
+            <a rel="{{:id}}" 
+               th:href="@{/admin/empleos/{{:id}}/update}"
+               target="_blank"
+               class="h5 text-muted"> 
+                {{:puesto}}
+            </a>
+        </td>
+        <td class="v-middle col-md-3">
+            {{:empresa}}
+        </td>
+        <td class="v-middle col-md-3">
+            Lema
+        </td>
+        <td class="v-middle col-md-3">
+            10
+        </td>
+
+        <td class="v-middle col-md-1 text-center">
+            <a th:href="@{/{{:url}} }" target="_blank" class="text-center">
+                <span class="label label-{{:label}}">{{:estadoEnum}}</span> 
+            </a>
+        </td>
+
+        <td class="v-middle"> 
+            <div class="dropdown actions">
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="glyphicon glyphicon-option-vertical"></i>
+                </a> 
+
+                <ul class="dropdown-menu pull-right">
+                    <li><a th:href="@{/admin/empleos/{{:id}}/update}">Editar</a></li>
+                    <li class="divider"></li>
+                    <li><a class="deleteOferta pointer" rel="{{:id}}">Eliminar</a></li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+</template>
+-->

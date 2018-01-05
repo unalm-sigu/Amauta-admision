@@ -19,4 +19,6 @@ public interface Constantine {
 
     String AVATAR_DIR = OSValidator.isWindows() ? "C:/avatar/" : "/avatar/";
 
+    Long ID_OFICINA_OERA = 50L;
+
 }

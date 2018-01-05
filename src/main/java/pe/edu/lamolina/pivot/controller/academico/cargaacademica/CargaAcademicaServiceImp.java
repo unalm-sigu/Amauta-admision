@@ -1837,15 +1837,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             for (Evaluacion evaluacion : evaluacionesBySeccion) {
                 if (!evaluacion.isDesagregado()) {
-                    DocenteSeccion docenteSeccion = docenteSeccionDAO.findByDocenteSeccion(evaluacion.getDocenteEvaluador(), evaluacion.getSeccionResponsable());
-                    if (docenteSeccion != null) {
-                        if (docenteSeccion.isEstadoActivado()) {
-                            if (evaluacion.getFechaIngresoNota() == null) {
-                                logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
-                                evaluactionsComplete = false;
-                                break;
-                            }
-                        }
+                    if (evaluacion.getFechaIngresoNota() == null) {
+                        logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
+                        evaluactionsComplete = false;
+                        break;
                     }
                 }
             }

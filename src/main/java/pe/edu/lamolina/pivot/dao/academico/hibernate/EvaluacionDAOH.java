@@ -59,7 +59,7 @@ public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements Evalu
     public List<Evaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacionExpandida) {
         Octavia sql = Octavia.query()
                 .from(Evaluacion.class, "eva")
-                .join("evaluacionSeccion es", "tipoEvaluacion te", "evaluacionExpandida exx", "es.grupoSeccion gs")
+                .join("evaluacionSeccion es", "tipoEvaluacion te", "evaluacionExpandida eex", "es.grupoSeccion gs")
                 .leftJoin("evaluacionSuperior esup", "esup.tipoEvaluacion tesupe")
                 .leftJoin("docenteEvaluador de", "seccionResponsable sr")
                 .filter("eex.estado", EstadoEnum.ACT);
@@ -74,7 +74,7 @@ public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements Evalu
             sql.filter("sr.id", idSeccion);
         }
         if (idEvaluacionExpandida != null) {
-            sql.filter("exx.id", idEvaluacionExpandida);
+            sql.filter("eex.id", idEvaluacionExpandida);
         }
         if (idEvaluacionExpandida == null) {
             sql.isNull("esup.id");

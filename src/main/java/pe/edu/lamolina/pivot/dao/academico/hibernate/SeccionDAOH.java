@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -39,6 +40,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur")
                 .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au")
                 .filter("sec.id", idSeccion);
 
         return find(sql);
@@ -81,8 +83,8 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .leftJoin("sec.aula", "sec.grupoHoras")
-                .filter("sec.estado", EstadoEnum.ACT)
+                .leftJoin("aula", "grupoHoras")
+                .filter("estado", EstadoEnum.ACT)
                 .in("gs.id", gruposSeccion);
 
         return all(sql);
@@ -93,8 +95,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .leftJoin("sec.aula", "sec.grupoHoras")
-                .filter("sec.estado", EstadoEnum.ACT)
+                .leftJoin("aula", "grupoHoras")
                 .in("gs.id", gruposSeccion)
                 .orderBy("sec.codigo");
 
@@ -106,10 +107,34 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
-                .leftJoin("sec.aula", "sec.grupoHoras", "cur.carrera")
+                .leftJoin("aula", "grupoHoras", "cur.carrera")
                 .filter("gs.id", gruposSeccion);
 
         return all(sql);
+    }
+
+    @Override
+    public void updateSeccionGrupoHora(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "grupoHoras");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateSeccionAula(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "aula");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateSeccionVacantes(Seccion seccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update Seccion  set vacantes=:prm_vacantes where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", seccion.getId());
+        query.setParameter("prm_vacantes", seccion.getVacantes());
+        query.executeUpdate();
     }
 
     @Override

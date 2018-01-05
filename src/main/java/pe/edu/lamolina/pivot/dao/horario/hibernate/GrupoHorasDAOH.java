@@ -7,7 +7,10 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 @Repository
 public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements GrupoHorasDAO {
@@ -52,9 +55,45 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     public GrupoHoras find(GrupoHoras grupoHoras) {
         Octavia sql = Octavia.query()
                 .from(GrupoHoras.class, "grup")
+                .leftJoin("diaHoraGrupo dhg")
                 .leftJoin("tipoGrupoHoras tgh")
                 .filter("grup.id", grupoHoras);
 
         return find(sql);
     }
+
+    @Override
+    public List<GrupoHoras> allByTipoGrupoHora(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("gh")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
+                .filter("tgh.id", tipoGrupoHoras)
+                .filter("ca.id", cicloAcademico);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<GrupoHoras> allByTipoGrupoHoraDyna(DynatableFilter filter, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+        DynatableSql sql = new DynatableSql(filter)
+                .selectDistinct("gh")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
+                .filter("tgh.id", tipoGrupoHoras)
+                .filter("ca.id", cicloAcademico);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<GrupoHoras> allZetasByDynatable(DynatableFilter filter, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .selectDistinct("gh")
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
+                .filter("tgh.id", tipoGrupoHoras);
+        return sql.all(getCurrentSession());
+    }
+
 }

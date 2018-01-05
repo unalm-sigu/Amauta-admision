@@ -28,7 +28,7 @@ public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida
     public EvaluacionExpandida find(long id) {
         Octavia sql = Octavia.query()
                 .from(EvaluacionExpandida.class, "eva")
-                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "es.grupoSeccion gs")
                 .leftJoin("evaluacionSuperior esup")
                 .filter("eva.id", id);
         EvaluacionExpandida evaluacionExpandida = find(sql);
@@ -46,7 +46,7 @@ public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida
     private List<EvaluacionExpandida> allHijas(EvaluacionExpandida evalExpan) {
         Octavia sql = Octavia.query()
                 .from(EvaluacionExpandida.class, "eva")
-                .join("tipoEvaluacion te", "evaluacionSuperior esup", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .join("tipoEvaluacion te", "evaluacionSuperior esup", "evaluacionSeccion es", "es.grupoSeccion gs")
                 .filter("esup.id", evalExpan.getId());
         return all(sql);
     }
@@ -60,7 +60,7 @@ public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida
     public List<EvaluacionExpandida> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idEvaluacionExpSup, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(EvaluacionExpandida.class, "eva")
-                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "es.grupoSeccion gs")
                 .leftJoin("evaluacionSuperior esup")
                 .orderBy("te.orden", "eva.numero");
 
@@ -106,7 +106,7 @@ public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida
     public List<EvaluacionExpandida> allByEvaluacionSeccion(EvaluacionSeccion evalSecc) {
         Octavia sql = Octavia.query()
                 .from(EvaluacionExpandida.class, "eva")
-                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "es.grupoSeccion gs")
                 .leftJoin("evaluacionSuperior esup")
                 .filter("es.id", evalSecc);
 
@@ -117,7 +117,7 @@ public class EvaluacionExpandidaDAOH extends AbstractEasyDAO<EvaluacionExpandida
     public List<EvaluacionExpandida> allByGpoSeccionPlan(GrupoSeccion gpoSeccion, PlanCalificacion plan) {
         Octavia sql = Octavia.query()
                 .from(EvaluacionExpandida.class, "eva")
-                .join("tipoEvaluacion te", "evaluacionSeccion es", "sc.grupoSeccion gs", "es.planCalificacion p")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "es.grupoSeccion gs", "es.planCalificacion p")
                 .leftJoin("evaluacionSuperior esup")
                 .filter("gs.id", gpoSeccion)
                 .filter("p.id", plan);

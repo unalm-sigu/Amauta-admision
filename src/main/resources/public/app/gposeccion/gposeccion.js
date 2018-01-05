@@ -47,6 +47,14 @@ $(function () {
             }
         }
         var html = $.templates("#gpoSeccionTemplate").render(record);
+        console.log("===================================================================================================")
+        console.log(html)
+        console.log("===================================================================================================")
+        console.log("")
+        console.log("")
+        console.log("")
+        console.log("")
+        console.log("")
         return html;
     }
 

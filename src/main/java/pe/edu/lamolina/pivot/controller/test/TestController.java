@@ -116,7 +116,7 @@ public class TestController {
     }
 
     @ResponseBody
-    @RequestMapping("calcularAllResumenEvaluacion/{grupoSeccion}")
+    @RequestMapping("/calcularAllResumenEvaluacion/{grupoSeccion}")
     public String calcularAllResumenEvaluacion(@PathVariable("grupoSeccion") Long grupoSeccionId, HttpSession session) {
         int loop = 1;
         visorCalculoNotas.iniciar();

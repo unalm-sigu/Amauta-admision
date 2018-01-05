@@ -27,6 +27,12 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion);
 
+    void updateSeccionGrupoHora(Seccion seccion);
+
+    void updateSeccionAula(Seccion seccion);
+
+    void updateSeccionVacantes(Seccion seccion);
+
     List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico);
 
 }

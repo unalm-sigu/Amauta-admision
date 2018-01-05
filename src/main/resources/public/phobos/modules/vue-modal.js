@@ -8,13 +8,15 @@ Vue.component('modal-vik', {
         footer: {type: Boolean, default: true},
         title: {type: String, default: 'Modal Vik'},
         okbtn: {type: String, default: 'Aceptar'},
-        okaction: {type: Function, default: () => {}},
-        okclass:{type: String, default: 'btn-success'},
+
+        okaction: {type: Function, default: () => {
+            }},
+        okclass: {type: String, default: 'btn-success'},
         cancelbtn: {type: String, default: 'Cancelar'},
-        cancelaction: {type: Function, default: () => {}},
-        cancelclass:{type: String, default: 'btn-default'},
-        modalSize:{type:String, default:"modal-md"},
-        showaccept:{type: Boolean, default: true}
+        cancelaction: {type: Function, default: () => {
+            }},
+        cancelclass: {type: String, default: 'btn-default'}
+
     },
     methods: {
         open() {
@@ -26,5 +28,8 @@ Vue.component('modal-vik', {
             $('#' + $vue.id).modal('hide');
             this.cancelaction();
         }
+
+    }, mounted: function () {
+
     }
 });

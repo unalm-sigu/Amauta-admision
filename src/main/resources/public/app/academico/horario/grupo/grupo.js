@@ -205,6 +205,7 @@ $(function () {
             var id = self.attr("rel");
             this.toggleActivo(self);
             Grupo.grupoActivo = id;
+
             this.getHorario(id);
             mibox.modal('hide');
         },

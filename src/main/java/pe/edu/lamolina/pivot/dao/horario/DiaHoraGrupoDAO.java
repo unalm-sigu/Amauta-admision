@@ -17,4 +17,6 @@ public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
 
     List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
+
 }

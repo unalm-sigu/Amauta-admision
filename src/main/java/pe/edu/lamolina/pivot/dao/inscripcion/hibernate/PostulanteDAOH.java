@@ -1,15 +1,15 @@
 package pe.edu.lamolina.pivot.dao.inscripcion.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.Postulante;
 
 @Repository
-public class PostulanteDAOH extends AbstractDAO<Postulante> implements PostulanteDAO {
+public class PostulanteDAOH extends AbstractEasyDAO<Postulante> implements PostulanteDAO {
 
     public PostulanteDAOH() {
         super();
@@ -18,9 +18,11 @@ public class PostulanteDAOH extends AbstractDAO<Postulante> implements Postulant
 
     @Override
     public List<Postulante> allByPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pos")
-                .parents("persona per")
+        Octavia sql = Octavia.query()
+                .from(Postulante.class, "pos")
+                .join("persona per")
                 .filter("per.id", persona);
-        return this.all(sqlUtil);
+
+        return all(sql);
     }
 }

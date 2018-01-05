@@ -9,12 +9,21 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+    GpoSeccionResumen resumen();
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -29,6 +38,8 @@ public interface GpoSeccionService {
     GrupoSeccion saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 
     GrupoSeccion findGpoSeccion(Long id);
+
+    List<GrupoHoras> allByTipoGrupoHorasCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
     List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion);
 
@@ -48,7 +59,63 @@ public interface GpoSeccionService {
 
     void actualizarDocente(Long docenteSeccionId, Long docenteId);
 
+    void actualizarSeccionVacantes(Seccion seccion);
+
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
+
+    Seccion findSeccion(Long seccionId);
+
+    List<TipoGrupoHoras> allGrupoHorasActivosTipoAndCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum);
+
+    List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+
+    List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+
+    TipoGrupoHoras findTipoGrupoHoras(Long idTipoGrupoHoras);
+
+    List<Dia> allDia();
+
+    List<Hora> allHora();
+
+    List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+
+    void saveSeccionGrupoHorario(Long seccionId, List<DiaHoraGrupo> diasHorasGrupo, CicloAcademico cicloAcademico);
+
+    void saveAula(Long seccionId, Long aulaId);
+
+    List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico);
+
+    List<Aula> allAulasSuperiorByOficina(Oficina oficina);
+
+    List<Aula> allAulasBySuperior(Seccion seccion, Aula aula, CicloAcademico cicloAcademico);
+
+    List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
+
+    Aula findAula(Long aulaId);
+
+    List<Oficina> allOficinasWithAula(List<Oficina> oficinas);
+
+    List<Aula> allAulaSuperiorByOficinasWithAula(List<Oficina> oficinas);
+
+    List<Aula> searchAulaByName(String nombre);
+
+    TipoGrupoHoras findTipoGrupoHoraByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum);
+
+    List<GrupoHoras> allGrupoHorasZetasDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras,
+            CicloAcademico cicloAcademico);
+
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+
+    GrupoHoras findGrupoHoras(GrupoHoras grupoHoras);
+
+    TipoGrupoHoras findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico);
+
+    List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            TipoGrupoHoras tipoGrupoHoras,
+            CicloAcademico cicloAcademico);
+
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
     List<AnexoBoletin> allAnexosBySuperiorCiclo(String anexoSuperior, CicloAcademico ciclo);
 

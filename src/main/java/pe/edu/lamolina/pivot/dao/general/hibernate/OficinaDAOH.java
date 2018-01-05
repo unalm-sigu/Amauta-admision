@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import org.springframework.stereotype.Repository;
@@ -7,9 +8,12 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {
@@ -84,4 +88,17 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
         return all(sql);
     }
+
+    @Override
+    public List<Oficina> allByOficinaWithAulas(List<Oficina> oficinas) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("ofi")
+                .from(Aula.class, "au")
+                .join("au.oficinaSupervisora ofi")
+                .filter("au.estado", EstadoEnum.ACT.name()).
+                in("ofi.id", oficinas)
+                .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
+        return all(sql);
+    }
+
 }
