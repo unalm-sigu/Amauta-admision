@@ -4,7 +4,9 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
+import pe.edu.lamolina.model.general.Universidad;
 
 public interface BuscarService {
 
@@ -15,5 +17,9 @@ public interface BuscarService {
     List<DepartamentoAcademico> allDepartamentosByName(String nombre);
 
     List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre);
+
+    List<Pais> allPaisesByName(String nombre);
+
+    List<Universidad> allUniversidadByName(String nombre);
 
 }

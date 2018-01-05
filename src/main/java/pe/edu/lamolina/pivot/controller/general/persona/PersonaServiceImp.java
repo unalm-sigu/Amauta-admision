@@ -127,7 +127,7 @@ public class PersonaServiceImp implements PersonaService {
             if (!personas.isEmpty()) {
                 Persona pEmail = personas.get(0);
                 TipoDocIdentidad tipo = pEmail.getTipoDocumento();
-                throw new PhobosException("El correo InnovaSchools ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
+                throw new PhobosException("El correo UNALM ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
             }
         }
     }

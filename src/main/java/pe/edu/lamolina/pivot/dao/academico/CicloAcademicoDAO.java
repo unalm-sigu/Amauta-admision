@@ -14,4 +14,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allUltimos(Integer cantidadCiclos);
 
+    List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend);
+
 }
