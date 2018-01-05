@@ -14,7 +14,7 @@ import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.ACTIVIDADES;
 import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.INGRESANTE;
 import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.POSTGRADO;
-import static pe.edu.lamolina.model.enums.RolEnum.DPTO;
+import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.DPTO;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 
