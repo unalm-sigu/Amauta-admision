@@ -73,4 +73,15 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("tipo", "REG")
+                .filter("year", ">", yearinit)
+                .filter("year", "<", yearend)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
+        return sql.all(getCurrentSession());
+    }
+
 }

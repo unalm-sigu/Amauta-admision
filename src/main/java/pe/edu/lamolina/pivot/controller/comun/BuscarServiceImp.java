@@ -10,12 +10,14 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
 import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.UbicacionDAO;
+import pe.edu.lamolina.pivot.dao.general.UniversidadDAO;
 import pe.edu.lamolina.pivot.model.academico.Curso;
 import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
 import pe.edu.lamolina.pivot.model.general.Pais;
 import pe.edu.lamolina.pivot.model.general.Ubicacion;
+import pe.edu.lamolina.pivot.model.general.Universidad;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,6 +40,9 @@ public class BuscarServiceImp implements BuscarService {
 
     @Autowired
     PaisDAO paisDAO;
+
+    @Autowired
+    UniversidadDAO universidadDAO;
 
     @Override
     public List<Curso> allCursosSCA(String nombre, Long idDepartamentoAca, Long planCalificacionId, Long idCiclo) {
@@ -67,6 +72,11 @@ public class BuscarServiceImp implements BuscarService {
     @Override
     public List<Pais> allPaisesByName(String nombre) {
         return paisDAO.allPaisesByName(this.forLike(nombre));
+    }
+
+    @Override
+    public List<Universidad> allUniversidadByName(String nombre) {
+        return universidadDAO.allUniversidadByName(this.forLike(nombre));
     }
 
 }

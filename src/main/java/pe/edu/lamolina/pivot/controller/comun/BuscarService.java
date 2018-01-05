@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Pais;
 import pe.edu.lamolina.pivot.model.general.Ubicacion;
+import pe.edu.lamolina.pivot.model.general.Universidad;
 
 public interface BuscarService {
 
@@ -17,6 +18,8 @@ public interface BuscarService {
 
     List<Docente> allCoordinadoresByIdDptoName(Long idDpto,String nombre);
 
-    public List<Pais> allPaisesByName(String nombre);
+    List<Pais> allPaisesByName(String nombre);
+
+    List<Universidad> allUniversidadByName(String nombre);
 
 }

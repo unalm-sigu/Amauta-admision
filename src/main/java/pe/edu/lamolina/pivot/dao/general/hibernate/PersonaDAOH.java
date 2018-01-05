@@ -9,6 +9,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
 
@@ -146,11 +147,22 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
 
     @Override
     public Persona findPersona(Long id) {
-                Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
                 .leftJoin("ubicacionDomicilio ud")
                 .filter("per.id", id);
+        return find(sql);
+    }
+
+    @Override
+    public Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .leftJoin("ubicacionDomicilio ud")
+                .filter("td.id", tipoDocumento)
+                .filter("per.numeroDocIdentidad", numeroDocIdentidad);
         return find(sql);
     }
 

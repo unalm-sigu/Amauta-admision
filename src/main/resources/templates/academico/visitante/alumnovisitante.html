@@ -195,6 +195,7 @@
                                             <input type="text" 
                                                    class="form-control input-s-full buscar-pais" 
                                                    name="persona.nacionalidad.id"
+                                                   id="nacionalidad"
                                                    data-trigger="change"
                                                    th:rel="${nacionalidad != null}? ${nacionalidad.nombre}"
                                                    th:value="${nacionalidad != null}? ${nacionalidad.id}"
@@ -293,27 +294,36 @@
                                             <input class="form-control" 
                                                    name="universidadExtranjera" 
                                                    id="universidadExtranjeraName"
+                                                   required="true"
                                                    th:value="${alumnoVisitante.universidadExtranjera}"/>
 
                                         </div>
                                     </div>
 
-                                    <div v-else class="col-sm-6">
+                                    <div  v-if="showUniverdidadPeru" class="col-sm-6">
                                         <div class="form-group">
 
                                             <label>Universidad Peruana</label>
 
-                                            <select class="form-control" 
-                                                    id="univ-peru" 
-                                                    name="universidadProcedencia.id">
+                                            <input class="form-control" 
+                                                   id="univ-peru" 
+                                                   required="true"
+                                                   name="universidadProcedencia.id"/>
 
-                                                <option selected="yes"></option>
+                                        </div>
+                                    </div>
 
-                                                <option th:each="item : ${universidades}"
-                                                        th:text="${item.nombre}"
-                                                        th:selected="${alumnoVisitante.universidad}? ${item.id==alumnoVisitante.universidad.id}"
-                                                        th:value="${item.id}"></option>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
 
+                                            <label>Ciclo Académico</label>
+
+                                            <select name="cicloEstudia.id" 
+                                                    class="form-control" required="true">
+                                                <option></option>
+                                                <option th:each="ciclo : ${ciclos}"
+                                                        th:value="${ciclo.id}"
+                                                        th:text="${ciclo.descripcion}"></option>
                                             </select>
 
                                         </div>

@@ -31,6 +31,7 @@ import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.model.academico.Docente;
 import pe.edu.lamolina.pivot.model.general.Pais;
 import pe.edu.lamolina.pivot.model.general.Ubicacion;
+import pe.edu.lamolina.pivot.model.general.Universidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -229,6 +230,36 @@ public class BuscarController {
                 json.put("id", pais.getId());
                 json.put("nombre", pais.getNombre());
                 json.put("codigo", pais.getCodigo());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allUniversidad")
+    public JsonResponse allUniversidad(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Universidad> universidades = buscarService.allUniversidadByName(nombre);
+            for (Universidad universidad : universidades) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", universidad.getId());
+                json.put("nombre", universidad.getNombre());
+                json.put("codigo", universidad.getSiglas()==null?"":universidad.getSiglas());
 
                 jsonList.add(json);
             }

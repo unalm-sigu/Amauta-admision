@@ -248,4 +248,15 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public Alumno findByPersona(Persona persona, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td","cicloActivo ci")
+                .filter("per.id", persona)
+                .filter("ci.id", cicloAcademico);
+        return (Alumno) sql.find(getCurrentSession());
+    }
+
 }
