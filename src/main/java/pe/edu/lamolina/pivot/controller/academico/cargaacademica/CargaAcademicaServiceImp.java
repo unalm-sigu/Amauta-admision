@@ -1840,6 +1840,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             List<Evaluacion> evaluacionesBySeccion = this.allEvaluacionByFilter(null, null, seccion.getId());
 
             for (Evaluacion evaluacion : evaluacionesBySeccion) {
+                List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+                if (matriculasSeccionByFilter.isEmpty()) {
+                    continue;
+                }
                 if (!evaluacion.isDesagregado()) {
                     DocenteSeccion docenteSeccion = docenteSeccionDAO.findByDocenteSeccion(evaluacion.getDocenteEvaluador(), evaluacion.getSeccionResponsable());
                     if (docenteSeccion != null) {

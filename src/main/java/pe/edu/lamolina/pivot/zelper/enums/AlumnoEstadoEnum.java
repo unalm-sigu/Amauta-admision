@@ -5,7 +5,8 @@ import java.util.Map;
 
 public enum AlumnoEstadoEnum {
 
-    ACT("Activo"), FAPR("Sin Aprobar"), FRES("Sin Resolución");
+    ACT("Activo"), FAPR("Sin Aprobar"), FRES("Sin Resolución"),
+    RET("Retirado");
 
     private final String value;
     private static final Map<String, AlumnoEstadoEnum> lookup = new HashMap<>();

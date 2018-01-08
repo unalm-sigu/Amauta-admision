@@ -442,6 +442,13 @@ public class Alumno implements Serializable {
         return AlumnoEstadoEnum.valueOf(estado);
     }
 
+    public boolean isEstadoRetirado() {
+        if (AlumnoEstadoEnum.RET.equals(this.getEstadoEnum())) {
+            return true;
+        }
+        return false;
+    }
+
     public ModalidadEstudio getModalidadEstudio() {
         return modalidadEstudio;
     }
