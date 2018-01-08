@@ -171,7 +171,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         usuarioDAO.save(usuarioVisitante);
         logger.debug("**save usuarioVisitante {} {} **", usuarioVisitante.getId(), usuarioVisitante.getId());
 
-        Carrera carrera = carreraDAO.findByCodigo("000");
+        Carrera carrera = carreraDAO.findByCodigo("001");
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
         SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
@@ -263,7 +263,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         if (alumno == null) {
 
-            Carrera carrera = carreraDAO.findByCodigo("000");
+            Carrera carrera = carreraDAO.findByCodigo("001");
             ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
             SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
