@@ -9,20 +9,20 @@
             <div class="current-user">
                 <a href="#" class="name">
                     <div class="avatar-text" th:inline="text">
-                        [[ ${session.SESSION_USUARIO.persona.avatar} ]] 
+                        [[ ${session.SESSION_USUARIO.persona.avatar} ]]
                     </div>
 
-                    <span  class="capitalize" th:inline="text"> 
+                    <span  class="capitalize" th:inline="text">
                         <div class="elipsis-name inline">
                             [[ ${session.SESSION_USUARIO.persona.paternoNombre} ]]
                         </div>
-                        <b class="fa fa-angle-down inline"></b> 
+                        <b class="fa fa-angle-down inline"></b>
                     </span>
 
                     <span class="role" th:inline="text">[[ ${session.SESSION_USUARIO.rolActivo.nombre} ]]</span>
                 </a>
 
-                <ul class="menu">      
+                <ul class="menu">
                     <li th:if="${session.SESSION_USUARIO.roles.size()>1}"><a th:href="@{/changerol}">Cambiar de Rol</a></li>
                     <li><a th:href="@{/ciclo/changeciclo}">Cambiar de Ciclo</a></li>
                     <!--<li class="divider"> </li>-->
@@ -42,9 +42,14 @@
                                 <i class="fa fa-chevron-down"></i>
                             </a>
                             <ul class="submenu">
-                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/visitante/alumno}">
                                         <span>Alumno Visitante</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/becado/alumno}">
+                                        <span>Alumno Becado</span>
                                     </a>
                                 </li>
                             </ul>
@@ -57,7 +62,7 @@
                                 <i class="fa fa-chevron-down"></i>
                             </a>
                             <ul class="submenu">
-                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/planCurricular}">
                                         <span>Plan Estudios</span>
                                     </a>
@@ -188,7 +193,7 @@
                                 <i class="fa fa-chevron-down"></i>
                             </a>
                             <ul class="submenu">
-                                <li th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                                <li th:if='${ T(java.util.Arrays).asList("DPTO").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/systemcalifica/sistema}">
                                         <span>Sist. Calificación</span>
                                     </a>
@@ -204,7 +209,7 @@
                                         <span>Resumen de Evaluaciones</span>
                                     </a>
                                 </li>
-                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'> 
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/acta}">
                                         <span>Control de Actas</span>
                                     </a>
@@ -216,7 +221,7 @@
                 </div>
             </div>
         </div>
- 
+
     </section>
 </aside>
 

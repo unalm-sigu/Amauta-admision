@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.visitante;
 
+import com.google.common.base.Strings;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -20,7 +21,6 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -37,6 +37,7 @@ import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -75,6 +76,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
 
+    @Autowired
+    MailerService mailerService;
+
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
         return tipoDocIdentidadDAO.allForPersonaNatural();
@@ -84,46 +88,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Transactional
     public void save(AlumnoVisitante alumnoVisitante, DataSessionPivot dataSessionPivot) {
 
-        Persona persona = this.crearPersona(alumnoVisitante.getPersona());
-        CicloAcademico cicloAcademico = dataSessionPivot.getCicloAcademico();
         Usuario usuario = dataSessionPivot.getUsuario();
-
-        Usuario usuarioVisitante = usuarioDAO.findByPersona(persona);
-
-        if (usuarioVisitante == null) {
-
-            usuarioVisitante = new Usuario();
-            usuarioVisitante.setPersona(persona);
-            usuarioVisitante.setEstado(UserEstadoEnum.ACT.name());
-            usuarioVisitante.setFechaRegistro(new Date());
-            usuarioVisitante.setUserRegistro(usuario);
-            usuarioVisitante.setUsuario(null);
-            usuarioDAO.save(usuarioVisitante);
-        }
-
-        AlumnoVisitante alumnoVisitanteDb = alumnoVisitanteDAO.findByPersona(persona, cicloAcademico);
-
-        if (alumnoVisitanteDb != null) {
-            throw new PhobosException("Alumno visitante ya existe");
-        }
-
-        alumnoVisitante.setPersona(persona);
-        alumnoVisitante.setUserRegistro(usuario);
-        alumnoVisitante.setFechaRegistro(new Date());
-        alumnoVisitanteDAO.save(alumnoVisitante);
-
-        Alumno alumno = alumnoDAO.findByPersona(persona, cicloAcademico);
-
-        if (alumno == null) {
-            alumno = new Alumno();
-            alumno.setCicloIngreso(alumnoVisitante.getCicloEstudia());
-            alumno.setPersona(persona);
-            this.saveAlumno(alumno, usuario);
-        }
-    }
-
-    @Transactional
-    private Persona crearPersona(Persona personaForm) {
+        logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario());
+        Persona personaForm = alumnoVisitante.getPersona();
 
         personaForm.setNumeroDocIdentidad(this.limpiarValor(personaForm.getNumeroDocIdentidad()));
         if (personaForm.getTipoDocumento() == null || personaForm.getTipoDocumento().getId() == null) {
@@ -132,91 +99,171 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         if (personaForm.getNumeroDocIdentidad() == null) {
             throw new PhobosException("Debe indicar el número del documento de identidad");
         }
-        logger.debug("BUSCAR PERSONA DOC {} NUM  {}", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
-        Persona personaDbeaver = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
-        if (personaDbeaver != null) {
-            return personaDbeaver;
+
+        logger.debug("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+        Persona persona = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
+
+        if (persona == null) {
+            logger.debug("persona  doc {} num  {} not found \n creando datos ", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+            this.createAlumno(alumnoVisitante, usuario);
+            return;
         }
-        personaService.validarEmailByPersona(personaForm.getEmail(), personaDbeaver);
-        personaForm.setEstado(PersonaEstadoEnum.ACT.name());
-        personaDAO.save(personaForm);
-        return personaForm;
+
+        logger.debug("persona  doc {} num  {} found  \n update datos ", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+        this.updateAlumno(alumnoVisitante, usuario, persona);
+
     }
 
-    private String limpiarValor(String valor) {
-        if (valor == null) {
-            return null;
-        }
-        valor = valor.trim();
-        if (StringUtils.isEmpty(valor)) {
-            return null;
-        }
-        return valor;
-    }
-
-    public void saveAlumno(Alumno alumno, Usuario usuario) {
-
-        CicloAcademico ciclo = cicloAcademicoDAO.find(alumno.getCicloIngreso().getId());
+    private String generateCodigo(CicloAcademico ciclo) {
         int sgt = ciclo.getMatriculaSiguiente();
+        String year = ciclo.getYear().toString();
+        String cod;
+        if (ciclo.getMatriculaInicio() > sgt) {
+            sgt = ciclo.getMatriculaInicio();
+        }
+        cod = NumberFormat.codigo(sgt, 4);
+        return (year + cod);
+    }
 
-        if (StringUtils.isBlank(alumno.getCodigo())) {
-            String year = ciclo.getYear().toString();
-            String cod;
-            if (ciclo.getMatriculaInicio() > sgt) {
-                sgt = ciclo.getMatriculaInicio();
-            }
-            cod = NumberFormat.codigo(sgt, 4);
-            alumno.setCodigo(year + cod);
+    private String generateEmailCompania(String codigoMatricula) {
+        return codigoMatricula + "@lamolina.edu.pe";
+    }
+
+    @Transactional
+    private void createAlumno(AlumnoVisitante alumnoVisitante, Usuario usuario) {
+
+        logger.debug("**createAlumno**");
+        CicloAcademico ciclo = cicloAcademicoDAO.find(alumnoVisitante.getCicloEstudia().getId());
+        logger.debug("**con ciclo academico {} {} **", ciclo.getId(), ciclo.getNumeroCiclo());
+
+        String codigoMatricula = this.generateCodigo(ciclo);
+        logger.debug("**codigoMatricula {} {} **", codigoMatricula, codigoMatricula);
+        String emailCompania = this.generateEmailCompania(codigoMatricula);
+        logger.debug("**emailCompania {} {} **", emailCompania, emailCompania);
+
+        Persona persona = alumnoVisitante.getPersona();
+        persona.setEmailCompania(emailCompania);
+        this.validarEmailsinPersona(persona.getEmail());
+        this.validarEmailEmpresaSinPersona(persona.getEmailCompania());
+
+        persona.setEstado(PersonaEstadoEnum.ACT.name());
+        persona.setUserRegistro(usuario);
+        persona.setFechaRegistro(new Date());
+
+        personaDAO.save(persona);
+        logger.debug("**save persona {} {} **", persona.getId(), persona.getId());
+
+        Usuario usuarioVisitante = new Usuario();
+        usuarioVisitante.setUsuario(emailCompania);
+        usuarioVisitante.setEstado(UserEstadoEnum.ACT.name());
+        usuarioVisitante.setFechaRegistro(new Date());
+        usuarioVisitante.setPersona(persona);
+        usuarioVisitante.setUserRegistro(usuario);
+
+        usuarioDAO.save(usuarioVisitante);
+        logger.debug("**save usuarioVisitante {} {} **", usuarioVisitante.getId(), usuarioVisitante.getId());
+
+        Carrera carrera = carreraDAO.findByCodigo("000");
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
+        SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
+
+        Alumno alumno = new Alumno();
+        alumno.setPersona(persona);
+        alumno.setCarrera(carrera);
+        alumno.setModalidadEstudio(modalidadEstudio);
+        alumno.setCicloActivo(alumno.getCicloIngreso());
+        alumno.setSituacionAcademica(situacion);
+        alumno.setCodigo(codigoMatricula);
+
+        alumno.setRetirosCursos(0);
+        alumno.setRetirosCiclos(0);
+        alumno.setRetirosExtemporaneos(0);
+        alumno.setCreditosCursados(0);
+        alumno.setCreditosAprobados(0);
+        alumno.setCursosInscritos(0);
+        alumno.setCursosAprobados(0);
+        alumno.setPromedioAcumulado(BigDecimal.ZERO);
+        alumno.setCreditosCarreraCursados(0);
+        alumno.setCreditosCarreraAprobados(0);
+        alumno.setCursosCarreraInscritos(0);
+        alumno.setCursosCarreraAprobados(0);
+        alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
+
+        alumnoDAO.save(alumno);
+        logger.debug("**save alumno {} {} **", alumno.getId(), alumno.getId());
+
+        alumnoVisitante.setFechaRegistro(new Date());
+        alumnoVisitante.setUserRegistro(usuario);
+        alumnoVisitante.setPersona(persona);
+        alumnoVisitanteDAO.save(alumnoVisitante);
+        logger.debug("**save alumnoVisitante {} {} **", alumnoVisitante.getId(), alumnoVisitante.getId());
+
+        this.updateCicloSgteMatricula(ciclo);
+        logger.debug("**updateCicloSgteMatricula {} {} **", ciclo.getId(), ciclo.getId());
+        logger.debug("PERSONA ID- {}", persona.getId());
+        logger.debug("============");
+
+        mailerService.enviarNotificacionUsuarioCreacion(persona, "creación usuario", "hola mama");
+
+    }
+
+    @Transactional
+    private void updateAlumno(AlumnoVisitante alumnoVisitante, Usuario usuario, Persona persona) {
+        logger.debug("**updateAlumno**");
+        Persona personaDb = this.getPersonaBD(persona, alumnoVisitante.getPersona());
+        logger.debug("**personaDb {} {} **", personaDb.getId(), personaDb.getId());
+        CicloAcademico ciclo = cicloAcademicoDAO.find(alumnoVisitante.getCicloEstudia().getId());
+        logger.debug("**CicloAcademico {} {} **", ciclo.getId(), ciclo.getId());
+
+        boolean updateCiclo = false;
+
+        String codigoMatricula = this.generateCodigo(ciclo);
+        String emailCompania = this.generateEmailCompania(codigoMatricula);
+
+        if (Strings.isNullOrEmpty(personaDb.getEmailCompania())) {
+            personaDb.setEmailCompania(emailCompania);
+            personaDAO.update(persona);
+            logger.debug("**persona sin emailcompania {} email {} **", personaDb.getId(), emailCompania);
+            updateCiclo = true;
         }
 
-        Persona personaForm = alumno.getPersona();
-        String emailCompania = StringUtils.isEmpty(personaForm.getEmailCompania()) ? null : personaForm.getEmailCompania();
-        if (emailCompania == null) {
-            throw new PhobosException("El correo principal es obligatorio");
+        Usuario usuarioVisitante = usuarioDAO.findByPersona(persona);
+
+        if (usuarioVisitante == null) {
+            usuarioVisitante = new Usuario();
+            usuarioVisitante.setUsuario(emailCompania);
+            usuarioVisitante.setEstado(UserEstadoEnum.ACT.name());
+            usuarioVisitante.setFechaRegistro(new Date());
+            usuarioVisitante.setPersona(persona);
+            usuarioVisitante.setUserRegistro(usuario);
+            usuarioDAO.save(usuarioVisitante);
+            logger.debug("**persona sin usuario {} email {} **", usuarioVisitante.getId(), emailCompania);
+            updateCiclo = true;
+            mailerService.enviarNotificacionUsuarioCreacion(persona, "creación usuario", "hola mama");
         }
 
-        String email = StringUtils.isEmpty(personaForm.getEmail()) ? null : personaForm.getEmail();
-        personaForm.setEmail(email);
-        personaForm.setEmailCompania(emailCompania);
-
-        this.validarDNI(personaForm);
-        this.validarCodigo(alumno.getCodigo());
-        if (personaForm.getId() == null) {
-            this.validarEmailsinPersona(personaForm.getEmail());
-            this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
-            personaForm.setEstado(EstadoEnum.ACT.name());
-            personaForm.setUserRegistro(usuario);
-            personaForm.setFechaRegistro(new Date());
-            personaDAO.save(personaForm);
-
-        } else {
-            this.validarEmailConPersona(email, personaForm);
-            this.validarEmailEmpresaConPersona(emailCompania, personaForm);
-            Persona personaBD = this.getPersonaBD(personaForm);
-
-            personaForm = personaBD;
+        if (Strings.isNullOrEmpty(usuarioVisitante.getUsuario())) {
+            usuarioVisitante.setUsuario(emailCompania);
+            usuarioDAO.update(usuarioVisitante);
+            logger.debug("**usuario sin email compania {} email {} **", usuarioVisitante.getId(), emailCompania);
+            updateCiclo = true;
         }
 
-        if (personaForm.getId() == null) {
-            personaForm.setUserRegistro(usuario);
-            personaForm.setEstado(EstadoEnum.ACT.name());
-            personaForm.setFechaRegistro(new Date());
-            personaDAO.save(personaForm);
-        } else {
-            personaDAO.update(personaForm);
-        }
+        Alumno alumno = alumnoDAO.findByPersona(persona, ciclo);
 
-        if (alumno.getId() == null) {
+        if (alumno == null) {
 
             Carrera carrera = carreraDAO.findByCodigo("000");
             ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
             SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
-            alumno.setPersona(personaForm);
+            alumno = new Alumno();
+            alumno.setPersona(persona);
             alumno.setCarrera(carrera);
             alumno.setModalidadEstudio(modalidadEstudio);
             alumno.setCicloActivo(alumno.getCicloIngreso());
             alumno.setSituacionAcademica(situacion);
+            alumno.setCodigo(codigoMatricula);
 
             alumno.setRetirosCursos(0);
             alumno.setRetirosCiclos(0);
@@ -233,34 +280,69 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
 
             alumnoDAO.save(alumno);
+            logger.debug("**persona sin alumno {} codigo {} **", alumno.getId(), codigoMatricula);
+            updateCiclo = true;
         }
 
-        ciclo.setMatriculaSiguiente(sgt + 1);
-        cicloAcademicoDAO.update(ciclo);
+        AlumnoVisitante alumnoVisitanteDb = alumnoVisitanteDAO.findByPersona(persona);
 
-        logger.debug("PERSONA ID- {}", personaForm.getId());
+        if (alumnoVisitanteDb == null) {
+            alumnoVisitante.setFechaRegistro(new Date());
+            alumnoVisitante.setUserRegistro(usuario);
+            alumnoVisitante.setPersona(persona);
+            alumnoVisitanteDAO.save(alumnoVisitante);
+            logger.debug("**creando visitante {} codigo {} **", alumnoVisitante.getId(), codigoMatricula);
+        } else {
+            alumnoVisitanteDb.setUniversidadExtranjera(alumnoVisitante.getUniversidadExtranjera());
+            alumnoVisitanteDb.setUniversidad(alumnoVisitante.getUniversidad());
+            alumnoVisitanteDb.setCicloEstudia(alumnoVisitante.getCicloEstudia());
+            alumnoVisitanteDb.setPaisUniversidad(alumnoVisitante.getPaisUniversidad());
+            alumnoVisitanteDAO.update(alumnoVisitanteDb);
+            logger.debug("**actualizando visitante {} codigo {} **", alumnoVisitanteDb.getId(), codigoMatricula);
+        }
+
+        if (updateCiclo) {
+            logger.debug("**actualizando ciclo {} **", ciclo.getId());
+            this.updateCicloSgteMatricula(ciclo);
+        }
+
     }
 
-    private Persona getPersonaBD(Persona persona) {
+    @Transactional
+    private void updateCicloSgteMatricula(CicloAcademico ciclo) {
+        int sgt = ciclo.getMatriculaSiguiente();
+        ciclo.setMatriculaSiguiente(sgt + 1);
+        cicloAcademicoDAO.update(ciclo);
+    }
 
+    private String limpiarValor(String valor) {
+        if (valor == null) {
+            return null;
+        }
+        valor = valor.trim();
+        if (StringUtils.isEmpty(valor)) {
+            return null;
+        }
+        return valor;
+    }
+
+    private Persona getPersonaBD(Persona persona, Persona personaForm) {
         Persona personaBD = personaDAO.find(persona.getId());
-
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
+        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, personaForm, Arrays.asList("email", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
         if (sinCambios) {
             logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
         }
-
-        personaBD.setNombres(persona.getNombres());
-        personaBD.setPaterno(persona.getPaterno());
-        personaBD.setMaterno(persona.getMaterno());
-        personaBD.setSexo(persona.getSexo());
-        personaBD.setFechaNacer(persona.getFechaNacer());
-        personaBD.setDireccion(persona.getDireccion());
-        personaBD.setCelular(persona.getCelular());
-        personaBD.setTelefono(persona.getTelefono());
-        personaBD.setEmail(persona.getEmail());
-        personaBD.setEmailCompania(persona.getEmailCompania());
+        this.validarEmailEmpresaConPersona(personaForm.getEmail(), persona);
+        personaBD.setNombres(personaForm.getNombres());
+        personaBD.setPaterno(personaForm.getPaterno());
+        personaBD.setMaterno(personaForm.getMaterno());
+        personaBD.setSexo(personaForm.getSexo());
+        personaBD.setFechaNacer(personaForm.getFechaNacer());
+        personaBD.setDireccion(personaForm.getDireccion());
+        personaBD.setCelular(personaForm.getCelular());
+        personaBD.setTelefono(personaForm.getTelefono());
+        personaBD.setEmail(personaForm.getEmail());
         personaDAO.update(personaBD);
         return personaBD;
     }
@@ -271,7 +353,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             if (!personas.isEmpty()) {
                 Persona pEmail = personas.get(0);
                 TipoDocIdentidad tipo = pEmail.getTipoDocumento();
-                throw new PhobosException("El correo InnovaSchools ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
+                throw new PhobosException("El correo UNALM ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
             }
         }
     }
@@ -293,7 +375,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             if (!personas.isEmpty()) {
                 Persona pEmail = personas.get(0);
                 TipoDocIdentidad tipo = pEmail.getTipoDocumento();
-                throw new PhobosException("El correo InnovaSchools ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
+                throw new PhobosException("El correo UNALM ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
             }
         }
     }
