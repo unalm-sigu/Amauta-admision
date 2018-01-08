@@ -211,8 +211,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         logger.debug("**updateCicloSgteMatricula {} {} **", ciclo.getId(), ciclo.getId());
         logger.debug("PERSONA ID- {}", persona.getId());
         logger.debug("============");
-
-        mailerService.enviarNotificacionUsuarioCreacion(persona, "creación usuario", "hola mama");
+        String mensaje = usuarioVisitante.getUsuario();
+        mailerService.enviarNotificacionUsuarioCreacion(persona, "Usuario creación", mensaje);
 
     }
 
@@ -248,7 +248,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             usuarioDAO.save(usuarioVisitante);
             logger.debug("**persona sin usuario {} email {} **", usuarioVisitante.getId(), emailCompania);
             updateCiclo = true;
-            mailerService.enviarNotificacionUsuarioCreacion(persona, "creación usuario", "hola mama");
+            String mensaje = usuarioVisitante.getUsuario();
+            mailerService.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
         }
 
         if (Strings.isNullOrEmpty(usuarioVisitante.getUsuario())) {
