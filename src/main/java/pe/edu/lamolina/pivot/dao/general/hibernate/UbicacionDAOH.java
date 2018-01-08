@@ -18,7 +18,7 @@ public class UbicacionDAOH extends AbstractEasyDAO<Ubicacion> implements Ubicaci
     @Override
     public List<Ubicacion> allDistritos(String nombre) {
         Octavia sql = Octavia.query()
-                .from(Ubicacion.class, "alu")
+                .from(Ubicacion.class, "ubdi")
                 .join("tipoUbicacion ti", "ubicacionSuperior ubpr", "ubpr.ubicacionSuperior ubde")
                 .join("ubpr.tipoUbicacion", "ubde.tipoUbicacion")
                 .like("ubdi.nombre", nombre)

@@ -115,13 +115,21 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     }
 
     private String generateCodigo(CicloAcademico ciclo) {
+        logger.debug("generateCodigo CicloAcademico {}", ciclo.getId());
+        logger.debug("CicloAcademico getMatriculaSiguiente {}", ciclo.getMatriculaSiguiente());
+        if (ciclo.getMatriculaSiguiente() == null) {
+            ciclo.setMatriculaSiguiente(1);
+        }
+        if (ciclo.getMatriculaInicio() == null) {
+            ciclo.setMatriculaInicio(1);
+        }
         int sgt = ciclo.getMatriculaSiguiente();
         String year = ciclo.getYear().toString();
         String cod;
         if (ciclo.getMatriculaInicio() > sgt) {
             sgt = ciclo.getMatriculaInicio();
         }
-        cod = NumberFormat.codigo(sgt, 4);
+        cod = NumberFormat.codigo((sgt + 1), 4);
         return (year + cod);
     }
 
@@ -171,7 +179,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         alumno.setPersona(persona);
         alumno.setCarrera(carrera);
         alumno.setModalidadEstudio(modalidadEstudio);
-        alumno.setCicloActivo(alumno.getCicloIngreso());
+        alumno.setCicloActivo(ciclo);
+        alumno.setCicloIngreso(ciclo);
         alumno.setSituacionAcademica(situacion);
         alumno.setCodigo(codigoMatricula);
 
@@ -261,7 +270,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             alumno.setPersona(persona);
             alumno.setCarrera(carrera);
             alumno.setModalidadEstudio(modalidadEstudio);
-            alumno.setCicloActivo(alumno.getCicloIngreso());
+            alumno.setCicloActivo(ciclo);
+            alumno.setCicloIngreso(ciclo);
             alumno.setSituacionAcademica(situacion);
             alumno.setCodigo(codigoMatricula);
 
