@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
+import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.albatross.octavia.Octavia;
@@ -28,4 +29,11 @@ public class SistemaDAOH extends AbstractEasyDAO<Sistema> implements SistemaDAO 
         return find(sql);
     }
 
+    @Override
+    public List<Sistema> allSistema() {
+        Octavia sql = Octavia.query()
+                .from(Sistema.class, "si")
+                .orderBy("si.id desc");
+        return all(sql);
+    }
 }

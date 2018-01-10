@@ -1,0 +1,34 @@
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+
+    <div class="modal-dialog" role="document">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class='modal-title' id='myModalLabel' th:text="${contenido != null ? 'Editar Contenido' : 'Nuevo Contenido'}">Nuevo Taller</h4>
+            </div>
+            <form data-parsley-validate="true"  method="POST" id="formulario" th:action="@{/configuracion/editorcontenido/save}">
+                <div class="modal-body text-left">
+                    <div class="row">
+
+                        <div class="form-group col-md-12">
+                            <label>Título</label>
+                            <input class="form-control" required="true" th:value="${contenido} != null ? ${contenido.nombre} : ''" name="nombre"/>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>Código</label>
+                            <input class="form-control" required="true" th:value="${contenido} != null ? ${contenido.codigo} : ''" name="codigo"/>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a class="btn btn-link" data-dismiss="modal">Cancelar</a>
+                    <button class="btn btn-success" type="button" id="saveContenido" th:text="${contenido != null ? 'Actualizar' : 'Nuevo Contenido'}">Crear Nuevo Taller</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

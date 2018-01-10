@@ -154,6 +154,12 @@
                                         <span>Personas</span>
                                     </a>
                                 </li>
+
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/configuracion/editorcontenido}">
+                                        <span>Editor de Contenidos</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="option"

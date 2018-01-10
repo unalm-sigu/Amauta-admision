@@ -30,10 +30,9 @@
                                     <tbody>
                                         <tr>
                                             <td valign="top" style="color:#505050;font-family:Helvetica;font-size:20px;font-weight:bold;line-height:100%;padding-top:0;padding-right:0;padding-bottom:0;padding-left:0;text-align:left;vertical-align:middle">
-                                                <img
-                                                    src="http://lamolina-admision.s3.amazonaws.com/website/images2018/headerMail.jpg"
-                                                    style="max-width:600px;border:0;min-height:auto;line-height:100%;outline:none;text-decoration:none"
-                                                    class="CToWUd a6T" tabindex="0"/>
+                                                <img th:src="${banner}"
+                                                     style="max-width:600px;border:0;min-height:auto;line-height:100%;outline:none;text-decoration:none"
+                                                     class="CToWUd a6T" tabindex="0"/>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -49,7 +48,6 @@
                                         <tr>
                                             <td valign="top" style="color:#404040;font-family:Helvetica;font-size:14px;line-height:150%;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;text-align:left">
 
-                                                Se ha creado su cuenta con el usuario:
                                                 <div th:utext="${mensaje}">
                                                     Mensaje
                                                 </div>

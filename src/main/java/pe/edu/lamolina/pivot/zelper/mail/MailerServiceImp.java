@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.pivot.zelper.mail.connector.MailMessage;
 import pe.edu.lamolina.pivot.zelper.mail.connector.MailerConnector;
 
@@ -20,18 +21,25 @@ public class MailerServiceImp implements MailerService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void enviarNotificacionUsuarioCreacion(Persona persona, String asunto, String mensaje) {
+    public void enviarNotificacionUsuarioCreacion(Persona persona, ContenidoCarta contenidoCarta) {
+        String estimado = persona.esFemenino() ? "Estimada" : "Estimado";
+
+        String contenido = contenidoCarta.getContenido();
+        String banner = contenidoCarta.getImgUrl();
+
+        contenido = contenido.replaceAll("__ESTIMADO__", estimado);
+        contenido = contenido.replaceAll("__NOMBREPERSONA__", persona.getNombreCompleto());
 
         Context ctx = new Context();
-        ctx.setVariable("mensaje", mensaje);
+        ctx.setVariable("contenido", contenido);
+        ctx.setVariable("banner", banner);
 
         MailMessage mail = new MailMessage();
         mail.setContext(ctx);
         mail.setTemplate("mail/mailUsuarioCreacion");
-        mail.setSubject(asunto);
-        mail.setDestinatarios(new String[]{persona.getEmail()});
-        //mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
+        mail.setSubject("Entrega de Certificado de Estudios");
+        //mail.setDestinatarios(new String[]{persona.getEmail()});
+        mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
         mailerConnector.sendMail(mail);
     }
-
 }

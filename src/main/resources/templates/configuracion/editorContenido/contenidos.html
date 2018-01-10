@@ -1,0 +1,53 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Lista de Contenidos</title>
+
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <header class="header b-b padder-lg">
+                <h2>Lista de Contenidos</h2>
+            </header>
+
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+
+
+
+                        <form id="formCiclo">
+                            <table  id="dynaTable" class="table table-striped">
+                                <thead class="panel panel-heading">
+                                    <tr>
+                                        <th class="col-md-3 text-center v-middle">Nombre</th>
+                                        <th class="col-md-3 text-center v-middle">Contenido</th>
+                                        <th class="col-md-1 text-center v-middle">Código</th>
+                                        <th class='col-md-1 text-center v-middle'>Descripción</th>
+                                        <th class='col-md-2 text-center v-middle'>Sistema</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </form>
+
+                    </section>
+                </section>
+            </section>
+
+            <script id="templateContenidos" type="text/x-jsrender" class="hide"><div th:substituteby="configuracion/editorContenido/templateContenido"/></script>
+
+            <div id='contenidoModal'></div>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <script th:src="@{/app/configuracion/editorcontenido/editorcontenido.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

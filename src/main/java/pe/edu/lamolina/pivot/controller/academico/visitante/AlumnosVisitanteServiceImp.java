@@ -21,11 +21,14 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import static pe.edu.lamolina.model.enums.ContenidoCartaEnum.MAILNOTIROL;
+import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.general.persona.PersonaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -34,6 +37,7 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
@@ -78,6 +82,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     @Autowired
     MailerService mailerService;
+
+    @Autowired
+    ContenidoCartaDAO contenidoCartaDAO;
 
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
@@ -212,7 +219,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         logger.debug("PERSONA ID- {}", persona.getId());
         logger.debug("============");
         String mensaje = usuarioVisitante.getUsuario();
-        mailerService.enviarNotificacionUsuarioCreacion(persona, "Usuario creación", mensaje);
+        this.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
+        //mailerService.enviarNotificacionUsuarioCreacion(persona, "Usuario creación", mensaje);
 
     }
 
@@ -249,7 +257,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             logger.debug("**persona sin usuario {} email {} **", usuarioVisitante.getId(), emailCompania);
             updateCiclo = true;
             String mensaje = usuarioVisitante.getUsuario();
-            mailerService.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
+            this.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
+            //mailerService.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
         }
 
         if (Strings.isNullOrEmpty(usuarioVisitante.getUsuario())) {
@@ -430,6 +439,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         int yearinit = year - 4;
         int yearend = year + 3;
         return cicloAcademicoDAO.allCicloAcademicoByRange(yearinit, yearend);
+    }
+
+    private void enviarNotificacionUsuarioCreacion(Persona persona, String usuarioCreacion, String mensaje) {
+        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
+        mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
     }
 
 }
