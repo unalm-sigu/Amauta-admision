@@ -671,6 +671,7 @@ public class CargaAcademicaController {
             node.put("minimoAprobatorio", sistemaNotas.getMinimoAprobatorio());
             node.put("letras", "");
             node.put("esCreditoZero", grupoSeccion.getCurso().isCreditosZero());
+            node.put("esCreditoVariable", grupoSeccion.getCurso().isTieneCreditosVariables());
 
             StringBuilder strbLetras = new StringBuilder();
             if (!sistemaNotas.isNumerico() && (sistemaNotas.getNotaLetra() != null && !sistemaNotas.getNotaLetra().isEmpty())) {
@@ -879,6 +880,7 @@ public class CargaAcademicaController {
         Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        Curso curso = grupoSeccion.getCurso();
         EvaluacionSeccion evaluacionSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
         List<Evaluacion> evaluacionesBySeccionFinal = cargaAcademicaService.allEvaluacionesByTipoSeccion(seccion);
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
@@ -887,8 +889,6 @@ public class CargaAcademicaController {
 
         logger.debug("Consultara notas por seccion");
         Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
-
-        Curso curso = grupoSeccion.getCurso();
 
         Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
@@ -914,6 +914,7 @@ public class CargaAcademicaController {
 
         model.addAttribute("evaluacionesByTipoSeccion", evaluacionesBySeccionFinal);
         model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
+    //    model.addAttribute("matriculasCursoMap", matriculasCursoMap);
         model.addAttribute("notas", mapNotas);
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
         model.addAttribute("esDocentePrincipal", esDocentePrincipal);

@@ -160,4 +160,6 @@ public interface CargaAcademicaService {
 
     List<MatriculaSeccion> allMatriculaSeccionByFilter(EvaluacionExpandida evaluacionExpandida, CicloAcademico cilo);
 
+    List<MatriculaCurso> allMatriculaCursoCiclo(Curso curso, CicloAcademico cicloAcademico);
+
 }

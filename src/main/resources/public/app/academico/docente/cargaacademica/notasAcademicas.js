@@ -429,6 +429,12 @@ $(function () {
                             $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
                         }
 
+                        if (sistemaNotasValidate.esCreditoVariable) {
+                            $(this).attr("data-parsley-nota-minima", 0);
+                            $(this).attr("data-parsley-nota-maxima", $(this).attr("alt"));
+                            $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+                        }
+
                         /* //var letters = NSP + "|" + NCV + "|";
                          
                          var letrasArg = sistemaNotasValidate.letras.split(",");
