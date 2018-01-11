@@ -38,8 +38,8 @@ public class MailerServiceImp implements MailerService {
         mail.setContext(ctx);
         mail.setTemplate("mail/mailUsuarioCreacion");
         mail.setSubject("Entrega de Certificado de Estudios");
-        //mail.setDestinatarios(new String[]{persona.getEmail()});
-        mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
+        mail.setDestinatarios(new String[]{persona.getEmail()});
+        //mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
         mailerConnector.sendMail(mail);
     }
 }
