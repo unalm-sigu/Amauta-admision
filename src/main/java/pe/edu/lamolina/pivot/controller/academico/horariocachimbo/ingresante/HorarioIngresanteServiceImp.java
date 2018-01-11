@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.ingresante;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +19,18 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario.GenerarHorarioIngresanteService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
@@ -53,6 +59,9 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
 
     @Autowired
     GenerarHorarioIngresanteService generarHorarioIngresanteService;
+
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -183,6 +192,37 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
                 secc.setSuscritos(secc.getSuscritos() + 1);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void cargarIngresantes(CicloAcademico cicloAcademico, Usuario user) {
+        logger.debug("cargando ingresantes ...");
+        logger.debug("usuario registra : {} {} ", user.getId(), user.getUsuario());
+        logger.debug("para el ciclo : {} {} ", cicloAcademico.getId(), cicloAcademico.getDescripcion());
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        logger.debug("modalidad : {} {} ", modalidad.getId(), modalidad.getNombre());
+        List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+        logger.debug("total alumnoHorarios que ya fueron registrados en el ciclo : {} ", alumnoHorarios.size());
+        List<Alumno> alumnoExclude = alumnoHorarios.stream().map(AlumnoHorario::getAlumno).collect(Collectors.toList());
+        logger.debug("total alumnos que ya fueron registrados en el ciclo : {} ", alumnoExclude != null ? alumnoExclude.size() : 0);
+        List<Alumno> alumnosIngresantes = alumnoDAO.allIngresantePregradoByCiclo(modalidad, cicloAcademico, alumnoExclude);
+        logger.debug("total alumnos para registrar en el ciclo : {} ", alumnosIngresantes != null ? alumnosIngresantes.size() : 0);
+        for (Alumno alumnosIngresante : alumnosIngresantes) {
+            AlumnoHorario alumnoHorario = new AlumnoHorario();
+            alumnoHorario.setAlumno(alumnosIngresante);
+            alumnoHorario.setCicloAcademico(cicloAcademico);
+            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+            alumnoHorario.setFechaCreacion(new Date());
+            alumnoHorario.setUserCreacion(user);
+            alumnoHorarioDAO.save(alumnoHorario);
+        }
+    }
+
+    @Override
+    public List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, CicloAcademico cicloAcademico) {
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        return alumnoDAO.allAlumnoIngresantePregradoByNameCiclo(nombre, modalidad, cicloAcademico);
     }
 
 }

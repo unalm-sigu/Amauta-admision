@@ -14,6 +14,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -256,10 +257,44 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td","cicloActivo ci")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
                 .filter("per.id", persona)
                 .filter("ci.id", cicloAcademico);
         return (Alumno) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude) {
+
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe")
+                .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
+                .filter("moe.id", modalidad);
+        if (!(alumnoExclude == null || alumnoExclude.isEmpty())) {
+            sql.notIn("alu.id", alumnoExclude);
+        }
+        sql.filter("ci.id", cicloAcademico);
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe")
+                .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("moe.id", modalidad)
+                .filter("ci.id", cicloAcademico)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
     }
 
 }

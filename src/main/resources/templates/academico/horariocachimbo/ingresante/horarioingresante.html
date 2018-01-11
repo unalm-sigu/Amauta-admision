@@ -9,9 +9,10 @@
 
         <div  id="main">
             <header class="header b-b padder-lg">
-                <div class="pull-right m-t-md">                
+                <div class="pull-right m-t-md">
+                    <button class="btn btn-info" type="button"    v-on:click="cargarIngresantes"  >Cargar Ingresantes</button>
                     <a class="btn btn-info" type="button"    v-on:click="nuevo"          href="#" >Agregar Alumno</a>
-                </div>  
+                </div>
                 <h2 th:inline="text">Ingresantes con Horario [[${cicloAcademico.descripcion}]] </h2>
             </header>
             <section class="wrapper-lg">
