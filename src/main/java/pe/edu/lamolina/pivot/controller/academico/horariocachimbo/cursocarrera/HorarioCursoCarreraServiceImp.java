@@ -257,16 +257,22 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
 
     @Override
     public void updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, Usuario usuario) {
+
         ObjectUtil.eliminarAttrSinId(carreraCursoCachimbo, "curso");
-        Curso curso = carreraCursoCachimbo.getCurso();
+        CursoCachimbos curso = carreraCursoCachimbo.getCurso();
+
         if (curso == null) {
             throw new PhobosException("curso no esta presente");
         }
-        List<SeccionCursoCachimbos> seccionCursoCachimbos = seccionCursoCachimbosDAO.allByCurso(curso);
-        if (!seccionCursoCachimbos.isEmpty()) {
-            for (SeccionCursoCachimbos seccionCursoCachimbo : seccionCursoCachimbos) {
-
-            }
+        seccionCursoCachimbosDAO.deleteByCursoCachimbos(curso);
+        List<Seccion> secciones = carreraCursoCachimbo.getSecciones();
+        for (Seccion seccion : secciones) {
+            SeccionCursoCachimbos seccionCursoCachimbos = new SeccionCursoCachimbos();
+            seccionCursoCachimbos.setFechaCreacion(new Date());
+            seccionCursoCachimbos.setUserCreacion(usuario);
+            seccionCursoCachimbos.setCursoCachimbos(curso);
+            seccionCursoCachimbos.setSeccion(seccion);
+            seccionCursoCachimbosDAO.save(seccionCursoCachimbos);
         }
 
     }

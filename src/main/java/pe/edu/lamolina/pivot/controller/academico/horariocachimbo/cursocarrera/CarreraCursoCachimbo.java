@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
 import java.util.List;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
@@ -11,7 +12,7 @@ public class CarreraCursoCachimbo {
     private Carrera carrera;
     private Integer cantidad;
     //para fines de agregar  SeccionCursoCachimbo
-    private Curso curso;
+    private CursoCachimbos curso;
     private List<Seccion> secciones;
 
     public CarreraCursoCachimbo() {
@@ -43,11 +44,11 @@ public class CarreraCursoCachimbo {
         return Constantine.MORE_FLAT_COLOR[indice];
     }
 
-    public Curso getCurso() {
+    public CursoCachimbos getCurso() {
         return curso;
     }
 
-    public void setCurso(Curso curso) {
+    public void setCurso(CursoCachimbos curso) {
         this.curso = curso;
     }
 
