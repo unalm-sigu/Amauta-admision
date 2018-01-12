@@ -1836,11 +1836,20 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             List<Evaluacion> evaluacionesBySeccion = this.allEvaluacionByFilter(null, null, seccion.getId());
 
             for (Evaluacion evaluacion : evaluacionesBySeccion) {
+                List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+                if (matriculasSeccionByFilter.isEmpty()) {
+                    continue;
+                }
                 if (!evaluacion.isDesagregado()) {
-                    if (evaluacion.getFechaIngresoNota() == null) {
-                        logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
-                        evaluactionsComplete = false;
-                        break;
+                    DocenteSeccion docenteSeccion = docenteSeccionDAO.findByDocenteSeccion(evaluacion.getDocenteEvaluador(), evaluacion.getSeccionResponsable());
+                    if (docenteSeccion != null) {
+                        if (docenteSeccion.isEstadoActivado()) {
+                            if (evaluacion.getFechaIngresoNota() == null) {
+                                logger.debug("falta eva {}, sec {}", evaluacion.getId(), evaluacion.getSeccionResponsable().getId());
+                                evaluactionsComplete = false;
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -1964,6 +1973,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     public List<MatriculaSeccion> allMatriculaSeccionByFilter(EvaluacionExpandida evaluacionExpandida, CicloAcademico ciclo) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
         return matriculaSeccionDAO.allByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), ciclo);
+    }
+
+    @Override
+    public List<MatriculaCurso> allMatriculaCursoCiclo(Curso curso, CicloAcademico cicloAcademico) {
+        return matriculaCursoDAO.findByCursoCiclo(curso, cicloAcademico);
     }
 
 }
