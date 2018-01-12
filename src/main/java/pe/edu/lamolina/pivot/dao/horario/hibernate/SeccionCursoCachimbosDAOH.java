@@ -39,4 +39,13 @@ public class SeccionCursoCachimbosDAOH extends AbstractEasyDAO<SeccionCursoCachi
 
     }
 
+    @Override
+    public List<SeccionCursoCachimbos> allByCursoCachimbos(List<CursoCachimbos> cursoCachimbos) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoCachimbos.class, "hs")
+                .join("seccion se", "cursoCachimbos ch")
+                .in("ch.id", cursoCachimbos);
+        return all(sql);
+    }
+
 }

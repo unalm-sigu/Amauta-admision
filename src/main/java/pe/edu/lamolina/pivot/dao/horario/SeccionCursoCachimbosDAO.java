@@ -11,4 +11,6 @@ public interface SeccionCursoCachimbosDAO extends EasyDAO<SeccionCursoCachimbos>
 
     public void deleteByCursoCachimbos(CursoCachimbos curso);
 
+    public List<SeccionCursoCachimbos> allByCursoCachimbos(List<CursoCachimbos> cursoCachimbos);
+
 }

@@ -269,11 +269,20 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
         for (Seccion seccion : secciones) {
             SeccionCursoCachimbos seccionCursoCachimbos = new SeccionCursoCachimbos();
             seccionCursoCachimbos.setFechaCreacion(new Date());
-            seccionCursoCachimbos.setUserCreacion(usuario);
+            seccionCursoCachimbos.setUserRegistro(usuario);
             seccionCursoCachimbos.setCursoCachimbos(curso);
             seccionCursoCachimbos.setSeccion(seccion);
             seccionCursoCachimbosDAO.save(seccionCursoCachimbos);
         }
 
     }
+
+    @Override
+    public List<SeccionCursoCachimbos> allCursoCachimbos(List<CursoCachimbos> cursoCachimbos) {
+        if (cursoCachimbos.isEmpty()) {
+            return new ArrayList();
+        }
+        return seccionCursoCachimbosDAO.allByCursoCachimbos(cursoCachimbos);
+    }
+
 }

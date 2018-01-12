@@ -47,7 +47,7 @@
                     <div v-for="seccion in gpoSeccion.secciones"
                          class="col-xs-1"
                          v-bind:class="seccion.classTipo">
-                        <span class="block text-center"> {{seccion.codigo}}</span>
+                        <span class="block text-center" v-bind:class="seccion.underline"> {{seccion.codigo}}</span>
                         <span class="block text-center m-b"> {{seccion.suscritos}}</span>
                     </div>
                 </div>

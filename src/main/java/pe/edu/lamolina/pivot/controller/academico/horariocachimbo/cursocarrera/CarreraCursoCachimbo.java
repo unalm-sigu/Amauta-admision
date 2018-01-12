@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;

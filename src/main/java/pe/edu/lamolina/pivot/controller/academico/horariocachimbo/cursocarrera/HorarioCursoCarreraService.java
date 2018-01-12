@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface HorarioCursoCarreraService {
@@ -33,4 +34,6 @@ public interface HorarioCursoCarreraService {
     String getClave(Seccion seccion);
 
     void updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, Usuario usuario);
+
+    List<SeccionCursoCachimbos> allCursoCachimbos(List<CursoCachimbos> cursoCachimbos);
 }

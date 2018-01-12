@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -39,6 +40,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -100,6 +102,8 @@ public class HorarioCursoCarreraController {
             List<CursoCachimbos> cursoCachimbos = service.allCursoCachimbos(filter, cicloAcademico);
             Map<Long, Map<Long, HorarioCachimbos>> carsoHorarioCachimbosMap = service.allSeccionHorarioCachimbos(cursoCachimbos, cicloAcademico);
             service.fillGrupoSeccion(cursoCachimbos, cicloAcademico);
+            List<SeccionCursoCachimbos> seccionCursoCachimbos = service.allCursoCachimbos(cursoCachimbos);
+            Map<Long, List<SeccionCursoCachimbos>> seccionCursoCachimbosMapByCurso = TypesUtil.convertListToMapList("cursoCachimbos.id", seccionCursoCachimbos);
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jsonFactory);
@@ -127,6 +131,12 @@ public class HorarioCursoCarreraController {
                 Map<Long, HorarioCachimbos> horarios = carsoHorarioCachimbosMap.get(curso.getId());
                 node.put("horarios", horarios != null ? horarios.size() : 0);
 
+                List<SeccionCursoCachimbos> seccionCursoCachimbosByCurso = seccionCursoCachimbosMapByCurso.get(cursoCachimbo.getId());
+                if (seccionCursoCachimbosByCurso == null || seccionCursoCachimbosByCurso.isEmpty()) {
+                    seccionCursoCachimbosByCurso = new ArrayList();
+                }
+                Map<Long, SeccionCursoCachimbos> seccionCursoCachimbosMapBySeccion = TypesUtil.convertListToMap("seccion.id", seccionCursoCachimbosByCurso);
+
                 List<GrupoSeccion> gruposSeccion = curso.getGrupoSeccion();
 
                 ArrayNode gruposSeccionArray = new ArrayNode(jsonFactory);
@@ -136,11 +146,17 @@ public class HorarioCursoCarreraController {
                     ArrayNode seccionesArray = new ArrayNode(jsonFactory);
 
                     for (Seccion seccion : grupoSeccion.getSecciones()) {
+
+                        SeccionCursoCachimbos scc = null;
+                        if (seccionCursoCachimbosMapBySeccion.size() > 0) {
+                            scc = seccionCursoCachimbosMapBySeccion.get(seccion.getId());
+                        }
                         ObjectNode claveNode = new ObjectNode(jsonFactory);
                         claveNode.put("id", seccion.getId());
                         claveNode.put("codigo", seccion.getCodigo());
                         claveNode.put("tipo", seccion.getTipoSeccion());
                         claveNode.put("suscritos", seccion.getSuscritos());
+                        claveNode.put("underline", scc != null ? "underline" : "");
                         seccionesArray.add(claveNode);
                     }
 

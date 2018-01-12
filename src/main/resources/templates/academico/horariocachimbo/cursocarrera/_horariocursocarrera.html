@@ -60,14 +60,19 @@
                     <div v-for="seccion  in gpoSeccion.secciones"
                          class="col-xs-1" v-bind:class="seccion.classTipo">
 
-                        <input type="checkbox" v-model="checkedSeccion" v-bind:name="seccion.id"  v-bind:value="seccion.id" />
+                        <input
+                            type="checkbox"
+                            v-model="checkedSeccion"
+                            v-bind:name="seccion.id" 
+                            v-bind:value="seccion.id" />
+
                         <span class="block text-center"> {{seccion.codigo}}</span>
 
                     </div>
                 </div>
 
                 <div v-for="( hellSeccion , index  )  in checkedSeccion" >
-                    <input type="hidden"  v-bind:name="'secciones['+index+'].seccion.id'"    v-bind:value="hellSeccion" />
+                    <input type="hidden"  v-bind:name="'secciones['+index+'].id'"    v-bind:value="hellSeccion" />
                 </div>
 
             </form>

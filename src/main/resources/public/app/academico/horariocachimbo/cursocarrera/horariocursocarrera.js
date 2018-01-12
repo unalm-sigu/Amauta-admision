@@ -1,7 +1,6 @@
 $(function() {
 
     var $global = new Vue({});
-
     var ItemCursoTemplate = Vue.component("itemCurso", {
         template: "#itemCursoTemplate",
         data: function() {
@@ -306,6 +305,8 @@ $(function() {
                                     } else {
                                         notify(response.message, 'error');
                                     }
+                                }, error: function() {
+                                    notify(MESSAGES.errorComunicacion, "error");
                                 }
                             });
                         }
@@ -341,7 +342,17 @@ $(function() {
                 var vue = this;
                 var record = vue.getRecord(id);
                 vue.curso.id = id;
+                vue.checkedSeccion = [];
                 vue.grupoSecciones = record.grupos;
+
+                for (var grupo of vue.grupoSecciones) {
+                    for (var sexxx of grupo.secciones) {
+                        if (sexxx.underline != '') {
+                            vue.checkedSeccion.push(sexxx.id)
+                        }
+                    }
+                }
+
                 vue.$refs.modalAddSeleccionarClave.open();
             },
             getRecord(id) {
@@ -357,9 +368,12 @@ $(function() {
                         if (response.success) {
                             notify(response.message, 'info');
                             dynatable.process();
+                            vue.$refs.modalAddSeleccionarClave.close();
                         } else {
                             notify(response.message, 'error');
                         }
+                    }, error: function() {
+                        notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
             }
