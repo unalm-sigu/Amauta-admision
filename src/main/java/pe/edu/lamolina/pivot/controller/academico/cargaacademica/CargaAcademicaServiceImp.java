@@ -157,7 +157,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
 
-
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
@@ -1876,6 +1875,20 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         logger.debug("La evaluacion seccion es {}", evaluacionSeccion.getId());
         List<AlumnoEvaluacion> evaluacionsByEvalSec = alumnoEvaluacionDAO.allByFilter(evaluacionSeccion.getId(), null, null, null);
         logger.debug("Cantidad de alumno evaluaciones {}", evaluacionsByEvalSec.size());
+
+        List<AlumnoEvaluacion> evaluacionesCalc = new ArrayList<>();
+
+        for (AlumnoEvaluacion alumnoEvaluacion : evaluacionsByEvalSec) {
+            if (alumnoEvaluacion.isEstadoCalc()) {
+                evaluacionesCalc.add(alumnoEvaluacion);
+            }
+        }
+        if (evaluacionsByEvalSec.size() == evaluacionesCalc.size()) {
+            for (AlumnoEvaluacion alumnoEvaluacionEach : evaluacionesCalc) {
+                alumnoEvaluacionDAO.delete(alumnoEvaluacionEach);
+            }
+            evaluacionsByEvalSec = alumnoEvaluacionDAO.allByFilter(evaluacionSeccion.getId(), null, null, null);
+        }
 
         if (evaluacionsByEvalSec.isEmpty()) {
             evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.PRO);

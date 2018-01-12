@@ -332,7 +332,7 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
-
+                        MODAL.showWait("Espere un momento por favor");
 
                         $.ajax({
                             url: APP.url('academico/docente/cargaacademica/eliminarNotas'),
@@ -378,10 +378,12 @@ $(function () {
                                     notify(response.message, "error");
                                 }
                                 MODAL.hide();
+                                MODAL.hideWait();
                             },
                             error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hide();
+                                MODAL.hideWait();
                             }
                         });
 
