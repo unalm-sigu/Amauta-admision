@@ -322,6 +322,11 @@ public class SistemaServiceImp implements SistemaService {
                 }
             }
         }
+        if (curso.isTieneCreditosVariables()) {
+            if (!planCalificacion.getSistemaNotas().isLetras()) {
+                throw new PhobosException("Error, el sistema de notas debe ser de letras.");
+            }
+        }
 
         PlanCalificacionCurso planCalificacionCurso = planCalificacionCursoDAO.findByFilter(planCalificacion, curso, EstadoEnum.ACT);
 

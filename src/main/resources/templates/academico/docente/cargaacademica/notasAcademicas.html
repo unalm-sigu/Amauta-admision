@@ -6,7 +6,7 @@
 
 <body>
     <div layout:fragment="main">
-         <header class="header b-b padder-lg">        
+        <header class="header b-b padder-lg">        
             <div class="pull-right" >
 
                 <a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-success cerrar-acta" href="#" >Entregar Acta</a>
@@ -141,6 +141,7 @@
                                                            th:unless="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}"
                                                            th:rel="${matSeccion.matriculaResumen.alumno.id}"
                                                            th:title="${evaluacion.id}" 
+                                                           th:alt="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                                                            type="text" 
                                                            class="form-control"
                                                            style="display: none; width:50px; padding: 3px !important;"
