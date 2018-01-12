@@ -8,7 +8,7 @@
 
             <div class="form-group">
                 <label>Carrera</label>
-                <input type="text" 
+                <input type="text"
                        class="form-control"
                        name="carrera.id"
                        v-model="carrera.id"
@@ -42,4 +42,37 @@
 
         </form>
     </div>
+</modal-vik>
+
+<modal-vik ref="modalAddSeleccionarClave"
+           v-bind="addSeleccionarClaveModal"
+           v-bind:okaction="createSeleccionarClave">
+
+    <div slot="body">
+        <div class="panel-body">
+
+            <form id="formSeleccionarClave" >
+
+                <input v-bind:value="curso.id"  name="curso.id"  type="hidden"  />
+
+                <div v-for="gpoSeccion  in grupoSecciones" class="alg-ewer" >
+
+                    <div v-for="seccion  in gpoSeccion.secciones"
+                         class="col-xs-1" v-bind:class="seccion.classTipo">
+
+                        <input type="checkbox" v-model="checkedSeccion" v-bind:name="seccion.id"  v-bind:value="seccion.id" />
+                        <span class="block text-center"> {{seccion.codigo}}</span>
+
+                    </div>
+                </div>
+
+                <div v-for="( hellSeccion , index  )  in checkedSeccion" >
+                    <input type="hidden"  v-bind:name="'secciones['+index+'].seccion.id'"    v-bind:value="hellSeccion" />
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
 </modal-vik>

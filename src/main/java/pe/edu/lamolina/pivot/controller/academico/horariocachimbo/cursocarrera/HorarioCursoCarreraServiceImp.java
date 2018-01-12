@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -24,12 +25,15 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.SeccionCursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 
 @Service
@@ -55,6 +59,9 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
 
     @Autowired
     AlumnoHorarioDAO alumnoHorarioDAO;
+
+    @Autowired
+    SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
 
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -246,5 +253,21 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
         sb.append(" ");
         sb.append(ObjectUtil.getParentTree(seccion, "grupoHoras.codigo").toString());
         return sb.toString();
+    }
+
+    @Override
+    public void updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, Usuario usuario) {
+        ObjectUtil.eliminarAttrSinId(carreraCursoCachimbo, "curso");
+        Curso curso = carreraCursoCachimbo.getCurso();
+        if (curso == null) {
+            throw new PhobosException("curso no esta presente");
+        }
+        List<SeccionCursoCachimbos> seccionCursoCachimbos = seccionCursoCachimbosDAO.allByCurso(curso);
+        if (!seccionCursoCachimbos.isEmpty()) {
+            for (SeccionCursoCachimbos seccionCursoCachimbo : seccionCursoCachimbos) {
+
+            }
+        }
+
     }
 }

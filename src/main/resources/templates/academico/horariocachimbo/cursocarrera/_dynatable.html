@@ -13,7 +13,7 @@
                         </th>
                         <th class="col-xs-1 text-center v-middle">Horarios</th>
                         <th></th>
-                    </tr> 
+                    </tr>
                 </thead>
                 <tbody id="dynaTbody">
                     <tr></tr>
@@ -28,11 +28,11 @@
     <tr>
 
         <td class="v-middle">
-            <p class="h4 text-primary"> 
+            <p class="h4 text-primary">
                 {{ curso.nombre}}
             </p>
             <small class="block  text-muted">
-                {{curso.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{curso.tpc}} &nbsp; 
+                {{curso.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{curso.tpc}} &nbsp;
             </small>
             <small class="block  text-muted">
                 Dpto. Académico: {{curso.departamentoAcademico}}
@@ -43,7 +43,7 @@
 
             <div class="row">
                 <div v-for="gpoSeccion in curso.grupos" class="alg-ewer"
-                    >
+                     >
                     <div v-for="seccion in gpoSeccion.secciones"
                          class="col-xs-1"
                          v-bind:class="seccion.classTipo">
@@ -56,21 +56,23 @@
         </td>
 
         <td class="v-middle text-center">
-            <p class="bold text-primary">{{curso.carrera}}</p> 
-            <span v-if="curso.showfacultad" class="text-muted">Facultad de {{curso.facultad}}</span> 
+            <p class="bold text-primary">{{curso.carrera}}</p>
+            <span v-if="curso.showfacultad" class="text-muted">Facultad de {{curso.facultad}}</span>
         </td>
 
         <td class="v-middle  text-center">
             <span class="badge">{{curso.horarios}}</span>
         </td>
 
-        <td class="v-middle"> 
+        <td class="v-middle">
             <div class="dropdown actions">
                 <a class="dropdown-toggle" data-toggle="dropdown">
                     <i class="glyphicon glyphicon-option-vertical"></i>
-                </a> 
+                </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a class=""   v-on:click.prevent="eliminar(curso.id)"  href="#">Eliminar Curso</a></li>
+                    <li><a v-on:click.prevent="seleccionarSeccion(curso.id)"  href="#">Seleccionar Claves</a></li>
+                    <li class="divider"></li>
+                    <li><a v-on:click.prevent="eliminar(curso.id)"  href="#">Eliminar Curso</a></li>
                 </ul>
             </div>
         </td>
@@ -81,7 +83,7 @@
 <template  type="text/x-template" id="itemCursoTemplate">
     <tr>
         <td>
-            <input type="text" 
+            <input type="text"
                    class="form-control cursoItem"
                    name="curso.id"
                    v-model="curso.id"
@@ -99,9 +101,9 @@
 <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
     <span class="block bold h5 m-b-xs m-t-xs">{{:curso}}</span>
     <small class="block">
-        {{:codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{:tpc}} &nbsp; 
+        {{:codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{:tpc}} &nbsp;
         {{if numeroCiclo}}
-        / &nbsp; Nº Ciclo {{:numeroRomano}} &nbsp; 
+        / &nbsp; Nº Ciclo {{:numeroRomano}} &nbsp;
         {{/if}}
         / &nbsp; Dpto. Académico {{:departamento}}
     </small>
@@ -116,7 +118,7 @@
 <div id="divBuscarCarrera" type="text/x-jsrender" class="hide" >
     <span class="block bold h5 m-b-xs m-t-xs">{{:nombre}}</span>
     <small class="block">
-        Facultad de &nbsp; {{:facultad}} &nbsp; 
+        Facultad de &nbsp; {{:facultad}} &nbsp;
     </small>
 </div>
 

@@ -137,6 +137,7 @@ public class HorarioCursoCarreraController {
 
                     for (Seccion seccion : grupoSeccion.getSecciones()) {
                         ObjectNode claveNode = new ObjectNode(jsonFactory);
+                        claveNode.put("id", seccion.getId());
                         claveNode.put("codigo", seccion.getCodigo());
                         claveNode.put("tipo", seccion.getTipoSeccion());
                         claveNode.put("suscritos", seccion.getSuscritos());
@@ -265,6 +266,27 @@ public class HorarioCursoCarreraController {
 
             response.setData(jsonList);
             response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateSeccionCursoCachimbo")
+    public JsonResponse updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+            service.updateSeccionCursoCachimbo(carreraCursoCachimbo, usuario);
+            response.setMessage("Curso actualizado satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
