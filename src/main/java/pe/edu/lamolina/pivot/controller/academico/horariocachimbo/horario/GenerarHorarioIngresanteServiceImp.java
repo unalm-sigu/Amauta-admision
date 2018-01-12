@@ -198,7 +198,8 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         List<List<Seccion>> horariosTotal = new ArrayList();
         List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
 
-        List<CursoCachimbos> cursoCachimbosTodos = cursoCachimbosDAO.allByCiclo(ciclo);
+        //List<CursoCachimbos> cursoCachimbosTodos = cursoCachimbosDAO.allByCiclo(ciclo);
+        List<CursoCachimbos> cursoCachimbosTodos = cursoCachimbosDAO.allByCicloFromSeccionCursoCachimbo(ciclo);
         Map<Long, List<CursoCachimbos>> mapCursosCachimbos = TypesUtil.convertListToMapList("carrera.id", cursoCachimbosTodos);
         List<Curso> cursosTodos = allCursosCarrera(cursoCachimbosTodos);
 
@@ -260,7 +261,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                 }
 
                 List<CursoCachimbos> cursoCachimbos = mapCursosCachimbos.get(carrera.getId());
-                if (cursoCachimbos.isEmpty()) {
+                if (cursoCachimbos == null || cursoCachimbos.isEmpty()) {
                     continue;
                 }
                 List<Curso> cursos = allCursosCarrera(cursoCachimbos);
