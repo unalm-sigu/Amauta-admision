@@ -63,8 +63,10 @@
                         <input
                             type="checkbox"
                             v-model="checkedSeccion"
-                            v-bind:name="seccion.id" 
-                            v-bind:value="seccion.id" />
+                            v-bind:name="seccion.id"
+                            v-bind:value="seccion.id"
+                            v-bind:disabled="seccion.classTipo=='text-warning'"
+                            />
 
                         <span class="block text-center"> {{seccion.codigo}}</span>
 

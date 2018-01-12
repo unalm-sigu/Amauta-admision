@@ -266,10 +266,22 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
         }
         seccionCursoCachimbosDAO.deleteByCursoCachimbos(curso);
         List<Seccion> secciones = carreraCursoCachimbo.getSecciones();
-        if (secciones == null) {
+        if (secciones == null || secciones.isEmpty()) {
             return;
         }
-        for (Seccion seccion : secciones) {
+
+        List<Seccion> seccionesFill = seccionDAO.allBySecciones(secciones);
+
+        Map<Long, Seccion> seccionesMap = new LinkedHashMap();
+
+        for (Seccion seccion : seccionesFill) {
+            if (seccion.getSeccionSuperior() != null) {
+                seccionesMap.put(seccion.getId(), seccion);
+                seccionesMap.put(seccion.getSeccionSuperior().getId(), seccion.getSeccionSuperior());
+            }
+        }
+
+        for (Seccion seccion : seccionesMap.values()) {
             SeccionCursoCachimbos seccionCursoCachimbos = new SeccionCursoCachimbos();
             seccionCursoCachimbos.setFechaCreacion(new Date());
             seccionCursoCachimbos.setUserRegistro(usuario);

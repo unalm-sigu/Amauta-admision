@@ -35,4 +35,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico);
 
+    List<Seccion> allBySecciones(List<Seccion> secciones);
+
 }
