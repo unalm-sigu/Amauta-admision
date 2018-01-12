@@ -266,6 +266,9 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
         }
         seccionCursoCachimbosDAO.deleteByCursoCachimbos(curso);
         List<Seccion> secciones = carreraCursoCachimbo.getSecciones();
+        if (secciones == null) {
+            return;
+        }
         for (Seccion seccion : secciones) {
             SeccionCursoCachimbos seccionCursoCachimbos = new SeccionCursoCachimbos();
             seccionCursoCachimbos.setFechaCreacion(new Date());
