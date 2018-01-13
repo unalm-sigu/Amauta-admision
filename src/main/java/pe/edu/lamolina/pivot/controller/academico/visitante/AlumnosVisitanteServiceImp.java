@@ -6,12 +6,14 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Date;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -21,7 +23,6 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
-import static pe.edu.lamolina.model.enums.ContenidoCartaEnum.MAILNOTIROL;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -89,6 +90,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Override
     public List<TipoDocIdentidad> allTiposDocIdentidad() {
         return tipoDocIdentidadDAO.allForPersonaNatural();
+    }
+
+    @Override
+    public List<AlumnoVisitante> allAlumnoVisitante(DynatableFilter filter) {
+        return alumnoVisitanteDAO.allByDynatable(filter);
     }
 
     @Override
@@ -444,6 +450,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     private void enviarNotificacionUsuarioCreacion(Persona persona, String usuarioCreacion, String mensaje) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
         mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
+    }
+
+    @Override
+    public Map<Long, Alumno> allAlumnoByVisitante(List<AlumnoVisitante> visitantes) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

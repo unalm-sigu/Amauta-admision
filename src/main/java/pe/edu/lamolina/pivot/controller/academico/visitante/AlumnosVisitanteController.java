@@ -1,11 +1,15 @@
 package pe.edu.lamolina.pivot.controller.academico.visitante;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +23,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -77,6 +85,92 @@ public class AlumnosVisitanteController {
         model.addAttribute("helper", new AlumnoHelper());
 
         return "academico/visitante/alumnovisitante";
+
+    }
+
+    @ResponseBody
+    @RequestMapping("list")
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
+
+            List<AlumnoVisitante> visitantes = service.allAlumnoVisitante(filter);
+            Map<Long, Alumno> alumnoBecadoMap = service.allAlumnoByVisitante(visitantes);
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jsonFactory);
+
+            for (AlumnoVisitante visitante : visitantes) {
+
+                ObjectNode node = new ObjectNode(jsonFactory);
+                Alumno alumno = alumnoBecadoMap.get(visitante.getId());
+                Persona persona = alumno.getPersona();
+                TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
+                Carrera carrera = alumno.getCarrera();
+                CicloAcademico ciclo = visitante.getCicloEstudia();
+
+                node.put("id", visitante.getId());
+                node.put("nombre", persona.getNombreCompleto());
+                node.put("numeroMatricula", alumno.getCodigo());
+
+                node.put("codigo", tipoDoc.getCodigo());
+                node.put("documento", persona.getNumeroDocIdentidad());
+
+                node.put("carrera", carrera.getNombre());
+                node.put("facultad", carrera.getFacultad().getNombre());
+                node.put("universidadExtranjera", visitante.getUniversidadExtranjera());
+                node.put("ciclo", ciclo.getDescripcion());
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+
+        AlumnoVisitante alumnoVisitante = new AlumnoVisitante();
+        alumnoVisitante.setPersona(new Persona());
+        List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
+
+        model.addAttribute("alumnoVisitante", alumnoVisitante);
+        model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
+        model.addAttribute("ciclos", ciclos);
+        model.addAttribute("helper", new AlumnoHelper());
+
+        return "academico/visitante/alumnovisitanteform";
+
+    }
+
+    @RequestMapping("update")
+    public String update(Model model, HttpSession session) {
+
+        AlumnoVisitante alumnoVisitante = new AlumnoVisitante();
+        alumnoVisitante.setPersona(new Persona());
+        List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
+
+        model.addAttribute("alumnoVisitante", alumnoVisitante);
+        model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
+        model.addAttribute("ciclos", ciclos);
+        model.addAttribute("helper", new AlumnoHelper());
+
+        return "academico/visitante/alumnovisitanteform";
 
     }
 
