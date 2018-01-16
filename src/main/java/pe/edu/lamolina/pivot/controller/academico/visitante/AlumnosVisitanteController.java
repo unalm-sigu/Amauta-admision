@@ -19,10 +19,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -32,13 +32,15 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@SessionAttributes("alumnoVisitante")
 @RequestMapping("academico/visitante/alumno")
 public class AlumnosVisitanteController {
 
@@ -109,23 +111,34 @@ public class AlumnosVisitanteController {
             for (AlumnoVisitante visitante : visitantes) {
 
                 ObjectNode node = new ObjectNode(jsonFactory);
-                Alumno alumno = alumnoBecadoMap.get(visitante.getId());
-                Persona persona = alumno.getPersona();
+                Alumno alumno = alumnoBecadoMap.get(visitante.getPersona().getId());
+
+                Persona persona = visitante.getPersona();
                 TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
                 Carrera carrera = alumno.getCarrera();
+                Facultad facultad = carrera.getFacultad();
                 CicloAcademico ciclo = visitante.getCicloEstudia();
+                Universidad universidad = visitante.getUniversidad();
+
+                Pais paisUniversidad = visitante.getPaisUniversidad();
 
                 node.put("id", visitante.getId());
                 node.put("nombre", persona.getNombreCompleto());
                 node.put("numeroMatricula", alumno.getCodigo());
-
-                node.put("codigo", tipoDoc.getCodigo());
+                node.put("codigo", tipoDoc.getSimbolo());
                 node.put("documento", persona.getNumeroDocIdentidad());
-
                 node.put("carrera", carrera.getNombre());
-                node.put("facultad", carrera.getFacultad().getNombre());
-                node.put("universidadExtranjera", visitante.getUniversidadExtranjera());
+                node.put("facultad", facultad.getNombre());
+
+                if (universidad == null) {
+                    node.put("universidad", visitante.getUniversidadExtranjera());
+                } else {
+                    node.put("universidad", universidad.getNombre());
+                }
+
                 node.put("ciclo", ciclo.getDescripcion());
+                node.put("paisUniversidad", paisUniversidad.getNombre());
+
                 array.add(node);
             }
 
@@ -157,11 +170,12 @@ public class AlumnosVisitanteController {
 
     }
 
-    @RequestMapping("update")
-    public String update(Model model, HttpSession session) {
+    @RequestMapping("{alumnoVisitante}/update")
+    public String update(@PathVariable("alumnoVisitante") Long idAlumnoVisitante, Model model, HttpSession session) {
 
-        AlumnoVisitante alumnoVisitante = new AlumnoVisitante();
-        alumnoVisitante.setPersona(new Persona());
+        AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante);
+        logger.debug("AlumnoVisitante xxx {}", alumnoVisitante.getPersona().getId());
+        logger.debug("AlumnoVisitante getFechaNacer************ {}", alumnoVisitante.getPersona().getFechaNacer());
         List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
         List<CicloAcademico> ciclos = service.allCicloAcademico();
 
@@ -193,6 +207,22 @@ public class AlumnosVisitanteController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(AlumnoVisitante alumnoVisitante) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.delete(alumnoVisitante);
+            response.setMessage("Alumno visitante eliminado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 }

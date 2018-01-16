@@ -41,6 +41,7 @@
                                                 <option></option>
                                                 <option th:each="tipo : ${tiposDocIdentidad}"
                                                         th:value="${tipo.id}"
+                                                        th:selected="${alumnoVisitante.persona.tipoDocumento!=null?alumnoVisitante.persona.tipoDocumento.id==tipo.id:0}"
                                                         th:text="${tipo.nombre}"></option>
                                             </select>
 
@@ -67,8 +68,9 @@
 
                                             <input type="text"
                                                    name="persona.paterno"
+                                                   v-on:change="nombrePersona"
                                                    th:value="${alumnoVisitante.persona.paterno}"
-                                                   class="form-control nombre-persona"/>
+                                                   class="form-control"/>
 
                                         </div>
                                     </div>
@@ -80,8 +82,9 @@
 
                                             <input type="text"
                                                    name="persona.materno"
+                                                   v-on:change="nombrePersona"
                                                    th:value="${alumnoVisitante.persona.materno}"
-                                                   class="form-control nombre-persona"/>
+                                                   class="form-control"/>
 
                                         </div>
                                     </div>
@@ -93,8 +96,9 @@
                                             <input type="text"
                                                    name="persona.nombres"
                                                    required="true"
+                                                   v-on:change="nombrePersona"
                                                    th:value="${alumnoVisitante.persona.nombres}"
-                                                   class="form-control nombre-persona"/>
+                                                   class="form-control"/>
 
                                         </div>
                                     </div>
@@ -179,7 +183,7 @@
 
                                                 <input type="text"
                                                        data-parsley-errors-container="#errorfechaNacer"
-                                                       th:value="${alumnoVisitante.persona.fechaNacer}? ${#dates.format(persona.fechaNacer,'dd/MM/yyyy')}"
+                                                       th:value="${alumnoVisitante.persona.fechaNacer}? ${#dates.format(alumnoVisitante.persona.fechaNacer,'dd/MM/yyyy')}"
                                                        class="form-control"
                                                        name="persona.fechaNacer" required="true" />
 
@@ -202,8 +206,8 @@
                                                    name="persona.nacionalidad.id"
                                                    id="nacionalidad"
                                                    data-trigger="change"
-                                                   th:rel="${nacionalidad != null}? ${nacionalidad.nombre}"
-                                                   th:value="${nacionalidad != null}? ${nacionalidad.id}"
+                                                   th:rel="${alumnoVisitante.persona.nacionalidad != null}? ${alumnoVisitante.persona.nacionalidad.nombre}"
+                                                   th:value="${alumnoVisitante.persona.nacionalidad != null}? ${alumnoVisitante.persona.nacionalidad.id}"
                                                    required="true"/>
 
                                         </div>
@@ -291,7 +295,7 @@
                                         </div>
                                     </div>
 
-                                    <div v-if="showUniverdidadName"  class="col-sm-6">
+                                    <div v-if="showUniverdidadName"   class="col-sm-6">
                                         <div class="form-group">
 
                                             <label>Nombre de la Universidad</label>
@@ -313,7 +317,9 @@
                                             <input class="form-control"
                                                    id="univ-peru"
                                                    required="true"
-                                                   name="universidadProcedencia.id"/>
+                                                   th:rel="${alumnoVisitante.universidad != null}? ${alumnoVisitante.universidad.nombre}"
+                                                   th:value="${alumnoVisitante.universidad != null}? ${alumnoVisitante.universidad.id}"
+                                                   name="universidad.id"/>
 
                                         </div>
                                     </div>
@@ -326,9 +332,12 @@
                                             <select name="cicloEstudia.id"
                                                     class="form-control" required="true">
                                                 <option></option>
+
                                                 <option th:each="ciclo : ${ciclos}"
                                                         th:value="${ciclo.id}"
+                                                        th:selected="${alumnoVisitante.cicloEstudia!=null?alumnoVisitante.cicloEstudia.id==ciclo.id:0}"
                                                         th:text="${ciclo.descripcion}"></option>
+
                                             </select>
 
                                         </div>
@@ -353,6 +362,14 @@
             </div>
 
             <th:block th:replace="academico/visitante/_alumnovisitante"/>
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var showLugarNacimiento = /*[[${alumnoVisitante.persona.ubicacionNacer != null}]]*/'';
+                var showUniverdidadName = /*[[${alumnoVisitante.universidadExtranjera!=null}]]*/'';
+                var showUniverdidadPeru = /*[[${alumnoVisitante.universidad!=null}]]*/ '';
+                /*]]>*/
+            </script>
 
         </div>
 

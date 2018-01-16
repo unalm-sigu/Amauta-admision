@@ -3,9 +3,9 @@ $(function() {
     new Vue({
         el: '#main',
         data: {
-            showLugarNacimiento: false,
-            showUniverdidadName: false,
-            showUniverdidadPeru: false,
+            showLugarNacimiento: showLugarNacimiento,
+            showUniverdidadName: showUniverdidadName,
+            showUniverdidadPeru: showUniverdidadPeru,
         },
         created() {
             let vue = this;
@@ -13,21 +13,15 @@ $(function() {
         mounted: function() {
 
             let vue = this;
-
             $('[name="persona.tipoDocumento.id"]').select2({minimumResultsForSearch: -1});
             $('[name="cicloEstudia.id"]').select2({minimumResultsForSearch: -1});
-
             $(".buscar-distrito").select2(vue.buscarDistrito());
             $(".date").datepicker();
-
             $(".numerico").numeric({negative: false});
-
             $('#paisNacimiento').select2(vue.buscarPais()).on('change.select2', function(e) {
                 vue.mostrarDirNacimiento();
             });
-
             $('#nacionalidad').select2(vue.buscarPais());
-
             $('#paisUniversidad').select2(vue.buscarPais()).on('change.select2', function(e) {
                 vue.mostrarUniversidadName();
             });
@@ -132,7 +126,7 @@ $(function() {
                 if (dataPaisNac.codigo === "PE") {
                     vue.showLugarNacimiento = true;
                     setTimeout(function() {
-                        $(".buscar-distrito").select2(vue.buscarDistrito());
+                        $("#distNacimiento").select2(vue.buscarDistrito());
                     }, 500);
                     $("#distNacimiento").prop('required', true);
                 } else {
@@ -147,16 +141,16 @@ $(function() {
                 if (dataPaisUni.codigo === "PE") {
                     vue.showUniverdidadName = false;
                     vue.showUniverdidadPeru = true;
-                    console.log($('#univ-peru'));
                     setTimeout(function() {
                         $('#univ-peru').select2(vue.buscarUniversidad());
                     }, 500);
-                    $("#distNacimiento").prop('required', true);
+                    $("#univ-peru").prop('required', true);
+                    $("#univ-peru").select2("val", "");
                 } else {
                     vue.showUniverdidadName = true;
                     vue.showUniverdidadPeru = false;
-                    $("#distNacimiento").select2("val", "");
-                    $("#distNacimiento").prop('required', false);
+                    $("#universidadExtranjeraName").prop('required', true);
+                    $("#universidadExtranjeraName").val("");
                 }
             },
             submitForm: function(e) {
@@ -175,7 +169,7 @@ $(function() {
                     success: function(response) {
                         if (response.success) {
                             notify(response.message, "info");
-                            location.reload();
+                            $(location).attr('href', APP.url('academico/visitante/alumno/'));
                         } else {
                             notify(response.message, "error");
                         }
@@ -186,8 +180,15 @@ $(function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
+            },
+            sinEspacios: function(e) {
+                var self = $(e.currentTarget);
+                APP.eliminarEspacios(self);
+            },
+            nombrePersona: function(e) {
+                var self = $(e.currentTarget);
+                APP.revisarNombre(self);
             }
         }
     });
-
 });

@@ -5,12 +5,10 @@
             <table id="dynaTable" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th class="col-xs-4">Alumno</th>
+                        <th class="col-xs-6">Alumno</th>
                         <th class="col-xs-2  text-center">Carrera</th>
-                        <th class="col-xs-2  text-center">Monto</th>
-                        <th class="col-xs-2  text-center">Destino</th>
-                        <th class="col-xs-1  text-center">Ciclo</th>
-                        <th class="col-xs-1  text-center">Estado</th>
+                        <th class="col-xs-2  text-center">Universidad</th>
+                        <th class="col-xs-2  text-center">Ciclo</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -28,36 +26,28 @@
 
         <td class="v-middle">
             <p class="h5 bold">
-                {{ becado.nombre}}
+                {{ visitante.nombre}}
             </p>
             <small class="block  text-muted">
-                <span v-if="becado.numeroMatricula">/ &nbsp; Nº Matrícula {{becado.numeroMatricula}} &nbsp; </span>
-                {{becado.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{becado.documento}} &nbsp;
+                <span v-if="visitante.numeroMatricula"> &nbsp; Nº Matrícula {{visitante.numeroMatricula}} &nbsp; </span>
+                {{visitante.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{visitante.documento}} &nbsp;
             </small>
         </td>
 
         <td class="v-middle text-center">
-            <p class="">{{becado.carrera}}</p>
-            <span v-if="becado.facultad" class="text-muted">Facultad de {{becado.facultad}}</span>
+            <p class="">{{visitante.carrera}}</p>
+            <span v-if="becado.facultad" class="text-muted">Facultad de {{visitante.facultad}}</span>
         </td>
 
         <td class="v-middle  text-center">
-            <span class="">{{becado.monto}}</span>
+            <span class="block">{{visitante.universidad}}</span>
+            <span class="bold block text-sm">{{visitante.paisUniversidad}}</span>
         </td>
 
         <td class="v-middle  text-center">
-            <span class="">Facultad: {{becado.destinoFacultad}}</span>
-            <span class="bold">{{becado.destinoUniversidad}}</span>
+            <span class="">{{visitante.ciclo}}</span>
         </td>
 
-        <td class="v-middle  text-center">
-            <span class="">{{becado.ciclo}}</span>
-        </td>
-
-        <td class="v-middle  text-center">
-            <span v-if="becado.estado=='INA'" class="label label-default" >Inactivo</span>
-            <span v-if="becado.estado=='ACT'" class="label label-primary" >Activo</span>
-        </td>
 
         <td class="v-middle">
             <div class="dropdown actions">
@@ -65,9 +55,9 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a class=""   v-on:click.prevent="editar(becado.id)"  href="#">Editar Becado</a></li>
+                    <li><a class=""   v-on:click.prevent="editar(visitante.id)"  href="#">Editar Visitante</a></li>
                     <li role="presentation" class="divider"></li>
-                    <li><a class=""   v-on:click.prevent="eliminar(becado.id)"  href="#">Eliminar Becado</a></li>
+                    <li><a class=""   v-on:click.prevent="eliminar(visitante.id)"  href="#">Eliminar Visitante</a></li>
                 </ul>
             </div>
         </td>

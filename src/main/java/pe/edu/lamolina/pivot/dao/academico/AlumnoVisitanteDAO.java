@@ -13,6 +13,8 @@ public interface AlumnoVisitanteDAO extends EasyDAO<AlumnoVisitante> {
 
     AlumnoVisitante findByPersona(Persona persona, CicloAcademico cicloAcademico);
 
-    public List<AlumnoVisitante> allByDynatable(DynatableFilter filter);
+    List<AlumnoVisitante> allByDynatable(DynatableFilter filter);
+
+    AlumnoVisitante findAlumnoVisitante(AlumnoVisitante alumnoVisitante);
 
 }

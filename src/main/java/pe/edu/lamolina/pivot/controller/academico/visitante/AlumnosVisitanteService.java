@@ -21,4 +21,8 @@ public interface AlumnosVisitanteService {
 
     Map<Long, Alumno> allAlumnoByVisitante(List<AlumnoVisitante> visitantes);
 
+    void delete(AlumnoVisitante alumnoVisitante);
+
+    AlumnoVisitante findAlumnoVisitante(Long idAlumnoVisitante);
+
 }

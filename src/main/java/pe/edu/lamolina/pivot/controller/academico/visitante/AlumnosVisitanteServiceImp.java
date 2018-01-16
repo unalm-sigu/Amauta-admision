@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -130,11 +133,12 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     private String generateCodigo(CicloAcademico ciclo) {
         logger.debug("generateCodigo CicloAcademico {}", ciclo.getId());
         logger.debug("CicloAcademico getMatriculaSiguiente {}", ciclo.getMatriculaSiguiente());
-        if (ciclo.getMatriculaSiguiente() == null) {
-            ciclo.setMatriculaSiguiente(1);
-        }
-        if (ciclo.getMatriculaInicio() == null) {
-            ciclo.setMatriculaInicio(1);
+        StringBuilder ssb = new StringBuilder();
+        ssb.append("Configuración del ciclo académico UNALM  ");
+        ssb.append(ciclo.getDescripcion());
+        ssb.append("  no esta completa");
+        if (ciclo.getMatriculaSiguiente() == null || ciclo.getMatriculaInicio() == null) {
+            throw new PhobosException(ssb.toString());
         }
         int sgt = ciclo.getMatriculaSiguiente();
         String year = ciclo.getYear().toString();
@@ -184,7 +188,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         usuarioDAO.save(usuarioVisitante);
         logger.debug("**save usuarioVisitante {} {} **", usuarioVisitante.getId(), usuarioVisitante.getId());
 
-        Carrera carrera = carreraDAO.findByCodigo("001");
+        Carrera carrera = carreraDAO.findByCodigo("002");
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
         SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
@@ -278,7 +282,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         if (alumno == null) {
 
-            Carrera carrera = carreraDAO.findByCodigo("001");
+            Carrera carrera = carreraDAO.findByCodigo("002");
             ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
             SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
@@ -320,6 +324,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             logger.debug("**creando visitante {} codigo {} **", alumnoVisitante.getId(), codigoMatricula);
         } else {
             alumnoVisitanteDb.setUniversidadExtranjera(alumnoVisitante.getUniversidadExtranjera());
+            logger.debug("****alumno Visitante setUniversidadExtranjera {} ****", alumnoVisitante.getUniversidadExtranjera());
             alumnoVisitanteDb.setUniversidad(alumnoVisitante.getUniversidad());
             alumnoVisitanteDb.setCicloEstudia(alumnoVisitante.getCicloEstudia());
             alumnoVisitanteDb.setPaisUniversidad(alumnoVisitante.getPaisUniversidad());
@@ -454,7 +459,26 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     @Override
     public Map<Long, Alumno> allAlumnoByVisitante(List<AlumnoVisitante> visitantes) {
-        return null;
+        if (visitantes == null || visitantes.isEmpty()) {
+            return new LinkedHashMap();
+        }
+        List<Persona> personas = visitantes.stream().
+                map(AlumnoVisitante::getPersona).
+                collect(Collectors.toList());
+        List<Alumno> alumnos = alumnoDAO.allByPersonas(personas);
+        Map<Long, Alumno> alumnosMap = TypesUtil.convertListToMap("persona.id", alumnos);
+        return alumnosMap;
+    }
+
+    @Override
+    @Transactional
+    public void delete(AlumnoVisitante alumnoVisitante) {
+        alumnoVisitanteDAO.delete(alumnoVisitante.getId());
+    }
+
+    @Override
+    public AlumnoVisitante findAlumnoVisitante(Long idAlumnoVisitante) {
+        return alumnoVisitanteDAO.findAlumnoVisitante(new AlumnoVisitante(idAlumnoVisitante));
     }
 
 }

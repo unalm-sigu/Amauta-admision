@@ -41,7 +41,7 @@ $(function() {
 
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
-                        dynatableRowTemplate.becado = records[i];
+                        dynatableRowTemplate.visitante = records[i];
                         var component = dynatableRowTemplate.$mount();
                         $('#dynaTbody').append(component.$el);
                     }
@@ -72,6 +72,7 @@ $(function() {
         methods: {
             editar(id) {
                 var vue = this;
+                $(location).attr('href', APP.url('academico/visitante/alumno/' + id + '/update'));
             },
             eliminar(id) {
                 var $vue = this;
@@ -85,7 +86,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/becado/alumno/delete'),
+                                url: APP.url('academico/visitante/alumno/delete'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {
