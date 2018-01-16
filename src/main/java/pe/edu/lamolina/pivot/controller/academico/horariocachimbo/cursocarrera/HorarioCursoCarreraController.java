@@ -151,13 +151,14 @@ public class HorarioCursoCarreraController {
                         if (seccionCursoCachimbosMapBySeccion.size() > 0) {
                             scc = seccionCursoCachimbosMapBySeccion.get(seccion.getId());
                         }
-                        ObjectNode claveNode = new ObjectNode(jsonFactory);
-                        claveNode.put("id", seccion.getId());
-                        claveNode.put("codigo", seccion.getCodigo());
-                        claveNode.put("tipo", seccion.getTipoSeccion());
-                        claveNode.put("suscritos", seccion.getSuscritos());
-                        claveNode.put("underline", scc != null ? "underline" : "");
-                        seccionesArray.add(claveNode);
+                        ObjectNode seccionNode = new ObjectNode(jsonFactory);
+                        seccionNode.put("id", seccion.getId());
+                        seccionNode.put("codigo", seccion.getCodigo());
+                        seccionNode.put("tipo", seccion.getTipoSeccion());
+                        seccionNode.put("suscritos", seccion.getSuscritos());
+                        seccionNode.put("seleccionado", scc != null);
+                        seccionNode.put("anexo", grupoSeccion.getAnexoBoletin().getNombre());
+                        seccionesArray.add(seccionNode);
                     }
 
                     int cant = (grupoSeccion.getSecciones().size() > 12) ? 12 : grupoSeccion.getSecciones().size();

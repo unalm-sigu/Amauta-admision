@@ -42,12 +42,11 @@
         <td class="v-middle text-center">
 
             <div class="row">
-                <div v-for="gpoSeccion in curso.grupos" class="alg-ewer"
-                     >
+                <div v-for="gpoSeccion in curso.grupos" class="alg-ewer">
                     <div v-for="seccion in gpoSeccion.secciones"
                          class="col-xs-1"
                          v-bind:class="seccion.classTipo">
-                        <span class="block text-center" v-bind:class="seccion.underline"> {{seccion.codigo}}</span>
+                        <span class="block text-center"> {{seccion.codigo}}</span>
                         <span class="block text-center m-b"> {{seccion.suscritos}}</span>
                     </div>
                 </div>
@@ -70,7 +69,7 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a v-on:click.prevent="seleccionarSeccion(curso.id)"  href="#">Seleccionar Claves</a></li>
+                    <li><a v-on:click.prevent="seleccionarSecciones(curso.id)"  href="#">Seleccionar Claves</a></li>
                     <li class="divider"></li>
                     <li><a v-on:click.prevent="eliminar(curso.id)"  href="#">Eliminar Curso</a></li>
                 </ul>
@@ -108,10 +107,10 @@
         / &nbsp; Dpto. Académico {{:departamento}}
     </small>
     {{if especialidad}}
-    <small class="block"><strong>Especialidad</strong> {{:tipoEspecialidad}} {{:especialidad}}</small>
+        <small class="block"><strong>Especialidad</strong> {{:tipoEspecialidad}} {{:especialidad}}</small>
     {{/if}}
     {{if tipoCursoCurricula}}
-    <small class="block bold text-danger">Tipo {{:tipoCursoCurricula}}</small>
+        <small class="block bold text-danger">Tipo {{:tipoCursoCurricula}}</small>
     {{/if}}
 </div>
 

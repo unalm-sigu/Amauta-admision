@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
@@ -29,6 +31,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario.GenerarHorarioIngresanteService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -62,6 +65,9 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    CarreraCachimbosDAO carreraCachimbosDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -197,17 +203,18 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Override
     @Transactional
     public void cargarIngresantes(CicloAcademico cicloAcademico, Usuario user) {
-        logger.debug("cargando ingresantes ...");
-        logger.debug("usuario registra : {} {} ", user.getId(), user.getUsuario());
-        logger.debug("para el ciclo : {} {} ", cicloAcademico.getId(), cicloAcademico.getDescripcion());
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-        logger.debug("modalidad : {} {} ", modalidad.getId(), modalidad.getNombre());
         List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
-        logger.debug("total alumnoHorarios que ya fueron registrados en el ciclo : {} ", alumnoHorarios.size());
         List<Alumno> alumnoExclude = alumnoHorarios.stream().map(AlumnoHorario::getAlumno).collect(Collectors.toList());
-        logger.debug("total alumnos que ya fueron registrados en el ciclo : {} ", alumnoExclude != null ? alumnoExclude.size() : 0);
         List<Alumno> alumnosIngresantes = alumnoDAO.allIngresantePregradoByCiclo(modalidad, cicloAcademico, alumnoExclude);
-        logger.debug("total alumnos para registrar en el ciclo : {} ", alumnosIngresantes != null ? alumnosIngresantes.size() : 0);
+
+        if (alumnosIngresantes.isEmpty()) {
+            throw new PhobosException("No existen alumnos nuevos");
+        }
+
+        Map<Long, Carrera> mapCarreras = new LinkedHashMap();
+        Map<Long, Integer> mapIngresantes = new LinkedHashMap();
+
         for (Alumno alumnosIngresante : alumnosIngresantes) {
             AlumnoHorario alumnoHorario = new AlumnoHorario();
             alumnoHorario.setAlumno(alumnosIngresante);
@@ -216,7 +223,28 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
             alumnoHorario.setFechaCreacion(new Date());
             alumnoHorario.setUserCreacion(user);
             alumnoHorarioDAO.save(alumnoHorario);
+
+            Carrera carr = alumnosIngresante.getCarrera();
+            Integer cant = mapIngresantes.get(carr.getId());
+            cant = (cant == null) ? 1 : cant + 1;
+            mapCarreras.put(carr.getId(), carr);
+            mapIngresantes.put(carr.getId(), cant);
         }
+
+        for (Carrera carrera : mapCarreras.values()) {
+            Integer ingresantes = mapIngresantes.get(carrera.getId());
+            CarreraCachimbos ch = new CarreraCachimbos();
+            ch.setCarrera(carrera);
+            ch.setCicloAcademico(cicloAcademico);
+            ch.setConHorario(0);
+            ch.setHorarios(0);
+            ch.setIngresantes(ingresantes);
+            ch.setMatriculados(0);
+            ch.setSinHorario(ingresantes);
+            ch.setSuspendidos(0);
+            carreraCachimbosDAO.save(ch);
+        }
+
     }
 
     @Override

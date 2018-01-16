@@ -43,7 +43,7 @@ $(function () {
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
                         ajaxUrl: APP.url('academico/horariocachimbo/horario/list'),
-                        perPageDefault: 8
+                        perPageDefault: 10
                     },
                     writers: {_rowWriter: vue.writter},
                     table: {bodyRowSelector: "tbody tr"}

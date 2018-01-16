@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -256,38 +257,55 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
     }
 
     @Override
+    @Transactional
     public void updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, Usuario usuario) {
 
         ObjectUtil.eliminarAttrSinId(carreraCursoCachimbo, "curso");
         CursoCachimbos curso = carreraCursoCachimbo.getCurso();
 
         if (curso == null) {
-            throw new PhobosException("curso no esta presente");
+            throw new PhobosException("Curso no esta presente");
         }
-        seccionCursoCachimbosDAO.deleteByCursoCachimbos(curso);
+
         List<Seccion> secciones = carreraCursoCachimbo.getSecciones();
-        if (secciones == null || secciones.isEmpty()) {
-            return;
-        }
+        secciones = (secciones == null) ? new ArrayList() : secciones;
 
-        List<Seccion> seccionesFill = seccionDAO.allBySecciones(secciones);
-
-        Map<Long, Seccion> seccionesMap = new LinkedHashMap();
-
-        for (Seccion seccion : seccionesFill) {
+        List<Seccion> seccionesFormBD = seccionDAO.allMatriculablesBySecciones(secciones);
+        Map<Long, Seccion> mapSecciones = new LinkedHashMap();
+        for (Seccion seccion : seccionesFormBD) {
+            mapSecciones.put(seccion.getId(), seccion);
             if (seccion.getSeccionSuperior() != null) {
-                seccionesMap.put(seccion.getId(), seccion);
-                seccionesMap.put(seccion.getSeccionSuperior().getId(), seccion.getSeccionSuperior());
+                mapSecciones.put(seccion.getSeccionSuperior().getId(), seccion.getSeccionSuperior());
             }
         }
 
-        for (Seccion seccion : seccionesMap.values()) {
-            SeccionCursoCachimbos seccionCursoCachimbos = new SeccionCursoCachimbos();
-            seccionCursoCachimbos.setFechaCreacion(new Date());
-            seccionCursoCachimbos.setUserRegistro(usuario);
-            seccionCursoCachimbos.setCursoCachimbos(curso);
-            seccionCursoCachimbos.setSeccion(seccion);
-            seccionCursoCachimbosDAO.save(seccionCursoCachimbos);
+        List<SeccionCursoCachimbos> seccionesForm = new ArrayList();
+        for (Seccion seccion : mapSecciones.values()) {
+            SeccionCursoCachimbos sc = new SeccionCursoCachimbos();
+            sc.setSeccion(seccion);
+            seccionesForm.add(sc);
+        }
+
+        List<SeccionCursoCachimbos> seccionesBD = seccionCursoCachimbosDAO.allByCursoCachimbos(curso);
+        if (seccionesBD.isEmpty() && seccionesForm.isEmpty()) {
+            throw new PhobosException("Debe marcar al menos una clave");
+        }
+
+        ListsInspector inspector = TypesUtil.analizeLists(seccionesBD, seccionesForm, "seccion.id");
+        List<SeccionCursoCachimbos> nuevos = inspector.getNewList();
+        List<SeccionCursoCachimbos> eliminables = inspector.getDeadList();
+        if (nuevos.isEmpty() && eliminables.isEmpty()) {
+            throw new PhobosException("No ha efectuado ningún cambio");
+        }
+
+        for (SeccionCursoCachimbos nuevo : nuevos) {
+            nuevo.setFechaCreacion(new Date());
+            nuevo.setUserRegistro(usuario);
+            nuevo.setCursoCachimbos(curso);
+            seccionCursoCachimbosDAO.save(nuevo);
+        }
+        for (SeccionCursoCachimbos eliminable : eliminables) {
+            seccionCursoCachimbosDAO.delete(eliminable);
         }
 
     }

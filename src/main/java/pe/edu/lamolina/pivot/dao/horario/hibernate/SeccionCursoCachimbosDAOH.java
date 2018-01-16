@@ -5,6 +5,7 @@ import org.hibernate.Query;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.pivot.dao.horario.SeccionCursoCachimbosDAO;
@@ -20,8 +21,8 @@ public class SeccionCursoCachimbosDAOH extends AbstractEasyDAO<SeccionCursoCachi
     @Override
     public List<SeccionCursoCachimbos> allByCursoCachimbos(CursoCachimbos curso) {
         Octavia sql = Octavia.query()
-                .from(SeccionCursoCachimbos.class, "hs")
-                .join("seccion se", "cursoCachimbos ch", "userCreacion uc")
+                .from(SeccionCursoCachimbos.class, "scc")
+                .join("seccion se", "cursoCachimbos ch")
                 .filter("ch.id", curso);
         return all(sql);
     }
@@ -42,9 +43,19 @@ public class SeccionCursoCachimbosDAOH extends AbstractEasyDAO<SeccionCursoCachi
     @Override
     public List<SeccionCursoCachimbos> allByCursoCachimbos(List<CursoCachimbos> cursoCachimbos) {
         Octavia sql = Octavia.query()
-                .from(SeccionCursoCachimbos.class, "hs")
+                .from(SeccionCursoCachimbos.class, "scc")
                 .join("seccion se", "cursoCachimbos ch")
                 .in("ch.id", cursoCachimbos);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionCursoCachimbos> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoCachimbos.class, "scc")
+                .join("seccion se", "cursoCachimbos ch")
+                .join("ch.cicloAcademico ci", "ch.carrera", "ch.curso")
+                .filter("ci.id", ciclo);
         return all(sql);
     }
 

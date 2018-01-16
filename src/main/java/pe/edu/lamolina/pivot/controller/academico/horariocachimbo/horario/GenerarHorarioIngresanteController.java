@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -343,9 +345,8 @@ public class GenerarHorarioIngresanteController {
             for (Hora hora : seccionHorarioHorasMap.values()) {
                 horas.add(hora);
             }
-            if (horas.isEmpty()) {
-                horas = service.allHora();
-            }
+            horas = horas.isEmpty() ? service.allHora() : horas;
+            Collections.sort(horas, new Hora.CompareCodigo());
 
             ObjectNode dataObject = new ObjectNode(jsonFactory);
             ArrayNode horaArray = new ArrayNode(jsonFactory);
@@ -385,6 +386,9 @@ public class GenerarHorarioIngresanteController {
                     for (HorarioSeccion horarioSeccion : seccionHorarioDia) {
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
                         seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
+                        seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
+                        seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
                         logger.debug("********seccion {}", horarioSeccion.getSeccion().getCodigo());
                         arraySeccion.add(seccionNode);
                     }
@@ -513,41 +517,42 @@ public class GenerarHorarioIngresanteController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            List<HorarioSeccion> seccionHorario = service.allSeccionHorarioCachimbosByHorarioCachimbos(horario);
-            Map<Long, List<HorarioSeccion>> seccionHorarioHoras = TypesUtil.convertListToMapList("hora.id", seccionHorario);
-            Map<Long, Hora> seccionHorarioHorasMap = TypesUtil.convertListToMap("hora.id", "hora", seccionHorario);
+            List<HorarioSeccion> seccionesHorarios = service.allSeccionHorarioCachimbosByHorarioCachimbos(horario);
+            Map<Long, List<HorarioSeccion>> mapHorariosSeccionHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
+            Map<Long, Hora> seccionHorarioHorasMap = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
             List<Dia> dias = service.allDia();
             List<Hora> horas = new ArrayList();
             for (Hora hora : seccionHorarioHorasMap.values()) {
                 horas.add(hora);
             }
-            if (horas.isEmpty()) {
-                horas = service.allHora();
-            }
+            horas = horas.isEmpty() ? service.allHora() : horas;
+            Collections.sort(horas, new Hora.CompareCodigo());
+
             ObjectNode dataObject = new ObjectNode(jsonFactory);
             ArrayNode horaArray = new ArrayNode(jsonFactory);
 
             for (Hora hora : horas) {
                 ObjectNode horaNode = new ObjectNode(jsonFactory);
                 horaNode.put("hora", hora.getDescripcion());
-                List<HorarioSeccion> seccionHorarioHora = seccionHorarioHoras.get(hora.getId());
-                if (seccionHorarioHora == null) {
-                    seccionHorarioHora = new ArrayList();
-                }
-                Map<Long, List<HorarioSeccion>> seccionHorarioDias = TypesUtil.convertListToMapList("dia.id", seccionHorarioHora);
+                List<HorarioSeccion> horariosSeccionesHora = mapHorariosSeccionHora.get(hora.getId());
+                horariosSeccionesHora = (horariosSeccionesHora == null) ? new ArrayList() : horariosSeccionesHora;
+
+                Map<Long, List<HorarioSeccion>> mapHorarioSeccionDia = TypesUtil.convertListToMapList("dia.id", horariosSeccionesHora);
                 ArrayNode arrayDia = new ArrayNode(jsonFactory);
                 for (Dia dia : dias) {
                     ObjectNode diaNode = new ObjectNode(jsonFactory);
                     diaNode.put("hora", hora.getDescripcion());
                     diaNode.put("dia", dia.getNombre());
-                    List<HorarioSeccion> seccionHorarioDia = seccionHorarioDias.get(dia.getId());
-                    if (seccionHorarioDia == null) {
-                        seccionHorarioDia = new ArrayList();
-                    }
+                    List<HorarioSeccion> horariosSeccionesDia = mapHorarioSeccionDia.get(dia.getId());
+                    horariosSeccionesDia = (horariosSeccionesDia == null) ? new ArrayList() : horariosSeccionesDia;
+
                     ArrayNode arraySeccion = new ArrayNode(jsonFactory);
-                    for (HorarioSeccion horarioSeccion : seccionHorarioDia) {
+                    for (HorarioSeccion horarioSeccion : horariosSeccionesDia) {
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
                         seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
+                        seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
+                        seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
                         arraySeccion.add(seccionNode);
                     }
                     diaNode.put("secciones", arraySeccion);

@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -141,7 +142,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur", "gs.anexoBoletin")
                 .leftJoin("seccionSuperior")
                 .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
                 .filter("ca.id", cicloAcademico)
@@ -152,7 +153,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public List<Seccion> allBySecciones(List<Seccion> secciones) {
+    public List<Seccion> allMatriculablesBySecciones(List<Seccion> secciones) {
 
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
@@ -160,6 +161,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .leftJoin("seccionSuperior ss")
                 .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
                 .in("sec.id", secciones)
+                .filter("sec.tipoSeccion", "<>", TCUR)
                 .orderBy("sec.codigo");
 
         return all(sql);
