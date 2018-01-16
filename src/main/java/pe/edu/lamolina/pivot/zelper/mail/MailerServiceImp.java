@@ -29,6 +29,7 @@ public class MailerServiceImp implements MailerService {
 
         contenido = contenido.replaceAll("__ESTIMADO__", estimado);
         contenido = contenido.replaceAll("__NOMBREPERSONA__", persona.getNombreCompleto());
+        contenido = contenido.replaceAll("__CORREOCREADO__", persona.getEmailCompania());
 
         Context ctx = new Context();
         ctx.setVariable("contenido", contenido);
@@ -37,9 +38,9 @@ public class MailerServiceImp implements MailerService {
         MailMessage mail = new MailMessage();
         mail.setContext(ctx);
         mail.setTemplate("mail/mailUsuarioCreacion");
-        mail.setSubject("Entrega de Certificado de Estudios");
-        mail.setDestinatarios(new String[]{persona.getEmail()});
-        //mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
+        mail.setSubject("Creación de usuario");
+        //mail.setDestinatarios(new String[]{persona.getEmail()});
+        mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
         mailerConnector.sendMail(mail);
     }
 }
