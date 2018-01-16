@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.apache.bcel.classfile.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -131,8 +133,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     }
 
     private String generateCodigo(CicloAcademico ciclo) {
-        logger.debug("generateCodigo CicloAcademico {}", ciclo.getId());
-        logger.debug("CicloAcademico getMatriculaSiguiente {}", ciclo.getMatriculaSiguiente());
+
         StringBuilder ssb = new StringBuilder();
         ssb.append("Configuración del ciclo académico UNALM  ");
         ssb.append(ciclo.getDescripcion());
@@ -159,12 +160,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         logger.debug("**createAlumno**");
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumnoVisitante.getCicloEstudia().getId());
-        logger.debug("**con ciclo academico {} {} **", ciclo.getId(), ciclo.getNumeroCiclo());
 
         String codigoMatricula = this.generateCodigo(ciclo);
-        logger.debug("**codigoMatricula {} {} **", codigoMatricula, codigoMatricula);
         String emailCompania = this.generateEmailCompania(codigoMatricula);
-        logger.debug("**emailCompania {} {} **", emailCompania, emailCompania);
 
         Persona persona = alumnoVisitante.getPersona();
         persona.setEmailCompania(emailCompania);
@@ -176,7 +174,6 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         persona.setFechaRegistro(new Date());
 
         personaDAO.save(persona);
-        logger.debug("**save persona {} {} **", persona.getId(), persona.getId());
 
         Usuario usuarioVisitante = new Usuario();
         usuarioVisitante.setUsuario(emailCompania);
@@ -186,9 +183,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         usuarioVisitante.setUserRegistro(usuario);
 
         usuarioDAO.save(usuarioVisitante);
-        logger.debug("**save usuarioVisitante {} {} **", usuarioVisitante.getId(), usuarioVisitante.getId());
 
-        Carrera carrera = carreraDAO.findByCodigo("002");
+        Carrera carrera = carreraDAO.findByCodigo(Constantine.COD_CARRERA_ALUMNO_VISITANTE);
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
         SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
@@ -216,21 +212,16 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
 
         alumnoDAO.save(alumno);
-        logger.debug("**save alumno {} {} **", alumno.getId(), alumno.getId());
 
         alumnoVisitante.setFechaRegistro(new Date());
         alumnoVisitante.setUserRegistro(usuario);
         alumnoVisitante.setPersona(persona);
         alumnoVisitanteDAO.save(alumnoVisitante);
-        logger.debug("**save alumnoVisitante {} {} **", alumnoVisitante.getId(), alumnoVisitante.getId());
 
         this.updateCicloSgteMatricula(ciclo);
-        logger.debug("**updateCicloSgteMatricula {} {} **", ciclo.getId(), ciclo.getId());
-        logger.debug("PERSONA ID- {}", persona.getId());
-        logger.debug("============");
+
         String mensaje = usuarioVisitante.getUsuario();
         this.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
-        //mailerService.enviarNotificacionUsuarioCreacion(persona, "Usuario creación", mensaje);
 
     }
 
@@ -238,9 +229,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     private void updateAlumno(AlumnoVisitante alumnoVisitante, Usuario usuario, Persona persona) {
         logger.debug("**updateAlumno**");
         Persona personaDb = this.getPersonaBD(persona, alumnoVisitante.getPersona());
-        logger.debug("**personaDb {} {} **", personaDb.getId(), personaDb.getId());
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumnoVisitante.getCicloEstudia().getId());
-        logger.debug("**CicloAcademico {} {} **", ciclo.getId(), ciclo.getId());
 
         boolean updateCiclo = false;
 
@@ -268,7 +257,6 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             updateCiclo = true;
             String mensaje = usuarioVisitante.getUsuario();
             this.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
-            //mailerService.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
         }
 
         if (Strings.isNullOrEmpty(usuarioVisitante.getUsuario())) {
@@ -282,7 +270,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         if (alumno == null) {
 
-            Carrera carrera = carreraDAO.findByCodigo("002");
+            Carrera carrera = carreraDAO.findByCodigo(Constantine.COD_CARRERA_ALUMNO_VISITANTE);
             ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
             SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
 
@@ -359,7 +347,24 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     private Persona getPersonaBD(Persona persona, Persona personaForm) {
         Persona personaBD = personaDAO.find(persona.getId());
-        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, personaForm, Arrays.asList("email", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
+
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
+
+        if (personaForm.getUbicacionNacer() == null) {
+            personaBD.setUbicacionNacer(null);
+        }
+
+        personaBD.setPaisNacer(personaForm.getPaisNacer());
+        personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
+        personaBD.setNacionalidad(personaForm.getNacionalidad());
+
+        personaDAO.update(personaBD);
+
+        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, personaForm,
+                Arrays.asList("email", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
+
         if (sinCambios) {
             logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
@@ -374,6 +379,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         personaBD.setCelular(personaForm.getCelular());
         personaBD.setTelefono(personaForm.getTelefono());
         personaBD.setEmail(personaForm.getEmail());
+
         personaDAO.update(personaBD);
         return personaBD;
     }

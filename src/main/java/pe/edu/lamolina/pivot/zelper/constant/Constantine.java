@@ -29,4 +29,6 @@ public interface Constantine {
 
     String S3_DIR = "lamolina-admision";
 
+    String COD_CARRERA_ALUMNO_VISITANTE = "001";
+
 }
