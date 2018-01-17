@@ -120,7 +120,17 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     @Transactional
     public void delete(HorarioCachimboForm form) {
         for (HorarioCachimbos horarioCachimbos : form.getHorarioCachimbos()) {
-            horarioCachimbosDAO.delete(horarioCachimbos);
+            HorarioCachimbos horarioDb = horarioCachimbosDAO.find(horarioCachimbos);
+            if (horarioDb == null) {
+                continue;
+            }
+            seccionHorarioCachimbosDAO.deleteByHorarioCachimbos(horarioCachimbos);
+            List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByHorarioCachimbos(horarioCachimbos);
+            for (AlumnoHorario alumno : alumnos) {
+                alumno.setHorarioCachimbos(null);
+                alumnoHorarioDAO.update(alumno);
+            }
+            horarioCachimbosDAO.delete(horarioDb);
         }
     }
 
