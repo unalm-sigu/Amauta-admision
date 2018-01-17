@@ -11,7 +11,6 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
-import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 
 @Repository
 public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> implements HorarioCachimbosDAO {
@@ -27,7 +26,7 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .from(HorarioCachimbos.class, "hoca")
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("ciclo.id", ciclo)
-                .searchFields("car.nombre")
+                .searchFields("car.nombre", "hoca.codigo")
                 .orderBy("hoca.id desc");
         sql.beginRelativeFilters();
 
