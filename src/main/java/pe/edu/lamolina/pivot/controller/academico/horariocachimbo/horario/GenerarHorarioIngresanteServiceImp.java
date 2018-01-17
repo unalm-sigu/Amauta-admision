@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -102,7 +103,13 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     @Override
     @Transactional
     public void delete(HorarioCachimbos horarioCachimbos) {
-        horarioCachimbosDAO.delete(horarioCachimbos);
+        seccionHorarioCachimbosDAO.deleteByHorarioCachimbos(horarioCachimbos);
+        List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByHorarioCachimbos(horarioCachimbos);
+        for (AlumnoHorario alumno : alumnos) {
+            alumno.setHorarioCachimbos(null);
+            alumnoHorarioDAO.update(alumno);
+        }
+        horarioCachimbosDAO.deleteHorarioCachimbos(horarioCachimbos);
     }
 
     @Override

@@ -21,4 +21,6 @@ public interface SeccionHorarioCachimbosDAO extends EasyDAO<SeccionHorarioCachim
 
     List<SeccionHorarioCachimbos> allBySeccions(CicloAcademico cicloAcademico, List<Seccion> secciones);
 
+    void deleteByHorarioCachimbos(HorarioCachimbos horarioCachimbos);
+
 }
