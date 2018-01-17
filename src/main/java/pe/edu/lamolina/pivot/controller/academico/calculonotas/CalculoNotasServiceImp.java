@@ -107,6 +107,26 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
         }
 
+        if ((curso.isCreditosZero() || curso.isTieneCreditosVariables()) && cant == 1) {
+            AlumnoEvaluacion aEvaluacionLetra = evaluacionesAlumno.get(0);
+            String notaLetra = "";
+            if (aEvaluacionLetra.getValorLetra().equals("A")) {
+                notaLetra = "AP";
+            } else if (aEvaluacionLetra.getValorLetra().equals("D")) {
+                notaLetra = "DE";
+            }
+
+            matriculaCurso.setNotaAvance(notaLetra);
+            matriculaCurso.setNotaAcumulada(notaLetra);
+            matriculaCurso.setPorcentajeAvanceNota(100);
+            matriculaCurso.setNotaFinal(notaLetra);
+
+            matriculaCurso.setNotaAvanceFull(aEvaluacionLetra.getNota());
+            matriculaCurso.setNotaAcumuladaFull(aEvaluacionLetra.getNota());
+            matriculaCursoDAO.update(matriculaCurso);
+            return;
+        }
+
         if (cant == 0) {
             matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(BigDecimal.ZERO));
             matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(BigDecimal.ZERO));
