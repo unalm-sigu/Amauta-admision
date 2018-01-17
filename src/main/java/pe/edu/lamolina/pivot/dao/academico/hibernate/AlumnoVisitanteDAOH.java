@@ -59,8 +59,8 @@ public class AlumnoVisitanteDAOH extends AbstractEasyDAO<AlumnoVisitante> implem
     public AlumnoVisitante findAlumnoVisitante(AlumnoVisitante alumnoVisitante) {
         Octavia sql = Octavia.query()
                 .from(AlumnoVisitante.class, "av")
-                .join("persona per", "userRegistro us", "cicloEstudia ci")
-                .leftJoin("paisUniversidad pa")
+                .join("persona per", "cicloEstudia ci")
+                .leftJoin("paisUniversidad pa", "userRegistro us")
                 .filter("av.id", alumnoVisitante);
         return find(sql);
     }

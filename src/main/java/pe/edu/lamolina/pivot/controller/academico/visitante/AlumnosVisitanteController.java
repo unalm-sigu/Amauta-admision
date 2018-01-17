@@ -173,8 +173,10 @@ public class AlumnosVisitanteController {
     @RequestMapping("{alumnoVisitante}/update")
     public String update(@PathVariable("alumnoVisitante") Long idAlumnoVisitante, Model model, HttpSession session) {
 
+        logger.debug("idAlumnoVisitante ididid {}", idAlumnoVisitante);
         AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante);
-        logger.debug("AlumnoVisitante xxx {}", alumnoVisitante.getPersona().getId());
+        logger.debug("AlumnoVisitante id {}", alumnoVisitante.getId());
+        logger.debug("AlumnoVisitante persona {}", alumnoVisitante.getPersona().getId());
         logger.debug("AlumnoVisitante getFechaNacer************ {}", alumnoVisitante.getPersona().getFechaNacer());
         List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
         List<CicloAcademico> ciclos = service.allCicloAcademico();

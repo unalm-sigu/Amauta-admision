@@ -262,6 +262,40 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
 
+                                            <label>País Domicilio</label>
+
+                                            <input type="text"
+                                                   id="paisDomicilio"
+                                                   class="form-control"
+                                                   name="persona.paisDomicilio.id"
+                                                   data-trigger="change"
+                                                   th:rel="${helper.getParentTree(alumnoVisitante,'paisDomicilio.nombre')}"
+                                                   th:value="${helper.getParentTree(alumnoVisitante,'paisDomicilio.id')}"
+                                                   required="true"/>
+
+                                        </div>
+                                    </div>
+
+                                    <div v-if="showUbicacionDomicilio"   class="col-sm-6">
+                                        <div class="form-group">
+
+                                            <label>Ubicación Domicilio</label>
+
+                                            <input type="text"
+                                                   id="ubicacionDomicilio"
+                                                   class="form-control buscar-distrito"
+                                                   name="persona.ubicacionDomicilio.id"
+                                                   data-trigger="change"
+                                                   th:rel="${helper.getParentTree(alumnoVisitante,'ubicacionDomicilio.nombre')}"
+                                                   th:value="${helper.getParentTree(alumnoVisitante,'ubicacionDomicilio.id')}"
+                                                   required="true"/>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+
                                             <label class="bold">Dirección</label>
 
                                             <input type="text"
@@ -368,6 +402,8 @@
                 var showLugarNacimiento = /*[[${alumnoVisitante.persona.ubicacionNacer != null}]]*/'';
                 var showUniverdidadName = /*[[${alumnoVisitante.universidadExtranjera!=null}]]*/'';
                 var showUniverdidadPeru = /*[[${alumnoVisitante.universidad!=null}]]*/ '';
+                var codigoPaisUniversidad = /*[[${alumnoVisitante.paisUniversidad!=null?alumnoVisitante.paisUniversidad.codigo:''}]]*/ '';
+                var codigoPaisDomicilio = /*[[${alumnoVisitante.persona.paisDomicilio!=null?alumnoVisitante.persona.paisDomicilio.codigo:''}]]*/ '';
                 /*]]>*/
             </script>
 

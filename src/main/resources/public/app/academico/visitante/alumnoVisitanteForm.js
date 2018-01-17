@@ -4,8 +4,9 @@ $(function() {
         el: '#main',
         data: {
             showLugarNacimiento: showLugarNacimiento,
-            showUniverdidadName: showUniverdidadName,
-            showUniverdidadPeru: showUniverdidadPeru,
+            showUniverdidadName: codigoPaisUniversidad != 'PE',
+            showUniverdidadPeru: codigoPaisUniversidad == 'PE',
+            showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
         },
         created() {
             let vue = this;
@@ -23,6 +24,9 @@ $(function() {
             });
             $('#nacionalidad').select2(vue.buscarPais());
             $('#paisUniversidad').select2(vue.buscarPais()).on('change.select2', function(e) {
+                vue.mostrarUniversidadName();
+            });
+            $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function(e) {
                 vue.mostrarUniversidadName();
             });
             $('#univ-peru').select2(vue.buscarUniversidad());
@@ -151,6 +155,15 @@ $(function() {
                     vue.showUniverdidadPeru = false;
                     $("#universidadExtranjeraName").prop('required', true);
                     $("#universidadExtranjeraName").val("");
+                }
+            },
+            mostrarUbicacionDomicilio: function() {
+                var vue = this;
+                var dataPaisUni = $("#paisDomicilio").select2("data");
+                if (dataPaisUni.codigo === "PE") {
+                    vue.showUbicacionDomicilio = false;
+                } else {
+                    vue.showUbicacionDomicilio = true;
                 }
             },
             submitForm: function(e) {
