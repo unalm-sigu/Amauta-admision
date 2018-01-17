@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,6 +28,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
@@ -114,28 +116,25 @@ public class AlumnosVisitanteController {
                 Alumno alumno = alumnoBecadoMap.get(visitante.getPersona().getId());
 
                 Persona persona = visitante.getPersona();
-                TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
                 Carrera carrera = alumno.getCarrera();
                 Facultad facultad = carrera.getFacultad();
                 CicloAcademico ciclo = visitante.getCicloEstudia();
                 Universidad universidad = visitante.getUniversidad();
+                String nombreUni = visitante.getUniversidadExtranjera();
+                if (universidad == null && StringUtils.isEmpty(nombreUni)) {
+                    nombreUni = "Universidad desconocida";
+                }
 
                 Pais paisUniversidad = visitante.getPaisUniversidad();
 
                 node.put("id", visitante.getId());
                 node.put("nombre", persona.getNombreCompleto());
-                node.put("numeroMatricula", alumno.getCodigo());
-                node.put("codigo", tipoDoc.getSimbolo());
-                node.put("documento", persona.getNumeroDocIdentidad());
+                node.put("codigo", alumno.getCodigo());
+                node.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
+                node.put("nroDocumento", persona.getNumeroDocIdentidad());
                 node.put("carrera", carrera.getNombre());
                 node.put("facultad", facultad.getNombre());
-
-                if (universidad == null) {
-                    node.put("universidad", visitante.getUniversidadExtranjera());
-                } else {
-                    node.put("universidad", universidad.getNombre());
-                }
-
+                node.put("universidad", nombreUni);
                 node.put("ciclo", ciclo.getDescripcion());
                 node.put("paisUniversidad", paisUniversidad.getNombre());
 

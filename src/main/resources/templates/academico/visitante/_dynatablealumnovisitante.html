@@ -5,10 +5,10 @@
             <table id="dynaTable" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th class="col-xs-6">Alumno</th>
-                        <th class="col-xs-2  text-center">Carrera</th>
-                        <th class="col-xs-2  text-center">Universidad</th>
-                        <th class="col-xs-2  text-center">Ciclo</th>
+                        <th class="col-xs-4"></th>
+                        <th class="col-xs-2 text-center">Carrera</th>
+                        <th class="col-xs-4 text-center">Universidad</th>
+                        <th class="col-xs-2 text-center">Ciclo visita</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -25,12 +25,13 @@
     <tr>
 
         <td class="v-middle">
-            <p class="h5 bold">
-                {{ visitante.nombre}}
+            <p class="h5 bold text-primary">
+                {{visitante.nombre}}
             </p>
-            <small class="block  text-muted">
-                <span v-if="visitante.numeroMatricula"> &nbsp; Nº Matrícula {{visitante.numeroMatricula}} &nbsp; </span>
-                {{visitante.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{visitante.documento}} &nbsp;
+            <span class="block"> {{visitante.codigo}}</span>
+            <small class="block bold"
+                   v-if="visitante.nroDocumento">
+                {{visitante.tipoDoc}} {{visitante.nroDocumento}}
             </small>
         </td>
 
@@ -39,7 +40,7 @@
             <span v-if="becado.facultad" class="text-muted">Facultad de {{visitante.facultad}}</span>
         </td>
 
-        <td class="v-middle  text-center">
+        <td class="v-middle">
             <span class="block">{{visitante.universidad}}</span>
             <span class="bold block text-sm">{{visitante.paisUniversidad}}</span>
         </td>

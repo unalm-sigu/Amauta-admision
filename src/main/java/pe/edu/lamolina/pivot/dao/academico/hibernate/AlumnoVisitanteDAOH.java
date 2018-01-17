@@ -23,7 +23,7 @@ public class AlumnoVisitanteDAOH extends AbstractEasyDAO<AlumnoVisitante> implem
     public AlumnoVisitante findByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(AlumnoVisitante.class, "av")
-                .join("persona per", "userRegistro us", "cicloEstudia ci")
+                .join("persona per", "cicloEstudia ci")
                 .leftJoin("paisUniversidad pa")
                 .filter("per.id", persona);
 
@@ -34,7 +34,7 @@ public class AlumnoVisitanteDAOH extends AbstractEasyDAO<AlumnoVisitante> implem
     public AlumnoVisitante findByPersona(Persona persona, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AlumnoVisitante.class, "av")
-                .join("persona per", "userRegistro us", "cicloEstudia ci")
+                .join("persona per", "cicloEstudia ci")
                 .leftJoin("paisUniversidad pa")
                 .filter("per.id", persona)
                 .filter("ci.id", cicloAcademico);
@@ -60,7 +60,7 @@ public class AlumnoVisitanteDAOH extends AbstractEasyDAO<AlumnoVisitante> implem
         Octavia sql = Octavia.query()
                 .from(AlumnoVisitante.class, "av")
                 .join("persona per", "cicloEstudia ci")
-                .leftJoin("paisUniversidad pa", "userRegistro us")
+                .leftJoin("paisUniversidad pa")
                 .filter("av.id", alumnoVisitante);
         return find(sql);
     }

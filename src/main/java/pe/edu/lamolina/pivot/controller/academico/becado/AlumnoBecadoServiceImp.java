@@ -75,8 +75,8 @@ public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
         alumnoBecadoDb.setAlumno(alumnoBecado.getAlumno());
         alumnoBecadoDb.setCicloBeca(alumnoBecado.getCicloBeca());
         alumnoBecadoDb.setPaisDestino(alumnoBecado.getPaisDestino());
-        alumnoBecadoDb.setUniversidad(alumnoBecado.getUniversidad());
         alumnoBecadoDb.setUniversidadDestino(alumnoBecado.getUniversidadDestino());
+        alumnoBecadoDb.setNombreUniversidadDestino(alumnoBecado.getNombreUniversidadDestino());
         alumnoBecadoDb.setFacultadDestino(alumnoBecado.getFacultadDestino());
         alumnoBecadoDb.setMonto(alumnoBecado.getMonto());
         alumnoBecadoDAO.update(alumnoBecadoDb);

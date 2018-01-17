@@ -21,7 +21,7 @@ public class AlumnoBecadoDAOH extends AbstractDAO<AlumnoBecado> implements Alumn
     public AlumnoBecado findAlumnoBecado(AlumnoBecado alumnoBecado) {
         Octavia sql = Octavia.query()
                 .from(AlumnoBecado.class, "ab")
-                .join("universidad uni", "cicloBeca ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
+                .join("universidadDestino uni", "cicloBeca ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
                 .filter("ab.id", alumnoBecado);
         return (AlumnoBecado) sql.find(getCurrentSession());
@@ -31,9 +31,9 @@ public class AlumnoBecadoDAOH extends AbstractDAO<AlumnoBecado> implements Alumn
     public List<AlumnoBecado> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoBecado.class, "ab")
-                .join("universidad uni", "cicloBeca ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
+                .join("universidadDestino uni", "cicloBeca ciclo", "alumno alu", "paisDestino pd", "alu.persona per", "alu.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td")
-                .searchFields("ciclo.descripcion", "ab.monto", "ab.universidadDestino", "ab.facultadDestino")
+                .searchFields("ciclo.descripcion", "ab.monto", "ab.nombreUniversidadDestino", "ab.facultadDestino")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ab.id desc");

@@ -8,7 +8,6 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -176,7 +175,7 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
                 .join("evaluacion eva", "alumno alu")
                 .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion g")
                 .leftJoin("eva.seccionResponsable srs");
-        
+
         if (id != null) {
             sql.filter("aeva.id", id);
         }
