@@ -26,15 +26,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoBecado;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -112,20 +111,22 @@ public class AlumnoBecadoController {
 
                 Alumno alumno = becado.getAlumno();
                 Persona persona = alumno.getPersona();
-                TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
                 Carrera carrera = alumno.getCarrera();
                 CicloAcademico ciclo = becado.getCicloBeca();
 
                 node.put("id", becado.getId());
                 node.put("nombre", persona.getNombreCompleto());
-                node.put("numeroMatricula", alumno.getCodigo());
-                node.put("codigo", tipoDoc.getCodigo());
-                node.put("documento", persona.getNumeroDocIdentidad());
+                node.put("codigo", alumno.getCodigo());
+                node.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
+                node.put("nroDocumento", persona.getNumeroDocIdentidad());
                 node.put("carrera", carrera.getNombre());
+                node.put("codigoCarrera", carrera.getCodigo());
                 node.put("facultad", carrera.getFacultad().getNombre());
+                node.put("codigoFacultad", carrera.getFacultad().getCodigo());
                 node.put("monto", becado.getMonto());
-                node.put("destinoFacultad", becado.getFacultadDestino());
-                node.put("destinoUniversidad", becado.getUniversidadDestino());
+                node.put("facultadDestino", becado.getFacultadDestino());
+                node.put("nombreUniversidadDestino", becado.getNombreUniversidadDestino());
+                node.put("universidadDestino", (String) ObjectUtil.getParentTree(becado, "universidadDestino.nombre"));
                 node.put("ciclo", ciclo.getDescripcion());
                 node.put("estado", becado.getEstado());
                 array.add(node);
@@ -215,14 +216,18 @@ public class AlumnoBecadoController {
 
             for (Alumno alumno : alumnos) {
 
+                Persona persona = alumno.getPersona();
+
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", alumno.getId());
                 json.put("nombre", alumno.getPersona().getNombreCompleto());
-                json.put("codigoMatricula", alumno.getCodigo());
+                json.put("codigo", alumno.getCodigo());
                 json.put("carrera", alumno.getCarrera().getNombre());
+                json.put("codigoCarrera", alumno.getCarrera().getCodigo());
                 json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-                json.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
-                json.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+                json.put("codigoFacultad", alumno.getCarrera().getFacultad().getCodigo());
+                json.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
+                json.put("nroDocumento", alumno.getPersona().getNumeroDocIdentidad());
                 jsonList.add(json);
 
             }

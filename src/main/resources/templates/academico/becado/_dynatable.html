@@ -5,10 +5,10 @@
             <table id="dynaTable" class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th class="col-xs-4">Alumno</th>
+                        <th class="col-xs-3">Alumno</th>
                         <th class="col-xs-2  text-center">Carrera</th>
-                        <th class="col-xs-2  text-center">Monto</th>
-                        <th class="col-xs-2  text-center">Destino</th>
+                        <th class="col-xs-1  text-center">Monto</th>
+                        <th class="col-xs-4  text-center">Destino</th>
                         <th class="col-xs-1  text-center">Ciclo</th>
                         <th class="col-xs-1  text-center">Estado</th>
                         <th></th>
@@ -27,27 +27,27 @@
     <tr>
 
         <td class="v-middle">
-            <p class="h5 bold">
+            <p class="h5 bold text-primary">
                 {{ becado.nombre}}
             </p>
-            <small class="block  text-muted">
-                <span v-if="becado.numeroMatricula">/ &nbsp; Nº Matrícula {{becado.numeroMatricula}} &nbsp; </span>
-                {{becado.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{becado.documento}} &nbsp;
+            <span>{{becado.codigo}}</span>
+            <small class="block bold">
+                {{becado.tipoDoc}} {{becado.nroDocumento}}
             </small>
         </td>
 
         <td class="v-middle text-center">
             <p class="">{{becado.carrera}}</p>
-            <span v-if="becado.facultad" class="text-muted">Facultad de {{becado.facultad}}</span>
+            <span v-if="becado.verFacultad" class="text-muted">Facultad de {{becado.facultad}}</span>
         </td>
 
-        <td class="v-middle  text-center">
+        <td class="v-middle text-right">
             <span class="">{{becado.monto}}</span>
         </td>
 
-        <td class="v-middle  text-center">
-            <span class="">Facultad: {{becado.destinoFacultad}}</span>
-            <span class="bold">{{becado.destinoUniversidad}}</span>
+        <td class="v-middle">
+            <span class="block">Facultad: {{becado.facultadDestino}}</span>
+            <span class="bold block">{{becado.universidadDestino}}</span>
         </td>
 
         <td class="v-middle  text-center">
