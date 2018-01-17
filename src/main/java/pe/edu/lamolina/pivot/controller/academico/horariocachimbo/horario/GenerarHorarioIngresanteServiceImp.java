@@ -103,13 +103,17 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     @Override
     @Transactional
     public void delete(HorarioCachimbos horarioCachimbos) {
+        HorarioCachimbos horarioDb = horarioCachimbosDAO.find(horarioCachimbos);
+        if (horarioDb == null) {
+            return;
+        }
         seccionHorarioCachimbosDAO.deleteByHorarioCachimbos(horarioCachimbos);
         List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByHorarioCachimbos(horarioCachimbos);
         for (AlumnoHorario alumno : alumnos) {
             alumno.setHorarioCachimbos(null);
             alumnoHorarioDAO.update(alumno);
         }
-        horarioCachimbosDAO.deleteHorarioCachimbos(horarioCachimbos);
+        horarioCachimbosDAO.delete(horarioDb);
     }
 
     @Override

@@ -78,15 +78,4 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
         return find(sql);
     }
 
-    @Override
-    public void deleteHorarioCachimbos(HorarioCachimbos horarioCachimbos) {
-
-        StringBuilder sql = new StringBuilder();
-        sql.append("  delete from ").append(HorarioCachimbos.class.getName()).append(" hc ");
-        sql.append("  where hc.id = :HORARIO ");
-
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setLong("HORARIO", horarioCachimbos.getId());
-        query.executeUpdate();
-    }
 }
