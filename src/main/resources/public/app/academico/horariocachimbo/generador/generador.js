@@ -1,4 +1,4 @@
-$(function () {
+$(function() {
 
     var $global = new Vue({});
 
@@ -6,7 +6,7 @@ $(function () {
 
     var HorarioTemplate = Vue.component("horarioTemplate", {
         template: "#horarioTemplate",
-        data: function () {
+        data: function() {
             return {horarios: [], dias: []};
         },
         methods: {
@@ -16,24 +16,32 @@ $(function () {
 
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
-        data: function () {
+        data: function() {
             return {
-                horarios: [{}]
+                horarios: [{}],
+                showTitle: false,
             }
         },
-        mounted: function () {
+        mounted: function() {
             var vue = this;
         },
-        mounted: function () {
+        mounted: function() {
             let vue = this;
-            $global.$on("updataHorario", function (datos) {
+            $global.$on("updataHorario", function(datos) {
                 vue.updataHorario(datos);
+            });
+            $global.$on("updateShowTitle", function(estado) {
+                vue.updateShowTitle(estado);
             });
         },
         methods: {
             updataHorario(datos) {
                 var vue = this;
                 vue.horarios = datos;
+            },
+            updateShowTitle(estado) {
+                var vue = this;
+                vue.showTitle = estado;
             },
             openHorario(id) {
                 $global.$emit("openHorario", id);
@@ -45,54 +53,56 @@ $(function () {
     new Vue({
         el: '#main',
         data: {
-            curso: 0
+            curso: 0,
         },
-        created: function () {
+        created: function() {
             let vue = this;
         },
-        mounted: function () {
+        mounted: function() {
             let vue = this;
-            $('[name="carrera"]').select2({allowClear: true, placeholder: "Seleccione una carrera"}).on("change.select2", function (e) {
+            $('[name="carrera"]').select2({allowClear: true, placeholder: "Seleccione una carrera"}).on("change.select2", function(e) {
                 vue.horario(e.val);
                 dynatable.settings.dataset.ajaxData.id = e.val;
+                $global.$emit("updateShowTitle", true);
                 if (e.val == '') {
                     dynatable.settings.dataset.ajaxData.id = 0;
+                    $global.$emit("updateShowTitle", false);
                 }
                 vue.loadHeader(e.val);
                 dynatable.process();
             });
             vue.createDynatable();
-            $global.$on("openHorario", function (id) {
+            $global.$on("openHorario", function(id) {
                 vue.openHorario(id);
             });
         },
         methods: {
-            generarHorario: function (e) {
+            generarHorario: function(e) {
                 var self = $(e.currentTarget);
                 self.btnDisabled();
                 $.ajax({
                     method: 'POST',
                     sync: false,
                     url: APP.url("academico/horariocachimbo/horario/generar"),
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
-                            console.log(response.data);
                             dynatable.process();
+                            notify(response.message, 'info');
                         } else {
                             notify(response.message, 'error');
                         }
                         self.btnEnable();
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                         self.btnEnable();
                     }
                 });
             },
-            getRecord: function (id) {
+            getRecord: function(id) {
                 return dynatable.settings.dataset.records.find(item => item.id === id);
             },
-            createDynatable: function () {
+            createDynatable: function() {
                 let vue = this;
 
                 dynatable = $('#dynaTable').dynatable({
@@ -111,18 +121,18 @@ $(function () {
                 }).data('dynatable');
 
             },
-            writter: function (rowIndex, record, columns, cellWriter) {
+            writter: function(rowIndex, record, columns, cellWriter) {
                 var html = $.templates("#dynatableRowTemplate").render(record);
                 return $(html).prop('outerHTML');
             },
-            horario: function (carrera) {
+            horario: function(carrera) {
                 let vue = this;
                 if (carrera == '') {
                     $('#tableHorario').html("");
                     return;
                 }
             },
-            loadHeader: function (id) {
+            loadHeader: function(id) {
                 var vue = this;
 
                 if (id == '') {
@@ -134,7 +144,7 @@ $(function () {
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/horario/allHorarioHeader"),
                     data: {id: id},
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             console.log(response.data);
                             $global.$emit("updataHorario", response.data);
@@ -142,7 +152,7 @@ $(function () {
                             notify(response.message, 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
@@ -162,7 +172,7 @@ $(function () {
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/horario/openHorario"),
                     data: {id: id},
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             console.log(response.data.horarios);
                             console.log(response.data.dias);
@@ -175,7 +185,7 @@ $(function () {
                             notify(response.message, 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });

@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -207,6 +208,8 @@ public class GenerarHorarioIngresanteController {
                         for (SeccionHorarioCachimbos shc : shcHorario) {
                             ObjectNode horaSeccion = new ObjectNode(jsonFactory);
                             horaSeccion.put("hora", service.getClave(shc));
+                            horaSeccion.put("seccion", ObjectUtil.getParentTree(shc, "seccion.codigo").toString());
+                            horaSeccion.put("grupo", ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
                             horarios.add(horaSeccion);
                         }
                     }
@@ -278,6 +281,7 @@ public class GenerarHorarioIngresanteController {
             service.generar(cicloAcademico, modalidad, ds);
             ArrayNode node = new ArrayNode(jsonFactory);
             response.setData(node);
+            response.setMessage("Horario generado satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -457,12 +461,18 @@ public class GenerarHorarioIngresanteController {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 Alumno alumno = alumHorario.getAlumno();
+                Persona persona = alumno.getPersona();
+                Carrera carrera = alumno.getCarrera();
+                Facultad facultad = carrera.getFacultad();
                 HorarioCachimbos hc = alumHorario.getHorarioCachimbos();
 
                 node.put("id", alumHorario.getId());
-                node.put("estudiante", alumno.getPersona().getApellidosNombres());
-                node.put("carrera", alumno.getCarrera().getNombre());
-                node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+                node.put("estudiante", persona.getApellidosNombres());
+                node.put("carrera", carrera.getNombre());
+                node.put("facultad", facultad.getNombre());
+                node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
+
+                node.put("codigo", alumno.getCodigo());
                 node.put("horario", hc != null ? hc.getCodigo() : "");
                 node.put("numCurso", hc != null ? hc.getCursos() : 0);
                 node.put("estado", alumHorario.getEstado());
@@ -498,6 +508,7 @@ public class GenerarHorarioIngresanteController {
                 node.put("facultad", cursoCachimbo.getCarrera().getFacultad().getNombre());
                 node.put("departamentoAcademico", cursoCachimbo.getCurso().getDepartamentoAcademico().getNombre());
                 node.put("curso", cursoCachimbo.getCurso().getNombre());
+                node.put("tpc", cursoCachimbo.getCurso().getTpc());
                 array.add(node);
             }
             response.setData(array);

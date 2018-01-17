@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.ingresante;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,20 +12,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
-import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario.GenerarHorarioIngresanteService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -36,7 +30,6 @@ import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
-import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -107,13 +100,16 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Override
     @Transactional
     public void asignarHorario(AlumnoHorario alumnoHorario, DataSessionPivot ds) {
-        AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario);
-        if (alumnoHorarioDb == null) {
+
+        List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByAlumnoHorarioLikeList(alumnoHorario);
+
+        if (alumnos == null || alumnos.isEmpty()) {
             return;
         }
-        this.makeHorario(alumnoHorarioDb, ds);
-//        alumnoHorarioDb.setHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
-//        alumnoHorarioDAO.update(alumnoHorarioDb);
+
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        generarHorarioIngresanteService.generarHorario(ds.getCicloAcademico(), modalidad, ds, alumnos);
+
     }
 
     @Override
@@ -140,64 +136,6 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Override
     public List<Alumno> allAlumnoByName(String nombre) {
         return alumnoDAO.allAlumnoByName(nombre);
-    }
-
-    private void makeHorario(AlumnoHorario alumno, DataSessionPivot ds) {
-        if (alumno.getHorarioCachimbos() != null) {
-            return;
-        }
-
-        Carrera carrera = alumno.getAlumno().getCarrera();
-        CicloAcademico ciclo = alumno.getCicloAcademico();
-        List<CursoCachimbos> cursoCachimbos = cursoCachimbosDAO.allByCarreraCiclo(ciclo, carrera);
-        if (cursoCachimbos.isEmpty()) {
-            return;
-        }
-
-        Acumulador code = null;
-        {
-            HorarioCachimbos maxcode = horarioCachimbosDAO.findMaxCodeOrderByCiclo(ciclo);
-            if (maxcode != null) {
-                String codigo = maxcode.getCodigo();
-                String numcode = codigo.substring(2);
-                logger.debug("max code {}", codigo);
-                logger.debug("max code {}", numcode);
-                Integer numm = new Integer(numcode);
-                Integer seed = numm + 1;
-                code = new Acumulador(seed);
-            } else {
-                code = new Acumulador(1);
-            }
-        }
-
-        List<HorarioCachimbos> horariosBD = horarioCachimbosDAO.allByCiclo(ciclo);
-        Map<String, HorarioCachimbos> mapHorario = generarHorarioIngresanteService.mappingHorarios(horariosBD);
-
-        List<CursoCachimbos> cursoCachimbosTodos = cursoCachimbosDAO.allByCiclo(ciclo);
-        List<Curso> cursosTodos = generarHorarioIngresanteService.allCursosCarrera(cursoCachimbosTodos);
-        List<List<Seccion>> horariosTotal = new ArrayList();
-
-        List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursosTodos, ciclo);
-        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
-
-        List<Curso> cursos = generarHorarioIngresanteService.allCursosCarrera(cursoCachimbos);
-        Map<String, String> mapHorasDias = new LinkedHashMap();
-        List<Seccion> horarioTempo = new ArrayList();
-        logger.debug("Carrera {}", carrera.getNombre());
-        generarHorarioIngresanteService.reordernarSeccion(cursos, mapSecciones);
-        generarHorarioIngresanteService.permutarUnico(1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosTotal);
-
-        if (!horarioTempo.isEmpty()) {
-            HorarioCachimbos horario = generarHorarioIngresanteService.createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
-            horario.setSuscritos(horario.getSuscritos() + 1);
-            alumno.setHorarioCachimbos(horario);
-
-            List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
-            for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
-                Seccion secc = seccHorCachimbo.getSeccion();
-                secc.setSuscritos(secc.getSuscritos() + 1);
-            }
-        }
     }
 
     @Override
