@@ -23,16 +23,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.model.enums.RolEnum;
+import static pe.edu.lamolina.model.enums.RolEnum.FAC;
+import static pe.edu.lamolina.model.enums.RolEnum.MOD;
+import static pe.edu.lamolina.model.enums.RolEnum.TODO;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
-import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller

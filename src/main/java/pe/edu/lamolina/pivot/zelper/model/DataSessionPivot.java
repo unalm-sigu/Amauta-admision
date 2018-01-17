@@ -4,17 +4,18 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public class DataSessionPivot implements Serializable {
 
@@ -43,6 +44,8 @@ public class DataSessionPivot implements Serializable {
     private List<ModalidadEstudio> modalidades;
 
     private List<DepartamentoAcademico> departamentos;
+
+    private List<Oficina> oficinas;
 
     private List<Menu> menu;
 
@@ -162,6 +165,14 @@ public class DataSessionPivot implements Serializable {
 
     public void setMenu(List<Menu> menu) {
         this.menu = menu;
+    }
+
+    public List<Oficina> getOficinas() {
+        return oficinas;
+    }
+
+    public void setOficinas(List<Oficina> oficinas) {
+        this.oficinas = oficinas;
     }
 
 }

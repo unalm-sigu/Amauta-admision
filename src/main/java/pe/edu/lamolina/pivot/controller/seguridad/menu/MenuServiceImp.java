@@ -16,13 +16,16 @@ import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolSistemaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.MenuRol;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.RolSistema;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import static pe.edu.lamolina.model.enums.MenuTipoEnum.MENU;
+import static pe.edu.lamolina.model.enums.MenuTipoEnum.MENU_PADRE;
+import static pe.edu.lamolina.model.enums.MenuTipoEnum.TITULO;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.RolSistema;
+import pe.edu.lamolina.model.seguridad.Sistema;
 
 @Service
 @Transactional(readOnly = true)
@@ -256,8 +259,8 @@ public class MenuServiceImp implements MenuService {
     public void asignarRol(Menu menu) {
         List<MenuRol> menuRoles = menu.getMenuRol();
         for (MenuRol menuRol : menuRoles) {
-            logger.debug("{}",menuRol.getMenu().getId());
-            logger.debug("{}",menuRol.getRol().getId());
+            logger.debug("{}", menuRol.getMenu().getId());
+            logger.debug("{}", menuRol.getRol().getId());
             MenuRol menuRolBD = visorMenu.getMenuRol(menuRol);
             if (menuRolBD == null) {
                 menuRolBD = menuRolDAO.findByMenuRol(menuRol);
@@ -407,7 +410,7 @@ public class MenuServiceImp implements MenuService {
             menuOrdenRequerido.setOrden(orden);
             menuDAO.update(menuOrdenRequerido);
         }
-        
+
         if (ordendown <= tamano) {
             menuDb.setOrden(ordendown);
             menuDAO.update(menuDb);

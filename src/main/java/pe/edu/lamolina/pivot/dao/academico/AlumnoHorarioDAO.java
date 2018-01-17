@@ -3,11 +3,11 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoHorario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
 
 public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 

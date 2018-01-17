@@ -3,10 +3,10 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCursoDocente;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.general.Compania;
 
 public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico> {
 
@@ -18,13 +18,13 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     List<DepartamentoAcademico> allByCompania(Compania compania);
 
-    public List<DepartamentoAcademico> allDynatable(DynatableFilter filter);
+    List<DepartamentoAcademico> allDynatable(DynatableFilter filter);
 
-    public DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
+    DepartamentoAcademico findDepartamentoAcademico(Long idDepartamentoAcademico);
 
-    public List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList);
+    List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<Long> departamentosList);
 
-    public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
+    List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
 
     List<DepartamentoAcademico> allDepartamentos(String nombre);
 

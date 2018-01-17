@@ -10,8 +10,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -19,16 +30,6 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,19 +67,15 @@ public class AlumnoFisicoServiceImp implements AlumnoFisicoService {
     public void saveAlumno(Alumno alumno, Usuario usuario) {
 
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumno.getCicloIngreso().getId());
+        int sgt = ciclo.getMatriculaSiguiente();
         if (StringUtils.isBlank(alumno.getCodigo())) {
             String year = ciclo.getYear().toString();
             String cod;
-            int sgt = ciclo.getSgteMatricula();
-            ciclo.getSgteMatricula();
-            ciclo.getIniMatricula();
-            if (ciclo.getIniMatricula() > sgt) {
-                cod = String.format("%04d", ciclo.getIniMatricula());
-            } else {
-                cod = String.format("%04d", sgt + 1);
+            if (ciclo.getMatriculaInicio() > sgt) {
+                sgt = ciclo.getMatriculaInicio();
             }
+            cod = NumberFormat.codigo(sgt, 4);
             alumno.setCodigo(year + cod);
-
         }
 
         Persona personaForm = alumno.getPersona();
@@ -145,9 +142,9 @@ public class AlumnoFisicoServiceImp implements AlumnoFisicoService {
             alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
 
             alumnoDAO.save(alumno);
-            ciclo.setSgteMatricula(ciclo.getSgteMatricula() + 1);
-            cicloAcademicoDAO.update(ciclo);
         }
+        ciclo.setMatriculaSiguiente(sgt + 1);
+        cicloAcademicoDAO.update(ciclo);
 
         logger.debug("PERSONA ID- {}", personaForm.getId());
     }

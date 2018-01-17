@@ -4,29 +4,29 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
-import pe.edu.lamolina.pivot.zelper.enums.PersonaEstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
 
 @Repository
-public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
+public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     public AlumnoDAOH() {
         super();
@@ -35,10 +35,12 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public Alumno findByCodigo(String codigoAlumno) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("alu")
-                .parents("persona")
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per")
                 .filter("alu.codigo", codigoAlumno);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
@@ -49,10 +51,12 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<Alumno> allByPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("alu")
-                .parents("persona per")
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per")
                 .filter("per.id", persona);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
@@ -246,6 +250,63 @@ public class AlumnoDAOH extends AbstractDAO<Alumno> implements AlumnoDAO {
                 .endBlock()
                 .limit(15);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Alumno findByPersona(Persona persona, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .filter("per.id", persona)
+                .filter("ci.id", cicloAcademico);
+        return (Alumno) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico ciclo, List<Alumno> alumnoExclude) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe")
+                .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
+                .filter("moe.id", modalidad)
+                .filter("ci.id", ciclo);
+
+        if (!(alumnoExclude == null || alumnoExclude.isEmpty())) {
+            sql.notIn("alu.id", alumnoExclude);
+        }
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe")
+                .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("moe.id", modalidad)
+                .filter("ci.id", cicloAcademico)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByPersonas(List<Persona> personas) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .in("per.id", personas);
+        return sql.all(getCurrentSession());
+
     }
 
 }

@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -127,7 +127,7 @@ public class PersonaServiceImp implements PersonaService {
             if (!personas.isEmpty()) {
                 Persona pEmail = personas.get(0);
                 TipoDocIdentidad tipo = pEmail.getTipoDocumento();
-                throw new PhobosException("El correo InnovaSchools ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
+                throw new PhobosException("El correo UNALM ya pertenece a otra persona con documento " + tipo.getSimbolo() + " " + pEmail.getNumeroDocIdentidad());
             }
         }
     }

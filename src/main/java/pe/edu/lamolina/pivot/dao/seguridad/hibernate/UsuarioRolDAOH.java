@@ -2,18 +2,18 @@ package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
 import java.util.List;
 import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import static pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 
 @Repository
-public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRolDAO {
+public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements UsuarioRolDAO {
 
     public UsuarioRolDAOH() {
         super();
@@ -22,12 +22,13 @@ public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRo
 
     @Override
     public UsuarioRol findByUsuarioAndRol(Usuario usuario, Rol rol) {
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ur")
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("rol rol", "usuario u")
                 .filter("rol.id", rol)
-                .filter("usuario.id", usuario);
+                .filter("u.id", usuario);
 
-        return this.find(sqlUtil);
+        return find(sql);
 
     }
 
@@ -48,10 +49,12 @@ public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRo
 
     @Override
     public List<UsuarioRol> allByUser(Usuario user) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ur")
-                .filter("usuario.id", user);
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("rol rol", "usuario u")
+                .filter("u.id", user);
 
-        return this.all(sqlUtil);
+        return all(sql);
     }
 
     @Override
@@ -62,10 +65,9 @@ public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRo
                 .in("u.id", users)
                 .filter("ur.estado", ACT);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
-    
-    
+
     @Override
     public UsuarioRol findByUsuarioRol(Usuario usuario, Rol rol) {
         Octavia sql = Octavia.query()
@@ -75,9 +77,9 @@ public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRo
                 .isNull("ur.fechaFin")
                 .filter("r.id", rol);
 
-        return (UsuarioRol) sql.find(getCurrentSession());
+        return find(sql);
     }
-    
+
     @Override
     public UsuarioRol find(UsuarioRol userRol) {
         Octavia sql = Octavia.query()
@@ -85,7 +87,7 @@ public class UsuarioRolDAOH extends AbstractDAO<UsuarioRol> implements UsuarioRo
                 .join("usuario u", "rol r")
                 .filter("ur.id", userRol);
 
-        return (UsuarioRol) sql.find(getCurrentSession());
+        return find(sql);
     }
 
 }

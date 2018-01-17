@@ -1,10 +1,10 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 
-public interface CicloAcademicoDAO extends Crud<CicloAcademico> {
+public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivo();
 
@@ -13,5 +13,7 @@ public interface CicloAcademicoDAO extends Crud<CicloAcademico> {
     CicloAcademico findAnteriorRegular(CicloAcademico ciclo);
 
     List<CicloAcademico> allUltimos(Integer cantidadCiclos);
+
+    List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend);
 
 }

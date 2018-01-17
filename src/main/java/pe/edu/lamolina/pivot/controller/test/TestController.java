@@ -11,6 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.EvaluacionExpandida;
+import pe.edu.lamolina.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
@@ -18,17 +28,7 @@ import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -116,7 +116,7 @@ public class TestController {
     }
 
     @ResponseBody
-    @RequestMapping("calcularAllResumenEvaluacion/{grupoSeccion}")
+    @RequestMapping("/calcularAllResumenEvaluacion/{grupoSeccion}")
     public String calcularAllResumenEvaluacion(@PathVariable("grupoSeccion") Long grupoSeccionId, HttpSession session) {
         int loop = 1;
         visorCalculoNotas.iniciar();

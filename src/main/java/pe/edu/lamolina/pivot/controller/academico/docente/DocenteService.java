@@ -1,12 +1,12 @@
 package pe.edu.lamolina.pivot.controller.academico.docente;
 
 import java.util.List;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface DocenteService {

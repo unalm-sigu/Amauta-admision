@@ -1,18 +1,17 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.EvaluacionExpandida;
+import pe.edu.lamolina.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 
-public interface EvaluacionDAO extends Crud<Evaluacion> {
+public interface EvaluacionDAO extends EasyDAO<Evaluacion> {
 
     List<Evaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacionExpandida);
 

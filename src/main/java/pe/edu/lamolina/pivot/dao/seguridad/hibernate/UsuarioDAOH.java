@@ -2,19 +2,19 @@ package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
 import java.util.List;
 import java.util.Map;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 
 @Repository
-public class UsuarioDAOH extends AbstractDAO<Usuario> implements UsuarioDAO {
+public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO {
 
     public UsuarioDAOH() {
         super();
@@ -23,39 +23,44 @@ public class UsuarioDAOH extends AbstractDAO<Usuario> implements UsuarioDAO {
 
     @Override
     public Usuario findByEmail(String email) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
-                .parents("persona pe")
+        Octavia sql = Octavia.query()
+                .from(Usuario.class, "u")
+                .join("persona per")
                 .filter("u.usuario", email);
-        return this.find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public Usuario findByPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
-                .parents("persona pe")
-                .filter("pe.id", persona);
+        Octavia sql = Octavia.query()
+                .from(Usuario.class, "u")
+                .join("persona per")
+                .filter("per.id", persona);
 
-        return this.find(sqlUtil);
+        return find(sql);
     }
 
     @Override
     public List<Usuario> allByPersonas(List<Persona> personas) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
-                .parents("persona pe")
-                .filterIn("pe.id", personas);
+        Octavia sql = Octavia.query()
+                .from(Usuario.class, "u")
+                .join("persona per")
+                .in("per.id", personas);
 
-        return this.all(sqlUtil);
+        return all(sql);
     }
 
     @Override
     public Usuario allByPersona(Persona persona) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("u")
-                .parents("persona pe")
-                .filter("pe.id", persona);
+        Octavia sql = Octavia.query()
+                .from(Usuario.class, "u")
+                .join("persona per")
+                .filter("per.id", persona);
 
-        return this.find(sqlUtil);
+        return find(sql);
     }
-    
+
     @Override
     public List<Usuario> allByFilter(DynatableFilter filter) {
         Octavia subquery = Octavia.query()
@@ -95,8 +100,7 @@ public class UsuarioDAOH extends AbstractDAO<Usuario> implements UsuarioDAO {
 
         return sql.all(getCurrentSession());
     }
-    
-    
+
     @Override
     public Usuario find(Usuario user) {
         Octavia sql = Octavia.query()
@@ -105,7 +109,7 @@ public class UsuarioDAOH extends AbstractDAO<Usuario> implements UsuarioDAO {
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("u.id", user);
 
-        return (Usuario) sql.find(getCurrentSession());
+        return find(sql);
     }
 
 }

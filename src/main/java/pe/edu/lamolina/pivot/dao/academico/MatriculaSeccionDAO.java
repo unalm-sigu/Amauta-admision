@@ -1,15 +1,15 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 
-public interface MatriculaSeccionDAO extends Crud<MatriculaSeccion> {
+public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySeccion(Seccion seccion);
 

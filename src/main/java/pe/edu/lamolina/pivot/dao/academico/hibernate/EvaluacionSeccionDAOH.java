@@ -1,17 +1,17 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionSeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 
 @Repository
-public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implements EvaluacionSeccionDAO {
+public class EvaluacionSeccionDAOH extends AbstractEasyDAO<EvaluacionSeccion> implements EvaluacionSeccionDAO {
 
     public EvaluacionSeccionDAOH() {
         super();
@@ -20,46 +20,53 @@ public class EvaluacionSeccionDAOH extends AbstractDAO<EvaluacionSeccion> implem
 
     @Override
     public EvaluacionSeccion findByPlanCalGrupoSec(Long idPlanCalificacion, Long idGrupoSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es");
-        sqlUtil.parents("left planCalificacion pc", "grupoSeccion gs", "left sistemaNotas sn");
+        Octavia sql = Octavia.query()
+                .from(EvaluacionSeccion.class, "es")
+                .join("grupoSeccion gs")
+                .leftJoin("planCalificacion pc", "sistemaNotas sn");
 
         if (idPlanCalificacion != null) {
-            sqlUtil.filter("pc.id", idPlanCalificacion);
+            sql.filter("pc.id", idPlanCalificacion);
         }
         if (idGrupoSeccion != null) {
-            sqlUtil.filter("gs.id", idGrupoSeccion);
+            sql.filter("gs.id", idGrupoSeccion);
         }
         if (estadoPlanCalificaEnum != null) {
-            sqlUtil.filter("es.estado", estadoPlanCalificaEnum.name());
+            sql.filter("es.estado", estadoPlanCalificaEnum);
         }
 
-        return this.find(sqlUtil);
+        return find(sql);
     }
 
     @Override
     public EvaluacionSeccion find(Long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es")
-                .parents("planCalificacion pc", "grupoSeccion gs", "_gs.curso curso")
+        Octavia sql = Octavia.query()
+                .from(EvaluacionSeccion.class, "es")
+                .join("planCalificacion pc", "grupoSeccion gs", "gs.curso")
                 .filter("es.id", id);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public List<EvaluacionSeccion> allByPlan(PlanCalificacion plan) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es")
-                .parents("planCalificacion pc", "grupoSeccion gs")
+        Octavia sql = Octavia.query()
+                .from(EvaluacionSeccion.class, "es")
+                .join("planCalificacion pc", "grupoSeccion gs", "gs.curso")
                 .filter("pc.id", plan);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
     public List<EvaluacionSeccion> allByGrupoSeccion(GrupoSeccion gpoSecc) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("es")
-                .parents("left planCalificacion pc", "grupoSeccion gs")
+        Octavia sql = Octavia.query()
+                .from(EvaluacionSeccion.class, "es")
+                .join("grupoSeccion gs", "gs.curso")
+                .leftJoin("planCalificacion pc")
                 .filter("gs.id", gpoSecc);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
 }

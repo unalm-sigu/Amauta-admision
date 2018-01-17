@@ -2,9 +2,9 @@ package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
-import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
-import pe.edu.lamolina.pivot.model.academico.RequisitoCursoOpcional;
+import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 
 public interface RequisitoCursoOpcionalDAO extends EasyDAO<RequisitoCursoOpcional> {
 

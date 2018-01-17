@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.dao.seguridad;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
 
-public interface MenuDAO extends Crud<Menu> {
+public interface MenuDAO extends EasyDAO<Menu> {
 
     List<Menu> allMenuRolActivo(Rol rolAsignar);
 

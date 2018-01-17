@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.reporte.view;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,21 +19,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.AbstractPOIExcelView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.file.excel.ExcelStyles;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.SistemaNotas;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.academico.SistemaNotas;
 
 @Component
 public class ReporteActasView extends AbstractPOIExcelView {

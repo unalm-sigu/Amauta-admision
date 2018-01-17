@@ -26,13 +26,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -338,7 +338,7 @@ public class UsuarioController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("validarEmail")
     public JsonResponse validarEmail(@RequestParam("email") String email, @RequestParam("persona") Long idPersona) {

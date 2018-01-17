@@ -1,13 +1,13 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
 
-public interface MatriculaResumenDAO extends Crud<MatriculaResumen> {
+public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     MatriculaResumen findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 

@@ -14,8 +14,37 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
+import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.inscripcion.Postulante;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -35,36 +64,6 @@ import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.DocenteSeccion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
-import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
-import pe.edu.lamolina.pivot.model.general.Aula;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.model.inscripcion.Postulante;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoGrupoSeccionEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoPlanCalificaEnum;
-import pe.edu.lamolina.pivot.zelper.enums.RolEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -826,8 +825,20 @@ public class ProgDataServiceImp implements ProgDataService {
 
                 Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
                 Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
+
+                if (seccion.isTipoSeccionPRA()) {
+                    seccion.setHorasSemanales(horasPractica);
+                } else if (seccion.isTipoSeccionTEO()) {
+                    seccion.setHorasSemanales(horasTeoria);
+                } else if (seccion.isTipoSeccionTCUR()) {
+                    seccion.setHorasSemanales(horasTeoria);
+                } else if (seccion.isTipoSeccionPCUR()) {
+                    seccion.setHorasSemanales(horasPractica);
+                }
+                /*
                 seccionBD.setHorasTeoria(horasTeoria);
                 seccionBD.setHorasPractica(horasPractica);
+                 */
                 seccionBD.setHorasSemanales(horasTeoria + horasPractica);
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 //seccionBD.setSeccionSuperior(seccionBD);

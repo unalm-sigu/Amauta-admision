@@ -2,11 +2,11 @@ package pe.edu.lamolina.pivot.controller.general.aula;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.general.Aula;
-import pe.edu.lamolina.pivot.model.general.Oficina;
-import pe.edu.lamolina.pivot.model.general.Sede;
-import pe.edu.lamolina.pivot.model.general.TipoAula;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Sede;
+import pe.edu.lamolina.model.general.TipoAula;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AulaService {

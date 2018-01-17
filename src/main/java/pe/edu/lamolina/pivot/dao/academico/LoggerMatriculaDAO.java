@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.LoggerMatricula;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.LoggerMatricula;
 
-public interface LoggerMatriculaDAO extends Crud<LoggerMatricula> {
+public interface LoggerMatriculaDAO extends EasyDAO<LoggerMatricula> {
 
 }
-

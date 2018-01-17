@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.tramite;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.tramite.RetiroCiclo;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 
-public interface RetiroCicloDAO extends Crud<RetiroCiclo> {
+public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
 }
-

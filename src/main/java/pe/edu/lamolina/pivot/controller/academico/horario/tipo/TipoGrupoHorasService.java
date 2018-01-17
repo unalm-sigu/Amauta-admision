@@ -2,7 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.horario.tipo;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 public interface TipoGrupoHorasService {
 

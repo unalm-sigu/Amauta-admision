@@ -2,18 +2,18 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.ACT;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CER;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.CFG;
-import static pe.edu.lamolina.pivot.zelper.enums.CicloAcademicoEstadoEnum.PEND;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CFG;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CER;
 
 @Repository
-public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements CicloAcademicoDAO {
+public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
 
     public CicloAcademicoDAOH() {
         super();
@@ -26,7 +26,8 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .filter("id", cicloAcademico);
-        return (CicloAcademico) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -35,7 +36,8 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .filter("estado", ACT);
-        return (CicloAcademico) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -47,7 +49,7 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
                 .orderBy("year desc", "numeroCiclo desc")
                 .limit(maxResultado);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -59,7 +61,7 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
 
-        return (CicloAcademico) sql.find(getCurrentSession());
+        return find(sql);
     }
 
     @Override
@@ -71,7 +73,19 @@ public class CicloAcademicoDAOH extends AbstractDAO<CicloAcademico> implements C
                 .orderBy("year desc", "numeroCiclo desc")
                 .limit(cantidadCiclos);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("tipo", "REG")
+                .filter("year", ">", yearinit)
+                .filter("year", "<", yearend)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
+
+        return all(sql);
     }
 
 }

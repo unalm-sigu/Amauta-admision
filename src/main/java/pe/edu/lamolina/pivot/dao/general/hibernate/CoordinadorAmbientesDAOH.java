@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.CoordinadorAmbientesDAO;
-import pe.edu.lamolina.pivot.model.general.CoordinadorAmbientes;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.CoordinadorAmbientes;
 
 @Repository
-public class CoordinadorAmbientesDAOH extends AbstractDAO<CoordinadorAmbientes> implements CoordinadorAmbientesDAO {
+public class CoordinadorAmbientesDAOH extends AbstractEasyDAO<CoordinadorAmbientes> implements CoordinadorAmbientesDAO {
 
     public CoordinadorAmbientesDAOH() {
         super();
         setClazz(CoordinadorAmbientes.class);
     }
 }
-

@@ -1,12 +1,11 @@
 package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.Ubicacion;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Ubicacion;
 
-public interface UbicacionDAO extends Crud<Ubicacion> {
+public interface UbicacionDAO extends EasyDAO<Ubicacion> {
 
-    public List<Ubicacion> allDistritos(String nombre);
+    List<Ubicacion> allDistritos(String nombre);
 
 }
-

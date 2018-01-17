@@ -32,8 +32,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 

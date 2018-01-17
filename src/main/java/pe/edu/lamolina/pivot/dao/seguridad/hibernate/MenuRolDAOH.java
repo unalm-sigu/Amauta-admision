@@ -1,16 +1,16 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.MenuRol;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
+import pe.edu.lamolina.model.seguridad.Sistema;
 
 @Repository
-public class MenuRolDAOH extends AbstractDAO<MenuRol> implements MenuRolDAO {
+public class MenuRolDAOH extends AbstractEasyDAO<MenuRol> implements MenuRolDAO {
 
     public MenuRolDAOH() {
         super();
@@ -24,7 +24,8 @@ public class MenuRolDAOH extends AbstractDAO<MenuRol> implements MenuRolDAO {
                 .join("menu me", "rol ro", "me.sistema s")
                 .filter("me.id", menuRol.getMenu())
                 .filter("ro.id", menuRol.getRol());
-        return (MenuRol) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class MenuRolDAOH extends AbstractDAO<MenuRol> implements MenuRolDAO {
                 .join("menu me", "rol ro", "me.sistema s")
                 .filter("me.id", menu);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class MenuRolDAOH extends AbstractDAO<MenuRol> implements MenuRolDAO {
                 .join("menu me", "rol ro", "me.sistema s")
                 .filter("s.id", sistema);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
 }

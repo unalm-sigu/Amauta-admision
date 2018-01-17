@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.general;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Compania;
 
-public interface CompaniaDAO extends Crud<Compania> {
+public interface CompaniaDAO extends EasyDAO<Compania> {
 
 }
-

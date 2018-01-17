@@ -7,16 +7,16 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
+import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.ACTIVIDADES;
+import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.INGRESANTE;
+import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.POSTGRADO;
+import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.DPTO;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
-import pe.edu.lamolina.pivot.model.academico.AnexoBoletin;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum;
-import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.ACTIVIDADES;
-import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.DPTO;
-import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.INGRESANTE;
-import static pe.edu.lamolina.pivot.zelper.enums.GrupoAnexoEnum.POSTGRADO;
 
 @Repository
 public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements AnexoBoletinDAO {
@@ -105,7 +105,7 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
                 .into(AnexoResumen.class)
                 .from(AnexoBoletin.class, "ab")
                 .join("anexoSuperior abs");
-        
+
         return (AnexoResumen) sql.find(getCurrentSession());
     }
 

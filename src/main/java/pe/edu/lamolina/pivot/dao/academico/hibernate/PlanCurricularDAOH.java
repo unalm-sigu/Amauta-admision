@@ -2,17 +2,17 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 
 @Repository
-public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements PlanCurricularDAO {
+public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implements PlanCurricularDAO {
 
     public PlanCurricularDAOH() {
         super();
@@ -26,7 +26,8 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
                 .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
                 .filter("pc.id", id);
-        return (PlanCurricular) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -38,7 +39,8 @@ public class PlanCurricularDAOH extends AbstractDAO<PlanCurricular> implements P
                 .in("car.id", carreras)
                 .searchFields("car.nombre")
                 .orderBy("pc.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override

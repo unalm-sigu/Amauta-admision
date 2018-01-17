@@ -2,8 +2,8 @@ package pe.edu.lamolina.pivot.controller.academico.departamento;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.general.Compania;
 
 public interface DepartamentoService {
 
@@ -21,5 +21,5 @@ public interface DepartamentoService {
 
     List<DepartamentoCursoDocente> allDepartamentoCursoDocente(List<DepartamentoAcademico> departamentos);
 
-    public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
+    List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania);
 }

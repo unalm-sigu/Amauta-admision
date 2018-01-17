@@ -1,25 +1,24 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.Query;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
 
 @Repository
-public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
+public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadDAO {
 
     public FacultadDAOH() {
         super();
@@ -29,70 +28,12 @@ public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
     @Override
     public List<Facultad> allDynatable(DynatableFilter filter) {
 
-        StringBuilder sql;
-        Query query;
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Facultad.class, "fa")
+                .searchFields("fa.nombre", "fa.codigo", "fa.estado")
+                .orderBy("fa.id desc");
 
-        String search = filter.getSearchValue();
-
-        if (!StringUtils.isEmpty(search)) {
-            search = "%" + search.replaceAll(" ", "%") + "%";
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select count( distinct fa ) ");
-            sql.append("  from ").append(Facultad.class.getName()).append(" as fa ");
-            sql.append("  where 1 = 1 ");
-
-            query = getCurrentSession().createQuery(sql.toString());
-            filter.setTotal(((Long) query.uniqueResult()).intValue());
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select count( distinct fa ) ");
-            sql.append("  from ").append(Facultad.class.getName()).append(" as fa ");
-            sql.append("  where 1 = 1 ");
-
-            if (!StringUtils.isEmpty(search)) {
-                sql.append("    and  ( ");
-                sql.append("    fa.nombre like :SEARCH ");
-                sql.append("    or fa.codigo like :SEARCH ");
-                sql.append("    or fa.estado like :SEARCH ");
-                sql.append("    )    ");
-            }
-
-            query = getCurrentSession().createQuery(sql.toString());
-            if (!StringUtils.isEmpty(search)) {
-                query.setString("SEARCH", search);
-            }
-            filter.setFiltered(((Long) query.uniqueResult()).intValue());
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select distinct fa ");
-            sql.append("  from ").append(Facultad.class.getName()).append(" as fa ");
-            sql.append("  where 1 = 1 ");
-
-            if (!StringUtils.isEmpty(search)) {
-                sql.append("    and  ( ");
-                sql.append("    fa.nombre like :SEARCH ");
-                sql.append("    or fa.codigo like :SEARCH ");
-                sql.append("    or fa.estado like :SEARCH ");
-                sql.append("    )    ");
-            }
-
-            query = getCurrentSession().createQuery(sql.toString());
-            if (!StringUtils.isEmpty(search)) {
-                query.setString("SEARCH", search);
-            }
-            query.setFirstResult((filter.getPage() - 1) * filter.getPerPage());
-            query.setMaxResults(filter.getPerPage());
-
-            return query.list();
-        }
-
+        return all(sql);
     }
 
     @Override
@@ -101,8 +42,8 @@ public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
                 .from(Facultad.class, "fa")
                 .join("compania co")
                 .filter("co.id", compania);
-        
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -111,27 +52,23 @@ public class FacultadDAOH extends AbstractDAO<Facultad> implements FacultadDAO {
                 .from(Facultad.class, "fa")
                 .join("compania")
                 .filter("estado", EstadoEnum.ACT.name());
-        
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
     public List<Facultad> allFacultad(String nombre, Compania compania) {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .join("compania cia")
+                .filter("cia.id", compania)
+                .beginBlock()
+                .__().like("fa.codigo", nombre)
+                .__().like("fa.nombre", nombre)
+                .endBlock()
+                .orderBy("fa.nombre")
+                .limit(10);
 
-        Criteria criteria = getCurrentSession().createCriteria(Facultad.class, "fa");
-        criteria.setFetchMode("compania", FetchMode.JOIN);
-        criteria.add(Restrictions.eq("compania", compania));
-
-        if (!"".equalsIgnoreCase(nombre)) {
-            String searchValue = nombre.trim().replaceAll("\\s+", "%");
-            Disjunction criteriaConjunction = Restrictions.disjunction();
-            criteriaConjunction.add(Restrictions.like("fa.codigo", searchValue, MatchMode.ANYWHERE));
-            criteriaConjunction.add(Restrictions.like("fa.nombre", searchValue, MatchMode.ANYWHERE));
-            criteria.add(criteriaConjunction);
-        }
-
-        criteria.addOrder(Order.asc("fa.nombre"));
-        criteria.setMaxResults(10);
-        return criteria.list();
+        return all(sql);
     }
 }

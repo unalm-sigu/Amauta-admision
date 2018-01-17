@@ -2,11 +2,11 @@
     <head>
         <title>Calificacion de Postulantes</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <syle type="text/css">
+    <style type="text/css">
         .diegoSelect {
-        min-width: 300px;
+            min-width: 300px;
         }
-    </syle>
+    </style>
 </head>
 
 <body>
@@ -15,6 +15,8 @@
             <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
         </header>
         <div id="pageGpoSeccion">
+
+
             <form id="frmEditGpoSeccion" class="form-horizontal m-t-lg">
                 <input v-model="grupoSeccion.id" type="hidden" />
                 <section class="panel">
@@ -24,21 +26,21 @@
                         <div class="form-group">
                             <label for="cboAnexo" class="col-sm-2 control-label">Anexo</label>
                             <div class="col-md-5">
-                                <span class="form-control" th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
+                                <span vclass="form-control" th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="cboCategoria" class="col-sm-2 control-label">Categoria</label>
                             <div class="col-md-5">
-                                <span class="form-control" th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
+                                <span vclass="form-control" th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
                             <div class="col-md-5">
-                                <span class="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
+                                <span vclass="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
                             </div>
                         </div>
 
@@ -88,19 +90,34 @@
                                         {{ seccion.tipoSeccionValue }}
                                     </td>
                                     <td>
-                                        {{ seccion.aula }}
+
+                                        <a v-if="seccion.aula==''"
+                                           v-on:click="showModalAula(seccion)" 
+                                           style="cursor:pointer;">
+                                            Sin Aula
+                                        </a>
+
+                                        <a v-if="seccion.aula!=''"
+                                           v-on:click="showModalAula(seccion)" 
+                                           style="cursor:pointer;">
+                                            {{ seccion.aula.codigo }}
+                                            (aforo {{ seccion.aula.aforo }})
+                                        </a>
                                     </td>
                                     <td>
 
-                                        <a v-on:click="seleccionarSeccion(seccion)" 
+                                        <a v-on:click="showModalGrupos(seccion)" 
                                            v-if="seccion.grupoHoras==''"
                                            style="cursor:pointer;">
                                             Sin Grupo
                                         </a>
 
-                                        <span v-if="seccion.grupoHoras!=''"> {{ seccion.grupoHoras }} </span>
-                                    </td>
-                                    <td>
+                                        <a v-on:click="showModalGrupos(seccion)" 
+                                           v-if="seccion.grupoHoras!=''"
+                                           style="cursor:pointer;">
+                                            {{ seccion.grupoHoras }}
+                                        </a>
+
 
                                     </td>
                                     <td>
@@ -110,7 +127,30 @@
 
                                     </td>
                                     <td>
-                                        {{ seccion.vacantes }}
+
+                                    </td>
+                                    <td>
+                                        <div v-if="seccion.esTipoSeccionTcur" >
+                                            {{ seccion.vacantes }}
+                                        </div>
+
+                                        <div v-if="!seccion.esTipoSeccionTcur" 
+                                             v-show="!seccion.editVacantes">
+                                            <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
+                                        </div>
+
+                                        <input v-if="!seccion.esTipoSeccionTcur" 
+                                               v-show="seccion.editVacantes" 
+                                               size="5"
+
+                                               v-model="seccion.vacantes"
+                                               v-on:blur="changeVacantes(seccion,$event)"
+                                               v-on:keyup.enter="changeVacantes(seccion,$event)">
+                                        </input>
+                                        <!--
+                                         v-on:blur="seccion.editVacantes=false; $emit('update')"
+                                               v-on:keyup.enter = "seccion.editVacantes=false; $emit('update')"
+                                        -->
                                     </td>
                                     <td>
                                         {{ seccion.matriculados }}
@@ -216,21 +256,47 @@
                             <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Docente</strong></i>
                         </a>
                     </section>
-                    <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+
                 </section>
 
             </form>
+            <div th:substituteby="academico/gposeccion/modals/modalAula"/>
+            <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
+
+
         </div>
+
         <div th:substituteby="templates/modal"/>
+
+        <th:block th:replace="academico/gposeccion/grupoZetaTemplate"/>
+        <!-- 
+                <script id="grupoTemplate" type="text/x-jsrender" class="hide">
+                    <div th:substituteby="academico/gposeccion/grupoZetaTemplate"></div>
+                </script>
+        -->
+
+        <div th:substituteby="_modules/vue-modal"/>
 
         <div id="autocomplete-doc">
             <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
         </div>
 
+        <div id="tablaHorarioReg"></div>
+
+        <script type="text/x-template" id="select2-template">
+            <input class="input-s-full" type="text" />
+        </script>
+
         <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
             {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
         </div>
+
+
+
     </section>
+
+
+
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
@@ -238,6 +304,9 @@
             var gpoSeccionJson = [[${grupoSeccionJson}]];
         </script>
         <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
+
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+
     </div>
 </body>
 </html>

@@ -2,19 +2,19 @@ package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.CursoAdicionalCurricula;
-import pe.edu.lamolina.pivot.model.academico.CursoCurricula;
-import pe.edu.lamolina.pivot.model.academico.CursoOpcionalCurricula;
-import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
-import pe.edu.lamolina.pivot.model.academico.RequisitoCursoOpcional;
-import pe.edu.lamolina.pivot.model.academico.ResumenPlanCurricular;
-import pe.edu.lamolina.pivot.model.academico.TipoCursoCurricula;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoAdicionalCurricula;
+import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
+import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PlanCurricularService {

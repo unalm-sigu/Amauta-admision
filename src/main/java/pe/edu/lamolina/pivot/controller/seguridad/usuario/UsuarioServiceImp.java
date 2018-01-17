@@ -19,15 +19,15 @@ import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.model.seguridad.UsuarioRol;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

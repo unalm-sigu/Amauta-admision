@@ -1,21 +1,21 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaResumen;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum;
-import static pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum.MAT;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum.MAT;
 
 @Repository
-public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
+public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
 
     public MatriculaSeccionDAOH() {
         super();
@@ -24,71 +24,76 @@ public class MatriculaSeccionDAOH extends AbstractDAO<MatriculaSeccion> implemen
 
     @Override
     public List<MatriculaSeccion> allBySeccion(Seccion seccion) {
-        SqlUtil sqlUtil = new SqlUtil("ms")
-                .parents("matriculaResumen mr", "seccion s")
-                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("left _alu.carrera carr", "left _carr.facultad fac")
-                .parents("_gs.curso cur", "_alu.persona per", "_per.tipoDocumento tdoc")
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+                .leftJoin("alu.carrera carr", "carr.facultad fac")
                 .filter("ms.estado", EstadoMatriculaCursoEnum.MAT.name())
-                .filter("s.id", seccion)
+                .filter("sec.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
-        return this.all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public MatriculaSeccion find(Long id) {
-        SqlUtil sqlUtil = new SqlUtil("ms")
-                .parents("matriculaResumen mr", "seccion s")
-                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("_gs.curso cur", "_alu.persona per")
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
                 .filter("ms.id", id);
-        return this.find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion) {
-        SqlUtil sqlUtil = new SqlUtil("ms")
-                .parents("matriculaResumen mr", "seccion s")
-                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("_gs.curso cur", "_alu.persona per")
-                .filter("s.id", seccion)
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+                .filter("sec.id", seccion)
                 .filter("alu.id", alumno);
-        return this.find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen resumen) {
-        SqlUtil sqlUtil = new SqlUtil("ms")
-                .parents("matriculaResumen mr", "seccion s")
-                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("_gs.curso cur", "_alu.persona per")
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
                 .filter("mr.id", resumen);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public List<MatriculaSeccion> allByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo) {
-        SqlUtil sqlUtil = new SqlUtil("ms")
-                .parents("matriculaResumen mr", "seccion s")
-                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("_gs.curso cur", "_gs.cicloAcademico ca", "_alu.persona per")
-                .parents("left _gs.planCalificacion")
-                .filter("ms.estado", MAT.name())
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+                .filter("ms.estado", MAT)
                 .filter("gs.id", grupoSeccion)
                 .filter("ca.id", ciclo);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo) {
-        SqlUtil sqlUtil = new SqlUtil("ms")
-                .parents("matriculaResumen mr", "seccion s")
-                .parents("_mr.alumno alu", "_s.grupoSeccion gs")
-                .parents("_gs.curso cur", "_gs.cicloAcademico ca", "_alu.persona per")
-                .parents("left _gs.planCalificacion")
-                .filter("ms.estado", MAT.name())
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+                .leftJoin("gs.planCalificacion")
+                .filter("ms.estado", MAT)
                 .filter("ca.id", ciclo);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
 }

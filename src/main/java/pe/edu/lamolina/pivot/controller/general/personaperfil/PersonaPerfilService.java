@@ -2,11 +2,11 @@ package pe.edu.lamolina.pivot.controller.general.personaperfil;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.general.PerfilCompania;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.general.PersonaPerfil;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface PersonaPerfilService {
 

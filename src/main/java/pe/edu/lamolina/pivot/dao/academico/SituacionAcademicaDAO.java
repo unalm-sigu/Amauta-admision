@@ -1,9 +1,9 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.SituacionAcademica;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 
-public interface SituacionAcademicaDAO extends Crud<SituacionAcademica> {
+public interface SituacionAcademicaDAO extends EasyDAO<SituacionAcademica> {
 
     SituacionAcademica findByCodigo(String codigo);
 

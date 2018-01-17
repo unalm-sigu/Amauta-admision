@@ -3,15 +3,16 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.pivot.model.academico.CursoCachimbos;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
 
 @Repository
 public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implements CursoCachimbosDAO {
@@ -99,6 +100,19 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .in("cur.id", cursos)
                 .orderBy("car.id");
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<CursoCachimbos> allByCicloFromSeccionCursoCachimbo(CicloAcademico ciclo) {
+
+        Octavia sql = Octavia.query()
+                .selectDistinct("cc")
+                .from(SeccionCursoCachimbos.class, "scc")
+                .join("cursoCachimbos cc", "seccion sec", "cc.curso cur", "cc.carrera car", "car.facultad fac", "cc.cicloAcademico ca")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+
     }
 
 }

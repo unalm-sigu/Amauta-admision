@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
-import pe.edu.lamolina.pivot.model.seguridad.ColaboradorMenu;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.ColaboradorMenu;
+import pe.edu.lamolina.model.seguridad.Menu;
 
 @Controller
 @RequestMapping("seguridad/menucolaborador")

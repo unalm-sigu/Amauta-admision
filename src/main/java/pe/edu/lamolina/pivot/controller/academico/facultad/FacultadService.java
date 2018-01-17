@@ -1,9 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.facultad;
 
 import java.util.List;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.general.Compania;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.general.Compania;
 
 public interface FacultadService {
 

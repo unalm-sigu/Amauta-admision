@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoUbicacionDAO;
-import pe.edu.lamolina.pivot.model.general.TipoUbicacion;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.TipoUbicacion;
 
 @Repository
-public class TipoUbicacionDAOH extends AbstractDAO<TipoUbicacion> implements TipoUbicacionDAO {
+public class TipoUbicacionDAOH extends AbstractEasyDAO<TipoUbicacion> implements TipoUbicacionDAO {
 
     public TipoUbicacionDAOH() {
         super();
         setClazz(TipoUbicacion.class);
     }
 }
-

@@ -1,16 +1,21 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
 
 @Repository
-public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements TipoGrupoHorasDAO {
+public class TipoGrupoHorasDAOH extends AbstractEasyDAO<TipoGrupoHoras> implements TipoGrupoHorasDAO {
 
     public TipoGrupoHorasDAOH() {
         super();
@@ -24,8 +29,8 @@ public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements T
                 .from(TipoGrupoHoras.class, "tgh")
                 .searchFields("codigo", "tipo", "estadoGrupos", "estado")
                 .orderBy("tgh.id desc");
-        return sql.all(getCurrentSession());
 
+        return all(sql);
     }
 
     @Override
@@ -33,7 +38,40 @@ public class TipoGrupoHorasDAOH extends AbstractDAO<TipoGrupoHoras> implements T
         Octavia sql = Octavia.query()
                 .from(TipoGrupoHoras.class, "tipo")
                 .filter("codigo", codigo);
-        return (TipoGrupoHoras) sql.find(getCurrentSession());
+
+        return find(sql);
+    }
+
+    @Override
+    public TipoGrupoHoras findByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+        Octavia sql = Octavia.query()
+                .from(TipoGrupoHoras.class, "tg")
+                .filter("tipo", tipoGrupoHorasEnum.getValue())
+                .filter("estado", EstadoEnum.ACT.name());
+
+        return find(sql);
+    }
+
+    @Override
+    public TipoGrupoHoras findByTipoCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(TipoGrupoHoras.class, "tg")
+                .filter("tipo", tipoGrupoHorasEnum.getValue())
+                .filter("estado", EstadoEnum.ACT.name())
+                .in("tipoCiclo", Arrays.asList(cicloAcademico.getTipo(), TipoCicloEnum.AMB.name()));
+
+        return find(sql);
+    }
+
+    @Override
+    public List<TipoGrupoHoras> allActiveByTipoCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+        Octavia sql = Octavia.query()
+                .from(TipoGrupoHoras.class, "tipoGH")
+                .filter("estado", EstadoEnum.ACT.name())
+                .filter("tipoCiclo", cicloAcademico.getTipo())
+                .filter("tipo", tipoGrupoHorasEnum.name());
+
+        return all(sql);
     }
 
 }

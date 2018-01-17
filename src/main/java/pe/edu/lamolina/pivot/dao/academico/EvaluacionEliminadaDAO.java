@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionEliminada;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.EvaluacionEliminada;
 
-public interface EvaluacionEliminadaDAO extends Crud<EvaluacionEliminada> {
+public interface EvaluacionEliminadaDAO extends EasyDAO<EvaluacionEliminada> {
 
 }

@@ -31,6 +31,7 @@
 
 <link rel="stylesheet" type="text/css" th:href="@{/phobos/css/left.css}" />
 
+<link rel="stylesheet" type="text/css" th:href="@{/vendor/vue-multiselect/vue-multiselect.min.css}" />
 
 
 
@@ -108,7 +109,7 @@
 
     <script type="text/javascript" th:src="@{/bootbox/4.3.0/bootbox.js}"/>
     <script type="text/javascript" th:src="@{/hubspot/js/messenger.min.js}"/>
-    <script type="text/javascript" th:src="@{/hubspot/js/messenger-theme-flat.js}"/>    
+    <script type="text/javascript" th:src="@{/hubspot/js/messenger-theme-flat.js}"/>
     <script type="text/javascript" th:src="@{/humane-js/humane.min.js}"/>
 
     <script type="text/javascript" th:src="@{/momentjs/2.9.0/min/moment.min.js}"/>
@@ -120,6 +121,8 @@
         var contextPath = /*[[@{/}]]*/ '/app';
         /*]]>*/
     </script>
+    <script type="text/javascript" src=" https://vuejs.org/js/vue.js" />
+
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
     <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
@@ -133,8 +136,9 @@
     <script type="text/javascript" th:src="@{/phobos/js/left.js}"/>
 
 
-    <script type="text/javascript" src=" https://vuejs.org/js/vue.js" />
 
+    <script th:src="@{/vendor/vue-multiselect/vue-multiselect.min.js}" charset="utf-8"></script>
+    <script th:src="@{/vendor/vue-pagination/vue-pagination-2.min.js}" charset="utf-8"></script>
 </div>
 
 
@@ -183,7 +187,7 @@
         }
         var msgJson = /*[[${notificaciones.all()}]]*/ mensajes;
 
-        $(function () {
+        $(function() {
             for (var i = 0; i < msgJson.length; i++) {
                 notify(msgJson[i].mensaje, msgJson[i].tipo);
             }
@@ -197,14 +201,14 @@
 <div th:fragment="notificacion">
     <div id='templateNotificacion' type="text/x-jsrender" class="hide">
 
-        <a href="#" class="media list-group-item notificaLink" rel='{{:url}}'> 
-            <span class="media-body block m-b-none"> 
+        <a href="#" class="media list-group-item notificaLink" rel='{{:url}}'>
+            <span class="media-body block m-b-none">
                 {{:titulo}}
                 <small class="block text-dark">
                     {{:texto}}
                 </small>
-                <small class="text-muted block">{{:fechaHora}}</small> 
-            </span> 
+                <small class="text-muted block">{{:fechaHora}}</small>
+            </span>
         </a>
     </div>
     <script type="text/javascript" th:src="@{/phobos/js/app.notificacion.js}"/>
@@ -214,7 +218,7 @@
 <div th:fragment="tawkto">
     <script th:if="${TAWKTO == 'true'}" type="text/javascript">
         var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-        (function () {
+        (function() {
             var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
             s1.async = true;
             s1.src = 'https://embed.tawk.to/58923aba85dc370a6b942edb/default';
@@ -233,7 +237,9 @@
     <script type="text/javascript" th:src="@{/jquery-file-upload/js/jquery.fileupload-process.js}"/>
     <script type="text/javascript" th:src="@{/jquery-file-upload/js/jquery.fileupload-validate.js}"/>
 </div>
-
+<div th:fragment="javascript-ckeditor">
+    <script type="text/javascript" th:src="@{/vendor/ckeditor/ckeditor.js}"/>
+</div>
 <div th:fragment="bootstrap-colorpicker">
     <script type="text/javascript" th:src="@{/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js}"/>
 </div>

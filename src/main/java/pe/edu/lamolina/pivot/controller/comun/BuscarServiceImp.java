@@ -4,16 +4,20 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.general.Pais;
+import pe.edu.lamolina.model.general.Ubicacion;
+import pe.edu.lamolina.model.general.Universidad;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionDAO;
+import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.UbicacionDAO;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.model.general.Ubicacion;
+import pe.edu.lamolina.pivot.dao.general.UniversidadDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,6 +37,12 @@ public class BuscarServiceImp implements BuscarService {
 
     @Autowired
     DocenteDAO docenteDAO;
+
+    @Autowired
+    PaisDAO paisDAO;
+
+    @Autowired
+    UniversidadDAO universidadDAO;
 
     @Override
     public List<Curso> allCursosSCA(String nombre, Long idDepartamentoAca, Long planCalificacionId, Long idCiclo) {
@@ -57,6 +67,16 @@ public class BuscarServiceImp implements BuscarService {
     @Override
     public List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre) {
         return docenteDAO.allCoordinadoresByIdDptoName(idDpto, this.forLike(nombre));
+    }
+
+    @Override
+    public List<Pais> allPaisesByName(String nombre) {
+        return paisDAO.allPaisesByName(this.forLike(nombre));
+    }
+
+    @Override
+    public List<Universidad> allUniversidadByName(String nombre) {
+        return universidadDAO.allUniversidadByName(this.forLike(nombre));
     }
 
 }

@@ -1,20 +1,22 @@
 package pe.edu.lamolina.pivot.dao.horario;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
-import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
-public interface DiaHoraGrupoDAO extends Crud<DiaHoraGrupo> {
+public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
 
-    public DiaHoraGrupo findByDiaHoraCiclo(DiaHoraGrupo diaHoraGrupo);
+    DiaHoraGrupo findByDiaHoraCiclo(DiaHoraGrupo diaHoraGrupo);
 
-    public List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
 
-    public List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+    List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
 
 }

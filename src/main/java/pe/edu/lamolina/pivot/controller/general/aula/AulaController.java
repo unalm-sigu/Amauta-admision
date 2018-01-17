@@ -30,12 +30,12 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.general.Aula;
-import pe.edu.lamolina.pivot.model.general.Oficina;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
-import pe.edu.lamolina.pivot.zelper.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller

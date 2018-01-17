@@ -2,20 +2,18 @@ package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
 import java.util.List;
 import org.hibernate.Query;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dao.SqlUtil;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.MenuRol;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
-
 
 @Repository
-public class MenuDAOH extends AbstractDAO<Menu> implements MenuDAO {
+public class MenuDAOH extends AbstractEasyDAO<Menu> implements MenuDAO {
 
     public MenuDAOH() {
         super();
@@ -24,11 +22,13 @@ public class MenuDAOH extends AbstractDAO<Menu> implements MenuDAO {
 
     @Override
     public Menu find(long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .parents("sistema sisi")
-                .parents("left _me.menuSuperior ms", "left _ms.menuSuperior mms", "left _mms.menuSuperior")
+        Octavia sql = Octavia.query()
+                .from(Menu.class, "me")
+                .join("sistema sisi")
+                .leftJoin("me.menuSuperior ms", "ms.menuSuperior mms", "mms.menuSuperior")
                 .filter("me.id", id);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
@@ -54,11 +54,13 @@ public class MenuDAOH extends AbstractDAO<Menu> implements MenuDAO {
 
     @Override
     public List<Menu> allMenuSystem(Sistema sistema) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .parents("sistema sisi")
-                .parents("left _me.menuSuperior ms", "left _ms.menuSuperior mms", "left _mms.menuSuperior")
+        Octavia sql = Octavia.query()
+                .from(Menu.class, "me")
+                .join("sistema sisi")
+                .leftJoin("me.menuSuperior ms", "ms.menuSuperior mms", "mms.menuSuperior")
                 .filter("sisi.id", sistema);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
@@ -81,50 +83,54 @@ public class MenuDAOH extends AbstractDAO<Menu> implements MenuDAO {
 
     @Override
     public List<Menu> allByTipo(MenuTipoEnum menuTipoEnum, Sistema sistema) {
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .parents("sistema sisi")
-                .parents("left _me.menuSuperior ms", "left _ms.menuSuperior mms", "left _mms.menuSuperior")
-                .filter("sisi.id", sistema.getId())
-                .filter("me.tipo", menuTipoEnum.name())
+        Octavia sql = Octavia.query()
+                .from(Menu.class, "me")
+                .join("sistema sisi")
+                .leftJoin("me.menuSuperior ms", "ms.menuSuperior mms", "mms.menuSuperior")
+                .filter("sisi.id", sistema)
+                .filter("me.tipo", menuTipoEnum)
                 .orderBy("me.orden asc");
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public List<Menu> allBySuperMenu(Sistema sistema, Menu menuSuperior) {
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .parents("sistema sisi")
-                .parents("left _me.menuSuperior ms", "left _ms.menuSuperior mms", "left _mms.menuSuperior")
-                .filter("sisi.id", sistema.getId())
-                .filter("ms.id", menuSuperior.getId())
+        Octavia sql = Octavia.query()
+                .from(Menu.class, "me")
+                .join("sistema sisi")
+                .leftJoin("me.menuSuperior ms", "ms.menuSuperior mms", "mms.menuSuperior")
+                .filter("sisi.id", sistema)
+                .filter("ms.id", menuSuperior)
                 .orderBy("me.orden asc");
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public Menu findByTipoOrden(MenuTipoEnum menuTipoEnum, Sistema sistema, Integer orden) {
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .parents("sistema sisi")
-                .parents("left _me.menuSuperior ms", "left _ms.menuSuperior mms", "left _mms.menuSuperior")
-                .filter("sisi.id", sistema.getId())
+        Octavia sql = Octavia.query()
+                .from(Menu.class, "me")
+                .join("sistema sisi")
+                .leftJoin("me.menuSuperior ms", "ms.menuSuperior mms", "mms.menuSuperior")
+                .filter("sisi.id", sistema)
                 .filter("me.orden", orden)
-                .filter("me.tipo", menuTipoEnum.name());
-        return find(sqlUtil);
+                .filter("me.tipo", menuTipoEnum);
+
+        return find(sql);
     }
 
     @Override
     public Menu findBySuperMenuOrden(Sistema sistema, Menu menuSuperior, Integer orden) {
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("me")
-                .parents("sistema sisi")
-                .parents("left _me.menuSuperior ms", "left _ms.menuSuperior mms", "left _mms.menuSuperior")
-                .filter("sisi.id", sistema.getId())
+        Octavia sql = Octavia.query()
+                .from(Menu.class, "me")
+                .join("sistema sisi")
+                .leftJoin("me.menuSuperior ms", "ms.menuSuperior mms", "mms.menuSuperior")
+                .filter("sisi.id", sistema)
                 .filter("me.orden", orden)
-                .filter("ms.id", menuSuperior.getId());
-        return find(sqlUtil);
+                .filter("ms.id", menuSuperior);
+
+        return find(sql);
     }
 
     @Override
@@ -187,7 +193,8 @@ public class MenuDAOH extends AbstractDAO<Menu> implements MenuDAO {
         Octavia sql = Octavia.query()
                 .from(Menu.class, "me")
                 .filter("me.ruta", ruta);
-        return (Menu) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
 }

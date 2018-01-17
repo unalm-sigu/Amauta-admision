@@ -123,7 +123,8 @@
         } else {
             q.removeClass("placeholder")
         }
-    }}
+    }
+}
 (this, document, jQuery));
 
 /* Modernizr 2.6.2 (Custom Build) | MIT & BSD
@@ -656,3 +657,5 @@ Date.now = Date.now || function () {
 
     });
 }(jQuery);
+
+var $global = new Vue();

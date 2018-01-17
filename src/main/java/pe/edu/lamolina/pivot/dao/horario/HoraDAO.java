@@ -1,12 +1,11 @@
 package pe.edu.lamolina.pivot.dao.horario;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.horario.Hora;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.horario.Hora;
 
-public interface HoraDAO extends Crud<Hora> {
+public interface HoraDAO extends EasyDAO<Hora> {
 
-    public List<Hora> allHora();
+    List<Hora> allHora();
 
 }
-

@@ -2,16 +2,15 @@ package pe.edu.lamolina.pivot.controller.general.oficina;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.general.AusenciaJefe;
-import pe.edu.lamolina.pivot.model.general.Colaborador;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.model.general.Oficina;
-import pe.edu.lamolina.pivot.model.general.PerfilCompania;
-import pe.edu.lamolina.pivot.model.general.Persona;
-import pe.edu.lamolina.pivot.model.seguridad.Usuario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.general.AusenciaJefe;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OficinaService {

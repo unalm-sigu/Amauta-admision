@@ -37,8 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.enums.DocumentoPdfEnum;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.enums.DocumentoPdfEnum;
 
 @Service
 public class PdfGeneratorImp implements PdfGenerator {

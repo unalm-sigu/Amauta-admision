@@ -16,26 +16,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.math.Fraxtion;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.EvaluacionExpandida;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.pivot.model.academico.ResumenAlumnoEvaluacion;
-import pe.edu.lamolina.pivot.zelper.enums.AlumnoEvaluacionEstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Service
@@ -159,7 +160,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance.getValue(18)));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom.getValue(18)));
-
+        logger.debug("peso con nota {} peso total {}", pesoConNota, pesoTotal);
         if (pesoConNota.compareTo(pesoTotal) == 0) {
             BigDecimal notaFinal = calularNota(dividendo, pesoTotal, 0);
             matriculaCurso.setNotaFinal(NumberFormat.nota(notaFinal));

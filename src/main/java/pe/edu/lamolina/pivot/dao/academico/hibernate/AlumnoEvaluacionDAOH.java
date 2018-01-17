@@ -4,21 +4,21 @@ import java.util.List;
 import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
-import pe.edu.lamolina.pivot.model.academico.AlumnoEvaluacion;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaCurso;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import static pe.edu.lamolina.pivot.zelper.enums.EstadoMatriculaCursoEnum.MAT;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum.MAT;
 
 @Repository
-public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implements AlumnoEvaluacionDAO {
+public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> implements AlumnoEvaluacionDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -39,69 +39,75 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
 
     @Override
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion, Long idEvaluacionExpandida) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva");
-        sqlUtil.parents("evaluacion eva", "alumno alu");
-        sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr", "left _eva.evaluacionSuperior evaSup");
-        sqlUtil.parents("_es.grupoSeccion gs", "left _evaSup.tipoEvaluacion te2", "_eva.evaluacionExpandida evaex");
+
+        Octavia sql = Octavia.query()
+                .from(AlumnoEvaluacion.class, "aeva")
+                .join("evaluacion eva", "eva.evaluacionSeccion es", "eva.tipoEvaluacion te")
+                .join("es.grupoSeccion gs", "eva.evaluacionExpandida evaex")
+                .left("eva.seccionResponsable sr", "eva.evaluacionSuperior evaSup", "evaSup.tipoEvaluacion te2");
+
         if (idEvaluacionSeccion != null) {
-            sqlUtil.filter("es.id", idEvaluacionSeccion);
+            sql.filter("es.id", idEvaluacionSeccion);
         }
         if (idGrupoSeccion != null) {
-            sqlUtil.filter("gs.id", idGrupoSeccion);
+            sql.filter("gs.id", idGrupoSeccion);
         }
         if (idSeccion != null) {
-            sqlUtil.filter("sr.id", idSeccion);
+            sql.filter("sr.id", idSeccion);
         }
         if (idEvaluacion != null) {
-            sqlUtil.filter("eva.id", idEvaluacion);
+            sql.filter("eva.id", idEvaluacion);
         }
         if (idEvaluacionExpandida != null) {
-            sqlUtil.filter("evaex.id", idEvaluacionExpandida);
+            sql.filter("evaex.id", idEvaluacionExpandida);
         }
-        List<AlumnoEvaluacion> lstEvaluaciones = this.all(sqlUtil);
-        return lstEvaluaciones;
+
+        return all(sql);
     }
 
     @Override
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idALumno, Long idCurso, Long idCicloAcademico, String orderBy) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva");
-        sqlUtil.parents("evaluacion eva", "alumno alu", "usuarioIngresoNota ureg");
-        sqlUtil.parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr");
-        sqlUtil.parents("_es.grupoSeccion gs", "_ureg.persona per", "_gs.curso cur", "_gs.cicloAcademico cic");
+        Octavia sql = Octavia.query()
+                .from(AlumnoEvaluacion.class, "aeva")
+                .join("evaluacion eva", "alumno alu", "usuarioIngresoNota ureg", "ureg.persona per")
+                .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico cic")
+                .left("eva.seccionResponsable sr", "eva.evaluacionSuperior evaSup", "evaSup.tipoEvaluacion te2");
+
         if (orderBy != null) {
-            sqlUtil.orderBy(orderBy);
+            sql.orderBy(orderBy);
         }
         if (idEvaluacionSeccion != null) {
-            sqlUtil.filter("es.id", idEvaluacionSeccion);
+            sql.filter("es.id", idEvaluacionSeccion);
         }
         if (idGrupoSeccion != null) {
-            sqlUtil.filter("gs.id", idGrupoSeccion);
+            sql.filter("gs.id", idGrupoSeccion);
         }
         if (idSeccion != null) {
-            sqlUtil.filter("sr.id", idSeccion);
+            sql.filter("sr.id", idSeccion);
         }
         if (idALumno != null) {
-            sqlUtil.filter("alu.id", idALumno);
+            sql.filter("alu.id", idALumno);
         }
         if (idCurso != null) {
-            sqlUtil.filter("cur.id", idCurso);
+            sql.filter("cur.id", idCurso);
         }
         if (idCicloAcademico != null) {
-            sqlUtil.filter("cic.id", idCicloAcademico);
+            sql.filter("cic.id", idCicloAcademico);
         }
-        List<AlumnoEvaluacion> lstEvaluaciones = this.all(sqlUtil);
-        return lstEvaluaciones;
+
+        return all(sql);
     }
 
     @Override
     public List<AlumnoEvaluacion> allBySeccion(Long idSeccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
-                .parents("evaluacion eva", "alumno alu")
-                .parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr")
-                .parents("_es.grupoSeccion gs")
+        Octavia sql = Octavia.query()
+                .from(AlumnoEvaluacion.class, "aeva")
+                .join("evaluacion eva", "alumno alu")
+                .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion gs")
+                .left("eva.seccionResponsable sr")
                 .filter("sr.id", idSeccion);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
@@ -164,20 +170,23 @@ public class AlumnoEvaluacionDAOH extends AbstractDAO<AlumnoEvaluacion> implemen
 
     @Override
     public AlumnoEvaluacion findByFilter(Long id, Long idEvaluacion, Long idAlumno) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("aeva")
-                .parents("evaluacion eva", "alumno alu")
-                .parents("_eva.evaluacionSeccion es", "_eva.tipoEvaluacion te", "left _eva.seccionResponsable sr")
-                .parents("_es.grupoSeccion gs");
+        Octavia sql = Octavia.query()
+                .from(AlumnoEvaluacion.class, "aeva")
+                .join("evaluacion eva", "alumno alu")
+                .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion g")
+                .leftJoin("eva.seccionResponsable srs");
+
         if (id != null) {
-            sqlUtil.filter("aeva.id", id);
+            sql.filter("aeva.id", id);
         }
         if (idEvaluacion != null) {
-            sqlUtil.filter("eva.id", idEvaluacion);
+            sql.filter("eva.id", idEvaluacion);
         }
         if (idAlumno != null) {
-            sqlUtil.filter("alu.id", idAlumno);
+            sql.filter("alu.id", idAlumno);
         }
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override

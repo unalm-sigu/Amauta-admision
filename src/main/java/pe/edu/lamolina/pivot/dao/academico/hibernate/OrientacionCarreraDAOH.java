@@ -1,18 +1,18 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
-import pe.edu.lamolina.pivot.model.academico.OrientacionCarrera;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 
 @Repository
-public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> implements OrientacionCarreraDAO {
+public class OrientacionCarreraDAOH extends AbstractEasyDAO<OrientacionCarrera> implements OrientacionCarreraDAO {
 
     public OrientacionCarreraDAOH() {
         super();
@@ -25,7 +25,8 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .from(OrientacionCarrera.class, "oc")
                 .join("carrera ca")
                 .filter("ca.id", carrera);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -36,7 +37,8 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .filter("ca.id", carrera)
                 .orderBy("oc.id desc")
                 .limit(1);
-        return (OrientacionCarrera) sql.find(getCurrentSession());
+
+        return find(sql);
     }
 
     @Override
@@ -47,7 +49,8 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .filter("ca.id", idCarrera)
                 .searchFields("ca.nombre", "oc.nombre", "ca.codigo", "oc.codigo")
                 .orderBy("ca.id desc");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -56,7 +59,7 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .from(OrientacionCarrera.class, "oc")
                 .join("carrera ca")
                 .filter("oc.id", id);
-        return (OrientacionCarrera) sql.find(getCurrentSession());
+        return find(sql);
     }
 
     @Override
@@ -66,7 +69,8 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .join("carrera ca")
                 .filter("ca.id", carrera)
                 .filter("oc.estado", estadoEnum.name());
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
     @Override
@@ -75,7 +79,8 @@ public class OrientacionCarreraDAOH extends AbstractDAO<OrientacionCarrera> impl
                 .from(OrientacionCarrera.class, "oc")
                 .join("carrera ca")
                 .in("ca.id", carreras);
-        return sql.all(getCurrentSession());
+
+        return all(sql);
     }
 
 }

@@ -1,10 +1,10 @@
 package pe.edu.lamolina.pivot.controller.seguridad.menu;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
-import pe.edu.lamolina.pivot.model.seguridad.Sistema;
-import pe.edu.lamolina.pivot.zelper.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
 
 public interface MenuService {
 

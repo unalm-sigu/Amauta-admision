@@ -32,18 +32,18 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.general.Dia;
-import pe.edu.lamolina.pivot.model.horario.DiaHoraGrupo;
-import pe.edu.lamolina.pivot.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.model.horario.Hora;
-import pe.edu.lamolina.pivot.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.LetraGrupoHoraEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorariosEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionGrupoEnum;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.enums.LetraGrupoHoraEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorariosEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoGrupoHorasEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoSeccionGrupoEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -124,7 +124,7 @@ public class GrupoHorasController {
                     if (mapGrupohora == null) {
                         node.put("estado", "danger");
                     } else {
-                        if (mapGrupohora.size()>0) {
+                        if (mapGrupohora.size() > 0) {
                             node.put("estado", "primary");
                         } else {
                             node.put("estado", "danger");

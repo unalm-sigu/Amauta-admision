@@ -1,17 +1,16 @@
 package pe.edu.lamolina.pivot.dao.horario;
 
 import java.util.List;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.horario.HorarioSeccion;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 
-public interface HorarioSeccionDAO extends Crud<HorarioSeccion> {
+public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
 
-    public List<HorarioSeccion> allBySecciones(List<Seccion> secciones);
+    List<HorarioSeccion> allBySecciones(List<Seccion> secciones);
 
-    public List<HorarioSeccion> allByCicloCurso(CicloAcademico cicloAcademico, List<Curso> cursos);
+    List<HorarioSeccion> allByCicloCurso(CicloAcademico cicloAcademico, List<Curso> cursos);
 
 }
-

@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCursoDAO;
-import pe.edu.lamolina.pivot.model.tramite.RetiroCurso;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
 
 @Repository
-public class RetiroCursoDAOH extends AbstractDAO<RetiroCurso> implements RetiroCursoDAO {
+public class RetiroCursoDAOH extends AbstractEasyDAO<RetiroCurso> implements RetiroCursoDAO {
 
     public RetiroCursoDAOH() {
         super();
         setClazz(RetiroCurso.class);
     }
 }
-

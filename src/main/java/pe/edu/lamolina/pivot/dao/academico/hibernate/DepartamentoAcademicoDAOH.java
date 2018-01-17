@@ -10,20 +10,20 @@ import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.academico.departamento.DepartamentoCursoDocente;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 @Repository
 public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcademico> implements DepartamentoAcademicoDAO {

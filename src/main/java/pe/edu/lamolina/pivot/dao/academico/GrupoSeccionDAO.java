@@ -3,13 +3,13 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.DepartamentoAcademico;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
 
 public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
@@ -30,6 +30,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+
+    GpoSeccionResumen resumen();
 
     GrupoSeccion findLast();
 

@@ -1,9 +1,8 @@
 package pe.edu.lamolina.pivot.dao.general;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.TipoUbicacion;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.TipoUbicacion;
 
-public interface TipoUbicacionDAO extends Crud<TipoUbicacion> {
+public interface TipoUbicacionDAO extends EasyDAO<TipoUbicacion> {
 
 }
-

@@ -6,23 +6,23 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.EstadoCarreraEnum;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
-import pe.edu.lamolina.pivot.model.academico.Facultad;
-import pe.edu.lamolina.pivot.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.pivot.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoCarreraEnum;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.ESP;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.pivot.zelper.enums.ModalidadEstudioEnum.VIS;
 
 @Repository
 public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO {
@@ -185,7 +185,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .join("modalidadEstudio me", "facultad fa")
                 .filter("ca.estado", EstadoCarreraEnum.ACT)
                 .filter("me.id", modalidadEstudio)
-                .orderBy("ca.codigo desc");
+                .orderBy("ca.codigo");
         return sql.all(getCurrentSession());
     }
 

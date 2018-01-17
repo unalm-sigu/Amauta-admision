@@ -6,23 +6,24 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
-import pe.edu.lamolina.pivot.model.academico.Evaluacion;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionExpandida;
-import pe.edu.lamolina.pivot.model.academico.EvaluacionSeccion;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.EvaluacionExpandida;
+import pe.edu.lamolina.model.academico.EvaluacionSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum.MAT;
 
 @Repository
-public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements EvaluacionDAO {
+public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements EvaluacionDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -33,13 +34,16 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
 
     @Override
     public Evaluacion find(long id) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "left evaluacionSuperior esup", "evaluacionExpandida eex", "left docenteEvaluador de");
-        sqlUtil.parents("_es.planCalificacion pc", "_es.sistemaNotas sn");
-        sqlUtil.parents("_sr.grupoSeccion gs", "_gs.curso", "_gs.cicloAcademico", "left _esup.tipoEvaluacion tesupe");
-        sqlUtil.filter("eva.id", id);
-        sqlUtil.filter("eex.estado", EstadoEnum.ACT.name());
-        Evaluacion evaluacion = this.find(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "evaluacionExpandida eex")
+                .join("es.planCalificacion pc", "es.sistemaNotas sn")
+                .join("sr.grupoSeccion gs", "gs.curso", "gs.cicloAcademico")
+                .leftJoin("evaluacionSuperior esup", "docenteEvaluador de", "esup.tipoEvaluacion tesupe")
+                .filter("eva.id", id)
+                .filter("eex.estado", EstadoEnum.ACT);
+
+        Evaluacion evaluacion = find(sql);
         if (evaluacion != null) {
             if (evaluacion.getEvaluaciones() != null) {
                 for (Evaluacion eva : evaluacion.getEvaluaciones()) {
@@ -53,49 +57,52 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
 
     @Override
     public List<Evaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacionExpandida) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("evaluacionSeccion es", "tipoEvaluacion te", "left seccionResponsable sr", "evaluacionExpandida exx", "left docenteEvaluador de");
-        sqlUtil.parents("_es.grupoSeccion gs");
-        sqlUtil.parents("left evaluacionSuperior esup");
-
-        sqlUtil.filter("exx.estado", EstadoEnum.ACT.name());
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionSeccion es", "tipoEvaluacion te", "evaluacionExpandida eex", "es.grupoSeccion gs")
+                .leftJoin("evaluacionSuperior esup", "esup.tipoEvaluacion tesupe")
+                .leftJoin("docenteEvaluador de", "seccionResponsable sr")
+                .filter("eex.estado", EstadoEnum.ACT);
 
         if (idEvaluacionSeccion != null) {
-            sqlUtil.filter("es.id", idEvaluacionSeccion);
+            sql.filter("es.id", idEvaluacionSeccion);
         }
         if (idGrupoSeccion != null) {
-            sqlUtil.filter("gs.id", idGrupoSeccion);
+            sql.filter("gs.id", idGrupoSeccion);
         }
         if (idSeccion != null) {
-            sqlUtil.filter("sr.id", idSeccion);
+            sql.filter("sr.id", idSeccion);
         }
         if (idEvaluacionExpandida != null) {
-            sqlUtil.filter("exx.id", idEvaluacionExpandida);
+            sql.filter("eex.id", idEvaluacionExpandida);
         }
         if (idEvaluacionExpandida == null) {
-            sqlUtil.filterIsNull("esup.id");
+            sql.isNull("esup.id");
         }
-        //sqlUtil.orderBy("te.nombre", "eva.numero");
-        List<Evaluacion> lstEvaluaciones = this.all(sqlUtil);
-        if (lstEvaluaciones != null && !lstEvaluaciones.isEmpty()) {
-            for (Evaluacion objEvaluacion : lstEvaluaciones) {
+
+        List<Evaluacion> evaluaciones = all(sql);
+        if (evaluaciones != null && !evaluaciones.isEmpty()) {
+            for (Evaluacion objEvaluacion : evaluaciones) {
                 for (Evaluacion eva : objEvaluacion.getEvaluaciones()) {
                     eva.getId();
                     eva.getTipoEvaluacion().getId();
                 }
             }
         }
-        return lstEvaluaciones;
+        return evaluaciones;
     }
 
     @Override
     public List<Evaluacion> allBySecciones(List<Seccion> secciones) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionExpandida ee", "evaluacionSeccion", "tipoEvaluacion", "left evaluacionSuperior evaSup", "seccionResponsable sr")
-                .filterIn("sr.id", secciones);
-        sqlUtil.filterIsNull("evaSup");
-        sqlUtil.filter("ee.estado", EstadoEnum.ACT.name());
-        List<Evaluacion> evaluaciones = this.all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion", "tipoEvaluacion", "seccionResponsable sr")
+                .leftJoin("evaluacionSuperior evaSup")
+                .in("sr.id", secciones)
+                .isNull("evaSup.id")
+                .filter("ee.estado", EstadoEnum.ACT);
+
+        List<Evaluacion> evaluaciones = this.all(sql);
         for (Evaluacion evaluacion : evaluaciones) {
             if (evaluacion.getEvaluaciones() != null) {
                 for (Evaluacion eva : evaluacion.getEvaluaciones()) {
@@ -110,18 +117,15 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
 
     @Override
     public List<Evaluacion> allBySeccion(Seccion seccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "left evaluacionSuperior evaSup", "seccionResponsable sr")
-                .filter("sr.id", seccion.getId())
-                .orderBy("te.orden", "ev.numero");
-        sqlUtil.filterIsNull("evaSup");
-        sqlUtil.filter("ee.estado", EstadoEnum.ACT.name());
-        List<Evaluacion> evaluaciones = this.all(sqlUtil);
-        /*
-        for (Iterator<Evaluacion> iter = evaluaciones.listIterator(); iter.hasNext();) {
-            Evaluacion evaluacion = iter.next();
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
+                .leftJoin("evaluacionSuperior evaSup")
+                .filter("sr.id", seccion)
+                .isNull("evaSup.id")
+                .filter("ee.estado", EstadoEnum.ACT);
 
-        }*/
+        List<Evaluacion> evaluaciones = this.all(sql);
 
         for (Evaluacion evaluacionAbuelo : evaluaciones) {
             for (int j = evaluacionAbuelo.getEvaluaciones().size() - 1; j >= 0; j--) {
@@ -138,33 +142,24 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
                 }
             }
         }
-        /*
-        for (Evaluacion evaluacion : evaluaciones) {
-            if (evaluacion.getEvaluaciones() != null) {
-                for (Evaluacion eva : evaluacion.getEvaluaciones()) {
-                    eva.getId();
-                    eva.getTipoEvaluacion().getId();
-                    eva.getTipoEvaluacion().getNombre();
-                }
-            }
-        }*/
+
         return evaluaciones;
     }
 
     @Override
-    public Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion
-    ) {
-        SqlUtil sqlUtil = SqlUtil.creaCountSql("ev");
-        sqlUtil.parents("seccionResponsable sr");
-        sqlUtil.parents("_sr.grupoSeccion gs");
-        sqlUtil.filter("gs.id", idGrupoSeccion);
-        sqlUtil.filterIsNull("ev.fechaIngresoNota");
-        return this.count(sqlUtil);
+    public Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(Evaluacion.class, "eva")
+                .join("seccionResponsable sr", "sr.grupoSeccion gs")
+                .filter("gs.id", idGrupoSeccion)
+                .isNull("eva.fechaIngresoNota");
+
+        return (Long) sql.find(getCurrentSession());
     }
 
     @Override
-    public void deleteByEvaluacionExpandida(Long idEvaluacionExpandida
-    ) {
+    public void deleteByEvaluacionExpandida(Long idEvaluacionExpandida) {
         String strQuery = "delete from Evaluacion eva where eva.evaluacionExpandida.id=:prm_evaluacion_exp";
         Query query = getCurrentSession().createQuery(strQuery);
         query.setLong("prm_evaluacion_exp", idEvaluacionExpandida);
@@ -172,8 +167,7 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     }
 
     @Override
-    public void updateDocenteEvaluador(Evaluacion evaluacion, Docente docente
-    ) {
+    public void updateDocenteEvaluador(Evaluacion evaluacion, Docente docente) {
         String strQuery = "update  Evaluacion eva set eva.docenteEvaluador.id=:prm_docente where eva.id=:prm_id";
         Query query = getCurrentSession().createQuery(strQuery);
         query.setParameter("prm_docente", evaluacion.getDocenteEvaluador().getId());
@@ -182,13 +176,15 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
     }
 
     @Override
-    public Evaluacion findByEvalExpSeccion(Long evaluacionExpansion, Long seccion
-    ) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("eva");
-        sqlUtil.parents("tipoEvaluacion te", "evaluacionSeccion es", "seccionResponsable sr", "left evaluacionSuperior esup", "evaluacionExpandida eex");
-        sqlUtil.filter("eex.id", evaluacionExpansion);
-        sqlUtil.filter("sr.id", seccion);
-        Evaluacion evaluacion = this.find(sqlUtil);
+    public Evaluacion findByEvalExpSeccion(Long evaluacionExpansion, Long seccion) {
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
+                .leftJoin("evaluacionSuperior evaSup")
+                .filter("ee.id", evaluacionExpansion)
+                .filter("sr.id", seccion);
+
+        Evaluacion evaluacion = find(sql);
         if (evaluacion != null) {
             if (evaluacion.getEvaluaciones() != null) {
                 for (Evaluacion eva : evaluacion.getEvaluaciones()) {
@@ -197,53 +193,45 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
                 }
             }
         }
+
         return evaluacion;
     }
 
     @Override
-    public List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evalSecc
-    ) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion es")
+    public List<Evaluacion> allByEvaluacionSeccion(EvaluacionSeccion evalSecc) {
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionSeccion es")
                 .filter("es.id", evalSecc);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
-    public List<Evaluacion> allByEvaluacionesByExpandidas(List<EvaluacionExpandida> evaluacionesExp
-    ) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion es", "evaluacionExpandida ee", "seccionResponsable s", "left docenteEvaluador de")
-                .filterIn("ee.id", evaluacionesExp);
+    public List<Evaluacion> allByEvaluacionesByExpandidas(List<EvaluacionExpandida> evaluacionesExp) {
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
+                .leftJoin("docenteEvaluador de")
+                .in("ee.id", evaluacionesExp);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
-    public List<Evaluacion> allByEvaluacionExpandidaSecciones(EvaluacionExpandida evaluacion, List<Seccion> secciones
-    ) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionSeccion es", "evaluacionExpandida ee", "left _ee.evaluacionSuperior ees", "seccionResponsable s", "left docenteEvaluador de")
-                //  .filterIsNull("ees.id")
+    public List<Evaluacion> allByEvaluacionExpandidaSecciones(EvaluacionExpandida evaluacion, List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
+                .leftJoin("ee.evaluacionSuperior ees", "docenteEvaluador de")
                 .filter("ee.id", evaluacion)
-                .filterIn("s.id", secciones);
+                .in("sr.id", secciones);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
     public void deleteEvaluacionesByEvaluacionSeccion(EvaluacionSeccion evaluacionSeccion) {
-        /*
-        StringBuilder strbDeleteAlumnoEvaluacion = new StringBuilder(" delete from aca_alumno_evaluacion where id_evaluacion in ( ");
-        strbDeleteAlumnoEvaluacion.append(" select id from aca_evaluacion where id_evaluacion_expandida in ( ");
-        strbDeleteAlumnoEvaluacion.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
-        strbDeleteAlumnoEvaluacion.append("))");
-
-        SQLQuery query = getCurrentSession().createSQLQuery(strbDeleteAlumnoEvaluacion.toString());
-        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
-        query.executeUpdate();
-         */
 
         StringBuilder strbDeleteReclamoNota = new StringBuilder(" delete from aca_reclamo_nota where id_evaluacion in ( ");
         strbDeleteReclamoNota.append(" Select id from aca_evaluacion where  id_evaluacion_seccion=:prm_evaluacion_seccion ");
@@ -289,87 +277,39 @@ public class EvaluacionDAOH extends AbstractDAO<Evaluacion> implements Evaluacio
             query.setParameterList("prm_evas", lstEvaPadresId);
             query.executeUpdate();
         }
-
-        /*
-        StringBuilder strbDeleteEvaluacionesHijas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
-        strbDeleteEvaluacionesHijas.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
-        strbDeleteEvaluacionesHijas.append(") and id_evaluacion_superior is not null");
-
-        query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesHijas.toString());
-        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
-        query.executeUpdate();
-
-        StringBuilder strbDeleteEvaluacionesPadres = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in ( ");
-        strbDeleteEvaluacionesPadres.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
-        strbDeleteEvaluacionesPadres.append(")");
-
-        query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesPadres.toString());
-        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
-        query.executeUpdate();
-
-        StringBuilder strbDeleteEvaluacionesExpadidas = new StringBuilder(" delete from aca_evaluacion where id_evaluacion_expandida in (");
-        strbDeleteEvaluacionesExpadidas.append(" Select id from aca_evaluacion_expandida where id_evaluacion_seccion=:prm_evaluacion_seccion ");
-        strbDeleteEvaluacionesExpadidas.append(" )");
-
-        query = getCurrentSession().createSQLQuery(strbDeleteEvaluacionesExpadidas.toString());
-        query.setParameter("prm_evaluacion_seccion", evaluacionSeccion.getId());
-        query.executeUpdate();
-         */
     }
 
     @Override
-    public List<Evaluacion> allByCiclo(CicloAcademico ciclo
-    ) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-                .parents("evaluacionExpandida ee", "_ee.evaluacionSeccion es", "seccionResponsable s", "left docenteEvaluador de")
-                .parents("_ee.tipoEvaluacion", "left _ee.evaluacionSuperior")
-                .parents("tipoEvaluacion", "left evaluacionSuperior")
-                .parents("_es.grupoSeccion", "_es.planCalificacion")
-                .parents("_s.grupoSeccion gs", "_gs.cicloAcademico ci")
+    public List<Evaluacion> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
+                .join("ee.tipoEvaluacion", "es.grupoSeccion", "es.planCalificacion", "sr.grupoSeccion gs", "gs.cicloAcademico ci")
+                .leftJoin("ee.evaluacionSuperior ees", "evaluacionSuperior", "docenteEvaluador de")
                 .filter("ci.id", ciclo);
 
-        return all(sqlUtil);
+        return all(sql);
     }
 
     @Override
-    public List<Evaluacion> allByGrupoSeccionAlumno(GrupoSeccion grupoSeccion, Alumno alumno
-    ) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("  from ").append(Evaluacion.class.getSimpleName()).append(" as ev ");
-        sql.append(" inner join fetch ev.seccionResponsable sec ");
-        sql.append(" inner join fetch ev.evaluacionExpandida ee ");
-        sql.append(" inner join fetch ee.tipoEvaluacion ");
-        sql.append(" inner join fetch ee.evaluacionSeccion es ");
-        sql.append(" inner join fetch es.grupoSeccion gs ");
-        sql.append(" inner join fetch es.planCalificacion ");
-        sql.append("  left join fetch ee.evaluacionSuperior ");
-        sql.append("  left join fetch ev.evaluacionSuperior ");
-        sql.append(" where gs.id = :GRUPO_SECCION ");
-        sql.append("   and exists ( ");
-        sql.append("         select ms.id ");
-        sql.append("           from ").append(MatriculaSeccion.class.getSimpleName()).append(" as ms ");
-        sql.append("          inner join ms.seccion ss ");
-        sql.append("          inner join ms.matriculaResumen mr ");
-        sql.append("          inner join mr.alumno alu ");
-        sql.append("          where ss.id = sec.id ");
-        sql.append("            and alu.id = :ALUMNO ");
-        sql.append("            and ms.estado = 'MAT' ");
-        sql.append("   ) ");
-        sql.append(" and  ee.estado='ACT' ");
+    public List<Evaluacion> allByGrupoSeccionAlumno(GrupoSeccion grupoSeccion, Alumno alumno) {
+        Octavia subquery = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("ms.seccion ss", "matriculaResumen mr", "mr.alumno alu")
+                .filter("alu.id", alumno)
+                .filter("ms.estado", MAT);
 
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setLong("GRUPO_SECCION", grupoSeccion.getId());
-        query.setLong("ALUMNO", alumno.getId());
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("evaluacionExpandida ee", "evaluacionSeccion es", "tipoEvaluacion te", "seccionResponsable sr")
+                .join("ee.tipoEvaluacion", "es.grupoSeccion gs", "es.planCalificacion")
+                .leftJoin("ee.evaluacionSuperior", "evaluacionSuperior")
+                .filter("gs.id", grupoSeccion)
+                .filter("ee.estado", EstadoEnum.ACT)
+                .exists(subquery)
+                .linkedBy("sr.id", "ss.id");
 
-        return query.list();
-
-//        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("ev")
-//                .parents("evaluacionExpandida ee", "left _ee.evaluacionSuperior", "_ee.evaluacionSeccion es")
-//                .parents("_es.grupoSeccion gs", "_es.planCalificacion", "left evaluacionSuperior")
-//                .parents("_ee.tipoEvaluacion")
-//                .filter("gs.id", grupoSeccion);
-//        
-//        return all(sqlUtil);
+        return all(sql);
     }
 
 }

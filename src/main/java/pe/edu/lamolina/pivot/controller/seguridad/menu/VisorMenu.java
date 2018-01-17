@@ -5,9 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
-import pe.edu.lamolina.pivot.model.seguridad.Menu;
-import pe.edu.lamolina.pivot.model.seguridad.MenuRol;
-import pe.edu.lamolina.pivot.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
+import pe.edu.lamolina.model.seguridad.Rol;
 
 @Component
 public class VisorMenu {

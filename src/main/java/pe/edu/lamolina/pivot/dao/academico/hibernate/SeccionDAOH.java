@@ -1,22 +1,23 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import java.util.Map;
-import pe.albatross.zelpers.dao.AbstractDAO;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.Docente;
-import pe.edu.lamolina.pivot.model.academico.GrupoSeccion;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 
 @Repository
-public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
+public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
 
     public SeccionDAOH() {
         super();
@@ -25,109 +26,145 @@ public class SeccionDAOH extends AbstractDAO<Seccion> implements SeccionDAO {
 
     @Override
     public List<Seccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
-        filter.setAlias("sec");
-        filter.setParents("grupoSeccion gs", "docenteSeccion ds", "aula au",
-                "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr");
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Curso.class, "sec")
+                .join("grupoSeccion gs", "docenteSeccion ds", "aula au", "gs.curso cur")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr")
+                .orderBy("sec.id desc");
 
-        filter.setTotal(this.count(filter));
-        filter.setFiltered(this.countByFilter(filter));
-
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
-        sqlUtil.parents(filter.getParents());
-
-        Map filtersFix = filter.getFiltersFixed();
-        if (filtersFix != null) {
-            for (Object key : filtersFix.keySet()) {
-                this.filterFixed(sqlUtil, (String) key, filtersFix.get(key));
-            }
-        }
-        Map filterFixIn = filter.getFiltersInFixed();
-        if (filterFixIn != null) {
-            for (Object key : filterFixIn.keySet()) {
-                this.filterInFixed(sqlUtil, (String) key, (List) filterFixIn.get(key));
-            }
-        }
-        this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
-        sqlUtil.setFirstResult(filter.getOffset())
-                .setPageSize(filter.getPerPage());
-
-        return this.all(sqlUtil);
+        return all(sql);
     }
 
     @Override
     public Seccion find(Long idSeccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "left _gs.planCalificacion pc2")
-                .filter("s.id", idSeccion);
-        return find(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au")
+                .filter("sec.id", idSeccion);
+
+        return find(sql);
     }
 
     @Override
     public List<Seccion> allByFilter(Long idGrupo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.curso cur", "left _cur.planCalificacion pc", "left _cur.planCalificacionRegular pcr", "_gs.planCalificacion pc2")
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
                 .filter("gs.id", idGrupo);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
-                .filter("s.codigo", codigo)
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .filter("sec.codigo", codigo)
                 .filter("ca.id", ciclo);
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public List<Seccion> allByCiclo(CicloAcademico ciclo) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .filter("ca.id", ciclo);
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public List<Seccion> allActivosByGposSeccion(List<GrupoSeccion> gruposSeccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
-                .parents("left _s.aula", "left _s.grupoHoras")
-                .filter("s.estado", EstadoEnum.ACT.name())
-                .filterIn("gs.id", gruposSeccion);
-        return all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras")
+                .filter("estado", EstadoEnum.ACT)
+                .in("gs.id", gruposSeccion);
+
+        return all(sql);
     }
 
     @Override
     public List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur")
-                .parents("left _s.aula", "left _s.grupoHoras")
-                .filterIn("gs.id", gruposSeccion)
-                .orderBy("s.codigo");
-        return all(sqlUtil);
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras")
+                .in("gs.id", gruposSeccion)
+                .orderBy("sec.codigo");
+
+        return all(sql);
     }
 
     @Override
     public List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("s")
-                .parents("grupoSeccion gs", "_gs.cicloAcademico ca", "_gs.curso cur", "left _cur.carrera carr")
-                .parents("left _s.aula", "left _s.grupoHoras", "left _s.aula")
-                //  .filter("s.estado", EstadoEnum.ACT.name())
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras", "cur.carrera")
                 .filter("gs.id", gruposSeccion);
-        return all(sqlUtil);
+
+        return all(sql);
+    }
+
+    @Override
+    public void updateSeccionGrupoHora(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "grupoHoras");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateSeccionAula(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "aula");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateSeccionVacantes(Seccion seccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update Seccion  set vacantes=:prm_vacantes where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", seccion.getId());
+        query.setParameter("prm_vacantes", seccion.getVacantes());
+        query.executeUpdate();
     }
 
     @Override
     public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur", "gs.anexoBoletin")
                 .leftJoin("seccionSuperior")
                 .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
                 .filter("ca.id", cicloAcademico)
                 .in("cur.id", cursos)
                 .orderBy("sec.codigo");
-        return sql.all(getCurrentSession());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allMatriculablesBySecciones(List<Seccion> secciones) {
+
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+                .leftJoin("seccionSuperior ss")
+                .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
+                .in("sec.id", secciones)
+                .filter("sec.tipoSeccion", "<>", TCUR)
+                .orderBy("sec.codigo");
+
+        return all(sql);
     }
 
 }

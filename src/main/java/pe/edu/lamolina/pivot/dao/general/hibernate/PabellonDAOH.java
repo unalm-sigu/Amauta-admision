@@ -1,16 +1,15 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
-import pe.albatross.zelpers.dao.AbstractDAO;
 import pe.edu.lamolina.pivot.dao.general.PabellonDAO;
-import pe.edu.lamolina.pivot.model.general.Pabellon;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.Pabellon;
 
 @Repository
-public class PabellonDAOH extends AbstractDAO<Pabellon> implements PabellonDAO {
+public class PabellonDAOH extends AbstractEasyDAO<Pabellon> implements PabellonDAO {
 
     public PabellonDAOH() {
         super();
         setClazz(Pabellon.class);
     }
 }
-

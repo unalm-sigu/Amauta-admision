@@ -26,12 +26,15 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.model.academico.Alumno;
-import pe.edu.lamolina.pivot.model.academico.AlumnoHorario;
-import pe.edu.lamolina.pivot.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoHorario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -88,6 +91,8 @@ public class HorarioIngresanteController {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 Alumno alumno = alumHorario.getAlumno();
+                Carrera carrera = alumno.getCarrera();
+                Facultad facultad = carrera.getFacultad();
                 HorarioCachimbos hc = alumHorario.getHorarioCachimbos();
 
                 node.put("id", alumHorario.getId());
@@ -102,6 +107,8 @@ public class HorarioIngresanteController {
                 node.put("codigoMatricula", alumno.getCodigo());
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+
+                node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
 
                 array.add(node);
             }
@@ -227,7 +234,7 @@ public class HorarioIngresanteController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<Alumno> alumnos = service.allAlumnoByName(nombre);
+            List<Alumno> alumnos = service.allAlumnoIngresantePregradoByNameCiclo(nombre, cicloAcademico);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Alumno alumno : alumnos) {
@@ -245,6 +252,29 @@ public class HorarioIngresanteController {
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cargarIngresantes")
+    public JsonResponse cargarIngresantes(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            Usuario user = ds.getUsuario();
+            service.cargarIngresantes(cicloAcademico, user);
+            response.setMessage("Ingresantes cargado satisfactoriamente");
+            response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.dao.general;
 
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.general.Pais;
+import java.util.List;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Pais;
 
-public interface PaisDAO extends Crud<Pais> {
+public interface PaisDAO extends EasyDAO<Pais> {
+
+    List<Pais> allPaisesByName(String forLike);
 
 }
-

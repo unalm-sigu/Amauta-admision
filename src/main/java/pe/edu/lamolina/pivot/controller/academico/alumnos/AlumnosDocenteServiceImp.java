@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.Seccion;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
-import pe.edu.lamolina.pivot.model.academico.MatriculaSeccion;
 
 @Service
 @Transactional(readOnly = true)

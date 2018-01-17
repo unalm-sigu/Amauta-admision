@@ -2,11 +2,11 @@ package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dao.Crud;
-import pe.edu.lamolina.pivot.model.academico.Carrera;
-import pe.edu.lamolina.pivot.model.academico.PlanCurricular;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 
-public interface PlanCurricularDAO extends Crud<PlanCurricular> {
+public interface PlanCurricularDAO extends EasyDAO<PlanCurricular> {
 
     List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 

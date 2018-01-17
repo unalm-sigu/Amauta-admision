@@ -1,23 +1,22 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
-import pe.albatross.zelpers.dao.AbstractDAO;
-import pe.albatross.zelpers.dao.SqlUtil;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionCursoDAO;
-import pe.edu.lamolina.pivot.model.academico.Curso;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacion;
-import pe.edu.lamolina.pivot.model.academico.PlanCalificacionCurso;
-import pe.edu.lamolina.pivot.zelper.enums.EstadoEnum;
-import pe.edu.lamolina.pivot.zelper.enums.TipoCicloEnum;
 
 @Repository
-public class PlanCalificacionCursoDAOH extends AbstractDAO<PlanCalificacionCurso> implements PlanCalificacionCursoDAO {
+public class PlanCalificacionCursoDAOH extends AbstractEasyDAO<PlanCalificacionCurso> implements PlanCalificacionCursoDAO {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -28,82 +27,61 @@ public class PlanCalificacionCursoDAOH extends AbstractDAO<PlanCalificacionCurso
 
     @Override
     public PlanCalificacionCurso findByFilter(PlanCalificacion planCalificacion, Curso curso, EstadoEnum estadoEnum) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pc");
-        sqlUtil.parents("planCalificacion pln", "curso cur");
+        Octavia sql = Octavia.query()
+                .from(PlanCalificacionCurso.class, "pc")
+                .join("planCalificacion pln", "curso cur");
+
         if (planCalificacion != null) {
-            sqlUtil.filter("pln.id", planCalificacion.getId());
+            sql.filter("pln.id", planCalificacion);
         }
         if (curso != null) {
-            sqlUtil.filter("cur.id", curso.getId());
+            sql.filter("cur.id", curso);
         }
         if (estadoEnum != null) {
-            sqlUtil.filter("pc.estado", estadoEnum.name());
+            sql.filter("pc.estado", estadoEnum);
         }
-        return find(sqlUtil);
+
+        return find(sql);
     }
 
     @Override
     public List<PlanCalificacionCurso> allByFilter(PlanCalificacion planCalificacion, TipoCicloEnum tipoCicloEnum, Curso curso, EstadoEnum estadoEnum) {
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil("pc");
-        sqlUtil.parents("planCalificacion pln", "curso cur");
+        Octavia sql = Octavia.query()
+                .from(PlanCalificacionCurso.class, "pc")
+                .join("planCalificacion pln", "curso cur");
+
         if (planCalificacion != null) {
-            sqlUtil.filter("pln.id", planCalificacion.getId());
+            sql.filter("pln.id", planCalificacion.getId());
         }
         if (curso != null) {
-            sqlUtil.filter("cur.id", curso.getId());
+            sql.filter("cur.id", curso);
         }
         if (estadoEnum != null) {
-            sqlUtil.filter("pc.estado", estadoEnum.name());
+            sql.filter("pc.estado", estadoEnum);
         }
         if (tipoCicloEnum != null) {
-            sqlUtil.filter("pln.tipoCiclo", tipoCicloEnum.name());
+            sql.filter("pln.tipoCiclo", tipoCicloEnum);
         }
-        return all(sqlUtil);
+
+        return all(sql);
     }
 
     @Override
     public List<PlanCalificacionCurso> allByFilterDyna(DynatableFilter filter, PlanCalificacion planCalificacion, EstadoEnum estadoPlanCurdo) {
-        List<String> fieldsFiltro = Arrays.asList("cur.nombre", "cur.codigo", "cur.fechaPlanCalificacion");
-
-        filter.setFields(fieldsFiltro);
-
-        filter.setAlias("plncur");
-        filter.setParents("planCalificacion pc", "curso cur", "_pc.departamentoAcademico da");
+        DynatableSql sql = new DynatableSql(filter)
+                .from(PlanCalificacionCurso.class, "plncur")
+                .join("planCalificacion pc", "curso cur", "_pc.departamentoAcademico da")
+                .searchFields("cur.nombre", "cur.codigo", "cur.fechaPlanCalificacion")
+                .orderBy("cu.id desc");
 
         if (planCalificacion != null) {
-            filter.filterFix("pc.id", planCalificacion.getId());
+            sql.filter("pc.id", planCalificacion);
         }
-        /*
-        if (departamentoAcademico != null) {
-            filter.filterFix("da.id", departamentoAcademico.getId());
-        }
-         */
         if (estadoPlanCurdo != null) {
-            filter.filterFix("plncur.estado", estadoPlanCurdo.name());
+            sql.filter("plncur.estado", estadoPlanCurdo);
         }
-        filter.setTotal(this.count(filter));
-        filter.setFiltered(this.countByFilter(filter));
 
-        SqlUtil sqlUtil = SqlUtil.creaSqlUtil(filter.getAlias());
-        sqlUtil.parents(filter.getParents());
-
-        Map filtersFix = filter.getFiltersFixed();
-        if (filtersFix != null) {
-            for (Object key : filtersFix.keySet()) {
-                this.filterFixed(sqlUtil, (String) key, filtersFix.get(key));
-            }
-        }
-        Map filterFixIn = filter.getFiltersInFixed();
-        if (filterFixIn != null) {
-            for (Object key : filterFixIn.keySet()) {
-                this.filterInFixed(sqlUtil, (String) key, (List) filterFixIn.get(key));
-            }
-        }
-        this.filter(sqlUtil, filter.getFields(), filter.getSearchValue());
-        sqlUtil.setFirstResult(filter.getOffset())
-                .setPageSize(filter.getPerPage());
-
-        return this.all(sqlUtil);
+        return all(sql);
     }
 
 }
