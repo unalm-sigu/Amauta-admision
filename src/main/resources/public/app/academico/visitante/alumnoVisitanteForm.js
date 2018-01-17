@@ -27,7 +27,7 @@ $(function() {
                 vue.mostrarUniversidadName();
             });
             $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function(e) {
-                vue.mostrarUniversidadName();
+                vue.mostrarUbicacionDomicilio();
             });
             $('#univ-peru').select2(vue.buscarUniversidad());
         },
@@ -158,12 +158,19 @@ $(function() {
                 }
             },
             mostrarUbicacionDomicilio: function() {
+                console.log();
                 var vue = this;
                 var dataPaisUni = $("#paisDomicilio").select2("data");
                 if (dataPaisUni.codigo === "PE") {
-                    vue.showUbicacionDomicilio = false;
-                } else {
                     vue.showUbicacionDomicilio = true;
+                    setTimeout(function() {
+                        $('#ubicacionDomicilio').select2(vue.buscarDistrito());
+                    }, 500);
+                    $("#ubicacionDomicilio").prop('required', true);
+                    $("#ubicacionDomicilio").select2("val", "");
+                } else {
+                    vue.showUbicacionDomicilio = false;
+                    $("#ubicacionDomicilio").removeProp('required');
                 }
             },
             submitForm: function(e) {
