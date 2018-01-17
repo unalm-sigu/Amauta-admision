@@ -75,4 +75,6 @@ public interface GenerarHorarioIngresanteService {
             Map<String, HorarioCachimbos> mapHorario,
             Acumulador code, DataSessionPivot ds);
 
+    public void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos);
+
 }

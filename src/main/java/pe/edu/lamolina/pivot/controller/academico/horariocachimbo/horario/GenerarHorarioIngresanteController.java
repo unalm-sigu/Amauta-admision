@@ -281,6 +281,7 @@ public class GenerarHorarioIngresanteController {
             service.generar(cicloAcademico, modalidad, ds);
             ArrayNode node = new ArrayNode(jsonFactory);
             response.setData(node);
+            response.setMessage("Horario generado satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

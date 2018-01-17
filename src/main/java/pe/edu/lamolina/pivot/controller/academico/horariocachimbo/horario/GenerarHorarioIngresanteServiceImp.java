@@ -191,6 +191,13 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
     @Override
     @Transactional
     public void generar(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds) {
+        List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByCicloAcademico(ciclo);
+        this.generarHorario(ciclo, modalidad, ds, alumnos);
+    }
+
+    @Override
+    @Transactional
+    public void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos) {
 
         Acumulador code;
         {
@@ -218,8 +225,13 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
         Map<Long, List<SeccionCursoCachimbos>> mapSeccionesCachimbos = TypesUtil.convertListToMapList("cursoCachimbos.carrera.id", seccionesCachimbos);
         Map<Long, Seccion> mapSeccionMain = TypesUtil.convertListToMap("id", secciones);
+
+        List<SeccionHorarioCachimbos> seccionHorarioCachimbos = seccionHorarioCachimbosDAO.allBySeccions(ciclo, secciones);
+        Map<Long, List<SeccionHorarioCachimbos>> seccionHorarioCachimbosMap = TypesUtil.convertListToMapList("seccion.id", seccionHorarioCachimbos);
+
         for (Seccion secc : secciones) {
-            secc.setSuscritos(0);
+            int sus = this.getSuscritos(secc, seccionHorarioCachimbosMap);
+            secc.setSuscritos(sus);
             Seccion sup = secc.getSeccionSuperior();
             if (sup != null) {
                 Seccion superior = mapSeccionMain.get(sup.getId());
@@ -236,7 +248,6 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             seccion.setHorarioSeccion(horariosSecc);
         }
 
-        List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByCicloAcademico(ciclo);
         Map<Long, List<AlumnoHorario>> mapAlumnos = TypesUtil.convertListToMapList("alumno.carrera.id", alumnos);
 
         List<HorarioCachimbos> horariosBD = horarioCachimbosDAO.allByCiclo(ciclo);
@@ -258,6 +269,10 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             boolean noHayAlumnos = true;
             for (Carrera carrera : carreras) {
                 List<AlumnoHorario> alumnoCarr = mapAlumnos.get(carrera.getId());
+
+                if (alumnoCarr == null) {
+                    continue;
+                }
 
                 if (!alumnoCarr.isEmpty()) {
                     noHayAlumnos = false;
@@ -679,9 +694,13 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         for (Curso curso : cursos) {
             logger.debug("Listado inicial");
             List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
+            logger.debug("Cantidad curso secciones *** {} ", seccionesCurso.size());
             for (Seccion seccion : seccionesCurso) {
                 logger.debug("\t" + seccion.getCodigo());
                 seccion.setAleatorio(RandomStringUtils.randomAlphabetic(20));
+                logger.debug("seccion cod random \t {}", seccion.getAleatorio());
+                logger.debug("seccion cod suscritos \t {}", seccion.getSuscritos());
+                logger.debug("seccion id  \t {}", seccion.getId());
             }
             Collections.sort(seccionesCurso, new Seccion.CompareSuscritosAleatorio());
 
@@ -735,6 +754,18 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             return new ArrayList();
         }
         return cursoCachimbosDAO.allByCursoCiclo(cursos, cicloAcademico, carrera);
+    }
+
+    private int getSuscritos(Seccion secc, Map<Long, List<SeccionHorarioCachimbos>> seccionHorarioCachimbosMap) {
+        List<SeccionHorarioCachimbos> sexHorarioCachimbo = seccionHorarioCachimbosMap.get(secc.getId());
+        int totalSuscritos = 0;
+        if (sexHorarioCachimbo != null) {
+            for (SeccionHorarioCachimbos ss : sexHorarioCachimbo) {
+                HorarioCachimbos hc = ss.getHorarioCachimbos();
+                totalSuscritos += hc.getSuscritos();
+            }
+        }
+        return totalSuscritos;
     }
 
 }

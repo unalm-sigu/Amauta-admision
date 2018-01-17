@@ -86,8 +86,8 @@ $(function() {
                     url: APP.url("academico/horariocachimbo/horario/generar"),
                     success: function(response) {
                         if (response.success) {
-                            console.log(response.data);
                             dynatable.process();
+                            notify(response.message, 'info');
                         } else {
                             notify(response.message, 'error');
                         }
