@@ -351,14 +351,18 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
         ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
         ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
 
         if (personaForm.getUbicacionNacer() == null) {
             personaBD.setUbicacionNacer(null);
         }
 
         personaBD.setPaisNacer(personaForm.getPaisNacer());
+        personaBD.setPaisDomicilio(personaForm.getPaisDomicilio());
         personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
         personaBD.setNacionalidad(personaForm.getNacionalidad());
+        personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
 
         personaDAO.update(personaBD);
 
