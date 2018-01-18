@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import pe.albatross.octavia.Octavia;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
@@ -24,7 +26,9 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
     public List<SeccionHorarioCachimbos> allByCursoHora(Carrera carrera, List<Curso> cursos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(SeccionHorarioCachimbos.class, "shc")
-                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .leftJoin("sec.grupoHoras")
                 .filter("car.id", carrera)
                 .filter("ci.id", cicloAcademico)
                 .filter("ciclo.id", cicloAcademico)
@@ -37,7 +41,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
     public List<SeccionHorarioCachimbos> allByHorario(HorarioCachimbos horario) {
         Octavia sql = Octavia.query()
                 .from(SeccionHorarioCachimbos.class, "shc")
-                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .filter("hc.id", horario);
 
         return all(sql);
@@ -47,7 +52,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
     public List<SeccionHorarioCachimbos> allByHorarios(List<HorarioCachimbos> horarios) {
         Octavia sql = Octavia.query()
                 .from(SeccionHorarioCachimbos.class, "shc")
-                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .in("hc.id", horarios);
 
         return all(sql);
@@ -57,7 +63,8 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
     public List<SeccionHorarioCachimbos> allByCursoCiclo(CicloAcademico cicloAcademico, List<Curso> cursos) {
         Octavia sql = Octavia.query()
                 .from(SeccionHorarioCachimbos.class, "shc")
-                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .filter("ci.id", cicloAcademico)
                 .filter("ciclo.id", cicloAcademico)
                 .in("cur.id", cursos);
@@ -69,11 +76,25 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
     public List<SeccionHorarioCachimbos> allBySeccions(CicloAcademico cicloAcademico, List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(SeccionHorarioCachimbos.class, "shc")
-                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
                 .filter("ci.id", cicloAcademico)
                 .filter("ciclo.id", cicloAcademico)
                 .in("sec.id", secciones);
 
         return all(sql);
+    }
+
+    @Override
+    public void deleteByHorarioCachimbos(HorarioCachimbos horarioCachimbos) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  delete from ").append(SeccionHorarioCachimbos.class.getName()).append(" shc ");
+        sql.append("  where shc.horarioCachimbos.id = :HORARIO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("HORARIO", horarioCachimbos.getId());
+        query.executeUpdate();
+
     }
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import org.springframework.stereotype.Repository;
@@ -25,7 +26,7 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .from(HorarioCachimbos.class, "hoca")
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("ciclo.id", ciclo)
-                .searchFields("car.nombre")
+                .searchFields("car.nombre", "hoca.codigo")
                 .orderBy("hoca.id desc");
         sql.beginRelativeFilters();
 
@@ -76,4 +77,5 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
 
         return find(sql);
     }
+
 }

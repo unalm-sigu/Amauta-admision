@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 
 @Repository
@@ -99,6 +100,19 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .in("cur.id", cursos)
                 .orderBy("car.id");
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<CursoCachimbos> allByCicloFromSeccionCursoCachimbo(CicloAcademico ciclo) {
+
+        Octavia sql = Octavia.query()
+                .selectDistinct("cc")
+                .from(SeccionCursoCachimbos.class, "scc")
+                .join("cursoCachimbos cc", "seccion sec", "cc.curso cur", "cc.carrera car", "car.facultad fac", "cc.cicloAcademico ca")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+
     }
 
 }

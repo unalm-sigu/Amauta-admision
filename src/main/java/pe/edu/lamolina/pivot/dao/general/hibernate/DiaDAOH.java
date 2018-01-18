@@ -20,7 +20,7 @@ public class DiaDAOH extends AbstractEasyDAO<Dia> implements DiaDAO {
         Octavia sql = Octavia.query()
                 .from(Dia.class, "di")
                 .orderBy("di.numeroDia");
-        
+
         return all(sql);
     }
 }

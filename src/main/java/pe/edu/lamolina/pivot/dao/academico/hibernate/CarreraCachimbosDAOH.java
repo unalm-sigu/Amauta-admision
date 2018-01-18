@@ -24,7 +24,7 @@ public class CarreraCachimbosDAOH extends AbstractEasyDAO<CarreraCachimbos> impl
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("ciclo.id", cicloAcademico)
                 .searchFields("car.nombre")
-                .orderBy("caca.id desc");
+                .orderBy("car.codigo");
         sql.beginRelativeFilters();
         return sql.all(getCurrentSession());
     }

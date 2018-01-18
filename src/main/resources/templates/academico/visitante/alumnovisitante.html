@@ -1,361 +1,45 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Registro de alumno visitante</title>
-    </head>
+        <title>Alumnos visitantes </title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
 
-    <body>
+<body>
+    <div layout:fragment="main">
 
-        <div layout:fragment="main">
+        <div  id="main">
+            <header class="header b-b padder-lg">
 
-            <div  id="main">
+                <div class="pull-right m-t-md">
+                    <a class="btn btn-info" type="button"   th:href="@{/academico/visitante/alumno/nuevo}"  >Agregar Alumno</a>
+                </div>
 
-                <header class="header b-b padder-lg">
-                    <h2 th:inline="text">Registro de Alumno Visitante</h2>
-                </header>
+                <h2 th:inline="text">Alumnos visitantes </h2>
 
-                <section class="wrapper-lg">
-                    <section class="panel">
-                        <section class="panel-body">
+            </header>
 
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
 
-                            <form data-parsley-validate="true" method="POST" id="formAlumnoVisitante" >
+                        <dynatable />
 
-                                <div class="panel-body">
-                                    <div class="col-xs-12">
-                                        <h4 class="m-b-md m-t-md">Datos Generales</h4>
-                                    </div>
-
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Tipo de documento de identidad</label>
-
-                                            <select name="persona.tipoDocumento.id" 
-                                                    class="form-control" required="true">
-                                                <option></option>
-                                                <option th:each="tipo : ${tiposDocIdentidad}"
-                                                        th:value="${tipo.id}"
-                                                        th:text="${tipo.nombre}"></option>
-                                            </select>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Número de documento de identidad</label>
-
-                                            <input type="text" 
-                                                   name="persona.numeroDocIdentidad" 
-                                                   th:value="${alumnoVisitante.persona.numeroDocIdentidad}" 
-                                                   class="form-control" required="true"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Apellido Paterno</label>
-
-                                            <input type="text" 
-                                                   name="persona.paterno"
-                                                   th:value="${alumnoVisitante.persona.paterno}" 
-                                                   class="form-control nombre-persona"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Apellido Materno</label>
-
-                                            <input type="text"
-                                                   name="persona.materno"
-                                                   th:value="${alumnoVisitante.persona.materno}" 
-                                                   class="form-control nombre-persona"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Nombres</label>
-
-                                            <input type="text" 
-                                                   name="persona.nombres" 
-                                                   required="true"
-                                                   th:value="${alumnoVisitante.persona.nombres}" 
-                                                   class="form-control nombre-persona"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Sexo</label>
-
-                                            <div class="form-group">
-                                                <div class="col-sm-10">
-                                                    <div class="col-sm-5">
-
-                                                        <label class="radio inline">
-
-                                                            <input  type="radio" 
-                                                                    required="true" 
-                                                                    name="persona.sexo"
-                                                                    id="inlineCheckbox1" 
-                                                                    value="M" 
-                                                                    th:checked="${alumnoVisitante.persona.sexo=='M'}" /> Masculino
-                                                        </label>
-
-                                                    </div>
-                                                    <div class="col-sm-5">
-
-                                                        <label class="radio inline">
-                                                            <input  type="radio" 
-                                                                    required="true" 
-                                                                    name="persona.sexo"
-                                                                    id="inlineCheckbox2" 
-                                                                    value="F" 
-                                                                    th:checked="${alumnoVisitante.persona.sexo=='F'}" /> Femenino
-                                                        </label>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xs-12">
-                                        <h4  class="m-b-md m-t-md"> Lugar y fecha de nacimiento </h4>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>País</label>
-                                            <input id="paisNacimiento" type="text" 
-                                                   class="form-control input-s-full buscar-pais" 
-                                                   name="persona.paisNacer.id" 
-                                                   data-trigger="change"
-                                                   th:attr="codigo=${helper.showCodigoPais(alumnoVisitante.persona.paisNacer)}"
-                                                   th:rel="${alumnoVisitante.persona.paisNacer != null}? ${alumnoVisitante.persona.paisNacer.nombre}"
-                                                   th:value="${alumnoVisitante.persona.paisNacer != null}? ${alumnoVisitante.persona.paisNacer.id}"
-                                                   required="true"/>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-
-                                        <div  v-if="showLugarNacimiento" id="lugarNacimiento" class="form-group" >
-                                            <label>Distrito de nacimiento (en Perú)</label>
-
-                                            <input type="text" 
-                                                   id="distNacimiento" 
-                                                   class="form-control input-s-full buscar-distrito"
-                                                   name="persona.ubicacionNacer.id" 
-                                                   data-trigger="change"
-                                                   th:rel="${alumnoVisitante.persona.ubicacionNacer != null}? ${alumnoVisitante.persona.ubicacionNacer.distrito}"
-                                                   th:value="${alumnoVisitante.persona.ubicacionNacer != null}? ${alumnoVisitante.persona.ubicacionNacer.id}"/>
-                                            <span id="mensaje"></span>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Fecha ( día / mes / año )</label>
-                                            <div class="input-group date">
-
-                                                <input type="text" 
-                                                       data-parsley-errors-container="#errorfechaNacer"  
-                                                       th:value="${alumnoVisitante.persona.fechaNacer}? ${#dates.format(persona.fechaNacer,'dd/MM/yyyy')}" 
-                                                       class="form-control" 
-                                                       name="persona.fechaNacer" required="true" />
-
-                                                <span class="input-group-addon">
-                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
-                                                </span>
-
-                                            </div>
-                                            <span id="errorfechaNacer"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Nacionalidad (Ingresa el país de tu nacionalidad)</label>
-
-                                            <input type="text" 
-                                                   class="form-control input-s-full buscar-pais" 
-                                                   name="persona.nacionalidad.id"
-                                                   id="nacionalidad"
-                                                   data-trigger="change"
-                                                   th:rel="${nacionalidad != null}? ${nacionalidad.nombre}"
-                                                   th:value="${nacionalidad != null}? ${nacionalidad.id}"
-                                                   required="true"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xs-12">
-                                        <h4  class="m-b-md m-t-md">Contacto</h4>
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <div class="form-group">
-
-                                            <label>Teléfono</label>
-
-                                            <input type="text"
-                                                   name="persona.telefono" 
-                                                   th:value="${alumnoVisitante.persona.telefono}"
-                                                   class="form-control sin-espacios numerico"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <div class="form-group">
-
-                                            <label>Celular</label>
-
-                                            <input type="text"
-                                                   name="persona.celular" 
-                                                   th:value="${alumnoVisitante.persona.celular}" 
-                                                   class="form-control sin-espacios numerico"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-4">
-                                        <div class="form-group">
-
-                                            <label>Correo Electrónico</label>
-
-                                            <input type="text" 
-                                                   name="persona.email"
-                                                   th:value="${alumnoVisitante.persona.email}" 
-                                                   class="form-control verificar-email"/>
-
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-12">
-                                        <h4  class="m-b-md m-t-md">Domicilio</h4>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label class="bold">Dirección</label>
-
-                                            <input type="text" 
-                                                   class="form-control" 
-                                                   name="persona.direccion" 
-                                                   th:value="${alumnoVisitante.persona.direccion}" 
-                                                   data-trigger="change" required="true" />
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-xs-12">
-                                        <h4>Datos de la universidad de procedencia</h4>
-                                    </div>
-
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>País de la universidad</label>
-
-                                            <input type="text" 
-                                                   id="paisUniversidad"
-                                                   class="form-control buscar-pais" 
-                                                   name="paisUniversidad.id" 
-                                                   data-trigger="change"
-                                                   th:rel="${helper.getParentTree(alumnoVisitante,'paisUniversidad.nombre')}"
-                                                   th:value="${helper.getParentTree(alumnoVisitante,'paisUniversidad.id')}"
-                                                   required="true"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div v-if="showUniverdidadName"  class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Nombre de la Universidad</label>
-
-                                            <input class="form-control" 
-                                                   name="universidadExtranjera" 
-                                                   id="universidadExtranjeraName"
-                                                   required="true"
-                                                   th:value="${alumnoVisitante.universidadExtranjera}"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div  v-if="showUniverdidadPeru" class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Universidad Peruana</label>
-
-                                            <input class="form-control" 
-                                                   id="univ-peru" 
-                                                   required="true"
-                                                   name="universidadProcedencia.id"/>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Ciclo Académico</label>
-
-                                            <select name="cicloEstudia.id" 
-                                                    class="form-control" required="true">
-                                                <option></option>
-                                                <option th:each="ciclo : ${ciclos}"
-                                                        th:value="${ciclo.id}"
-                                                        th:text="${ciclo.descripcion}"></option>
-                                            </select>
-
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <hr/>
-
-                                <div class="col-md-12 text-center">
-                                    <!--<a class="btn btn-link cancelar" th:href="@{/inscripcion/postulante/0/paso}" >Atras</a>-->
-                                    <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">Guardar</button>
-                                </div>
-
-                                <input type="hidden" id="mensajeError" th:value='${mensaje}'/>
-
-                            </form>
-
-                        </section>
                     </section>
                 </section>
-
-            </div>
-
-            <th:block th:replace="academico/visitante/_alumnovisitante"/>
+            </section>
 
         </div>
 
-        <div layout:fragment="js">
-            <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/visitante/alumnoVisitante.js}" charset="utf-8"></script>
-        </div>
+        <th:block th:replace="academico/visitante/_dynatablealumnovisitante"/>
 
-    </body>
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script th:src="@{/app/academico/visitante/alumnoVisitante.js}" charset="utf-8"></script>
+    </div>
+
+</body>
 </html>

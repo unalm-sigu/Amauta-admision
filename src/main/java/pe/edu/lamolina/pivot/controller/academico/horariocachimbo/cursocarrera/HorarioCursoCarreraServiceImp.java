@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -24,12 +26,15 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.SeccionCursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 
 @Service
@@ -55,6 +60,9 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
 
     @Autowired
     AlumnoHorarioDAO alumnoHorarioDAO;
+
+    @Autowired
+    SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
 
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -247,4 +255,67 @@ public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService
         sb.append(ObjectUtil.getParentTree(seccion, "grupoHoras.codigo").toString());
         return sb.toString();
     }
+
+    @Override
+    @Transactional
+    public void updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, Usuario usuario) {
+
+        ObjectUtil.eliminarAttrSinId(carreraCursoCachimbo, "curso");
+        CursoCachimbos curso = carreraCursoCachimbo.getCurso();
+
+        if (curso == null) {
+            throw new PhobosException("Curso no esta presente");
+        }
+
+        List<Seccion> secciones = carreraCursoCachimbo.getSecciones();
+        secciones = (secciones == null) ? new ArrayList() : secciones;
+
+        List<Seccion> seccionesFormBD = seccionDAO.allMatriculablesBySecciones(secciones);
+        Map<Long, Seccion> mapSecciones = new LinkedHashMap();
+        for (Seccion seccion : seccionesFormBD) {
+            mapSecciones.put(seccion.getId(), seccion);
+            if (seccion.getSeccionSuperior() != null) {
+                mapSecciones.put(seccion.getSeccionSuperior().getId(), seccion.getSeccionSuperior());
+            }
+        }
+
+        List<SeccionCursoCachimbos> seccionesForm = new ArrayList();
+        for (Seccion seccion : mapSecciones.values()) {
+            SeccionCursoCachimbos sc = new SeccionCursoCachimbos();
+            sc.setSeccion(seccion);
+            seccionesForm.add(sc);
+        }
+
+        List<SeccionCursoCachimbos> seccionesBD = seccionCursoCachimbosDAO.allByCursoCachimbos(curso);
+        if (seccionesBD.isEmpty() && seccionesForm.isEmpty()) {
+            throw new PhobosException("Debe marcar al menos una clave");
+        }
+
+        ListsInspector inspector = TypesUtil.analizeLists(seccionesBD, seccionesForm, "seccion.id");
+        List<SeccionCursoCachimbos> nuevos = inspector.getNewList();
+        List<SeccionCursoCachimbos> eliminables = inspector.getDeadList();
+        if (nuevos.isEmpty() && eliminables.isEmpty()) {
+            throw new PhobosException("No ha efectuado ningún cambio");
+        }
+
+        for (SeccionCursoCachimbos nuevo : nuevos) {
+            nuevo.setFechaCreacion(new Date());
+            nuevo.setUserRegistro(usuario);
+            nuevo.setCursoCachimbos(curso);
+            seccionCursoCachimbosDAO.save(nuevo);
+        }
+        for (SeccionCursoCachimbos eliminable : eliminables) {
+            seccionCursoCachimbosDAO.delete(eliminable);
+        }
+
+    }
+
+    @Override
+    public List<SeccionCursoCachimbos> allCursoCachimbos(List<CursoCachimbos> cursoCachimbos) {
+        if (cursoCachimbos.isEmpty()) {
+            return new ArrayList();
+        }
+        return seccionCursoCachimbosDAO.allByCursoCachimbos(cursoCachimbos);
+    }
+
 }

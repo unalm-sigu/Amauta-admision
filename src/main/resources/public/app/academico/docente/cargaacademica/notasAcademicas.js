@@ -332,7 +332,7 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
-
+                        MODAL.showWait("Espere un momento por favor");
 
                         $.ajax({
                             url: APP.url('academico/docente/cargaacademica/eliminarNotas'),
@@ -378,10 +378,12 @@ $(function () {
                                     notify(response.message, "error");
                                 }
                                 MODAL.hide();
+                                MODAL.hideWait();
                             },
                             error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hide();
+                                MODAL.hideWait();
                             }
                         });
 
@@ -426,6 +428,12 @@ $(function () {
                         if (!sistemaNotasValidate.esCreditoZero) {
                             $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                             $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                            $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+                        }
+
+                        if (sistemaNotasValidate.esCreditoVariable) {
+                            $(this).attr("data-parsley-nota-minima", 0);
+                            $(this).attr("data-parsley-nota-maxima", $(this).attr("alt"));
                             $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
                         }
 
