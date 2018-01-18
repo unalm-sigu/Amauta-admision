@@ -89,10 +89,11 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     public List<GrupoHoras> allZetasByDynatable(DynatableFilter filter, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
 
         DynatableSql sql = new DynatableSql(filter)
-                .selectDistinct("gh")
-                .from(DiaHoraGrupo.class, "dhg")
-                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
+                // .selectDistinct("gh")
+                .from(GrupoHoras.class, "gh")
+                .join("gh.tipoGrupoHoras tgh")
                 .filter("tgh.id", tipoGrupoHoras);
+        // .filter("ca.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
 

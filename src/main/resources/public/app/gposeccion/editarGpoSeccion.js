@@ -26,7 +26,7 @@ Vue.component("dynatable", {
 
             $vue.dynatable = $('#dynaTable').dynatable({
                 dataset: {
-                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipo'),
+                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosZetas'),
                     perPageDefault: 6,
                     ajaxData: {tipoGrupoHora: "ZETA"}
 
@@ -93,7 +93,7 @@ Vue.component("dynatable-especial", {
 
             $vue.dynatable = $('#dynaTableEspecial').dynatable({
                 dataset: {
-                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipo'),
+                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipoEspecial'),
                     perPageDefault: 6,
                     ajaxData: {tipoGrupoHora: "ESPECIAL"}
                 },
@@ -276,13 +276,15 @@ var app = new Vue({
             id: 'modalGrupo',
             header: true,
             title: 'Buscar Grupo Disponible',
-            okbtn: 'Aceptar'
+            okbtn: 'Aceptar',
+            modalSize: 'modal-lg'
         },
         aulaModal: {
             id: 'modalAula',
             header: true,
             title: 'Buscar Aula/Ambiente Disponible',
-            okbtn: 'Aceptar'
+            okbtn: 'Aceptar',
+            modalSize: 'modal-lg'
         },
         aulOeraSel: null,
         tblAulas: null,
@@ -570,10 +572,13 @@ var app = new Vue({
                         if (response.data.grupoHorarioSel != null) {
 
                             if (response.data.grupoHorarioSel.esTipoGrupoRegular) {
+                                console.log("esTipoGrupoRegular");
                                 $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
                                 $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = response.data.grupoHorarioSel.tipoGrupoHoras;
                                 $vue.cambiarCboTipoGrupoHorReg();
                             } else if (response.data.grupoHorarioSel.esTipoGrupoZeta) {
+                                console.log("esTipoGrupoZeta");
+                                console.dir(response.data.grupoHorarioSel);
                                 $vue.tabGrupos['zetas'].grupoHorarioSel = response.data.grupoHorarioSel;
 
                                 $vue.seleccionarGrupoZ($vue.tabGrupos['zetas'].grupoHorarioSel.id);
@@ -646,13 +651,19 @@ var app = new Vue({
                     if (diaHoraGrupoEach.seleccionado) {
 
                         let diaHoraGrupo = diaHoraGrupoEach.id;
-                        let grupoHorario = diaHoraGrupoEach.grupoHorario.id;
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario
+                        let dia = diaHoraGrupoEach.dia;
+                        let hora = diaHoraGrupoEach.hora;
                         let diaHoraGrupoJson = {}
+
                         diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
-                        diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario)};
+                        diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario.id)};
+                        diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
+                        diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
                         diasHorasGrupo.push(diaHoraGrupoJson);
                     }
                 }
+
             }
 
             let $vue = this;
@@ -667,7 +678,7 @@ var app = new Vue({
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
-                            url: APP.url('academico/gposeccion/' + $vue.seccionModal.seccionId + '/saveSeccionGrupo'),
+                            url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveSeccionGrupo'),
                             /*  headers: {
                              'Accept': 'application/json',
                              'Content-Type': 'application/json'
@@ -742,7 +753,7 @@ var app = new Vue({
                             type: 'POST',
                             async: true,
                             data: {
-                                seccion: $vue.seccionModal.seccionId,
+                                seccion: $vue.seccionModal.id,
                                 aula: aulaSelArg[0].id
                             },
                             success: function (response) {
@@ -931,7 +942,7 @@ var app = new Vue({
 
             }
         }, changeVacantes(seccion, event) {
-            alert(1);
+
             seccion.editVacantes = false;
             let $vue = this;
             if (event != null) {
@@ -982,7 +993,7 @@ var app = new Vue({
                 async: false,
                 data: {
                     tipoGrupoHorasId: $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado.id,
-                    seccionId: $vue.seccionModal.seccionId
+                    seccionId: $vue.seccionModal.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -1007,11 +1018,10 @@ var app = new Vue({
                 async: false,
                 data: {
                     grupoHorario: grupo,
-                    seccion: $vue.seccionModal.seccionId
+                    seccion: $vue.seccionModal.id
                 },
                 success: function (response) {
                     if (response.success) {
-
                         $vue.tabGrupos['zetas'].tblHorarios = response.data;
                         console.dir($vue.tabGrupos['zetas'].tblHorarios);
                     } else {
@@ -1033,7 +1043,7 @@ var app = new Vue({
                 async: false,
                 data: {
                     grupoHorario: grupo,
-                    seccion: $vue.seccionModal.seccionId
+                    seccion: $vue.seccionModal.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -1059,7 +1069,7 @@ var app = new Vue({
                 async: false,
                 data: {
                     tipoGrupoHorasId: $vue.tabGrupos['zetas'].grupoHorarioSel.id,
-                    seccionId: $vue.seccionModal.seccionId
+                    seccionId: $vue.seccionModal.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -1131,7 +1141,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/aulas'),
                 data: {
-                    seccion: $vue.seccionModal.seccionId,
+                    seccion: $vue.seccionModal.id,
                     aula: $vue.tabAulas['oera'].moduloSel.id
                 },
                 success: function (response) {
@@ -1155,7 +1165,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/aulas'),
                 data: {
-                    seccion: $vue.seccionModal.seccionId,
+                    seccion: $vue.seccionModal.id,
                     aula: $vue.tabAulas['oficinas'].oficinaSel.id
                 },
                 success: function (response) {
@@ -1178,7 +1188,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/seleccionarAula'),
                 data: {
-                    seccion: $vue.seccionModal.seccionId,
+                    seccion: $vue.seccionModal.id,
                     aula: $vue.tabAulas['especificas'].aulasEspecificaSel.id
                 },
                 success: function (response) {
