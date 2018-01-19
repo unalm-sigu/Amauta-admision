@@ -25,6 +25,9 @@
 
                             <form data-parsley-validate="true" method="POST" id="formAlumnoVisitante" >
 
+                                <input type="hidden"  name="id" th:value="${alumnoVisitante.id}"/>
+                                <input type="hidden"  name="persona.id" th:value="${alumnoVisitante.persona.id}"/>
+
                                 <div class="panel-body">
                                     <div class="col-xs-12">
                                         <h4 class="m-b-md m-t-md">Datos Generales</h4>

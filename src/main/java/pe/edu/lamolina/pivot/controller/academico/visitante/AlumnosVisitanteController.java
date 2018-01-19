@@ -194,7 +194,13 @@ public class AlumnosVisitanteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(alumnoVisitante, ds);
+
+            if (alumnoVisitante.getId() == null) {
+                service.save(alumnoVisitante, ds);
+            } else {
+                service.update(alumnoVisitante, ds);
+            }
+
             response.setMessage("Alumno Visitante guardado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
 

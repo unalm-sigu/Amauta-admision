@@ -192,8 +192,8 @@ $(function() {
                             $(location).attr('href', APP.url('academico/visitante/alumno/'));
                         } else {
                             notify(response.message, "error");
+                            self.btnEnable();
                         }
-                        self.btnEnable();
                     },
                     error: function() {
                         self.btnEnable();

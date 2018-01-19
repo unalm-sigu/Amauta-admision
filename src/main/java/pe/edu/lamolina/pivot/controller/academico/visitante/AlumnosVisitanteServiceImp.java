@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.apache.bcel.classfile.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,13 +109,8 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario());
         Persona personaForm = alumnoVisitante.getPersona();
 
-        personaForm.setNumeroDocIdentidad(this.limpiarValor(personaForm.getNumeroDocIdentidad()));
-        if (personaForm.getTipoDocumento() == null || personaForm.getTipoDocumento().getId() == null) {
-            throw new PhobosException("Debe indicar el documento de identidad");
-        }
-        if (personaForm.getNumeroDocIdentidad() == null) {
-            throw new PhobosException("Debe indicar el número del documento de identidad");
-        }
+        this.verificarPersona(personaForm);
+        this.validarDNI(personaForm);
 
         logger.debug("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
         Persona persona = personaDAO.findByDocumento(personaForm.getTipoDocumento(), personaForm.getNumeroDocIdentidad());
@@ -166,6 +160,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         Persona persona = alumnoVisitante.getPersona();
         persona.setEmailCompania(emailCompania);
+
         this.validarEmailsinPersona(persona.getEmail());
         this.validarEmailEmpresaSinPersona(persona.getEmailCompania());
 
@@ -220,14 +215,13 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         this.updateCicloSgteMatricula(ciclo);
 
-        String mensaje = usuarioVisitante.getUsuario();
-        this.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
+        this.enviarNotificacionUsuarioCreacion(persona);
 
     }
 
     @Transactional
     private void updateAlumno(AlumnoVisitante alumnoVisitante, Usuario usuario, Persona persona) {
-        logger.debug("**updateAlumno**");
+        logger.debug("***updateAlumno***");
         Persona personaDb = this.getPersonaBD(persona, alumnoVisitante.getPersona());
         CicloAcademico ciclo = cicloAcademicoDAO.find(alumnoVisitante.getCicloEstudia().getId());
 
@@ -255,8 +249,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             usuarioDAO.save(usuarioVisitante);
             logger.debug("**persona sin usuario {} email {} **", usuarioVisitante.getId(), emailCompania);
             updateCiclo = true;
-            String mensaje = usuarioVisitante.getUsuario();
-            this.enviarNotificacionUsuarioCreacion(persona, "usuario creación ", mensaje);
+            this.enviarNotificacionUsuarioCreacion(persona);
         }
 
         if (Strings.isNullOrEmpty(usuarioVisitante.getUsuario())) {
@@ -388,6 +381,56 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         return personaBD;
     }
 
+    @Transactional
+    private Persona updatePersona(Persona persona, Persona personaForm) {
+
+        Persona personaBD = personaDAO.find(persona.getId());
+
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "tipoDocumento");
+
+        if (personaForm.getUbicacionNacer() == null) {
+            personaBD.setUbicacionNacer(null);
+        }
+
+        personaBD.setPaisNacer(personaForm.getPaisNacer());
+        personaBD.setPaisDomicilio(personaForm.getPaisDomicilio());
+        personaBD.setUbicacionNacer(personaForm.getUbicacionNacer());
+        personaBD.setNacionalidad(personaForm.getNacionalidad());
+        personaBD.setUbicacionDomicilio(personaForm.getUbicacionDomicilio());
+        personaBD.setTipoDocumento(personaForm.getTipoDocumento());
+
+        personaDAO.update(personaBD);
+
+        boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, personaForm,
+                Arrays.asList("email", "paterno", "materno", "nombres", "sexo", "fechaNacer", "direccion", "celular", "telefono", "numeroDocIdentidad"));
+
+        if (sinCambios) {
+            logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
+            return personaBD;
+        }
+
+        this.validarEmailConPersona(personaForm.getEmail(), persona);
+
+        personaBD.setNombres(personaForm.getNombres());
+        personaBD.setPaterno(personaForm.getPaterno());
+        personaBD.setMaterno(personaForm.getMaterno());
+        personaBD.setSexo(personaForm.getSexo());
+        personaBD.setFechaNacer(personaForm.getFechaNacer());
+        personaBD.setDireccion(personaForm.getDireccion());
+        personaBD.setCelular(personaForm.getCelular());
+        personaBD.setTelefono(personaForm.getTelefono());
+        personaBD.setEmail(personaForm.getEmail());
+        personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
+
+        personaDAO.update(personaBD);
+        return personaBD;
+    }
+
     private void validarEmailEmpresaConPersona(String email, Persona persona) {
         if (email != null) {
             List<Persona> personas = personaDAO.allByEmailEmpresaWithoutPersona(persona);
@@ -432,20 +475,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         }
     }
 
-    private void validarCodigo(String codigo) {
-        Alumno alumnoDB = alumnoDAO.findByCodigo(codigo);
-        if (alumnoDB != null) {
-            throw new PhobosException("El código o matrícula ya se encuentra ocupado por otro alumno.");
-        }
-    }
-
     private void validarDNI(Persona personaForm) {
         TipoDocIdentidad doc = personaForm.getTipoDocumento();
-
         Persona personaBD = personaDAO.findByDocIdentidad(doc, personaForm.getNumeroDocIdentidad());
         if (personaForm.getId() != null && personaBD != null && personaBD.getId().longValue() != personaForm.getId()) {
             throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaBD.getApellidosNombres());
-
         } else if (personaForm.getId() == null && personaBD != null) {
             throw new PhobosException("El DNI ingresado ya se encuentra relacionado con otra persona: " + personaBD.getApellidosNombres());
         }
@@ -462,7 +496,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         return cicloAcademicoDAO.allCicloAcademicoByRange(yearinit, yearend);
     }
 
-    private void enviarNotificacionUsuarioCreacion(Persona persona, String usuarioCreacion, String mensaje) {
+    private void enviarNotificacionUsuarioCreacion(Persona persona) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
         mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
     }
@@ -489,6 +523,72 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Override
     public AlumnoVisitante findAlumnoVisitante(Long idAlumnoVisitante) {
         return alumnoVisitanteDAO.findAlumnoVisitante(new AlumnoVisitante(idAlumnoVisitante));
+    }
+
+    @Override
+    @Transactional
+    public void update(AlumnoVisitante alumnoVisitante, DataSessionPivot ds) {
+        Usuario usuario = ds.getUsuario();
+        logger.debug("**actualizando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario());
+
+        Persona personaForm = alumnoVisitante.getPersona();
+        this.verificarPersona(personaForm);
+        this.validarDNI(personaForm);
+        logger.debug("buscar persona  by id  {} ", personaForm.getId());
+        Persona personaDb = personaDAO.find(personaForm.getId());
+        if (personaDb == null) {
+            throw new PhobosException("Alumno visitante sin persona registrada.");
+        }
+        this.updatePersona(personaDb, personaForm);
+        logger.debug("persona  doc {} num  {} found  \n update datos ", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
+        this.updateAlumnoVisitante(alumnoVisitante);
+    }
+
+    private void verificarPersona(Persona personaForm) {
+
+        personaForm.setNumeroDocIdentidad(limpiarValor(personaForm.getNumeroDocIdentidad()));
+
+        if (personaForm.getTipoDocumento() == null || (personaForm.getTipoDocumento() != null && personaForm.getTipoDocumento().getId() == null)) {
+            throw new PhobosException("Debe indicar el documento de identidad");
+        }
+        if (personaForm.getNumeroDocIdentidad() == null) {
+            throw new PhobosException("Debe indicar el número del documento de identidad");
+        }
+        if (personaForm.getNumeroDocIdentidad().equals(Constantine.CODE_POSTULANTE_DUMMY)) {
+            throw new PhobosException("Este número de documento de identidad no está permitido");
+        }
+
+        TipoDocIdentidad tipoDoc = tipoDocIdentidadDAO.find(personaForm.getTipoDocumento().getId());
+
+        if (tipoDoc.getLongitudExacta() == 1) {
+            if (personaForm.getNumeroDocIdentidad().length() != tipoDoc.getLongitud()) {
+                throw new PhobosException("El número de documento debe tener " + tipoDoc.getLongitud() + " caracteres");
+            }
+        } else if (tipoDoc.getLongitudExacta() == 0) {
+            if (personaForm.getNumeroDocIdentidad().length() < 4) {
+                throw new PhobosException("El número de documento debe tener como mínimo 4 caracteres");
+            }
+            if (personaForm.getNumeroDocIdentidad().length() > tipoDoc.getLongitud()) {
+                throw new PhobosException("El número de documento debe tener como máximo " + tipoDoc.getLongitud() + " caracteres");
+            }
+        }
+
+    }
+
+    @Transactional
+    private void updateAlumnoVisitante(AlumnoVisitante alumnoVisitante) {
+
+        logger.debug("***update Alumno Visitante***");
+        AlumnoVisitante alumnoVisitanteDb = alumnoVisitanteDAO.findAlumnoVisitante(alumnoVisitante);
+        if (alumnoVisitanteDb == null) {
+            throw new PhobosException("El registro de alumno visitante no fue creado");
+        }
+        alumnoVisitanteDb.setUniversidadExtranjera(alumnoVisitante.getUniversidadExtranjera());
+        logger.debug("****alumno Visitante setUniversidadExtranjera {} ****", alumnoVisitante.getUniversidadExtranjera());
+        alumnoVisitanteDb.setUniversidad(alumnoVisitante.getUniversidad());
+        alumnoVisitanteDb.setCicloEstudia(alumnoVisitante.getCicloEstudia());
+        alumnoVisitanteDb.setPaisUniversidad(alumnoVisitante.getPaisUniversidad());
+        alumnoVisitanteDAO.update(alumnoVisitanteDb);
     }
 
 }

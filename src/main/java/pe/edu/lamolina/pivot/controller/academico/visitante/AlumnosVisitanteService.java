@@ -25,4 +25,6 @@ public interface AlumnosVisitanteService {
 
     AlumnoVisitante findAlumnoVisitante(Long idAlumnoVisitante);
 
+    public void update(AlumnoVisitante alumnoVisitante, DataSessionPivot ds);
+
 }

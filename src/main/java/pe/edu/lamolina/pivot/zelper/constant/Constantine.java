@@ -31,4 +31,6 @@ public interface Constantine {
 
     String COD_CARRERA_ALUMNO_VISITANTE = "001";
 
+    String CODE_POSTULANTE_DUMMY = "00000000";
+
 }
