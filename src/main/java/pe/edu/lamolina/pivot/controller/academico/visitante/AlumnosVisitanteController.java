@@ -120,7 +120,6 @@ public class AlumnosVisitanteController {
                 Facultad facultad = carrera.getFacultad();
                 CicloAcademico ciclo = visitante.getCicloEstudia();
                 Universidad universidad = visitante.getUniversidad();
-                logger.debug("alumno {} has uni {} ", visitante.getId(), visitante.getUniversidad() != null ? visitante.getUniversidad().getId() : 0);
 
                 String nombreUni = "Universidad desconocida";
                 if (!StringUtils.isEmpty(visitante.getUniversidadExtranjera())) {
