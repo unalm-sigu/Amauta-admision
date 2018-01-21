@@ -1,22 +1,21 @@
 <tr>
-    <td class="v-middle">
+    <td class="v-middle text-center">
         {{:codigo}}
     </td>
     <td class="v-middle">
         {{:nombre}}
     </td>
-    <td class="v-middle">
+    <td class="v-middle text-center">
+        {{:codigoCurso}}
+    </td>
+    <td class="v-middle text-center">
         {{:simbolo}}
     </td>
-    <td class="v-middle">
-        {{if estado == 'ACT'}}
-        <label class="label label-success" >Activado</label>
-        {{/if}}
+    <td class="v-middle text-center">
         {{if estado == 'DES'}}
-        <label class="label label-danger"  data-toggle="tooltip" title="{{:motivoDesactivacion}}"  >Desactivado</label>
-        {{/if}}
-        {{if estado == 'CRE'}}
-        <label class="label label-default"  >Creado</label>
+            <label class="label label-{{:colorEstado}}" data-toggle="tooltip" title="{{:motivoDesactivacion}}"  >{{:estadoEnum}}</label>
+        {{else}}
+            <label class="label label-{{:colorEstado}}">{{:estadoEnum}}</label>
         {{/if}}
     </td>
     <td>

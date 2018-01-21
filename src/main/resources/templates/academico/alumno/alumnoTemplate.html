@@ -1,29 +1,36 @@
 <tr rel="{{:index}}">
     <td class="v-middle">
-        <div class="pull-left m-r">
+        <div class="pull-left">
             <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
         </div>
-
-        <div class="">
-            <a href="#"><span class="block text-primary bold detallePostulante" >{{:nombre}}</span></a>
-            <span class="block">
-                Matrícula: {{:codigo}} 
-            </span>
-            <span class="block">{{:tipoDoc}}: {{:numeroDoc}} <small class="text-white" style="font-size: 4px;">{{:lagos}}</small></span>
-        </div>
+    </td>
+    <td class="v-middle">
+        <a href="#" class="block text-primary bold detallePostulante h5 m-b-xs m-t-xs" >{{:nombre}}</a>
+        <span class="block">
+            Matrícula: {{:codigo}} 
+        </span>
+        {{if nroDocumento}}
+            <small class="block bold">{{:tipoDoc}} {{:nroDocumento}}</small>
+        {{/if}}
     </td>
 
     <td class="v-middle text-center">
-
-        <span class="block">Facultad: {{:facultad}}</span>
-        <span class="block">Carrera: {{:carrera}}</span>
-
+        {{if verTipoCarrera}}
+            <span class="block text-info bold">{{:tipoCarreraValue}} en</span>
+        {{/if}}
+        <span class="block text-success">
+            {{:carrera}}
+        </span>
+        {{if verFacultad}}
+            <span class="block">Facultad de {{:facultad}}</span>
+        {{/if}}
+        <small class="block bold">{{:modalidad}}</small>
     </td>
 
-    <td class="v-middle">
-        <span class="block">Situacion Académica: {{:situacion}}</span>
-        <span class="block">Ciclo Ingreso: {{:cicloIngreso}}</span>
-        <span class="block">Ciclo Activo: {{:cicloActivo}}</span>
+    <td class="v-middle text-center">
+        <span class="block h5 text-primary m-t-xs m-b-xs">{{:situacion}}</span>
+        <span class="block"><b>Ingresó:</b> {{:cicloIngreso}}</span>
+        <span class="block"><b>Último ciclo:</b> {{:cicloActivo}}</span>
     </td>
 
     <td>

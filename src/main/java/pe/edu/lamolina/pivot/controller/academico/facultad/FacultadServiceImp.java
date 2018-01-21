@@ -32,7 +32,7 @@ public class FacultadServiceImp implements FacultadService {
     public void save(Facultad facultad) {
         facultad.setCompania(new Compania(1));
         facultad.setFechaRegistro(new Date());
-        facultad.setEstado(FacultadEstadoEnum.CRE.name());
+        facultad.setEstado(FacultadEstadoEnum.CRE);
         facultadDAO.save(facultad);
     }
 
@@ -57,13 +57,13 @@ public class FacultadServiceImp implements FacultadService {
     public void estado(Facultad facultad) {
         Facultad facultadBD = facultadDAO.find(facultad.getId());
         if (FacultadEstadoEnum.CRE.name().equalsIgnoreCase(facultadBD.getEstado())) {
-            facultadBD.setEstado(FacultadEstadoEnum.ACT.name());
+            facultadBD.setEstado(FacultadEstadoEnum.ACT);
         } else if (FacultadEstadoEnum.ACT.name().equalsIgnoreCase(facultadBD.getEstado())) {
-            facultadBD.setEstado(FacultadEstadoEnum.DES.name());
+            facultadBD.setEstado(FacultadEstadoEnum.DES);
             facultadBD.setMotivoDesactivacion(facultad.getMotivoDesactivacion());
             facultadBD.setFechaDesactivacion(new Date());
         } else {
-            facultadBD.setEstado(FacultadEstadoEnum.ACT.name());
+            facultadBD.setEstado(FacultadEstadoEnum.ACT);
         }
         facultadDAO.update(facultadBD);
     }
