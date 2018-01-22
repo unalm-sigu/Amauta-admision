@@ -23,7 +23,7 @@ public class PlanCalificacionDAOH extends AbstractEasyDAO<PlanCalificacion> impl
     @Override
     public List<PlanCalificacion> allByDynatable(DynatableFilter filter, DepartamentoAcademico dpto) {
         DynatableSql sql = new DynatableSql(filter)
-                .from(Curso.class, "pc")
+                .from(PlanCalificacion.class, "pc")
                 .join("departamentoAcademico da")
                 .left("sistemaNotas sn")
                 .filter("da.id", dpto)
