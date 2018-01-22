@@ -385,7 +385,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         List<AlumnoEvaluacion> listaAluEvas = alumnoEvaluacionDAO.allByEvaluacionExp(evaluacion.getEvaluacionExpandida().getId());
         if (listaAluEvas == null || listaAluEvas.isEmpty()) {
-            evaluacion.getEvaluacionExpandida().setIndNotasIngresadas(BigDecimal.ZERO.intValue());
+            evaluacion.getEvaluacionExpandida().setNotasIngresadas(BigDecimal.ZERO.intValue());
             evaluacionExpandidaDAO.update(evaluacion.getEvaluacionExpandida());
         }
 
@@ -498,7 +498,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     evaluacion.setTipoSeccionEvalEnum(grupoSeccion.getCurso().getTipoCursoEnum().getTipoSeccionEvalEnum());
                     evaluacion.setNivel(BigDecimal.ONE.intValue());
 
-                    if (i == evaluacionPlan.getCantidadEvaluaciones() && (evaluacionPlan.getNotaMinimaAnulable() == null || evaluacionPlan.getNotaMinimaAnulable() == 0)) {
+                    if (i == evaluacionPlan.getCantidadEvaluaciones() 
+//                            && (evaluacionPlan.getNotaMinimaAnulable() == null || evaluacionPlan.getNotaMinimaAnulable() == 0)
+                            ) {
                         BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
                         evaluacion.setPeso(pesoFinal);
                     }
@@ -640,7 +642,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 //            evalForm.setEvaluados(BigDecimal.ZERO.intValue());
 //            evalForm.setExtemporaneos(BigDecimal.ZERO.intValue());
             evalForm.setTipoSeccion(evaluacionPadreBD.getTipoSeccion());
-            evalForm.setIndPorcentajeVariable(evaluacionPadreBD.getIndPorcentajeVariable());
+            evalForm.setPorcentajeVariable(evaluacionPadreBD.getPorcentajeVariable());
             evalForm.setNotaMinimaAnulable(BigDecimal.ZERO.intValue());
             evalForm.setNivel(evaluacionPadreBD.getNivel().intValue() + 1);
 
@@ -809,7 +811,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
-            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
+//            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             evaluacionPlan.setCantidadEvaluaciones(BigDecimal.ONE.intValue());
             evaluacionPlan.setPesoEvaluacion(evaluacionPlan.getPesoTotal());
@@ -853,13 +855,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionSeccion.setSistemaNotas(planCalificacion.getSistemaNotas());
             evaluacionSeccion.setGrupoSeccion(grupoSeccion);
             evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
-            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setUserAceptacion(ds.getUsuario());
             evaluacionSeccion.setFechaAceptacion(today.toDate());
             evaluacionSeccionDAO.save(evaluacionSeccion);
         } else {
             evaluacionSeccion.setPlanCalificacion(planCalificacion);
             evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
-            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setUserAceptacion(ds.getUsuario());
             evaluacionSeccion.setFechaAceptacion(today.toDate());
             evaluacionSeccionDAO.update(evaluacionSeccion);
         }
@@ -1052,7 +1054,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
-            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
+//            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             evaluacionPlan.setCantidadEvaluaciones(BigDecimal.ONE.intValue());
             evaluacionPlan.setPesoEvaluacion(evaluacionPlan.getPesoTotal());
@@ -1076,13 +1078,13 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionSeccion.setSistemaNotas(planCalificacion.getSistemaNotas());
             evaluacionSeccion.setGrupoSeccion(grupo);
             evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
-            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setUserAceptacion(ds.getUsuario());
             evaluacionSeccion.setFechaAceptacion(today);
             evaluacionSeccionDAO.save(evaluacionSeccion);
         } else {
             evaluacionSeccion.setPlanCalificacion(planCalificacion);
             evaluacionSeccion.setEstadoEnum(EstadoPlanCalificaEnum.ACEP);
-            evaluacionSeccion.setIdUserAceptacion(ds.getUsuario().getId());
+            evaluacionSeccion.setUserAceptacion(ds.getUsuario());
             evaluacionSeccion.setFechaAceptacion(today);
             evaluacionSeccionDAO.update(evaluacionSeccion);
         }
@@ -1267,7 +1269,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Evaluacion evaluacion = evaluacionDAO.find(evaluacionParam.getId());
 
         EvaluacionExpandida evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacion.getEvaluacionExpandida().getId());
-        evaluacionExpandida.setIndNotasIngresadas(BigDecimal.ONE.intValue());
+        evaluacionExpandida.setNotasIngresadas(BigDecimal.ONE.intValue());
         evaluacionExpandidaDAO.update(evaluacionExpandida);
 
         PlanCalificacion planCalificacion = evaluacion.getEvaluacionSeccion().getPlanCalificacion();

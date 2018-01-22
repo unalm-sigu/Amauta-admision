@@ -42,6 +42,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -93,7 +94,6 @@ public class DocenteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-
         return "academico/docente/docente/docente";
     }
 
@@ -120,20 +120,18 @@ public class DocenteController {
                 node.put("id", docente.getId());
                 node.put("codigo", docente.getCodigo());
                 node.put("estado", docente.getEstado());
-
                 node.put("nombre", persona.getApellidosNombres());
-                node.put("simbolo", persona.getTipoDocumento().getSimbolo());
-                node.put("tipodocid", persona.getTipoDocumento().getId());
-                node.put("documento", persona.getNumeroDocIdentidad());
+                node.put("tipoDoc", (String) ObjectUtil.getParentTree(persona, "tipoDocumento.simbolo"));
+                node.put("nroDocumento", persona.getNumeroDocIdentidad());
                 node.put("telefono", persona.getTelefono());
                 node.put("celular", persona.getCelular());
                 node.put("email", persona.getEmail());
                 node.put("emailEmpresa", persona.getEmailCompania());
-                node.put("rutaFoto", helper.getRutaFoto(null, persona.getSexo()));
+                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
 
                 node.put("facultad", fa.getNombre());
                 node.put("departamentoAcademico", da.getNombre());
-                node.put("situacion", "");
+                node.put("situacion", "Contratado");
 
                 array.add(node);
             }

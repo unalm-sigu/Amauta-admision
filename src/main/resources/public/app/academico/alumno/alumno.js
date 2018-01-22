@@ -17,6 +17,8 @@ $(function () {
 
         var colorEstado = {ACT: 'success', FAPR: 'warning', FRES: 'warning'};
         record.colorEstado = colorEstado[record.estado];
+        record.verTipoCarrera = (record.tipoCarrera == "MAE" || record.tipoCarrera == "DOC");
+        record.verFacultad = (record.codigoModalidad == "PRE" && record.codigoCarrera != record.codigoFacultad);
         if (record.colorEstado == undefined) {
             record.colorEstado = 'danger';
         }
