@@ -64,10 +64,11 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Alumno.class, "al")
-                .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
-                .join("ca.modalidadEstudio moe", "ca.facultad fac")
+                .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
                 .searchFields("ca.nombre", "al.estado", "al.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchSubqueryFields("ca.nombre")
                 .orderBy("al.id desc");
 
@@ -153,6 +154,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .filter("cia.id", cicloAcademico)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .searchSubqueryFields("ca.nombre")
                         .orderBy("al.id desc");
                 break;
@@ -163,6 +165,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .filter("cia.id", cicloAcademico)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .searchSubqueryFields("ca.nombre")
                         .in("moe.id", filtros)
                         .orderBy("al.id desc");
@@ -174,6 +177,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .filter("cia.id", cicloAcademico)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .searchSubqueryFields("ca.nombre")
                         .in("fac.id", filtros)
                         .orderBy("al.id desc");
@@ -185,6 +189,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .filter("cia.id", cicloAcademico)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .searchSubqueryFields("ca.nombre")
                         .in("ca.id", filtros)
                         .orderBy("al.id desc");
@@ -196,6 +201,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                         .filter("cia.id", cicloAcademico)
                         .searchFields("ca.nombre", "al.estado", "al.codigo")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .searchSubqueryFields("ca.nombre")
                         .orderBy("al.id desc");
                 break;

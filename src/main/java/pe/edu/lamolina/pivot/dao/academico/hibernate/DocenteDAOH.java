@@ -78,8 +78,10 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     public List<Docente> allByFilter(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Docente.class, "doc")
-                .join("persona per", "per.tipoDocumento tdoc", "departamentoAcademico da", "da.facultad fa")
+                .join("persona per", "departamentoAcademico da", "da.facultad fa")
+                .leftJoin("per.tipoDocumento tdoc")
                 .searchFields("per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania", "tdoc.simbolo")
+                .searchFields("da.nombre", "fa.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("doc.id desc");

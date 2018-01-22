@@ -97,9 +97,9 @@ public class SistemaServiceImp implements SistemaService {
         for (TipoEvaluacion tipoEvaluacion : lstTipoEvaluacion) {
             ObjectNode jobj = new ObjectNode(JsonNodeFactory.instance);
             jobj.put("codigo", tipoEvaluacion.getCodigo());
-            jobj.put("esDivisible", tipoEvaluacion.getEsDivisible());
-            jobj.put("esNotaMinimaAnulable", tipoEvaluacion.isNotaMinimaAnulable());
-            jobj.put("cantidadMaxima", tipoEvaluacion.getCantidadMaxima());
+//            jobj.put("esDivisible", tipoEvaluacion.getEsDivisible());
+//            jobj.put("esNotaMinimaAnulable", tipoEvaluacion.isNotaMinimaAnulable());
+//            jobj.put("cantidadMaxima", tipoEvaluacion.getCantidadMaxima());
             json.put(tipoEvaluacion.getId().toString(), jobj.toString());
         }
         return json;
@@ -116,7 +116,7 @@ public class SistemaServiceImp implements SistemaService {
 
         planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
         planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DEP);
-        planCalificacion.setIdUserRegistro(ds.getUsuario().getId());
+        planCalificacion.setUserRegistro(ds.getUsuario());
 
         planCalificacion.setEstadoEnum(EstadoPlanCalificaEnum.CRE);
         planCalificacion.setFechaRegistro(new Date());
@@ -140,7 +140,7 @@ public class SistemaServiceImp implements SistemaService {
         }
 
         for (EvaluacionPlan evaluacionPlan : planCalificacion.getEvaluacionPlan()) {
-            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
+//            logger.debug("nota minima anulable {}", evaluacionPlan.getNotaMinimaAnulable());
             evaluacionPlan.setPlanCalificacion(planCalificacion);
             evaluacionPlan.setCantidadEvaluaciones(BigDecimal.ONE.intValue());
             evaluacionPlan.setPesoEvaluacion(evaluacionPlan.getPesoTotal());

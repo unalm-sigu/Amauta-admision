@@ -628,7 +628,7 @@ public class CargaAcademicaController {
             if (planCalificacion.getId() == null) {
                 planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
-                planCalificacion.setIdUserRegistro(ds.getUsuario().getId());
+                planCalificacion.setUserRegistro(ds.getUsuario());
                 cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId, ds);
                 message = "Creado exitosamente.";
 

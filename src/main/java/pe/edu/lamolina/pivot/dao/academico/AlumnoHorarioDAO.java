@@ -25,4 +25,8 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     public List<AlumnoHorario> allByCicloHorarios(CicloAcademico cicloAcademico, List<HorarioCachimbos> horarios);
 
+    public List<AlumnoHorario> allByHorarioCachimbos(HorarioCachimbos horarioCachimbos);
+
+    public List<AlumnoHorario> allByAlumnoHorarioLikeList(AlumnoHorario alumnoHorario);
+
 }

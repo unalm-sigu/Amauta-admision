@@ -25,9 +25,9 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .from(HorarioCachimbos.class, "hoca")
                 .join("carrera car", "car.facultad fac", "cicloAcademico ciclo")
                 .filter("ciclo.id", ciclo)
-                .searchFields("car.nombre")
+                .searchFields("car.nombre", "fac.nombre", "hoca.codigo", "hoca.cursos")
+                .searchFields("hoca.capacidad", "hoca.suscritos", "hoca.matriculados")
                 .orderBy("hoca.id desc");
-        sql.beginRelativeFilters();
 
         return all(sql);
     }
@@ -76,4 +76,5 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
 
         return find(sql);
     }
+
 }
