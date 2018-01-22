@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default)
-Vue.component('pagination', Pagination);
+//Vue.component('pagination', Pagination);
 
 
 
@@ -570,7 +570,6 @@ var app = new Vue({
                         $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
 
                         if (response.data.grupoHorarioSel != null) {
-
                             if (response.data.grupoHorarioSel.esTipoGrupoRegular) {
                                 console.log("esTipoGrupoRegular");
                                 $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
@@ -578,49 +577,27 @@ var app = new Vue({
                                 $vue.cambiarCboTipoGrupoHorReg();
                             } else if (response.data.grupoHorarioSel.esTipoGrupoZeta) {
                                 console.log("esTipoGrupoZeta");
-                                console.dir(response.data.grupoHorarioSel);
                                 $vue.tabGrupos['zetas'].grupoHorarioSel = response.data.grupoHorarioSel;
-
                                 $vue.seleccionarGrupoZ($vue.tabGrupos['zetas'].grupoHorarioSel.id);
+                            } else if (response.data.grupoHorarioSel.isTipoGrupoEspecial) {
+                                console.log("esTipoGrupoEspecial");
                             }
-
                         } else {
                             $vue.tabGrupos['zetas'].tblHorarios = null;
                         }
 
+                        $vue.$refs.modalGrupo.open();
                     }
                 }
             });
+
+
             /*
-             $.ajax({
-             method: 'POST',
-             url: APP.url('academico/gposeccion/findTiposGruposHoras'),
-             data: {
-             },
-             success: function (response) {
-             if (response.success) {
-             
-             //  $vue.tipoGrupoHorasOpts = response.data;
-             let tiposGruposHoras = [];
-             response.data.forEach(function (element) {
-             var opt = {id: element.tipoGrupoHoraId, text: element.tipoGrupoHoraCodigo + " - " + element.tipoGrupoHoraDescripcion};
-             tiposGruposHoras.push(opt);
-             });
-             $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = tiposGruposHoras;
-             }
-             }
-             });
-             */
-
-            this.$refs.modalGrupo.open();
-
-
-
-            $("#cboTipoGrupoHorasReg").select2({
-                width: '100%'
-            }).val(this.value).trigger('change').on('change', function () {
-                $vue.$emit('input', this.value)
-            });
+             $("#cboTipoGrupoHorasReg").select2({
+             width: '100%'
+             }).val(this.value).trigger('change').on('change', function () {
+             $vue.$emit('input', this.value)
+             });*/
 
         }, saveGrupo() {
             let grupoReg = this.tabGrupos['regulares'].grupoHorarioRegSel == null || this.tabGrupos['regulares'].grupoHorarioRegSel == "";
@@ -852,6 +829,30 @@ var app = new Vue({
 
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoEspecial) {
 
+                    let cantGruposSelec = 1;
+                    console.dir(this.tabGrupos['especial']);
+                    if (this.tabGrupos['especial'].tblHorarios != null) {
+                        for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                            if (this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado) {
+                                cantGruposSelec++;
+                            }
+                        }
+                    }
+
+                    if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.horasSemanales)) {
+                        bootbox.alert({
+                            message: "No se puede asignar mas horas, verifique.",
+                            buttons: {
+                                ok: {label: 'Cerrar', className: "btn-danger"},
+                            },
+                            callback: function (result) {
+                                if (result) {
+                                }
+                            }
+                        });
+                        return;
+                    }
+
                     this.tabGrupos['zetas'].grupoHorarioSel = null;
                     this.tabGrupos['regulares'].grupoHorarioRegSel = null;
                     diaHoraGrupo.seleccionado = seleccionado;
@@ -1010,7 +1011,6 @@ var app = new Vue({
             });
 
         }, seleccionarGrupoZ(grupo) {
-
             let $vue = this;
             $.ajax({
                 url: APP.url('academico/gposeccion/horariosZeta'),
@@ -1036,9 +1036,10 @@ var app = new Vue({
             });
 
         }, seleccionarGrupoEsp(grupo) {
+
             let $vue = this;
             $.ajax({
-                url: APP.url('academico/gposeccion/horariosZeta'),
+                url: APP.url('academico/gposeccion/horariosEspeciales'),
                 type: 'POST',
                 async: false,
                 data: {
@@ -1046,8 +1047,8 @@ var app = new Vue({
                     seccion: $vue.seccionModal.id
                 },
                 success: function (response) {
+                    console.dir(response);
                     if (response.success) {
-                        console.dir(response.data);
                         $vue.tabGrupos['especial'].tblHorarios = response.data;
                     } else {
                         notify(response.message, "error");
@@ -1056,10 +1057,35 @@ var app = new Vue({
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
-                    //  $("#tablaHorario").html('');
+                    $("#tblHorarioEsp").html('');
                 }
             });
 
+            /*
+             let $vue = this;
+             $.ajax({
+             url: APP.url('academico/gposeccion/horariosZeta'),
+             type: 'POST',
+             async: false,
+             data: {
+             grupoHorario: grupo,
+             seccion: $vue.seccionModal.id
+             },
+             success: function (response) {
+             if (response.success) {
+             console.dir(response.data);
+             $vue.tabGrupos['especial'].tblHorarios = response.data;
+             } else {
+             notify(response.message, "error");
+             $vue.tabGrupos['especial'].tblHorarios = null;
+             }
+             },
+             error: function () {
+             notify(MESSAGES.errorComunicacion, "error");
+             //  $("#tablaHorario").html('');
+             }
+             });
+             */
         }, cambiarCboTipoGrupoHorZeta() {
             let $vue = this;
 //tabGrupos['zetas'].   grupoHorarioSel tblHorarios

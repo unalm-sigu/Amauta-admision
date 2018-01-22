@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -75,6 +76,20 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
 
     @Override
     public List<GrupoHoras> allByTipoGrupoHoraDyna(DynatableFilter filter, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+
+        StringBuilder strb = new StringBuilder();
+        strb.append(" Select gh from GrupoHoras gh ");
+        strb.append(" join gh.diaHoraGrupo dhg ");
+        strb.append(" join gh.tipoGrupoHoras tgh ");
+        strb.append(" join dhg.cicloAcademico ca ");
+        strb.append(" where ");
+        strb.append(" tgh.id=:prm_tipo_grupo_hora ");
+        strb.append(" and  ca.id=:prm_ciclo");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_tipo_grupo_hora", tipoGrupoHoras.getId());
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+
         DynatableSql sql = new DynatableSql(filter)
                 .selectDistinct("gh")
                 .from(DiaHoraGrupo.class, "dhg")

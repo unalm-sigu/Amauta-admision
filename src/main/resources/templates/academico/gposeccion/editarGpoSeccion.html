@@ -85,6 +85,7 @@
                                         <a v-on:click="seleccionarSeccion(seccion)" 
                                            style="cursor:pointer;">{{ seccion.seccionCodigo }}
                                         </a>
+
                                     </td>
                                     <td>
                                         {{ seccion.tipoSeccionValue }}
@@ -107,8 +108,6 @@
                                     <td>
 
                                         <a v-on:click="showModalGrupos(seccion)" 
-                                           v-on:mouseover="mouseover"
-                                           v-on:mouseleave="mouseleave"
                                            v-if="seccion.grupoHoras==''"
                                            style="cursor:pointer;">
                                             Sin Grupo
@@ -117,7 +116,7 @@
                                         <a v-on:click="showModalGrupos(seccion)" 
                                            v-if="seccion.grupoHoras!=''"
                                            style="cursor:pointer;">
-                                            {{ seccion.grupoHoras }}
+                                            {{ seccion.grupoHoras }} 
                                         </a>
 
 
@@ -293,22 +292,15 @@
             {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
         </div>
 
-
-
     </section>
-
-
-
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:inline="javascript">
             var gpoSeccionJson = [[${grupoSeccionJson}]];
         </script>
-        <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
-
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-
+        <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>
