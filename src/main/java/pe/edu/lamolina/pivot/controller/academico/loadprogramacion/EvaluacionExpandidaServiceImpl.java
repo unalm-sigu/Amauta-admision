@@ -139,17 +139,17 @@ public class EvaluacionExpandidaServiceImpl implements EvaluacionExpandidaServic
             }
 
             EvaluacionExpandida eex = evalsByTipo.get(0);
-            System.out.println("\tNotaMinimaAnulable: " + evalPlan.getNotaMinimaAnulable());
+//            System.out.println("\tNotaMinimaAnulable: " + evalPlan.getNotaMinimaAnulable());
 
             EvaluacionExpandida evalExpan = new EvaluacionExpandida();
             evalExpan.setEstaDesagregado(1);
             evalExpan.setEstadoEnum(EstadoEnum.ACT);
             evalExpan.setEvaluacionSeccion(evalSecc);
             evalExpan.setFechaDesagregar(new Date());
-            evalExpan.setIndNotasIngresadas(0);
-            evalExpan.setIndPorcentajeVariable(evalPlan.getIndPorcentajeVariable());
+            evalExpan.setNotasIngresadas(0);
+//            evalExpan.setPorcentajeVariable(evalPlan.getIndPorcentajeVariable());
             evalExpan.setNivel(1);
-            evalExpan.setNotaMinimaAnulable(evalPlan.getNotaMinimaAnulable());
+//            evalExpan.setNotaMinimaAnulable(evalPlan.getNotaMinimaAnulable());
             evalExpan.setNumero(0);
             evalExpan.setPeso(evalPlan.getPesoTotal());
             evalExpan.setTipoEvaluacion(evalPlan.getTipoEvaluacion());
@@ -173,7 +173,7 @@ public class EvaluacionExpandidaServiceImpl implements EvaluacionExpandidaServic
                 eval.setEvaluacionSeccion(evalSecc);
                 eval.setEvaluados(0);
                 eval.setFechaDesagregar(new Date());
-                eval.setIndPorcentajeVariable(evalPlan.getIndPorcentajeVariable());
+//                eval.setPorcentajeVariable(evalPlan.getIndPorcentajeVariable());
                 eval.setNumero(0);
                 eval.setPeso(evalPlan.getPesoTotal());
                 eval.setSeccionResponsable(seccion);
