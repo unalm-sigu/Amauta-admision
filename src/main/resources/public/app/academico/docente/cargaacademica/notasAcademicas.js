@@ -91,8 +91,28 @@ $(function () {
                 },
                 messages: {
                     //Cette valeur doit être un multiple de %s
-                    en: "Nota superior al valor mínimo.",
-                    es: "Nota superior al valor mínimo."
+                    en: "Nota superior al valor máximo.",
+                    es: "Nota superior al valor máximo."
+                }
+            });
+
+            window.Parsley.addValidator('creditosMaximo', {
+                requirementType: 'string',
+                validateString: function (value, requirement) {
+                    var nota = value;
+                    if (!isNaN(value)) {
+                        nota = parseFloat(nota);
+                        if (nota > parseFloat(requirement)) {
+                            message = "Nota excede en créditos matriculados"
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                messages: {
+                    //Cette valeur doit être un multiple de %s
+                    en: "Nota excede en créditos matriculados.",
+                    es: "Nota excede en créditos matriculados."
                 }
             });
 
@@ -433,7 +453,7 @@ $(function () {
 
                         if (sistemaNotasValidate.esCreditoVariable) {
                             $(this).attr("data-parsley-nota-minima", 0);
-                            $(this).attr("data-parsley-nota-maxima", $(this).attr("alt"));
+                            $(this).attr("data-parsley-creditos-maximo", $(this).attr("alt"));
                             $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
                         }
 
@@ -516,6 +536,7 @@ $(function () {
 
                             $(this).removeAttr("data-parsley-nota-minima");
                             $(this).removeAttr("data-parsley-nota-maxima");
+                            $(this).removeAttr("data-parsley-creditos-maximo");
                             $(this).removeAttr("data-parsley-nota-numerica");
                             $(this).removeAttr("data-parsley-type");
                             $(this).removeAttr("required");
