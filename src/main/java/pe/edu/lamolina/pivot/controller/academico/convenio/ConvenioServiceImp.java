@@ -7,8 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.ConvenioBeca;
-import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Empresa;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.ConvenioBecaDAO;
+import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -18,7 +23,13 @@ public class ConvenioServiceImp implements ConvenioService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ContenidoCartaDAO contenidoCartaDAO;
+    ConvenioBecaDAO convenioBecaDAO;
+
+    @Autowired
+    EmpresaDAO empresaDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
 
     @Override
     public void delete(ConvenioBeca convenioBeca) {
@@ -42,7 +53,17 @@ public class ConvenioServiceImp implements ConvenioService {
 
     @Override
     public List<ConvenioBeca> allByDynatable(DynatableFilter filter) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return convenioBecaDAO.allByDynatable(filter);
+    }
+
+    @Override
+    public void saveInstitucion(Empresa institucion) {
+        empresaDAO.save(institucion);
+    }
+
+    @Override
+    public List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio) {
+        return carreraDAO.allCarreraByName(nombre, modalidadEstudio);
     }
 
 }

@@ -1,0 +1,187 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Convenio de Becas</title>
+    </head>
+
+    <body>
+
+        <div layout:fragment="main">
+
+            <div  id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">
+                        <a class="btn btn-default"   th:href="@{/academico/convenio}"  >Regresar</a>
+                    </div>
+
+                    <h2 th:inline="text">Convenios  de Becas</h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            <form data-parsley-validate="true" method="POST" id="formConvenioBeca" >
+
+                                <input type="hidden"  name="id" th:value="${convenio.id}"/>
+
+                                <div class="panel-body">
+
+                                    <div class="col-xs-12">
+                                        <h4 class="m-b-md m-t-md">Datos Generales</h4>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Nombre</label>
+                                            <input type="text"
+                                                   name="nombre"
+                                                   maxlength="200"
+                                                   required="true"
+                                                   th:value="${convenio.nombre}"
+                                                   class="form-control"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>País</label>
+                                            <input id="pais"
+                                                   type="text"
+                                                   class="form-control input-s-full"
+                                                   name="pais.id"
+                                                   data-trigger="change"
+                                                   th:attr="codigo=${helper.showCodigoPais(convenio.pais)}"
+                                                   th:rel="${convenio.pais != null}? ${convenio.pais.nombre}"
+                                                   th:value="${convenio.pais != null}? ${convenio.pais.id}"
+                                                   required="true"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Institución</label>
+                                            <div class="input-group" >
+                                                <input id="pais"
+                                                       type="text"
+                                                       class="form-control input-s-full"
+                                                       name="institucion.id"
+                                                       data-trigger="change"
+                                                       data-parsley-errors-container="#errorinstitucion"
+                                                       th:rel="${convenio.institucion != null}? ${convenio.institucion.razonSocial}"
+                                                       th:value="${convenio.institucion != null}? ${convenio.institucion.id}"
+                                                       required="true"/>
+                                                <span v-on:click="addInstitucion" class="input-group-addon pointer">
+                                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                            <span id="errorinstitucion"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="inicioVigencia">Inicia Vigencia</label>
+                                            <div class="input-group date" >
+                                                <input  type="text" class="form-control" required="true"
+                                                        th:value="${convenio.inicioVigencia!=null ? #dates.format(convenio.inicioVigencia,'dd/MM/yyyy'):''}"
+                                                        data-parsley-errors-container="#errorinicioVigencia"  name="inicioVigencia"/>
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                            <span id="errorinicioVigencia"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label class="control-label" for="finVigencia">Fin Vigencia</label>
+                                            <div class="input-group date" >
+                                                <input  type="text" class="form-control" required="true"
+                                                        th:value="${convenio.finVigencia!=null ? #dates.format(convenio.finVigencia,'dd/MM/yyyy'):''}"
+                                                        data-parsley-errors-container="#errorfinVigencia"  name="finVigencia"/>
+                                                <span class="input-group-addon">
+                                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                                </span>
+                                            </div>
+                                            <span id="errorfinVigencia"></span>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label>Descripción</label>
+                                            <textarea
+                                                name="descripcion"
+                                                required="true"
+                                                th:text="${convenio.descripcion}"
+                                                class="form-control"
+                                                ></textarea>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="col-xs-12">
+                                        <div class="pull-right m-t-md">
+                                            <button class="btn btn-default" type="button" v-on:click="addCarreraAfin">Agregar</button>
+                                        </div>
+                                        <h4  class="m-b-md m-t-md"> Carreras afines </h4>
+                                    </div>
+
+
+                                    <div class="col-sm-12">
+
+                                        <table id="carreraAfin" class="table table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-xs-8">Nombre</th>
+                                                    <th class="col-xs-2">Modalidad</th>
+                                                    <th class="col-xs-2">Tipo</th>
+                                                    <th class=""></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+
+                                    </div>
+
+                                </div>
+
+                                <hr/>
+
+                                <div class="col-md-12 text-center">
+                                    <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">
+                                        Guardar
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="academico/convenio/_convenioform"/>
+
+            </div>
+
+            <div th:substituteby="_modules/vue-modal"/>
+            <th:block th:replace="academico/convenio/_convenio"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/academico/convenio/convenioform.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

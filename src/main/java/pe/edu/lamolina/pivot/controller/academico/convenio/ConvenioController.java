@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,19 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.ConvenioBeca;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -67,9 +73,7 @@ public class ConvenioController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-
-        return "academico/visitante/alumnovisitante";
-
+        return "academico/convenio/convenio";
     }
 
     @ResponseBody
@@ -96,8 +100,19 @@ public class ConvenioController {
                 node.put("id", convenio.getId());
                 node.put("nombre", convenio.getNombre());
                 node.put("descripcion", convenio.getDescripcion());
-                array.add(node);
 
+                node.put("pais", convenio.getPais() != null ? convenio.getPais().getNombre() : "");
+                node.put("institucion", convenio.getInstitucion() != null ? convenio.getInstitucion().getRazonSocial() : "");
+                node.put("estado", convenio.getEstado());
+                node.put("rutaDocumento", convenio.getRutaDocumento());
+
+                node.put("inicio", convenio.getInicioVigencia() != null
+                        ? new DateTime(convenio.getInicioVigencia()).toString("dd/MM/yyyy") : "");
+
+                node.put("fin", convenio.getFinVigencia() != null
+                        ? new DateTime(convenio.getFinVigencia()).toString("dd/MM/yyyy") : "");
+
+                array.add(node);
             }
 
             json.setData(array);
@@ -114,8 +129,9 @@ public class ConvenioController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         ConvenioBeca convenioBeca = new ConvenioBeca();
-        model.addAttribute("convenioBeca", convenioBeca);
-        return "academico/visitante/alumnovisitanteform";
+        model.addAttribute("convenio", convenioBeca);
+        model.addAttribute("helper", new ConvenioHelper());
+        return "academico/convenio/convenioform";
     }
 
     @RequestMapping("{convenioBeca}/update")
@@ -123,7 +139,7 @@ public class ConvenioController {
 
         ConvenioBeca convenioBeca = service.findConvenioBeca(idConvenioBeca);
         model.addAttribute("convenioBeca", convenioBeca);
-        return "academico/visitante/alumnovisitanteform";
+        return "academico/convenio/convenioform";
     }
 
     @ResponseBody
@@ -162,6 +178,62 @@ public class ConvenioController {
             service.delete(convenioBeca);
             response.setMessage("Convenio Beca eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveInstitucion")
+    public JsonResponse saveInstitucion(Empresa institucion, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode node = new ObjectNode(jsonFactory);
+            service.saveInstitucion(institucion);
+            node.put("id", institucion.getId());
+            node.put("razonSocial", institucion.getRazonSocial());
+            node.put("paisUbicacion", (Long) ObjectUtil.getParentTree(institucion, "paisUbicacion.id"));
+            response.setData(node);
+            response.setMessage("Institucion guardada satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarrera")
+    public JsonResponse allCarrera(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
+            List<Carrera> carreras = service.allCarreraByName(nombre, modalidadEstudio);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Carrera carrera : carreras) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", carrera.getId());
+                json.put("nombre", carrera.getNombre());
+                json.put("codigo", carrera.getCodigo());
+                json.put("facultad", carrera.getFacultad().getNombre());
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
