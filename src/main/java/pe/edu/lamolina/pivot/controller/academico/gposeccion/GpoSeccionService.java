@@ -113,7 +113,8 @@ public interface GpoSeccionService {
 
     List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
-            CicloAcademico cicloAcademico);
+            CicloAcademico cicloAcademico,
+            Seccion seccion);
 
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 

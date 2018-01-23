@@ -101,7 +101,7 @@ Vue.component("dynatable-especial", {
                 table: {bodyRowSelector: 'div'},
                 features: {
                     pushState: false,
-                    search: false,
+                 //   search: false,
                     recordCount: false
                 },
                 inputs: {
@@ -312,6 +312,7 @@ var app = new Vue({
             }
         },
         tabGrupos: {
+            grupoHorarioSel: null,
             regulares: {
                 tipoGrupoHorasSeleccionado: null,
                 tblHorarioRegular: null,
@@ -537,6 +538,7 @@ var app = new Vue({
             });
         }, loadDocentesSec: function () {
             let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/findDocentesSecciones'),
@@ -546,6 +548,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.docentesSeccion = response.data;
+                        MODAL.hideWait();
                     }
                 }
             });
@@ -570,6 +573,7 @@ var app = new Vue({
                         $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
 
                         if (response.data.grupoHorarioSel != null) {
+                            $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorarioSel;
                             if (response.data.grupoHorarioSel.esTipoGrupoRegular) {
                                 console.log("esTipoGrupoRegular");
                                 $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
@@ -600,29 +604,38 @@ var app = new Vue({
              });*/
 
         }, saveGrupo() {
-            let grupoReg = this.tabGrupos['regulares'].grupoHorarioRegSel == null || this.tabGrupos['regulares'].grupoHorarioRegSel == "";
-            let grupoZeta = this.tabGrupos['zetas'].grupoHorarioSel == null || this.tabGrupos['zetas'].grupoHorarioSel == "";
+            /*
+             let grupoReg = this.tabGrupos['regulares'].grupoHorarioRegSel == null || this.tabGrupos['regulares'].grupoHorarioRegSel == "";
+             let grupoZeta = this.tabGrupos['zetas'].grupoHorarioSel == null || this.tabGrupos['zetas'].grupoHorarioSel == "";
+             let grupoEspecial = this.tabGrupos['especial'].grupoHorarioSel == null || this.tabGrupos['especial'].grupoHorarioSel == "";
+             */
 
-            if (grupoReg && grupoZeta) {
+            let mensajeAsignarHoras = "Asignar la cantidad de horas requeridas para la sección.";
+
+            if (this.tabGrupos.grupoHorarioSel == null) {
                 alert("Seleccione un grupo horario");
                 return;
             }
-
+            console.dir(this.tabGrupos.grupoHorarioSel);
             let diasHorasGrupo = [];
-            if (this.tabGrupos['regulares'].grupoHorarioRegSel != null && this.tabGrupos['regulares'].grupoHorarioRegSel != "") {
+            if (this.tabGrupos.grupoHorarioSel.esTipoGrupoRegular) {
                 for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
                     let diaHoraGrupoEach = this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key];
                     if (diaHoraGrupoEach.seleccionado) {
-
+                        console.dir(diaHoraGrupoEach);
                         let diaHoraGrupo = diaHoraGrupoEach.id;
                         let grupoHorario = diaHoraGrupoEach.grupoHorario.id;
+                        let dia = diaHoraGrupoEach.dia;
+                        let hora = diaHoraGrupoEach.hora;
                         let diaHoraGrupoJson = {}
                         diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
                         diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario)};
+                        diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
+                        diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
                         diasHorasGrupo.push(diaHoraGrupoJson);
                     }
                 }
-            } else {
+            } else if (this.tabGrupos.grupoHorarioSel.esTipoGrupoZeta) {
                 for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
                     let diaHoraGrupoEach = this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[key];
                     if (diaHoraGrupoEach.seleccionado) {
@@ -640,7 +653,43 @@ var app = new Vue({
                         diasHorasGrupo.push(diaHoraGrupoJson);
                     }
                 }
+            } else if (this.tabGrupos.grupoHorarioSel.esTipoGrupoEspecial) {
 
+                for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                    let diaHoraGrupoEach = this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key];
+                    if (diaHoraGrupoEach.seleccionado) {
+
+                        let diaHoraGrupo = diaHoraGrupoEach.id;
+                        let grupoHorario = diaHoraGrupoEach.grupoHorario
+                        let dia = diaHoraGrupoEach.dia;
+                        let hora = diaHoraGrupoEach.hora;
+                        let diaHoraGrupoJson = {}
+
+                        diaHoraGrupoJson["id"] = parseInt(diaHoraGrupo);
+                        diaHoraGrupoJson["grupoHorario"] = {id: parseInt(grupoHorario.id)};
+                        diaHoraGrupoJson["dia"] = {id: parseInt(dia.id)};
+                        diaHoraGrupoJson["hora"] = {id: parseInt(hora.id)};
+                        diasHorasGrupo.push(diaHoraGrupoJson);
+                    }
+                }
+            }
+
+            if (this.seccionModal.horasSemanales != diasHorasGrupo.length) {
+                /*
+                 bootbox.alert({
+                 message: mensajeAsignarHoras,
+                 buttons: {
+                 ok: {label: 'Cerrar', className: "btn-danger"},
+                 },
+                 callback: function (result) {
+                 if (result) {
+                 
+                 }
+                 }
+                 });
+                 */
+                alert(mensajeAsignarHoras);
+                return
             }
 
             let $vue = this;
@@ -656,10 +705,6 @@ var app = new Vue({
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
                             url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveSeccionGrupo'),
-                            /*  headers: {
-                             'Accept': 'application/json',
-                             'Content-Type': 'application/json'
-                             },*/
                             dataType: "json",
                             contentType: "application/json",
                             type: 'POST',
@@ -758,13 +803,14 @@ var app = new Vue({
             });
         }, selectGrupoHoraReg(diaHoraGrupo) {
             var seleccionado = !diaHoraGrupo.seleccionado;
-            console.dir(diaHoraGrupo);
+
             if (seleccionado) {
+                this.tabGrupos.grupoHorarioSel = diaHoraGrupo.grupoHorario;
 
                 if (diaHoraGrupo.grupoHorario.esTipoGrupoRegular) {
-
                     this.tabGrupos['regulares'].grupoHorarioRegSel = diaHoraGrupo;
                     this.tabGrupos['zetas'].grupoHorarioSel = null;
+                    this.tabGrupos['especial'].grupoHorarioSel = null;
 
                     for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
                         if (this.tabGrupos['regulares'].grupoHorarioRegSel != null &&
@@ -782,6 +828,7 @@ var app = new Vue({
                     }
 
                     if (this.tabGrupos['especial'].tblHorarios != null) {
+
                         for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
                             this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
                         }
@@ -796,23 +843,36 @@ var app = new Vue({
                             }
                         }
                     }
-
                     if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.horasSemanales)) {
-                        bootbox.alert({
-                            message: "No se puede asignar mas horas, verifique.",
-                            buttons: {
-                                ok: {label: 'Cerrar', className: "btn-danger"},
-                            },
-                            callback: function (result) {
-                                if (result) {
+                        alert("No se puede asignar mas horas, verifique.");
+                        return;
+                    }
+                    console.log("dia hora grupo seleccionado");
+                    console.log(diaHoraGrupo.dia.numeroDia);
+                    console.log(diaHoraGrupo.hora.numero);
+                    console.log("--------------");
+
+                    for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
+                        var diaHoraGrupoEach = this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[key];
+
+                        console.log("dia hora grupo each");
+                        console.dir(diaHoraGrupoEach);
+                        if (diaHoraGrupoEach.seleccionado) {
+                            if (diaHoraGrupoEach.dia.numeroDia == diaHoraGrupo.dia.numeroDia) {
+                                let horaAfter = diaHoraGrupo.hora.numero + 1;
+                                let horaBefore = diaHoraGrupo.hora.numero - 1;
+
+                                if (diaHoraGrupoEach.hora.numero != horaAfter && diaHoraGrupoEach.hora.numero != horaBefore) {
+                                    diaHoraGrupo.seleccionado = false;
+                                    return;
                                 }
                             }
-                        });
-                        return;
+                        }
                     }
 
                     this.tabGrupos['zetas'].grupoHorarioSel = diaHoraGrupo;
                     this.tabGrupos['regulares'].grupoHorarioRegSel = null;
+                    this.tabGrupos['especial'].grupoHorarioSel = null;
                     diaHoraGrupo.seleccionado = seleccionado;
 
                     if (this.tabGrupos['regulares'].tblHorarioRegular != null) {
@@ -830,7 +890,7 @@ var app = new Vue({
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoEspecial) {
 
                     let cantGruposSelec = 1;
-                    console.dir(this.tabGrupos['especial']);
+
                     if (this.tabGrupos['especial'].tblHorarios != null) {
                         for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
                             if (this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado) {
@@ -840,22 +900,27 @@ var app = new Vue({
                     }
 
                     if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.horasSemanales)) {
-                        bootbox.alert({
-                            message: "No se puede asignar mas horas, verifique.",
-                            buttons: {
-                                ok: {label: 'Cerrar', className: "btn-danger"},
-                            },
-                            callback: function (result) {
-                                if (result) {
-                                }
-                            }
-                        });
+                        /*
+                         bootbox.alert({
+                         message: "No se puede asignar mas horas, verifique.",
+                         buttons: {
+                         ok: {label: 'Cerrar', className: "btn-danger"},
+                         },
+                         callback: function (result) {
+                         if (result) {
+                         }
+                         }
+                         });
+                         */
+                        alert("No se puede asignar mas horas, verifique.");
                         return;
                     }
 
                     this.tabGrupos['zetas'].grupoHorarioSel = null;
                     this.tabGrupos['regulares'].grupoHorarioRegSel = null;
+                    this.tabGrupos['especial'].grupoHorarioSel = diaHoraGrupo;
                     diaHoraGrupo.seleccionado = seleccionado;
+
 
 
                     if (this.tabGrupos['zetas'].tblHorarios != null) {
@@ -876,14 +941,26 @@ var app = new Vue({
 
                 diaHoraGrupo.seleccionado = seleccionado;
                 this.tabGrupos['regulares'].grupoHorarioRegSel = null;
-                this.tabGrupos['zetas'].grupoHorarioSel = null;
+                /*  this.tabGrupos['especial'].grupoHorarioSel = null;
+                 this.tabGrupos['zetas'].grupoHorarioSel = null;*/
 
-                this.tabGrupos['regulares'].grupoHorarioRegSel = null;
                 if (this.tabGrupos['regulares'].tblHorarioRegular != null) {
                     for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
                         this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].seleccionado = false;
                     }
                 }
+                /*
+                 if (this.tabGrupos['especial'].tblHorarios != null) {
+                 for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                 this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
+                 }
+                 }
+                 
+                 if (this.tabGrupos['zetas'].tblHorarios != null) {
+                 for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
+                 this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
+                 }
+                 }*/
             }
 
             // this.tblHorarioRegular = this.tblHorarioRegular;
@@ -977,6 +1054,7 @@ var app = new Vue({
                             notify(response.message, "info");
                             $vue.loadSecciones();
                         } else {
+                            $vue.loadSecciones();
                             notify(response.message, "error");
                         }
                     },

@@ -837,6 +837,9 @@ public class GpoSeccionController {
 
                 jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+                jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaHoraGrupo.getDia(), factory));
+                jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(diaHoraGrupo.getHora(), factory));
+
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
                         jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
@@ -928,6 +931,8 @@ public class GpoSeccionController {
 
                 jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+                jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaHoraGrupoEach.getDia(), factory));
+                jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(diaHoraGrupoEach.getHora(), factory));
 
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
@@ -1027,10 +1032,14 @@ public class GpoSeccionController {
 
                     jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
                     if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
-                        for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
-                            if (horarioSeccionEach.getDia().getId().compareTo(diaEach.getId()) == 0
-                                    && horarioSeccionEach.getHora().getId().compareTo(horaEach.getId()) == 0) {
-                                jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                        if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                            if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
+                                for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
+                                    if (horarioSeccionEach.getDia().getId().compareTo(diaEach.getId()) == 0
+                                            && horarioSeccionEach.getHora().getId().compareTo(horaEach.getId()) == 0) {
+                                        jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                                    }
+                                }
                             }
                         }
                     }
@@ -1129,14 +1138,25 @@ public class GpoSeccionController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+            JsonNodeFactory nf = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(nf);
+            /*
+                        if (grado == "0") {
+                dynatable.queries.remove("g.id");
+            } else {
+                dynatable.queries.add("g.id", grado);
+            }
+            dynatable.process();
+             */
+            // if (filter.getQueries().get("seccion") != null) {
+            //  Seccion seccion = new Seccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
             TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum.valueOf(tipoGrupoHora), ds.getCicloAcademico());
-            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico());
+            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), null);
 
             List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(gruposHoras);
             Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
 
-            JsonNodeFactory nf = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(nf);
+            array = new ArrayNode(nf);
             for (GrupoHoras grupoHoraEach : gruposHoras) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", grupoHoraEach.getId());
@@ -1153,7 +1173,7 @@ public class GpoSeccionController {
                 }
                 array.add(node);
             }
-
+            //   }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());

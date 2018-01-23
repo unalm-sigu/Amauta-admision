@@ -81,16 +81,15 @@
                             </thead>
                             <tbody>
                                 <tr  v-for="(seccion, index) in secciones">
-                                    <td>
+                                    <td class="text-center">
                                         <a v-on:click="seleccionarSeccion(seccion)" 
                                            style="cursor:pointer;">{{ seccion.seccionCodigo }}
                                         </a>
-
                                     </td>
                                     <td>
                                         {{ seccion.tipoSeccionValue }}
                                     </td>
-                                    <td>
+                                    <td class="text-center">
 
                                         <a v-if="seccion.aula==''"
                                            v-on:click="showModalAula(seccion)" 
@@ -105,7 +104,7 @@
                                             (aforo {{ seccion.aula.aforo }})
                                         </a>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
 
                                         <a v-on:click="showModalGrupos(seccion)" 
                                            v-if="seccion.grupoHoras==''"
@@ -130,7 +129,7 @@
                                     <td>
 
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <div v-if="seccion.esTipoSeccionTcur" >
                                             {{ seccion.vacantes }}
                                         </div>
@@ -153,10 +152,10 @@
                                                v-on:keyup.enter = "seccion.editVacantes=false; $emit('update')"
                                         -->
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         {{ seccion.matriculados }}
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <span v-if="seccion.porcentajeAvance==100">
                                             {{ seccion.cantidadDocentes }}
                                         </span>

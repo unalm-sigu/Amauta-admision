@@ -139,8 +139,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
-            CicloAcademico cicloAcademico) {
-        return grupoHorasDAO.allByTipoGrupoHoraDyna(filter, tipoGrupoHoras, cicloAcademico);
+            CicloAcademico cicloAcademico,
+            Seccion seccion) {
+        return grupoHorasDAO.allByTipoGrupoHoraDyna(filter, tipoGrupoHoras, cicloAcademico, seccion);
     }
 
     @Override
@@ -668,8 +669,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //borrar los deseleccionados
         for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
             if (!horarioSeccionEach.isTieneDiaHoraGrupo(diasHorasGrupo)) {
-                horarioAulaDAO.deleteBySeccionDiaHoraAula(seccion, horarioSeccionEach.getDia(),
-                        horarioSeccionEach.getHora(), seccion.getAula());
+                if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+                    horarioAulaDAO.deleteBySeccionDiaHoraAula(seccion, horarioSeccionEach.getDia(),
+                            horarioSeccionEach.getHora(), seccion.getAula());
+                }
                 horarioSeccionDAO.delete(horarioSeccionEach);
             }
         }
