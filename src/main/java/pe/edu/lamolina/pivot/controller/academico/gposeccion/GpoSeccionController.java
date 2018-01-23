@@ -553,6 +553,7 @@ public class GpoSeccionController {
 
             for (Aula aula : aulas) {
                 ObjectNode json = JsonHelper.createJson(aula, jsonFactory);
+                json.put("esEspecifica", Boolean.TRUE);
                 jsonList.add(json);
             }
 
@@ -753,30 +754,38 @@ public class GpoSeccionController {
                 oficinasAulasSuperioresJson.add(JsonHelper.createJson(aulaEach, jsonFactory));
             }
 
-            ObjectNode node = new ObjectNode(jsonFactory);
-            node.putPOJO("seccion", seccion.toJson());
-            node.set("modulosOera", modulosOeraJson);
-            node.set("oficinasDisponibles", oficinasAulasSuperioresJson);
-            node.put("modulosOeraSel", "");
-            node.put("aulaSel", "");
+            ObjectNode nodeResult = new ObjectNode(jsonFactory);
+            nodeResult.putPOJO("seccion", seccion.toJson());
+            //combo
+            nodeResult.set("modulosOera", modulosOeraJson);
+            //combo
+            nodeResult.set("oficinasDisponibles", oficinasAulasSuperioresJson);
 
+            //  nodeResult.put("modulosOeraSel", "");
+            //   nodeResult.put("oficinaSel", "");
+            //  nodeResult.put("aulaSel", "");
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 Aula aula = service.findAula(seccion.getAula().getId());
+                ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
 
-                //OERA
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                    //OERA
                     Aula moduloOera = modulosOera.stream().filter(req -> req.getId().equals(aula.getAulaSuperior().getId())).findFirst().orElse(null);
-
-                    ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
-                    aulaNode.put("seleccionado", Boolean.TRUE);
-                    node.putPOJO("aulaSel", aulaNode);
-                    if (moduloOera != null) {
-                        node.putPOJO("modulosOeraSel", JsonHelper.createJson(moduloOera, jsonFactory));
-                    }
+                    aulaNode.put("esOera", Boolean.TRUE);
+                    //  aulaNode.put("seleccionado", Boolean.TRUE);
+                    nodeResult.putPOJO("modulosOeraSel", JsonHelper.createJson(moduloOera, jsonFactory));
+                } else if (oficinasAulasSuperiores.contains(aula.getAulaSuperior())) {
+                    //oficinas
+                    aulaNode.put("esOficina", Boolean.TRUE);
+                    nodeResult.putPOJO("oficinaSel", JsonHelper.createJson(aula.getAulaSuperior(), jsonFactory));
+                } else {
+                    //especificos
+                    aulaNode.put("esEspecifica", Boolean.TRUE);
                 }
+                nodeResult.putPOJO("aulaSel", aulaNode);
             }
 
-            response.setData(node);
+            response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -1140,16 +1149,8 @@ public class GpoSeccionController {
         try {
             JsonNodeFactory nf = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(nf);
-            /*
-                        if (grado == "0") {
-                dynatable.queries.remove("g.id");
-            } else {
-                dynatable.queries.add("g.id", grado);
-            }
-            dynatable.process();
-             */
-            // if (filter.getQueries().get("seccion") != null) {
-            //  Seccion seccion = new Seccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
+
+            //    Seccion seccion = new Seccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
             TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum.valueOf(tipoGrupoHora), ds.getCicloAcademico());
             List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), null);
 
@@ -1173,7 +1174,6 @@ public class GpoSeccionController {
                 }
                 array.add(node);
             }
-            //   }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -1310,15 +1310,17 @@ public class GpoSeccionController {
 
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 aula = seccion.getAula();
+                /*
                 ObjectNode aulaNode = JsonHelper.createJson(aula, nc);
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     aulaNode.put("esOera", Boolean.TRUE);
                 } else if (oficinasAulasSuperiores.contains(aula.getAulaSuperior())) {
-                    aulaNode.put("esOficinas", Boolean.TRUE);
+                    aulaNode.put("esOficina", Boolean.TRUE);
                 } else {
                     aulaNode.put("esEspecifico", Boolean.TRUE);
                 }
                 nodeData.putPOJO("aulaSel", aulaNode);
+                 */
             }
 
             List<Aula> aulas = service.allAulasBySuperior(seccion, new Aula(aulaId), ds.getCicloAcademico());
@@ -1331,13 +1333,14 @@ public class GpoSeccionController {
                 if (aulaEach.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     aulaJson.put("esOera", Boolean.TRUE);
                 } else if (oficinasAulasSuperiores.contains(aulaEach.getAulaSuperior())) {
-                    aulaJson.put("esOficinas", Boolean.TRUE);
+                    aulaJson.put("esOficina", Boolean.TRUE);
                 } else {
-                    aulaJson.put("esEspecifico", Boolean.TRUE);
+                    aulaJson.put("esEspecifica", Boolean.TRUE);
                 }
 
                 if (aula != null && aula.getId().equals(aulaEach.getId())) {
                     aulaJson.put("seleccionado", Boolean.TRUE);
+                    nodeData.putPOJO("aulaSel", aulaJson);
                 }
                 argAulas.add(aulaJson);
             }
@@ -1383,7 +1386,9 @@ public class GpoSeccionController {
             String message = "";
             if (arg.size() == 0) {
                 response.setSuccess(true);
-                response.setData(JsonHelper.createJson(aula, nc));
+                ObjectNode aulaNode = JsonHelper.createJson(aula, nc);
+                aulaNode.put("esEspecifica", Boolean.TRUE);
+                response.setData(aulaNode);
             } else {
                 response.setSuccess(false);
                 message = "Aula seleccionada con errores, verifique.";

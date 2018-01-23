@@ -62,7 +62,7 @@
 
                 <section class="panel">
                     <section class="panel-body">
-                        <table class="table table-striped" >
+                        <table class="table" >
                             <thead> 
                                 <tr class=""> 
                                     <th class="col-md-1 text-center">Clave </th>
@@ -80,7 +80,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr  v-for="(seccion, index) in secciones">
+                                <tr  v-for="(seccion, index) in secciones" 
+                                     v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.seccionId==seccion.seccionId)}">
                                     <td class="text-center">
                                         <a v-on:click="seleccionarSeccion(seccion)" 
                                            style="cursor:pointer;">{{ seccion.seccionCodigo }}
