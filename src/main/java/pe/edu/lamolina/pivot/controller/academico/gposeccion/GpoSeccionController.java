@@ -55,6 +55,7 @@ import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -410,6 +411,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
@@ -551,6 +553,7 @@ public class GpoSeccionController {
 
             for (Aula aula : aulas) {
                 ObjectNode json = JsonHelper.createJson(aula, jsonFactory);
+                json.put("esEspecifica", Boolean.TRUE);
                 jsonList.add(json);
             }
 
@@ -691,12 +694,18 @@ public class GpoSeccionController {
             //    node.put("grupoHorarioSel", "");
             node.put("tipoGrupoHorasSeleccionado", "");
             if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
-                GrupoHoras grupoHoras = seccion.getGrupoHoras();
+                GrupoHoras grupoHoras = service.findGrupoHoras(seccion.getGrupoHoras());
+
                 ObjectNode grupoHorasNode = grupoHoras.toJson();
+
                 if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
                     grupoHorasNode.put("esTipoGrupoRegular", true);
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                     grupoHorasNode.put("esTipoGrupoZeta", true);
+                    grupoHorasNode.put("esTipoGrupoCodZeta", grupoHoras.getTipoGrupoHoras().isCodigoZeta());
+                    grupoHorasNode.put("esTipoGrupoCodZetaAsterisk", grupoHoras.getTipoGrupoHoras().isCodigoZetaAsterisk());
+                } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
+                    grupoHorasNode.put("isTipoGrupoEspecial", true);
                 }
                 node.putPOJO("grupoHorarioSel", grupoHorasNode);
             }
@@ -748,30 +757,38 @@ public class GpoSeccionController {
                 oficinasAulasSuperioresJson.add(JsonHelper.createJson(aulaEach, jsonFactory));
             }
 
-            ObjectNode node = new ObjectNode(jsonFactory);
-            node.putPOJO("seccion", seccion.toJson());
-            node.set("modulosOera", modulosOeraJson);
-            node.set("oficinasDisponibles", oficinasAulasSuperioresJson);
-            node.put("modulosOeraSel", "");
-            node.put("aulaSel", "");
+            ObjectNode nodeResult = new ObjectNode(jsonFactory);
+            nodeResult.putPOJO("seccion", seccion.toJson());
+            //combo
+            nodeResult.set("modulosOera", modulosOeraJson);
+            //combo
+            nodeResult.set("oficinasDisponibles", oficinasAulasSuperioresJson);
 
+            //  nodeResult.put("modulosOeraSel", "");
+            //   nodeResult.put("oficinaSel", "");
+            //  nodeResult.put("aulaSel", "");
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 Aula aula = service.findAula(seccion.getAula().getId());
+                ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
 
-                //OERA
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                    //OERA
                     Aula moduloOera = modulosOera.stream().filter(req -> req.getId().equals(aula.getAulaSuperior().getId())).findFirst().orElse(null);
-
-                    ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
-                    aulaNode.put("seleccionado", Boolean.TRUE);
-                    node.putPOJO("aulaSel", aulaNode);
-                    if (moduloOera != null) {
-                        node.putPOJO("modulosOeraSel", JsonHelper.createJson(moduloOera, jsonFactory));
-                    }
+                    aulaNode.put("esOera", Boolean.TRUE);
+                    //  aulaNode.put("seleccionado", Boolean.TRUE);
+                    nodeResult.putPOJO("modulosOeraSel", JsonHelper.createJson(moduloOera, jsonFactory));
+                } else if (oficinasAulasSuperiores.contains(aula.getAulaSuperior())) {
+                    //oficinas
+                    aulaNode.put("esOficina", Boolean.TRUE);
+                    nodeResult.putPOJO("oficinaSel", JsonHelper.createJson(aula.getAulaSuperior(), jsonFactory));
+                } else {
+                    //especificos
+                    aulaNode.put("esEspecifica", Boolean.TRUE);
                 }
+                nodeResult.putPOJO("aulaSel", aulaNode);
             }
 
-            response.setData(node);
+            response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -788,7 +805,6 @@ public class GpoSeccionController {
             @RequestParam(name = "seccionId", required = false) Long seccionId, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -833,22 +849,14 @@ public class GpoSeccionController {
 
                 jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+                jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaHoraGrupo.getDia(), factory));
+                jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(diaHoraGrupo.getHora(), factory));
+
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
                         jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
                     }
                 }
-                //
-/*
-                ObjectNode jsonGrupoHorario = JsonHelper.createJson(diaHoraGrupo.getGrupoHorario(), factory);
-                jsonGrupoHorario.put("diaHoraGrupo", diaHoraGrupo.getId());
-
-                jsonGrupoHorario.put("seleccionado", Boolean.FALSE);
-                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
-                    if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
-                        jsonGrupoHorario.put("seleccionado", Boolean.TRUE);
-                    }
-                }*/
                 jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
             }
 
@@ -890,6 +898,108 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("horariosEspeciales")
+    public JsonResponse horariosEspeciales(@RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
+            @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+
+            GrupoHoras grupoHoras = service.findGrupoHoras(new GrupoHoras(grupoHorarioId));
+            Seccion seccion = service.findSeccion(seccionId);
+            List<Dia> dias = service.allDia();
+
+            List<HorarioAula> horariosAulas = null;
+            if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+                horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
+            }
+
+            List<Hora> horasEncontradas = new ArrayList<>();
+
+            for (DiaHoraGrupo diaHoraGrupo : grupoHoras.getDiaHoraGrupo()) {
+                Hora horaFound = horasEncontradas.stream().filter(req -> req.getId().equals(diaHoraGrupo.getHora().getId())).findFirst().orElse(null);
+                if (horaFound == null) {
+                    horasEncontradas.add(diaHoraGrupo.getHora());
+                }
+            }
+            Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+            ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
+            for (DiaHoraGrupo diaHoraGrupoEach : grupoHoras.getDiaHoraGrupo()) {
+                Long diaId = diaHoraGrupoEach.getDia().getId();
+                Long horaId = diaHoraGrupoEach.getHora().getId();
+
+                ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupoEach, factory);
+                ObjectNode grupoHorarioJson = JsonHelper.createJson(diaHoraGrupoEach.getGrupoHorario(), factory);
+
+                if (diaHoraGrupoEach.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoRegular()) {
+                    grupoHorarioJson.put("esTipoGrupoRegular", Boolean.TRUE);
+                } else if (diaHoraGrupoEach.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoZeta()) {
+                    grupoHorarioJson.put("esTipoGrupoZeta", Boolean.TRUE);
+                } else if (diaHoraGrupoEach.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoEspecial()) {
+                    grupoHorarioJson.put("esTipoGrupoEspecial", Boolean.TRUE);
+                }
+
+                jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
+                jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+                jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaHoraGrupoEach.getDia(), factory));
+                jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(diaHoraGrupoEach.getHora(), factory));
+
+                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                    if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
+                        if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
+                            for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
+                                if (horarioSeccionEach.getDia().getId().compareTo(diaId) == 0
+                                        && horarioSeccionEach.getHora().getId().compareTo(horaId) == 0) {
+                                    jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                                }
+                            }
+                        }
+                    }
+                }
+                jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
+            }
+
+            ObjectNode jsonHorarioAula = new ObjectNode(factory);
+            if (horariosAulas != null) {
+                for (HorarioAula horarioAulaEach : horariosAulas) {
+                    Long diaId = horarioAulaEach.getDia().getId();
+                    Long horaId = horarioAulaEach.getHora().getId();
+                    if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
+                        jsonHorarioAula.putPOJO(diaId + "_" + horaId, horarioAulaEach.toJson());
+                    }
+                }
+            }
+
+            ObjectNode data = new ObjectNode(factory);
+
+            ArrayNode diasJson = new ArrayNode(factory);
+            for (Dia dia : dias) {
+                diasJson.add(JsonHelper.createJson(dia, factory));
+            }
+            ArrayNode horasJson = new ArrayNode(factory);
+            for (Hora horasEncontrada : horasEncontradas) {
+                horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
+            }
+
+            data.set("dias", diasJson);
+            data.set("horas", horasJson);
+            data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
+            data.set("jsonHorarioAula", jsonHorarioAula);
+
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("horariosZeta")
     public JsonResponse horariosZeta(@RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
             @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
@@ -905,109 +1015,50 @@ public class GpoSeccionController {
 
             List<Dia> dias = service.allDia();
             List<Hora> horasEncontradas = service.allHora();
-            List<DiaHoraGrupo> diaHoraGrupos = null;
 
-            if (grupoHoras.getDiaHoraGrupo() != null && !grupoHoras.getDiaHoraGrupo().isEmpty()) {
-                horasEncontradas = new ArrayList<>();
-                if (diaHoraGrupos == null) {
-                    diaHoraGrupos = new ArrayList();
-                }
-                for (DiaHoraGrupo diaHoraGrupo : grupoHoras.getDiaHoraGrupo()) {
-                    diaHoraGrupos.add(diaHoraGrupo);
-                    Hora horaFound = horasEncontradas.stream().filter(req -> req.getId().equals(diaHoraGrupo.getHora().getId())).findFirst().orElse(null);
-                    if (horaFound == null) {
-                        horasEncontradas.add(diaHoraGrupo.getHora());
-                    }
-                }
-            }
-
-            /*
-                        TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipo(TipoGrupoHorasEnum.ZETA);
-            JsonResponse nodeZeta = horariosZeta(tipoGrupoHoras.getId(), seccionId, ds.getCicloAcademico());
-            node.putPOJO("zeta", nodeZeta.getData());
-            
-             */
-
- /*     TipoGrupoHoras tipoGrupoDb = service.findTipoGrupoHoras(tipoGrupoHorasId);
-            List<GrupoHoras> gruposHoras = service.allByTipoGrupoHorasCiclo(tipoGrupoDb, cicloAcademico);*/
             List<HorarioAula> horariosAulas = null;
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 horariosAulas = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
             }
 
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
-            if (diaHoraGrupos == null) {
-                for (Dia dia : dias) {
-                    for (Hora horaEach : horasEncontradas) {
-                        Long diaId = dia.getId();
-                        Long horaId = horaEach.getId();
 
-                        ObjectNode jsonDiaHoraGrupoEach = new ObjectNode(factory);
-                        jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(dia, factory));
-                        jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(horaEach, factory));
-                        jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
+            for (Dia diaEach : dias) {
+                for (Hora horaEach : horasEncontradas) {
+                    Long diaId = diaEach.getId();
+                    Long horaId = horaEach.getId();
 
-                        ObjectNode jspnGrupoHoras = JsonHelper.createJson(grupoHoras, factory);
-                        if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
-                            jspnGrupoHoras.put("esTipoGrupoRegular", Boolean.TRUE);
-                        } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
-                            jspnGrupoHoras.put("esTipoGrupoZeta", Boolean.TRUE);
-                        } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                            jspnGrupoHoras.put("esTipoGrupoEspecial", Boolean.TRUE);
-                        }
-
-                        /*
-                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
-                    if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
-                        jsonGrupoHorario.put("seleccionado", Boolean.TRUE);
-                    }
-                }
-                         */
-                        jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
-                        jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
-                    }
-                }
-            } else {
-                for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
-                    Long diaId = diaHoraGrupo.getDia().getId();
-                    Long horaId = diaHoraGrupo.getHora().getId();
-
-                    ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupo, factory);
-
-                    ObjectNode grupoHorarioJson = JsonHelper.createJson(diaHoraGrupo.getGrupoHorario(), factory);
-                    if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
-                        grupoHorarioJson.put("esTipoGrupoRegular", Boolean.TRUE);
-                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
-                        grupoHorarioJson.put("esTipoGrupoZeta", Boolean.TRUE);
-                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                        grupoHorarioJson.put("esTipoGrupoEspecial", Boolean.TRUE);
-                    }
-
-                    jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
+                    ObjectNode jsonDiaHoraGrupoEach = new ObjectNode(factory);
+                    jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaEach, factory));
+                    jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(horaEach, factory));
                     jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
-                    if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
-                        if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
-                            jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+
+                    ObjectNode jspnGrupoHoras = JsonHelper.createJson(grupoHoras, factory);
+                    if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
+                        jspnGrupoHoras.put("esTipoGrupoRegular", Boolean.TRUE);
+                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
+                        jspnGrupoHoras.put("esTipoGrupoZeta", Boolean.TRUE);
+                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
+                        jspnGrupoHoras.put("esTipoGrupoEspecial", Boolean.TRUE);
+                    }
+
+                    jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
+                    if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
+                        if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+                            if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
+                                for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
+                                    if (horarioSeccionEach.getDia().getId().compareTo(diaEach.getId()) == 0
+                                            && horarioSeccionEach.getHora().getId().compareTo(horaEach.getId()) == 0) {
+                                        jsonDiaHoraGrupoEach.put("seleccionado", Boolean.TRUE);
+                                    }
+                                }
+                            }
                         }
                     }
+
                     jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
                 }
             }
-            /*
-            for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
-                Long diaId = diaHoraGrupo.getDia().getId();
-                Long horaId = diaHoraGrupo.getHora().getId();
-
-                ObjectNode jsonGrupoHorario = JsonHelper.createJson(diaHoraGrupo.getGrupoHorario(), factory);
-                jsonGrupoHorario.put("seleccionado", Boolean.FALSE);
-                if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
-                    if (seccion.getGrupoHoras().getId().equals(diaHoraGrupo.getGrupoHorario().getId())) {
-                        jsonGrupoHorario.put("seleccionado", Boolean.TRUE);
-                    }
-                }
-                jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonGrupoHorario);
-            }*/
-
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
             if (horariosAulas != null) {
                 for (HorarioAula horarioAulaEach : horariosAulas) {
@@ -1091,8 +1142,57 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
-    @RequestMapping("listGrupoHorariosByTipo")
-    public DynatableResponse listGrupoHorariosByTipo(pe.albatross.octavia.dynatable.DynatableFilter filter,
+    @RequestMapping("listGrupoHorariosByTipoEspecial")
+    public DynatableResponse listGrupoHorariosByTipoEspecial(pe.albatross.octavia.dynatable.DynatableFilter filter,
+            @RequestParam(name = "tipoGrupoHora", required = false) String tipoGrupoHora,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        try {
+            JsonNodeFactory nf = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(nf);
+
+            //    Seccion seccion = new Seccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
+            TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum.valueOf(tipoGrupoHora), ds.getCicloAcademico());
+            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), null);
+
+            List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(gruposHoras);
+            Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
+
+            array = new ArrayNode(nf);
+            for (GrupoHoras grupoHoraEach : gruposHoras) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", grupoHoraEach.getId());
+                node.put("codigo", grupoHoraEach.getCodigo());
+                node.put("letra", grupoHoraEach.getLetra());
+                node.put("tipoCiclo", grupoHoraEach.getTipoCiclo());
+                node.put("tipoGrupoHoras", grupoHoraEach.getTipoGrupoHoras() != null ? grupoHoraEach.getTipoGrupoHoras().getCodigo() : "");
+                node.put("tipoSeccion", grupoHoraEach.getTipoSeccion());
+                node.put("color", grupoHoraEach.getColor());
+                List<DiaHoraGrupo> mapGrupohora = mapGrupohoras.get(grupoHoraEach.getId());
+                node.put("horas", 0);
+                if (mapGrupohora != null) {
+                    node.put("horas", mapGrupohora.size());
+                }
+                array.add(node);
+            }
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+
+        return json;
+    }
+
+    /*
+    @ResponseBody
+    @RequestMapping("listGrupoHorariosByTipoZeta")
+    public DynatableResponse listGrupoHorariosByTipoZeta(pe.albatross.octavia.dynatable.DynatableFilter filter,
             @RequestParam(name = "tipoGrupoHora", required = false) String tipoGrupoHora,
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -1134,8 +1234,7 @@ public class GpoSeccionController {
         }
 
         return json;
-    }
-
+    }*/
     @ResponseBody
     @RequestMapping("{seccion}/saveSeccionGrupo")
     public JsonResponse saveSeccionGrupo(
@@ -1149,9 +1248,6 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            for (DiaHoraGrupo diaHoraGrupo : diasHorasGrupo) {
-
-            }
             String message = "Grupo hora asignado correctamente.";
             service.saveSeccionGrupoHorario(seccionId, diasHorasGrupo, ds.getCicloAcademico());
 
@@ -1160,6 +1256,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
@@ -1182,7 +1279,7 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
             String message = "Aula asignado correctamente.";
-            service.saveAula(seccionId, aulaId);
+            service.saveAula(seccionId, aulaId, ds.getCicloAcademico());
 
             response.setSuccess(true);
             response.setMessage(message);
@@ -1216,15 +1313,17 @@ public class GpoSeccionController {
 
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 aula = seccion.getAula();
+                /*
                 ObjectNode aulaNode = JsonHelper.createJson(aula, nc);
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     aulaNode.put("esOera", Boolean.TRUE);
                 } else if (oficinasAulasSuperiores.contains(aula.getAulaSuperior())) {
-                    aulaNode.put("esOficinas", Boolean.TRUE);
+                    aulaNode.put("esOficina", Boolean.TRUE);
                 } else {
                     aulaNode.put("esEspecifico", Boolean.TRUE);
                 }
                 nodeData.putPOJO("aulaSel", aulaNode);
+                 */
             }
 
             List<Aula> aulas = service.allAulasBySuperior(seccion, new Aula(aulaId), ds.getCicloAcademico());
@@ -1237,13 +1336,14 @@ public class GpoSeccionController {
                 if (aulaEach.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     aulaJson.put("esOera", Boolean.TRUE);
                 } else if (oficinasAulasSuperiores.contains(aulaEach.getAulaSuperior())) {
-                    aulaJson.put("esOficinas", Boolean.TRUE);
+                    aulaJson.put("esOficina", Boolean.TRUE);
                 } else {
-                    aulaJson.put("esEspecifico", Boolean.TRUE);
+                    aulaJson.put("esEspecifica", Boolean.TRUE);
                 }
 
                 if (aula != null && aula.getId().equals(aulaEach.getId())) {
                     aulaJson.put("seleccionado", Boolean.TRUE);
+                    nodeData.putPOJO("aulaSel", aulaJson);
                 }
                 argAulas.add(aulaJson);
             }
@@ -1289,7 +1389,9 @@ public class GpoSeccionController {
             String message = "";
             if (arg.size() == 0) {
                 response.setSuccess(true);
-                response.setData(JsonHelper.createJson(aula, nc));
+                ObjectNode aulaNode = JsonHelper.createJson(aula, nc);
+                aulaNode.put("esEspecifica", Boolean.TRUE);
+                response.setData(aulaNode);
             } else {
                 response.setSuccess(false);
                 message = "Aula seleccionada con errores, verifique.";

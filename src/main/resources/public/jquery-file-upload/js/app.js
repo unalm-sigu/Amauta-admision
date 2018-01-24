@@ -99,3 +99,6 @@
         ]);
 
 }());
+
+
+var $global = new Vue();

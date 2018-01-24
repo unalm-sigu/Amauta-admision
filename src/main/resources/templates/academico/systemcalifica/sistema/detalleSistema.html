@@ -32,12 +32,12 @@
 <table class="table table-striped m-t-lg">
     <thead>
         <tr class=""> 
-            <th class="col-md-1">Código</th>
-            <th class="col-md-4">Tipo Calificación</th>
-            <th class="col-md-2 text-center">Cantidad</th>
-            <th class="col-md-1 text-center">Peso Total</th>
-            <th class="col-md-2 text-center">Nota Min. Anulable</th>
-            <th class="col-md-1 text-center">Porcentaje Var.</th>
+            <th class="col-md-2 text-center">Código</th>
+            <th class="col-md-8">Tipo Calificación</th>
+            <!--<th class="col-md-2 text-center">Cantidad</th>-->
+            <th class="col-md-2 text-center">Peso Total</th>
+            <!--<th class="col-md-2 text-center">Nota Min. Anulable</th>-->
+            <!--<th class="col-md-1 text-center">Porcentaje Var.</th>-->
             <!-- 
           <th class="col-md-3 text-center">Profesor</th>
             -->
@@ -46,25 +46,25 @@
 
     <tbody>
         <tr th:each="evas : ${planCalificacion.evaluacionPlan}">
-            <td  class="v-middle"><span th:text="${evas.tipoEvaluacion.codigo}">EP</span></td>
+            <td  class="v-middle text-center"><span th:text="${evas.tipoEvaluacion.codigo}">EP</span></td>
 
             <td  class="v-middle">
                 <span th:text="${evas.tipoEvaluacion.nombre}">Examen Parcial</span>
             </td>
-            <td class="text-center v-middle">
+<!--            <td class="text-center v-middle">
                 <span class="block" th:text="${evas.cantidadEvaluaciones}" >1</span>
-            </td>
+            </td>-->
             <td class="text-center v-middle">
                 <span class="block"  th:text="${evas.pesoTotal+ ' %'}"  >20 %</span>
             </td>
-            <td class="text-center v-middle">
+<!--            <td class="text-center v-middle">
                 <span class="block"  th:if='${evas.notaMinimaAnulable==1}'>Si</span>
                 <span class="block"  th:if='${evas.notaMinimaAnulable==0}'>No</span>
-            </td>
-            <td class="text-center v-middle">
-                <span class="block"  th:if='${evas.indPorcentajeVariable==1}'>Si</span>
-                <span class="block"  th:if='${evas.indPorcentajeVariable==0}'>No</span>
-            </td>
+            </td>-->
+<!--            <td class="text-center v-middle">
+                <span class="block"  th:if='${evas.porcentajeVariable==1}'>Si</span>
+                <span class="block"  th:if='${evas.porcentajeVariable==0}'>No</span>
+            </td>-->
             <!-- 
             <td class="text-center v-middle">
                 <span class="label label-default" th:text="${evas.tipoSeccionEnum.value}">Teoria</span>

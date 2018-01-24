@@ -82,14 +82,7 @@ public class FacultadController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            logger.debug("COMPANIA {}", ds.getCompania().getId());
-            logger.debug("FACULTADES {}", ds.getFacultados().size());
-            logger.debug("DEPARTAMENTOS {}", ds.getDepartamentos().size());
-            logger.debug("CARRERAS {}", ds.getCarreras().size());
-            logger.debug("MODALIDADES {}", ds.getModalidades().size());
-
             List<Facultad> facultades = service.allFacultad(filter);
-
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Facultad facultad : facultades) {
@@ -98,7 +91,9 @@ public class FacultadController {
                 node.put("nombre", facultad.getNombre());
                 node.put("codigo", facultad.getCodigo());
                 node.put("simbolo", facultad.getSimbolo());
+                node.put("codigoCurso", facultad.getCodigoCurso());
                 node.put("estado", facultad.getEstado());
+                node.put("estadoEnum", facultad.getEstadoEnum().getValue());
                 node.put("motivoDesactivacion", facultad.getMotivoDesactivacion());
                 node.put("fecha", new DateTime(facultad.getFechaRegistro()).toString("dd/MM/yyyy"));
                 array.add(node);

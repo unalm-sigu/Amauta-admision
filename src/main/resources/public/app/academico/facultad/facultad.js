@@ -17,11 +17,8 @@ $(function () {
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
 
-        var colorEstado = {ACT: "success", DES: "default"};
-        var nameEstado = {ACT: "Activo", DES: "Desactivado"};
-
+        var colorEstado = {ACT: "success", CRE: "default", DES: "danger"};
         record.colorEstado = colorEstado[record.estado];
-        record.nameEstado = nameEstado[record.estado];
 
         var html = $.templates("#facultadTemplate").render(record);
         return $(html).prop('outerHTML');

@@ -70,9 +70,9 @@ public class PlanCalificacionCursoDAOH extends AbstractEasyDAO<PlanCalificacionC
     public List<PlanCalificacionCurso> allByFilterDyna(DynatableFilter filter, PlanCalificacion planCalificacion, EstadoEnum estadoPlanCurdo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(PlanCalificacionCurso.class, "plncur")
-                .join("planCalificacion pc", "curso cur", "_pc.departamentoAcademico da")
+                .join("planCalificacion pc", "curso cur", "cur.departamentoAcademico da")
                 .searchFields("cur.nombre", "cur.codigo", "cur.fechaPlanCalificacion")
-                .orderBy("cu.id desc");
+                .orderBy("plncur.id desc");
 
         if (planCalificacion != null) {
             sql.filter("pc.id", planCalificacion);

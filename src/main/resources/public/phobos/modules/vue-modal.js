@@ -28,8 +28,5 @@ Vue.component('modal-vik', {
             $('#' + $vue.id).modal('hide');
             this.cancelaction();
         }
-
-    }, mounted: function() {
-
     }
 });
