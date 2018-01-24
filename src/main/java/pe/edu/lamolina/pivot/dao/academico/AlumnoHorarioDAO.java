@@ -29,4 +29,6 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     public List<AlumnoHorario> allByAlumnoHorarioLikeList(AlumnoHorario alumnoHorario);
 
+    public void allSetHorarioNullByCiclo(CicloAcademico cicloAcademico);
+
 }

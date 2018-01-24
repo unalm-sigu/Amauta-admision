@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -128,4 +129,19 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("ah.id", alumnoHorario);
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public void allSetHorarioNullByCiclo(CicloAcademico cicloAcademico) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  update ").append(AlumnoHorario.class.getName()).append(" ah ");
+        sql.append("  set ah.horarioCachimbos.id=NULL      ");
+        sql.append("  where ah.cicloAcademico.id = :CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
+
+    }
+
 }
