@@ -29,6 +29,15 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
     }
 
     @Override
+    public List<HorarioSeccion> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(HorarioSeccion.class, "hs")
+                .join("dia di", "hora ho", "seccion sec")
+                .filter("sec.id", seccion);
+        return all(sql);
+    }
+
+    @Override
     public List<HorarioSeccion> allByCicloCurso(CicloAcademico cicloAcademico, List<Curso> cursos) {
         Octavia sql = Octavia.query()
                 .from(HorarioSeccion.class, "hs")

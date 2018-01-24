@@ -67,6 +67,19 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allBySeccionCiclo(Seccion seccion, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico cic")
+                .filter("au.estado", EstadoEnum.ACT.name())
+                .filter("sec.id", seccion)
+                .filter("cic.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
     public void deleteBySeccionAula(Seccion seccion, Aula aula) {
         StringBuilder queryStr = new StringBuilder();
         queryStr.append("delete from HorarioAula ha where ha.seccion.id=:prm_seccion and ha.aula.id=:prm_aula ");
@@ -75,6 +88,23 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
         query.setParameter("prm_seccion", seccion.getId());
         query.setParameter("prm_aula", aula.getId());
+
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteBySeccionDiaHoraAula(Seccion seccion, Dia dia, Hora hora, Aula aula) {
+        StringBuilder queryStr = new StringBuilder();
+        queryStr.append("delete from HorarioAula ha where ha.seccion.id=:prm_seccion and ha.aula.id=:prm_aula ");
+        queryStr.append(" and ha.dia.id=:prm_dia ");
+        queryStr.append(" and ha.hora.id=:prm_hora ");
+
+        Query query = getCurrentSession().createQuery(queryStr.toString());
+
+        query.setParameter("prm_seccion", seccion.getId());
+        query.setParameter("prm_aula", aula.getId());
+        query.setParameter("prm_dia", dia.getId());
+        query.setParameter("prm_hora", hora.getId());
 
         query.executeUpdate();
     }

@@ -81,7 +81,7 @@ public interface GpoSeccionService {
 
     void saveSeccionGrupoHorario(Long seccionId, List<DiaHoraGrupo> diasHorasGrupo, CicloAcademico cicloAcademico);
 
-    void saveAula(Long seccionId, Long aulaId);
+    void saveAula(Long seccionId, Long aulaId, CicloAcademico cicloAcademico);
 
     List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico);
 
@@ -113,7 +113,8 @@ public interface GpoSeccionService {
 
     List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
-            CicloAcademico cicloAcademico);
+            CicloAcademico cicloAcademico,
+            Seccion seccion);
 
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
