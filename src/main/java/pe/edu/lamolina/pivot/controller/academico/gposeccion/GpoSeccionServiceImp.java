@@ -668,25 +668,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         //borrar los deseleccionados
         for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
+            /*
             if (!horarioSeccionEach.isTieneDiaHoraGrupo(diasHorasGrupo)) {
                 if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                     horarioAulaDAO.deleteBySeccionDiaHoraAula(seccion, horarioSeccionEach.getDia(),
                             horarioSeccionEach.getHora(), seccion.getAula());
                 }
                 horarioSeccionDAO.delete(horarioSeccionEach);
-            }
+            }*/
+            horarioSeccionDAO.delete(horarioSeccionEach);
+        }
+
+        if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+            horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         }
 
         for (DiaHoraGrupo diaHoraGrupoEach : diasHorasGrupo) {
             //verificar si ya se encuentra registrado en base de datos
-            if (diaHoraGrupoEach.isTieneHorarioSeccion(seccion.getHorarioSeccion())) {
+            /* if (diaHoraGrupoEach.isTieneHorarioSeccion(seccion.getHorarioSeccion())) {
                 continue;
-            }
+            }*/
             if (horariosAulas != null) {
                 for (HorarioAula horarioAulaEach : horariosAulas) {
                     if (diaHoraGrupoEach.getDia().getId().equals(horarioAulaEach.getDia().getId())
                             && diaHoraGrupoEach.getHora().getId().equals(horarioAulaEach.getHora().getId())) {
-                        throw new PhobosException("Aula ocupada para el grupo seleccionado");
+                        if (horarioAulaEach.getSeccion().getId().compareTo(seccion.getId()) != 0) {
+                            throw new PhobosException("Aula ocupada para el grupo seleccionado");
+                        }
                     }
                 }
             }
@@ -712,9 +720,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void saveAula(Long seccionId, Long aulaId) {
+    public void saveAula(Long seccionId, Long aulaId, CicloAcademico cicloAcademico) {
         Seccion seccion = seccionDAO.find(seccionId);
+
         Aula aula = aulaDAO.find(aulaId);
+
+        if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
+            if (seccion.getAula().getId().compareTo(aula.getId()) != 0) {
+                horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
+            }
+        } else {
+            //en caso de que no cambio a un aula diferente, se puede eliminar algunos horarios aula determinados
+            //todo
+            horarioAulaDAO.deleteBySeccionAula(seccion, aula);
+        }
+
         seccion.setAula(aula);
 
         if (seccion.getVacantes() != null) {
@@ -722,16 +742,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException("El aforo del aula no abarca las vacantes de la sección.");
             }
         }
+
         if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
+            List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
+            List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
+
             GrupoHoras grupoHoras = grupoHorasDAO.find(seccion.getGrupoHoras().getId());
             seccion.setGrupoHoras(grupoHoras);
 
             HorarioAula horarioAula = null;
-            for (DiaHoraGrupo diaHoraGrupo : grupoHoras.getDiaHoraGrupo()) {
+            for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
+
+                for (HorarioAula horarioAulaEach : horariosAulas) {
+                    if (horarioSeccionEach.getDia().getId().equals(horarioAulaEach.getDia().getId())
+                            && horarioSeccionEach.getHora().getId().equals(horarioAulaEach.getHora().getId())) {
+                        if (horarioAulaEach.getSeccion().getId().compareTo(seccion.getId()) != 0) {
+                            throw new PhobosException("Aula ocupada para el grupo seleccionado");
+                        }
+                    }
+                }
+
                 horarioAula = new HorarioAula();
                 horarioAula.setAula(aula);
-                horarioAula.setDia(diaHoraGrupo.getDia());
-                horarioAula.setHora(diaHoraGrupo.getHora());
+                horarioAula.setDia(horarioSeccionEach.getDia());
+                horarioAula.setHora(horarioSeccionEach.getHora());
                 horarioAula.setSeccion(seccion);
                 horarioAulaDAO.save(horarioAula);
             }

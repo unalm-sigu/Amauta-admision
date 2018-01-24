@@ -81,7 +81,7 @@ public interface GpoSeccionService {
 
     void saveSeccionGrupoHorario(Long seccionId, List<DiaHoraGrupo> diasHorasGrupo, CicloAcademico cicloAcademico);
 
-    void saveAula(Long seccionId, Long aulaId);
+    void saveAula(Long seccionId, Long aulaId, CicloAcademico cicloAcademico);
 
     List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico);
 

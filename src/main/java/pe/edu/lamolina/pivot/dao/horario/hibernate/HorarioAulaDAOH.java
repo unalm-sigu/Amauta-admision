@@ -67,6 +67,19 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allBySeccionCiclo(Seccion seccion, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico cic")
+                .filter("au.estado", EstadoEnum.ACT.name())
+                .filter("sec.id", seccion)
+                .filter("cic.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
     public void deleteBySeccionAula(Seccion seccion, Aula aula) {
         StringBuilder queryStr = new StringBuilder();
         queryStr.append("delete from HorarioAula ha where ha.seccion.id=:prm_seccion and ha.aula.id=:prm_aula ");

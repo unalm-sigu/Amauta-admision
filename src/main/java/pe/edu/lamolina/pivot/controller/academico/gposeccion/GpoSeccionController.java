@@ -1276,7 +1276,7 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
             String message = "Aula asignado correctamente.";
-            service.saveAula(seccionId, aulaId);
+            service.saveAula(seccionId, aulaId, ds.getCicloAcademico());
 
             response.setSuccess(true);
             response.setMessage(message);

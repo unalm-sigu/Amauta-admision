@@ -527,10 +527,27 @@ var app = new Vue({
         }, showModalGrupos(seccion) {
             let $vue = this;
 
+            $vue.tabGrupos = {
+                grupoHorarioSel: null,
+                regulares: {
+                    tipoGrupoHorasSeleccionado: null,
+                    tblHorarioRegular: null,
+                    grupoHorarioRegSel: null,
+                    tipoGrupoHorasOpts: null
+                }, zetas: {
+                    grupoHorarioSel: null,
+                    tblHorarios: null
+                }, especial: {
+                    grupoHorarioSel: null,
+                    tblHorarios: null
+                }
+            }
+
             this.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = null;
             this.tabGrupos['regulares'].tblHorarioRegular = null;
             this.tabGrupos['regulares'].grupoHorarioRegSel = null;
             this.tabGrupos['regulares'].tipoGrupoHorasOpts = null;
+
 
             $.ajax({
                 method: 'POST',
@@ -1272,6 +1289,30 @@ var app = new Vue({
              }*/
             return "btn-default";
         }, showModalAula(seccion) {
+
+            this.tabAulas = {
+                aulaSel: null,
+                oera: {
+                    id: 50,
+                    nombre: "oera",
+                    moduloSel: null,
+                    aulaSel: null,
+                    modulosCombo: [],
+                    tblAulas: null
+                },
+                oficinas: {
+                    oficinaSel: null,
+                    aulaSel: null,
+                    oficinasDisponibles: [],
+                    tblAulas: null
+                },
+                especificas: {
+                    aulasEspecificaSel: null,
+                    aulasEspecificas: [],
+                    errores: []
+                }
+            };
+
             let $vue = this;
             $.ajax({
                 method: 'POST',
