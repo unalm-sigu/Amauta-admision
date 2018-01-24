@@ -30,4 +30,6 @@ public interface ConvenioService {
 
     List<CarreraConvenio> allCarreraConvenioByConvenioBeca(ConvenioBeca convenioBeca);
 
+    public String getCleanName(String originalFilename);
+
 }

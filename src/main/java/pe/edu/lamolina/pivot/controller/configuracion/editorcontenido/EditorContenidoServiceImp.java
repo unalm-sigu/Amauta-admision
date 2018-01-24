@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.pivot.zelper.aws.S3Service;
+import pe.albatross.zelpers.aws.S3Service;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.inscripcion.ContenidoVariable;
 import pe.edu.lamolina.model.seguridad.Sistema;

@@ -127,6 +127,25 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-xs-12">
+                                        <h4  class="m-b-md m-t-md"  title="solo se admite un documento pdf"> Archivo adjunto</h4>
+                                    </div>
+
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <i class="fa fa-file-pdf-o  pull-left m-t-xxs m-r-xs" aria-hidden="true"></i>
+                                            <p class="" id="pdfname" th:text="${convenioBeca.rutaDocumento}"></p>
+                                            <input type="file" class="hidden" name="file" id="fileupload" />
+
+                                            <input type="text" class="hidden"
+                                                   th:value="${convenioBeca.rutaDocumento}"
+                                                   name="rutaDocumento"  required="true" />
+
+                                            <a v-on:click.prevent="adjuntarArchivo" href="#">Seleccionar Archivo</a>
+                                            <i v-if="showspinner" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+
 
                                     <div class="col-xs-12">
                                         <div class="pull-right">
@@ -179,6 +198,11 @@
         <div layout:fragment="js">
             <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script charset="utf-8">
+                var datepicker = $.fn.datepicker.noConflict();
+                $.fn.bootstrapDP = datepicker;
+            </script>
+            <div th:substituteby="_layout/includes :: javascript-upload"></div>
             <script th:src="@{/app/academico/convenio/convenioform.js}" charset="utf-8"></script>
         </div>
 

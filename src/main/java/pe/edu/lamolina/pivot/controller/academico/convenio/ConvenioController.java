@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,9 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -110,7 +112,17 @@ public class ConvenioController {
                 node.put("pais", convenio.getPais() != null ? convenio.getPais().getNombre() : "");
                 node.put("institucion", convenio.getInstitucion() != null ? convenio.getInstitucion().getRazonSocial() : "");
                 node.put("estado", convenio.getEstado());
-                node.put("rutaDocumento", convenio.getRutaDocumento());
+                String prettyName = convenio.getRutaDocumento();
+                prettyName = prettyName.substring(20);
+                prettyName = prettyName.replaceAll("[\\-]", " ");
+                node.put("nameDocumento", prettyName);
+
+                StringBuilder link = new StringBuilder();
+                link.append(Constantine.S3_LINK);
+                link.append(Constantine.S3_DIR);
+                link.append(Constantine.S3_DIR_CONVENIO);
+                link.append(convenio.getRutaDocumento());
+                node.put("linkDocumento", link.toString());
 
                 node.put("inicio", convenio.getInicioVigencia() != null
                         ? new DateTime(convenio.getInicioVigencia()).toString("dd/MM/yyyy") : "");
@@ -301,4 +313,31 @@ public class ConvenioController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("uploadFile")
+    public JsonResponse uploadFile(@RequestParam("file") MultipartFile file) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            String cleanName = service.getCleanName(file.getOriginalFilename());
+            FileHelper.createDirectory(Constantine.TMP_DIR);
+            String absoluteName = Constantine.TMP_DIR + cleanName;
+            FileHelper.saveToDisk(file, absoluteName);
+
+            response.setMessage("Importación finalizada.");
+            response.setData(cleanName);
+            response.setSuccess(true);
+
+        } catch (IOException e) {
+            response.setSuccess(false);
+            response.setMessage(Constantine.APP_ERROR_MESSAGE);
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setMessage(Constantine.APP_ERROR_MESSAGE);
+        }
+        return response;
+
+    }
+
 }

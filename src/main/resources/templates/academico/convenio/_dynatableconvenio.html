@@ -30,8 +30,8 @@
             <span class="block text-sm text-primary"> {{convenio.institucion}}</span>
             <span class="block text-sm text-primary"> {{convenio.pais}}</span>
 
-            <small class="block  text-sm  text-warning" v-if="convenio.rutaDocumento">
-                {{convenio.rutaDocumento}}
+            <small class="block  text-sm  text-warning" v-if="convenio.nameDocumento">
+                <a v-bind:href="convenio.linkDocumento" class="btn btn-link btn-sm">{{convenio.nameDocumento}}</a>
             </small>
 
         </td>

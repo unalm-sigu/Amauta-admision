@@ -21,7 +21,8 @@ new Vue({
             header: true,
             title: 'Crear Institución',
             okbtn: 'Guardar'
-        }
+        },
+        showspinner: false,
     },
     created: function() {
         let vue = this;
@@ -31,11 +32,48 @@ new Vue({
         $global.$on("deleteItem", function(id) {
             vue.deleteItem(id);
         });
-        $(".date").datepicker();
+        $(".date").bootstrapDP();
         $('[name="pais.id"]').select2(vue.buscarPais());
         $('[name="paisUbicacion.id"]').select2(vue.buscarPais());
         $('[name="institucion.id"]').select2(vue.buscarEmpresa());
+
         vue.allCarrerasAfines();
+
+        $('#fileupload').fileupload({
+            url: APP.url('academico/convenio/uploadFile'),
+            maxNumberOfFiles: 1,
+            dataType: 'json',
+            add: function(e, data) {
+                if (data.files[0].size / 1000000 > 410) {
+                    notify("El archivo es demasiado grande.", "error");
+                    return;
+                }
+                if (data.files[0].name.search(/(\.|\/)(pdf)$/i) == -1) {
+                    notify("Formato de archivo no soportado. Solo se admite archivos pdf.", "error");
+                    return;
+                }
+                data.submit();
+                vue.showspinner = true;
+            },
+            progress: function(e, data) {
+            },
+            done: function(e, data) {
+                if (data.result.success) {
+                    $("#pdfname").text(data.result.data);
+                    $("[name='rutaDocumento']").val(data.result.data);
+                } else {
+                    notify(data.result.message, "error");
+                    $("[name='rutaDocumento']").val("");
+                }
+                $("[name='rutaDocumento']").parsley().validate();
+                vue.showspinner = false;
+            },
+            fail: function(e, data) {
+                vue.showspinner = false;
+                notify(MESSAGES.errorComunicacion, "error");
+            }
+        });
+
     },
     methods: {
         buscarPais: function() {
@@ -175,30 +213,20 @@ new Vue({
             var vue = this;
             var carrera = {};
             if (dato) {
-                console.log('upadte**********');
-                console.log(dato);
                 carrera = dato;
-                console.log('after**********');
-                console.log(carrera);
             }
             var itemCarreraTemplate = new ItemCarreraTemplate();
             itemCarreraTemplate.carrera = carrera;
-            console.log('***afterset template');
-            console.log(itemCarreraTemplate.carrera);
-            console.log(itemCarreraTemplate.carrera.id);
-            console.log(itemCarreraTemplate.carrera.modalidad);
             var component = itemCarreraTemplate.$mount();
             $('#carreraAfin tbody').append(component.$el);
             $('#carreraAfin tbody tr:last').find('.carreraItem').
-                    select2(vue.buscarCarrera(itemCarreraTemplate));
-//            $('#carreraAfin tbody tr:last').find('.carreraItem').
-//                    select2(vue.buscarCarrera(itemCarreraTemplate)).on("change.select2", function(e) {
-//                if (e && e.removed) {
-//                    if (e.val == '') {
-//                        itemCarreraTemplate.carrera = {};
-//                    }
-//                }
-//            });
+                    select2(vue.buscarCarrera(itemCarreraTemplate)).on("change.select2", function(e) {
+                if (e && e.removed) {
+                    if (e.val == '') {
+                        itemCarreraTemplate.carrera = {};
+                    }
+                }
+            });
             vue.reindexitem();
         },
         createInstitucion: function(e) {
@@ -277,6 +305,9 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        adjuntarArchivo: function(e) {
+            $('#fileupload').trigger('click');
         }
     }
 });
