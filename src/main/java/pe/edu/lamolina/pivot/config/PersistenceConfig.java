@@ -69,7 +69,7 @@ public class PersistenceConfig {
         Properties prop = new Properties();
         prop.setProperty("hibernate.dialect", this.dialect);
         prop.setProperty("hibernate.show_sql", this.showSql);
-//        prop.setProperty("hibernate.hbm2ddl.auto", "create");
+        prop.setProperty("hibernate.hbm2ddl.auto", "create");
         prop.setProperty("hibernate.connection.release_mode", "after_transaction");
         prop.setProperty("hibernate.connection.useUnicode", "true");
         prop.setProperty("hibernate.connection.charSet", "UTF8");
