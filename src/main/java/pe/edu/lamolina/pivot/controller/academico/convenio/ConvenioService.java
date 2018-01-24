@@ -1,10 +1,12 @@
 package pe.edu.lamolina.pivot.controller.academico.convenio;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CarreraConvenio;
 import pe.edu.lamolina.model.academico.ConvenioBeca;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -22,6 +24,10 @@ public interface ConvenioService {
 
     void saveInstitucion(Empresa institucion);
 
-    public List<Carrera> allCarreraByName(String nombre, ModalidadEstudio modalidadEstudio);
+    List<Carrera> allCarreraByName(String nombre, Compania cia);
+
+    Map<Long, List<CarreraConvenio>> allByCarreraConvenio(List<ConvenioBeca> convenios);
+
+    List<CarreraConvenio> allCarreraConvenioByConvenioBeca(ConvenioBeca convenioBeca);
 
 }

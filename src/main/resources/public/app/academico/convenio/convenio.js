@@ -4,7 +4,7 @@ $(function() {
     var DynatableRowTemplate = Vue.component("dynatableRow", {
         template: "#dynatableRowTemplate",
         data: function() {
-            return {becado: {id: null, alumno: {}}};
+            return {convenio: {}};
         },
         methods: {
             eliminar(id) {
@@ -29,23 +29,20 @@ $(function() {
                 var $vue = this;
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
-                        ajaxUrl: APP.url('academico/visitante/alumno/list'),
+                        ajaxUrl: APP.url('academico/convenio/list'),
                         perPageDefault: 10,
                         ajaxData: {id: $vue.curso},
                     },
                     writers: {_rowWriter: $vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
                 }).bind("dynatable:afterUpdate", function(e) {
-
                     var records = dynatable.settings.dataset.records;
-
                     for (var i = 0, max = records.length; i < max; i++) {
                         var dynatableRowTemplate = new DynatableRowTemplate();
-                        dynatableRowTemplate.visitante = records[i];
+                        dynatableRowTemplate.convenio = records[i];
                         var component = dynatableRowTemplate.$mount();
                         $('#dynaTbody').append(component.$el);
                     }
-
                 }).data('dynatable');
             },
             writter: function(rowIndex, record, columns, cellWriter) {
@@ -72,12 +69,12 @@ $(function() {
         methods: {
             editar(id) {
                 var vue = this;
-                $(location).attr('href', APP.url('academico/visitante/alumno/' + id + '/update'));
+                $(location).attr('href', APP.url('academico/convenio/' + id + '/update'));
             },
             eliminar(id) {
                 var $vue = this;
                 bootbox.confirm({
-                    message: '¿Seguro que desea eliminar el alumno becado?',
+                    message: '¿Seguro que desea eliminar el convenio?',
                     buttons: {
                         confirm: {label: 'Si, eliminar', className: "btn-danger"},
                         cancel: {label: 'Cancelar', className: "btn-link"}
@@ -86,7 +83,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/visitante/alumno/delete'),
+                                url: APP.url('academico/convenio/delete'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {

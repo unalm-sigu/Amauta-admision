@@ -26,7 +26,7 @@
 
                             <form data-parsley-validate="true" method="POST" id="formConvenioBeca" >
 
-                                <input type="hidden"  name="id" th:value="${convenio.id}"/>
+                                <input type="hidden"  name="id" th:value="${convenioBeca.id}"/>
 
                                 <div class="panel-body">
 
@@ -41,7 +41,7 @@
                                                    name="nombre"
                                                    maxlength="200"
                                                    required="true"
-                                                   th:value="${convenio.nombre}"
+                                                   th:value="${convenioBeca.nombre}"
                                                    class="form-control"/>
                                         </div>
                                     </div>
@@ -54,9 +54,9 @@
                                                    class="form-control input-s-full"
                                                    name="pais.id"
                                                    data-trigger="change"
-                                                   th:attr="codigo=${helper.showCodigoPais(convenio.pais)}"
-                                                   th:rel="${convenio.pais != null}? ${convenio.pais.nombre}"
-                                                   th:value="${convenio.pais != null}? ${convenio.pais.id}"
+                                                   th:attr="codigo=${helper.showCodigoPais(convenioBeca.pais)}"
+                                                   th:rel="${convenioBeca.pais != null}? ${convenioBeca.pais.nombre}"
+                                                   th:value="${convenioBeca.pais != null}? ${convenioBeca.pais.id}"
                                                    required="true"/>
                                         </div>
                                     </div>
@@ -71,8 +71,8 @@
                                                        name="institucion.id"
                                                        data-trigger="change"
                                                        data-parsley-errors-container="#errorinstitucion"
-                                                       th:rel="${convenio.institucion != null}? ${convenio.institucion.razonSocial}"
-                                                       th:value="${convenio.institucion != null}? ${convenio.institucion.id}"
+                                                       th:rel="${convenioBeca.institucion != null}? ${convenioBeca.institucion.razonSocial}"
+                                                       th:value="${convenioBeca.institucion != null}? ${convenioBeca.institucion.id}"
                                                        required="true"/>
                                                 <span v-on:click="addInstitucion" class="input-group-addon pointer">
                                                     <i class="fa fa-plus" aria-hidden="true"></i>
@@ -88,7 +88,7 @@
                                             <label class="control-label" for="inicioVigencia">Inicia Vigencia</label>
                                             <div class="input-group date" >
                                                 <input  type="text" class="form-control" required="true"
-                                                        th:value="${convenio.inicioVigencia!=null ? #dates.format(convenio.inicioVigencia,'dd/MM/yyyy'):''}"
+                                                        th:value="${convenioBeca.inicioVigencia!=null ? #dates.format(convenioBeca.inicioVigencia,'dd/MM/yyyy'):''}"
                                                         data-parsley-errors-container="#errorinicioVigencia"  name="inicioVigencia"/>
                                                 <span class="input-group-addon">
                                                     <i class="fa fa-calendar" aria-hidden="true"></i>
@@ -104,7 +104,7 @@
                                             <label class="control-label" for="finVigencia">Fin Vigencia</label>
                                             <div class="input-group date" >
                                                 <input  type="text" class="form-control" required="true"
-                                                        th:value="${convenio.finVigencia!=null ? #dates.format(convenio.finVigencia,'dd/MM/yyyy'):''}"
+                                                        th:value="${convenioBeca.finVigencia!=null ? #dates.format(convenioBeca.finVigencia,'dd/MM/yyyy'):''}"
                                                         data-parsley-errors-container="#errorfinVigencia"  name="finVigencia"/>
                                                 <span class="input-group-addon">
                                                     <i class="fa fa-calendar" aria-hidden="true"></i>
@@ -121,7 +121,7 @@
                                             <textarea
                                                 name="descripcion"
                                                 required="true"
-                                                th:text="${convenio.descripcion}"
+                                                th:text="${convenioBeca.descripcion}"
                                                 class="form-control"
                                                 ></textarea>
                                         </div>
@@ -130,13 +130,12 @@
 
                                     <div class="col-xs-12">
                                         <div class="pull-right">
-                                            <button class="btn btn-default" type="button" v-on:click="addCarreraAfin">Agregar</button>
+                                            <button class="btn btn-default btn-sm m-t-sm" type="button" v-on:click="addCarreraAfin">Agregar</button>
                                         </div>
                                         <h4  class="m-b-md m-t-md"> Carreras afines </h4>
                                     </div>
 
-
-                                    <div class="col-sm-12">
+                                    <div class="col-xs-12">
 
                                         <table id="carreraAfin" class="table table-condensed">
                                             <thead>
@@ -144,7 +143,7 @@
                                                     <th class="col-xs-8">Nombre</th>
                                                     <th class="col-xs-2">Modalidad</th>
                                                     <th class="col-xs-2">Tipo</th>
-                                                    <th class=""></th>
+                                                    <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>

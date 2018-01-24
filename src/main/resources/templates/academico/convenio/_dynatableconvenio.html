@@ -6,10 +6,10 @@
                 <thead>
                     <tr>
                         <th class="col-xs-4"></th>
-                        <th class="col-xs-2 text-center">Vigencia</th>
-                        <th class="col-xs-4 text-center">Carreras</th>
-                        <th class="col-xs-2 text-center">Descripción</th>
-                        <th class="col-xs-2 text-center">Estado</th>
+                        <th class="col-xs-1 text-center">Vigencia</th>
+                        <th class="col-xs-1 text-center">Carreras</th>
+                        <th class="col-xs-5 text-center">Descripción</th>
+                        <th class="col-xs-1 text-center">Estado</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -26,13 +26,8 @@
     <tr>
 
         <td class="v-middle">
-
-            <p class="h5 bold text-primary">
-                {{convenio.nombre}}
-            </p>
-
-            <span class="block text-sm text-primary"> {{convenio.universidad}}</span>
-
+            <p class="h5 bold">{{convenio.nombre}}</p>
+            <span class="block text-sm text-primary"> {{convenio.institucion}}</span>
             <span class="block text-sm text-primary"> {{convenio.pais}}</span>
 
             <small class="block  text-sm  text-warning" v-if="convenio.rutaDocumento">
@@ -42,21 +37,25 @@
         </td>
 
         <td class="v-middle text-center">
-            <p class="">{{convenio.carrera}}</p>
-            <span v-if="becado.facultad" class="text-muted">Facultad de {{convenio.facultad}}</span>
+            <p><b class="text-sm">Inicio:</b>{{convenio.inicio}}</p>
+            <p><b class="text-sm">Fin:</b>{{convenio.fin}}</p>
         </td>
 
         <td class="v-middle">
-            carreras
+            <span class="badge block m-t-xxs" v-for="carrera in convenio.carreras">
+                {{ carrera.nombre }}
+            </span>
         </td>
 
         <td class="v-middle  text-center">
-            <span class="">{{convenio.descripcion}}</span>
-        </td>
-        <td class="v-middle  text-center">
-            <span class="">{{convenio.estado}}</span>
+            {{convenio.descripcion}}
         </td>
 
+        <td class="v-middle  text-center">
+            <span v-if="convenio.estado=='DES'" class="label label-danger" >Desactivado</span>
+            <span v-if="convenio.estado=='PEN'" class="label label-default" >Pendiente</span>
+            <span v-if="convenio.estado=='ACT'" class="label label-primary" >Activo</span>
+        </td>
 
         <td class="v-middle">
             <div class="dropdown actions">
@@ -64,9 +63,9 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a class=""   v-on:click.prevent="editar(convenio.id)"  href="#">Editar Convenio</a></li>
+                    <li><a v-on:click.prevent="editar(convenio.id)"  href="#">Editar</a></li>
                     <li role="presentation" class="divider"></li>
-                    <li><a class=""   v-on:click.prevent="eliminar(convenio.id)"  href="#">Eliminar Convenio</a></li>
+                    <li><a v-on:click.prevent="eliminar(convenio.id)"  href="#">Eliminar</a></li>
                 </ul>
             </div>
         </td>

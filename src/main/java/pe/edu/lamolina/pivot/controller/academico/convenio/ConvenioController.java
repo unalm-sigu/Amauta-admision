@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -31,9 +33,12 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CarreraConvenio;
 import pe.edu.lamolina.model.academico.ConvenioBeca;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -89,6 +94,7 @@ public class ConvenioController {
             logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
 
             List<ConvenioBeca> convenios = service.allByDynatable(filter);
+            Map<Long, List<CarreraConvenio>> carreraConveniosMap = service.allByCarreraConvenio(convenios);
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jsonFactory);
@@ -112,6 +118,16 @@ public class ConvenioController {
                 node.put("fin", convenio.getFinVigencia() != null
                         ? new DateTime(convenio.getFinVigencia()).toString("dd/MM/yyyy") : "");
 
+                List<CarreraConvenio> carreraConvenios = carreraConveniosMap.get(convenio.getId());
+                logger.debug("***cantidad {}", carreraConvenios.size());
+                ArrayNode arrayCarrera = new ArrayNode(jsonFactory);
+                for (CarreraConvenio carreraConvenio : carreraConvenios) {
+                    ObjectNode objectCarrera = new ObjectNode(jsonFactory);
+                    objectCarrera.put("id", carreraConvenio.getId());
+                    objectCarrera.put("nombre", carreraConvenio.getCarrera().getNombreCorto());
+                    arrayCarrera.add(objectCarrera);
+                }
+                node.put("carreras", arrayCarrera);
                 array.add(node);
             }
 
@@ -129,22 +145,22 @@ public class ConvenioController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         ConvenioBeca convenioBeca = new ConvenioBeca();
-        model.addAttribute("convenio", convenioBeca);
+        model.addAttribute("convenioBeca", convenioBeca);
         model.addAttribute("helper", new ConvenioHelper());
         return "academico/convenio/convenioform";
     }
 
     @RequestMapping("{convenioBeca}/update")
     public String update(@PathVariable("convenioBeca") Long idConvenioBeca, Model model, HttpSession session) {
-
         ConvenioBeca convenioBeca = service.findConvenioBeca(idConvenioBeca);
         model.addAttribute("convenioBeca", convenioBeca);
+        model.addAttribute("helper", new ConvenioHelper());
         return "academico/convenio/convenioform";
     }
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@ModelAttribute("convenioBeca") ConvenioBeca convenioBeca, HttpSession session) {
+    public JsonResponse save(ConvenioBeca convenioBeca, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -218,16 +234,60 @@ public class ConvenioController {
         JsonResponse response = new JsonResponse();
 
         try {
-            ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
-            List<Carrera> carreras = service.allCarreraByName(nombre, modalidadEstudio);
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Compania cia = ds.getCompania();
+            List<Carrera> carreras = service.allCarreraByName(nombre, cia);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
             for (Carrera carrera : carreras) {
+                ModalidadEstudio modalidadEstudio = carrera.getModalidadEstudio();
+
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", carrera.getId());
                 json.put("nombre", carrera.getNombre());
                 json.put("codigo", carrera.getCodigo());
-                json.put("facultad", carrera.getFacultad().getNombre());
+                json.put("modalidad", modalidadEstudio.getNombre());
+                if (modalidadEstudio.getCodigo().equalsIgnoreCase(ModalidadEstudioEnum.EPG.name())) {
+                    json.put("tipo", carrera.getTipoEnum().getValue());
+                }
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarrerasAfines")
+    public JsonResponse allCarrerasAfines(@ModelAttribute("convenioBeca") ConvenioBeca convenioBeca, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<CarreraConvenio> carreras = service.allCarreraConvenioByConvenioBeca(convenioBeca);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (CarreraConvenio carreraConvenio : carreras) {
+                Carrera carrera = carreraConvenio.getCarrera();
+                ModalidadEstudio modalidad = carrera.getModalidadEstudio();
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", carrera.getId());
+                json.put("nombre", carrera.getNombre());
+                json.put("codigo", carrera.getCodigo());
+                json.put("modalidad", modalidad.getNombre());
+                if (modalidad.getCodigo().equalsIgnoreCase(ModalidadEstudioEnum.EPG.name())) {
+                    json.put("tipo", carrera.getTipoEnum().getValue());
+                }
                 jsonList.add(json);
             }
 

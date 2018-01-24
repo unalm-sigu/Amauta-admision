@@ -3,22 +3,22 @@
         <td>
             <input type="text"
                    class="form-control carreraItem"
-                   name="carrera.id"
-                   v-model="carrera.id"
+                   name="carreraConvenio[0].carrera.id"
+                   v-bind:value="carrera.id"
+                   v-bind:rel="carrera.nombre"
                    required="true"/>
         </td>
-        <td class="text-center v-middle">
-            {{carrera.id}}
+        <td class="text-center v-middle" >
+            <p v-bind:rel="carrera.modalidad">{{carrera.modalidad}}</p>
         </td>
         <td class="text-center v-middle">
-            {{carrera.id}}
+            <p  v-bind:rel="carrera.tipo">{{carrera.tipo}}</p>
         </td>
         <td class="text-center v-middle">
-            <i class="fa fa-times pointer"  v-on:click="deleteItem"  v-bind:rel="carrera.id"  aria-hidden="true"></i>
+            <i class="fa fa-times pointer"  v-on:click="deleteItem"  aria-hidden="true"></i>
         </td>
     </tr>
 </template>
-
 
 <div id="divBuscarCarrera" type="text/x-jsrender" class="hide" >
     <span class="block bold h5 m-b-xs m-t-xs">{{:nombre}}</span>
