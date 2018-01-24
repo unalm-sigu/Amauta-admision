@@ -610,7 +610,7 @@ var app = new Vue({
                 alert("Seleccione un grupo horario");
                 return;
             }
-            console.dir(this.tabGrupos.grupoHorarioSel);
+
             let diasHorasGrupo = [];
             if (this.tabGrupos.grupoHorarioSel.esTipoGrupoRegular) {
                 for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {

@@ -654,8 +654,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         seccion.setHorarioSeccion(horariosSeccion);
 
-        GrupoHoras grupoHoras = grupoHorasDAO.find(diasHorasGrupo.get(0).getGrupoHorario().getId());
-        seccion.setGrupoHoras(grupoHoras);
+        GrupoHoras grupoHoraOld = seccion.getGrupoHoras();
+        GrupoHoras grupoHorasNew = grupoHorasDAO.find(diasHorasGrupo.get(0).getGrupoHorario().getId());
+        seccion.setGrupoHoras(grupoHorasNew);
+
         List<HorarioAula> horariosAulasSeccion = null;
         List<HorarioAula> horariosAulas = null;
 
@@ -668,26 +670,26 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         //borrar los deseleccionados
         for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
-            /*
+
             if (!horarioSeccionEach.isTieneDiaHoraGrupo(diasHorasGrupo)) {
                 if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                     horarioAulaDAO.deleteBySeccionDiaHoraAula(seccion, horarioSeccionEach.getDia(),
                             horarioSeccionEach.getHora(), seccion.getAula());
                 }
                 horarioSeccionDAO.delete(horarioSeccionEach);
-            }*/
-            horarioSeccionDAO.delete(horarioSeccionEach);
+            }
+            //  horarioSeccionDAO.delete(horarioSeccionEach);
         }
-
+        /*
         if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         }
-
+         */
         for (DiaHoraGrupo diaHoraGrupoEach : diasHorasGrupo) {
             //verificar si ya se encuentra registrado en base de datos
-            /* if (diaHoraGrupoEach.isTieneHorarioSeccion(seccion.getHorarioSeccion())) {
+            if (diaHoraGrupoEach.isTieneHorarioSeccion(seccion.getHorarioSeccion())) {
                 continue;
-            }*/
+            }
             if (horariosAulas != null) {
                 for (HorarioAula horarioAulaEach : horariosAulas) {
                     if (diaHoraGrupoEach.getDia().getId().equals(horarioAulaEach.getDia().getId())

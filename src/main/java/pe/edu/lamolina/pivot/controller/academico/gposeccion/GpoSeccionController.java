@@ -697,10 +697,13 @@ public class GpoSeccionController {
                 GrupoHoras grupoHoras = service.findGrupoHoras(seccion.getGrupoHoras());
 
                 ObjectNode grupoHorasNode = grupoHoras.toJson();
+
                 if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
                     grupoHorasNode.put("esTipoGrupoRegular", true);
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                     grupoHorasNode.put("esTipoGrupoZeta", true);
+                    grupoHorasNode.put("esTipoGrupoCodZeta", grupoHoras.getTipoGrupoHoras().isCodigoZeta());
+                    grupoHorasNode.put("esTipoGrupoCodZetaAsterisk", grupoHoras.getTipoGrupoHoras().isCodigoZetaAsterisk());
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
                     grupoHorasNode.put("isTipoGrupoEspecial", true);
                 }
