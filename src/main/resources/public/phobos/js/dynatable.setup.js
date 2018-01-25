@@ -1,11 +1,16 @@
-$(document.body).on('dynatable:init', '#dynaTable,#dynatable', function (e, dynatable) {
-    $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
+$(document.body).on('dynatable:init', '#dynaTable,#dynatable,.dynaTables', function (e, dynatable) {
+
     //  $('.dynatable-record-count, .dynatable-paginate').wrapAll('<div class="footer m-t-lg"/>');
+    /*
+     $('[id*="dynatable-pagination-links-"]').each(function () {
+     $(this).wrapAll('<div class="footer m-t-lg"/>');
+     });
+     */
 
-
-    $('[id*="dynatable-pagination-links-"]').each(function () {
+    $('.dynatable-search, .dynatable-paginate').each(function () {
         $(this).wrapAll('<div class="footer m-t-lg"/>');
     });
+
 
     $('.dynatable-search').addClass('col-md-2 pull-right');
     $('.dynatable-search').find('input')
