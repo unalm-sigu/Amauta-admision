@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.ingresante;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -97,7 +99,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Transactional
     public void suspenderMatricula(AlumnoHorario alumnoHorario) {
         AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario.getId());
-        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.SUSP.name());
         alumnoHorarioDAO.update(alumnoHorarioDb);
     }
 
@@ -129,6 +131,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
             horarioCachimbosDAO.update(horarioCachimbos);
         }
         alumnoHorarioDb.setHorarioCachimbos(null);
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
         alumnoHorarioDAO.update(alumnoHorarioDb);
     }
 
@@ -200,6 +203,23 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
         seccionHorarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
         alumnoHorarioDAO.allSetHorarioNullByCiclo(cicloAcademico);
         horarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public List<IngresanteCantidad> allIngresanteCantidad(CicloAcademico cicloAcademico) {
+        List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+        Map<String, List<AlumnoHorario>> alumnoHorariosMap = TypesUtil.convertListToMapList("estado", alumnoHorarios);
+        List<IngresanteCantidad> cantidad = new ArrayList();
+        for (EstadoAlumnoHorarioEnum value : EstadoAlumnoHorarioEnum.values()) {
+            List<AlumnoHorario> alumnos = alumnoHorariosMap.get(value.name());
+            IngresanteCantidad ingresanteCantidad = new IngresanteCantidad();
+            ingresanteCantidad.setEstado(value.name());
+            ingresanteCantidad.setNombre(value.getValue());
+            ingresanteCantidad.setCantidad(alumnos != null ? alumnos.size() : 0);
+            ingresanteCantidad.setIdgen(EstadoAlumnoHorarioEnum.valueOf(value.name()).ordinal());
+            cantidad.add(ingresanteCantidad);
+        }
+        return cantidad;
     }
 
 }

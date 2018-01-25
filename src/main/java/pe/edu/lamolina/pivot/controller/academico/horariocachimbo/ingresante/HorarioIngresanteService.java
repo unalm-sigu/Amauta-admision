@@ -32,4 +32,6 @@ public interface HorarioIngresanteService {
 
     public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user);
 
+    public List<IngresanteCantidad> allIngresanteCantidad(CicloAcademico cicloAcademico);
+
 }

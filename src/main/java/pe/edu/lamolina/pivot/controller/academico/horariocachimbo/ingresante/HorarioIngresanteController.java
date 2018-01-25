@@ -74,6 +74,7 @@ public class HorarioIngresanteController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("estados", EstadoAlumnoHorarioEnum.values());
         return "academico/horariocachimbo/ingresante/horarioingresante";
     }
 
@@ -296,6 +297,26 @@ public class HorarioIngresanteController {
             Usuario user = ds.getUsuario();
             service.eliminarHorarios(cicloAcademico, user);
             response.setMessage("Horarios de ingresantes eliminado satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("ingresanteCantidad")
+    public JsonResponse ingresanteCantidad(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            List<IngresanteCantidad> cantidad = service.allIngresanteCantidad(cicloAcademico);
+
+            response.setData(cantidad);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

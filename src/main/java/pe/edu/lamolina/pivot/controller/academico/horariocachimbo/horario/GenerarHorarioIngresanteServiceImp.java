@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Dia;
@@ -339,6 +340,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                     HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
                     horario.setSuscritos(horario.getSuscritos() + 1);
                     alumno.setHorarioCachimbos(horario);
+                    alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR.name());
 
                     List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
                     for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {

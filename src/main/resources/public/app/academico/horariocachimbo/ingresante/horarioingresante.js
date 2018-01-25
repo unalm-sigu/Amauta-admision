@@ -73,29 +73,35 @@ $(function() {
                 title: 'Agregar Alumno',
                 okbtn: 'Agregar Alumno'
             },
+            ingCantidad: [
+                {idgen: 1, estado: 'PEND', nombre: 'Pendiente', cantidad: 0},
+                {idgen: 1, estado: 'SUSP', nombre: 'Suspendido', cantidad: 0},
+                {idgen: 1, estado: 'CHOR', nombre: 'Con Horario', cantidad: 0},
+                {idgen: 1, estado: 'MATR', nombre: 'Matriculado', cantidad: 0}
+            ],
         },
         created() {
             let $vue = this;
         },
         mounted: function() {
 
-            let $vue = this;
+            let vue = this;
             $global.$on("buscarHorario", function(id) {
-                $vue.buscarHorario(id);
+                vue.buscarHorario(id);
             });
             $global.$on("asignarHorario", function(id) {
-                $vue.asignarHorario(id);
+                vue.asignarHorario(id);
             });
             $global.$on("retirarHorario", function(id) {
-                $vue.retirarHorario(id);
+                vue.retirarHorario(id);
             });
             $global.$on("suspenderMatricula", function(id) {
-                $vue.suspenderMatricula(id);
+                vue.suspenderMatricula(id);
             });
             $global.$on("activarMatricula", function(id) {
-                $vue.activarMatricula(id);
+                vue.activarMatricula(id);
             });
-
+            vue.callIngresanteCantidad();
         },
         methods: {
             nuevo() {
@@ -176,7 +182,9 @@ $(function() {
                 });
             },
             reloadDinatable() {
+                var vue = this;
                 dynatable.process();
+                vue.callIngresanteCantidad();
             },
             buscarHorario(id) {
                 var $vue = this;
@@ -368,7 +376,49 @@ $(function() {
                         }
                     }
                 });
-            }
+            },
+            callIngresanteCantidad() {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url('academico/horariocachimbo/ingresante/ingresanteCantidad'),
+                    async: false,
+                    success: function(response) {
+                        if (response.success) {
+                            vue.ingCantidad = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    }, error: function() {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+
+            },
+            filtrarIngresante(e) {
+                var vue = this;
+                var self = $(e.currentTarget);
+                var carrera = self.attr('rel');
+
+                e.preventDefault();
+                var div = self.closest("div");
+                var classColor = 'bg-light';
+                var tieneBgColor = div.hasClass(classColor);
+                dynatable.queries.remove("alu.estado");
+
+                if (vue.divElegido != null) {
+                    vue.divElegido.removeClass(classColor);
+                    vue.divElegido = null;
+                }
+
+                if (!tieneBgColor) {
+                    div.addClass(classColor);
+                    vue.divElegido = div;
+                    dynatable.queries.add("alu.estado", carrera);
+                }
+                dynatable.process();
+
+            },
         }
     });
 });

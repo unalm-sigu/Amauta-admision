@@ -23,6 +23,33 @@
                 <h2 th:inline="text">Ingresantes con Horario [[${cicloAcademico.descripcion}]] </h2>
             </header>
             <section class="wrapper-lg">
+
+
+                <section class="panel m-b-xs">
+                    <section class="panel-body">
+                        <div class="col-md-12">
+                            <div class="row">
+
+                                <div class="col-xs-2 text-center"   v-for="item in ingCantidad"  >
+
+                                    <a href="#" v-on:click.prevent="filtrarIngresante" v-bind:rel="item.estado" class="view-count " >
+
+                                        <span class="h1 block bold text-success"
+                                              v-bind:style="{ color: item.color  }"
+                                              >{{item.cantidad}}</span>
+
+                                        <small class="block m-b-xs bold text-muted" >{{item.nombre}}</small>
+
+                                    </a>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                </section>
+
+
                 <section class="panel">
                     <section class="panel-body">
 
