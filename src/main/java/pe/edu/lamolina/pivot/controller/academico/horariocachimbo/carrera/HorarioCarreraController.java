@@ -85,6 +85,7 @@ public class HorarioCarreraController {
                 node.put("suspendidos", carreraCachimbo.getSuspendidos());
                 node.put("conHorario", carreraCachimbo.getConHorario());
                 node.put("sinHorario", carreraCachimbo.getSinHorario());
+                node.put("matriculados", carreraCachimbo.getMatriculados());
                 array.add(node);
             }
             json.setData(array);
