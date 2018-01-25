@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
@@ -231,6 +232,35 @@ public class BuscarController {
                 json.put("nombre", pais.getNombre());
                 json.put("codigo", pais.getCodigo());
 
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allEmpresa")
+    public JsonResponse allEmpresa(Long idPais,
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Empresa> empresas = buscarService.allEmpresaByName(new Pais(idPais), nombre);
+            for (Empresa empresa : empresas) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", empresa.getId());
+                json.put("razonSocial", empresa.getRazonSocial());
                 jsonList.add(json);
             }
             response.setData(jsonList);

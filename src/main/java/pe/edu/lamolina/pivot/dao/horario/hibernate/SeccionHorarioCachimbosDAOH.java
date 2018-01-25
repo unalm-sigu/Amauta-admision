@@ -9,7 +9,6 @@ import pe.albatross.octavia.Octavia;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
@@ -96,5 +95,20 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
         query.setLong("HORARIO", horarioCachimbos.getId());
         query.executeUpdate();
 
+    }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico cicloAcademico) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  delete from ").append(SeccionHorarioCachimbos.class.getName()).append(" shc ");
+        sql.append("  where shc.horarioCachimbos.id in ( ");
+        sql.append("    select hc.id  from ").append(HorarioCachimbos.class.getName()).append(" hc ");
+        sql.append("    where hc.cicloAcademico.id = :CICLO ");
+        sql.append("  ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
     }
 }

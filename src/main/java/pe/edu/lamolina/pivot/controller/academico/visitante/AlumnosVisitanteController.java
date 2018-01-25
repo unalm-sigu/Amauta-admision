@@ -120,9 +120,13 @@ public class AlumnosVisitanteController {
                 Facultad facultad = carrera.getFacultad();
                 CicloAcademico ciclo = visitante.getCicloEstudia();
                 Universidad universidad = visitante.getUniversidad();
-                String nombreUni = visitante.getUniversidadExtranjera();
-                if (universidad == null && StringUtils.isEmpty(nombreUni)) {
-                    nombreUni = "Universidad desconocida";
+
+                String nombreUni = "Universidad desconocida";
+                if (!StringUtils.isEmpty(visitante.getUniversidadExtranjera())) {
+                    nombreUni = visitante.getUniversidadExtranjera();
+                }
+                if (universidad != null) {
+                    nombreUni = universidad.getNombre();
                 }
 
                 Pais paisUniversidad = visitante.getPaisUniversidad();
@@ -173,8 +177,6 @@ public class AlumnosVisitanteController {
     public String update(@PathVariable("alumnoVisitante") Long idAlumnoVisitante, Model model, HttpSession session) {
 
         AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante);
-        logger.debug("AlumnoVisitante xxx {}", alumnoVisitante.getPersona().getId());
-        logger.debug("AlumnoVisitante getFechaNacer************ {}", alumnoVisitante.getPersona().getFechaNacer());
         List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
         List<CicloAcademico> ciclos = service.allCicloAcademico();
 
@@ -196,7 +198,13 @@ public class AlumnosVisitanteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(alumnoVisitante, ds);
+
+            if (alumnoVisitante.getId() == null) {
+                service.save(alumnoVisitante, ds);
+            } else {
+                service.update(alumnoVisitante, ds);
+            }
+
             response.setMessage("Alumno Visitante guardado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
 

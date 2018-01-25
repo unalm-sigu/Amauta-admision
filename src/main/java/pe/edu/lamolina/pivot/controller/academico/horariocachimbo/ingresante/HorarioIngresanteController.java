@@ -283,4 +283,26 @@ public class HorarioIngresanteController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("eliminarHorarios")
+    public JsonResponse eliminarHorarios(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            Usuario user = ds.getUsuario();
+            service.eliminarHorarios(cicloAcademico, user);
+            response.setMessage("Horarios de ingresantes eliminado satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

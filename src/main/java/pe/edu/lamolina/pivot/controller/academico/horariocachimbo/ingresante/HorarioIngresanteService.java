@@ -30,4 +30,6 @@ public interface HorarioIngresanteService {
 
     List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, CicloAcademico cicloAcademico);
 
+    public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user);
+
 }

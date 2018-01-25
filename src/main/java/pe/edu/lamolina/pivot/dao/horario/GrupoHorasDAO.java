@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
@@ -24,6 +25,7 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
             CicloAcademico cicloAcademico);
 
     List<GrupoHoras> allByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
-            TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+            TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico,
+            Seccion seccion);
 
 }

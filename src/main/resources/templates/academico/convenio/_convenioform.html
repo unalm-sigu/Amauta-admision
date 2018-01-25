@@ -1,0 +1,30 @@
+<modal-vik ref="modalAddInstitucion"
+           v-bind="addInstitucionModal"
+           v-bind:okaction="createInstitucion">
+
+    <div slot="body">
+        <div id="divFormInstitucion">
+
+            <form id="formInstitucion"  data-parsley-validate="true" >
+
+                <div class="form-group">
+                    <label>Pais</label>
+                    <input type="text"
+                           class="form-control"
+                           name="paisUbicacion.id"
+                           required="true"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text"
+                           class="form-control"
+                           name="razonSocial"
+                           required="true"/>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</modal-vik>

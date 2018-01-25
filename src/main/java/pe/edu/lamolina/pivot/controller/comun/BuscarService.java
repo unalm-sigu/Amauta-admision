@@ -4,6 +4,7 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
@@ -21,5 +22,7 @@ public interface BuscarService {
     List<Pais> allPaisesByName(String nombre);
 
     List<Universidad> allUniversidadByName(String nombre);
+
+    public List<Empresa> allEmpresaByName(Pais pais, String nombre);
 
 }

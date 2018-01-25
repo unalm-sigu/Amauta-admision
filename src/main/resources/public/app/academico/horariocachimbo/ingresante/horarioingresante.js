@@ -338,6 +338,37 @@ $(function() {
                     }
                 });
             },
+            eliminarHorarios() {
+                var vue = this;
+                bootbox.confirm({
+                    message: '¿Seguro que desea eliminar los horarios?',
+                    buttons: {
+                        confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function(result) {
+                        if (result) {
+
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/eliminarHorarios'),
+                                data: {id: vue.alumno.id},
+                                success: function(response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }, error: function() {
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                }
+                            });
+
+                        }
+                    }
+                });
+            }
         }
     });
 });
