@@ -22,6 +22,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -136,7 +137,7 @@ public class UsuarioServiceImp implements UsuarioService {
             validarEmailCompaniaSinPersona(personaForm.getEmailCompania());
             personaForm.setUserRegistro(ds.getUsuario());
             personaForm.setFechaRegistro(new Date());
-            personaForm.setEstado(EstadoEnum.ACT.name());
+            personaForm.setEstado(PersonaEstadoEnum.ACT);
             personaDAO.save(personaForm);
 
         } else {

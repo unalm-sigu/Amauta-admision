@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -97,7 +98,7 @@ public class AlumnoEspecialServiceImp implements AlumnoEspecialService {
         if (personaForm.getId() == null) {
             this.validarEmailsinPersona(personaForm.getEmail());
             this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
-            personaForm.setEstado(EstadoEnum.ACT.name());
+            personaForm.setEstado(PersonaEstadoEnum.ACT);
             personaForm.setUserRegistro(usuario);
             personaForm.setFechaRegistro(new Date());
             personaDAO.save(personaForm);
@@ -112,7 +113,7 @@ public class AlumnoEspecialServiceImp implements AlumnoEspecialService {
 
         if (personaForm.getId() == null) {
             personaForm.setUserRegistro(usuario);
-            personaForm.setEstado(EstadoEnum.ACT.name());
+            personaForm.setEstado(PersonaEstadoEnum.ACT);
             personaForm.setFechaRegistro(new Date());
             personaDAO.save(personaForm);
         } else {
