@@ -77,13 +77,36 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
         logger.debug("alumno {} cicloAcademico {}", alumno.getId(), cicloAcademico.getId());
-        AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        Alumno alumnoDB = alumnoDAO.findAlumno(alumno);
+        Carrera carrera = alumnoDB.getCarrera();
+        AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumnoDB, cicloAcademico);
         if (alumnoHorario == null) {
             alumnoHorario = new AlumnoHorario();
             alumnoHorario.setAlumno(alumno);
             alumnoHorario.setCicloAcademico(cicloAcademico);
             alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
             alumnoHorarioDAO.save(alumnoHorario);
+
+            CarreraCachimbos ch = carreraCachimbosDAO.findByCarreraCiclo(carrera, cicloAcademico);
+
+            if (ch == null) {
+                ch = new CarreraCachimbos();
+                ch.setCarrera(carrera);
+                ch.setCicloAcademico(cicloAcademico);
+                ch.setConHorario(0);
+                ch.setHorarios(0);
+                ch.setIngresantes(1);
+                ch.setMatriculados(0);
+                ch.setSinHorario(1);
+                ch.setSuspendidos(0);
+                carreraCachimbosDAO.save(ch);
+            } else {
+                Integer ingresantesTotal = 1 + ch.getIngresantes();
+                ch.setIngresantes(ingresantesTotal);
+                ch.setSinHorario(ingresantesTotal);
+                carreraCachimbosDAO.update(ch);
+            }
+
         }
     }
 
@@ -150,6 +173,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     public void cargarIngresantes(CicloAcademico cicloAcademico, Usuario user) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+        List<CarreraCachimbos> carreraCachimbos = carreraCachimbosDAO.allByCicloAcademico(cicloAcademico);
         List<Alumno> alumnoExclude = alumnoHorarios.stream().map(AlumnoHorario::getAlumno).collect(Collectors.toList());
         List<Alumno> alumnosIngresantes = alumnoDAO.allIngresantePregradoByCiclo(modalidad, cicloAcademico, alumnoExclude);
 
@@ -159,6 +183,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
 
         Map<Long, Carrera> mapCarreras = new LinkedHashMap();
         Map<Long, Integer> mapIngresantes = new LinkedHashMap();
+        Map<Long, CarreraCachimbos> mapCarreraCachimbos = TypesUtil.convertListToMap("carrera.id", carreraCachimbos);
 
         for (Alumno alumnosIngresante : alumnosIngresantes) {
             AlumnoHorario alumnoHorario = new AlumnoHorario();
@@ -178,18 +203,28 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
 
         for (Carrera carrera : mapCarreras.values()) {
             Integer ingresantes = mapIngresantes.get(carrera.getId());
-            CarreraCachimbos ch = new CarreraCachimbos();
-            ch.setCarrera(carrera);
-            ch.setCicloAcademico(cicloAcademico);
-            ch.setConHorario(0);
-            ch.setHorarios(0);
-            ch.setIngresantes(ingresantes);
-            ch.setMatriculados(0);
-            ch.setSinHorario(ingresantes);
-            ch.setSuspendidos(0);
-            carreraCachimbosDAO.save(ch);
-        }
 
+            CarreraCachimbos ch = mapCarreraCachimbos.get(carrera.getId());
+
+            if (ch == null) {
+                ch = new CarreraCachimbos();
+                ch.setCarrera(carrera);
+                ch.setCicloAcademico(cicloAcademico);
+                ch.setConHorario(0);
+                ch.setHorarios(0);
+                ch.setIngresantes(ingresantes);
+                ch.setMatriculados(0);
+                ch.setSinHorario(ingresantes);
+                ch.setSuspendidos(0);
+                carreraCachimbosDAO.save(ch);
+                mapCarreraCachimbos.put(ch.getId(), ch);
+            } else {
+                Integer ingresantesTotal = ingresantes + ch.getIngresantes();
+                ch.setIngresantes(ingresantesTotal);
+                ch.setSinHorario(ingresantesTotal);
+                carreraCachimbosDAO.update(ch);
+            }
+        }
     }
 
     @Override
