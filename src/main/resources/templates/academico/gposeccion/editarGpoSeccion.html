@@ -262,7 +262,14 @@
 
             </form>
 
-            <div  th:substituteby="academico/gposeccion/modals/modalAula"/>
+            <modal-vik ref="modalAula"
+                       v-bind="aulaModal"
+                       v-bind:okaction="saveAula">
+                <div slot="body">
+                    <aula-componente></aula-componente>
+                </div>
+            </modal-vik>
+
             <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
 
 
@@ -278,6 +285,12 @@
         -->
 
         <div th:substituteby="_modules/vue-modal"/>
+
+        <template id="modalAulaComp"> 
+            <div> 
+                <div th:substituteby="academico/gposeccion/modals/modalAula"/> 
+            </div> 
+        </template>
 
         <div id="autocomplete-doc">
             <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
@@ -303,6 +316,7 @@
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

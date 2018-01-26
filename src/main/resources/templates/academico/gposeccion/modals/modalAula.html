@@ -1,166 +1,158 @@
-<modal-vik ref="modalAula"
-           v-bind="aulaModal"
-           v-bind:okaction="saveAula">
+<template v-if="seccionModal!=null">
+    <div class="row">
+        <div class="form-group">
+            <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
 
-    <div slot="body">
-
-        <template v-if="seccionModal!=null">
-            <div class="row">
-                <div class="form-group">
-                    <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
-
-                    <div class="col-md-10">
-                        <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
-                    </div>
-                </div>
+            <div class="col-md-10">
+                <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
             </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Dpto. Academicos</label>
-
-                    <div class="col-md-10">
-                        <span> {{seccionModal.departamentoAcademico.nombre}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Clave</label>
-
-                    <div class="col-md-4">
-                        <span> {{seccionModal.codigo}}</span>
-                    </div>
-
-                    <label class="col-md-2 control-label">Vacantes</label>
-
-                    <div class="col-md-4">
-                        <span> {{seccionModal.vacantes}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Grupo</label>
-
-                    <div class="col-md-4">
-                        {{seccionModal.grupoHora.codigo}}
-                    </div>
-
-                    <label class="col-md-2 control-label">Horas</label>
-
-                    <div class="col-md-4">
-                        <span>{{seccionModal.horasSemanales}}</span>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <div id="exTab2" class="tabbable-line m-b-sm">	
-            <ul class="nav nav-tabs">
-                <li class="active">
-                    <a  href="#1" data-toggle="tab" >OERA</a>
-                </li>
-                <li >
-                    <a href="#2" data-toggle="tab" >Dpto. Acad.</a>
-                </li>
-                <li>
-                    <a href="#3" data-toggle="tab">Específica</a>
-                </li>
-            </ul>
-            <section class="panel">
-                <div class="tab-content">
-                    <div class="tab-pane active" id="1">
-                        <section class="panel-body">
-
-                            <div class="form-group">   
-                                <multiselect  v-model="tabAulas['oera'].moduloSel"
-                                              track-by="id"
-                                              v-bind:options="tabAulas['oera'].modulosCombo"
-                                              label='nombre'
-                                              v-on:input="cambiarModulo"
-                                              >
-                                </multiselect>
-                            </div>
-
-                            <div class="table-responsive" >
-
-                                <div class="col-md-12">
-                                    <div class="col-sm-2 m-b-sm" 
-                                         v-if="tabAulas['oera'].tblAulas!=null"
-                                         v-for="aula in tabAulas['oera'].tblAulas">
-                                        <span  class="form-control pointer"
-                                               v-on:click="selectAula(aula)"
-                                               v-bind:class="getClassAula(aula)">
-                                            {{aula.codigo}}
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </section>
-                    </div>
-                    <div class="tab-pane" id="2" >
-                        <section class="panel-body">
-
-                            <div class="form-group">   
-                                <multiselect  v-model="tabAulas['oficinas'].oficinaSel"
-                                              track-by="id"
-                                              v-bind:options="tabAulas['oficinas'].oficinasDisponibles"
-                                              label='nombre'
-                                              v-on:input="cambiarOficina">
-                                </multiselect>
-                            </div>
-
-                            <div class="table-responsive" >
-
-                                <div class="col-md-12">
-                                    <div class="col-sm-2 m-b-sm" 
-                                         v-if="tabAulas['oficinas'].tblAulas!=null"
-                                         v-for="aula in tabAulas['oficinas'].tblAulas">
-                                        <span  class="form-control pointer"
-                                               v-on:click="selectAula(aula)"
-                                               v-bind:class="getClassAula(aula)">
-                                            {{aula.codigo}}
-                                        </span>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </section>
-                    </div>
-                    <div class="tab-pane" id="3" >
-                        <section class="panel-body">
-                            <div class="form-group">   
-
-                                <multiselect v-model="tabAulas['especificas'].aulasEspecificaSel"
-                                             track-by="id"
-                                             v-bind:internal-search="false"
-                                             v-bind:limit="15"
-                                             v-on:search-change="asyncFindAulas"
-                                             v-on:input="seleccionarAulaEspecifica"
-                                             v-bind:options="tabAulas['especificas'].aulasEspecificas"
-                                             label="codigo"
-                                             >
-                                </multiselect>
-
-                            </div>
-                            <div>
-                                <ul class="list-group">
-                                    <li class="list-group-item list-group-item-danger"
-                                        v-for="err in tabAulas['especificas'].errores">
-                                        {{err}}
-                                    </li>
-                                </ul>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </section>
         </div>
-
     </div>
-</modal-vik>
+    <div class="row">
+        <div class="form-group">
+            <label class="col-md-2 control-label">Dpto. Academicos</label>
+
+            <div class="col-md-10">
+                <span> {{seccionModal.departamentoAcademico.nombre}} </span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <label class="col-md-2 control-label">Clave</label>
+
+            <div class="col-md-4">
+                <span> {{seccionModal.codigo}}</span>
+            </div>
+
+            <label class="col-md-2 control-label">Vacantes</label>
+
+            <div class="col-md-4">
+                <span> {{seccionModal.vacantes}} </span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <label class="col-md-2 control-label">Grupo</label>
+
+            <div class="col-md-4">
+                {{seccionModal.grupoHora.codigo}}
+            </div>
+
+            <label class="col-md-2 control-label">Horas</label>
+
+            <div class="col-md-4">
+                <span>{{seccionModal.horasSemanales}}</span>
+            </div>
+        </div>
+    </div>
+</template>
+
+<div id="exTab2" class="tabbable-line m-b-sm">	
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a  href="#1" data-toggle="tab" >OERA</a>
+        </li>
+        <li >
+            <a href="#2" data-toggle="tab" >Dpto. Acad.</a>
+        </li>
+        <li>
+            <a href="#3" data-toggle="tab">Específica</a>
+        </li>
+    </ul>
+    <section class="panel">
+        <div class="tab-content">
+            <div class="tab-pane active" id="1">
+                <section class="panel-body">
+
+                    <div class="form-group">   
+                        <multiselect  v-model="tabAulas['oera'].moduloSel"
+                                      track-by="id"
+                                      v-bind:options="tabAulas['oera'].modulosCombo"
+                                      label='nombre'
+                                      v-on:input="cambiarModulo"
+                                      >
+                        </multiselect>
+                    </div>
+
+                    <div class="table-responsive" >
+
+                        <div class="col-md-12">
+                            <div class="col-sm-2 m-b-sm" 
+                                 v-if="tabAulas['oera'].tblAulas!=null"
+                                 v-for="aula in tabAulas['oera'].tblAulas">
+                                <span  class="form-control pointer"
+                                       v-on:click="selectAula(aula)"
+                                       v-bind:class="getClassAula(aula)">
+                                    {{aula.codigo}}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </section>
+            </div>
+            <div class="tab-pane" id="2" >
+                <section class="panel-body">
+
+                    <div class="form-group">   
+                        <multiselect  v-model="tabAulas['oficinas'].oficinaSel"
+                                      track-by="id"
+                                      v-bind:options="tabAulas['oficinas'].oficinasDisponibles"
+                                      label='nombre'
+                                      v-on:input="cambiarOficina">
+                        </multiselect>
+                    </div>
+
+                    <div class="table-responsive" >
+
+                        <div class="col-md-12">
+                            <div class="col-sm-2 m-b-sm" 
+                                 v-if="tabAulas['oficinas'].tblAulas!=null"
+                                 v-for="aula in tabAulas['oficinas'].tblAulas">
+                                <span  class="form-control pointer"
+                                       v-on:click="selectAula(aula)"
+                                       v-bind:class="getClassAula(aula)">
+                                    {{aula.codigo}}
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </section>
+            </div>
+            <div class="tab-pane" id="3" >
+                <section class="panel-body">
+                    <div class="form-group">   
+
+                        <multiselect v-model="tabAulas['especificas'].aulasEspecificaSel"
+                                     track-by="id"
+                                     v-bind:internal-search="false"
+                                     v-bind:limit="15"
+                                     v-on:search-change="asyncFindAulas"
+                                     v-on:input="seleccionarAulaEspecifica"
+                                     v-bind:options="tabAulas['especificas'].aulasEspecificas"
+                                     label="codigo"
+                                     >
+                        </multiselect>
+
+                    </div>
+                    <div>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-danger"
+                                v-for="err in tabAulas['especificas'].errores">
+                                {{err}}
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+</div>
+
