@@ -1,13 +1,8 @@
 Vue.component("multiselect", window.VueMultiselect.default)
 //Vue.component('pagination', Pagination);
 
-
-
 $('#dynaTable').dynatable({});
 $('#dynaTableEspecial').dynatable({});
-
-
-
 
 Vue.component("autocomplete-doc", {
     template: "#autocomplete-doc",

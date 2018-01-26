@@ -1,4 +1,4 @@
-Vue.component("aula-componente", {
+Vue.component("aula-component", {
     template: "#modalAulaComp",
     props: {
 
@@ -65,8 +65,6 @@ Vue.component("aula-componente", {
                 }
             };
 
-            //  $vue.dynatable.queries.add("seccion", seccion);
-            //    $vue.dynatable.process();
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/loadModalAula'),
@@ -147,7 +145,6 @@ Vue.component("aula-componente", {
             });
         },
         asyncFindAulas(nombre) {
-            //this.isLoading = true
             let $vue = this;
             $.ajax({
                 url: APP.url("academico/gposeccion/asyncFindAulas"),
@@ -155,9 +152,7 @@ Vue.component("aula-componente", {
                 type: 'post',
                 data: {nombre: nombre},
             }).then(response => {
-                // tabAulas especificas aulasEspecificaSel  aulasEspecificas
                 $vue.tabAulas["especificas"].aulasEspecificas = response.data;
-                //  this.isLoading = false
                 if ($vue.tabAulas["especificas"].aulasEspecificas == null) {
                     $vue.tabAulas["especificas"].aulasEspecificas = [];
                 }
@@ -176,15 +171,8 @@ Vue.component("aula-componente", {
                 },
                 success: function (response) {
                     if (response.success) {
-                        //  $vue.tabAulas['especificas'].aulasEspecificaSel = response.data;
-                        //   $vue.tabAulas['especificas'].aulasEspecificaSel.seleccionado = true;
-
                         $vue.tabAulas.aulaSel = response.data;
                         $vue.selectAula($vue.tabAulas['especificas'].aulasEspecificaSel);
-                        // $vue.tabAulas['especificas'].aulasEspecificaSel.seleccionado = true;
-                        /*
-                         this.tabAulas['oficinas'].aulaSel = null;
-                         this.tabAulas['oera'].aulaSel = null;*/
                     } else {
                         if (response.total > 0) {
                             $vue.tabAulas['especificas'].errores = response.data;
@@ -201,7 +189,6 @@ Vue.component("aula-componente", {
 
         }, cambiarOficina() {
             let $vue = this;
-            //    $vue.tabAulas.aulaSel = null;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/aulas'),
@@ -226,7 +213,6 @@ Vue.component("aula-componente", {
             });
         }, cambiarModulo() {
             let $vue = this;
-            //  $vue.tabAulas.aulaSel = null;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/aulas'),
@@ -237,10 +223,6 @@ Vue.component("aula-componente", {
                 success: function (response) {
                     if (response.success) {
                         $vue.tabAulas['oera'].tblAulas = response.data.aulas;
-                        /*
-                         if (response.data.aulaSel != null && response.data.aulaSel != "") {
-                         $vue.tabAulas['oera'].aulaSel = response.data.aulaSel;
-                         }*/
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
@@ -252,24 +234,13 @@ Vue.component("aula-componente", {
         }, getClassAula(aula) {
             if (aula.seleccionado) {
                 return "btn-primary";
-            }/*
-             if ((this.tabAulas.aulaSel != null && this.tabAulas['oera'].aulaSel != "")
-             && parseInt(aula.id) == parseInt(this.tabAulas['oera'].aulaSel.id)) {
-             return "btn-primary";
-             }*/
+            }
             return "btn-default";
         }, selectAula(aula) {
             let seleccionado = !aula.seleccionado;
-            console.log("select aula");
-            console.dir(aula);
             if (seleccionado) {
                 this.tabAulas.aulaSel = aula;
                 if (aula.esOera) {
-                    /*
-                     this.tabAulas['oera'].aulaSel = aula;
-                     this.tabAulas['oficinas'].aulaSel = null;
-                     this.tabAulas['especificas'].aulasEspecificaSel = null;
-                     */
                     if (this.tabAulas['oficinas'].tblAulas != null) {
                         for (let key in this.tabAulas['oficinas'].tblAulas) {
                             this.tabAulas['oficinas'].tblAulas[key].seleccionado = false;
@@ -284,11 +255,6 @@ Vue.component("aula-componente", {
                     }
 
                 } else if (aula.esOficina) {
-                    /*
-                     this.tabAulas['oficinas'].aulaSel = aula;
-                     this.tabAulas['oera'].aulaSel = null;
-                     this.tabAulas['especificas'].aulasEspecificaSel = null;
-                     */
                     if (this.tabAulas['oera'].tblAulas != null) {
                         for (let key in this.tabAulas['oera'].tblAulas) {
                             this.tabAulas['oera'].tblAulas[key].seleccionado = false;
@@ -316,10 +282,6 @@ Vue.component("aula-componente", {
                     }
                 }
             } else {
-                /*
-                 this.tabAulas['oera'].aulaSel = null;
-                 this.tabAulas['oficinas'].aulaSel = null;
-                 */
                 this.tabAulas.aulaSel = null;
                 if (this.tabAulas['oficinas'].tblAulas != null) {
                     for (let key in this.tabAulas['oficinas'].tblAulas) {

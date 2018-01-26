@@ -376,7 +376,9 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+            if (true) {
+                throw new PhobosException("error");
+            }
             String message = "Creado exitosamente.";
             grupoSeccion = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
             node.put("gruposeccion", grupoSeccion.getId());
