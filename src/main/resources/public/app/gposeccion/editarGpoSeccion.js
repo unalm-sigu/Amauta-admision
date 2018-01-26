@@ -543,18 +543,18 @@ var app = new Vue({
             if (this.seccionModal.horasSemanales != diasHorasGrupo.length) {
                 errorCantHoras = true;
             }
-            if (this.tabGrupos.grupoHorarioSel.esTipoGrupoZeta && (
-                    this.tabGrupos.grupoHorarioSel.esTipoGrupoCodZeta || this.tabGrupos.grupoHorarioSel.esTipoGrupoCodZetaAsterisk
-                    )) {
+            if (this.tabGrupos.grupoHorarioSel.permiteCeroHoras) {
                 if (diasHorasGrupo.length == 0) {
                     errorCantHoras = false;
                 }
             }
 
+
             if (errorCantHoras) {
                 alert(mensajeAsignarHoras);
                 return
             }
+            this.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
             /*
              if (this.tabGrupos.grupoHorarioSel.esTipoGrupoZeta && (
              this.tabGrupos.grupoHorarioSel.esTipoGrupoCodZeta || this.tabGrupos.grupoHorarioSel.esTipoGrupoCodZetaAsterisk
@@ -586,7 +586,7 @@ var app = new Vue({
                             type: 'POST',
                             async: true,
                             data:
-                                    JSON.stringify(diasHorasGrupo)
+                                    JSON.stringify($vue.tabGrupos.grupoHorarioSel)
                             ,
                             success: function (response) {
                                 if (response.success) {
@@ -1063,6 +1063,7 @@ var app = new Vue({
                         $vue.tabGrupos['zetas'].tblHorarios = response.data;
 
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
+                        console.dir($vue.tabGrupos.grupoHorarioSel);
                         $global.$emit("seleccionarGrupoZeta", $vue.tabGrupos.grupoHorarioSel);
                         $global.$emit("reloadDynaEspecial");
                         $vue.tabGrupos['especial'].tblHorarios = null;

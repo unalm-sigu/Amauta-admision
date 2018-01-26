@@ -1023,13 +1023,13 @@ public class GpoSeccionController {
 
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
 
-            ObjectNode jspnGrupoHoras = JsonHelper.createJson(grupoHoras, factory);
+            ObjectNode jspnGrupoHoras = grupoHoras.toJson();
             if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
-                jspnGrupoHoras.put("esTipoGrupoRegular", Boolean.TRUE);
+                jspnGrupoHoras.put("esTipoGrupoRegular", true);
             } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
-                jspnGrupoHoras.put("esTipoGrupoZeta", Boolean.TRUE);
+                jspnGrupoHoras.put("esTipoGrupoZeta", true);
             } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                jspnGrupoHoras.put("esTipoGrupoEspecial", Boolean.TRUE);
+                jspnGrupoHoras.put("isTipoGrupoEspecial", true);
             }
 
             for (Dia diaEach : dias) {
@@ -1241,7 +1241,7 @@ public class GpoSeccionController {
     @RequestMapping("{seccion}/saveSeccionGrupo")
     public JsonResponse saveSeccionGrupo(
             @PathVariable("seccion") Long seccionId,
-            @RequestBody List<DiaHoraGrupo> diasHorasGrupo,
+            @RequestBody GrupoHoras grupoHoras,
             RedirectAttributes redirectAttr,
             HttpSession session) {
 
@@ -1251,7 +1251,7 @@ public class GpoSeccionController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Grupo hora asignado correctamente.";
-            service.saveSeccionGrupoHorario(seccionId, diasHorasGrupo, ds.getCicloAcademico());
+            service.saveSeccionGrupoHorario(seccionId, grupoHoras, ds.getCicloAcademico());
 
             response.setSuccess(true);
             response.setMessage(message);
