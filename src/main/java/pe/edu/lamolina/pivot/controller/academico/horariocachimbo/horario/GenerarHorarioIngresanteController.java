@@ -37,9 +37,13 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.Hora;
@@ -497,21 +501,62 @@ public class GenerarHorarioIngresanteController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            List<CursoCachimbos> cursoCachimbos = service.allCursoCachimbosByHorario(horario, cicloAcademico);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (CursoCachimbos cursoCachimbo : cursoCachimbos) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", cursoCachimbo.getId());
-                node.put("codigo", cursoCachimbo.getCurso().getCodigo());
-                node.put("nombre", cursoCachimbo.getCurso().getNombre());
-                node.put("carrera", cursoCachimbo.getCarrera().getNombre());
-                node.put("facultad", cursoCachimbo.getCarrera().getFacultad().getNombre());
-                node.put("departamentoAcademico", cursoCachimbo.getCurso().getDepartamentoAcademico().getNombre());
-                node.put("curso", cursoCachimbo.getCurso().getNombre());
-                node.put("tpc", cursoCachimbo.getCurso().getTpc());
-                array.add(node);
+            List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByHorario(horario, cicloAcademico);
+            ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);
+
+            for (GrupoSeccion gpoSeccion : gpoSecciones) {
+                ObjectNode nodeGpoSecc = new ObjectNode(JsonNodeFactory.instance);
+
+                nodeGpoSecc.put("id", gpoSeccion.getId());
+                nodeGpoSecc.put("curso", gpoSeccion.getCurso().getNombre());
+                nodeGpoSecc.put("codigo", gpoSeccion.getCurso().getCodigo());
+                nodeGpoSecc.put("teoria", gpoSeccion.getCurso().getHorasTeoria());
+                nodeGpoSecc.put("practica", gpoSeccion.getCurso().getHorasPractica());
+                nodeGpoSecc.put("creditos", gpoSeccion.getCurso().getCreditos());
+                nodeGpoSecc.put("anexo", gpoSeccion.getAnexoBoletin().getNombre());
+                nodeGpoSecc.put("estado", gpoSeccion.getEstado());
+                nodeGpoSecc.put("estadoValue", gpoSeccion.getEstado() != null ? EstadoEnum.valueOf(gpoSeccion.getEstado()).getValue() : "");
+
+                ArrayNode arraySecc = new ArrayNode(JsonNodeFactory.instance);
+                for (Seccion seccion : gpoSeccion.getSecciones()) {
+                    ObjectNode nodeSecc = new ObjectNode(JsonNodeFactory.instance);
+                    nodeSecc.put("tipo", seccion.getTipoSeccion());
+                    nodeSecc.put("tipoValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
+                    nodeSecc.put("codigo", seccion.getCodigo());
+                    nodeSecc.put("codigo2", seccion.getCodigo2());
+                    nodeSecc.put("vacantes", seccion.getVacantes());
+                    nodeSecc.put("matriculados", seccion.getMatriculados());
+                    nodeSecc.put("aula", (String) ObjectUtil.getParentTree(seccion, "aula.codigo"));
+                    nodeSecc.put("grupo", (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"));
+                    nodeSecc.put("estadoSec", seccion.getEstado());
+                    nodeSecc.put("estadoValueSec", seccion.getEstadoEnum().getValue());
+
+                    ArrayNode arrayDoc = new ArrayNode(JsonNodeFactory.instance);
+                    for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
+                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+                        nodeDoc.put("principal", docSeccion.getPrincipal());
+                        nodeDoc.put("codigo", docSeccion.getDocente().getCodigo());
+                        nodeDoc.put("docente", (String) ObjectUtil.getParentTree(docSeccion, "docente.persona.nombrePaterno"));
+                        arrayDoc.add(nodeDoc);
+                    }
+
+                    if (seccion.getDocenteSeccion().isEmpty()) {
+                        ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+                        nodeDoc.put("principal", 0);
+                        nodeDoc.put("codigo", "");
+                        nodeDoc.put("docente", "");
+                        arrayDoc.add(nodeDoc);
+                    }
+
+                    nodeSecc.set("docentes", arrayDoc);
+                    arraySecc.add(nodeSecc);
+                }
+
+                nodeGpoSecc.set("secciones", arraySecc);
+                arrayGpoSecc.add(nodeGpoSecc);
             }
-            response.setData(array);
+
+            response.setData(arrayGpoSecc);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
