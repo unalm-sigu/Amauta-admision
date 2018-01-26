@@ -71,6 +71,7 @@ public class ConvenioServiceImp implements ConvenioService {
         convenioBeca.setFechaRegistro(convenioBecaDB.getFechaRegistro());
         convenioBeca.setEstado(convenioBecaDB.getEstado());
         this.saveArchivoS3(convenioBeca.getRutaDocumento());
+        this.deleteArchivoS3(convenioBecaDB, convenioBeca);
         convenioBecaDAO.update(convenioBeca);
         carreraConvenioDAO.deleteByConvenioBeca(convenioBeca);
         List<CarreraConvenio> carreraConvenios = convenioBeca.getCarreraConvenio();
@@ -148,7 +149,7 @@ public class ConvenioServiceImp implements ConvenioService {
         String nameOriginal3 = nameOriginal2.replaceAll("[^a-zA-Z0-9\\s]", "");
         String nameOriginal4 = nameOriginal3.replaceAll("[\\s+]", "-");
         Date date = new Date();
-        String formattedDate = new SimpleDateFormat("dd-MM-yyyy-hh.mm.ss-").format(date);
+        String formattedDate = new SimpleDateFormat("dd-MM-yyyy-hh.mm.SSSSSS-").format(date);
         return formattedDate + nameOriginal4 + ".pdf";
     }
 
@@ -157,6 +158,13 @@ public class ConvenioServiceImp implements ConvenioService {
         logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + rutaDocumento), (file.exists()));
         if (file.exists()) {
             s3Service.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, Constantine.TMP_DIR, rutaDocumento, true);
+        }
+    }
+
+    private void deleteArchivoS3(ConvenioBeca convenioBecaDB, ConvenioBeca convenioBeca) {
+        boolean requiereDelete = convenioBecaDB.getRutaDocumento().equalsIgnoreCase(convenioBeca.getRutaDocumento());
+        if (!requiereDelete) {
+            s3Service.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, convenioBecaDB.getRutaDocumento());
         }
     }
 
