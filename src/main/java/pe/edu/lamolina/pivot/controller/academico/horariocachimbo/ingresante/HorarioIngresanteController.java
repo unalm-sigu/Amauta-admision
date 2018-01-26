@@ -25,6 +25,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
@@ -110,6 +111,7 @@ public class HorarioIngresanteController {
                 node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
 
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
+                node.put("horarioCachimbo", (Long) ObjectUtil.getParentTree(alumHorario, "horarioCachimbos.id"));
 
                 array.add(node);
             }

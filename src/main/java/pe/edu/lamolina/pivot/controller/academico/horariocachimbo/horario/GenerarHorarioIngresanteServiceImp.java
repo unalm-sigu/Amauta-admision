@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -20,6 +19,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -90,6 +91,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     @Autowired
     SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
+
+    @Autowired
+    CarreraCachimbosDAO carreraCachimbosDAO;
 
     @Override
     public ModalidadEstudio findModalidadPregrado() {
@@ -228,6 +232,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             }
         }
 
+        List<CarreraCachimbos> carreraCachimbos = carreraCachimbosDAO.allByCicloAcademico(ciclo);
+        Map<Long, CarreraCachimbos> mapCarreraCachimbos = TypesUtil.convertListToMap("carrera.id", carreraCachimbos);
+
         List<List<Seccion>> horariosTotal = new ArrayList();
         List<Carrera> carreras = carreraDAO.allActivoByModalidad(modalidad);
 
@@ -341,6 +348,9 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                     horario.setSuscritos(horario.getSuscritos() + 1);
                     alumno.setHorarioCachimbos(horario);
                     alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR.name());
+                    CarreraCachimbos cc = mapCarreraCachimbos.get(carrera.getId());
+                    cc.setConHorario(cc.getConHorario() + 1);
+                    cc.setSinHorario(cc.getSinHorario() - 1);
 
                     List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
                     for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
@@ -358,6 +368,10 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
         for (AlumnoHorario alumno : alumnos) {
             alumnoHorarioDAO.update(alumno);
+        }
+
+        for (CarreraCachimbos value : mapCarreraCachimbos.values()) {
+            carreraCachimbosDAO.update(value);
         }
 
     }
