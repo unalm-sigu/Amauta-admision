@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -244,7 +245,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (tempo == null) {
                 persona.setUserRegistro(ds.getUsuario());
                 persona.setFechaRegistro(new Date());
-                persona.setEstado(EstadoEnum.ACT.name());
+                persona.setEstado(PersonaEstadoEnum.ACT);
                 personaDAO.save(persona);
 
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
@@ -435,7 +436,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personas.isEmpty()) {
             persona.setUserRegistro(ds.getUsuario());
             persona.setFechaRegistro(new Date());
-            persona.setEstado(EstadoEnum.ACT.name());
+            persona.setEstado(PersonaEstadoEnum.ACT);
             persona.setNumeroDocIdentidad(null);
             personaDAO.save(persona);
 
@@ -465,14 +466,14 @@ public class ProgDataServiceImp implements ProgDataService {
             Persona pp = new Persona(persona);
             pp.setUserRegistro(ds.getUsuario());
             pp.setFechaRegistro(new Date());
-            pp.setEstado(EstadoEnum.ACT.name());
+            pp.setEstado(PersonaEstadoEnum.ACT);
             logger.debug("finalizo revision de persona {}", pp.getApellidosNombres());
             return pp;
         }
 
         if (personas.size() == 1) {
             Persona pp = personas.get(0);
-            pp.setEstado(EstadoEnum.ACT.name());
+            pp.setEstado(PersonaEstadoEnum.ACT);
             personaDAO.update(pp);
             logger.debug("finalizo revision de persona {}", pp.getApellidosNombres());
             return personas.get(0);
@@ -502,7 +503,7 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Persona persona : personas) {
             if (persona.getId() == main.getId().longValue()) {
                 //logger.debug("Activando persona {}", persona.getId());
-                persona.setEstado(EstadoEnum.ACT.name());
+                persona.setEstado(PersonaEstadoEnum.ACT);
                 persona.setFechaTraslado(null);
                 persona.setUserTraslado(null);
                 persona.setPersonaTraslado(null);
@@ -510,7 +511,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             //logger.debug("desactivando persona {}", persona.getId());
-            persona.setEstado(EstadoEnum.INA.name());
+            persona.setEstado(PersonaEstadoEnum.INA);
             persona.setFechaTraslado(new Date());
             persona.setUserTraslado(ds.getUsuario());
             persona.setPersonaTraslado(main);

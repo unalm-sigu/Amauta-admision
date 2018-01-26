@@ -30,6 +30,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
+import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -61,6 +62,9 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
 
     @Autowired
     CarreraCachimbosDAO carreraCachimbosDAO;
+
+    @Autowired
+    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -189,6 +193,13 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     public List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, CicloAcademico cicloAcademico) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         return alumnoDAO.allAlumnoIngresantePregradoByNameCiclo(nombre, modalidad, cicloAcademico);
+    }
+
+    @Override
+    public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user) {
+        seccionHorarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
+        alumnoHorarioDAO.allSetHorarioNullByCiclo(cicloAcademico);
+        horarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
     }
 
 }

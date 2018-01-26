@@ -25,6 +25,9 @@
 
                             <form data-parsley-validate="true" method="POST" id="formAlumnoVisitante" >
 
+                                <input type="hidden"  name="id" th:value="${alumnoVisitante.id}"/>
+                                <input type="hidden"  name="persona.id" th:value="${alumnoVisitante.persona.id}"/>
+
                                 <div class="panel-body">
                                     <div class="col-xs-12">
                                         <h4 class="m-b-md m-t-md">Datos Generales</h4>
@@ -262,6 +265,40 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
 
+                                            <label>País Domicilio</label>
+
+                                            <input type="text"
+                                                   id="paisDomicilio"
+                                                   class="form-control"
+                                                   name="persona.paisDomicilio.id"
+                                                   data-trigger="change"
+                                                   th:rel="${helper.getParentTree(alumnoVisitante,'persona.paisDomicilio.nombre')}"
+                                                   th:value="${helper.getParentTree(alumnoVisitante,'persona.paisDomicilio.id')}"
+                                                   required="true"/>
+
+                                        </div>
+                                    </div>
+
+                                    <div v-if="showUbicacionDomicilio"   class="col-sm-6">
+                                        <div class="form-group">
+
+                                            <label>Ubicación Domicilio</label>
+
+                                            <input type="text"
+                                                   id="ubicacionDomicilio"
+                                                   class="form-control buscar-distrito"
+                                                   name="persona.ubicacionDomicilio.id"
+                                                   data-trigger="change"
+                                                   th:rel="${helper.getParentTree(alumnoVisitante,'persona.ubicacionDomicilio.nombre')}"
+                                                   th:value="${helper.getParentTree(alumnoVisitante,'persona.ubicacionDomicilio.id')}"
+                                                   required="true"/>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+
                                             <label class="bold">Dirección</label>
 
                                             <input type="text"
@@ -368,6 +405,8 @@
                 var showLugarNacimiento = /*[[${alumnoVisitante.persona.ubicacionNacer != null}]]*/'';
                 var showUniverdidadName = /*[[${alumnoVisitante.universidadExtranjera!=null}]]*/'';
                 var showUniverdidadPeru = /*[[${alumnoVisitante.universidad!=null}]]*/ '';
+                var codigoPaisUniversidad = /*[[${alumnoVisitante.paisUniversidad!=null?alumnoVisitante.paisUniversidad.codigo:''}]]*/ '';
+                var codigoPaisDomicilio = /*[[${alumnoVisitante.persona.paisDomicilio!=null?alumnoVisitante.persona.paisDomicilio.codigo:''}]]*/ '';
                 /*]]>*/
             </script>
 

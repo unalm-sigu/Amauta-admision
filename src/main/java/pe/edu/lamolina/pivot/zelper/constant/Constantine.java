@@ -31,4 +31,10 @@ public interface Constantine {
 
     String COD_CARRERA_ALUMNO_VISITANTE = "001";
 
+    String CODE_POSTULANTE_DUMMY = "00000000";
+
+    String APP_ERROR_MESSAGE = "Error Desconocido: por favor reporte el problema.";
+
+    String S3_DIR_CONVENIO = "convenio/";
+
 }

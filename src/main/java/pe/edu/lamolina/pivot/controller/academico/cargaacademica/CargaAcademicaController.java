@@ -1224,6 +1224,7 @@ public class CargaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);

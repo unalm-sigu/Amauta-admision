@@ -4,8 +4,9 @@ $(function() {
         el: '#main',
         data: {
             showLugarNacimiento: showLugarNacimiento,
-            showUniverdidadName: showUniverdidadName,
-            showUniverdidadPeru: showUniverdidadPeru,
+            showUniverdidadName: codigoPaisUniversidad != 'PE',
+            showUniverdidadPeru: codigoPaisUniversidad == 'PE',
+            showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
         },
         created() {
             let vue = this;
@@ -24,6 +25,9 @@ $(function() {
             $('#nacionalidad').select2(vue.buscarPais());
             $('#paisUniversidad').select2(vue.buscarPais()).on('change.select2', function(e) {
                 vue.mostrarUniversidadName();
+            });
+            $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function(e) {
+                vue.mostrarUbicacionDomicilio();
             });
             $('#univ-peru').select2(vue.buscarUniversidad());
         },
@@ -153,6 +157,22 @@ $(function() {
                     $("#universidadExtranjeraName").val("");
                 }
             },
+            mostrarUbicacionDomicilio: function() {
+                console.log();
+                var vue = this;
+                var dataPaisUni = $("#paisDomicilio").select2("data");
+                if (dataPaisUni.codigo === "PE") {
+                    vue.showUbicacionDomicilio = true;
+                    setTimeout(function() {
+                        $('#ubicacionDomicilio').select2(vue.buscarDistrito());
+                    }, 500);
+                    $("#ubicacionDomicilio").prop('required', true);
+                    $("#ubicacionDomicilio").select2("val", "");
+                } else {
+                    vue.showUbicacionDomicilio = false;
+                    $("#ubicacionDomicilio").removeProp('required');
+                }
+            },
             submitForm: function(e) {
                 var self = $(e.currentTarget);
                 console.log(self);
@@ -172,8 +192,8 @@ $(function() {
                             $(location).attr('href', APP.url('academico/visitante/alumno/'));
                         } else {
                             notify(response.message, "error");
+                            self.btnEnable();
                         }
-                        self.btnEnable();
                     },
                     error: function() {
                         self.btnEnable();

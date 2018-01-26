@@ -175,6 +175,7 @@ public class EvaluacionExpandidaServiceImpl implements EvaluacionExpandidaServic
                 eval.setEvaluacionSeccion(evalSecc);
                 eval.setEvaluados(0);
                 eval.setFechaDesagregar(new Date());
+                eval.setPorcentajeVariable(0);
 //                eval.setPorcentajeVariable(evalPlan.getIndPorcentajeVariable());
                 eval.setNumero(0);
                 eval.setPeso(evalPlan.getPesoTotal());

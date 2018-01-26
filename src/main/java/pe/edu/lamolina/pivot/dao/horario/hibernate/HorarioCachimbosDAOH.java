@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
 import java.util.List;
+import org.hibernate.Query;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 
 @Repository
 public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> implements HorarioCachimbosDAO {
@@ -75,6 +77,17 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
                 .filter("hoca.id", horarioCachimbos);
 
         return find(sql);
+    }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("  delete from ").append(HorarioCachimbos.class.getName()).append(" hc ");
+        sql.append("  where hc.cicloAcademico.id = :CICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
     }
 
 }
