@@ -645,17 +645,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void saveSeccionGrupoHorario(Long seccionId, List<DiaHoraGrupo> diasHorasGrupo, CicloAcademico cicloAcademico) {
-        if (diasHorasGrupo.isEmpty()) {
-            throw new PhobosException("Debe seleccionar las horas");
-        }
+    public void saveSeccionGrupoHorario(Long seccionId, GrupoHoras grupoHorasArg, CicloAcademico cicloAcademico) {
 
+        if (!grupoHorasArg.isPermiteCeroHoras()) {
+            if (grupoHorasArg.getDiaHoraGrupo().isEmpty()) {
+                throw new PhobosException("Debe seleccionar las horas");
+            }
+        }
         Seccion seccion = seccionDAO.find(seccionId);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         seccion.setHorarioSeccion(horariosSeccion);
 
         GrupoHoras grupoHoraOld = seccion.getGrupoHoras();
-        GrupoHoras grupoHorasNew = grupoHorasDAO.find(diasHorasGrupo.get(0).getGrupoHorario().getId());
+        GrupoHoras grupoHorasNew = grupoHorasDAO.find(grupoHorasArg.getId());
         seccion.setGrupoHoras(grupoHorasNew);
 
         List<HorarioAula> horariosAulasSeccion = null;
@@ -671,7 +673,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //borrar los deseleccionados
         for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
 
-            if (!horarioSeccionEach.isTieneDiaHoraGrupo(diasHorasGrupo)) {
+            if (!horarioSeccionEach.isTieneDiaHoraGrupo(grupoHorasArg.getDiaHoraGrupo())) {
                 if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                     horarioAulaDAO.deleteBySeccionDiaHoraAula(seccion, horarioSeccionEach.getDia(),
                             horarioSeccionEach.getHora(), seccion.getAula());
@@ -685,7 +687,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         }
          */
-        for (DiaHoraGrupo diaHoraGrupoEach : diasHorasGrupo) {
+        for (DiaHoraGrupo diaHoraGrupoEach : grupoHorasArg.getDiaHoraGrupo()) {
             //verificar si ya se encuentra registrado en base de datos
             if (diaHoraGrupoEach.isTieneHorarioSeccion(seccion.getHorarioSeccion())) {
                 continue;

@@ -6,140 +6,6 @@ Vue.component("multiselect", window.VueMultiselect.default)
 $('#dynaTable').dynatable({});
 $('#dynaTableEspecial').dynatable({});
 
-Vue.component("dynatable", {
-    template: "#dynatableTemplate",
-    props: {
-        project: {required: false},
-        dynatable: {required: false},
-        onclick: {type: Function, default: () => {
-            }}
-    },
-    mounted: function () {
-        let $vue = this;
-        $vue.createDynatable();
-
-    },
-    methods: {
-        createDynatable: function () {
-            let $vue = this;
-
-            $vue.dynatable = $('#dynaTable').dynatable({
-                dataset: {
-                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosZetas'),
-                    perPageDefault: 6,
-                    ajaxData: {tipoGrupoHora: "ZETA"}
-
-                },
-                writers: {_rowWriter: $vue.writter},
-                table: {bodyRowSelector: 'div'},
-                features: {
-                    pushState: false,
-                    search: false,
-                    recordCount: false
-                },
-                inputs: {
-                    processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
-                }
-            }).data('dynatable');
-
-            $("body").delegate(".cls-grupos-sel", "click", function (e) {
-                e.preventDefault();
-                $vue.onclick($(this).attr("rel"));
-            });
-
-
-
-        },
-        writter: function (rowIndex, record, columns, cellWriter) {
-            var labelColor = {ACT: 'success', INA: 'danger'};
-            var labelName = {ACT: 'Activo', INA: 'Inactivo'};
-            record.colorEstado = labelColor[record.estado];
-            record.nameEstado = labelName[record.estado];
-            var html = $.templates("#dynatableRowTemplate").render(record);
-            var outerHTML = $(html).prop('outerHTML');
-
-            return outerHTML;
-        },
-        showModal() {
-            // this.$refs.modalTest.open();
-
-        }, clickGrupo() {
-
-        }
-    },
-    watch: function () {
-    }
-});
-
-
-Vue.component("dynatable-especial", {
-    template: "#dynatableTemplateEspecial",
-    // props: ["project", "dynatable"],
-    props: {
-        project: {required: false},
-        dynatable: {required: false},
-        onclick: {type: Function, default: () => {
-            }}
-    },
-    methods: {
-        createDynatable: function () {
-            let $vue = this;
-
-            $vue.dynatable = $('#dynaTableEspecial').dynatable({
-                dataset: {
-                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipoEspecial'),
-                    perPageDefault: 6,
-                    ajaxData: {tipoGrupoHora: "ESPECIAL"}
-                },
-                writers: {_rowWriter: $vue.writter},
-                table: {bodyRowSelector: 'div'},
-                features: {
-                    pushState: false,
-                    //   search: false,
-                    recordCount: false
-                },
-                inputs: {
-                    processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
-                }
-            }).data('dynatable');
-
-            $("body").delegate(".cls-grupos-sel-esp", "click", function (e) {
-                e.preventDefault();
-                $vue.onclick($(this).attr("rel"));
-            });
-
-
-
-        },
-        writter: function (rowIndex, record, columns, cellWriter) {
-            var labelColor = {ACT: 'success', INA: 'danger'};
-            var labelName = {ACT: 'Activo', INA: 'Inactivo'};
-            record.colorEstado = labelColor[record.estado];
-            record.nameEstado = labelName[record.estado];
-            var html = $.templates("#dynatableRowTemplateEsp").render(record);
-            var outerHTML = $(html).prop('outerHTML');
-
-            return outerHTML;
-        },
-        showModal() {
-        }, clickGrupo() {
-
-        }
-    },
-    created: function () {
-        //  let $vue = this;
-        // $vue.createDynatable();
-    },
-    mounted: function () {
-        let $vue = this;
-        $vue.createDynatable();
-        $global.$on("reloadDynaEspecial", function (seccion) {
-            //  $vue.dynatable.queries.add("seccion", seccion);
-            //    $vue.dynatable.process();
-        });
-
-    }
-});
 
 
 
@@ -559,12 +425,16 @@ var app = new Vue({
                     if (response.success) {
                         $vue.seccionModal = response.data.seccion;
 
+                        $global.$emit("reloadDynaZeta", $vue.seccionModal.id);
                         $global.$emit("reloadDynaEspecial", $vue.seccionModal.id);
                         //  $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
                         $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
 
                         if (response.data.grupoHorarioSel != null) {
+
                             $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorarioSel;
+
+
                             if (response.data.grupoHorarioSel.esTipoGrupoRegular) {
                                 console.log("esTipoGrupoRegular");
                                 $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
@@ -580,6 +450,7 @@ var app = new Vue({
                                 $vue.tabGrupos['especial'].tipoGrupoHorasSeleccionado = response.data.grupoHorarioSel.tipoGrupoHoras;
                                 $vue.seleccionarGrupoEsp($vue.tabGrupos['especial'].grupoHorarioSel.id);
                             }
+
                         } else {
                             $vue.tabGrupos['zetas'].tblHorarios = null;
                         }
@@ -668,24 +539,35 @@ var app = new Vue({
                 }
             }
 
+            let errorCantHoras = false;
             if (this.seccionModal.horasSemanales != diasHorasGrupo.length) {
-                /*
-                 bootbox.alert({
-                 message: mensajeAsignarHoras,
-                 buttons: {
-                 ok: {label: 'Cerrar', className: "btn-danger"},
-                 },
-                 callback: function (result) {
-                 if (result) {
-                 
-                 }
-                 }
-                 });
-                 */
+                errorCantHoras = true;
+            }
+            if (this.tabGrupos.grupoHorarioSel.permiteCeroHoras) {
+                if (diasHorasGrupo.length == 0) {
+                    errorCantHoras = false;
+                }
+            }
+
+
+            if (errorCantHoras) {
                 alert(mensajeAsignarHoras);
                 return
             }
-
+            this.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
+            /*
+             if (this.tabGrupos.grupoHorarioSel.esTipoGrupoZeta && (
+             this.tabGrupos.grupoHorarioSel.esTipoGrupoCodZeta || this.tabGrupos.grupoHorarioSel.esTipoGrupoCodZetaAsterisk
+             )) {
+             alert("valido bien");
+             return;
+             } else {
+             if (this.seccionModal.horasSemanales != diasHorasGrupo.length) {
+             alert(mensajeAsignarHoras);
+             return
+             }
+             }
+             */
             let $vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
@@ -704,7 +586,7 @@ var app = new Vue({
                             type: 'POST',
                             async: true,
                             data:
-                                    JSON.stringify(diasHorasGrupo)
+                                    JSON.stringify($vue.tabGrupos.grupoHorarioSel)
                             ,
                             success: function (response) {
                                 if (response.success) {
@@ -1179,7 +1061,12 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.tabGrupos['zetas'].tblHorarios = response.data;
-                        console.dir($vue.tabGrupos['zetas'].tblHorarios);
+
+                        $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
+                        console.dir($vue.tabGrupos.grupoHorarioSel);
+                        $global.$emit("seleccionarGrupoZeta", $vue.tabGrupos.grupoHorarioSel);
+                        $global.$emit("reloadDynaEspecial");
+                        $vue.tabGrupos['especial'].tblHorarios = null;
                     } else {
                         notify(response.message, "error");
                         $vue.tabGrupos['zetas'].tblHorarios = null;
@@ -1203,9 +1090,14 @@ var app = new Vue({
                     seccion: $vue.seccionModal.id
                 },
                 success: function (response) {
-                    console.dir(response);
+
                     if (response.success) {
+
                         $vue.tabGrupos['especial'].tblHorarios = response.data;
+                        $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
+                        $global.$emit("seleccionarGrupoEspecial", $vue.tabGrupos.grupoHorarioSel);
+                        $global.$emit("reloadDynaZeta");
+                        $vue.tabGrupos['zetas'].tblHorarios = null;
                     } else {
                         notify(response.message, "error");
                         $vue.tabGrupos['especial'].tblHorarios = null;
@@ -1217,31 +1109,6 @@ var app = new Vue({
                 }
             });
 
-            /*
-             let $vue = this;
-             $.ajax({
-             url: APP.url('academico/gposeccion/horariosZeta'),
-             type: 'POST',
-             async: false,
-             data: {
-             grupoHorario: grupo,
-             seccion: $vue.seccionModal.id
-             },
-             success: function (response) {
-             if (response.success) {
-             console.dir(response.data);
-             $vue.tabGrupos['especial'].tblHorarios = response.data;
-             } else {
-             notify(response.message, "error");
-             $vue.tabGrupos['especial'].tblHorarios = null;
-             }
-             },
-             error: function () {
-             notify(MESSAGES.errorComunicacion, "error");
-             //  $("#tablaHorario").html('');
-             }
-             });
-             */
         }, cambiarCboTipoGrupoHorZeta() {
             let $vue = this;
 //tabGrupos['zetas'].   grupoHorarioSel tblHorarios

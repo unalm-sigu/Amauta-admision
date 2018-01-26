@@ -702,8 +702,6 @@ public class GpoSeccionController {
                     grupoHorasNode.put("esTipoGrupoRegular", true);
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                     grupoHorasNode.put("esTipoGrupoZeta", true);
-                    grupoHorasNode.put("esTipoGrupoCodZeta", grupoHoras.getTipoGrupoHoras().isCodigoZeta());
-                    grupoHorasNode.put("esTipoGrupoCodZetaAsterisk", grupoHoras.getTipoGrupoHoras().isCodigoZetaAsterisk());
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
                     grupoHorasNode.put("isTipoGrupoEspecial", true);
                 }
@@ -925,21 +923,22 @@ public class GpoSeccionController {
             }
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
 
+            ObjectNode grupoHorarioJson = JsonHelper.createJson(grupoHoras, factory);
+
+            if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
+                grupoHorarioJson.put("esTipoGrupoRegular", Boolean.TRUE);
+            } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
+                grupoHorarioJson.put("esTipoGrupoZeta", Boolean.TRUE);
+            } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
+                grupoHorarioJson.put("esTipoGrupoEspecial", Boolean.TRUE);
+            }
+
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
             for (DiaHoraGrupo diaHoraGrupoEach : grupoHoras.getDiaHoraGrupo()) {
                 Long diaId = diaHoraGrupoEach.getDia().getId();
                 Long horaId = diaHoraGrupoEach.getHora().getId();
 
                 ObjectNode jsonDiaHoraGrupoEach = JsonHelper.createJson(diaHoraGrupoEach, factory);
-                ObjectNode grupoHorarioJson = JsonHelper.createJson(diaHoraGrupoEach.getGrupoHorario(), factory);
-
-                if (diaHoraGrupoEach.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoRegular()) {
-                    grupoHorarioJson.put("esTipoGrupoRegular", Boolean.TRUE);
-                } else if (diaHoraGrupoEach.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoZeta()) {
-                    grupoHorarioJson.put("esTipoGrupoZeta", Boolean.TRUE);
-                } else if (diaHoraGrupoEach.getGrupoHorario().getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                    grupoHorarioJson.put("esTipoGrupoEspecial", Boolean.TRUE);
-                }
 
                 jsonDiaHoraGrupoEach.putPOJO("grupoHorario", grupoHorarioJson);
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
@@ -987,6 +986,7 @@ public class GpoSeccionController {
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
             data.set("jsonHorarioAula", jsonHorarioAula);
+            data.putPOJO("grupoHorasSeleccionado", grupoHorarioJson);
 
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
@@ -1023,6 +1023,15 @@ public class GpoSeccionController {
 
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
 
+            ObjectNode jspnGrupoHoras = grupoHoras.toJson();
+            if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
+                jspnGrupoHoras.put("esTipoGrupoRegular", true);
+            } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
+                jspnGrupoHoras.put("esTipoGrupoZeta", true);
+            } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
+                jspnGrupoHoras.put("isTipoGrupoEspecial", true);
+            }
+
             for (Dia diaEach : dias) {
                 for (Hora horaEach : horasEncontradas) {
                     Long diaId = diaEach.getId();
@@ -1032,15 +1041,6 @@ public class GpoSeccionController {
                     jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaEach, factory));
                     jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(horaEach, factory));
                     jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
-
-                    ObjectNode jspnGrupoHoras = JsonHelper.createJson(grupoHoras, factory);
-                    if (grupoHoras.getTipoGrupoHoras().isTipoGrupoRegular()) {
-                        jspnGrupoHoras.put("esTipoGrupoRegular", Boolean.TRUE);
-                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
-                        jspnGrupoHoras.put("esTipoGrupoZeta", Boolean.TRUE);
-                    } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                        jspnGrupoHoras.put("esTipoGrupoEspecial", Boolean.TRUE);
-                    }
 
                     jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
                     if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
@@ -1081,10 +1081,12 @@ public class GpoSeccionController {
                 horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
             }
 
+            // data.putPOJO("grupoHorarioSel", grupoHoras.toJson());
             data.set("dias", diasJson);
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
             data.set("jsonHorarioAula", jsonHorarioAula);
+            data.putPOJO("grupoHorasSeleccionado", jspnGrupoHoras);
 
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
@@ -1239,7 +1241,7 @@ public class GpoSeccionController {
     @RequestMapping("{seccion}/saveSeccionGrupo")
     public JsonResponse saveSeccionGrupo(
             @PathVariable("seccion") Long seccionId,
-            @RequestBody List<DiaHoraGrupo> diasHorasGrupo,
+            @RequestBody GrupoHoras grupoHoras,
             RedirectAttributes redirectAttr,
             HttpSession session) {
 
@@ -1249,7 +1251,7 @@ public class GpoSeccionController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Grupo hora asignado correctamente.";
-            service.saveSeccionGrupoHorario(seccionId, diasHorasGrupo, ds.getCicloAcademico());
+            service.saveSeccionGrupoHorario(seccionId, grupoHoras, ds.getCicloAcademico());
 
             response.setSuccess(true);
             response.setMessage(message);
