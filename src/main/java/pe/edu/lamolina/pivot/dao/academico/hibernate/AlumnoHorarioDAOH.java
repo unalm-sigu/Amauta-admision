@@ -50,9 +50,9 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoHorario.class, "alu")
                 .join("alumno alum", "alum.persona per", "cicloAcademico ciclo")
-                .leftJoin("horarioCachimbos hora", "alum.orientacionCarrera oca", "alum.carrera ca", "alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me")
+                .leftJoin("horarioCachimbos hora", "alum.orientacionCarrera oca", "alum.carrera ca", "alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me", "ca.facultad fac")
                 .filter("ciclo.id", cicloAcademico)
-                .searchFields("ca.nombre")
+                .searchFields("ca.nombre", "alum.codigo", "per.numeroDocIdentidad", "hora.codigo", "fac.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("alu.id desc");
