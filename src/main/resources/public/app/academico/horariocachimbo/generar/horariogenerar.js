@@ -1,10 +1,10 @@
-$(function () {
+$(function() {
 
     var $global = new Vue({});
 
     var DynatableRowTemplate = Vue.component("dynatableRow", {
         template: "#dynatableRowTemplate",
-        data: function () {
+        data: function() {
             return {horario: []};
         },
         methods: {
@@ -30,14 +30,14 @@ $(function () {
 
     Vue.component("dynatable", {
         template: "#dynatableTemplate",
-        mounted: function () {
+        mounted: function() {
             var vue = this;
             vue.createDynatable();
         },
         methods: {
-            createDynatable: function () {
+            createDynatable: function() {
                 var vue = this;
-                $('#dynaTable').bind('dynatable:init', function (e, dynatable) {
+                $('#dynaTable').bind('dynatable:init', function(e, dynatable) {
                     $('#opopop').append($('#eliminarSeleccion'));
                 });
                 dynatable = $('#dynaTable').dynatable({
@@ -47,7 +47,7 @@ $(function () {
                     },
                     writers: {_rowWriter: vue.writter},
                     table: {bodyRowSelector: "tbody tr"}
-                }).bind("dynatable:afterUpdate", function (e) {
+                }).bind("dynatable:afterUpdate", function(e) {
                     $('#dynaTable>thead>tr>th>input:checkbox').removeProp('checked');
 
                     var records = dynatable.settings.dataset.records;
@@ -59,7 +59,7 @@ $(function () {
                     }
                 }).data('dynatable');
             },
-            writter: function (rowIndex, record, columns, cellWriter) {
+            writter: function(rowIndex, record, columns, cellWriter) {
                 return "";
             }
         }
@@ -90,6 +90,7 @@ $(function () {
                 id: 'modalVerCurso',
                 header: true,
                 title: 'Curso',
+                modalSize: 'modal-lg',
                 cancelbtn: 'Aceptar',
                 showaccept: false
             },
@@ -106,22 +107,22 @@ $(function () {
             let vue = this;
             this.seleccionado = true;
         },
-        mounted: function () {
+        mounted: function() {
             let vue = this;
 
-            $global.$on("incluirAlumno", function (id) {
+            $global.$on("incluirAlumno", function(id) {
                 vue.incluirAlumno(id);
             });
-            $global.$on("verHorario", function (id) {
+            $global.$on("verHorario", function(id) {
                 vue.verHorario(id);
             });
-            $global.$on("verCurso", function (id) {
+            $global.$on("verCurso", function(id) {
                 vue.verCurso(id);
             });
-            $global.$on("verAlumno", function (id) {
+            $global.$on("verAlumno", function(id) {
                 vue.verAlumno(id);
             });
-            $global.$on("eliminar", function (id) {
+            $global.$on("eliminar", function(id) {
                 vue.eliminar(id);
             });
         },
@@ -138,14 +139,14 @@ $(function () {
                         url: APP.url("academico/horariocachimbo/horario/searchAlumno"),
                         dataType: 'json',
                         type: 'post',
-                        data: function (term, page) {
+                        data: function(term, page) {
                             return {nombre: term, page: page, horario: id};
                         },
-                        results: function (response, page) {
+                        results: function(response, page) {
                             return {results: response.data};
                         }
                     },
-                    initSelection: function (element, callback) {
+                    initSelection: function(element, callback) {
                         if (element.val() != "") {
                             var datos = {
                                 id: element.val(),
@@ -154,17 +155,17 @@ $(function () {
                             callback(datos);
                         }
                     },
-                    formatResult: function (info) {
+                    formatResult: function(info) {
                         return $.templates("#divBuscarAlumno").render(info);
                     },
-                    formatSelection: function (info) {
+                    formatSelection: function(info) {
                         vue.alumno = info;
                         return info.nombre;
                     },
-                    escapeMarkup: function (m) {
+                    escapeMarkup: function(m) {
                         return m;
                     }
-                }).on("change.select2", function (e) {
+                }).on("change.select2", function(e) {
                     if (e && e.removed) {
                         if (e.val == '') {
                             vue.alumno = [];
@@ -185,14 +186,14 @@ $(function () {
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/horario/addAlumno"),
                     data: {id: vue.alumno.id, 'horarioCachimbos.id': vue.horario.id},
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             dynatable.process();
                         } else {
                             notify(response.message, 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
@@ -212,7 +213,7 @@ $(function () {
                     return;
                 }
                 var horarios = {};
-                $.each(items, function (i, v) {
+                $.each(items, function(i, v) {
                     var indx = 'horarioCachimbos[' + i + '].id';
                     horarios[indx] = $(v).val();
                 });
@@ -235,7 +236,7 @@ $(function () {
                         async: false,
                         url: APP.url('academico/horariocachimbo/horario/deleteGrupo'),
                         data: horarios,
-                        success: function (response) {
+                        success: function(response) {
                             if (response.success) {
                                 notify(response.message, 'info');
                                 dynatable.process();
@@ -245,7 +246,7 @@ $(function () {
                                 return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                             }
                         },
-                        error: function () {
+                        error: function() {
                             notify(MESSAGES.errorComunicacion, "error");
                             return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }
@@ -266,14 +267,14 @@ $(function () {
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/horario/verHorario"),
                     data: {id: id},
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             vue.horarios = response.data;
                         } else {
                             notify(response.message, 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
@@ -285,14 +286,14 @@ $(function () {
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/horario/verCurso"),
                     data: {id: id},
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             vue.cursos = response.data;
                         } else {
                             notify(response.message, 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
@@ -304,14 +305,14 @@ $(function () {
                     method: 'POST',
                     url: APP.url("academico/horariocachimbo/horario/verAlumno"),
                     data: {id: id},
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             vue.alumnos = response.data;
                         } else {
                             notify(response.message, 'error');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
@@ -343,7 +344,7 @@ $(function () {
                         async: false,
                         url: APP.url('academico/horariocachimbo/horario/delete'),
                         data: {id: id},
-                        success: function (response) {
+                        success: function(response) {
                             if (response.success) {
                                 notify(response.message, 'info');
                                 dynatable.process();
@@ -353,7 +354,7 @@ $(function () {
                                 return  swal({text: response.message, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                             }
                         },
-                        error: function () {
+                        error: function() {
                             notify(MESSAGES.errorComunicacion, "error");
                             return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }

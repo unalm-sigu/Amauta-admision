@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import static java.util.Locale.filter;
 import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
@@ -39,6 +42,8 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
@@ -94,6 +99,12 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     @Autowired
     CarreraCachimbosDAO carreraCachimbosDAO;
+
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
 
     @Override
     public ModalidadEstudio findModalidadPregrado() {
@@ -796,6 +807,33 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             }
         }
         return totalSuscritos;
+    }
+
+    @Override
+    public List<GrupoSeccion> allGrupoSeccionByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico) {
+
+        List<SeccionHorarioCachimbos> seccionesHorCachimbos = seccionHorarioCachimbosDAO.allByHorario(horario);
+        Map<Long, GrupoSeccion> gseccionesMap = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", seccionesHorCachimbos);
+
+        List<GrupoSeccion> gsecciones = new ArrayList<GrupoSeccion>(gseccionesMap.values());
+
+        List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
+
+        Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        for (GrupoSeccion gseccion : gsecciones) {
+            List<Seccion> seccionesGpo = mapSecciones.get(gseccion.getId());
+            gseccion.setSecciones(seccionesGpo == null ? new ArrayList() : seccionesGpo);
+        }
+
+        List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
+
+        for (Seccion seccion : secciones) {
+            List<DocenteSeccion> doceentesSecc = mapDocSeccion.get(seccion.getId());
+            seccion.setDocenteSeccion(doceentesSecc == null ? new ArrayList() : doceentesSecc);
+        }
+
+        return gsecciones;
     }
 
 }
