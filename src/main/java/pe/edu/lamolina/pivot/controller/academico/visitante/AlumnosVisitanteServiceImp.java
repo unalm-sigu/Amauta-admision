@@ -204,7 +204,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         this.validarEmailsinPersona(persona.getEmail());
         this.validarEmailEmpresaSinPersona(persona.getEmailCompania());
 
-        persona.setEstado(PersonaEstadoEnum.ACT.name());
+        persona.setEstado(PersonaEstadoEnum.ACT);
         persona.setUserRegistro(usuario);
         persona.setFechaRegistro(new Date());
 

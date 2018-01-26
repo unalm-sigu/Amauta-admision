@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -83,7 +84,7 @@ public class DocenteServiceImp implements DocenteService {
             if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
                 this.validarEmailsinPersona(personaForm.getEmail());
             }
-            personaForm.setEstado(EstadoEnum.ACT.name());
+            personaForm.setEstado(PersonaEstadoEnum.ACT);
             if (Strings.isNullOrEmpty(personaForm.getFoto())) {
                 personaForm.setFoto(null);
             } else {
