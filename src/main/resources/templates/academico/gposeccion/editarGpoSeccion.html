@@ -270,8 +270,13 @@
                 </div>
             </modal-vik>
 
-            <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
-
+            <modal-vik ref="modalGrupo"
+                       v-bind="grupoModal"
+                       v-bind:okaction="saveGrupo">
+                <div slot="body">
+                    <grupohorarios-component></grupohorarios-component>
+                </div>
+            </modal-vik>
 
         </div>
 
@@ -289,6 +294,12 @@
         <template id="modalAulaComp"> 
             <div> 
                 <div th:substituteby="academico/gposeccion/modals/modalAula"/> 
+            </div> 
+        </template>
+
+        <template id="grupoHorarioComp"> 
+            <div> 
+                <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
             </div> 
         </template>
 
@@ -317,6 +328,7 @@
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/grupoHorariosComponent.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>
