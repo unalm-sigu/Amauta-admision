@@ -19,7 +19,7 @@ Vue.component("autocomplete-doc", {
 
         $(this.$el).select2({
             containerCss: "width:400px !important;",
-            containerCssClass: "diegoSelect",
+            containerCssClass: "buscarDocClass",
             minimumInputLength: 3,
             ajax: {
                 url: APP.url("academico/gposeccion/buscarDocentes"),

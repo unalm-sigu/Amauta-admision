@@ -3,7 +3,7 @@
         <title>Calificacion de Postulantes</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style type="text/css">
-        .diegoSelect {
+        .buscarDocClass {
             min-width: 300px;
         }
     </style>
@@ -283,11 +283,6 @@
         <div th:substituteby="templates/modal"/>
 
         <th:block th:replace="academico/gposeccion/grupoZetaTemplate"/>
-        <!-- 
-                <script id="grupoTemplate" type="text/x-jsrender" class="hide">
-                    <div th:substituteby="academico/gposeccion/grupoZetaTemplate"></div>
-                </script>
-        -->
 
         <div th:substituteby="_modules/vue-modal"/>
 
