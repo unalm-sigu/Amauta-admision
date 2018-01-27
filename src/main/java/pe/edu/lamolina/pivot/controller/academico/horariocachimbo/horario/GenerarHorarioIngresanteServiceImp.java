@@ -770,7 +770,6 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
             throw new PhobosException("Sección sobrepaso su capacidad");
         }
         horarioCachimbosDAO.update(horarioCachimbos);
-        logger.debug("id AlumnoHorario {}", alumno.getId());
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.find(alumno);
         alumnoHorario.setHorarioCachimbos(horarioCachimbos);
         alumnoHorarioDAO.update(alumnoHorario);
@@ -814,10 +813,10 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
         List<SeccionHorarioCachimbos> seccionesHorCachimbos = seccionHorarioCachimbosDAO.allByHorario(horario);
         Map<Long, GrupoSeccion> gseccionesMap = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", seccionesHorCachimbos);
+        Map<Long, Seccion> seccionesMap = TypesUtil.convertListToMap("seccion.id", "seccion", seccionesHorCachimbos);
 
-        List<GrupoSeccion> gsecciones = new ArrayList<GrupoSeccion>(gseccionesMap.values());
-
-        List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
+        List<GrupoSeccion> gsecciones = new ArrayList<>(gseccionesMap.values());
+        List<Seccion> secciones = new ArrayList<>(seccionesMap.values());
 
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gseccion : gsecciones) {
