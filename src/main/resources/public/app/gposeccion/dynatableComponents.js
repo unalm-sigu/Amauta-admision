@@ -26,14 +26,20 @@ Vue.component("dynatable", {
                 $vue.dynatable.queries.add("search", grupoSel.codigo);
                 $vue.dynatable.process();
             }
-            $("[name='dvGruposZeta']").each(function () {
-                let grupo = $(this).attr("rel");
-                $(this).removeClass("active");
-                if (grupoSel != null && (grupoSel.id == grupo)) {
-                    $(this).addClass("active");
-                }
-            });
+            $vue.clearAndSelect(grupoSel);
+            /*
+             $("[name='dvGruposZeta']").each(function () {
+             let grupo = $(this).attr("rel");
+             $(this).removeClass("active");
+             if (grupoSel != null && (grupoSel.id == grupo)) {
+             $(this).addClass("active");
+             }
+             });
+             */
+        });
 
+        $global.$on("clearAndSelectZeta", function () {
+            $vue.clearAndSelect();
         });
 
     },
@@ -89,9 +95,14 @@ Vue.component("dynatable", {
 
             return outerHTML;
         },
-        showModal() {
-            // this.$refs.modalTest.open();
-
+        clearAndSelect(grupoSel) {
+            $("[name='dvGruposZeta']").each(function () {
+                let grupo = $(this).attr("rel");
+                $(this).removeClass("active");
+                if (grupoSel != null && (grupoSel.id == grupo)) {
+                    $(this).addClass("active");
+                }
+            });
         }, clickGrupo() {
 
         }
@@ -129,14 +140,20 @@ Vue.component("dynatable-especial", {
                 $vue.dynatable.queries.add("search", grupoSel.codigo);
                 $vue.dynatable.process();
             }
-            $("[name='dvGruposEsp']").each(function () {
-                let grupo = $(this).attr("rel");
-                $(this).removeClass("active");
-                if (grupoSel != null && (grupoSel.id == grupo)) {
-                    $(this).addClass("active");
-                }
-            });
+            $vue.clearAndSelect(grupoSel);
+            /*
+             $("[name='dvGruposEsp']").each(function () {
+             let grupo = $(this).attr("rel");
+             $(this).removeClass("active");
+             if (grupoSel != null && (grupoSel.id == grupo)) {
+             $(this).addClass("active");
+             }
+             });
+             */
+        });
 
+        $global.$on("clearAndSelectEsp", function () {
+            $vue.clearAndSelect();
         });
 
     },
@@ -195,7 +212,14 @@ Vue.component("dynatable-especial", {
 
             return outerHTML;
         },
-        showModal() {
+        clearAndSelect(grupoSel) {
+            $("[name='dvGruposEsp']").each(function () {
+                let grupoEach = $(this).attr("rel");
+                $(this).removeClass("active");
+                if (grupoSel != null && (grupoSel.id == grupoEach)) {
+                    $(this).addClass("active");
+                }
+            });
         }, clickGrupo() {
 
         }

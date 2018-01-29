@@ -148,7 +148,8 @@ Vue.component("grupohorarios-component", {
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
 
                         $global.$emit("seleccionarGrupoZeta", $vue.tabGrupos.grupoHorarioSel);
-                        $global.$emit("reloadDynaEspecial", $vue.seccionModal.id);
+                        //   $global.$emit("reloadDynaEspecial", $vue.seccionModal.id); clearAndSelectEsp
+                        $global.$emit("clearAndSelectEsp");
                         $vue.tabGrupos['especial'].tblHorarios = null;
                     } else {
                         notify(response.message, "error");
@@ -179,7 +180,8 @@ Vue.component("grupohorarios-component", {
                         $vue.tabGrupos['especial'].tblHorarios = response.data;
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
                         $global.$emit("seleccionarGrupoEspecial", $vue.tabGrupos.grupoHorarioSel);
-                        $global.$emit("reloadDynaZeta");
+                        //      $global.$emit("reloadDynaZeta");
+                        $global.$emit("clearAndSelectZeta");
                         $vue.tabGrupos['zetas'].tblHorarios = null;
                     } else {
                         notify(response.message, "error");
