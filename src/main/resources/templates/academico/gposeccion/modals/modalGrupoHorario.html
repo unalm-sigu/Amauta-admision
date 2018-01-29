@@ -104,7 +104,7 @@
                                         <td  v-for="dia in tabGrupos['regulares'].tblHorarioRegular.dias"> 
                                             <template v-if="tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id]==null">
                                                 <span v-if="tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
-                                                      v-on:click="selectGrupoHoraReg(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                      v-on:click="selectGrupoHoraHorario(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
                                                       class="form-control pointer"
                                                       v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
                                                     {{tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
@@ -161,7 +161,7 @@
                                         <td  v-for="dia in tabGrupos['especial'].tblHorarios.dias"> 
                                             <template v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
                                                 <span v-if="tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
-                                                      v-on:click="selectGrupoHoraReg(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                      v-on:click="selectGrupoHoraHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
                                                       class="form-control pointer"
                                                       v-bind:class="getClassGpoHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
 
@@ -230,7 +230,7 @@
                                         <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"> 
                                             <template v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
                                                 <span v-if="tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
-                                                      v-on:click="selectGrupoHoraReg(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                      v-on:click="selectGrupoHoraHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
                                                       class="form-control pointer"
                                                       v-bind:class="getClassGpoHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
 

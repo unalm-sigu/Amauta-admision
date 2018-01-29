@@ -705,7 +705,7 @@ public class GpoSeccionController {
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                     grupoHorasNode.put("esTipoGrupoZeta", true);
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                    grupoHorasNode.put("isTipoGrupoEspecial", true);
+                    grupoHorasNode.put("esTipoGrupoEspecial", true);
                 }
                 node.putPOJO("grupoHorarioSel", grupoHorasNode);
             }
@@ -1031,7 +1031,7 @@ public class GpoSeccionController {
             } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                 jspnGrupoHoras.put("esTipoGrupoZeta", true);
             } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                jspnGrupoHoras.put("isTipoGrupoEspecial", true);
+                jspnGrupoHoras.put("esTipoGrupoEspecial", true);
             }
 
             for (Dia diaEach : dias) {
@@ -1149,6 +1149,7 @@ public class GpoSeccionController {
     @RequestMapping("listGrupoHorariosByTipoEspecial")
     public DynatableResponse listGrupoHorariosByTipoEspecial(pe.albatross.octavia.dynatable.DynatableFilter filter,
             @RequestParam(name = "tipoGrupoHora", required = false) String tipoGrupoHora,
+            @RequestParam(name = "seccion", required = true) Long seccionId,
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
@@ -1159,7 +1160,7 @@ public class GpoSeccionController {
 
             //    Seccion seccion = new Seccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
             TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum.valueOf(tipoGrupoHora), ds.getCicloAcademico());
-            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), null);
+            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), new Seccion(seccionId));
 
             List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(gruposHoras);
             Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
