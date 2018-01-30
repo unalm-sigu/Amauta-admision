@@ -28,7 +28,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
                 .from(CursoCachimbos.class, "cuca")
                 .join("curso cur", "carrera car", "car.facultad fac", "cur.departamentoAcademico dep", "cicloAcademico ciclo")
                 .filter("ciclo.id", cicloAcademico)
-                .searchFields("cur.nombre", "car.nombre")
+                .searchFields("cur.nombre", "cur.codigo", "car.nombre", "dep.nombreLargo", "dep.nombre", "fac.nombre")
                 .orderBy("cuca.id desc")
                 .orderBy("car.codigo asc");
         sql.beginRelativeFilters();

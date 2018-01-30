@@ -111,11 +111,6 @@
                                 {{curso.teoria}} - {{curso.practica}} - {{curso.creditos}}
                             </span>
                             <span class="block">{{curso.anexo}}</span>
-                            <span class="clear">
-                                <span v-if="curso.estado=='CRE'" class="label label-default"   >{{curso.estadoValue}} </span>
-                                <span v-if="curso.estado=='ACT'" class="label label-success"  >{{curso.estadoValue}} </span>
-                                <span v-if="curso.estado=='INA'" class="label label-danger" data-toggle="tooltip" v-bind:title="curso.motivo">{{curso.estadoValue}} </span>
-                            </span>
                         </td>
 
                         <td>

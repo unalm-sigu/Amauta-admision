@@ -2,6 +2,12 @@
     <head>
         <title>Tipo Grupos</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style>
+        .no-top-border > thead > tr:first-child > td,
+        .no-top-border > tbody > tr:first-child > td {
+            border: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -36,9 +42,10 @@
 
                                         <span class="h1 block bold text-success"
                                               v-bind:style="{ color: item.color  }"
-                                              >{{item.cantidad}}</span>
+                                              v-text="item.cantidad"
+                                              ></span>
 
-                                        <small class="block m-b-xs bold text-muted" >{{item.nombre}}</small>
+                                        <small class="block m-b-xs bold text-muted" v-text="item.nombre" ></small>
 
                                     </a>
 

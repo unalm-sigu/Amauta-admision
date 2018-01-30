@@ -26,6 +26,9 @@ $(function() {
             verHorario(id) {
                 $global.$emit("verHorario", id);
             },
+            verCurso(id) {
+                $global.$emit("verCurso", id);
+            },
         }
     });
 
@@ -70,6 +73,8 @@ $(function() {
         data: {
             horario: {},
             alumno: {},
+            cursos: [],
+            horarios: [],
             addAlumnoModal: {
                 id: 'modalAddAlumno',
                 header: true,
@@ -82,11 +87,18 @@ $(function() {
                 {idgen: 1, estado: 'CHOR', nombre: 'Con Horario', cantidad: 0},
                 {idgen: 1, estado: 'MATR', nombre: 'Matriculado', cantidad: 0}
             ],
-            horarios: [],
             verHorarioModal: {
                 id: 'modalVerHorario',
                 header: true,
                 title: 'Horario',
+                modalSize: 'modal-lg',
+                cancelbtn: 'Aceptar',
+                showaccept: false
+            },
+            verCursoModal: {
+                id: 'modalVerCurso',
+                header: true,
+                title: 'Curso',
                 modalSize: 'modal-lg',
                 cancelbtn: 'Aceptar',
                 showaccept: false
@@ -115,6 +127,9 @@ $(function() {
             });
             $global.$on("verHorario", function(id) {
                 vue.verHorario(id);
+            });
+            $global.$on("verCurso", function(id) {
+                vue.verCurso(id);
             });
             vue.callIngresanteCantidad();
         },
@@ -452,7 +467,26 @@ $(function() {
                     }
                 });
                 this.$refs.modalVerHorario.open();
-            }
+            },
+            verCurso(id) {
+                var vue = this;
+                $.ajax({
+                    method: 'POST',
+                    url: APP.url("academico/horariocachimbo/horario/verCurso"),
+                    data: {id: id},
+                    success: function(response) {
+                        if (response.success) {
+                            vue.cursos = response.data;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    },
+                    error: function() {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+                this.$refs.modalVerCurso.open();
+            },
         }
     });
 });
