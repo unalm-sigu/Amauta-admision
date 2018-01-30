@@ -1,7 +1,7 @@
 <template id="dynatableTemplate">
     <transition name="fade">
         <div class="panel padder-v">
-            <div id="dynaTable"></div>
+            <div id="dynaTable" class="dynaTables"></div>
         </div>
     </transition>
 </template>
@@ -9,7 +9,7 @@
 <template id="dynatableTemplateEspecial">
     <transition name="fade">
         <div class="panel padder-v">
-            <div id="dynaTableEspecial"></div>
+            <div id="dynaTableEspecial" class="dynaTables"></div>
         </div>
     </transition>
 </template>
@@ -20,9 +20,8 @@
             <!--
             onclick="alert($(this).attr('rel'))"
             -->
-            <div href="#" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
-                 rel="{{:id}}" 
-                 >
+            <div href="#" name="dvGruposZeta" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
+                 rel="{{:id}}" >
 
 
                 <div class="m-t-sm pointer cls-grupos-sel"  rel="{{:id}}"  >
@@ -42,7 +41,7 @@
             <!--
             onclick="alert($(this).attr('rel'))"
             -->
-            <div href="#" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
+            <div href="#" name="dvGruposEsp" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
                  rel="{{:id}}" 
                  >
 
@@ -83,20 +82,20 @@
             Lema
         </td>
         <td class="v-middle col-md-3">
-            10
+        10
         </td>
 
         <td class="v-middle col-md-1 text-center">
             <a th:href="@{/{{:url}} }" target="_blank" class="text-center">
                 <span class="label label-{{:label}}">{{:estadoEnum}}</span> 
-            </a>
+        </a>
         </td>
 
         <td class="v-middle"> 
             <div class="dropdown actions">
                 <a class="dropdown-toggle" data-toggle="dropdown">
                     <i class="glyphicon glyphicon-option-vertical"></i>
-                </a> 
+      </a> 
 
                 <ul class="dropdown-menu pull-right">
                     <li><a th:href="@{/admin/empleos/{{:id}}/update}">Editar</a></li>

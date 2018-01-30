@@ -142,7 +142,9 @@
                     </div>
                     <div class="tab-pane" id="grupo2" >
                         <section class="panel-body">
-                            <dynatable-especial v-bind:onclick="seleccionarGrupoEsp"></dynatable-especial>
+                            <dynatable-especial v-bind:onclick="seleccionarGrupoEsp"
+                                                v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                                ></dynatable-especial>
 
 
                             <section class="panel-body">
@@ -205,7 +207,9 @@
                         <section class="panel-body">
 
 
-                            <dynatable v-bind:onclick="seleccionarGrupoZ"/>
+                            <dynatable v-bind:onclick="seleccionarGrupoZ"
+                                       v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                       ></dynatable>
                             <!-- 
                                                         <div class="alert alert-warning">
                                                             <a href="#" class="close" data-dismiss="alert">&times;</a>

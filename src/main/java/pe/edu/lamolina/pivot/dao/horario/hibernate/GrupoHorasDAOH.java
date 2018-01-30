@@ -122,7 +122,8 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .from(GrupoHoras.class,
                         "gh")
                 .join("gh.tipoGrupoHoras tgh")
-                .filter("tgh.id", tipoGrupoHoras);
+                .filter("tgh.id", tipoGrupoHoras)
+                .searchFields("gh.codigo");;
         // .filter("ca.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
