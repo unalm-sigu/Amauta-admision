@@ -42,7 +42,7 @@ $(function() {
                 });
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
-                        ajaxUrl: APP.url('academico/horariocachimbo/horario/list'),
+                        ajaxUrl: APP.url('academico/horariocachimbo/generar/list'),
                         perPageDefault: 10
                     },
                     writers: {_rowWriter: vue.writter},
@@ -136,7 +136,7 @@ $(function() {
                     placeholder: "Seleccione un alumno",
                     minimumInputLength: 1,
                     ajax: {
-                        url: APP.url("academico/horariocachimbo/horario/searchAlumno"),
+                        url: APP.url("academico/horariocachimbo/generar/searchalumno"),
                         dataType: 'json',
                         type: 'post',
                         data: function(term, page) {
@@ -184,7 +184,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/addAlumno"),
+                    url: APP.url("academico/horariocachimbo/generar/addalumno"),
                     data: {id: vue.alumno.id, 'horarioCachimbos.id': vue.horario.id},
                     success: function(response) {
                         if (response.success) {
@@ -234,7 +234,7 @@ $(function() {
                     $.ajax({
                         method: 'POST',
                         async: false,
-                        url: APP.url('academico/horariocachimbo/horario/deleteGrupo'),
+                        url: APP.url('academico/horariocachimbo/generar/deletegrupo'),
                         data: horarios,
                         success: function(response) {
                             if (response.success) {
@@ -265,7 +265,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/verHorario"),
+                    url: APP.url("academico/horariocachimbo/generar/verhorario"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {
@@ -284,7 +284,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/verCurso"),
+                    url: APP.url("academico/horariocachimbo/generar/vercurso"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {
@@ -303,7 +303,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/verAlumno"),
+                    url: APP.url("academico/horariocachimbo/generar/veralumno"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {
@@ -342,7 +342,7 @@ $(function() {
                     $.ajax({
                         method: 'POST',
                         async: false,
-                        url: APP.url('academico/horariocachimbo/horario/delete'),
+                        url: APP.url('academico/horariocachimbo/generar/delete'),
                         data: {id: id},
                         success: function(response) {
                             if (response.success) {

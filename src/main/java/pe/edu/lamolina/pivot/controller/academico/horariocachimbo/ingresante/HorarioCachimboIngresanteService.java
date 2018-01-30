@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface HorarioIngresanteService {
+public interface HorarioCachimboIngresanteService {
 
     void addAlumno(Alumno alumno, CicloAcademico cicloAcademico);
 

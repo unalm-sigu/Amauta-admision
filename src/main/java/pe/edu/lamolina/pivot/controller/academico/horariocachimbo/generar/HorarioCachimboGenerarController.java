@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -53,13 +53,13 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/horariocachimbo/horario")
-public class GenerarHorarioIngresanteController {
+@RequestMapping("academico/horariocachimbo/generar")
+public class HorarioCachimboGenerarController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    GenerarHorarioIngresanteService service;
+    HorarioCachimboGenerarService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -89,7 +89,7 @@ public class GenerarHorarioIngresanteController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        return "academico/horariocachimbo/generar/horariogenerar";
+        return "academico/horariocachimbo/generar/horarioCachimboGenerar";
     }
 
     @ResponseBody
@@ -141,7 +141,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("deleteGrupo")
+    @RequestMapping("deletegrupo")
     public JsonResponse deleteGrupo(HorarioCachimboForm form) {
         JsonResponse response = new JsonResponse();
         try {
@@ -165,11 +165,11 @@ public class GenerarHorarioIngresanteController {
         List<Carrera> carreras = service.allCarrera(modalidadEstudio);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("carreras", carreras);
-        return "academico/horariocachimbo/generador/generador";
+        return "academico/horariocachimbo/generador/horarioCachimboGenerador";
     }
 
     @ResponseBody
-    @RequestMapping("allHorario")
+    @RequestMapping("allhorario")
     public DynatableResponse allHorario(DynatableFilter filter, Carrera carrera, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
@@ -235,7 +235,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("searchAlumno")
+    @RequestMapping("searchalumno")
     public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, @RequestParam("horario") Long horario, HttpSession session) {
         JsonResponse response = new JsonResponse();
 
@@ -295,7 +295,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("allHorarioHeader")
+    @RequestMapping("allhorarioheader")
     public JsonResponse allHorarioHeader(Carrera carrera, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -332,7 +332,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("openHorario")
+    @RequestMapping("openhorario")
     public JsonResponse openHorario(HorarioCachimbos horario, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -435,7 +435,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("addAlumno")
+    @RequestMapping("addalumno")
     public JsonResponse addAlumno(AlumnoHorario alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -452,7 +452,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("verAlumno")
+    @RequestMapping("veralumno")
     public JsonResponse verAlumno(HorarioCachimbos horario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -494,7 +494,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("verCurso")
+    @RequestMapping("vercurso")
     public JsonResponse verCurso(HorarioCachimbos horario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -566,7 +566,7 @@ public class GenerarHorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("verHorario")
+    @RequestMapping("verhorario")
     public JsonResponse verHorario(HorarioCachimbos horario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {

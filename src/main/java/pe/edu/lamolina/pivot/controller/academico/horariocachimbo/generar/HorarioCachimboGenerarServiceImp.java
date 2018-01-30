@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +62,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
-public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresanteService {
+public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -264,11 +264,11 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
         List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursosTodos, ciclo);
         List<SeccionCursoCachimbos> seccionesCachimbos = seccionCursoCachimbosDAO.allByCiclo(ciclo);
 
-//        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allBySeccion(secciones);
-//        Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
-//        if (vacanteAlumnosMap == null) {
-//            vacanteAlumnosMap = new LinkedHashMap();
-//        }
+        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allBySeccion(secciones);
+        Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
+        if (vacanteAlumnosMap == null) {
+            vacanteAlumnosMap = new LinkedHashMap();
+        }
         Map<Long, List<SeccionCursoCachimbos>> mapSeccionesCachimbos = TypesUtil.convertListToMapList("cursoCachimbos.carrera.id", seccionesCachimbos);
         Map<Long, Seccion> mapSeccionMain = TypesUtil.convertListToMap("id", secciones);
 
@@ -354,17 +354,17 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
                     reordernarSeccion(cursos, mapSeccionesCarrera);
                     permutarUnico(1, 1, cursos, mapSeccionesCarrera, mapHorasDias, horarioTempo, horariosTotal);
-                    //logger.debug(" horario temporal {}  ", horarioTempo.size());
+                    logger.debug(" horario temporal {}  ", horarioTempo.size());
                     for (Seccion seccion : horarioTempo) {
                         Curso curso = seccion.getGrupoSeccion().getCurso();
                         mapCursos.put(curso.getId(), curso);
                     }
-                    //logger.debug(" ************ test horario encontrado cursos {} mapCursos {} ", cursos.size(), mapCursos.size());
+                    logger.debug(" ************ test horario encontrado cursos {} mapCursos {} ", cursos.size(), mapCursos.size());
                     if (cursos.size() == mapCursos.size()) {
                         break;
                     }
                     if (busquedas > 10) {
-//                        logger.info("Se sigue buscando horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
+                        logger.info("Se sigue buscando horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
                     }
                 }
 
@@ -404,7 +404,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
 
     @Transactional
     private void updateSeccionReserva(Seccion seccion, AlumnoHorario alumnoHorario, Map<Long, List<VacanteAlumno>> vacanteAlumnosMap, DataSessionPivot ds) {
-        //logger.debug("Reservando matricula a {} id {} ", alumnoHorario.getAlumno().getCodigo(), alumnoHorario.getAlumno().getId());
+        logger.debug("Reservando matricula a {} id {} ", alumnoHorario.getAlumno().getCodigo(), alumnoHorario.getAlumno().getId());
         HorarioCachimbos horario = alumnoHorario.getHorarioCachimbos();
         Alumno alumno = alumnoHorario.getAlumno();
         List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
@@ -425,7 +425,7 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                     vacanteAlumno.setUserRegistro(ds.getUsuario());
                     vacanteAlumno.setFechaRegistro(new Date());
                     if (conteo == 1) {
-                        //logger.debug("matricula reservada orden 1 ");
+                        logger.debug("matricula reservada orden 1 ");
                         vacanteAlumno.setAlumno(alumno);
                         vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
                     }
@@ -441,16 +441,16 @@ public class GenerarHorarioIngresanteServiceImp implements GenerarHorarioIngresa
                         vacanteAlumno.setAlumno(alumno);
                         vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
                         vacanteAlumnoDAO.update(vacanteAlumno);
-                        //logger.debug("matricula reservada orden {} ", vacanteAlumno.getNumero());
+                        logger.debug("matricula reservada orden {} ", vacanteAlumno.getNumero());
                         break;
                     }
                 }
             }
         }
-        //logger.debug("current reserva {} seccion {}", seccion.getCodigo(), seccion.getReservados());
+        logger.debug("current reserva {} seccion {}", seccion.getCodigo(), seccion.getReservados());
         seccion.setReservados(seccion.getReservados() + 1);
         seccionDAO.update(seccion);
-        //logger.debug("after reserva {} seccion {}", seccion.getCodigo(), seccion.getReservados());
+        logger.debug("after reserva {} seccion {}", seccion.getCodigo(), seccion.getReservados());
     }
 
     private Map<Long, List<Seccion>> createMapSeccionesCarrera(

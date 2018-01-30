@@ -98,7 +98,7 @@ $(function() {
             verCursoModal: {
                 id: 'modalVerCurso',
                 header: true,
-                title: 'Curso',
+                title: 'Cursos',
                 modalSize: 'modal-lg',
                 cancelbtn: 'Aceptar',
                 showaccept: false
@@ -142,7 +142,7 @@ $(function() {
                     placeholder: "Seleccione un alumno",
                     minimumInputLength: 1,
                     ajax: {
-                        url: APP.url("academico/horariocachimbo/ingresante/searchAlumno"),
+                        url: APP.url("academico/horariocachimbo/ingresante/searchalumno"),
                         dataType: 'json',
                         type: 'post',
                         data: function(term, page) {
@@ -197,7 +197,7 @@ $(function() {
                 }
                 $.ajax({
                     method: 'POST',
-                    url: APP.url('academico/horariocachimbo/ingresante/addAlumno'),
+                    url: APP.url('academico/horariocachimbo/ingresante/addalumno'),
                     data: {id: vue.alumno.id},
                     success: function(response) {
                         if (response.success) {
@@ -228,7 +228,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/ingresante/buscarHorario'),
+                                url: APP.url('academico/horariocachimbo/ingresante/buscarhorario'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {
@@ -255,7 +255,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/ingresante/asignarHorario'),
+                                url: APP.url('academico/horariocachimbo/ingresante/asignarhorario'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {
@@ -282,7 +282,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/ingresante/retirarHorario'),
+                                url: APP.url('academico/horariocachimbo/ingresante/retirarhorario'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {
@@ -309,7 +309,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/ingresante/suspenderMatricula'),
+                                url: APP.url('academico/horariocachimbo/ingresante/suspendermatricula'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {
@@ -338,7 +338,7 @@ $(function() {
                         if (result) {
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/ingresante/activarMatricula'),
+                                url: APP.url('academico/horariocachimbo/ingresante/activarmatricula'),
                                 data: {id: id},
                                 success: function(response) {
                                     if (response.success) {
@@ -360,7 +360,7 @@ $(function() {
                 self.btnDisabled();
                 $.ajax({
                     method: 'POST',
-                    url: APP.url('academico/horariocachimbo/ingresante/cargarIngresantes'),
+                    url: APP.url('academico/horariocachimbo/ingresante/cargaringresantes'),
                     data: {id: vue.alumno.id},
                     success: function(response) {
                         if (response.success) {
@@ -389,7 +389,7 @@ $(function() {
 
                             $.ajax({
                                 method: 'POST',
-                                url: APP.url('academico/horariocachimbo/ingresante/eliminarHorarios'),
+                                url: APP.url('academico/horariocachimbo/ingresante/eliminarhorarios'),
                                 data: {id: vue.alumno.id},
                                 success: function(response) {
                                     if (response.success) {
@@ -411,7 +411,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url('academico/horariocachimbo/ingresante/ingresanteCantidad'),
+                    url: APP.url('academico/horariocachimbo/ingresante/ingresantecantidad'),
                     async: false,
                     success: function(response) {
                         if (response.success) {
@@ -453,7 +453,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/verHorario"),
+                    url: APP.url("academico/horariocachimbo/generar/verhorario"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {
@@ -472,7 +472,7 @@ $(function() {
                 var vue = this;
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/verCurso"),
+                    url: APP.url("academico/horariocachimbo/generar/vercurso"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {

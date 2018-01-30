@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 
 @Service
 @Transactional(readOnly = true)
-public class HorarioCursoCarreraServiceImp implements HorarioCursoCarreraService {
+public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

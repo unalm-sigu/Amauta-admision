@@ -83,7 +83,7 @@ $(function() {
                 $.ajax({
                     method: 'POST',
                     sync: false,
-                    url: APP.url("academico/horariocachimbo/horario/generar"),
+                    url: APP.url("academico/horariocachimbo/generar/generar"),
                     success: function(response) {
                         if (response.success) {
                             dynatable.process();
@@ -107,7 +107,7 @@ $(function() {
 
                 dynatable = $('#dynaTable').dynatable({
                     dataset: {
-                        ajaxUrl: APP.url('academico/horariocachimbo/horario/allHorario'),
+                        ajaxUrl: APP.url('academico/horariocachimbo/generar/allhorario'),
                         ajaxData: {id: 0}
                     },
                     features: {
@@ -142,7 +142,7 @@ $(function() {
 
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/allHorarioHeader"),
+                    url: APP.url("academico/horariocachimbo/generar/allhorarioheader"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {
@@ -170,7 +170,7 @@ $(function() {
 
                 $.ajax({
                     method: 'POST',
-                    url: APP.url("academico/horariocachimbo/horario/openHorario"),
+                    url: APP.url("academico/horariocachimbo/generar/openhorario"),
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {

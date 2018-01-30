@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Carrera;

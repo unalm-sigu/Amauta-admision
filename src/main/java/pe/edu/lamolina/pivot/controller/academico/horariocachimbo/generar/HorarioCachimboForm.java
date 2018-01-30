@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar;
 
 import java.util.List;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;

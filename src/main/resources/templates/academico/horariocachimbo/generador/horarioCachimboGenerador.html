@@ -27,7 +27,7 @@
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-md">
-                    <a class="btn btn-link" type="button"    th:href="@{/academico/horariocachimbo/horario}" >Regresar</a>
+                    <a class="btn btn-link" type="button"    th:href="@{/academico/horariocachimbo/generar}" >Regresar</a>
                     <button class="btn btn-info" type="button"  v-on:click.prevent="generarHorario"  >Generar Horarios</button>
                 </div>
                 <h2 th:inline="text">Generador  de Horarios  [[${cicloAcademico.descripcion}]] </h2>
@@ -61,7 +61,7 @@
 
         </div>
 
-        <th:block th:replace="academico/horariocachimbo/generador/_dynatable"/>
+        <th:block th:replace="academico/horariocachimbo/generador/horarioCachimboGeneradorDynatable"/>
 
     </div>
 
@@ -70,7 +70,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/horariocachimbo/generador/generador.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/generador/horarioCachimboGenerador.js}" charset="utf-8"></script>
     </div>
 
 </body>

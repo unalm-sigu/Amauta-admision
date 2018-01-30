@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -47,12 +47,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/horariocachimbo/curso")
-public class HorarioCursoCarreraController {
+public class HorarioCachimboCursoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    HorarioCursoCarreraService service;
+    HorarioCachimboCursoService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -86,7 +86,7 @@ public class HorarioCursoCarreraController {
         List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio, cicloAcademico);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("carreras", carreras);
-        return "academico/horariocachimbo/cursocarrera/horariocursocarrera";
+        return "academico/horariocachimbo/curso/horarioCachimboCurso";
     }
 
     @ResponseBody
@@ -183,7 +183,7 @@ public class HorarioCursoCarreraController {
     }
 
     @ResponseBody
-    @RequestMapping("addCurso")
+    @RequestMapping("addcurso")
     public JsonResponse addCurso(@RequestParam("curso.id") ArrayList<Long> cursos, @RequestParam("carrera.id") Long carrera, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -229,7 +229,7 @@ public class HorarioCursoCarreraController {
     }
 
     @ResponseBody
-    @RequestMapping("searchCurso")
+    @RequestMapping("searchcurso")
     public JsonResponse searchCurso(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
@@ -261,7 +261,7 @@ public class HorarioCursoCarreraController {
     }
 
     @ResponseBody
-    @RequestMapping("searchCarrera")
+    @RequestMapping("searchcarrera")
     public JsonResponse searchCarrera(@RequestParam("nombre") String nombre, HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -293,7 +293,7 @@ public class HorarioCursoCarreraController {
     }
 
     @ResponseBody
-    @RequestMapping("updateSeccionCursoCachimbo")
+    @RequestMapping("updateseccioncursocachimbo")
     public JsonResponse updateSeccionCursoCachimbo(CarreraCursoCachimbo carreraCursoCachimbo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();

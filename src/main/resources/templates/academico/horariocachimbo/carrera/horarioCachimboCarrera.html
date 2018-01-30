@@ -2,46 +2,27 @@
     <head>
         <title>Tipo Grupos</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <style>
-        .no-top-border > thead > tr:first-child > td,
-        .no-top-border > tbody > tr:first-child > td {
-            border: none;
-        }
-    </style>
-
 </head>
 
 <body>
     <div layout:fragment="main">
 
         <div  id="main">
-
             <header class="header b-b padder-lg">
-                <div class="pull-right m-t-md">
-                    <a class="btn btn-info" type="button"    th:href="@{/academico/horariocachimbo/horario/generador}" >Creación de Horarios</a>
-                </div>
-                <h2 th:inline="text">Horarios de  Ingresantes [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Carreras Ingresantes [[${cicloAcademico.descripcion}]] </h2>
             </header>
-
-
             <section class="wrapper-lg">
                 <section class="panel">
                     <section class="panel-body">
-
-                        <a href="#" id="eliminarSeleccion"  class="btn btn-link inline text-danger btn-sm" v-on:click.prevent="eliminarSeleccion">Eliminar Seleccionados </a>
-
                         <dynatable />
                     </section>
                 </section>
             </section>
 
-            <div th:substituteby="academico/horariocachimbo/generar/_horariogenerar"/>
-
         </div>
 
         <div th:substituteby="_modules/vue-modal"/>
-
-        <th:block th:replace="academico/horariocachimbo/generar/_dynatable"/>
+        <th:block th:replace="academico/horariocachimbo/carrera/horarioCachimboCarreraDynatable"/>
 
     </div>
 
@@ -50,7 +31,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/horariocachimbo/generar/horariogenerar.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/carrera/horarioCachimboCarrera.js}" charset="utf-8"></script>
     </div>
 
 </body>
