@@ -33,13 +33,14 @@ import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.enums.VacanteEstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
-import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
@@ -126,7 +127,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     @Override
     @Transactional
-    public void delete(HorarioCachimbos horarioCachimbos) {
+    public void delete(HorarioCachimbos horarioCachimbos, Usuario usuario) {
         HorarioCachimbos horarioDb = horarioCachimbosDAO.find(horarioCachimbos);
         if (horarioDb == null) {
             return;
@@ -136,13 +137,25 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         for (AlumnoHorario alumno : alumnos) {
             alumno.setHorarioCachimbos(null);
             alumnoHorarioDAO.update(alumno);
+            List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(alumno.getAlumno());
+            for (VacanteAlumno vacanteAlumno : vacanteAlumnos) {
+                vacanteAlumno.setAlumno(null);
+                vacanteAlumno.setUserRegistro(usuario);
+                vacanteAlumno.setFechaRegistro(new Date());
+                vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
+                Seccion seccion = vacanteAlumno.getSeccion();
+                seccion.setReservados(seccion.getReservados() - 1);
+                seccionDAO.update(seccion);
+                vacanteAlumnoDAO.update(vacanteAlumno);
+            }
+
         }
         horarioCachimbosDAO.delete(horarioDb);
     }
 
     @Override
     @Transactional
-    public void delete(HorarioCachimboForm form) {
+    public void delete(HorarioCachimboForm form, Usuario usuario) {
         for (HorarioCachimbos horarioCachimbos : form.getHorarioCachimbos()) {
             HorarioCachimbos horarioDb = horarioCachimbosDAO.find(horarioCachimbos);
             if (horarioDb == null) {
@@ -153,6 +166,17 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             for (AlumnoHorario alumno : alumnos) {
                 alumno.setHorarioCachimbos(null);
                 alumnoHorarioDAO.update(alumno);
+                List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(alumno.getAlumno());
+                for (VacanteAlumno vacanteAlumno : vacanteAlumnos) {
+                    vacanteAlumno.setAlumno(null);
+                    vacanteAlumno.setUserRegistro(usuario);
+                    vacanteAlumno.setFechaRegistro(new Date());
+                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
+                    Seccion seccion = vacanteAlumno.getSeccion();
+                    seccion.setReservados(seccion.getReservados() - 1);
+                    seccionDAO.update(seccion);
+                    vacanteAlumnoDAO.update(vacanteAlumno);
+                }
             }
             horarioCachimbosDAO.delete(horarioDb);
         }
@@ -354,12 +378,10 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
                     reordernarSeccion(cursos, mapSeccionesCarrera);
                     permutarUnico(1, 1, cursos, mapSeccionesCarrera, mapHorasDias, horarioTempo, horariosTotal);
-                    logger.debug(" horario temporal {}  ", horarioTempo.size());
                     for (Seccion seccion : horarioTempo) {
                         Curso curso = seccion.getGrupoSeccion().getCurso();
                         mapCursos.put(curso.getId(), curso);
                     }
-                    logger.debug(" ************ test horario encontrado cursos {} mapCursos {} ", cursos.size(), mapCursos.size());
                     if (cursos.size() == mapCursos.size()) {
                         break;
                     }
@@ -381,7 +403,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
                         Seccion secc = seccHorCachimbo.getSeccion();
                         secc.setSuscritos(secc.getSuscritos() + 1);
-//                        this.updateSeccionReserva(secc, alumno, vacanteAlumnosMap, ds);
+                        this.updateSeccionReserva(secc, alumno, vacanteAlumnosMap, ds);
                     }
                 }
 
@@ -404,53 +426,48 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     @Transactional
     private void updateSeccionReserva(Seccion seccion, AlumnoHorario alumnoHorario, Map<Long, List<VacanteAlumno>> vacanteAlumnosMap, DataSessionPivot ds) {
-        logger.debug("Reservando matricula a {} id {} ", alumnoHorario.getAlumno().getCodigo(), alumnoHorario.getAlumno().getId());
-        HorarioCachimbos horario = alumnoHorario.getHorarioCachimbos();
-        Alumno alumno = alumnoHorario.getAlumno();
-        List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
-        for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
-            Seccion secc = seccHorCachimbo.getSeccion();
-            List<VacanteAlumno> vacanteAlumnos = vacanteAlumnosMap.get(secc.getId());
-            if (vacanteAlumnos == null) {
-                vacanteAlumnos = new ArrayList();
-            }
 
-            if (vacanteAlumnos.isEmpty()) {
-                for (int i = 0; i < secc.getVacantes(); i++) {
-                    int conteo = (i + 1);
-                    VacanteAlumno vacanteAlumno = new VacanteAlumno();
-                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
-                    vacanteAlumno.setNumero(conteo);
-                    vacanteAlumno.setSeccion(secc);
-                    vacanteAlumno.setUserRegistro(ds.getUsuario());
-                    vacanteAlumno.setFechaRegistro(new Date());
-                    if (conteo == 1) {
-                        logger.debug("matricula reservada orden 1 ");
-                        vacanteAlumno.setAlumno(alumno);
-                        vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-                    }
-                    vacanteAlumnoDAO.save(vacanteAlumno);
-                    vacanteAlumnos.add(vacanteAlumno);
+        Alumno alumno = alumnoHorario.getAlumno();
+
+        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnosMap.get(seccion.getId());
+
+        if (vacanteAlumnos == null) {
+            vacanteAlumnos = new ArrayList();
+        }
+
+        if (vacanteAlumnos.isEmpty()) {
+            for (int i = 0; i < seccion.getVacantes(); i++) {
+                int conteo = (i + 1);
+                VacanteAlumno vacanteAlumno = new VacanteAlumno();
+                vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
+                vacanteAlumno.setNumero(conteo);
+                vacanteAlumno.setSeccion(seccion);
+                vacanteAlumno.setUserRegistro(ds.getUsuario());
+                vacanteAlumno.setFechaRegistro(new Date());
+                if (conteo == 1) {
+                    vacanteAlumno.setAlumno(alumno);
+                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
                 }
-            } else {
-                Collections.sort(vacanteAlumnos, new VacanteAlumno.CompareOrden());
-                Iterator<VacanteAlumno> vacanteIterator = vacanteAlumnos.iterator();
-                while (vacanteIterator.hasNext()) {
-                    VacanteAlumno vacanteAlumno = vacanteIterator.next();
-                    if (AlumnoVacanteEstadoEnum.LIBE.name().equals(vacanteAlumno.getEstado())) {
-                        vacanteAlumno.setAlumno(alumno);
-                        vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-                        vacanteAlumnoDAO.update(vacanteAlumno);
-                        logger.debug("matricula reservada orden {} ", vacanteAlumno.getNumero());
-                        break;
-                    }
+                vacanteAlumnoDAO.save(vacanteAlumno);
+                vacanteAlumnos.add(vacanteAlumno);
+            }
+        } else {
+            Collections.sort(vacanteAlumnos, new VacanteAlumno.CompareOrden());
+            Iterator<VacanteAlumno> vacanteIterator = vacanteAlumnos.iterator();
+            while (vacanteIterator.hasNext()) {
+                VacanteAlumno vacanteAlumno = vacanteIterator.next();
+                if (AlumnoVacanteEstadoEnum.LIBE.name().equals(vacanteAlumno.getEstado())) {
+                    vacanteAlumno.setAlumno(alumno);
+                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
+                    vacanteAlumnoDAO.update(vacanteAlumno);
+                    break;
                 }
             }
         }
-        logger.debug("current reserva {} seccion {}", seccion.getCodigo(), seccion.getReservados());
+
+        vacanteAlumnosMap.put(seccion.getId(), vacanteAlumnos);
         seccion.setReservados(seccion.getReservados() + 1);
         seccionDAO.update(seccion);
-        logger.debug("after reserva {} seccion {}", seccion.getCodigo(), seccion.getReservados());
     }
 
     private Map<Long, List<Seccion>> createMapSeccionesCarrera(

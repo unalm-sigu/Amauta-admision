@@ -49,6 +49,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -126,10 +127,12 @@ public class HorarioCachimboGenerarController {
 
     @ResponseBody
     @RequestMapping("delete")
-    public JsonResponse delete(HorarioCachimbos horarioCachimbos) {
+    public JsonResponse delete(HorarioCachimbos horarioCachimbos, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.delete(horarioCachimbos);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+            service.delete(horarioCachimbos, usuario);
             response.setMessage("Horario eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -142,10 +145,12 @@ public class HorarioCachimboGenerarController {
 
     @ResponseBody
     @RequestMapping("deletegrupo")
-    public JsonResponse deleteGrupo(HorarioCachimboForm form) {
+    public JsonResponse deleteGrupo(HorarioCachimboForm form, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.delete(form);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+            service.delete(form, usuario);
             response.setMessage("Horarios eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
