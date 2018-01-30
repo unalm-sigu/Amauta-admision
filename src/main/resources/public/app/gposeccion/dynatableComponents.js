@@ -1,4 +1,3 @@
-
 Vue.component("dynatable", {
     template: "#dynatableTemplate",
     props: {
@@ -27,15 +26,6 @@ Vue.component("dynatable", {
                 $vue.dynatable.process();
             }
             $vue.clearAndSelect(grupoSel);
-            /*
-             $("[name='dvGruposZeta']").each(function () {
-             let grupo = $(this).attr("rel");
-             $(this).removeClass("active");
-             if (grupoSel != null && (grupoSel.id == grupo)) {
-             $(this).addClass("active");
-             }
-             });
-             */
         });
 
         $global.$on("clearAndSelectZeta", function () {
@@ -141,15 +131,6 @@ Vue.component("dynatable-especial", {
                 $vue.dynatable.process();
             }
             $vue.clearAndSelect(grupoSel);
-            /*
-             $("[name='dvGruposEsp']").each(function () {
-             let grupo = $(this).attr("rel");
-             $(this).removeClass("active");
-             if (grupoSel != null && (grupoSel.id == grupo)) {
-             $(this).addClass("active");
-             }
-             });
-             */
         });
 
         $global.$on("clearAndSelectEsp", function () {
@@ -225,7 +206,5 @@ Vue.component("dynatable-especial", {
         }
     },
     created: function () {
-        //  let $vue = this;
-        // $vue.createDynatable();
     }
 });

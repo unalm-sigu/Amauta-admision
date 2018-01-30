@@ -308,7 +308,7 @@ var app = new Vue({
             });
         }, loadDocentesSec: function () {
             let $vue = this;
-            //    MODAL.showWait("Espere un momento por favor");
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/findDocentesSecciones'),
@@ -318,7 +318,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.docentesSeccion = response.data;
-                        //   MODAL.hideWait();
+                        MODAL.hideWait();
                     }
                 }
             });

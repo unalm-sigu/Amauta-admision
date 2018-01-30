@@ -182,82 +182,85 @@
                             <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Seccion</strong></i>
                         </a>
                     </section>
-                    <section class="panel-body" v-if="seccionSeleccionada">
-                        <header class="page-header">
-                            <h4>Seccion {{seccionSeleccionada.seccionCodigo}}</h4>
-                        </header>
-                        <table class="table table-striped" >
-                            <thead> 
-                                <tr > 
-                                    <th class="col-md-4 text-center">Nombre</th>
-                                    <th class="col-md-1 text-center">Principal</th>
-                                    <th class="col-md-1 text-center">%Carga</th>
-                                    <th class="col-md-2 text-center">Periodo</th>
-                                    <th class="col-md-2 text-center">Situación Laboral</th>
-                                    <th class="col-md-1 text-center">Estado</th>
-                                    <th class="col-md-1 text-center"></th>
+                    <transition name="fade">
+                        <section class="panel-body" v-if="seccionSeleccionada">
+
+                            <header class="page-header">
+                                <h4>Seccion {{seccionSeleccionada.seccionCodigo}}</h4>
+                            </header>
+                            <table class="table table-striped" >
+                                <thead> 
+                                    <tr > 
+                                        <th class="col-md-4 text-center">Nombre</th>
+                                        <th class="col-md-1 text-center">Principal</th>
+                                        <th class="col-md-1 text-center">%Carga</th>
+                                        <th class="col-md-2 text-center">Periodo</th>
+                                        <th class="col-md-2 text-center">Situación Laboral</th>
+                                        <th class="col-md-1 text-center">Estado</th>
+                                        <th class="col-md-1 text-center"></th>
+                                    </tr>
+                                    <tr v-for="(docSeccion, index) in docentesSeccion">
+                                        <td>
+
+                                <autocomplete-doc v-model="docSeccion.docenteId"
+                                                  v-bind:rel="docSeccion.personaApeNombres"
+                                                  v-bind:docseccion="docSeccion.docSeccionId"
+                                                  v-if="docSeccion.docenteNN">
+                                </autocomplete-doc>
+                                {{docSeccion.personaApeNombres}}
+                                </td>
+                                <td>
+                                    <!--
+                                    <span class="block" v-if="docSeccion.principal==1">Si</span>
+                                    <span class="block" v-if="docSeccion.principal==0">No</span>
+                                    -->
+                                    <label class="switch">
+                                        <input type="checkbox" 
+                                               value="1" 
+                                               v-model="docSeccion.principal" 
+                                               v-bind:disabled="docSeccion.principal==1"
+                                               v-on:change="cambiarDocPrincipal(docSeccion)"/>
+                                        <span></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <input v-model="docSeccion.porcentajeCarga"
+                                           name="porcentajeCarga"
+                                           v-on:blur ="cambiarPorcentajeCarga(docSeccion)"
+                                           v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion)"
+                                           class="form-control"
+                                           data-parsley-group="porcentaje-car"
+                                           data-parsley-type="number"
+                                           />
+                                </td>
+                                <td>
+                                    {{ docSeccion.docSecFechaInicio }}
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+                                    <span class="label" v-bind:class="getEstadoClass(docSeccion.estadoEnumCode)">
+                                        {{ docSeccion.estadoEnumVal }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a v-if="docSeccion.principal == 0"
+                                       v-on:click="deleteDocSeccion(docSeccion)"
+                                       class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                                </td>
                                 </tr>
-                                <tr v-for="(docSeccion, index) in docentesSeccion">
-                                    <td>
+                                </thead>
 
-                            <autocomplete-doc v-model="docSeccion.docenteId"
-                                              v-bind:rel="docSeccion.personaApeNombres"
-                                              v-bind:docseccion="docSeccion.docSeccionId"
-                                              v-if="docSeccion.docenteNN">
-                            </autocomplete-doc>
-                            {{docSeccion.personaApeNombres}}
-                            </td>
-                            <td>
-                                <!--
-                                <span class="block" v-if="docSeccion.principal==1">Si</span>
-                                <span class="block" v-if="docSeccion.principal==0">No</span>
-                                -->
-                                <label class="switch">
-                                    <input type="checkbox" 
-                                           value="1" 
-                                           v-model="docSeccion.principal" 
-                                           v-bind:disabled="docSeccion.principal==1"
-                                           v-on:change="cambiarDocPrincipal(docSeccion)"/>
-                                    <span></span>
-                                </label>
-                            </td>
-                            <td>
-                                <input v-model="docSeccion.porcentajeCarga"
-                                       name="porcentajeCarga"
-                                       v-on:blur ="cambiarPorcentajeCarga(docSeccion)"
-                                       v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion)"
-                                       class="form-control"
-                                       data-parsley-group="porcentaje-car"
-                                       data-parsley-type="number"
-                                       />
-                            </td>
-                            <td>
-                                {{ docSeccion.docSecFechaInicio }}
-                            </td>
-                            <td>
+                            </table>
+                            <a class="btn btn-info btn-sm pull-right"
+                               v-on:click="addDocSeccion"
+                               >
+                                <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Docente</strong></i>
+                            </a>
 
-                            </td>
-                            <td>
-                                <span class="label" v-bind:class="getEstadoClass(docSeccion.estadoEnumCode)">
-                                    {{ docSeccion.estadoEnumVal }}
-                                </span>
-                            </td>
-                            <td>
-                                <a v-if="docSeccion.principal == 0"
-                                   v-on:click="deleteDocSeccion(docSeccion)"
-                                   class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
-                            </td>
-                            </tr>
-                            </thead>
-
-                        </table>
-                        <a class="btn btn-info btn-sm pull-right"
-                           v-on:click="addDocSeccion"
-                           >
-                            <i class="fa fa-plus add-seccion" aria-hidden="true"><strong> Agregar Docente</strong></i>
-                        </a>
-                    </section>
-
+                        </section>
+                    </transition>
                 </section>
 
             </form>
@@ -274,7 +277,7 @@
                        v-bind="grupoModal"
                        v-bind:okaction="saveGrupo">
                 <div slot="body">
-                    <grupohorarios-component></grupohorarios-component>
+                    <grupohorario-component></grupohorario-component>
                 </div>
             </modal-vik>
 
@@ -282,19 +285,19 @@
 
         <div th:substituteby="templates/modal"/>
 
-        <th:block th:replace="academico/gposeccion/grupoZetaTemplate"/>
+        <th:block th:replace="academico/gposeccion/components/dynatableComponent"/>
 
         <div th:substituteby="_modules/vue-modal"/>
 
         <template id="modalAulaComp"> 
             <div> 
-                <div th:substituteby="academico/gposeccion/modals/modalAula"/> 
+                <div th:substituteby="academico/gposeccion/components/aulaComponent"/> 
             </div> 
         </template>
 
         <template id="grupoHorarioComp"> 
             <div> 
-                <div th:substituteby="academico/gposeccion/modals/modalGrupoHorario"/>
+                <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
             </div> 
         </template>
 
@@ -321,9 +324,9 @@
         </script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
-        <script th:src="@{/app/gposeccion/editarGpoSeccion.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
-        <script th:src="@{/app/gposeccion/grupoHorariosComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/grupoHorarioComponent.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

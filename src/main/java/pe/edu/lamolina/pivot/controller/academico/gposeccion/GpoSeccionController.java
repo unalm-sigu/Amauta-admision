@@ -193,7 +193,7 @@ public class GpoSeccionController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
 
-        return "academico/gposeccion/editarGpoSeccion";
+        return "academico/gposeccion/gpoSeccionForm";
     }
 
     @ResponseBody
@@ -291,7 +291,7 @@ public class GpoSeccionController {
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("anexosHijos", service.allAnexoBoletionHijos());
-        return "academico/gposeccion/nuevoGpoSeccion";
+        return "academico/gposeccion/gpoSeccionNuevo";
     }
 
     @ResponseBody
