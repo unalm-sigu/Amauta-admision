@@ -66,14 +66,13 @@
                 </section>
             </section>
 
-            <div th:substituteby="academico/horariocachimbo/ingresante/_horarioingresante"/>
+            <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
 
         </div>
 
-
         <div th:substituteby="_modules/vue-modal"/>
 
-        <th:block th:replace="academico/horariocachimbo/ingresante/_dynatable"/>
+        <th:block th:replace="academico/horariocachimbo/ingresante/horarioCachimboIngresanteDynatable"/>
 
     </div>
 
@@ -82,7 +81,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioingresante.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioCachimboIngresante.js}" charset="utf-8"></script>
     </div>
 
 </body>

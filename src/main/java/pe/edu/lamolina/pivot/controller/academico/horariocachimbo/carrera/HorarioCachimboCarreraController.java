@@ -29,12 +29,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/horariocachimbo/carrera")
-public class HorarioCarreraController {
+public class HorarioCachimboCarreraController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    HorarioCarreraService service;
+    HorarioCachimboCarreraService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -64,7 +64,7 @@ public class HorarioCarreraController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        return "academico/horariocachimbo/carrera/horariocarrera";
+        return "academico/horariocachimbo/carrera/horarioCachimboCarrera";
     }
 
     @ResponseBody

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.cursocarrera;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
-public interface HorarioCursoCarreraService {
+public interface HorarioCachimboCursoService {
 
     List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
 

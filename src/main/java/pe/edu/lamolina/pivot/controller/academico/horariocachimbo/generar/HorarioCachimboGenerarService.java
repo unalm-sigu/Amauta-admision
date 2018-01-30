@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario;
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,7 @@ import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-public interface GenerarHorarioIngresanteService {
+public interface HorarioCachimboGenerarService {
 
     ModalidadEstudio findModalidadPregrado();
 

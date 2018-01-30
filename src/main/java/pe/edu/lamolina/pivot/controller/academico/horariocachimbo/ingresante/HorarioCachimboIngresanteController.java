@@ -40,12 +40,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/horariocachimbo/ingresante")
-public class HorarioIngresanteController {
+public class HorarioCachimboIngresanteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    HorarioIngresanteService service;
+    HorarioCachimboIngresanteService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -76,7 +76,7 @@ public class HorarioIngresanteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("estados", EstadoAlumnoHorarioEnum.values());
-        return "academico/horariocachimbo/ingresante/horarioingresante";
+        return "academico/horariocachimbo/ingresante/horarioCachimboIngresante";
     }
 
     @ResponseBody
@@ -126,7 +126,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("addAlumno")
+    @RequestMapping("addalumno")
     public JsonResponse addAlumno(Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -145,7 +145,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("activarMatricula")
+    @RequestMapping("activarmatricula")
     public JsonResponse activarMatricula(AlumnoHorario alumnoHorario) {
         JsonResponse response = new JsonResponse();
         try {
@@ -161,7 +161,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("suspenderMatricula")
+    @RequestMapping("suspendermatricula")
     public JsonResponse suspenderMatricula(AlumnoHorario alumnoHorario) {
         JsonResponse response = new JsonResponse();
         try {
@@ -177,7 +177,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("asignarHorario")
+    @RequestMapping("asignarhorario")
     public JsonResponse asignarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -194,7 +194,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("retirarHorario")
+    @RequestMapping("retirarhorario")
     public JsonResponse retirarHorario(AlumnoHorario alumnoHorario) {
         JsonResponse response = new JsonResponse();
         try {
@@ -210,7 +210,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("buscarHorario")
+    @RequestMapping("buscarhorario")
     public JsonResponse buscarHorario(Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
@@ -229,7 +229,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("searchAlumno")
+    @RequestMapping("searchalumno")
     public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
@@ -264,7 +264,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("cargarIngresantes")
+    @RequestMapping("cargaringresantes")
     public JsonResponse cargarIngresantes(HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -287,7 +287,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("eliminarHorarios")
+    @RequestMapping("eliminarhorarios")
     public JsonResponse eliminarHorarios(HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -309,7 +309,7 @@ public class HorarioIngresanteController {
     }
 
     @ResponseBody
-    @RequestMapping("ingresanteCantidad")
+    @RequestMapping("ingresantecantidad")
     public JsonResponse ingresanteCantidad(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {

@@ -13,7 +13,7 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
 
 @Service
 @Transactional(readOnly = true)
-public class HorarioCarreraServiceImp implements HorarioCarreraService {
+public class HorarioCachimboCarreraServiceImp implements HorarioCachimboCarreraService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

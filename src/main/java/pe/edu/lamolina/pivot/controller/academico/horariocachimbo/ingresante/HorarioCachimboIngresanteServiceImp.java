@@ -25,7 +25,6 @@ import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.controller.academico.horariocachimbo.horario.GenerarHorarioIngresanteService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
@@ -35,10 +34,11 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar.HorarioCachimboGenerarService;
 
 @Service
 @Transactional(readOnly = true)
-public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
+public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngresanteService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -58,7 +58,7 @@ public class HorarioIngresanteServiceImp implements HorarioIngresanteService {
     SeccionDAO seccionDAO;
 
     @Autowired
-    GenerarHorarioIngresanteService generarHorarioIngresanteService;
+    HorarioCachimboGenerarService generarHorarioIngresanteService;
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
