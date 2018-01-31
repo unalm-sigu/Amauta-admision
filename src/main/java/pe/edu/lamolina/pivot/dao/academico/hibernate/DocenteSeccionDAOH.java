@@ -235,6 +235,17 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
+    public List<DocenteSeccion> allPrincipalesBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("docente doc", "seccion s")
+                .leftJoin("doc.persona per")
+                .filter("ds.principal", 1)
+                .in("s.id", secciones);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
     public void deleteDocenteSeccionBySeccion(Seccion seccion) {
         StringBuilder strb = new StringBuilder();
         strb.append("delete DocenteSeccion ds   where ds.seccion.id=:prm_seccion ");

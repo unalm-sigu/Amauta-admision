@@ -288,7 +288,13 @@ $(function() {
                     data: {id: id},
                     success: function(response) {
                         if (response.success) {
-                            vue.cursos = response.data;
+                            var cursos = response.data;
+                            for (var i = 0, max = cursos.length; i < max; i++) {
+                                cursos[i].verCurso = (cursos[i].loop == 0);
+                            }
+
+                            vue.cursos = cursos;
+                            //vue.cursos = response.data;
                         } else {
                             notify(response.message, 'error');
                         }
