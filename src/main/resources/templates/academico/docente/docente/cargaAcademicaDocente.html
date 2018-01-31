@@ -1,0 +1,46 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Carga Académica</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+  
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="header b-b padder-lg">       
+            <a th:href="@{'/academico/docente'}" class="btn btn-default btn-sm pull-right">Regresar</a>
+            <h2>Docente: <span th:text="${docente.persona.nombreCompleto}">Juan Perez</span> <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+            <span> </span>
+            <input type="hidden" id="idDocente" th:value="${docente.id}"/>
+        </header>
+        <section class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+                    <table class="table table-striped" id="dynaTable">
+                        <thead> 
+                            <tr class=""> 
+                                <th class="col-md-4">Curso</th>
+                                <th class="col-md-1 text-center">Tipo Ciclo</th>
+                                <th class="col-md-3 text-center">Claves</th>
+                                <th class="col-md-2 text-center">Sistema de Calificación</th>
+                                <th class="col-md-1 text-center">Estado Plan</th>
+                                <th class="col-md-1 text-center">Estado Acta</th>
+                                <th class="col-md-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
+            </section>
+        </section>
+
+        <div th:substituteby="templates/modal"/>
+        <script id="templateCargaAcademicaDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/docente/templateCargaAcademicaDocente"/></script>
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/academico/docente/docente/cargaAcademicaDocente.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

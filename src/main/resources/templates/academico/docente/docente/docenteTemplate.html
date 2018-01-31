@@ -49,8 +49,9 @@
                     {{/if}}
                     {{if estado == 'INA'}}
                         <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
-                    {{/if}}
+                    {{/if}}                    
                 </li>
+                <li><a class="btn-link modificar" th:href="@{/academico/docente/{{:id}}/cargaacademica}">Carga académica</a></li>
             </ul>
         </div>
     </td>
