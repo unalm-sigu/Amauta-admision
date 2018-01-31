@@ -227,7 +227,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
     @Override
     public List<DepartamentoAcademico> allDepartemento(String nombre, Compania compania) {
         Octavia sql = Octavia.query()
-                .from(DepartamentoAcademico.class, "de")
+                .from(DepartamentoAcademico.class, "da")
                 .join("facultad fa", "fa.compania co")
                 .beginBlock()
                 .__().like("da.codigo", nombre)

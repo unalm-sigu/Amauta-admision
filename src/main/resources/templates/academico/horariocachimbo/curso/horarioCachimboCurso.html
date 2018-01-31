@@ -1,0 +1,73 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Tipo Grupos</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style>
+        .no-style-table > tbody > tr > td,
+        .no-style-table > tbody > tr > th,
+        .no-style-table > tfoot > tr > td,
+        .no-style-table > tfoot > tr > th,
+        .no-style-table > thead > tr > td,
+        .no-style-table > thead > tr > th {
+            border: none !important;
+            padding: 0 8px 0 8px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <div  id="main">
+            <header class="header b-b padder-lg">
+                <div class="pull-right m-t-md">
+                    <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"          href="#" >Agregar Curso</a>
+                </div>
+                <h2 th:inline="text">Cursos Ingresantes [[${cicloAcademico.descripcion}]] </h2>
+            </header>
+            <section class="wrapper-lg">
+                <section class="panel m-b-xs">
+                    <section class="panel-body">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-xs-1 text-center"
+                                     th:each="item,counter:${carreras}"  >
+                                    <a href="#" v-on:click.prevent="filtrarCurso" class="view-count " th:rel="${item.carrera.id}">
+                                        <span class="h1 block bold text-success"  th:style="|color: ${item.getColor(counter.index)}|" th:text="${item.cantidad}">23</span>
+                                        <small class="block m-b-xs bold text-muted" th:text="${item.carrera.nombreCorto}"  >Pregrado</small>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
+                <section class="panel">
+                    <section class="panel-body">
+
+                        <dynatable />
+
+                    </section>
+                </section>
+            </section>
+
+            <div th:substituteby="academico/horariocachimbo/curso/horarioCachimboCursoModal"></div>
+
+        </div>
+
+        <div th:substituteby="_modules/vue-modal"/>
+
+        <th:block th:replace="academico/horariocachimbo/curso/horarioCachimboCursoDynatable"/>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+        <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script th:src="@{/app/academico/horariocachimbo/curso/horarioCachimboCurso.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

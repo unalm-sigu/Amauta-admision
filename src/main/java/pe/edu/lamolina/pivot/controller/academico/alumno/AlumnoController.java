@@ -56,8 +56,6 @@ public class AlumnoController {
     AlumnoEspecialService especialService;
     @Autowired
     AlumnoFisicoService fisicoService;
-    @Autowired
-    AlumnoVisitanteService visitanteService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -263,17 +261,6 @@ public class AlumnoController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
-    }
-
-    @RequestMapping("visitante")
-    public String alumnoVisitante(Model model, HttpSession session) {
-
-        model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", especialService.allDocumentos());
-        model.addAttribute("ciclos", especialService.allCiclos());
-        model.addAttribute("situaciones", especialService.allSituaciones());
-
-        return "academico/alumno/visitante/alumnoVisitante";
     }
 
     @RequestMapping("{alumno}/matricula/origen/matriculable")

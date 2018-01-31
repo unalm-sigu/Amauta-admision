@@ -73,7 +73,16 @@ public class DocenteServiceImp implements DocenteService {
     public void save(Docente docente, DataSessionPivot ds) {
         Usuario user = ds.getUsuario();
         logger.debug("save docente");
+
         Persona personaDoc = this.findPersonaByDocIdentidad(docente.getPersona());
+
+        ObjectUtil.eliminarAttrSinId(personaDoc, "paisNacer");
+        ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionNacer");
+        ObjectUtil.eliminarAttrSinId(personaDoc, "nacionalidad");
+        ObjectUtil.eliminarAttrSinId(personaDoc, "paisDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaDoc, "tipoDocumento");
+
         logger.debug("existe persona {}", (personaDoc != null));
         if (personaDoc == null) {
             Persona personaForm = docente.getPersona();
@@ -137,6 +146,14 @@ public class DocenteServiceImp implements DocenteService {
         Usuario user = ds.getUsuario();
         logger.debug("usuario actualiza {}", user.getId());
         Persona personaForm = docente.getPersona();
+
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionNacer");
+        ObjectUtil.eliminarAttrSinId(personaForm, "nacionalidad");
+        ObjectUtil.eliminarAttrSinId(personaForm, "paisDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
+        ObjectUtil.eliminarAttrSinId(personaForm, "tipoDocumento");
+
         logger.debug("actualizando persona {}", personaForm.getId());
         this.validarDNI(personaForm);
         logger.debug("paso validacion dni");
@@ -250,7 +267,23 @@ public class DocenteServiceImp implements DocenteService {
         Persona personaBD = personaDAO.findPersona(persona.getId());
 
         boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
-        sinCambios = sinCambios && (persona.getUbicacionDomicilio().getId() == personaBD.getUbicacionDomicilio().getId().longValue());
+        boolean ubiDomCambio = persona.getUbicacionDomicilio() == null && personaBD.getUbicacionDomicilio() == null;
+        if (!ubiDomCambio) {
+            Long idForm = (Long) ObjectUtil.getParentTree(persona, "ubicacionDomicilio.id");
+            Long idDb = (Long) ObjectUtil.getParentTree(personaBD, "ubicacionDomicilio.id");
+            if (idForm != idDb) {
+                sinCambios = false;
+            }
+        }
+
+        boolean ubiNacCambio = persona.getUbicacionNacer() == null && personaBD.getUbicacionNacer() == null;
+        if (!ubiNacCambio) {
+            Long idForm = (Long) ObjectUtil.getParentTree(persona, "ubicacionNacer.id");
+            Long idDb = (Long) ObjectUtil.getParentTree(personaBD, "ubicacionNacer.id");
+            if (idForm != idDb) {
+                sinCambios = false;
+            }
+        }
         if (sinCambios) {
             logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
             return personaBD;
@@ -264,6 +297,10 @@ public class DocenteServiceImp implements DocenteService {
         personaBD.setEmail(persona.getEmail());
         personaBD.setEmailCompania(persona.getEmailCompania());
         personaBD.setUbicacionDomicilio(persona.getUbicacionDomicilio());
+        personaBD.setUbicacionNacer(persona.getUbicacionNacer());
+        personaBD.setPaisDomicilio(persona.getPaisDomicilio());
+        personaBD.setPaisNacer(persona.getPaisNacer());
+        personaBD.setNacionalidad(persona.getNacionalidad());
         personaDAO.update(personaBD);
         return personaBD;
     }

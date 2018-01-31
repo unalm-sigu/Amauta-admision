@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import java.util.Map;
 import org.hibernate.Query;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import org.springframework.stereotype.Repository;
@@ -49,14 +50,26 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoHorario.class, "alu")
                 .join("alumno alum", "alum.persona per", "cicloAcademico ciclo")
-                .leftJoin("horarioCachimbos hora", "alum.orientacionCarrera oca", "alum.carrera ca", "alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me")
+                .leftJoin("horarioCachimbos hora", "alum.orientacionCarrera oca", "alum.carrera ca", "alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me", "ca.facultad fac")
                 .filter("ciclo.id", cicloAcademico)
-                .searchFields("ca.nombre")
+                .searchFields("ca.nombre", "alum.codigo", "per.numeroDocIdentidad", "hora.codigo", "fac.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("alu.id desc");
         sql.beginRelativeFilters();
+        this.setEstado(filter, sql);
         return sql.all(getCurrentSession());
+    }
+
+    private void setEstado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        if (queries.get("alu.estado") == null) {
+            return;
+        }
+        sql.filter("alu.estado", queries.get("alu.estado"));
     }
 
     @Override
@@ -136,10 +149,12 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         StringBuilder sql = new StringBuilder();
         sql.append("  update ").append(AlumnoHorario.class.getName()).append(" ah ");
         sql.append("  set ah.horarioCachimbos.id=NULL      ");
+        sql.append("  ,  ah.estado = :ESTADO      ");
         sql.append("  where ah.cicloAcademico.id = :CICLO ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", cicloAcademico.getId());
+        query.setString("ESTADO", EstadoAlumnoHorarioEnum.PEND.name());
         query.executeUpdate();
 
     }

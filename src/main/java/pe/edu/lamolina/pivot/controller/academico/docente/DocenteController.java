@@ -57,6 +57,7 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -176,6 +177,7 @@ public class DocenteController {
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
         model.addAttribute("docente", docente);
+        model.addAttribute("helper", new AlumnoHelper());
         return "academico/docente/docente/docenteForm";
 
     }
@@ -191,6 +193,7 @@ public class DocenteController {
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("fotoHelper", new FotoHelper());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
+        model.addAttribute("helper", new AlumnoHelper());
         return "academico/docente/docente/docenteForm";
 
     }
@@ -471,32 +474,30 @@ public class DocenteController {
     public String index(@PathVariable("idDocente") Long idDocente, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-     
+
         Docente docente = service.find(new Docente(idDocente));
 
         model.addAttribute("docente", docente);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        
-        //    cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
 
+        //    cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
         model.addAttribute("dptoAcad", docente.getDepartamentoAcademico());
         return "academico/docente/docente/cargaAcademicaDocente";
     }
 
     @ResponseBody
     @RequestMapping("{idDocente}/listCargaAcademicaDocente")
-    public DynatableResponse list( @PathVariable("idDocente") Long idDocente, DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(@PathVariable("idDocente") Long idDocente, DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Docente docente = service.find(new Docente(idDocente));
-        
+
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
-           
 
             List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
             logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSeccion.size());
@@ -610,5 +611,4 @@ public class DocenteController {
         }
         return json;
     }
-
 }
