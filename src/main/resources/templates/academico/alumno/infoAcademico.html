@@ -1,0 +1,50 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Alumnos</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="header b-b padder-lg">        
+
+            <h2>Información Académica</h2>
+        </header>
+        <section id="infoAcademico" class="wrapper-lg">
+            <section class="panel m-b-md">
+                <section class="panel-body">
+                    <div class="col-md-12" >
+                        <div class="col-md-2">
+                            <img class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/unknown-person.gif"> </img>
+                        </div>
+                        <div class="col-md-10">
+                            <h3 v-text='alumno.persona.nombres'> </h3>                          
+                        </div>
+                        <div class="col-md-4">
+                            <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
+                            <br/>
+                         <span v-text="alumno.persona.identificacion"/>
+                        </div>
+                    </div>
+                </section>
+            </section>
+            <!--<h4 th:text='${alumno.persona.nombres}'> </h4>-->
+        </section>
+
+    </div>
+    <div layout:fragment="js">
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var alumnoJson = [[${datoAlumno.toString()}
+            ]];
+                        /*]]>*/
+        </script>
+
+
+        <script th:src="@{/app/academico/alumno/infoAcademico.js}" charset="utf-8"></script>
+    </div>
+</body>
+
+</html>
