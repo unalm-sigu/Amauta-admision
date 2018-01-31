@@ -50,6 +50,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -166,6 +167,7 @@ public class DocenteController {
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
         model.addAttribute("docente", docente);
+        model.addAttribute("helper", new AlumnoHelper());
         return "academico/docente/docente/docenteForm";
 
     }
@@ -181,6 +183,7 @@ public class DocenteController {
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("fotoHelper", new FotoHelper());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
+        model.addAttribute("helper", new AlumnoHelper());
         return "academico/docente/docente/docenteForm";
 
     }

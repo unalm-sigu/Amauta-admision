@@ -18,7 +18,7 @@ public interface HorarioCachimboIngresanteService {
 
     List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void retirarHorario(AlumnoHorario alumnoHorario);
+    void retirarHorario(AlumnoHorario alumnoHorario, Usuario user);
 
     void activarMatricula(AlumnoHorario alumnoHorario);
 

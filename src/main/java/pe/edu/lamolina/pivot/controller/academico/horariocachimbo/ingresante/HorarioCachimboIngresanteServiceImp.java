@@ -21,10 +21,13 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
@@ -35,6 +38,7 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar.HorarioCachimboGenerarService;
+import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -68,6 +72,9 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Autowired
     SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
+
+    @Autowired
+    VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -162,7 +169,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Override
     @Transactional
-    public void retirarHorario(AlumnoHorario alumnoHorario) {
+    public void retirarHorario(AlumnoHorario alumnoHorario, Usuario usuario) {
         AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario);
         if (alumnoHorarioDb == null) {
             return;
@@ -184,6 +191,18 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         carreraCachimbos.setConHorario(carreraCachimbos.getConHorario() - 1);
         carreraCachimbos.setSinHorario(carreraCachimbos.getSinHorario() + 1);
         carreraCachimbosDAO.update(carreraCachimbos);
+
+        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(alumnoHorarioDb.getAlumno());
+        for (VacanteAlumno vacanteAlumno : vacanteAlumnos) {
+            vacanteAlumno.setAlumno(null);
+            vacanteAlumno.setUserRegistro(usuario);
+            vacanteAlumno.setFechaRegistro(new Date());
+            vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
+            Seccion seccion = vacanteAlumno.getSeccion();
+            seccion.setReservados(seccion.getReservados() - 1);
+            seccionDAO.update(seccion);
+            vacanteAlumnoDAO.update(vacanteAlumno);
+        }
     }
 
     @Override
@@ -263,8 +282,10 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Override
     public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user) {
+        seccionDAO.allRegenerateReservadoByCiclo(cicloAcademico);
         seccionHorarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
         alumnoHorarioDAO.allSetHorarioNullByCiclo(cicloAcademico);
+        vacanteAlumnoDAO.deleteAllByCiclo(cicloAcademico);
         horarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
         carreraCachimbosDAO.allRegenerateByCiclo(cicloAcademico);
     }

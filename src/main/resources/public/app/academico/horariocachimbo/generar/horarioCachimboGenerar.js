@@ -89,7 +89,7 @@ $(function() {
             verCursoModal: {
                 id: 'modalVerCurso',
                 header: true,
-                title: 'Curso',
+                title: 'Cursos',
                 modalSize: 'modal-lg',
                 cancelbtn: 'Aceptar',
                 showaccept: false

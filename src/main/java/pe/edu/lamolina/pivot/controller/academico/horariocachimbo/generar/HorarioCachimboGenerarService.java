@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -25,9 +26,9 @@ public interface HorarioCachimboGenerarService {
 
     List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void delete(HorarioCachimbos horarioCachimbos);
+    void delete(HorarioCachimbos horarioCachimbos, Usuario usuario);
 
-    void delete(HorarioCachimboForm form);
+    void delete(HorarioCachimboForm form, Usuario usuario);
 
     List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario);
 
