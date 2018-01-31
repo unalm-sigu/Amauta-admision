@@ -195,10 +195,12 @@ public class HorarioCachimboIngresanteController {
 
     @ResponseBody
     @RequestMapping("retirarhorario")
-    public JsonResponse retirarHorario(AlumnoHorario alumnoHorario) {
+    public JsonResponse retirarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.retirarHorario(alumnoHorario);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario user = ds.getUsuario();
+            service.retirarHorario(alumnoHorario, user);
             response.setMessage("Horario retirado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

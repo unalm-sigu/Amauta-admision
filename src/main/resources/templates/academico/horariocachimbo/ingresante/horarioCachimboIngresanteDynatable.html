@@ -62,7 +62,7 @@
                     <li><a class=""  v-if="horario.estado=='PEND'"   v-on:click.prevent="asignarHorario(horario.id)"  href="#">Asignar horario</a></li>
                     <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="retirarHorario(horario.id)"  href="#">Retirar de horario</a></li>
                     <li class="divider"></li>
-                    <li><a class=""  v-if="horario.estado=='MATR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
+                    <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
                     <li><a class=""  v-if="horario.estado=='CHOR'"   v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
                 </ul>
             </div>

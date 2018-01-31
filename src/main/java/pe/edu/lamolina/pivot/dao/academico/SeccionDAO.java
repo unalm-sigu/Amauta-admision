@@ -37,4 +37,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allMatriculablesBySecciones(List<Seccion> secciones);
 
+    public void allRegenerateReservadoByCiclo(CicloAcademico cicloAcademico);
+
 }
