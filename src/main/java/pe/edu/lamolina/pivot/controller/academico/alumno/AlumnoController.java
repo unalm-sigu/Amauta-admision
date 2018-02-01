@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -30,16 +31,20 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -52,10 +57,6 @@ public class AlumnoController {
 
     @Autowired
     AlumnoService service;
-    @Autowired
-    AlumnoEspecialService especialService;
-    @Autowired
-    AlumnoFisicoService fisicoService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -179,9 +180,9 @@ public class AlumnoController {
     public String alumnoEspecial(Model model, HttpSession session) {
 
         model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", especialService.allDocumentos());
-        model.addAttribute("ciclos", especialService.allCiclos());
-        model.addAttribute("situaciones", especialService.allSituaciones());
+        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("ciclos", service.allCicloAcademico());
+        model.addAttribute("situaciones", service.allSituaciones());
 
         return "academico/alumno/especial/alumnoEspecial";
     }
@@ -199,7 +200,7 @@ public class AlumnoController {
             if (alumno.getId() == null) {
                 response.setMessage("Usuario creado satisfactoriamente");
             }
-            especialService.saveAlumno(alumno, ds.getUsuario());
+            service.saveAlumno(alumno, ds.getUsuario());
 
             response.setSuccess(true);
             response.setData(node);
@@ -209,7 +210,6 @@ public class AlumnoController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -223,13 +223,40 @@ public class AlumnoController {
         codigos.add(PRE.name());
         codigos.add(EPG.name());
 
-        List<ModalidadEstudio> modalidades = fisicoService.allModalidadEstudioByCodigos(codigos);
+        List<ModalidadEstudio> modalidades = service.allModalidadEstudioByCodigos(codigos);
+        Alumno alumno = new Alumno();
+        alumno.setPersona(new Persona());
 
-        model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", especialService.allDocumentos());
-        model.addAttribute("ciclos", especialService.allCiclos());
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
+
+        model.addAttribute("ciclos", ciclos);
+        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("ciclos", service.allCicloAcademico());
         model.addAttribute("modalidades", modalidades);
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("helper", new AlumnoHelper());
+        model.addAttribute("carreras", new AlumnoHelper());
+        return "academico/alumno/fisico/alumnoFisico";
+    }
 
+    @RequestMapping("{idAlumno}/fisicoupdate")
+    public String fisicoupdate(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+
+        List<String> codigos = new ArrayList();
+        codigos.add(PRE.name());
+        codigos.add(EPG.name());
+
+        List<ModalidadEstudio> modalidades = service.allModalidadEstudioByCodigos(codigos);
+        Alumno alumno = service.findAlumnoFisico(idAlumno);
+
+        List<CicloAcademico> ciclos = service.allCicloAcademico();
+
+        model.addAttribute("ciclos", ciclos);
+        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("ciclos", service.allCicloAcademico());
+        model.addAttribute("modalidades", modalidades);
+        model.addAttribute("alumno", alumno);
+        model.addAttribute("helper", new AlumnoHelper());
         return "academico/alumno/fisico/alumnoFisico";
     }
 
@@ -246,7 +273,7 @@ public class AlumnoController {
             if (alumno.getId() == null) {
                 response.setMessage("Usuario creado satisfactoriamente");
             }
-            fisicoService.saveAlumno(alumno, ds.getUsuario());
+            service.saveAlumno(alumno, ds.getUsuario());
 
             response.setSuccess(true);
             response.setData(node);
@@ -256,7 +283,6 @@ public class AlumnoController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -268,10 +294,9 @@ public class AlumnoController {
             Model model, HttpSession session) {
 
         List<MatriculaCurso> cursos = service.allMatriculaCursoByAlumno(idAlumno);
-
         model.addAttribute("cursos", cursos);
-
         return "academico/alumno/otros/alumnoMatricula";
+
     }
 
     @RequestMapping("{alumno}/horario/origen/matriculable")
@@ -279,8 +304,8 @@ public class AlumnoController {
             Model model, HttpSession session) {
 
         model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", especialService.allDocumentos());
-        model.addAttribute("ciclos", especialService.allCiclos());
+        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("ciclos", service.allCicloAcademico());
 
         return "academico/alumno/alumnoHorario";
     }
@@ -290,8 +315,8 @@ public class AlumnoController {
             Model model, HttpSession session) {
 
         model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", especialService.allDocumentos());
-        model.addAttribute("ciclos", especialService.allCiclos());
+        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("ciclos", service.allCicloAcademico());
 
         return "academico/alumno/alumnoHistoria";
     }
@@ -301,10 +326,49 @@ public class AlumnoController {
             Model model, HttpSession session) {
 
         model.addAttribute("persona", new Persona());
-        model.addAttribute("documentos", especialService.allDocumentos());
-        model.addAttribute("ciclos", especialService.allCiclos());
+        model.addAttribute("documentos", service.allDocumento());
+        model.addAttribute("ciclos", service.allCicloAcademico());
 
         return "academico/alumno/alumnoAvance";
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarrera")
+    public JsonResponse allCarrera(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Compania cia = ds.getCompania();
+            List<Carrera> carreras = service.allCarreraByName(nombre, cia);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+
+            for (Carrera carrera : carreras) {
+                ModalidadEstudio modalidadEstudio = carrera.getModalidadEstudio();
+
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", carrera.getId());
+                json.put("nombre", carrera.getNombre());
+                json.put("codigo", carrera.getCodigo());
+                json.put("modalidad", modalidadEstudio.getNombre());
+                if (modalidadEstudio.getCodigo().equalsIgnoreCase(ModalidadEstudioEnum.EPG.name())) {
+                    json.put("tipo", carrera.getTipoEnum().getValue());
+                }
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
