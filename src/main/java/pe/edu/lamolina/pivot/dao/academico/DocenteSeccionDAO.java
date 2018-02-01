@@ -41,6 +41,8 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allBySecciones(List<Seccion> secciones);
 
+    List<DocenteSeccion> allPrincipalesBySecciones(List<Seccion> secciones);
+
     void updatePrincipal(DocenteSeccion docenteSeccion);
 
     void updateDocente(DocenteSeccion docenteSeccion);

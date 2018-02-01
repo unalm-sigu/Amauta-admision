@@ -15,6 +15,8 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -165,6 +167,26 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .orderBy("sec.codigo");
 
         return all(sql);
+    }
+
+    @Override
+    public void allRegenerateReservadoByCiclo(CicloAcademico cicloAcademico) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append("  update ").append(Seccion.class.getName()).append(" sex ");
+        sql.append("  set sex.reservados = 0     ");
+        sql.append("  where sex.id in ( ");
+        sql.append("    select shc.seccion.id from ").append(SeccionHorarioCachimbos.class.getName()).append(" shc ");
+        sql.append("    where shc.horarioCachimbos.id in ( ");
+        sql.append("      select hc.id  from ").append(HorarioCachimbos.class.getName()).append(" hc ");
+        sql.append("      where hc.cicloAcademico.id = :CICLO ");
+        sql.append("    ) ");
+        sql.append("  ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
+
     }
 
 }

@@ -36,4 +36,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByPersonas(List<Persona> personas);
 
+    public Alumno findAlumno(Alumno alumno);
+
 }

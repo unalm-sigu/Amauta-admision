@@ -1,0 +1,120 @@
+<modal-vik ref="modalAddAlumno"
+           v-bind="addAlumnoModal"
+           v-bind:okaction="createAlumno">
+
+    <div slot="body">
+        <div class="form-group">
+            <label>Alumno</label>
+            <input type="text"
+                   class="form-control"
+                   name="alumno.id"
+                   v-model="alumno.id"
+                   required="true"/>
+        </div>
+
+        <div v-if="alumno.id">
+
+            <span class="block">
+                <b>Carrera </b>:{{alumno.carrera}}
+            </span>
+            <span class="block">
+                <b>Facultad </b>:{{alumno.facultad}}
+            </span>
+            <span class="block">
+                <b>{{alumno.tipo}} </b>:{{alumno.numero}}
+            </span>
+            <span class="block">
+                <b>Nro Mat. </b>:{{alumno.codigoMatricula}}
+            </span>
+
+        </div>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalVerHorario"
+           v-bind="verHorarioModal">
+
+    <div slot="body">
+
+        <div class="panel padder-v m-b-n-lg">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th  v-for="dia in horarios.dias"  class="text-center">
+                            <span class="pointer" >{{dia.dia}}</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in horarios.horarios" >
+                        <th class="">{{item.hora}}</th>
+                        <td  v-for="dia in item.dias"  class="text-center">
+                            <span class="pointer secciones"  v-for="seccion in dia.secciones"  >
+                                <span class="text-primary block">{{ seccion.seccion }}</span>
+                                <small class="text-muted block">{{ seccion.grupo }}</small>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalVerCurso" v-bind="verCursoModal">
+
+    <div slot="body">
+
+        <div class="panel padder-v m-b-n">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th class="col-xs-6 v-middle">Curso</th>
+                        <th class="col-xs-1 text-center v-middle">Clave</th>
+                        <th class="col-xs-1 text-center v-middle"><span class="block">Aula</span><span class="block">Grupo</span></th>
+                        <th class="col-xs-4 v-middle">Docente</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr v-for="curso in cursos">
+
+                        <td class="v-middle" :rowspan="curso.cantSecciones"
+                            v-if="curso.verCurso">
+                            <span class="block text-primary bold h5 m-b-xs m-t-xs">{{curso.curso}}</span>
+                            <span class="block">
+                                {{curso.codigoCurso}} &nbsp;
+                                <i class="fa fa-bookmark text-primary"></i>
+                                {{curso.tpc}}
+                            </span>
+                            <span class="block">{{curso.anexo}}</span>
+                        </td>
+
+                        <td class="v-middle text-center" >
+                            <span class="block text-primary">{{curso.codigoSeccion}}</span>
+                            <small class="block">{{curso.tipoValue}}</small>
+                        </td>
+
+                        <td class="v-middle text-center " >
+                            <span class="block text-primary">{{curso.aula}}</span>
+                            <span class="block">{{curso.grupo}}</span>
+                        </td>
+                        
+                        <td class="v-middle" >
+                            {{curso.docente}}
+                            <span class="block">{{curso.codigoDocente}}</span>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</modal-vik>
