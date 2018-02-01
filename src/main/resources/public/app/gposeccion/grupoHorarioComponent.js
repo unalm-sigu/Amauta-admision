@@ -11,13 +11,10 @@ Vue.component("grupohorario-component", {
                 regulares: {
                     tipoGrupoHorasSeleccionado: null,
                     tblHorarioRegular: null,
-                    grupoHorarioRegSel: null,
                     tipoGrupoHorasOpts: null
                 }, zetas: {
-                    grupoHorarioSel: null,
                     tblHorarios: null
                 }, especial: {
-                    grupoHorarioSel: null,
                     tblHorarios: null
                 }
             }
@@ -41,7 +38,6 @@ Vue.component("grupohorario-component", {
                 regulares: {
                     tipoGrupoHorasSeleccionado: null,
                     tblHorarioRegular: null,
-                    grupoHorarioRegSel: null,
                     tipoGrupoHorasOpts: null
                 }, zetas: {
                     grupoHorarioSel: null,
@@ -54,7 +50,6 @@ Vue.component("grupohorario-component", {
 
             $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = null;
             $vue.tabGrupos['regulares'].tblHorarioRegular = null;
-            $vue.tabGrupos['regulares'].grupoHorarioRegSel = null;
             $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = null;
 
             $.ajax({
@@ -69,28 +64,21 @@ Vue.component("grupohorario-component", {
 
                         $global.$emit("reloadDynaZeta", $vue.seccionModal.id);
                         $global.$emit("reloadDynaEspecial", $vue.seccionModal.id);
-                        //  $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
                         $vue.tabGrupos['regulares'].tipoGrupoHorasOpts = response.data.tiposGruposHorasOpt;
 
                         if (response.data.grupoHorarioSel != null) {
-
                             $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorarioSel;
 
-
-                            if (response.data.grupoHorarioSel.esTipoGrupoRegular) {
+                            if (response.data.grupoHorarioSel.tipoGrupoHoras.esTipoGrupoRegular) {
                                 console.log("esTipoGrupoRegular");
-                                $vue.tabGrupos['regulares'].grupoHorarioRegSel = response.data.grupoHorarioSel;
                                 $vue.tabGrupos['regulares'].tipoGrupoHorasSeleccionado = response.data.grupoHorarioSel.tipoGrupoHoras;
                                 $vue.cambiarCboTipoGrupoHorReg();
-                            } else if (response.data.grupoHorarioSel.esTipoGrupoZeta) {
+                            } else if (response.data.grupoHorarioSel.tipoGrupoHoras.esTipoGrupoZeta) {
                                 console.log("esTipoGrupoZeta");
-                                $vue.tabGrupos['zetas'].grupoHorarioSel = response.data.grupoHorarioSel;
-                                $vue.seleccionarGrupoZ($vue.tabGrupos['zetas'].grupoHorarioSel.id);
-                            } else if (response.data.grupoHorarioSel.esTipoGrupoEspecial) {
+                                $vue.seleccionarGrupoZ($vue.tabGrupos.grupoHorarioSel.id);
+                            } else if (response.data.grupoHorarioSel.tipoGrupoHoras.esTipoGrupoEspecial) {
                                 console.log("esTipoGrupoEspecial");
-                                $vue.tabGrupos['especial'].grupoHorarioSel = response.data.grupoHorarioSel;
-                                $vue.tabGrupos['especial'].tipoGrupoHorasSeleccionado = response.data.grupoHorarioSel.tipoGrupoHoras;
-                                $vue.seleccionarGrupoEsp($vue.tabGrupos['especial'].grupoHorarioSel.id);
+                                $vue.seleccionarGrupoEsp($vue.tabGrupos.grupoHorarioSel.id);
                             }
 
                         } else {
@@ -144,11 +132,9 @@ Vue.component("grupohorario-component", {
                 success: function (response) {
                     if (response.success) {
                         $vue.tabGrupos['zetas'].tblHorarios = response.data;
-
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
 
                         $global.$emit("seleccionarGrupoZeta", $vue.tabGrupos.grupoHorarioSel);
-                        //   $global.$emit("reloadDynaEspecial", $vue.seccionModal.id); clearAndSelectEsp
                         $global.$emit("clearAndSelectEsp");
                         $vue.tabGrupos['especial'].tblHorarios = null;
                     } else {
@@ -180,7 +166,6 @@ Vue.component("grupohorario-component", {
                         $vue.tabGrupos['especial'].tblHorarios = response.data;
                         $vue.tabGrupos.grupoHorarioSel = response.data.grupoHorasSeleccionado;
                         $global.$emit("seleccionarGrupoEspecial", $vue.tabGrupos.grupoHorarioSel);
-                        //      $global.$emit("reloadDynaZeta");
                         $global.$emit("clearAndSelectZeta");
                         $vue.tabGrupos['zetas'].tblHorarios = null;
                     } else {
@@ -196,7 +181,6 @@ Vue.component("grupohorario-component", {
 
         }, cambiarCboTipoGrupoHorZeta() {
             let $vue = this;
-//tabGrupos['zetas'].   grupoHorarioSel tblHorarios
             $.ajax({
                 url: APP.url('academico/gposeccion/horario'),
                 type: 'POST',
@@ -227,13 +211,9 @@ Vue.component("grupohorario-component", {
                 this.tabGrupos.grupoHorarioSel = diaHoraGrupo.grupoHorario;
 
                 if (diaHoraGrupo.grupoHorario.esTipoGrupoRegular) {
-                    this.tabGrupos['regulares'].grupoHorarioRegSel = diaHoraGrupo;
-                    this.tabGrupos['zetas'].grupoHorarioSel = null;
-                    this.tabGrupos['especial'].grupoHorarioSel = null;
 
                     for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
-                        if (this.tabGrupos['regulares'].grupoHorarioRegSel != null &&
-                                this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].grupoHorario.id == this.tabGrupos['regulares'].grupoHorarioRegSel.grupoHorario.id) {
+                        if (this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].grupoHorario.id == this.tabGrupos.grupoHorarioSel.id) {
                             this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].seleccionado = seleccionado;
                         } else {
                             this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[key].seleccionado = false;
@@ -247,7 +227,6 @@ Vue.component("grupohorario-component", {
                     }
 
                     if (this.tabGrupos['especial'].tblHorarios != null) {
-
                         for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
                             this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
                         }
@@ -258,9 +237,6 @@ Vue.component("grupohorario-component", {
                         return;
                     }
 
-                    this.tabGrupos['zetas'].grupoHorarioSel = diaHoraGrupo;
-                    this.tabGrupos['regulares'].grupoHorarioRegSel = null;
-                    this.tabGrupos['especial'].grupoHorarioSel = null;
                     diaHoraGrupo.seleccionado = seleccionado;
 
                     if (this.tabGrupos['regulares'].tblHorarioRegular != null) {
@@ -280,12 +256,7 @@ Vue.component("grupohorario-component", {
                     if (!this.seleccionarGrupoValidate(diaHoraGrupo, this.tabGrupos['especial'])) {
                         return;
                     }
-
-                    this.tabGrupos['zetas'].grupoHorarioSel = null;
-                    this.tabGrupos['regulares'].grupoHorarioRegSel = null;
-                    this.tabGrupos['especial'].grupoHorarioSel = diaHoraGrupo;
                     diaHoraGrupo.seleccionado = seleccionado;
-
 
 
                     if (this.tabGrupos['zetas'].tblHorarios != null) {
@@ -313,7 +284,6 @@ Vue.component("grupohorario-component", {
                     }
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoRegular) {
 
-                    this.tabGrupos['regulares'].grupoHorarioRegSel = null;
                     diaHoraGrupo.seleccionado = seleccionado;
                     if (this.tabGrupos['regulares'].tblHorarioRegular != null) {
                         for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
