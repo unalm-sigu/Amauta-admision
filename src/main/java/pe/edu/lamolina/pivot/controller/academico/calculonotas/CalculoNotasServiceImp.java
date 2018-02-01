@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -107,8 +108,9 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
         }
 
-        if ((curso.isCreditosZero() || curso.isTieneCreditosVariables()) && cant == 1) {
+        if (curso.isTieneCreditosVariables() && cant == 1) {
             AlumnoEvaluacion aEvaluacionLetra = evaluacionesAlumno.get(0);
+            aEvaluacionLetra = alumnoEvaluacionDAO.findByFilter(aEvaluacionLetra.getId(), null, null);
             String notaLetra = "";
             if (aEvaluacionLetra.getValorLetra().equals("A")) {
                 notaLetra = "AP";
@@ -124,6 +126,12 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             matriculaCurso.setNotaAvanceFull(aEvaluacionLetra.getNota());
             matriculaCurso.setNotaAcumuladaFull(aEvaluacionLetra.getNota());
             matriculaCursoDAO.update(matriculaCurso);
+
+            ResumenAlumnoEvaluacion resumenAlumnoEvaluacion
+                    = resumenAlumnoEvaluacionDAO.findByAlumnoGrupoTipo(alumno, grupoSeccion, aEvaluacionLetra.getEvaluacion().getTipoEvaluacion());
+            resumenAlumnoEvaluacion.setCreditos(matriculaCurso.getCreditosAprobados());
+            resumenAlumnoEvaluacion.setNota(aEvaluacionLetra.getNotaLetra());
+            resumenAlumnoEvaluacionDAO.update(resumenAlumnoEvaluacion);
             return;
         }
 
