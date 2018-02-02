@@ -6,6 +6,7 @@ Vue.component("grupohorario-component", {
     data: function () {
         return {
             seccionModal: null,
+            errorsMessage: null,
             tabGrupos: {
                 grupoHorarioSel: null,
                 regulares: {
@@ -206,7 +207,7 @@ Vue.component("grupohorario-component", {
 
         }, selectGrupoHoraHorario(diaHoraGrupo) {
             var seleccionado = !diaHoraGrupo.seleccionado;
-
+            this.errorsMessage = null;
             if (seleccionado) {
                 this.tabGrupos.grupoHorarioSel = diaHoraGrupo.grupoHorario;
 
@@ -233,7 +234,7 @@ Vue.component("grupohorario-component", {
                     }
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoZeta) {
 
-                    if (!this.seleccionarGrupoValidate(diaHoraGrupo, this.tabGrupos['zetas'])) {
+                    if (!this.seleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['zetas'])) {
                         return;
                     }
 
@@ -253,7 +254,7 @@ Vue.component("grupohorario-component", {
 
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoEspecial) {
 
-                    if (!this.seleccionarGrupoValidate(diaHoraGrupo, this.tabGrupos['especial'])) {
+                    if (!this.seleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['especial'])) {
                         return;
                     }
                     diaHoraGrupo.seleccionado = seleccionado;
@@ -275,11 +276,11 @@ Vue.component("grupohorario-component", {
                 this.tabGrupos.grupoHorarioSel = null;
 
                 if (diaHoraGrupo.grupoHorario.esTipoGrupoZeta) {
-                    if (this.deseleccionarGrupoValidate(diaHoraGrupo, this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo)) {
+                    if (this.deseleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo)) {
                         diaHoraGrupo.seleccionado = seleccionado;
                     }
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoEspecial) {
-                    if (this.deseleccionarGrupoValidate(diaHoraGrupo, this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo)) {
+                    if (this.deseleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo)) {
                         diaHoraGrupo.seleccionado = seleccionado;
                     }
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoRegular) {
@@ -297,7 +298,7 @@ Vue.component("grupohorario-component", {
             }
 
             // this.tblHorarioRegular = this.tblHorarioRegular;
-        }, seleccionarGrupoValidate(diaHoraGrupo, tabGrupo) {
+        }, seleccionarGrupoValidate($vue, diaHoraGrupo, tabGrupo) {
 
             let cantGruposSelec = 1;
             if (tabGrupo.tblHorarios != null) {
@@ -308,7 +309,7 @@ Vue.component("grupohorario-component", {
                 }
             }
             if (parseInt(cantGruposSelec) > parseInt(this.seccionModal.horasSemanales)) {
-                alert("No se puede asignar mas horas, verifique.");
+                notify("No se puede asignar mas horas, verifique.", "error");
                 return;
             }
 
@@ -368,7 +369,7 @@ Vue.component("grupohorario-component", {
                 }
             }
             return true;
-        }, deseleccionarGrupoValidate(diaHoraGrupo, arg) {
+        }, deseleccionarGrupoValidate($vue, diaHoraGrupo, arg) {
             let diaHoraGrupoAfter = null;
             let diaHoraGrupoBefore = null;
             let horaAfter = diaHoraGrupo.hora.numero + 1;
@@ -391,10 +392,9 @@ Vue.component("grupohorario-component", {
             }
             return true;
         }, saveGrupoHorario($vue) {
-            let mensajeAsignarHoras = "Asignar la cantidad de horas requeridas para la sección.";
 
             if ($vue.tabGrupos.grupoHorarioSel == null) {
-                alert("Seleccione un grupo horario");
+                notify("Seleccione un grupo horario.", "error");
                 return;
             }
 
@@ -467,7 +467,7 @@ Vue.component("grupohorario-component", {
 
 
             if (errorCantHoras) {
-                alert(mensajeAsignarHoras);
+                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
                 return
             }
             $vue.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
