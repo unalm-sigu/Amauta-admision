@@ -69,7 +69,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .searchFields("ca.nombre", "al.estado", "al.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .searchSubqueryFields("ca.nombre")
                 .orderBy("al.id desc");
 
         switch (RolEnum.valueOf(codigo)) {
