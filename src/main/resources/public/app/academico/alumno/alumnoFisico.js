@@ -9,13 +9,18 @@ new Vue({
     },
     mounted: function() {
         let vue = this;
+
         $(".date").datepicker();
         $(".numerico").numeric({negative: false});
+
         $('[name="persona.tipoDocumento.id"]').select2({minimumResultsForSearch: -1});
         $('[name="cicloIngreso.id"]').select2({minimumResultsForSearch: -1});
         $('[name="modalidadEstudio.id"]').select2({minimumResultsForSearch: -1});
+
         $(".buscar-distrito").select2(vue.buscarDistrito());
+
         $('#nacionalidad').select2(vue.buscarPais());
+        $('#carrera').select2(vue.buscarCarrera());
         $('#paisNacimiento').select2(vue.buscarPais()).on('change.select2', function(e) {
             vue.mostrarDirNacimiento();
         });
@@ -24,6 +29,36 @@ new Vue({
         });
     },
     methods: {
+        buscarCarrera: function() {
+            return {
+                minimumInputLength: 2,
+                ajax: {
+                    url: APP.url("academico/alumno/allCarrera"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function(term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function(response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    if (element.val() != "") {
+                        callback({id: element.val(), nombre: element.attr("rel")});
+                    }
+                },
+                formatResult: function(info) {
+                    return info.nombre;
+                },
+                formatSelection: function(info) {
+                    return info.nombre;
+                },
+                escapeMarkup: function(m) {
+                    return m;
+                }
+            };
+        },
         buscarPais: function() {
             return {
                 minimumInputLength: 2,

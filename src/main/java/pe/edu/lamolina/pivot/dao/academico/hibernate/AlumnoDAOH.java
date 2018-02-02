@@ -325,4 +325,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return (Alumno) sql.find(getCurrentSession());
     }
 
+    @Override
+    public Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .filter("per.id", persona)
+                .filter("ci.id", ciclo);
+        return (Alumno) sql.find(getCurrentSession());
+    }
+
 }
