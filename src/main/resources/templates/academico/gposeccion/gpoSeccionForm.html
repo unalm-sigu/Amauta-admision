@@ -101,8 +101,12 @@
                                         <a v-if="seccion.aula!=''"
                                            v-on:click="showModalAula(seccion)" 
                                            style="cursor:pointer;">
-                                            {{ seccion.aula.codigo }}
-                                            (aforo {{ seccion.aula.aforo }})
+                                            <div>
+                                                {{ seccion.aula.codigo }}
+                                            </div>
+                                            <div>
+                                                (Cap. {{ seccion.aula.capacidadAula }})
+                                            </div>
                                         </a>
                                     </td>
                                     <td class="text-center">

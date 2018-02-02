@@ -254,11 +254,15 @@ Vue.component("grupohorario-component", {
 
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoEspecial) {
 
-                    if (!this.seleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['especial'])) {
-                        return;
+                    for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                        let diaHoraGrupoEach = this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key];
+                        if (diaHoraGrupoEach.grupoHorario.id == this.tabGrupos.grupoHorarioSel.id
+                                && diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id) {
+                            diaHoraGrupoEach.seleccionado = seleccionado;
+                        } else {
+                            this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key].seleccionado = false;
+                        }
                     }
-                    diaHoraGrupo.seleccionado = seleccionado;
-
 
                     if (this.tabGrupos['zetas'].tblHorarios != null) {
                         for (let key in this.tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo) {
@@ -280,11 +284,14 @@ Vue.component("grupohorario-component", {
                         diaHoraGrupo.seleccionado = seleccionado;
                     }
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoEspecial) {
-                    if (this.deseleccionarGrupoValidate(this, diaHoraGrupo, this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo)) {
-                        diaHoraGrupo.seleccionado = seleccionado;
+                    diaHoraGrupo.seleccionado = seleccionado;
+                    if (this.tabGrupos['especial'].tblHorarios != null) {
+                        for (let key in this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo) {
+                            let diaHoraGrupoEach = this.tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[key];
+                            diaHoraGrupoEach.seleccionado = false;
+                        }
                     }
                 } else if (diaHoraGrupo.grupoHorario.esTipoGrupoRegular) {
-
                     diaHoraGrupo.seleccionado = seleccionado;
                     if (this.tabGrupos['regulares'].tblHorarioRegular != null) {
                         for (let key in this.tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo) {
@@ -296,8 +303,6 @@ Vue.component("grupohorario-component", {
 
 
             }
-
-            // this.tblHorarioRegular = this.tblHorarioRegular;
         }, seleccionarGrupoValidate($vue, diaHoraGrupo, tabGrupo) {
 
             let cantGruposSelec = 1;
