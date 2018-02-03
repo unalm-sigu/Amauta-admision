@@ -120,6 +120,16 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void anular(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
         cicloAcademicoDB.setEstado(CicloEstadoEnum.ANU);
+        cicloAcademicoDB.setMotivoAnulacion(cicloAcademico.getMotivoAnulacion());
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+    }
+
+    @Override
+    @Transactional
+    public void desactivar(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.DES);
+        cicloAcademicoDB.setMotivoAnulacion("No se usa el ciclo.");
         cicloAcademicoDAO.update(cicloAcademicoDB);
     }
 
@@ -128,6 +138,14 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void activar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
         cicloAcademicoDB.setEstado(CicloEstadoEnum.ACT);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+    }
+
+    @Override
+    @Transactional
+    public void pendiente(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.PEND);
         cicloAcademicoDAO.update(cicloAcademicoDB);
     }
 

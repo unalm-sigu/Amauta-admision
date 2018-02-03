@@ -52,11 +52,12 @@
         </td>
 
         <td class="v-middle  text-center">
-            <span v-if="cicloAcademico.estado=='DES'" class="label label-danger" >Desactivado</span>
-            <span v-if="cicloAcademico.estado=='CER'" class="label label-warning" >Cerrado</span>
             <span v-if="cicloAcademico.estado=='ACT'" class="label label-success" >Activo</span>
+            <span v-if="cicloAcademico.estado=='CER'" class="label label-warning" >Cerrado</span>
             <span v-if="cicloAcademico.estado=='CRE'" class="label label-default" >Creado</span>
+            <span v-if="cicloAcademico.estado=='ANU'" class="label label-danger" >Anulado</span>
             <span v-if="cicloAcademico.estado=='PEND'" class="label label-info" >Pendiente</span>
+            <span v-if="cicloAcademico.estado=='DES'" class="label label-default" >Desactivado</span>
         </td>
 
         <td class="v-middle">
@@ -65,13 +66,31 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a v-on:click.prevent="activarCiclo(cicloAcademico.id)"  href="#">Activar ciclo</a></li>
-                    <li><a v-on:click.prevent="cerrarCiclo(cicloAcademico.id)"  href="#">Cerrar ciclo</a></li>
-                    <li><a v-on:click.prevent="anularCiclo(cicloAcademico.id)"  href="#">Anular ciclo</a></li>
+
+                    <li  v-if="cicloAcademico.estado=='CRE' || cicloAcademico.estado=='PEND' "  >
+                        <a v-on:click.prevent="activarCiclo(cicloAcademico.id)"  href="#">Activar ciclo</a>
+                    </li>
+                    <li v-if="cicloAcademico.estado=='PEND'">
+                        <a v-on:click.prevent="cerrarCiclo(cicloAcademico.id)"  href="#">Cerrar ciclo</a>
+                    </li>
+                    <li  v-if="cicloAcademico.estado=='ACT'">
+                        <a v-on:click.prevent="anularCiclo(cicloAcademico.id)"  href="#">Anular ciclo</a>
+                    </li>
+                    <li v-if="cicloAcademico.estado=='ACT'">
+                        <a v-on:click.prevent="pendienteCiclo(cicloAcademico.id)"  href="#">Ciclo pendiente</a>
+                    </li>
+                    <li  v-if="cicloAcademico.estado=='ACT'">
+                        <a v-on:click.prevent="desactivarCiclo(cicloAcademico.id)"  href="#">Desactivar ciclo</a>
+                    </li>
                     <li class="divider"></li>
-                    <li><a v-on:click.prevent="editar(cicloAcademico.id)"  href="#">Editar ciclo</a></li>
+                    <li>
+                        <a v-on:click.prevent="editar(cicloAcademico.id)"  href="#">Editar ciclo</a>
+                    </li>
                     <li class="divider"></li>
-                    <li><a v-on:click.prevent="eliminar(cicloAcademico.id)"  href="#">Eliminar ciclo</a></li>
+                    <li v-if="cicloAcademico.estado=='CRE' || cicloAcademico.estado=='DES' " >
+                        <a v-on:click.prevent="eliminar(cicloAcademico.id)"  href="#">Eliminar ciclo</a>
+                    </li>
+
                 </ul>
             </div>
         </td>

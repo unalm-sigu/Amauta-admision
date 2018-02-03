@@ -16,8 +16,14 @@ var DynatableRowTemplate = Vue.component("dynatableRow", {
         activarCiclo: function(id) {
             $global.$emit("activarCiclo", id);
         },
+        desactivarCiclo: function(id) {
+            $global.$emit("desactivarCiclo", id);
+        },
         anularCiclo: function(id) {
             $global.$emit("anularCiclo", id);
+        },
+        pendienteCiclo: function(id) {
+            $global.$emit("pendienteCiclo", id);
         },
     }
 });
@@ -65,19 +71,12 @@ new Vue({
     data: {
         ciclos: [{id: null}],
         cicloAcademico: {id: null},
-        motivoCerrar: "",
         motivoAnular: "",
         addCicloAcademicoaModal: {
             id: 'modalAddCicloAcademico',
             header: true,
             title: 'Ciclo académico',
             okbtn: 'Guardar'
-        },
-        addCerrarCicloModal: {
-            id: 'modalAddCerrarCiclo',
-            header: true,
-            title: 'Cerrar Ciclo académico',
-            okbtn: 'Aceptar'
         },
         addAnularCicloModal: {
             id: 'modalAddAnularCiclo',
@@ -108,6 +107,12 @@ new Vue({
         });
         $global.$on("activarCiclo", function(id) {
             vue.activarCiclo(id);
+        });
+        $global.$on("desactivarCiclo", function(id) {
+            vue.desactivarCiclo(id);
+        });
+        $global.$on("pendienteCiclo", function(id) {
+            vue.pendienteCiclo(id);
         });
         $global.$on("anularCiclo", function(id) {
             vue.anularCiclo(id);
@@ -211,29 +216,6 @@ new Vue({
         getRecord: function(id) {
             return dynatable.settings.dataset.records.find(item => item.id === id);
         },
-        saveCerrarCiclo: function() {
-            var vue = this;
-            var valid = $('#formCerrarCiclo').parsley().validate();
-            if (valid != true) {
-                return;
-            }
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/cicloacademico/cerrar'),
-                data: $('#formCerrarCiclo').serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        vue.$refs.modalAddCerrarCiclo.close();
-                        notify(response.message, 'info');
-                        dynatable.process();
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                }, error: function() {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
         saveAnularCiclo: function() {
             var vue = this;
             var valid = $('#formAnularCiclo').parsley().validate();
@@ -258,16 +240,38 @@ new Vue({
             });
         },
         cerrarCiclo: function(id) {
-            var vue = this;
-            vue.motivoCerrar = "";
-            vue.cicloAcademico.id = id;
-            vue.$refs.modalAddCerrarCiclo.open();
+            bootbox.confirm({
+                message: '¿Seguro que desea cerrar el ciclo académico?',
+                buttons: {
+                    confirm: {label: 'Si, Aceptar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/cicloacademico/cerrar'),
+                            data: {id: id},
+                            success: function(response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function() {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         },
         anularCiclo: function(id) {
             var vue = this;
+            vue.$refs.modalAddAnularCiclo.open();
             vue.motivoAnular = "";
             vue.cicloAcademico.id = id;
-            vue.$refs.modalAddAnularCiclo.open();
         },
         activarCiclo: function(id) {
             bootbox.confirm({
@@ -281,6 +285,62 @@ new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/cicloacademico/activar'),
+                            data: {id: id},
+                            success: function(response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function() {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        desactivarCiclo: function(id) {
+            bootbox.confirm({
+                message: '¿Seguro que desea desactivar el ciclo académico?',
+                buttons: {
+                    confirm: {label: 'Si,Desactivar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/cicloacademico/desactivar'),
+                            data: {id: id},
+                            success: function(response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function() {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        pendienteCiclo: function(id) {
+            bootbox.confirm({
+                message: '¿Seguro que desea poner como pendiente el ciclo académico?',
+                buttons: {
+                    confirm: {label: 'Si,Aceptar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/cicloacademico/pendiente'),
                             data: {id: id},
                             success: function(response) {
                                 if (response.success) {

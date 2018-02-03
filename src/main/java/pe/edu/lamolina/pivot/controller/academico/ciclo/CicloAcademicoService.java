@@ -31,4 +31,8 @@ public interface CicloAcademicoService {
 
     void activar(CicloAcademico cicloAcademico);
 
+    void desactivar(CicloAcademico cicloAcademico);
+
+    public void pendiente(CicloAcademico cicloAcademico);
+
 }

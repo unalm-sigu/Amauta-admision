@@ -67,37 +67,6 @@
     </div>
 </modal-vik>
 
-
-<modal-vik ref="modalAddCerrarCiclo"
-           v-bind="addCerrarCicloModal"
-           v-bind:okaction="saveCerrarCiclo">
-
-    <div slot="body">
-
-
-        <form id="formCerrarCiclo" class="form-horizontal"  data-parsley-validate="true">
-
-            <input type="hidden"  name="id"  v-bind:value="cicloAcademico.id"/>
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Motivo de cierre</label>
-                <div class="col-sm-9">
-                    <textarea
-                        class="form-control"
-                        required="true"
-                        maxlength="200"
-                        v-bind:text="motivoCerrar"
-                        ></textarea>
-                </div>
-            </div>
-
-
-        </form>
-
-    </div>
-</modal-vik>
-
-
 <modal-vik ref="modalAddAnularCiclo"
            v-bind="addAnularCicloModal"
            v-bind:okaction="saveAnularCiclo">
@@ -115,6 +84,8 @@
                         class="form-control"
                         required="true"
                         maxlength="200"
+                        name="motivo"
+                        v-model="motivoAnular"
                         v-bind:text="motivoAnular"
                         ></textarea>
                 </div>

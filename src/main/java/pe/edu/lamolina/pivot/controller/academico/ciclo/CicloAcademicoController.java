@@ -198,6 +198,22 @@ public class CicloAcademicoController {
     }
 
     @ResponseBody
+    @RequestMapping("desactivar")
+    public JsonResponse desactivar(CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.desactivar(cicloAcademico);
+            response.setMessage("Ciclo académico desactivado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("anular")
     public JsonResponse anular(CicloAcademico cicloAcademico) {
         JsonResponse response = new JsonResponse();
@@ -220,6 +236,22 @@ public class CicloAcademicoController {
         try {
             service.cerrar(cicloAcademico);
             response.setMessage("Ciclo académico cerrado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("pendiente")
+    public JsonResponse pendiente(CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.pendiente(cicloAcademico);
+            response.setMessage("Ciclo académico pasado a pendiente satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
