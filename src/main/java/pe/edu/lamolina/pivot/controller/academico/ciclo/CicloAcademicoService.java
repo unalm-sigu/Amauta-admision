@@ -25,4 +25,10 @@ public interface CicloAcademicoService {
 
     List<ModalidadEstudio> allPrePostgrado(Compania cia);
 
+    void cerrar(CicloAcademico cicloAcademico);
+
+    void anular(CicloAcademico cicloAcademico);
+
+    void activar(CicloAcademico cicloAcademico);
+
 }

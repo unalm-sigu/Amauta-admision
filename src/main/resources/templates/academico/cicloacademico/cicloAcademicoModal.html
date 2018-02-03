@@ -7,19 +7,23 @@
 
         <form id="formCicloAcademico" class="form-horizontal"  data-parsley-validate="true">
 
-            <input type="hidden"  name="id" value=""/>
+            <input type="hidden"  name="id" v-bind:value="cicloAcademico.id"/>
 
             <div class="form-group">
                 <label class="control-label col-sm-3">Modalidad</label>
                 <div class="col-sm-9">
-                    <select name="modalidadEstudio.id" >
+
+
+                    <select class="form-control"    required="true"  name="modalidadEstudio.id" >
+                        <option></option>
                         <option
                             th:each="modalidad:${modalidades}"
                             th:value="${modalidad.id}"
-                            required="true"
                             th:text="${modalidad.nombre}">
                         </option>
                     </select>
+
+
                 </div>
             </div>
 
@@ -44,6 +48,7 @@
                 <div class="col-sm-9">
 
                     <select   required="true"  class="form-control" name="numeroCiclo" >
+                        <option></option>
                         <option
                             th:each="item : ${numeros}"
                             th:value="${item.value}"
@@ -54,6 +59,65 @@
 
                 </div>
 
+            </div>
+
+
+        </form>
+
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="modalAddCerrarCiclo"
+           v-bind="addCerrarCicloModal"
+           v-bind:okaction="saveCerrarCiclo">
+
+    <div slot="body">
+
+
+        <form id="formCerrarCiclo" class="form-horizontal"  data-parsley-validate="true">
+
+            <input type="hidden"  name="id"  v-bind:value="cicloAcademico.id"/>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Motivo de cierre</label>
+                <div class="col-sm-9">
+                    <textarea
+                        class="form-control"
+                        required="true"
+                        maxlength="200"
+                        v-bind:text="motivoCerrar"
+                        ></textarea>
+                </div>
+            </div>
+
+
+        </form>
+
+    </div>
+</modal-vik>
+
+
+<modal-vik ref="modalAddAnularCiclo"
+           v-bind="addAnularCicloModal"
+           v-bind:okaction="saveAnularCiclo">
+
+    <div slot="body">
+
+        <form id="formAnularCiclo" class="form-horizontal"  data-parsley-validate="true">
+
+            <input type="hidden"  name="id"  v-bind:value="cicloAcademico.id"/>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Motivo de anulación</label>
+                <div class="col-sm-9">
+                    <textarea
+                        class="form-control"
+                        required="true"
+                        maxlength="200"
+                        v-bind:text="motivoAnular"
+                        ></textarea>
+                </div>
             </div>
 
 

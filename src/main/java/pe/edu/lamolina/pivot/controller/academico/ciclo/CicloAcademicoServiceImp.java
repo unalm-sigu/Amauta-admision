@@ -83,6 +83,8 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         NumeroCicloAcademicoEnum numeroCicloAcademicoEnum = NumeroCicloAcademicoEnum.get(cicloAcademico.getNumeroCiclo());
         cicloAcademico.setEstado(CicloEstadoEnum.CRE);
         cicloAcademicoDB.setYear(cicloAcademico.getYear());
+        cicloAcademicoDB.setNumeroCiclo(cicloAcademico.getNumeroCiclo());
+        cicloAcademicoDB.setModalidadEstudio(cicloAcademico.getModalidadEstudio());
         cicloAcademicoDB.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
         cicloAcademicoDB.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));
         cicloAcademicoDB.setDescripcion3(numeroCicloAcademicoEnum.getDescripcion3().replace("XXXX", cicloAcademico.getYear().toString()));
@@ -103,6 +105,30 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     public List<ModalidadEstudio> allPrePostgrado(Compania cia) {
         return modalidadEstudioDAO.allPrePostgrado(cia);
+    }
+
+    @Override
+    @Transactional
+    public void cerrar(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.CER);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+    }
+
+    @Override
+    @Transactional
+    public void anular(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.ANU);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+    }
+
+    @Override
+    @Transactional
+    public void activar(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.ACT);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
     }
 
 }

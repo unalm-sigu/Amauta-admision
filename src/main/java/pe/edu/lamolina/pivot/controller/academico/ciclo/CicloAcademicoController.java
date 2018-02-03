@@ -105,7 +105,6 @@ public class CicloAcademicoController {
             List<CicloAcademico> ciclos = service.allByDynatable(filter);
 
             for (CicloAcademico ciclo : ciclos) {
-                //ObjectNode node = ciclo.toJson();
                 array.add(ciclo.toJson());
             }
 
@@ -173,6 +172,54 @@ public class CicloAcademicoController {
         try {
             service.delete(cicloAcademico);
             response.setMessage("Ciclo académico eliminado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activar")
+    public JsonResponse activar(CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.activar(cicloAcademico);
+            response.setMessage("Ciclo académico activado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("anular")
+    public JsonResponse anular(CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.anular(cicloAcademico);
+            response.setMessage("Ciclo académico anulado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cerrar")
+    public JsonResponse cerrar(CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.cerrar(cicloAcademico);
+            response.setMessage("Ciclo académico cerrado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
