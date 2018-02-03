@@ -21,4 +21,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     public List<CicloAcademico> allByDynatable(DynatableFilter filter);
 
+    public CicloAcademico findCicloAcademicoActivo();
+
 }

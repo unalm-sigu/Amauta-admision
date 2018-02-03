@@ -9,13 +9,12 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.AlumnoBecado;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CFG;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CER;
-import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
+import pe.edu.lamolina.model.enums.CicloEstadoEnum;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -123,5 +122,14 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
             return;
         }
         sql.filter("me.id", queries.get("me.id"));
+    }
+
+    @Override
+    public CicloAcademico findCicloAcademicoActivo() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("estado", CicloEstadoEnum.ACT.name());
+        return find(sql);
     }
 }

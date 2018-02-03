@@ -137,7 +137,12 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Transactional
     public void activar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivo();
+        if (cicloAcademicoActivo != null) {
+            cicloAcademicoActivo.setEstado(CicloEstadoEnum.PEND);
+        }
         cicloAcademicoDB.setEstado(CicloEstadoEnum.ACT);
+        cicloAcademicoDAO.update(cicloAcademicoActivo);
         cicloAcademicoDAO.update(cicloAcademicoDB);
     }
 
