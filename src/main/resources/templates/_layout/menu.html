@@ -177,6 +177,12 @@
                                         <span>Ciclo académico</span>
                                     </a>
                                 </li>
+
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/eventoacademico}">
+                                        <span>Evento académico</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="option"
