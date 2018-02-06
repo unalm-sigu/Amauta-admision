@@ -11,9 +11,11 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EventoCicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.EventoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 
@@ -28,6 +30,9 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    EventoAcademicoDAO eventoAcademicoDAO;
 
     @Override
     @Transactional
@@ -46,12 +51,11 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
     }
 
     @Override
+    @Transactional
     public void save(EventoCicloAcademico eventoCicloAcademico, Usuario usuario, CicloAcademico cicloAcademico) {
         ObjectUtil.eliminarAttrSinId(eventoCicloAcademico, "cicloAcademico");
         ObjectUtil.eliminarAttrSinId(eventoCicloAcademico, "eventoAcademico");
-        if (eventoCicloAcademico.getCicloAcademico() == null) {
-            throw new PhobosException("Tiene que especificar el ciclo académico.");
-        }
+        eventoCicloAcademico.setCicloAcademico(cicloAcademico);
         if (eventoCicloAcademico.getEventoAcademico() == null) {
             throw new PhobosException("Tiene que especificar el evento académico.");
         }
@@ -62,12 +66,10 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
     }
 
     @Override
+    @Transactional
     public void update(EventoCicloAcademico eventoCicloAcademico, Usuario usuario, CicloAcademico cicloAcademico) {
         ObjectUtil.eliminarAttrSinId(eventoCicloAcademico, "cicloAcademico");
         ObjectUtil.eliminarAttrSinId(eventoCicloAcademico, "eventoAcademico");
-        if (eventoCicloAcademico.getCicloAcademico() == null) {
-            throw new PhobosException("Tiene que especificar el ciclo académico.");
-        }
         if (eventoCicloAcademico.getEventoAcademico() == null) {
             throw new PhobosException("Tiene que especificar el evento académico.");
         }
@@ -75,7 +77,17 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
         eventoCicloAcademicoDB.setEstado(EventoCicloAcademicoEstadoEnum.CRE.name());
         eventoCicloAcademicoDB.setFechaRegistro(new Date());
         eventoCicloAcademicoDB.setUserRegistro(usuario);
+        eventoCicloAcademicoDB.setEventoAcademico(eventoCicloAcademico.getEventoAcademico());
         eventoCicloAcademicoDAO.update(eventoCicloAcademicoDB);
+    }
+
+    @Override
+    public List<EventoAcademico> allEventoAcademicoByName(String nombre) {
+        return eventoAcademicoDAO.allEventoAcademicoByName(this.forLike(nombre));
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
 }

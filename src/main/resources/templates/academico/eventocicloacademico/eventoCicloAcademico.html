@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Evento Ciclo Académico</title>
+        <title>Evento Académico</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
 </head>
 
@@ -11,16 +11,55 @@
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-md">
-                    <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Agregar Evento Ciclo Académico</a>
+                    <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Agregar Evento Académico</a>
                 </div>
-                <h2 th:inline="text">Evento Ciclo Académico [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Evento Académico [[${cicloAcademico.descripcion}]] </h2>
             </header>
 
             <section class="wrapper-lg">
                 <section class="panel">
                     <section class="panel-body">
 
-                        <dynatable />
+                        <div class="btn-group" role="group" >
+
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    href="#lista"
+                                    aria-controls="lista"
+                                    v-on:click="btnActive = 'lista'"
+                                    v-bind:class="{'btn-info': btnActive==='lista'}"
+                                    role="tab" data-toggle="tab">
+                                <i class="fa fa-list-ul"></i>
+                            </button>
+
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    href="#calendar"
+                                    aria-controls="calendar"
+                                    v-on:click="btnActive = 'calendar'"
+                                    v-bind:class="{'btn-info': btnActive==='calendar'}"
+                                    role="tab" data-toggle="tab">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+
+
+                        </div>
+
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="lista">
+
+                                <dynatable />
+
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="calendar">
+
+                                <fullcalendar />
+
+                            </div>
+                        </div>
+
 
                     </section>
                 </section>
@@ -31,6 +70,7 @@
         </div>
 
         <div th:substituteby="_modules/vue-modal"/>
+        <div th:substituteby="academico/eventocicloacademico/eventoFullcalendar"/>
 
         <th:block th:replace="academico/eventocicloacademico/eventoCicloAcademicoDynatable"/>
 
@@ -41,6 +81,8 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script th:src="@{/app/academico/eventocicloacademico/eventoFullcalendar.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademicoDynatable.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademico.js}" charset="utf-8"></script>
     </div>
 

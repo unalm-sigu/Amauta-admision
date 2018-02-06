@@ -32,7 +32,6 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
     @Override
     public EventoCicloAcademico findEventoCicloAcademico(EventoCicloAcademico eventoCicloAcademico) {
         Octavia sql = Octavia.query()
-                .selectCount()
                 .from(EventoCicloAcademico.class, "eca")
                 .join("cicloAcademico ca", "eventoAcademico ea")
                 .filter("eca.id", eventoCicloAcademico);
