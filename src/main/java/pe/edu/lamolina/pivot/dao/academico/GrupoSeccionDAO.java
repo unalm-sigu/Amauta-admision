@@ -31,7 +31,7 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
-    GpoSeccionResumen resumen();
+    //GpoSeccionResumen resumen();
 
     GrupoSeccion findLast();
 
