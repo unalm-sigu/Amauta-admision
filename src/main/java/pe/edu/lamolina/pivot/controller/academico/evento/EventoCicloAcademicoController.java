@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -179,6 +180,35 @@ public class EventoCicloAcademicoController {
             List<EventoAcademico> eventos = service.allEventoAcademicoByName(nombre);
 
             for (EventoAcademico evento : eventos) {
+                jsonList.add(evento.toJson());
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allcalendar")
+    public JsonResponse allcalendar(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<EventCalendar> eventos = service.allcalendar(ciclo);
+            for (EventCalendar evento : eventos) {
                 jsonList.add(evento.toJson());
             }
 

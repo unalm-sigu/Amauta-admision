@@ -42,7 +42,7 @@ Vue.component("dynatable", {
             }).data('dynatable');
         },
         writter: function(rowIndex, record, columns, cellWriter) {
-            return "";
+            return '';
         }
     }
 });
