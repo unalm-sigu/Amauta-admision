@@ -431,11 +431,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public GpoSeccionResumen resumen() {
-        return grupoSeccionDAO.resumen();
-    }
-
-    @Override
     public List<Curso> allCursosForProgramacion(String nomString) {
         return cursoDAO.allForProgramacion(nomString);
     }

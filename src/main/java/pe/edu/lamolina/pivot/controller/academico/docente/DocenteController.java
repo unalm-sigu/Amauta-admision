@@ -45,11 +45,18 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -64,6 +71,9 @@ public class DocenteController {
 
     @Autowired
     SpringTemplateEngine springHtml;
+    
+    @Autowired
+    CargaAcademicaService cargaAcademicaService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -460,4 +470,145 @@ public class DocenteController {
         }
     }
 
+    @RequestMapping("{idDocente}/cargaacademica")
+    public String index(@PathVariable("idDocente") Long idDocente, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Docente docente = service.find(new Docente(idDocente));
+
+        model.addAttribute("docente", docente);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
+        //    cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
+        model.addAttribute("dptoAcad", docente.getDepartamentoAcademico());
+        return "academico/docente/docente/cargaAcademicaDocente";
+    }
+
+    @ResponseBody
+    @RequestMapping("{idDocente}/listCargaAcademicaDocente")
+    public DynatableResponse list(@PathVariable("idDocente") Long idDocente, DynatableFilter filter, HttpSession session) {
+
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Docente docente = service.find(new Docente(idDocente));
+
+        try {
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+
+            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGrupoByDocente(docente, ciclo, ds);
+            logger.debug(this.getClass() + " Lista grupos por docente {}", gruposSeccion.size());
+
+            for (GrupoSeccion grupoSeccion : gruposSeccion) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                node.put("id", grupoSeccion.getId());
+                node.put("idCurso", grupoSeccion.getCurso().getId());
+                node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoCicloEnum().getValue());
+                node.put("nombre", grupoSeccion.getCurso().getNombre());
+                node.put("codigo", grupoSeccion.getCurso().getCodigo());
+                node.put("tpc", grupoSeccion.getCurso().getTpc());
+                node.put("responsable", (String) ObjectUtil.getParentTree(grupoSeccion.getDocenteResponsable(), "persona.nombreCompleto"));
+                node.put("codigo", grupoSeccion.getCurso().getCodigo());
+                node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
+                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
+                //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
+                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
+                String secciones = "";
+
+                for (Seccion seccion : grupoSeccion.getSecciones()) {
+                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + "|";
+
+                    if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
+                        secciones += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + "|";
+                        //grupoHoras += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + ",";
+                    } else {
+                        secciones += " | |";
+                    }
+                    secciones += (seccion.getVerInformacion() ? "VER" : "NO-VER") + ",";
+                }
+                node.put("secciones", secciones.substring(0, secciones.length() - 1));
+//                if (!"".equals(grupoHoras)) {
+//                    grupoHoras = grupoHoras.substring(0, grupoHoras.length() - 1);
+//                }
+//                node.put("grupoHoras", grupoHoras);
+
+                boolean tienePlanCalificacion = false;
+                boolean verOpciones = false;
+                boolean propuesto = false;
+                PlanCalificacion planCalificacionSelected = null;
+                node.put("sistemas", "");
+
+                List<PlanCalificacionCurso> planesCalificacionesCursos = grupoSeccion.getCurso().getPlanesCalificacionCursos();
+
+                StringBuilder strbSistemas = new StringBuilder();
+                logger.debug("Curso {}, Cantidad Plan Cursos {}", grupoSeccion.getCurso().getId(), planesCalificacionesCursos.size());
+
+                if (grupoSeccion.getPlanCalificacion() == null || grupoSeccion.isEstadoPropuesto()) {
+                    logger.debug("El grupo no tiene plan calificacion o su estado es propuesto");
+                    if (planesCalificacionesCursos.isEmpty()) {
+                        logger.debug("sin planes asociados al curso");
+                        node.put("estado", EstadoPlanCalificaEnum.PEND.name());
+                        node.put("estadoEnum", EstadoPlanCalificaEnum.PEND.getValue());
+                    } else {
+                        logger.debug("con planes asociados al curso, quedara como propuesto");
+                        for (PlanCalificacionCurso planesCalificacionesCurso : planesCalificacionesCursos) {
+                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getId());
+                            strbSistemas.append(",");
+                            strbSistemas.append(planesCalificacionesCurso.getPlanCalificacion().getCodigo());
+                            strbSistemas.append("-");
+                        }
+                        if (strbSistemas.length() != 0) {
+                            node.put("sistemas", strbSistemas.substring(0, strbSistemas.length() - 1));
+                        }
+
+                        node.put("estado", EstadoPlanCalificaEnum.PRO.name());
+                        node.put("estadoEnum", EstadoPlanCalificaEnum.PRO.getValue());
+                        propuesto = true;
+                        verOpciones = true;
+                    }
+
+                } else {
+                    verOpciones = true;
+                    node.put("idSistemaCalificacion", grupoSeccion.getPlanCalificacion().getId().toString());
+                    node.put("sistemaCalificacion", grupoSeccion.getPlanCalificacion().getCodigo());
+
+                    node.put("estado", grupoSeccion.getEstadoPlan());
+                    node.put("estadoEnum", grupoSeccion.getEstadoPlanEnum().getValue());
+
+                    tienePlanCalificacion = true;
+                    planCalificacionSelected = grupoSeccion.getPlanCalificacion();
+                }
+                node.put("tienePlanCalificacion", tienePlanCalificacion);
+
+                node.put("verDetalleSistemaCal", false);
+                node.put("verOpciones", verOpciones);
+                if (grupoSeccion != null) {
+                    if (grupoSeccion.isEstadoSolicitado()
+                            || grupoSeccion.isEstadoExpandido()
+                            || grupoSeccion.isEstadoExpandir()) {
+                        node.put("verDetalleSistemaCal", true);
+                    }
+                }
+                node.put("verAceptarSistemaCal", false);
+                if (grupoSeccion != null) {
+                    if (grupoSeccion.isEstadoPropuesto() || propuesto) {
+                        node.put("verAceptarSistemaCal", true);
+                    }
+                }
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(gruposSeccion.size());
+            json.setFiltered(gruposSeccion.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
 }
