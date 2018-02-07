@@ -7,22 +7,22 @@
     <td class="v-middle">
         <a href="#" class="block text-primary bold detallePostulante h5 m-b-xs m-t-xs" >{{:nombre}}</a>
         <span class="block">
-            Matrícula: {{:codigo}} 
+            Matrícula: {{:codigo}}
         </span>
         {{if nroDocumento}}
-            <small class="block bold">{{:tipoDoc}} {{:nroDocumento}}</small>
+        <small class="block bold">{{:tipoDoc}} {{:nroDocumento}}</small>
         {{/if}}
     </td>
 
     <td class="v-middle text-center">
         {{if verTipoCarrera}}
-            <span class="block text-info bold">{{:tipoCarreraValue}} en</span>
+        <span class="block text-info bold">{{:tipoCarreraValue}} en</span>
         {{/if}}
         <span class="block text-success">
             {{:carrera}}
         </span>
         {{if verFacultad}}
-            <span class="block">Facultad de {{:facultad}}</span>
+        <span class="block">Facultad de {{:facultad}}</span>
         {{/if}}
         <small class="block bold">{{:modalidad}}</small>
     </td>
@@ -54,7 +54,8 @@
         <div class="actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right">
-                <li><a class="modificar-datos" href="#">Modificar datos</a></li>
+                <li><a class="modificar-datos" th:href="@{'/academico/alumno/{{:id}}/fisicoupdate'}">Modificar datos personales</a></li>
+                <li><a class="ver-datos-personales" rel="{{:id}}" href="#">Ver datos personales</a></li>
             </ul>
         </div>
     </td>

@@ -1,283 +1,155 @@
-$(function () {
+new Vue({
+    el: '#main',
+    data: {
+        showLugarNacimiento: showLugarNacimiento,
+        showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
+    },
+    created() {
+        let vue = this;
+    },
+    mounted: function() {
+        let vue = this;
 
-    $(".date").datepicker();
+        $(".date").datepicker();
+        $(".numerico").numeric({negative: false});
 
-    AlumnoEspecial = {
-        tipoDNI: "",
-        numeroDNI: "",
-        iniciar: function () {
-            AlumnoEspecial.tipoDNI = $("#tipoDNI").val();
-            AlumnoEspecial.numeroDNI = $("#numeroDocIdentidad").val();
+        $('[name="persona.tipoDocumento.id"]').select2({minimumResultsForSearch: -1});
+        $('[name="cicloIngreso.id"]').select2({minimumResultsForSearch: -1});
 
-            $("#buscarDistrito").select2({
+        $(".buscar-distrito").select2(vue.buscarDistrito());
+
+        $('#nacionalidad').select2(vue.buscarPais());
+        $('#paisNacimiento').select2(vue.buscarPais()).on('change.select2', function(e) {
+            vue.mostrarDirNacimiento();
+        });
+        $('#paisDomicilio').select2(vue.buscarPais()).on('change.select2', function(e) {
+            vue.mostrarUbicacionDomicilio();
+        });
+    },
+    methods: {
+        buscarPais: function() {
+            return {
+                minimumInputLength: 2,
+                ajax: {
+                    url: APP.url("comun/buscar/allPaises"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function(term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function(response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    if (element.val() != "") {
+                        callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("codigo")});
+                    }
+                },
+                formatResult: function(info) {
+                    return info.nombre + " | " + info.codigo;
+                },
+                formatSelection: function(info) {
+                    return info.nombre;
+                },
+                escapeMarkup: function(m) {
+                    return m;
+                }
+            };
+        },
+        buscarDistrito: function() {
+            return {
+                placeholder: "  ",
+                allowClear: true,
                 minimumInputLength: 2,
                 ajax: {
                     url: APP.url("comun/buscar/allDistritos"),
                     dataType: 'json',
                     type: 'post',
-                    data: function (term, page) {
+                    data: function(term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function (response, page) {
+                    results: function(response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function (element, callback) {
+                initSelection: function(element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), nombre: element.attr("rel")});
                     }
                 },
-                formatResult: function (info) {
+                formatResult: function(info) {
+                    return $.templates("#divBuscarDistrito").render(info);
+                },
+                formatSelection: function(info) {
                     return info.nombre;
                 },
-                formatSelection: function (info) {
-                    return info.nombre;
-                },
-                escapeMarkup: function (m) {
+                escapeMarkup: function(m) {
                     return m;
                 }
-            });
+            };
         },
-        save: function () {
-            var form = $("#formPersonaEdit");
-            if (!form.parsley().validate()) {
+        mostrarDirNacimiento: function() {
+            var vue = this;
+            var dataPaisNac = $("#paisNacimiento").select2("data");
+            if (dataPaisNac.codigo === "PE") {
+                vue.showLugarNacimiento = true;
+                setTimeout(function() {
+                    $("#distNacimiento").select2(vue.buscarDistrito());
+                }, 500);
+                $("#distNacimiento").prop('required', true);
+            } else {
+                vue.showLugarNacimiento = false;
+                $("#distNacimiento").select2("val", "");
+                $("#distNacimiento").prop('required', false);
+            }
+        },
+        mostrarUbicacionDomicilio: function() {
+            console.log();
+            var vue = this;
+            var dataPaisUni = $("#paisDomicilio").select2("data");
+            if (dataPaisUni.codigo === "PE") {
+                vue.showUbicacionDomicilio = true;
+                setTimeout(function() {
+                    $('#ubicacionDomicilio').select2(vue.buscarDistrito());
+                }, 500);
+                $("#ubicacionDomicilio").prop('required', true);
+                $("#ubicacionDomicilio").select2("val", "");
+            } else {
+                vue.showUbicacionDomicilio = false;
+                $("#ubicacionDomicilio").removeProp('required');
+            }
+        },
+        submitForm: function(e) {
+            var self = $(e.currentTarget);
+            self.btnDisabled();
+            if (!$("#formAlumno").parsley().validate() == true) {
+                self.btnEnable();
                 return;
             }
-
-            $.ajax({
-                url: APP.url('general/persona/savePersona'),
-                type: 'POST',
-                async: true,
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, "info");
-                        AlumnoEspecial.modalViky.modal('hide');
-                        $(location).attr('href', APP.url('persona/' + $('#id').val() + '/update#perfil'));
-                        location.reload();
-                    } else {
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        validaEmail: function ($this) {
-
-            var form = $("#formPersonaEdit");
-            var emailEmpresa = form.find("[name='emailEmpresa']").val();
-            console.log("email: " + emailEmpresa);
-            if ($this.parsley().isValid()) {
-
-                //var email = $this.val();
-                var email = emailEmpresa;
-                $.ajax({
-                    url: APP.url('general/persona/validarEmail'),
-                    type: 'POST',
-                    async: true,
-                    data: {email: email},
-                    success: function (response) {
-                        if (response.success) {
-
-                            if (response.data.validate == true) {
-
-                                if (response.data.persona != $('#id').val()) {
-
-                                    notify("El email ingresado ya esta asociado a una persona.", "error");
-                                    $("#email").val("");
-                                }
-                            }
-                        } else {
-
-                            notify(response.message, "error");
-                        }
-                    },
-                    error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
-                    }
-                });
-            }
-
-        },
-        guardarPersona: function () {
-            var form = $("#formPersonaEdit");
-            if (!form.parsley().validate()) {
-                return;
-            }
-            var user = $("#personaId");
-            var perso = $("#personaId");
-
             $.ajax({
                 url: APP.url('academico/alumno/saveAlumnoEspecial'),
                 type: 'POST',
                 async: true,
-                data: form.serialize(),
-                success: function (response) {
+                data: $("#formAlumno").serialize(),
+                success: function(response) {
                     if (response.success) {
-                        var data = response.data;
-                        $("#tabPerfil").removeClass("hide");
-                        $('#tabPerfil a:first').tab('show');
-                        $('#nombreCompleto').html(data.nombreCompleto);
-
-                        user.val(data.personaId);
-                        perso.val(data.personaId);
                         notify(response.message, "info");
-
+                        $(location).attr('href', APP.url('academico/alumno'));
                     } else {
                         notify(response.message, "error");
+                        self.btnEnable();
                     }
                 },
-                error: function () {
+                error: function() {
+                    self.btnEnable();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        validarEmail: function ($this, e) {
-            if ($this.val() == "") {
-                return;
-            }
-            var inputEmail = $this.parsley();
-            window.ParsleyUI.removeError(inputEmail, "errorValidacionEmail");
-            window.ParsleyUI.addError(inputEmail, "errorValidacionEmail", "Validando el correo....");
-            $("#footerPersona").find("a").each(function (i, item) {
-                $(item).attr("disabled", "disabled");
-            });
-            $.ajax({
-                url: APP.url('general/persona/validarEmail'),
-                type: 'POST',
-                data: {email: $this.val(), persona: $("input[name*='persona.id']").val()},
-                success: function (response) {
-                    var data = response.data;
-                    window.ParsleyUI.removeError(inputEmail, "errorValidacionEmail");
-                    if (!response.success) {
-                        window.ParsleyUI.addError(inputEmail, "errorValidacionEmail", data.respuesta);
-                    }
-
-                    $("#footerPersona").find("a").each(function (i, item) {
-                        $(item).removeAttr("disabled");
-                    });
-                },
-                error: function () {
-                    window.ParsleyUI.updateError(inputEmail, "errorValidacionEmail", "Este correo no se pudo validar");
-                    notify(MESSAGES.errorComunicacion, "error");
-                    $("#footerEditPersona").find("a").each(function (i, item) {
-                        $(item).removeAttr("disabled");
-                    });
-                }
-            });
-        },
-        validarEmailEmpresa: function ($this, e) {
-            APP.revisarEmail($this);
-            if ($this.val() == "") {
-                return;
-            }
-            var inputEmail = $this.parsley();
-            window.ParsleyUI.removeError(inputEmail, "errorValidacionEmail");
-            window.ParsleyUI.addError(inputEmail, "errorValidacionEmail", "Validando el correo....");
-            $("#footerPersona").find("a").each(function (i, item) {
-                $(item).attr("disabled", "disabled");
-            });
-            $.ajax({
-                url: APP.url('general/persona/validarEmailEmpresa'),
-                type: 'POST',
-                data: {email: $this.val(), persona: $("input[name*='persona.id']").val()},
-                success: function (response) {
-                    var data = response.data;
-                    window.ParsleyUI.removeError(inputEmail, "errorValidacionEmail");
-                    if (!response.success) {
-                        window.ParsleyUI.addError(inputEmail, "errorValidacionEmail", data.respuesta);
-                    }
-
-                    $("#footerPersona").find("a").each(function (i, item) {
-                        $(item).removeAttr("disabled");
-                    });
-                },
-                error: function () {
-                    window.ParsleyUI.updateError(inputEmail, "errorValidacionEmail", "Este correo no se pudo validar");
-                    notify(MESSAGES.errorComunicacion, "error");
-                    $("#footerEditPersona").find("a").each(function (i, item) {
-                        $(item).removeAttr("disabled");
-                    });
-                }
-            });
-        },
-        verificarPersona: function ($this) {
-            var tipo = $("#tipoDNI");
-            var dni = $("#numeroDocIdentidad");
-            var user = $("#personaId");
-            var perso = $("#personaId");
-            var form = $("#formPersonaEdit");
-            var error = "errorValidacionDocIdentidad";
-
-            if (user.val() != "" && perso.val() != "") {
-                tipo.select2("val", AlumnoEspecial.tipoDNI);
-                dni.val(AlumnoEspecial.numeroDNI);
-                notify("No puede modificar el número de documento de identidad por este formulario.", "error");
-                return;
-            }
-
-            console.log("TIPO=" + tipo.val() + " :::: DNI=" + dni.val())
-            if (!(tipo.val() != "" && dni.val() != "")) {
-                AlumnoEspecial.tipoDNI = tipo.val();
-                AlumnoEspecial.numeroDNI = dni.val();
-                return;
-            }
-
-            MODAL.showWait("Buscando datos de la persona");
-            var inputChange = $this.parsley();
-            var inputTipo = tipo.parsley();
-            var inputDNI = dni.parsley();
-
-            window.ParsleyUI.removeError(inputTipo, error);
-            window.ParsleyUI.removeError(inputDNI, error);
-            window.ParsleyUI.addError(inputChange, error, "Validando documento de identidad....");
-
-            $.ajax({
-                url: APP.url('general/persona/findPersona'),
-                type: 'POST',
-                async: true,
-                data: {"tipoDocumento.id": tipo.val(), numeroDocIdentidad: dni.val()},
-                success: function (response) {
-                    window.ParsleyUI.removeError(inputChange, error);
-                    MODAL.hideWait();
-                    if (response.success) {
-                        var data = response.data;
-                        $("#sexoM").prop("checked", false);
-                        $("#sexoF").prop("checked", false);
-                        AlumnoEspecial.tipoDNI = tipo.val();
-                        AlumnoEspecial.numeroDNI = dni.val();
-                        if (data.id == null && perso.val() == "") {
-                            return;
-                        }
-                        $.each(data, function (a, b) {
-                            form.find("input[name='persona." + a + "']").val(b);
-                        });
-                        $("input[name='persona.fechaNacer']").datepicker('setDate', data.fechaNacer);
-                        $("#sexo" + data.sexo).prop("checked", true);
-
-
-                    } else {
-                        window.ParsleyUI.addError(inputChange, error, "Ya existe un persona con este documento");
-                        tipo.select2("val", AlumnoEspecial.tipoDNI);
-                        dni.val(AlumnoEspecial.numeroDNI);
-                        notify(response.message, "error");
-                    }
-                },
-                error: function () {
-                    window.ParsleyUI.removeError(inputChange, error);
-                    MODAL.hideWait();
-                    tipo.select2("val", AlumnoEspecial.tipoDNI);
-                    dni.val(AlumnoEspecial.numeroDNI);
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-
-        },
-        checkMatricula: function () {
-            var chkBox = document.getElementById('chkbxGenMat');
-            if (chkBox.checked) {
+        checkMatricula: function() {
+            var chkBox = $('#chkbxGenMat');
+            if (chkBox.is(':checked')) {
                 $("#codigo").prop("disabled", true);
                 $("#codigo").prop("required", false);
                 $("#codigo").val("");
@@ -285,35 +157,12 @@ $(function () {
                 $("#codigo").prop("disabled", false);
                 $("#codigo").prop("required", true);
             }
+        },
+        sinEspacios: function(e) {
+            APP.eliminarEspacios($(e.currentTarget));
+        },
+        nombrePersona: function(e) {
+            APP.revisarNombre($(e.currentTarget));
         }
-    };
-
-    AlumnoEspecial.iniciar();
-
-    $("body").delegate(".domicilio", "change", function () {
-        APP.revisarDireccion($(this));
-    });
-    $("body").delegate(".sin-espacios", "change", function () {
-        APP.eliminarEspacios($(this));
-    });
-    $("body").delegate(".validar-email", "change", function () {
-        APP.revisarEmail($(this));
-        AlumnoEspecial.validarEmail($(this));
-    });
-    $("body").delegate(".validar-email-empresa", "change", function () {
-        AlumnoEspecial.validarEmailEmpresa($(this));
-    });
-    $("body").delegate(".nombre-persona", "change", function () {
-        APP.revisarNombre($(this));
-    });
-    $("body").delegate(".buscar-persona", "change", function () {
-        AlumnoEspecial.verificarPersona($(this));
-    });
-    $("body").delegate("#btnSavePersona", "click", function () {
-        AlumnoEspecial.guardarPersona();
-    });
-    $("body").delegate("#chkbxGenMat", "click", function () {
-        AlumnoEspecial.checkMatricula();
-    });
-
+    }
 });

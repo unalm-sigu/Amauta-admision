@@ -13,7 +13,7 @@ input.error{
 
 /* HACER QUE EL HEAD DE UN TABLE QUEDE FIJO */
 .header-fixed {
-    width: 100% 
+    width: 100%
 }
 
 .header-fixed > thead,
@@ -124,7 +124,7 @@ input.error{
 
 
 #login .brand {
-    text-align: center; 
+    text-align: center;
     display: block;
     margin-top: 5%;
 }
@@ -135,7 +135,7 @@ input.error{
     float: none;
     box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    background: #fff; 
+    background: #fff;
 }
 
 #login .form-control {
@@ -172,7 +172,7 @@ input.error{
     position:absolute;
     bottom:0;
     width:100%;
-    height:20px;  
+    height:20px;
     color: #F5F5F5;
     text-align: center;
 }
@@ -206,7 +206,7 @@ form{
 
 /* ---------- Editor de preguntas ---------- */
 
-.transparent_class a{ 
+.transparent_class a{
     visibility: hidden;
 }
 .pregunta_marco_desempeno:hover .transparent_class a{
@@ -247,11 +247,11 @@ div.pregunta_marco_desempeno:hover{
 
 /*----------- PROFILE ----------------*/
 
-.f-nav{ z-index: 999; position: fixed; left: 0; top: 0; width: 100%; margin-top: 50px;} 
+.f-nav{ z-index: 999; position: fixed; left: 0; top: 0; width: 100%; margin-top: 50px;}
 
 .back-profile {
     background:rgba(10,10,10,0.1);
-    background: url(../images/cover.jpg) no-repeat center center fixed; 
+    background: url(../images/cover.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -313,7 +313,7 @@ div.pregunta_marco_desempeno:hover{
     font-size: 15px;
 }
 .login-wrapper .subtitle{
-    color: #2ECC71; 
+    color: #2ECC71;
 }
 .login-wrapper .logo {
     color: #FFFFFF;
@@ -505,7 +505,7 @@ div.pregunta_marco_desempeno:hover{
 
 
 .qard {
-    padding: 15px 5px;    
+    padding: 15px 5px;
     height: 150px;
     margin-bottom: 50px;
     text-align: center;
@@ -526,7 +526,7 @@ div.pregunta_marco_desempeno:hover{
 }
 .qard.qard-info{
     border-top-color: #3b9ff3;
-}  
+}
 .qard.qard-info:hover{
     border-color: #3b9ff3;
 }
@@ -540,7 +540,7 @@ div.pregunta_marco_desempeno:hover{
 }
 
 
-.datepicker { 
+.datepicker {
     z-index: 99999 !important;
 }
 
@@ -690,7 +690,7 @@ a.btn-tab-nav
 
 /* HACER QUE EL HEAD DE UN TABLE QUEDE FIJO */
 .header-fixed {
-    width: 100% 
+    width: 100%
 }
 
 .header-fixed > thead,
@@ -739,7 +739,7 @@ a.btn-tab-nav
     margin-left: 10%;
     vertical-align: top;
     width: 90%;
-}	
+}
 
 .table-cobranzas>tbody>tr>td{
     border-top: 0px;
@@ -776,17 +776,17 @@ a.btn-tab-nav
     /*padding-bottom: 8px !important;*/
     text-align: center;
 }
-div.notas { 
-    width: auto; 
-    overflow-x:scroll;  
-    margin-left:253px; 
+div.notas {
+    width: auto;
+    overflow-x:scroll;
+    margin-left:253px;
     overflow-y:visible;
 }
 .headcol {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    position:absolute; 
+    position:absolute;
     max-width: 235px;
     width: 234px;
     left:50px;
@@ -794,7 +794,7 @@ div.notas {
     /*margin-right: 10px;*/
 }
 
-/*tree view*/ 
+/*tree view*/
 .tree {
     min-height:20px;
     padding:19px;
@@ -951,17 +951,17 @@ div.notas {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    position:absolute; 
+    position:absolute;
     max-width: 235px;
     width: 234px;
     left:50px;
     padding: 8px 14px 8px 4px !important;
 }
 
-div.notas { 
-    width: auto; 
-    overflow-x:scroll;  
-    margin-left:253px; 
+div.notas {
+    width: auto;
+    overflow-x:scroll;
+    margin-left:253px;
     overflow-y:visible;
     padding-bottom: 20px;
 }
@@ -996,10 +996,10 @@ div.notas {
     overflow-y: auto;
     width: 100%;
 }
-.table-fixed thead, 
-.table-fixed tbody, 
-.table-fixed tr, 
-.table-fixed td, 
+.table-fixed thead,
+.table-fixed tbody,
+.table-fixed tr,
+.table-fixed td,
 .table-fixed th {
     display: block;
 }
@@ -1028,18 +1028,29 @@ div.notas {
 
 
 .bg-dynatable-process {
-  font-weight: bold;
-  font-size: 18px;
-  background-color: #2E4053;
-  color: #F2F3F4;
-  padding: 20px;
-  border-radius: 5px;
+    font-weight: bold;
+    font-size: 18px;
+    background-color: #2E4053;
+    color: #F2F3F4;
+    padding: 20px;
+    border-radius: 5px;
 }
 .bg-alert-process {
-  font-weight: bold;
-  font-size: 18px;
-  background-color: #D9DDE1;
-  color: #2E4053;
-  padding: 20px;
-  border-radius: 5px;
+    font-weight: bold;
+    font-size: 18px;
+    background-color: #D9DDE1;
+    color: #2E4053;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/*simple tabla bootstrap no top border*/
+.no-top-border > thead > tr:first-child > td,
+.no-top-border > tbody > tr:first-child > td {
+    border: none;
+}
+/*simple tabla bootstrap no border*/
+.no-top-border > thead > tr > td,
+.no-top-border > tbody > tr > td {
+    border: none;
 }
