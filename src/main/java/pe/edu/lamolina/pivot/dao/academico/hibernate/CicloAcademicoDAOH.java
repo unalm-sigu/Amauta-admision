@@ -110,6 +110,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .orderBy("ca.codigo desc");
         sql.beginRelativeFilters();
         this.setModalidadEstudio(filter, sql);
+        this.setPeriodo(filter, sql);
         return sql.all(getCurrentSession());
     }
 
@@ -122,6 +123,17 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
             return;
         }
         sql.filter("me.id", queries.get("modalidad"));
+    }
+
+    private void setPeriodo(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        if (queries.get("periodo") == null) {
+            return;
+        }
+        sql.filter("ca.year", queries.get("periodo"));
     }
 
     @Override
