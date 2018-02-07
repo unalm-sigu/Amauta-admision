@@ -1,18 +1,145 @@
 <html layout:decorator="_layout/layout">
-<head>
+    <head>
         <title>Configuración</title>
     <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
 </head>
+<body > 
+    <div layout:fragment="main" id="configuracion">
+        <header class="header b-b padder-lg">
+
+            <div class="pull-right m-t-md">                 
+
+                <a class="btn btn-primary" v-on:click="nuevo" href="#" >Nuevo</a>
+            </div> 
+            <h2 >Turno de atencion 2018 - I</h2> 
+
+            <div  class="tabbable-line">
+                <ul class="nav nav-tabs" >
+                   <li v-for="tab in tabs"  ><a href="#" data-toggle="tab"  v-text="tab.value"></a></li> <!--v-on:click="updateTabs(tab)"-->
+                </ul>  
+            </div>
+        </header>
+        <section class="panel-body">
+
+            <table class="table table-striped col-md-12 ">
+                <thead>
+                    <tr>
+                        <th>Dias/Horas</th>
+                        <th v-for="dia in dias" v-text="dia.dia"></th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr v-for="hora in horas" >
+                        <td v-text="hora.hora"></td>
+                        <td v-for="turno in hora.turnos">
+                            <div>
+                                <span>Username:</span>
+                                <a href="#" v-bind:id="turno.id" data-type="text" data-placement="top" data-title="Enter username" v-text="turno.cant"></a>
+                            </div>
+                        </td>                       
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+        <!--MODAL INICIO-->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel"> Configuración </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Evento</label>
+                            <div class="col-sm-6">
+                                <select  class="form-control " v-model="config.evento">
+                                    <option value="">Seleccione un evento</option>
+                                    <option v-for="evento in eventos"   v-text="evento.value"  v-bind:value="evento.id"/>
+                                </select>                                
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Fecha Inicio</label>
+                            <div class="col-sm-6">
+                                <div class='input-group date ' id='datetimepicker1'>
+                                    <input type='text' class="form-control" v-model="config.fechaInicio"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Fecha fin</label>
+                            <div class="col-sm-6">
+                                <div class='input-group date ' id='datetimepicker2'>
+                                    <input type='text' class="form-control" v-model="config.fechaFin"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Turno por día</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control " v-model="config.turnoDia"/>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Tipo</label>
+                            <div class="col-sm-6">
+                                <select  class="form-control " v-model="config.tipo">
+                                    <option value="1">Seleccione un tipo</option>
+                                    <option v-for="tipo in tipos"  v-text="tipo.value" v-bind:value="tipo.id"/>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Duración</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control col-sm-6" v-model="config.duracion"/>
+                            </div>
+                        </div> 
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Espera</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control " v-model="config.espera"/>
+                            </div>
+                        </div> 
+                        <div class="form-group row">
+                            <label class="col-sm-2 control-label">Alumno</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control col-sm-6" v-model="config.alumnos"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" v-on:click="save">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--MODAL FIN-->
+    </div>
+</body>
 
 <div layout:fragment="js">
 
-<!--    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var alumnoJson = [[${datoAlumno.toString()
-        }
-        ]];
-        /*]]>*/
-    </script>-->
+    <!--    <script th:inline="javascript">
+            /*<![CDATA[*/
+            var alumnoJson = [[${datoAlumno.toString()
+            }
+            ]];
+            /*]]>*/
+        </script>-->
 
 
     <script th:src="@{/app/academico/matricula/matriculaConfiguracion.js}" charset="utf-8"></script>
