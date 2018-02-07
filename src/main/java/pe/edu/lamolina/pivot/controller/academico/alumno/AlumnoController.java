@@ -307,4 +307,15 @@ public class AlumnoController {
         return "academico/alumno/alumnoAvance";
     }
 
+    @RequestMapping("{idAlumno}/infoacademico")
+    public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        logger.debug("Ciclo academico : --- > {}" + ds.getCicloAcademico().getId());
+        Alumno alumno = service.findAlumno(new Alumno(idAlumno),ds.getCicloAcademico());                
+        model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
+    
+
+        return "academico/alumno/infoAcademico";
+    }
 }

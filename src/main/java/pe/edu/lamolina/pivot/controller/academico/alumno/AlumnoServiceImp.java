@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
@@ -36,6 +37,11 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<MatriculaCurso> allMatriculaCursoByAlumno(Long idAlumno) {
         return matriculaCursoDAO.allByAlumno(idAlumno);
+    }
+
+    @Override
+    public Alumno findAlumno(Alumno alumno, CicloAcademico academico) {
+        return alumnoDAO.find(alumno, academico);
     }
 
 }

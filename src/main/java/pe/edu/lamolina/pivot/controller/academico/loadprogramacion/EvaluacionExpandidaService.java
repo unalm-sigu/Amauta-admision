@@ -7,4 +7,6 @@ public interface EvaluacionExpandidaService {
 
     void recalcularNivel(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
+    void analizarLogCarga();
+
 }
