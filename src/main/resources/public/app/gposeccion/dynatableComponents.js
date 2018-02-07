@@ -1,4 +1,3 @@
-
 Vue.component("dynatable", {
     template: "#dynatableTemplate",
     props: {
@@ -26,14 +25,11 @@ Vue.component("dynatable", {
                 $vue.dynatable.queries.add("search", grupoSel.codigo);
                 $vue.dynatable.process();
             }
-            $("[name='dvGruposZeta']").each(function () {
-                let grupo = $(this).attr("rel");
-                $(this).removeClass("active");
-                if (grupoSel != null && (grupoSel.id == grupo)) {
-                    $(this).addClass("active");
-                }
-            });
+            $vue.clearAndSelect(grupoSel);
+        });
 
+        $global.$on("clearAndSelectZeta", function () {
+            $vue.clearAndSelect();
         });
 
     },
@@ -89,9 +85,14 @@ Vue.component("dynatable", {
 
             return outerHTML;
         },
-        showModal() {
-            // this.$refs.modalTest.open();
-
+        clearAndSelect(grupoSel) {
+            $("[name='dvGruposZeta']").each(function () {
+                let grupo = $(this).attr("rel");
+                $(this).removeClass("active");
+                if (grupoSel != null && (grupoSel.id == grupo)) {
+                    $(this).addClass("active");
+                }
+            });
         }, clickGrupo() {
 
         }
@@ -113,9 +114,9 @@ Vue.component("dynatable-especial", {
     },
     mounted: function () {
         let $vue = this;
-        $global.$on("reloadDynaEspecial", function () {
+        $global.$on("reloadDynaEspecial", function (seccion) {
             if ($vue.dynatable == null) {
-                $vue.createDynatable();
+                $vue.createDynatable(seccion);
             }
             if ($vue.dynatable != null && $vue.dynatable.queries != null) {
                 $vue.dynatable.queries.remove("search");
@@ -129,26 +130,26 @@ Vue.component("dynatable-especial", {
                 $vue.dynatable.queries.add("search", grupoSel.codigo);
                 $vue.dynatable.process();
             }
-            $("[name='dvGruposEsp']").each(function () {
-                let grupo = $(this).attr("rel");
-                $(this).removeClass("active");
-                if (grupoSel != null && (grupoSel.id == grupo)) {
-                    $(this).addClass("active");
-                }
-            });
+            $vue.clearAndSelect(grupoSel);
+        });
 
+        $global.$on("clearAndSelectEsp", function () {
+            $vue.clearAndSelect();
         });
 
     },
     methods: {
-        createDynatable: function () {
+        createDynatable: function (seccion) {
             let $vue = this;
 
             $vue.dynatable = $('#dynaTableEspecial').dynatable({
                 dataset: {
                     ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipoEspecial'),
                     perPageDefault: 6,
-                    ajaxData: {tipoGrupoHora: "ESPECIAL"}
+                    ajaxData: {
+                        tipoGrupoHora: "ESPECIAL",
+                        seccion: seccion
+                    }
                 },
                 writers: {_rowWriter: $vue.writter},
                 table: {bodyRowSelector: 'div'},
@@ -192,13 +193,18 @@ Vue.component("dynatable-especial", {
 
             return outerHTML;
         },
-        showModal() {
+        clearAndSelect(grupoSel) {
+            $("[name='dvGruposEsp']").each(function () {
+                let grupoEach = $(this).attr("rel");
+                $(this).removeClass("active");
+                if (grupoSel != null && (grupoSel.id == grupoEach)) {
+                    $(this).addClass("active");
+                }
+            });
         }, clickGrupo() {
 
         }
     },
     created: function () {
-        //  let $vue = this;
-        // $vue.createDynatable();
     }
 });

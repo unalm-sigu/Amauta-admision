@@ -87,6 +87,11 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
+    public Alumno findAlumno(Alumno alumno, CicloAcademico academico) {
+        return alumnoDAO.find(alumno, academico);
+    }
+
+    @Override
     public List<CicloAcademico> allCicloAcademico() {
         Date date = new Date();
         Calendar cal = Calendar.getInstance();
@@ -394,7 +399,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     public Alumno findAlumnoFisico(Long idAlumno) {
-        return alumnoDAO.findAlumno(new Alumno(idAlumno));
+        return alumnoDAO.find(new Alumno(idAlumno));
     }
 
     @Override
@@ -423,7 +428,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         this.updatePersona(personaBD, personaForm);
 
-        Alumno alumnoDB = alumnoDAO.findAlumno(alumno);
+        Alumno alumnoDB = alumnoDAO.find(alumno);
         if (alumnoDB == null) {
             throw new PhobosException("No existe el registro del alumno a actualizar.");
         }
@@ -472,7 +477,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     public Alumno findAlumno(Long idAlumno) {
-        return alumnoDAO.findAlumno(new Alumno(idAlumno));
+        return alumnoDAO.find(new Alumno(idAlumno));
     }
 
 }

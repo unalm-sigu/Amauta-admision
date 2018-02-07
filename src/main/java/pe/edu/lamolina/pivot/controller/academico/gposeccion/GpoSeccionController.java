@@ -104,7 +104,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
-        model.addAttribute("resumen", service.resumen());
+        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
 
@@ -193,7 +193,7 @@ public class GpoSeccionController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
 
-        return "academico/gposeccion/editarGpoSeccion";
+        return "academico/gposeccion/gpoSeccionForm";
     }
 
     @ResponseBody
@@ -291,7 +291,7 @@ public class GpoSeccionController {
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("anexosHijos", service.allAnexoBoletionHijos());
-        return "academico/gposeccion/nuevoGpoSeccion";
+        return "academico/gposeccion/gpoSeccionNuevo";
     }
 
     @ResponseBody
@@ -376,7 +376,9 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+            if (true) {
+                throw new PhobosException("error");
+            }
             String message = "Creado exitosamente.";
             grupoSeccion = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico());
             node.put("gruposeccion", grupoSeccion.getId());
@@ -703,7 +705,7 @@ public class GpoSeccionController {
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                     grupoHorasNode.put("esTipoGrupoZeta", true);
                 } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                    grupoHorasNode.put("isTipoGrupoEspecial", true);
+                    grupoHorasNode.put("esTipoGrupoEspecial", true);
                 }
                 node.putPOJO("grupoHorarioSel", grupoHorasNode);
             }
@@ -1029,7 +1031,7 @@ public class GpoSeccionController {
             } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoZeta()) {
                 jspnGrupoHoras.put("esTipoGrupoZeta", true);
             } else if (grupoHoras.getTipoGrupoHoras().isTipoGrupoEspecial()) {
-                jspnGrupoHoras.put("isTipoGrupoEspecial", true);
+                jspnGrupoHoras.put("esTipoGrupoEspecial", true);
             }
 
             for (Dia diaEach : dias) {
@@ -1147,6 +1149,7 @@ public class GpoSeccionController {
     @RequestMapping("listGrupoHorariosByTipoEspecial")
     public DynatableResponse listGrupoHorariosByTipoEspecial(pe.albatross.octavia.dynatable.DynatableFilter filter,
             @RequestParam(name = "tipoGrupoHora", required = false) String tipoGrupoHora,
+            @RequestParam(name = "seccion", required = true) Long seccionId,
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
@@ -1157,7 +1160,7 @@ public class GpoSeccionController {
 
             //    Seccion seccion = new Seccion(TypesUtil.getLong(filter.getQueries().get("seccion")));
             TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum.valueOf(tipoGrupoHora), ds.getCicloAcademico());
-            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), null);
+            List<GrupoHoras> gruposHoras = service.allGrupoHoraByTipoGrupoHoraDyna(filter, tipoGrupoHoras, ds.getCicloAcademico(), new Seccion(seccionId));
 
             List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(gruposHoras);
             Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);

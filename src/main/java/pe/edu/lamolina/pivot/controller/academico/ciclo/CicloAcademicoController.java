@@ -94,10 +94,10 @@ public class CicloAcademicoController {
 
             if (filter.getQueries() == null) {
                 filter.setQueries(new LinkedHashMap());
-                filter.getQueries().put("me.id", modalidadActiva.getId());
+                filter.getQueries().put("modalidad", modalidadActiva.getId());
             } else {
-                if (filter.getQueries().get("me.id") == null) {
-                    filter.getQueries().put("me.id", modalidadActiva.getId());
+                if (filter.getQueries().get("modalidad") == null) {
+                    filter.getQueries().put("modalidad", modalidadActiva.getId());
                 }
             }
 

@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -450,4 +448,14 @@ public class AlumnoController {
         return response;
     }
 
+    @RequestMapping("{idAlumno}/infoacademico")
+    public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        logger.debug("Ciclo academico : --- > {}" + ds.getCicloAcademico().getId());
+        Alumno alumno = service.findAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
+        model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
+
+        return "academico/alumno/infoAcademico";
+    }
 }

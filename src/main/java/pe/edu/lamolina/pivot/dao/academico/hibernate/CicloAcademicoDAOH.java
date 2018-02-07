@@ -107,7 +107,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
                 .searchFields("ca.descripcion", "ca.descripcion2", "ca.descripcion3", "ca.codigo", "ca.numeroCiclo", "ca.year", "me.nombre", "me.codigo")
-                .orderBy("ca.year desc", "ca.numeroCiclo asc");
+                .orderBy("ca.codigo desc");
         sql.beginRelativeFilters();
         this.setModalidadEstudio(filter, sql);
         return sql.all(getCurrentSession());
@@ -118,10 +118,10 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         if (queries == null) {
             return;
         }
-        if (queries.get("me.id") == null) {
+        if (queries.get("modalidad") == null) {
             return;
         }
-        sql.filter("me.id", queries.get("me.id"));
+        sql.filter("me.id", queries.get("modalidad"));
     }
 
     @Override

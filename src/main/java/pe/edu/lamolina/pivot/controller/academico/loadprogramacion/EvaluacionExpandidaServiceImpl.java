@@ -1,10 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -248,6 +251,46 @@ public class EvaluacionExpandidaServiceImpl implements EvaluacionExpandidaServic
             throw new PhobosException("El gpoSecc " + gpoSecc.getId() + " tiene " + evalsSecc.size() + " evaluaciones-secciones");
         }
         return evalsSecc.get(0);
+    }
+
+    @Override
+    public void analizarLogCarga() {
+        Map<String, String> mapAlumnos = new LinkedHashMap();
+
+        String filename = "/Users/joss/Desktop/albatross/files/otros/log.txt";
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("vamos a bloquear alumno")) {
+                    String idMain;
+                    String codigo;
+                    if (line.contains("::::")) {
+                        idMain = line.substring(line.indexOf(':') + 5, line.indexOf(32, 47));
+                        codigo = "por sacar";
+                    } else {
+                        idMain = line.substring(0, line.indexOf(32));
+                        codigo = line.substring(line.indexOf(' ', 25) + 1, line.indexOf(' ', 25) + 8);
+                    }
+//                    mapAlumnos.put(idMain, codigo);
+                    System.out.print("Bloq: ");
+                    System.out.println(idMain + " " + codigo);
+                }
+                if (line.startsWith("\t") && !line.contains("...") && !line.contains("name") && line.contains("desbloqueado")) {
+                    String id = line.substring(1, line.indexOf(32));
+                    mapAlumnos.remove(id);
+                    System.out.println("des" + id);
+                }
+            }
+//            for (Map.Entry<String, String> alumno : mapAlumnos.entrySet()) {
+//                System.out.println(alumno.getKey() + "/" + alumno.getValue());
+//            }
+            reader.close();
+        } catch (Exception e) {
+            System.err.format("Exception occurred trying to read '%s'.", filename);
+            e.printStackTrace();
+        }
+
     }
 
 }

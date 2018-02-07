@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -47,6 +49,7 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
@@ -109,6 +112,8 @@ public class ProgDataServiceImp implements ProgDataService {
     CarreraDAO carreraDAO;
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
+    @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static boolean revisar = true;
@@ -748,14 +753,17 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
         int loop = 0;
+        List<AnexoBoletin> anexosBD = anexoBoletinDAO.all();
         Map<String, GrupoSeccion> mapGpoSecciones = new LinkedHashMap();
+        Map<String, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("codigo",anexosBD);
         for (GrupoSeccion gpoSecc : gruposSecciones) {
 
             logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
             GrupoSeccion gpoSeccBD = grupoSeccionDAO.findByCodeCiclo(gpoSecc.getCodigo(), ciclo);
             Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
+            AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
             logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
-            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
+            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());            
             if (gpoSeccBD == null) {
 
                 gpoSeccBD = new GrupoSeccion();
@@ -766,6 +774,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
                 gpoSeccBD.setEstado(EstadoEnum.ACT.name());
+                gpoSeccBD.setAnexoBoletin(anexo);
 
                 grupoSeccionDAO.save(gpoSeccBD);
 
@@ -774,6 +783,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoPlanEnum(gpoSeccBD.getEstadoPlan() == null ? EstadoPlanCalificaEnum.PEND : gpoSeccBD.getEstadoPlanEnum());
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
                 gpoSeccBD.setEstado(EstadoEnum.ACT.name());
+                gpoSeccBD.setAnexoBoletin(anexo);
                 grupoSeccionDAO.update(gpoSeccBD);
 
                 Curso cursoBD = gpoSeccBD.getCurso();
@@ -827,20 +837,25 @@ public class ProgDataServiceImp implements ProgDataService {
                 Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
                 Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
 
-                if (seccion.isTipoSeccionPRA()) {
-                    seccion.setHorasSemanales(horasPractica);
-                } else if (seccion.isTipoSeccionTEO()) {
-                    seccion.setHorasSemanales(horasTeoria);
-                } else if (seccion.isTipoSeccionTCUR()) {
-                    seccion.setHorasSemanales(horasTeoria);
-                } else if (seccion.isTipoSeccionPCUR()) {
-                    seccion.setHorasSemanales(horasPractica);
+                //System.out.println(seccionBD.getId() + ":::" + seccionBD.getTipoSeccion());
+                if (seccionBD.isTipoSeccionPRA()) {                    
+                    seccionBD.setHorasSemanales(horasPractica);
+                    gpoSecc.setHorasPractica(horasPractica);
+                } else if (seccionBD.isTipoSeccionTEO()) {
+                    seccionBD.setHorasSemanales(horasTeoria);
+                    gpoSecc.setHorasTeoria(horasTeoria);
+                } else if (seccionBD.isTipoSeccionTCUR()) {
+                    seccionBD.setHorasSemanales(horasTeoria);
+                    gpoSecc.setHorasTeoria(horasTeoria);
+                } else if (seccionBD.isTipoSeccionPCUR()) {
+                    seccionBD.setHorasSemanales(horasPractica);
+                    gpoSecc.setHorasPractica(horasPractica);
                 }
                 /*
                 seccionBD.setHorasTeoria(horasTeoria);
                 seccionBD.setHorasPractica(horasPractica);
                  */
-                seccionBD.setHorasSemanales(horasTeoria + horasPractica);
+                //seccionBD.setHorasSemanales(horasTeoria + horasPractica);
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 //seccionBD.setSeccionSuperior(seccionBD);
 

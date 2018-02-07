@@ -121,8 +121,8 @@ new Vue({
     },
     methods: {
         changeModalidad: function(id) {
-            dynatable.queries.remove("me.id");
-            dynatable.queries.add("me.id", id);
+            dynatable.queries.remove("modalidad");
+            dynatable.queries.add("modalidad", id);
             dynatable.process();
         },
         formClear: function() {

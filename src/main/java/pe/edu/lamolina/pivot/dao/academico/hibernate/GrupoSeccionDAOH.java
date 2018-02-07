@@ -211,27 +211,4 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         return (GpoSeccionResumen) query.uniqueResult();
     }
-
-    @Override
-    public GpoSeccionResumen resumen() {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select new ").append(GpoSeccionResumen.class.getName());
-        sql.append(" (   ");
-        sql.append("   sum(case abs.id when :INGRE then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :DPTO  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :POST  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :ACTI  then 1 else 0 end)   ");
-        sql.append(" )   ");
-        sql.append("  from ").append(AnexoBoletin.class.getName()).append(" as ab ");
-        sql.append(" inner join  ab.anexoSuperior abs ");
-
-        Query query = getCurrentSession().createQuery(sql.toString());
-        query.setString("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());
-        query.setString("DPTO", GrupoAnexoEnum.DPTO.getValue());
-        query.setString("ACTI", GrupoAnexoEnum.ACTIVIDADES.getValue());
-        query.setString("POST", GrupoAnexoEnum.POSTGRADO.getValue());
-
-        return (GpoSeccionResumen) query.uniqueResult();
-    }
-
 }

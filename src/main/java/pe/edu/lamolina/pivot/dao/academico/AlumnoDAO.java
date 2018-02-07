@@ -26,18 +26,20 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 
-    List<Alumno> allAlumnoByName(String nombre);
+    List<Alumno> allByName(String nombre);
 
     Alumno findByPersona(Persona persona, CicloAcademico cicloAcademico);
 
     List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude);
 
-    List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
+    List<Alumno> allByNameModalidadEstudioCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
 
     List<Alumno> allByPersonas(List<Persona> personas);
 
-    public Alumno findAlumno(Alumno alumno);
+    Alumno find(Alumno alumno);
 
-    public Alumno findByPersonaCicloIngreso(Persona personaDB, CicloAcademico ciclo);
+    Alumno find(Alumno alumno, CicloAcademico academico);
+
+    Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
 
 }
