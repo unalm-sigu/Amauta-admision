@@ -120,6 +120,17 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
+    public List<Carrera> allActivasByModalidadesEstudio(List<String> modalidadesCodes) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EstadoCarreraEnum.ACT.name())
+                .in("me.codigo", modalidadesCodes);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
     public CarreraResumen resumen() {
         Octavia sql = Octavia.query()
                 .select("sum(case me.codigo when '" + PRE.name() + "' then 1 else 0 end)",
@@ -162,6 +173,15 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "ca")
                 .join("modalidadEstudio me", "facultad fa")
                 .orderBy("ca.codigo desc");
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Carrera> allActivos() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EstadoCarreraEnum.ACT.name());
         return sql.all(getCurrentSession());
     }
 

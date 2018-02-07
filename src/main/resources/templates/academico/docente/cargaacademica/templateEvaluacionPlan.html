@@ -40,10 +40,11 @@
 
     <td class="v-middle text-center">
 
-        {{if estadoAnulado==true}}
+        {{if estadoAnulado==true || estadoGrupoCerrado==true}}
         {{:tipoSeccion}}
         {{/if}}
 
+        {{if estadoGrupoCerrado==false}}
         {{if estadoAnulado==false}}
         {{if permiteAsign}}
         {{if desagregado==false}}
@@ -65,7 +66,7 @@
         {{:tipoSeccion}}
         {{/if}}
         {{/if}}
-
+        {{/if}}
     </td>
     <td class="text-center v-middle">
         {{if esPadre==false}}

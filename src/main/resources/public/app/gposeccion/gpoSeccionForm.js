@@ -109,6 +109,13 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalSize: 'modal-lg'
         },
+        restriccionModal: {
+            id: 'modalRestriccion',
+            header: true,
+            title: 'Restricciones',
+            okbtn: 'Aceptar',
+            modalSize: 'modal-lg'
+        },
         aulOeraSel: null,
         tblAulas: null,
         modulosCombo: {}
@@ -410,6 +417,12 @@ var app = new Vue({
                 this.ubigeos = response.data
                 this.isLoading = false
             })
+        }, showModalRestriccion(seccion) {
+            let $vue = this;
+            $global.$emit('loadRestriccionComponent', seccion.seccionId);
+            this.$refs.modalRestriccion.open();
+        }, saveRestriccion() {
+            $global.$emit('saveRestriccion');
         }
     }
 })

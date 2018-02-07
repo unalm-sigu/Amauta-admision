@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,11 +41,14 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
@@ -785,6 +789,148 @@ public class GpoSeccionController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("loadModalRestricciones")
+    public JsonResponse loadModalRestricciones(
+            @RequestParam("seccion") Long seccionId,
+            HttpSession session,
+            Model model) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ObjectNode nodeResult = new ObjectNode(jsonFactory);
+
+            Seccion seccion = service.findSeccion(seccionId);
+            List<Facultad> facultades = service.allFacultadesActivas();
+            List<ModalidadEstudio> modalidadesEstudio = service.allModalidadesEstudioActivas();
+
+            ArrayNode facultadesJson = new ArrayNode(jsonFactory);
+            for (Facultad facultadEach : facultades) {
+                facultadesJson.add(facultadEach.toJson());
+            }
+            ArrayNode modalidadesEstudioJson = new ArrayNode(jsonFactory);
+            for (ModalidadEstudio modalidadEstudioEach : modalidadesEstudio) {
+                modalidadesEstudioJson.add(modalidadEstudioEach.toJson());
+            }
+
+            nodeResult.putPOJO("seccion", seccion.toJson());
+            nodeResult.set("facultades", facultadesJson);
+            nodeResult.set("modalidades", modalidadesEstudioJson);
+
+            response.setData(nodeResult);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarTipoRestriccion")
+    public JsonResponse cambiarTipoRestriccion(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam("tipoRestriccion") String tipoRestriccion,
+            HttpSession session,
+            Model model) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        ObjectNode nodeResult = new ObjectNode(jsonFactory);
+        try {
+            logger.debug("entro a cambiarTipoRestriccion");
+
+            nodeResult.put("esEspecialidad", Boolean.FALSE);
+            nodeResult.put("esFacultad", Boolean.FALSE);
+            nodeResult.put("esModalidad", Boolean.FALSE);
+
+            ArrayNode facultadesJson = null;
+            ArrayNode modalidadesJson = null;
+            ArrayNode carrerasJson = null;
+
+            if (tipoRestriccion.equalsIgnoreCase("especialidad")) {
+                nodeResult.put("esEspecialidad", Boolean.TRUE);
+                carrerasJson = new ArrayNode(jsonFactory);
+                List<Carrera> carreras = service.allCarrerasActivasPrePost();
+                for (Carrera carreraeEach : carreras) {
+                    ObjectNode carreraJson = carreraeEach.toJson();
+                    carreraJson.put("tipoDescripcion", carreraeEach.getTipoEnum().getValue());
+                    carreraJson.put("esTipoDOC", carreraeEach.isTipoDOC());
+                    carreraJson.put("esTipoMAE", carreraeEach.isTipoMAE());
+                    carrerasJson.add(carreraJson);
+                }
+            } else if (tipoRestriccion.equalsIgnoreCase("facultad")) {
+                nodeResult.put("esFacultad", Boolean.TRUE);
+                facultadesJson = new ArrayNode(jsonFactory);
+                List<Facultad> facultades = service.allFacultadesActivas();
+                for (Facultad facultadEach : facultades) {
+                    facultadesJson.add(facultadEach.toJson());
+                }
+            } else if (tipoRestriccion.equalsIgnoreCase("modalidad")) {
+                nodeResult.put("esModalidad", Boolean.TRUE);
+                modalidadesJson = new ArrayNode(jsonFactory);
+                List<ModalidadEstudio> modalidades = service.allModalidadesEstudioActivas();
+                for (ModalidadEstudio modalidadEach : modalidades) {
+                    modalidadesJson.add(modalidadEach.toJson());
+                }
+            }
+            if (facultadesJson != null) {
+                nodeResult.set("tblRestricciones", facultadesJson);
+            }
+            if (modalidadesJson != null) {
+                nodeResult.set("tblRestricciones", modalidadesJson);
+            }
+            if (carrerasJson != null) {
+                nodeResult.set("tblRestricciones", carrerasJson);
+            }
+            response.setData(nodeResult);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveRestriccion")
+    public JsonResponse saveRestriccion(
+            @RequestBody ObjectNode restriccionJson,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            Seccion seccion = new Seccion(TypesUtil.getLong(restriccionJson.get("seccion")));
+            String tipoRestriccion = TypesUtil.getString(restriccionJson.get("tipoRestriccion").get("nombre"));
+            ArrayNode restriccionesJson = (ArrayNode) restriccionJson.get("restriccionesArr");
+            List<Long> restionesList = new ArrayList<>();
+            for (JsonNode restriccionEach : restriccionesJson) {
+                restionesList.add(restriccionEach.get("id").asLong());
+            }
+
+            service.saveRestriccion(seccion, tipoRestriccion, restionesList);
+            String message = "Restriccion asignada correctamente.";
+
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

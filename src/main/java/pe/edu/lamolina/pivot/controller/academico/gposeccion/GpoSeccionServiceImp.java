@@ -30,16 +30,20 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -51,6 +55,9 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
@@ -106,6 +113,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     OficinaDAO oficinaDAO;
+
+    @Autowired
+    FacultadDAO facultadDAO;
+
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
 
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
@@ -779,6 +795,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public void saveRestriccion(Seccion seccion, String tipoRestriccion, List<Long> restricciones) {
+        
+    }
+
+    @Override
     public List<Aula> allAulasSuperiorByOficina(Oficina oficina) {
         return aulaDAO.allAulasSuperiorByOficina(oficina);
     }
@@ -880,6 +901,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         System.out.println(gpoAnexoE.getValue());
 
         return anexoBoletinDAO.allBySuperiorCiclo(new AnexoBoletin(gpoAnexoE.getValue()), ciclo);
+    }
+
+    @Override
+    public List<Facultad> allFacultadesActivas() {
+        return facultadDAO.allActivos();
+    }
+
+    @Override
+    public List<ModalidadEstudio> allModalidadesEstudioActivas() {
+        return modalidadEstudioDAO.allActivos();
+    }
+
+    @Override
+    public List<Carrera> allCarrerasActivas() {
+        return carreraDAO.allActivos();
+    }
+
+    @Override
+    public List<Carrera> allCarrerasActivasPrePost() {
+        List<String> modalidades = new ArrayList<>();
+        modalidades.add(ModalidadEstudioEnum.PRE.name());
+        modalidades.add(ModalidadEstudioEnum.EPG.name());
+
+        return carreraDAO.allActivasByModalidadesEstudio(modalidades);
     }
 
 }
