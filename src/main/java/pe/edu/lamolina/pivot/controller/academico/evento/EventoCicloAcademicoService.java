@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.evento;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.calendar.EventCalendar;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -20,5 +21,7 @@ public interface EventoCicloAcademicoService {
     void delete(EventoCicloAcademico eventoCicloAcademico);
 
     List<EventoAcademico> allEventoAcademicoByName(String nombre);
+
+    List<EventCalendar> allcalendar(CicloAcademico ciclo);
 
 }

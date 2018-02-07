@@ -17,11 +17,23 @@ new Vue({
             header: true,
             title: 'Anular Ciclo académico',
             okbtn: 'Aceptar'
-        },
+        }
     },
+
     created() {
         let vue = this;
     },
+
+    watch: {
+        btnActive: function(after, before) {
+            var vue = this;
+            if (after == 'calendar' && vue.onlyOne) {
+                vue.$refs.fullcalendar.render();
+                vue.onlyOne = false;
+            }
+        }
+    },
+
     mounted: function() {
         let vue = this;
         $global.$on("eliminar", function(id) {
@@ -30,7 +42,9 @@ new Vue({
         $global.$on("editar", function(id) {
             vue.editar(id);
         });
+        vue.renderEventos();
     },
+
     methods: {
         formClear: function() {
             $('#formEventoCicloAcademico').parsley('destroy');
@@ -88,6 +102,7 @@ new Vue({
                 success: function(response) {
                     if (response.success) {
                         vue.$refs.modalAddEventoCicloAcademico.close();
+                        vue.renderEventos();
                         notify(response.message, 'info');
                         dynatable.process();
                     } else {
@@ -158,14 +173,39 @@ new Vue({
         getRecord: function(id) {
             return dynatable.settings.dataset.records.find(item => item.id === id);
         },
-    },
-    watch: {
-        btnActive: function(after, before) {
+        renderEventos: function() {
             var vue = this;
-            if (after == 'calendar' && vue.onlyOne) {
-                vue.$refs.calendario.metodo1(123);
-                vue.onlyOne = false;
-            }
-        }
-    }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/eventocicloacademico/allcalendar'),
+                sync: true,
+                success: function(response) {
+                    if (response.success) {
+                        vue.$refs.fullcalendar.addEventSource(response.data);
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        eventClick: function(self, date, jsEvent, view) {
+        },
+        dayClick: function(self, date, jsEvent, view) {
+        },
+        dayDbClick: function(self, date, element) {
+            var vue = this;
+
+            //var dia = date.format("DD/MM/YYYY HH:mm:ss");
+            var dia = date.format("DD/MM/YYYY");
+            vue.$refs.modalAddEventoCicloAcademico.open();
+            $('[name="eventoAcademico.id"]').select2(vue.selectEvento());
+            vue.formClear();
+
+            $('[name=fechaInicio]').datepicker().datepicker('setDate', dia);
+            $('[name=fechaInicio]').datepicker().trigger("change");
+
+        },
+    },
 });

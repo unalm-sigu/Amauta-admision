@@ -55,7 +55,12 @@
                             </div>
                             <div role="tabpanel" class="tab-pane" id="calendar">
 
-                                <fullcalendar />
+                                <fullcalendar
+                                    ref="fullcalendar"
+                                    v-bind:eventclick="eventClick"
+                                    v-bind:dayclick="dayClick"
+                                    v-bind:daydbclick="dayDbClick"
+                                    />
 
                             </div>
                         </div>
@@ -70,7 +75,7 @@
         </div>
 
         <div th:substituteby="_modules/vue-modal"/>
-        <div th:substituteby="academico/eventocicloacademico/eventoFullcalendar"/>
+        <div th:substituteby="_modules/vue-fullcalendar"/>
 
         <th:block th:replace="academico/eventocicloacademico/eventoCicloAcademicoDynatable"/>
 
@@ -81,7 +86,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
-        <script th:src="@{/app/academico/eventocicloacademico/eventoFullcalendar.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-fullcalendar.js}"></script>
         <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademicoDynatable.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/eventocicloacademico/eventoCicloAcademico.js}" charset="utf-8"></script>
     </div>
