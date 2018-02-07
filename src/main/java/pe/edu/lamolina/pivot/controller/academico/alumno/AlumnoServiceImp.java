@@ -1,15 +1,22 @@
 package pe.edu.lamolina.pivot.controller.academico.alumno;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 
@@ -21,6 +28,10 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
 
@@ -44,4 +55,30 @@ public class AlumnoServiceImp implements AlumnoService {
         return alumnoDAO.find(alumno, academico);
     }
 
+    @Override
+    public List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno) {
+
+        return alumnoCicloCursoDAO.findHistorial(alumno);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno) {
+        List<AlumnoCicloCurso> cursosCiclos = alumnoCicloCursoDAO.allByAlumno(alumno);
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumnoCiclo.id", "alumnoCiclo", cursosCiclos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", cursosCiclos);
+
+        List<AlumnoCiclo> promedios = new ArrayList(mapAlumnoCiclo.values());
+        for (AlumnoCiclo promedio : promedios) {
+            List<AlumnoCicloCurso> cursos = mapAlumnoCicloCurso.get(promedio.getId());
+            promedio.setAlumnoCicloCurso(cursos);
+        }
+        return promedios;
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno) {
+        
+     
+        return alumnoCicloCursoDAO.allByAlumnoOrdeyByCurso(alumno);
+    }
 }

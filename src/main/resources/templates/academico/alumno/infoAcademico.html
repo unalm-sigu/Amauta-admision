@@ -5,41 +5,84 @@
 </head>
 
 <body>
-    <div layout:fragment="main">
+    <div layout:fragment="main" id="infoAcademico" >
 
         <header class="header b-b padder-lg">        
-
+            <a th:href="@{/academico/alumno}" class="btn btn-default btn-sm pull-right">Regresar</a>
             <h2>Información Académica</h2>
-        </header>
-        <section id="infoAcademico" class="wrapper-lg">
-            <section class="panel m-b-md">
-                <section class="panel-body">
-                    <div class="col-md-12" >
-                        <div class="col-md-2">
-                            <img class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/unknown-person.gif"> </img>
+
+
+            <section class="panel-body">
+                <div class="col-md-12" >
+                    <div class="col-md-2" align="center"  >
+                        <img  class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/unknown-person.gif"> </img>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="col-md-12">
+                            <h3 v-text='alumno.persona.apellidosNombres'> </h3>                          
                         </div>
-                        <div class="col-md-10">
-                            <h3 v-text='alumno.persona.nombres'> </h3>                          
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
-                            <br/>
-                         <span v-text="alumno.persona.identificacion"/>
+                        </div>
+                        <div class="col-md-12" v-if="ident">
+                            <span  v-text="alumno.persona.identificacion"/> 
+                        </div>
+                        <div class="col-md-12" v-if="flag">
+                            <span  v-text="alumno.carrera.nombre"/> - <span v-if="facu" v-text="alumno.facultad.nombre"/>
+                        </div>
+                        <div class="col-md-12">
+                            <span > <small v-text="alumno.modalidadEstudio.nombre"> </small> </span> 
                         </div>
                     </div>
-                </section>
+                </div>
             </section>
-            <!--<h4 th:text='${alumno.persona.nombres}'> </h4>-->
-        </section>
 
-    </div>
-    <div layout:fragment="js">
 
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            var alumnoJson = [[${datoAlumno.toString()}
-            ]];
-                        /*]]>*/
+            <div  class="tabbable-line">
+                <ul class="nav nav-tabs" >
+        <li v-for="tab in tabs"  ><a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name"></a></li>
+    </ul>  
+</div>
+</header>
+
+<div class="wrapper-lg">
+    <section class="panel">
+        <section class="panel-body">
+            <div v-if="1 == tabId"  >
+                <th:block th:substituteby="academico/alumno/includes/inicio"/>
+            </div>       
+            <div v-if="2 == tabId" >
+                <th:block th:substituteby="academico/alumno/includes/historial"/>
+            </div>   
+            <div v-if="3 == tabId" >
+                <th:block th:substituteby="academico/alumno/includes/avance"/>
+            </div>   
+            <div v-if="4 == tabId" >
+                <th:block th:substituteby="academico/alumno/includes/matricula"/>
+            </div>   
+            <div v-if="5 == tabId"  >
+                <th:block th:substituteby="academico/alumno/includes/horario"/>
+            </div>   
+            <div v-if="6 == tabId">
+                <th:block th:substituteby="academico/alumno/includes/inicio"/>
+            </div>   
+        </section>               
+    </section>
+</div>
+
+
+
+
+
+</div>
+<div layout:fragment="js">
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var alumnoJson = [[${datoAlumno.toString()
+    }
+    ]];
+    /*]]>*/
         </script>
 
 

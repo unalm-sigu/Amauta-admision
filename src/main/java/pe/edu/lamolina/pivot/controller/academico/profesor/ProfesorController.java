@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.docente;
+package pe.edu.lamolina.pivot.controller.academico.profesor;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -63,11 +63,11 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("academico/docente")
-public class DocenteController {
+@RequestMapping("academico/profesor")
+public class ProfesorController {
 
     @Autowired
-    DocenteService service;
+    ProfesorService service;
 
     @Autowired
     SpringTemplateEngine springHtml;
@@ -105,7 +105,7 @@ public class DocenteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        return "academico/docente/docente/docente";
+        return "academico/profesor/profesor";
     }
 
     @ResponseBody
@@ -163,7 +163,7 @@ public class DocenteController {
     public String info(@RequestParam("docente") Long idDocente, Model model) {
         model.addAttribute("docente", service.find(new Docente(idDocente)));
         model.addAttribute("fotoHelper", new FotoHelper());
-        return "academico/docente/docente/docenteInfo";
+        return "academico/profesor/profesorInfo";
     }
 
     @RequestMapping("nuevo")
@@ -178,7 +178,7 @@ public class DocenteController {
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
         model.addAttribute("docente", docente);
         model.addAttribute("helper", new AlumnoHelper());
-        return "academico/docente/docente/docenteForm";
+        return "academico/profesor/profesorForm";
 
     }
 
@@ -194,7 +194,7 @@ public class DocenteController {
         model.addAttribute("fotoHelper", new FotoHelper());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
         model.addAttribute("helper", new AlumnoHelper());
-        return "academico/docente/docente/docenteForm";
+        return "academico/profesor/profesorForm";
 
     }
 
@@ -206,7 +206,7 @@ public class DocenteController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-
+            ObjectUtil.printAttr(docente);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             if (docente.getId() == null) {
@@ -339,7 +339,7 @@ public class DocenteController {
             ctx.setVariable("documentos", service.allDocumentos());
             ctx.setVariable("modalidades", service.allModalidadEstudio(compania));
 
-            String htmlContent = springHtml.process("academico/docente/docente/docenteForm", ctx, new DOMSelectorFragmentSpec("#formularioDocente"));
+            String htmlContent = springHtml.process("academico/profesor/profesorForm", ctx, new DOMSelectorFragmentSpec("#formularioDocente"));
 
             node.put("html", htmlContent);
             response.setData(node);
@@ -482,7 +482,7 @@ public class DocenteController {
 
         //    cargaAcademicaService.createEvaluacionSeccionPorDocente(ds.getDocente(), ds);
         model.addAttribute("dptoAcad", docente.getDepartamentoAcademico());
-        return "academico/docente/docente/cargaAcademicaDocente";
+        return "academico/profesor/cargaAcademicaProfesor";
     }
 
     @ResponseBody

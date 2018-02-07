@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.docente;
+package pe.edu.lamolina.pivot.controller.academico.profesor;
 
 import com.google.common.base.Strings;
 import java.io.File;
@@ -34,7 +34,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
-public class DocenteServiceImp implements DocenteService {
+public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     PersonaDAO personaDAO;
@@ -76,13 +76,6 @@ public class DocenteServiceImp implements DocenteService {
 
         Persona personaDoc = this.findPersonaByDocIdentidad(docente.getPersona());
 
-        ObjectUtil.eliminarAttrSinId(personaDoc, "paisNacer");
-        ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionNacer");
-        ObjectUtil.eliminarAttrSinId(personaDoc, "nacionalidad");
-        ObjectUtil.eliminarAttrSinId(personaDoc, "paisDomicilio");
-        ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionDomicilio");
-        ObjectUtil.eliminarAttrSinId(personaDoc, "tipoDocumento");
-
         logger.debug("existe persona {}", (personaDoc != null));
         if (personaDoc == null) {
             Persona personaForm = docente.getPersona();
@@ -104,6 +97,14 @@ public class DocenteServiceImp implements DocenteService {
             personaDAO.save(personaForm);
             docente.setPersona(personaForm);
         } else {
+
+            ObjectUtil.eliminarAttrSinId(personaDoc, "paisNacer");
+            ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionNacer");
+            ObjectUtil.eliminarAttrSinId(personaDoc, "nacionalidad");
+            ObjectUtil.eliminarAttrSinId(personaDoc, "paisDomicilio");
+            ObjectUtil.eliminarAttrSinId(personaDoc, "ubicacionDomicilio");
+            ObjectUtil.eliminarAttrSinId(personaDoc, "tipoDocumento");
+
             Persona personaForm = docente.getPersona();
             this.validarDNI(personaForm);
             if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {

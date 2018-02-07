@@ -8,7 +8,7 @@
 <body>
     <div layout:fragment="main">
         <header class="header b-b padder-lg">       
-            <a th:href="@{'/academico/docente'}" class="btn btn-default btn-sm pull-right">Regresar</a>
+            <a th:href="@{'/academico/profesor'}" class="btn btn-default btn-sm pull-right">Regresar</a>
             <h2>Docente: <span th:text="${docente.persona.nombreCompleto}">Juan Perez</span> <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
             <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
             <span> </span>
@@ -36,11 +36,11 @@
         </section>
 
         <div th:substituteby="templates/modal"/>
-        <script id="templateCargaAcademicaDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/docente/templateCargaAcademicaDocente"/></script>
+        <script id="templateCargaAcademicaDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/profesor/templateCargaAcademicaProfesor"/></script>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/docente/docente/cargaAcademicaDocente.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/profesor/cargaAcademicaProfesor.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

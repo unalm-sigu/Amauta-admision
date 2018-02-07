@@ -1,0 +1,22 @@
+<html layout:decorator="_layout/layout">
+<head>
+        <title>Configuración</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
+</head>
+
+<div layout:fragment="js">
+
+<!--    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var alumnoJson = [[${datoAlumno.toString()
+        }
+        ]];
+        /*]]>*/
+    </script>-->
+
+
+    <script th:src="@{/app/academico/matricula/matriculaConfiguracion.js}" charset="utf-8"></script>
+</div>
+
+
+</html>

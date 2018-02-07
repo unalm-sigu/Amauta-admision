@@ -28,7 +28,7 @@ new Vue({
         $("[name='departamentoAcademico.id']").select2(vue.departamentoAcademico());
         $("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
         $('#fileupload').fileupload({
-            url: APP.url('academico/docente/upload'),
+            url: APP.url('academico/profesor/upload'),
             maxNumberOfFiles: 1,
             dataType: 'json',
             dropZone: '#upload',
@@ -261,14 +261,14 @@ new Vue({
                 return;
             }
             $.ajax({
-                url: APP.url('academico/docente/save'),
+                url: APP.url('academico/profesor/save'),
                 type: 'POST',
                 async: true,
                 data: $("#formDocente").serialize(),
                 success: function(response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $(location).attr('href', APP.url('academico/docente/'));
+                        $(location).attr('href', APP.url('academico/profesor/'));
                     } else {
                         notify(response.message, "error");
                         self.btnEnable();
