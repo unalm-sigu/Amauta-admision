@@ -35,32 +35,11 @@
                     <input type="text"
                            class="form-control numerico"
                            name="year"
+                           minlength="4"
                            v-bind:value="cicloAcademico.year"
                            required="true"/>
                 </div>
             </div>
-
-
-
-            <div class="form-group">
-                <label class="control-label col-sm-3">Número ciclo</label>
-
-                <div class="col-sm-9">
-
-                    <select   required="true"  class="form-control" name="numeroCiclo" >
-                        <option></option>
-                        <option
-                            th:each="item : ${numeros}"
-                            th:value="${item.value}"
-                            required="true"
-                            th:text="${item.value}">
-                        </option>
-                    </select>
-
-                </div>
-
-            </div>
-
 
         </form>
 

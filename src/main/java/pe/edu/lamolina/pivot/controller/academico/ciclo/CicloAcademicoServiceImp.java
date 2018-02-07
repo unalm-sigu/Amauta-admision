@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.ciclo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -53,21 +54,23 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void save(CicloAcademico cicloAcademico, Usuario usuario) {
 
         ObjectUtil.eliminarAttrSinId(cicloAcademico, "modalidadEstudio");
-        if (cicloAcademico.getNumeroCiclo() == null) {
-            throw new PhobosException("Tiene que especificar el número de ciclo.");
-        }
         if (cicloAcademico.getModalidadEstudio() == null) {
             throw new PhobosException("Tiene que especificar la modalidad de estudio.");
         }
-        NumeroCicloAcademicoEnum numeroCicloAcademicoEnum = NumeroCicloAcademicoEnum.get(cicloAcademico.getNumeroCiclo());
-        cicloAcademico.setEstado(CicloEstadoEnum.CRE);
-        cicloAcademico.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
-        cicloAcademico.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));
-        cicloAcademico.setDescripcion3(numeroCicloAcademicoEnum.getDescripcion3().replace("XXXX", cicloAcademico.getYear().toString()));
-        cicloAcademico.setCodigo(numeroCicloAcademicoEnum.getCodigo().replace("XXXX", cicloAcademico.getYear().toString()));
-        cicloAcademico.setFechaRegistro(new Date());
-        cicloAcademico.setUserRegistro(usuario);
-        cicloAcademicoDAO.save(cicloAcademico);
+        for (NumeroCicloAcademicoEnum numeroCicloAcademicoEnum : NumeroCicloAcademicoEnum.values()) {
+            CicloAcademico cicloAcademicoNew = new CicloAcademico();
+            cicloAcademicoNew.setEstado(CicloEstadoEnum.CRE);
+            cicloAcademicoNew.setNumeroCiclo(numeroCicloAcademicoEnum.getValue());
+            cicloAcademicoNew.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
+            cicloAcademicoNew.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));
+            cicloAcademicoNew.setDescripcion3(numeroCicloAcademicoEnum.getDescripcion3().replace("XXXX", cicloAcademico.getYear().toString()));
+            cicloAcademicoNew.setCodigo(numeroCicloAcademicoEnum.getCodigo().replace("XXXX", cicloAcademico.getYear().toString()));
+            cicloAcademicoNew.setFechaRegistro(new Date());
+            cicloAcademicoNew.setUserRegistro(usuario);
+            cicloAcademicoNew.setYear(cicloAcademico.getYear());
+            cicloAcademicoNew.setModalidadEstudio(cicloAcademico.getModalidadEstudio());
+            cicloAcademicoDAO.save(cicloAcademicoNew);
+        }
     }
 
     @Override
@@ -75,16 +78,12 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void update(CicloAcademico cicloAcademico, Usuario usuario) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
         ObjectUtil.eliminarAttrSinId(cicloAcademico, "modalidadEstudio");
-        if (cicloAcademico.getNumeroCiclo() == null) {
-            throw new PhobosException("Tiene que especificar el número de ciclo.");
-        }
         if (cicloAcademico.getModalidadEstudio() == null) {
             throw new PhobosException("Tiene que especificar la modalidad de estudio.");
         }
-        NumeroCicloAcademicoEnum numeroCicloAcademicoEnum = NumeroCicloAcademicoEnum.get(cicloAcademico.getNumeroCiclo());
+        NumeroCicloAcademicoEnum numeroCicloAcademicoEnum = NumeroCicloAcademicoEnum.get(cicloAcademicoDB.getNumeroCiclo());
         cicloAcademico.setEstado(CicloEstadoEnum.CRE);
         cicloAcademicoDB.setYear(cicloAcademico.getYear());
-        cicloAcademicoDB.setNumeroCiclo(cicloAcademico.getNumeroCiclo());
         cicloAcademicoDB.setModalidadEstudio(cicloAcademico.getModalidadEstudio());
         cicloAcademicoDB.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
         cicloAcademicoDB.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));
@@ -101,6 +100,8 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Override
     public List<CicloAcademico> allByDynatable(DynatableFilter filter) {
         if (filter.getQueries() == null) {
+            filter.setFiltered(0);
+            filter.setTotal(0);
             return new ArrayList();
         }
         return cicloAcademicoDAO.allByDynatable(filter);
@@ -156,6 +157,20 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
         cicloAcademicoDB.setEstado(CicloEstadoEnum.PEND);
         cicloAcademicoDAO.update(cicloAcademicoDB);
+    }
+
+    @Override
+    public List<Integer> allYear() {
+        List<Integer> margen = new ArrayList<>();
+        Date date = new Date();
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        Integer year = cal.get(Calendar.YEAR);
+        margen.add(year - 1);
+        margen.add(year);
+        margen.add(year + 1);
+        margen.add(year + 2);
+        return margen;
     }
 
 }

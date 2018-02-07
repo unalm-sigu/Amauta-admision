@@ -27,9 +27,16 @@
                                     th:each="modalidad:${modalidades}"
                                     th:value="${modalidad.id}"
                                     required="true"
-                                    th:selected="${modalidadActiva.id==modalidad.id}"
                                     th:text="${modalidad.nombre}"></option>
                             </select>
+                        </div>
+
+                        <div class="btn-group m-t-md">
+                            <a class="btn btn-link" href="#"
+                               v-on:click="cambiarPeriodo(item)"
+                               v-for="item in margen"
+                               v-bind:class="{'btn-info': yearActivo==item}"
+                               v-text="item"></a>
                         </div>
 
                         <dynatable />
@@ -46,6 +53,12 @@
 
         <th:block th:replace="academico/cicloacademico/cicloAcademicoDynatable"/>
 
+        <script  th:inline="javascript" >
+            /*<![CDATA[*/
+            var margen = /*[[${margen}]]*/'';
+            /*]]>*/
+        </script>
+
     </div>
 
     <div layout:fragment="js">
@@ -53,6 +66,7 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script th:src="@{/app/academico/cicloacademico/cicloAcademicoDynatable.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/cicloacademico/cicloAcademico.js}" charset="utf-8"></script>
     </div>
 

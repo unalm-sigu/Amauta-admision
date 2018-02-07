@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -73,9 +74,10 @@ public class CicloAcademicoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
+        List<Integer> margen = service.allYear();
         List<ModalidadEstudio> modalidades = service.allPrePostgrado(cia);
-        model.addAttribute("modalidadActiva", modalidades.get(0));
         model.addAttribute("modalidades", modalidades);
+        model.addAttribute("margen", margen);
         model.addAttribute("numeros", NumeroCicloAcademicoEnum.values());
         return "academico/cicloacademico/cicloAcademico";
     }
@@ -87,27 +89,11 @@ public class CicloAcademicoController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Compania cia = ds.getCompania();
-            List<ModalidadEstudio> modalidades = service.allPrePostgrado(cia);
-            ModalidadEstudio modalidadActiva = modalidades.get(0);
-
-            if (filter.getQueries() == null) {
-                filter.setQueries(new LinkedHashMap());
-                filter.getQueries().put("modalidad", modalidadActiva.getId());
-            } else {
-                if (filter.getQueries().get("modalidad") == null) {
-                    filter.getQueries().put("modalidad", modalidadActiva.getId());
-                }
-            }
-
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<CicloAcademico> ciclos = service.allByDynatable(filter);
-
             for (CicloAcademico ciclo : ciclos) {
                 array.add(ciclo.toJson());
             }
-
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());

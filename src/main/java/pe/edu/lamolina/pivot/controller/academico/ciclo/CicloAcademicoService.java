@@ -33,6 +33,8 @@ public interface CicloAcademicoService {
 
     void desactivar(CicloAcademico cicloAcademico);
 
-    public void pendiente(CicloAcademico cicloAcademico);
+    void pendiente(CicloAcademico cicloAcademico);
+
+    List<Integer> allYear();
 
 }
