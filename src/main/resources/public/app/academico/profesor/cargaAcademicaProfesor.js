@@ -3,7 +3,7 @@ $(function () {
     var dynatable = $('#dynaTable').dynatable({
         
         dataset: {
-            ajaxUrl: APP.url('academico/docente/'+$("#idDocente").val()+'/listCargaAcademicaDocente'),
+            ajaxUrl: APP.url('academico/profesor/'+$("#idDocente").val()+'/listCargaAcademicaDocente'),
             perPageDefault: 100,
             recordCountText: '{x} to {y} out of {z} {params.records}'
         },

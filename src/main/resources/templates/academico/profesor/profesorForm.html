@@ -7,7 +7,7 @@
 
 
             <header class="header b-b padder-lg">
-                <a th:href="@{/academico/docente}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                <a th:href="@{/academico/profesor}" class="btn btn-default btn-sm pull-right">Regresar</a>
 
                 <h2  id="nombreDocente" th:text="${ docente.persona.id!=null ? docente.persona.apellidosNombres : 'Nuevo Docente' }" >Nuevo Docente</h2>
             </header>
@@ -432,7 +432,7 @@
                 $.fn.datepickerBoot = datepicker;
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload"> </div>
-            <script th:src="@{/app/academico/docente/docente/docenteForm.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/profesor/profesorForm.js}" charset="utf-8"></script>
         </div>
 
     </body>
