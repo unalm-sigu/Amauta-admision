@@ -4,6 +4,8 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Persona;
@@ -26,17 +28,20 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 
-    List<Alumno> allAlumnoByName(String nombre);
+    List<Alumno> allByName(String nombre);
 
     Alumno findByPersona(Persona persona, CicloAcademico cicloAcademico);
 
     List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude);
 
-    List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
+    List<Alumno> allByNameModalidadEstudioCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
 
     List<Alumno> allByPersonas(List<Persona> personas);
 
-    Alumno findAlumno(Alumno alumno);
+    Alumno find(Alumno alumno);
 
     Alumno find(Alumno alumno, CicloAcademico academico);
+
+    Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
+
 }

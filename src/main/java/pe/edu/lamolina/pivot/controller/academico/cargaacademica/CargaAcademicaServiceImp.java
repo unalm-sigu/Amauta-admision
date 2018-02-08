@@ -1316,13 +1316,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
                 alumnoEvaluacion.setNota(notax);
             } else {
-
                 MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEach, curso, ciclo);
                 matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
                 if (curso.isCreditosZero()) {
                     NotaLetra notaLetra = (NotaLetra) mapNotaLetra.get(alumnoEvaluacionEach.getValorLetra());
                     alumnoEvaluacion.setNota(notaLetra.getValor().toString());
-                    matriculaCurso.setCreditosAprobados(BigDecimal.ZERO.intValue());
                 } else if (curso.isTieneCreditosVariables()) {
                     matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacionEach.getNota()));
                 }
