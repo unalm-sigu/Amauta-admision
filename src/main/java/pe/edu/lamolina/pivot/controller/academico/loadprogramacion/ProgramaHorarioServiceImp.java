@@ -614,12 +614,15 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String gclave = getCellValue(5, row);
                 String tclave = getCellValue(6, row);
                 String clave2 = getCellValue(8, row);
-
+                Integer vacantes = Integer.parseInt(getCellValue(10, row));
+                Integer matriculados = Integer.parseInt(getCellValue(11, row));
+                
+                //System.out.println(vacantes + " " + matriculados);                
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave);
+                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
                 secciones.add(seccion);
             }
             logger.debug("Se han leido un total de {} secciones", loop);
