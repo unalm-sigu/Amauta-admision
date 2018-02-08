@@ -6,6 +6,7 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,15 +35,20 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
     @Override
     public void saveConfiguracion(ConfiguracionTurnosAtencion configuracionTurnosAtencion) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+       
         serviceConfiguracionMatriculaDAO.save(configuracionTurnosAtencion);
         Integer cantTurnos;
-        cantTurnos = (configuracionTurnosAtencion.getFechaFin().getDay() - configuracionTurnosAtencion.getFechaInicio().getDay())
-                * configuracionTurnosAtencion.getTurnosDia();
+        int dias=(int) ((configuracionTurnosAtencion.getFechaFin().getTime()-configuracionTurnosAtencion.getFechaInicio().getTime())/86400000);
+        cantTurnos = dias * configuracionTurnosAtencion.getTurnosDia();
 
         Integer cantAlumnos = Math.round(configuracionTurnosAtencion.getAlumnos() / cantTurnos);
+        
         Integer b = 1;
         Time horaInicio = (Time) configuracionTurnosAtencion.getHoraInicio();
-
+        
         List<TurnoAtencion> turnoAtencion = new ArrayList<TurnoAtencion>();
         TurnoAtencion objTurno = new TurnoAtencion();
         for (int j = 1; j < cantTurnos; j++) {
@@ -61,7 +67,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 horaInicio = new Time(horaInicio.getMinutes() + (configuracionTurnosAtencion.getDuracion() - configuracionTurnosAtencion.getEspera()));
             }
             horaInicio = (Time) configuracionTurnosAtencion.getHoraInicio();
-            b=1;
+            b = 1;
         }
 
     }

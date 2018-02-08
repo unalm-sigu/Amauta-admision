@@ -7,7 +7,7 @@ new Vue({
             {id: 3, value: 'Reinscripción'}],
         tipos: [{id: 1, value: 'Por barrido'},
             {id: 2, value: 'En línea'}],
-        tabs : [{id:1, value:'Barrido'},{id:1, value:'En línea'}],
+        tabs: [{id: 1, value: 'Barrido'}, {id: 1, value: 'En línea'}],
 //        config: {
 //            evento: 1,
 //            tipo: 2,
@@ -81,27 +81,59 @@ new Vue({
                     });
                 });
                 $('#1').editable();
-                $('#datetimepicker1').datepicker();
-                $('#datetimepicker2').datepicker();
+                $('#datepicker1').datepicker();
+                $('#datepicker2').datepicker();
+                $('#datetimepicker1').timepicker();
+                $('#datetimepicker2').timepicker();
+                $('#datetimepicker3').timepicker();
+                $('#date1').datepicker();
+                $('#date1').datepicker();
             });
         });
 
 
 
     },
-    mounted: function () {
+    mounted() {
+
+        $('.numeric').numeric({negative: false});
         let $vue = this;
-        $vue.alumnoCursoTemp = $vue.alumnoCurso;
-        console.log($vue.config);
+        $('#datepicker1').datepicker().on(
+                'changeDate', () => {
+            $vue.config.fechaInicio = $('#date1').val();
+            console.log($vue.config.fechaInicio);
+        }
+        );
+        $('#datepicker2').datepicker().on(
+                'changeDate', () => {
+            $vue.config.fechaFin = $('#date2').val();
+            console.log($vue.config.fechaFin);
+        }
+        );
+
     },
     methods: {
         nuevo() {
-            this.curso = {id: null, nombre: 'Mate', codigo: '', estado: 'INACTIVO'};
+
             $("#myModal").modal('show');
         },
         save() {
             let $vue = this;
-            console.log($vue.config);
+            $vue.config.espera =  parseInt($vue.config.espera);
+            $vue.config.duracion =  parseInt($vue.config.duracion);
+            $vue.config.alumnos =  parseInt($vue.config.alumnos);
+//            $('#date1').val((new Date($vue.config.fechaFin)).toLocaleDateString('la', {year: 'numeric', month: 'numeric', day: 'numeric'}));
+            console.log($('#date1').val());
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matricula/saveConfiguracion'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.config),
+                success: function (response) {
+                   
+                }
+            });
+
             $("#myModal").modal('hide');
         },
         carga() {

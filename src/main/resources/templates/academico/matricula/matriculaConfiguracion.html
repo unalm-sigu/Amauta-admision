@@ -15,7 +15,7 @@
 
             <div  class="tabbable-line">
                 <ul class="nav nav-tabs" >
-                   <li v-for="tab in tabs"  ><a href="#" data-toggle="tab"  v-text="tab.value"></a></li> <!--v-on:click="updateTabs(tab)"-->
+                    <li v-for="tab in tabs"  ><a href="#" data-toggle="tab"  v-text="tab.value"></a></li> <!--v-on:click="updateTabs(tab)"-->
                 </ul>  
             </div>
         </header>
@@ -56,9 +56,9 @@
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">Evento</label>
                             <div class="col-sm-6">
-                                <select  class="form-control " v-model="config.evento">
+                                <select  class="form-control " v-model="config.idEventoCicloAcademico">
                                     <option value="">Seleccione un evento</option>
-                                    <option v-for="evento in eventos"   v-text="evento.value"  v-bind:value="evento.id"/>
+                                    <option v-for="idEventoCicloAcademico in eventos"   v-text="idEventoCicloAcademico.value"  v-bind:value="idEventoCicloAcademico.id"/>
                                 </select>                                
                             </div>
                         </div>
@@ -66,8 +66,8 @@
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">Fecha Inicio</label>
                             <div class="col-sm-6">
-                                <div class='input-group date ' id='datetimepicker1'>
-                                    <input type='text' class="form-control" v-model="config.fechaInicio"/>
+                                <div class='input-group date ' id='datepicker1'>
+                                    <input type='text' class="form-control" id='date1' v-model="config.fechaInicio"/>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
@@ -76,20 +76,30 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-sm-2 control-label">Fecha fin</label>
+                            <label class="col-sm-2 control-label">Fecha Fin</label>
                             <div class="col-sm-6">
-                                <div class='input-group date ' id='datetimepicker2'>
-                                    <input type='text' class="form-control" v-model="config.fechaFin"/>
+                                <div class='input-group date ' id='datepicker2'>
+                                    <input type='text' class="form-control" id='date2' v-model="config.fechaFin"/>
                                     <span class="input-group-addon">
                                         <span class="glyphicon glyphicon-calendar"></span>
                                     </span>
                                 </div>
                             </div>
                         </div>
+
+                        <div class='form-group row'>
+                            <label class="col-sm-2 control-label">Hora Inicio</label>
+                            <div class="col-sm-6">
+                                <div class="input-group bootstrap-timepicker timepicker">
+                                    <input id="datetimepicker1" type="text" class="form-control input-small" v-model="config.horaInicio"/>
+                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>   
+                            </div>
+                        </div>
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">Turno por día</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control " v-model="config.turnoDia"/>
+                                <input type="text" class="form-control numeric" v-model="config.turnosDia"/>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -102,21 +112,21 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-2 control-label">Duración</label>
+                            <label class="col-sm-2 control-label">Duración</label>                                                     
                             <div class="col-sm-6">
-                                <input type="text" class="form-control col-sm-6" v-model="config.duracion"/>
-                            </div>
+                                <input type="number" class="form-control numeric" v-model="config.duracion"/>
+                            </div>                       
                         </div> 
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">Espera</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control " v-model="config.espera"/>
+                                <input type="number" class="form-control numeric" v-model="config.espera"/>
                             </div>
                         </div> 
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">Alumno</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control col-sm-6" v-model="config.alumnos"/>
+                                <input type="number" class="form-control col-sm-6" v-model="config.alumnos"/>
                             </div>
                         </div>
                     </div>

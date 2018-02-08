@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -19,8 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -30,10 +27,6 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-/**
- *
- * @author AlbatrossCloud
- */
 @Controller
 @RequestMapping("academico/matricula")
 public class ConfiguracionController {
@@ -68,7 +61,7 @@ public class ConfiguracionController {
     @RequestMapping("configuracion")
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-          model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/matricula/matriculaConfiguracion";
     }
 
@@ -96,19 +89,20 @@ public class ConfiguracionController {
         objNode.put("fechaInicio", fechaInicio);
         String horaInicio = sdf.format(atencion.getHoraInicio());
         objNode.put("horaInicio", horaInicio);
-        objNode.put("envento", atencion.getIdEventoCicloAcademico().getIdEventoAcademico().getNombre());
+        objNode.put("envento", atencion.getIdEventoCicloAcademico().getEventoAcademico().getId());
 
         response.setData(objNode);
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "configuracion", method = RequestMethod.POST)
-    public JsonResponse saveConfiguracion(ConfiguracionTurnosAtencion configuracionTurnosAtencion, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
 
+    @ResponseBody
+    @RequestMapping(value = "configuracion", method = RequestMethod.POST )
+    public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config) {
+        JsonResponse response = new JsonResponse();
+        System.out.println("Alumno: ----> " + config.getAlumnos());
         try {
-            configuracionMatriculaService.saveConfiguracion(configuracionTurnosAtencion);
+            configuracionMatriculaService.saveConfiguracion(config);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -119,5 +113,4 @@ public class ConfiguracionController {
         }
         return response;
     }
-
 }
