@@ -173,4 +173,11 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         return margen;
     }
 
+    @Override
+    public void configurar(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.CFG);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+    }
+
 }

@@ -7,9 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -238,6 +236,22 @@ public class CicloAcademicoController {
         try {
             service.pendiente(cicloAcademico);
             response.setMessage("Ciclo académico pasado a pendiente satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("configurar")
+    public JsonResponse configurar(CicloAcademico cicloAcademico) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.configurar(cicloAcademico);
+            response.setMessage("Se ha iniciado la configuración del ciclo académico satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
