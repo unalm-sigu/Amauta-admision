@@ -6,7 +6,7 @@ Vue.component("restriccion-component", {
     data: function () {
         return {
             seccionModal: null,
-            tiposRestriccionOptions: [{nombre: 'Especialidad'}, {nombre: 'Facultad'}, {nombre: 'Modalidad'}],
+            tiposRestriccionOptions: [],
             tipoRestriccionSel: null,
             tblRestricciones: null,
             restriccionesArr: [],
@@ -30,6 +30,7 @@ Vue.component("restriccion-component", {
     },
     methods: {
         loadComponent($vue, seccion) {
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/loadModalRestricciones'),
@@ -39,7 +40,13 @@ Vue.component("restriccion-component", {
                 success: function (response) {
                     if (response.success) {
                         $vue.seccionModal = response.data.seccion;
-
+                        $vue.tiposRestriccionOptions = response.data.tiposRestriccion;
+                        if ($vue.seccionModal.tieneRestriccionCarrera ||
+                                $vue.seccionModal.tieneRestriccionFacultad ||
+                                $vue.seccionModal.tieneRestriccionModalidad) {
+                            $vue.tipoRestriccionSel = response.data.tipoRestriccionSel;
+                            $vue.cambiarTipoRestriccion();
+                        }
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
@@ -83,7 +90,7 @@ Vue.component("restriccion-component", {
                 tipoRestriccion: $vue.tipoRestriccionSel,
                 restriccionesArr: $vue.restriccionesArr
             }
-
+            MODAL.showWait("Espere un momento por favor");
 
             $.ajax({
                 method: 'POST',
@@ -97,11 +104,14 @@ Vue.component("restriccion-component", {
                 ,
                 success: function (response) {
                     if (response.success) {
-                        alert("adad");
+                        MODAL.hideWait();
+                        $global.$emit("afterSaveRestriccion", response);
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 }, error: function () {
+                    MODAL.hideWait();
+                    $global.$emit("afterSaveRestriccion", response);
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -115,12 +125,15 @@ Vue.component("restriccion-component", {
                 url: APP.url('academico/gposeccion/cambiarTipoRestriccion'),
                 data: {
                     seccion: $vue.seccionModal.id,
-                    tipoRestriccion: $vue.tipoRestriccionSel.nombre
+                    tipoRestriccion: $vue.tipoRestriccionSel.codigo
                 },
                 success: function (response) {
                     if (response.success) {
                         console.log("cambiarTipoRestriccion success");
                         $vue.tblRestricciones = response.data.tblRestricciones;
+                        if (response.data.restriccionesSeleccionadas != null) {
+                            $vue.restriccionesArr = response.data.restriccionesSeleccionadas;
+                        }
 
                         $vue.tipoRestriccion.esEspecialidad = response.data.esEspecialidad;
                         $vue.tipoRestriccion.esFacultad = response.data.esFacultad;

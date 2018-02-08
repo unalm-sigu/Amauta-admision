@@ -130,9 +130,17 @@
                                         </td>
                                         <td>
                                             <a v-on:click="showModalRestriccion(seccion)" 
-
+                                               v-if="!seccion.tieneRestriccion"
                                                style="cursor:pointer;">
                                                 Sin Restricción
+                                            </a>
+
+                                            <a v-on:click="showModalRestriccion(seccion)" 
+                                               v-if="seccion.tieneRestriccion"
+                                               style="cursor:pointer;">
+                                                <span v-if="seccion.tieneRestriccionCarrera">Restricción Especialidad</span>
+                                                <span v-if="seccion.tieneRestriccionFacultad">Restricción Facultad</span>
+                                                <span v-if="seccion.tieneRestriccionModalidad">Restricción Modalidad</span>
                                             </a>
                                         </td>
                                         <td>

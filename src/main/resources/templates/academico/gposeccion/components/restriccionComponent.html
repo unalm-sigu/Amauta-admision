@@ -13,7 +13,8 @@
                     <multiselect 
                         v-model="tipoRestriccionSel" 
                         v-bind:options="tiposRestriccionOptions"
-                        label='nombre'
+                        label="nombre"
+                        track-by="codigo"
                         v-on:input="cambiarTipoRestriccion" 
                         >
                     </multiselect>

@@ -21,6 +21,8 @@ import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 
 public interface GpoSeccionService {
 
@@ -129,6 +131,6 @@ public interface GpoSeccionService {
 
     List<Carrera> allCarrerasActivasPrePost();
 
-    void saveRestriccion(Seccion seccion, String tipoRestriccion, List<Long> restricciones);
+    void saveRestriccion(Seccion seccion, Usuario usuario, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones);
 
 }

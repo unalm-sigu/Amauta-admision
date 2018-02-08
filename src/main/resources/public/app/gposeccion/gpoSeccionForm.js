@@ -130,6 +130,9 @@ var app = new Vue({
         $global.$on("afterSaveGrupo", function (response) {
             $vue.afterSaveGrupo(response, $vue);
         });
+        $global.$on("afterSaveRestriccion", function (response) {
+            $vue.afterSaveRestriccion(response, $vue);
+        });
 
     }, methods: {
         addSeccion: function () {
@@ -338,6 +341,14 @@ var app = new Vue({
             $global.$emit('saveGrupoHorario');
         }, afterSaveGrupo(response, $vue) {
             $vue.$refs.modalGrupo.close();
+            if (response.success) {
+                notify(response.message, "info");
+                $vue.loadSecciones();
+            } else {
+                notify(response.message, "error");
+            }
+        }, afterSaveRestriccion(response, $vue) {
+            $vue.$refs.modalRestriccion.close();
             if (response.success) {
                 notify(response.message, "info");
                 $vue.loadSecciones();

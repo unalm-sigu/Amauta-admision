@@ -49,6 +49,9 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
@@ -63,6 +66,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -236,6 +240,12 @@ public class GpoSeccionController {
             node.put("estadoEnumValue", seccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", seccion.getEstadoEnum().name());
             node.put("editVacantes", Boolean.FALSE);
+
+            node.put("tieneRestriccion", seccion.isTieneRestriccion());
+            node.put("tieneRestriccionCarrera", seccion.isTieneRestriccionCarrera());
+            node.put("tieneRestriccionFacultad", seccion.isTieneRestriccionFacultad());
+            node.put("tieneRestriccionModalidad", seccion.isTieneRestriccionModalidad());
+
             array.add(node);
         }
         jsonResponse.setSuccess(true);
@@ -765,7 +775,7 @@ public class GpoSeccionController {
             //  nodeResult.put("aulaSel", "");
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 Aula aula = service.findAula(seccion.getAula().getId());
-                ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
+                ObjectNode aulaNode = aula.toJson();
 
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     //OERA
@@ -819,10 +829,33 @@ public class GpoSeccionController {
             for (ModalidadEstudio modalidadEstudioEach : modalidadesEstudio) {
                 modalidadesEstudioJson.add(modalidadEstudioEach.toJson());
             }
+            ArrayNode tiposRestriccionesJson = new ArrayNode(jsonFactory);
+            for (TipoRestriccionEnum tipoRestriccionEnumEach : TipoRestriccionEnum.values()) {
+                ObjectNode tipoRestJson = new ObjectNode(jsonFactory);
+                tipoRestJson.put("codigo", tipoRestriccionEnumEach.name());
+                tipoRestJson.put("nombre", tipoRestriccionEnumEach.getValue());
+                tiposRestriccionesJson.add(tipoRestJson);
+            }
 
             nodeResult.putPOJO("seccion", seccion.toJson());
             nodeResult.set("facultades", facultadesJson);
             nodeResult.set("modalidades", modalidadesEstudioJson);
+            nodeResult.set("tiposRestriccion", tiposRestriccionesJson);
+            ObjectNode tipoRestriccionSel = null;
+            if (seccion.isTieneRestriccionCarrera()) {
+                tipoRestriccionSel = new ObjectNode(jsonFactory);
+                tipoRestriccionSel.put("codigo", TipoRestriccionEnum.ESP.name());
+                tipoRestriccionSel.put("nombre", TipoRestriccionEnum.ESP.getValue());
+            } else if (seccion.isTieneRestriccionFacultad()) {
+                tipoRestriccionSel = new ObjectNode(jsonFactory);
+                tipoRestriccionSel.put("codigo", TipoRestriccionEnum.FAC.name());
+                tipoRestriccionSel.put("nombre", TipoRestriccionEnum.FAC.getValue());
+            } else if (seccion.isTieneRestriccionModalidad()) {
+                tipoRestriccionSel = new ObjectNode(jsonFactory);
+                tipoRestriccionSel.put("codigo", TipoRestriccionEnum.MOD.name());
+                tipoRestriccionSel.put("nombre", TipoRestriccionEnum.MOD.getValue());
+            }
+            nodeResult.set("tipoRestriccionSel", tipoRestriccionSel);
 
             response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
@@ -848,6 +881,9 @@ public class GpoSeccionController {
         try {
             logger.debug("entro a cambiarTipoRestriccion");
 
+            TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
+            Seccion seccion = service.findSeccion(seccionId);
+
             nodeResult.put("esEspecialidad", Boolean.FALSE);
             nodeResult.put("esFacultad", Boolean.FALSE);
             nodeResult.put("esModalidad", Boolean.FALSE);
@@ -855,8 +891,9 @@ public class GpoSeccionController {
             ArrayNode facultadesJson = null;
             ArrayNode modalidadesJson = null;
             ArrayNode carrerasJson = null;
+            ArrayNode restriccionesSeleccionadas = null;
 
-            if (tipoRestriccion.equalsIgnoreCase("especialidad")) {
+            if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
                 nodeResult.put("esEspecialidad", Boolean.TRUE);
                 carrerasJson = new ArrayNode(jsonFactory);
                 List<Carrera> carreras = service.allCarrerasActivasPrePost();
@@ -867,21 +904,40 @@ public class GpoSeccionController {
                     carreraJson.put("esTipoMAE", carreraeEach.isTipoMAE());
                     carrerasJson.add(carreraJson);
                 }
-            } else if (tipoRestriccion.equalsIgnoreCase("facultad")) {
+                if (seccion.getRestriccionesCarrera() != null && !seccion.getRestriccionesCarrera().isEmpty()) {
+                    restriccionesSeleccionadas = new ArrayNode(jsonFactory);
+                    for (RestriccionCarrera restriccionCarreraEach : seccion.getRestriccionesCarrera()) {
+                        restriccionesSeleccionadas.add(restriccionCarreraEach.getCarrera().toJson());
+                    }
+                }
+            } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.FAC)) {
                 nodeResult.put("esFacultad", Boolean.TRUE);
                 facultadesJson = new ArrayNode(jsonFactory);
                 List<Facultad> facultades = service.allFacultadesActivas();
                 for (Facultad facultadEach : facultades) {
                     facultadesJson.add(facultadEach.toJson());
                 }
-            } else if (tipoRestriccion.equalsIgnoreCase("modalidad")) {
+                if (seccion.getRestriccionesFacultad() != null && !seccion.getRestriccionesFacultad().isEmpty()) {
+                    restriccionesSeleccionadas = new ArrayNode(jsonFactory);
+                    for (RestriccionFacultad restriccionFacultadEach : seccion.getRestriccionesFacultad()) {
+                        restriccionesSeleccionadas.add(restriccionFacultadEach.getFacultad().toJson());
+                    }
+                }
+            } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.MOD)) {
                 nodeResult.put("esModalidad", Boolean.TRUE);
                 modalidadesJson = new ArrayNode(jsonFactory);
                 List<ModalidadEstudio> modalidades = service.allModalidadesEstudioActivas();
                 for (ModalidadEstudio modalidadEach : modalidades) {
                     modalidadesJson.add(modalidadEach.toJson());
                 }
+                if (seccion.getRestriccionesModalidad() != null && !seccion.getRestriccionesModalidad().isEmpty()) {
+                    restriccionesSeleccionadas = new ArrayNode(jsonFactory);
+                    for (RestriccionModalidad restriccionModalidadEach : seccion.getRestriccionesModalidad()) {
+                        restriccionesSeleccionadas.add(restriccionModalidadEach.getModalidadEstudio().toJson());
+                    }
+                }
             }
+            nodeResult.set("restriccionesSeleccionadas", restriccionesSeleccionadas);
             if (facultadesJson != null) {
                 nodeResult.set("tblRestricciones", facultadesJson);
             }
@@ -915,14 +971,16 @@ public class GpoSeccionController {
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             Seccion seccion = new Seccion(TypesUtil.getLong(restriccionJson.get("seccion")));
-            String tipoRestriccion = TypesUtil.getString(restriccionJson.get("tipoRestriccion").get("nombre"));
+            String tipoRestriccion = restriccionJson.get("tipoRestriccion").get("codigo").asText();
+            TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
             ArrayNode restriccionesJson = (ArrayNode) restriccionJson.get("restriccionesArr");
-            List<Long> restionesList = new ArrayList<>();
+            List<Long> restriccionesList = new ArrayList<>();
+
             for (JsonNode restriccionEach : restriccionesJson) {
-                restionesList.add(restriccionEach.get("id").asLong());
+                restriccionesList.add(restriccionEach.get("id").asLong());
             }
 
-            service.saveRestriccion(seccion, tipoRestriccion, restionesList);
+            service.saveRestriccion(seccion, ds.getUsuario(), tipoRestriccionEnum, restriccionesList);
             String message = "Restriccion asignada correctamente.";
 
             response.setSuccess(true);
@@ -930,6 +988,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
