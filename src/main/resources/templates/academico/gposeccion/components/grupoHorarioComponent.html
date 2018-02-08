@@ -208,12 +208,13 @@
 
 
                             <table class="table"
+                                   width="100%"
                                    style="width: 100%;display: block;"
                                    v-if="tabGrupos['zetas'].tblHorarios!=null">
 
                                 <thead  style="width: 100%;display: block;">
                                     <tr>
-                                        <th style="width: 12.5%" class="text-center">Hora</th>
+                                        <th style="width: 100px !important;" class="text-center">Hora</th>
                                         <th style="width: 12.5%" class="text-center" 
                                             v-for="dia in tabGrupos['zetas'].tblHorarios.dias">
                                             {{dia.nombre}}
@@ -222,7 +223,7 @@
                                 </thead>
                                 <tbody style="width: 100%;height: 200px;display: block;overflow-y:auto;">
                                     <tr v-for="hora in tabGrupos['zetas'].tblHorarios.horas">
-                                        <td class="v-middle" style="width: 15%">
+                                        <td class="v-middle" style="width: 100px !important;">
                                             <span 
                                                 >
                                                 {{hora.descripcion}}

@@ -109,6 +109,13 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalSize: 'modal-lg'
         },
+        restriccionModal: {
+            id: 'modalRestriccion',
+            header: true,
+            title: 'Restricciones',
+            okbtn: 'Aceptar',
+            modalSize: 'modal-lg'
+        },
         aulOeraSel: null,
         tblAulas: null,
         modulosCombo: {}
@@ -122,6 +129,9 @@ var app = new Vue({
         });
         $global.$on("afterSaveGrupo", function (response) {
             $vue.afterSaveGrupo(response, $vue);
+        });
+        $global.$on("afterSaveRestriccion", function (response) {
+            $vue.afterSaveRestriccion(response, $vue);
         });
 
     }, methods: {
@@ -337,6 +347,14 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
+        }, afterSaveRestriccion(response, $vue) {
+            $vue.$refs.modalRestriccion.close();
+            if (response.success) {
+                notify(response.message, "info");
+                $vue.loadSecciones();
+            } else {
+                notify(response.message, "error");
+            }
         }, changeVacantes(seccion, event) {
 
             seccion.editVacantes = false;
@@ -410,6 +428,12 @@ var app = new Vue({
                 this.ubigeos = response.data
                 this.isLoading = false
             })
+        }, showModalRestriccion(seccion) {
+            let $vue = this;
+            $global.$emit('loadRestriccionComponent', seccion.seccionId);
+            this.$refs.modalRestriccion.open();
+        }, saveRestriccion() {
+            $global.$emit('saveRestriccion');
         }
     }
 })

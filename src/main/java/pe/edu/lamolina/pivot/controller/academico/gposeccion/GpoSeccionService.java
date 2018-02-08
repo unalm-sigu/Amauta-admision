@@ -3,11 +3,14 @@ package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -18,6 +21,8 @@ import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 
 public interface GpoSeccionService {
 
@@ -117,5 +122,15 @@ public interface GpoSeccionService {
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
     List<AnexoBoletin> allAnexosBySuperiorCiclo(String anexoSuperior, CicloAcademico ciclo);
+
+    List<Facultad> allFacultadesActivas();
+
+    List<ModalidadEstudio> allModalidadesEstudioActivas();
+
+    List<Carrera> allCarrerasActivas();
+
+    List<Carrera> allCarrerasActivasPrePost();
+
+    void saveRestriccion(Seccion seccion, Usuario usuario, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones);
 
 }

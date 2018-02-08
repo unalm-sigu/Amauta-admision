@@ -73,13 +73,15 @@ Vue.component("aula-component", {
                 },
                 success: function (response) {
                     if (response.success) {
-                        $vue.tabAulas.aulaSel = response.data.aulaSel;
+
                         $vue.seccionModal = response.data.seccion;
+                        console.dir($vue.seccionModal);
                         $vue.tabAulas['oera'].modulosCombo = response.data.modulosOera;
                         $vue.tabAulas['oficinas'].oficinasDisponibles = response.data.oficinasDisponibles;
                         // $vue.modulosCombo = response.data.modulosOera;
 
-                        if ($vue.tabAulas.aulaSel != null) {
+                        if (response.data.aulaSel != null) {
+                            $vue.tabAulas.aulaSel = response.data.aulaSel;
                             if ($vue.tabAulas.aulaSel.esOera) {
                                 console.log("esOera");
                                 console.dir(response.data.modulosOeraSel);

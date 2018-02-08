@@ -1,0 +1,121 @@
+<form id="frmRestriccion">
+    <section class="panel-body">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <label>Tipo Restriccion</label>
+                <div class="form-group">
+
+                    <!--
+                     v-model="tabAulas['oera'].moduloSel"
+                                  track-by="id"
+                    -->
+                    <multiselect 
+                        v-model="tipoRestriccionSel" 
+                        v-bind:options="tiposRestriccionOptions"
+                        label="nombre"
+                        track-by="codigo"
+                        v-on:input="cambiarTipoRestriccion" 
+                        >
+                    </multiselect>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="form-group">
+
+                    <div>
+                        Restricción
+                    </div>
+                    <!-- 
+                        :custom-label="nameWithCode"
+                    -->
+                    <multiselect 
+                        v-if="tipoRestriccion.esEspecialidad"
+                        v-model="restriccionesArr" 
+                        v-bind:options="tblRestricciones"
+                        label='nombre'
+                        track-by="id"
+                        v-bind:custom-label="nameWithCodeEspecialidad" 
+                        v-bind:multiple="true" 
+                        v-bind:hide-selected="true" 
+                        v-bind:close-on-select="false" 
+                        v-bind:preserve-search="true" 
+                        >
+                        <template slot="option" slot-scope="props">    
+                            <div class="option__desc">
+                                <div >
+                                    <span class="bold option__title">
+                                        {{ props.option.codigo }}
+                                    </span>
+                                    <span class="bold  option__small">
+                                        {{ props.option.nombre }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <span> 
+                                        <span v-if="props.option.esTipoDOC || props.option.esTipoMAE">
+                                            <span class="bold" style="color: blue;">Tipo Carrera</span> : {{ props.option.tipoDescripcion }}
+                                        </span>
+                                        <span  v-else="">
+                                            <span class="bold" style="color: green;">Modalidad Estudio</span> : {{ props.option.modalidadEstudio.nombre }}
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </template>
+
+
+                    </multiselect>
+                    <multiselect 
+                        v-if="tipoRestriccion.esFacultad || tipoRestriccion.esModalidad"
+                        v-model="restriccionesArr" 
+                        v-bind:options="tblRestricciones"
+                        label='nombre'
+                        track-by="id"
+                        v-bind:custom-label="nameWithCode" 
+                        v-bind:multiple="true" 
+                        v-bind:close-on-select="false" 
+                        v-bind:clear-on-select="false" 
+                        v-bind:hide-selected="true" 
+                        v-bind:preserve-search="true" 
+                        >
+                    </multiselect>
+
+                    <div style="height: 200px;overflow-y: auto;" 
+                         v-if="false">
+                        <table class="table table-striped"
+                               >
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">
+
+                                    </th>
+                                    <th >
+                                        Restricción
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tr v-for="rest in tblRestricciones">
+                                <td>
+                                    <input name="chkRestriccion" 
+                                           v-model="restriccionesArr"
+                                           v-bind:value="rest.id"
+                                           type="checkbox"/>
+                                </td>
+                                <td>
+                                    {{rest.codigo}}
+                                    {{rest.nombre}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>
