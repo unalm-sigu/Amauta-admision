@@ -755,7 +755,7 @@ public class ProgDataServiceImp implements ProgDataService {
         int loop = 0;
         List<AnexoBoletin> anexosBD = anexoBoletinDAO.all();
         Map<String, GrupoSeccion> mapGpoSecciones = new LinkedHashMap();
-        Map<String, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("codigo",anexosBD);
+        Map<String, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("codigo", anexosBD);
         for (GrupoSeccion gpoSecc : gruposSecciones) {
 
             logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
@@ -763,7 +763,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
             AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
             logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
-            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());            
+            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
             if (gpoSeccBD == null) {
 
                 gpoSeccBD = new GrupoSeccion();
@@ -826,9 +826,9 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setCodigo(seccion.getCodigo());
                 seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setGrupoSeccion(gpoSecc);
-                seccionBD.setMatriculados(0);
+                seccionBD.setMatriculados(seccion.getMatriculados());
                 seccionBD.setRetirados(0);
-                seccionBD.setVacantes(0);
+                seccionBD.setVacantes(seccion.getVacantes());
                 seccionBD.setEsPrincipal(0);
                 seccionBD.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
                 seccionBD.setGrupoHoras(gpoHoras);
@@ -838,7 +838,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
 
                 //System.out.println(seccionBD.getId() + ":::" + seccionBD.getTipoSeccion());
-                if (seccionBD.isTipoSeccionPRA()) {                    
+                if (seccionBD.isTipoSeccionPRA()) {
                     seccionBD.setHorasSemanales(horasPractica);
                     gpoSecc.setHorasPractica(horasPractica);
                 } else if (seccionBD.isTipoSeccionTEO()) {
@@ -858,13 +858,15 @@ public class ProgDataServiceImp implements ProgDataService {
                 //seccionBD.setHorasSemanales(horasTeoria + horasPractica);
                 seccionBD.setEstado(EstadoEnum.ACT.name());
                 //seccionBD.setSeccionSuperior(seccionBD);
-
                 seccionDAO.save(seccionBD);
             } else {
+                System.out.println(seccion.getVacantes() + " " + seccion.getMatriculados());
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
                 seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setEstado(EstadoEnum.ACT.name());
+                seccionBD.setMatriculados(seccion.getMatriculados());
+                seccionBD.setVacantes(seccion.getVacantes());
                 seccionDAO.update(seccionBD);
             }
 

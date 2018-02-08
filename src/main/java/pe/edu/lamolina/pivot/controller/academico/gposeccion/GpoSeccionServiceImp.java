@@ -141,7 +141,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico,
             Seccion seccion) {
-        return grupoHorasDAO.allByTipoGrupoHoraDyna(filter, tipoGrupoHoras, cicloAcademico, seccion);
+        List<GrupoHoras> gruposHorasFilter = this.allGrupoHorasBySeccionAndTipoGrupoHoras(seccion, tipoGrupoHoras, cicloAcademico);
+        return grupoHorasDAO.allByTipoGrupoHoraDyna(filter, tipoGrupoHoras, cicloAcademico, seccion, gruposHorasFilter);
     }
 
     @Override

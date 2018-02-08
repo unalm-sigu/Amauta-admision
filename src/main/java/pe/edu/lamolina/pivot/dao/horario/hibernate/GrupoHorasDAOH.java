@@ -83,7 +83,8 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     public List<GrupoHoras> allByTipoGrupoHoraDyna(DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico,
-            Seccion seccion) {
+            Seccion seccion,
+            List<GrupoHoras> grupoHorasFilter) {
 
         /*
         StringBuilder strb = new StringBuilder();
@@ -109,6 +110,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
                 .filter("tgh.id", tipoGrupoHoras)
                 .filter("ca.id", cicloAcademico)
+                .in("gh.id", grupoHorasFilter)
                 .searchFields("gh.codigo");
 
         return sql.all(getCurrentSession());
