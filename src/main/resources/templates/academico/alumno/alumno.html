@@ -75,6 +75,11 @@
 
         </section>
         <script id="alumnoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/alumno/alumnoTemplate"/></script>
+
+        <script id="alumnoResumenTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="academico/alumno/alumnoResumen"/>
+        </script>
+
     </div>
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>

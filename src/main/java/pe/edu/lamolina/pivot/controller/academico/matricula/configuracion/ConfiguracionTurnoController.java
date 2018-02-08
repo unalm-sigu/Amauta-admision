@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,17 +21,12 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
-import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
-/**
- *
- * @author AlbatrossCloud
- */
 @Controller
-@RequestMapping("academico/matricula")
-public class ConfiguracionController {
+@RequestMapping("academico/configuracionturno")
+public class ConfiguracionTurnoController {
 
     @Autowired
     ConfiguracionMatriculaService configuracionMatriculaService;
@@ -68,7 +58,7 @@ public class ConfiguracionController {
     @RequestMapping("configuracion")
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-          model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/matricula/matriculaConfiguracion";
     }
 
@@ -96,7 +86,7 @@ public class ConfiguracionController {
         objNode.put("fechaInicio", fechaInicio);
         String horaInicio = sdf.format(atencion.getHoraInicio());
         objNode.put("horaInicio", horaInicio);
-        objNode.put("envento", atencion.getIdEventoCicloAcademico().getIdEventoAcademico().getNombre());
+        objNode.put("envento", atencion.getEventoCicloAcademico().getEventoAcademico().getNombre());
 
         response.setData(objNode);
         return response;

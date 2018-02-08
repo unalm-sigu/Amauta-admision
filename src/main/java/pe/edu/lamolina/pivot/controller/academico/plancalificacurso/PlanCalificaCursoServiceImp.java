@@ -41,7 +41,7 @@ public class PlanCalificaCursoServiceImp implements PlanCalificaCursoService {
     @Override
     @Transactional
     public void reasignarPlanDocenteCurso(CicloAcademico ciclo, DataSessionPivot ds) {
-        CicloAcademico cicloAnterior = cicloAcademicoDAO.findAnteriorRegular(ciclo);
+        CicloAcademico cicloAnterior = cicloAcademicoDAO.find(469);
         List<DocenteCursoPlan> profeCursoPlanesAntes = grupoSeccionDAO.allDocenteCursoPlanByCiclo(cicloAnterior);
         Map<String, Long> mapPlanesStr = new LinkedHashMap();
 

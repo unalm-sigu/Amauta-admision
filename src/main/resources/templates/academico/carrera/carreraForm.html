@@ -75,8 +75,8 @@
                                     <div class="form-group divTipoCarrera">
                                         <label>Tipo</label>
                                         <input type='text' name="tipo" class='form-control tipo' 
-                                               th:value="${carrera.tipo != null ? T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).name():''}"
-                                               th:rel=" ${carrera.tipo != null ? T(pe.edu.lamolina.pivot.zelper.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}"  required="true" 
+                                               th:value="${carrera.tipo != null ? T(pe.edu.lamolina.model.enums.TipoCarreraEnum).valueOf(carrera.tipo).name():''}"
+                                               th:rel=" ${carrera.tipo != null ? T(pe.edu.lamolina.model.enums.TipoCarreraEnum).valueOf(carrera.tipo).value:''}"  required="true" 
                                                data-trigger="change"/>
                                     </div>
                                 </form>
