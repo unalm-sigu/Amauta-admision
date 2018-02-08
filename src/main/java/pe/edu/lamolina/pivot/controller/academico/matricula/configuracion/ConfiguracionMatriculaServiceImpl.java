@@ -57,7 +57,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 objTurno.setFecha(configuracionTurnosAtencion.getFechaInicio());
                 objTurno.setHoraInicio(horaInicio);
                 objTurno.setHoraFinal(new Time(horaInicio.getMinutes() + (configuracionTurnosAtencion.getDuracion() - configuracionTurnosAtencion.getEspera())));
-                objTurno.setIdConfiguracionTurnosAtencion(configuracionTurnosAtencion);
+                objTurno.setConfiguracionTurnosAtencion(configuracionTurnosAtencion);
                 objTurno.setPrioridadInicio(b);
                 objTurno.setPrioridadFin(b + (cantAlumnos - 1));
                 objTurno.setTurno(i);
