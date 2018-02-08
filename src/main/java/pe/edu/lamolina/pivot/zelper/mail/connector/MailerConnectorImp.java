@@ -44,7 +44,7 @@ public class MailerConnectorImp implements MailerConnector {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             InternetAddress ie = new InternetAddress();
             ie.setPersonal("UNALM - Sistema de Inscripción de alumno");
-            ie.setAddress("no-responder@lamolina.edu.pe");
+            ie.setAddress("no-responder@carrerasqueapasionan.pe");
             message.setFrom(ie);
 
             message.setSubject(mail.getSubject());

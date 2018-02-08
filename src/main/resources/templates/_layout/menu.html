@@ -24,7 +24,7 @@
 
                 <ul class="menu">
                     <li th:if="${session.SESSION_USUARIO.roles.size()>1}"><a th:href="@{/changerol}">Cambiar de Rol</a></li>
-                    <li><a th:href="@{/ciclo/changeciclo}">Cambiar de Ciclo</a></li>
+                    <li><a th:href="@{/academico/cicloacademico/changeciclo}">Cambiar de Ciclo</a></li>
                     <!--<li class="divider"> </li>-->
                     <li><a href="#" onclick="exitSession()">Salir</a></li>
                 </ul>
@@ -135,6 +135,11 @@
                                     </a>
                                 </li>
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/departamento}">
+                                        <span>Departamento académico</span>
+                                    </a>
+                                </li>
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA","OREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/academico/curso}">
                                         <span>Cursos</span>
                                     </a>
@@ -164,6 +169,18 @@
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/configuracion/editorcontenido}">
                                         <span>Editor de Contenidos</span>
+                                    </a>
+                                </li>
+
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/cicloacademico}">
+                                        <span>Ciclo académico</span>
+                                    </a>
+                                </li>
+
+                                <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
+                                    <a th:href="@{/academico/eventocicloacademico}">
+                                        <span>Evento académico</span>
                                     </a>
                                 </li>
                             </ul>

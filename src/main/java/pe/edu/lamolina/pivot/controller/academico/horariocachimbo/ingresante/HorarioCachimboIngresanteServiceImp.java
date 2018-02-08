@@ -85,7 +85,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Transactional
     public void addAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
         logger.debug("alumno {} cicloAcademico {}", alumno.getId(), cicloAcademico.getId());
-        Alumno alumnoDB = alumnoDAO.findAlumno(alumno);
+        Alumno alumnoDB = alumnoDAO.find(alumno);
         Carrera carrera = alumnoDB.getCarrera();
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumnoDB, cicloAcademico);
         if (alumnoHorario == null) {
@@ -212,7 +212,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Override
     public List<Alumno> allAlumnoByName(String nombre) {
-        return alumnoDAO.allAlumnoByName(nombre);
+        return alumnoDAO.allByName(nombre);
     }
 
     @Override
@@ -277,7 +277,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     public List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, CicloAcademico cicloAcademico) {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-        return alumnoDAO.allAlumnoIngresantePregradoByNameCiclo(nombre, modalidad, cicloAcademico);
+        return alumnoDAO.allByNameModalidadEstudioCiclo(nombre, modalidad, cicloAcademico);
     }
 
     @Override

@@ -498,8 +498,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     evaluacion.setTipoSeccionEvalEnum(grupoSeccion.getCurso().getTipoCursoEnum().getTipoSeccionEvalEnum());
                     evaluacion.setNivel(BigDecimal.ONE.intValue());
 
-                    if (i == evaluacionPlan.getCantidadEvaluaciones() 
-//                            && (evaluacionPlan.getNotaMinimaAnulable() == null || evaluacionPlan.getNotaMinimaAnulable() == 0)
+                    if (i == evaluacionPlan.getCantidadEvaluaciones() //                            && (evaluacionPlan.getNotaMinimaAnulable() == null || evaluacionPlan.getNotaMinimaAnulable() == 0)
                             ) {
                         BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
                         evaluacion.setPeso(pesoFinal);
