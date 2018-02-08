@@ -73,7 +73,6 @@ new Vue({
                              ,url: '/post'
                              */
                 });
-
                 console.log($vue.horas);
                 $vue.horas.forEach(function (elem) {
                     elem.turnos.forEach(function (turno) {
@@ -83,61 +82,71 @@ new Vue({
                 $('#1').editable();
                 $('#datepicker1').datepicker();
                 $('#datepicker2').datepicker();
-                $('#datetimepicker1').timepicker();
+                $('#datetimepicker1').timepicker({
+                    timeFormat: 'HH:mm:ss',
+                    minTime: '11:45:00', // 11:45:00 AM,
+                    maxHour: 20,
+                    maxMinutes: 30,
+                    startTime: new Date(0, 0, 0, 15, 0, 0), // 3:00:00 PM - noon
+                    interval: 15 // 15 minutes
+                });
                 $('#datetimepicker2').timepicker();
                 $('#datetimepicker3').timepicker();
                 $('#date1').datepicker();
                 $('#date1').datepicker();
             });
-        });
-
-
-
+        }
+        );
     },
     mounted() {
 
         $('.numeric').numeric({negative: false});
-        let $vue = this;
-        $('#datepicker1').datepicker().on(
-                'changeDate', () => {
-            $vue.config.fechaInicio = $('#date1').val();
-            console.log($vue.config.fechaInicio);
-        }
-        );
-        $('#datepicker2').datepicker().on(
-                'changeDate', () => {
-            $vue.config.fechaFin = $('#date2').val();
-            console.log($vue.config.fechaFin);
-        }
-        );
+
+
 
     },
     methods: {
+        convertDate(strDate) {
+            var parts = strDate.split("/");
+            return new Date(parts[2], parts[1] - 1, parts[0]);
+        },
         nuevo() {
 
             $("#myModal").modal('show');
         },
         save() {
             let $vue = this;
-            $vue.config.espera =  parseInt($vue.config.espera);
-            $vue.config.duracion =  parseInt($vue.config.duracion);
-            $vue.config.alumnos =  parseInt($vue.config.alumnos);
-//            $('#date1').val((new Date($vue.config.fechaFin)).toLocaleDateString('la', {year: 'numeric', month: 'numeric', day: 'numeric'}));
-            console.log($('#date1').val());
+
+            $('#datepicker1').datepicker().on(
+                    'changeDate', () => {
+                $vue.config.fechaInicio = $('#date1').val();
+                $vue.config.fechaInicio = $vue.convertDate($vue.config.fechaInicio);
+                console.log($vue.config.fechaInicio);
+            }
+            );
+            $('#datepicker2').datepicker().on(
+                    'changeDate', () => {
+                $vue.config.fechaFin = $('#date2').val();
+                $vue.config.fechaFin = $vue.convertDate($vue.config.fechaFin);
+                console.log($vue.config.fechaFin);
+            }
+            );
+            $vue.config.horaInicio = $vue.config.horaInicio.replace("AM","");
+            $vue.config.horaInicio = $vue.config.horaInicio.replace(":","");
+            $vue.config.horaInicio = $vue.config.horaInicio.replace("PM","");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matricula/saveConfiguracion'),
+                url: APP.url('academico/matricula/configuracion'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.config),
                 success: function (response) {
-                   
+
                 }
             });
-
             $("#myModal").modal('hide');
         },
         carga() {
-            let $vue = this;
+
             $.ajax({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + this.alumno.id + '/historial'),

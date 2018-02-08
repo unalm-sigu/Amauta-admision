@@ -89,7 +89,7 @@ public class ConfiguracionController {
         objNode.put("fechaInicio", fechaInicio);
         String horaInicio = sdf.format(atencion.getHoraInicio());
         objNode.put("horaInicio", horaInicio);
-        objNode.put("envento", atencion.getIdEventoCicloAcademico().getEventoAcademico().getId());
+        objNode.put("envento", atencion.getEventoCicloAcademico().getEventoAcademico().getId());
 
         response.setData(objNode);
         return response;

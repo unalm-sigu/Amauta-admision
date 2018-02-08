@@ -56,9 +56,9 @@
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">Evento</label>
                             <div class="col-sm-6">
-                                <select  class="form-control " v-model="config.idEventoCicloAcademico">
+                                <select  class="form-control " v-model="config.eventoCicloAcademico">
                                     <option value="">Seleccione un evento</option>
-                                    <option v-for="idEventoCicloAcademico in eventos"   v-text="idEventoCicloAcademico.value"  v-bind:value="idEventoCicloAcademico.id"/>
+                                    <option v-for="eventoCicloAcademico in eventos"   v-text="eventoCicloAcademico.value"  v-bind:value="eventoCicloAcademico"/>
                                 </select>                                
                             </div>
                         </div>

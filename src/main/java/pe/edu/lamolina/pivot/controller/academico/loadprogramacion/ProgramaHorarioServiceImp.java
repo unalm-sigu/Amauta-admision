@@ -619,8 +619,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     break;
                 }
 
-                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave);
-                secciones.add(seccion);
+//                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave);
+//                secciones.add(seccion);
             }
             logger.debug("Se han leido un total de {} secciones", loop);
 
@@ -659,8 +659,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     break;
                 }
 
-                GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso);
-                gpoSecciones.add(gpoSecc);
+//                GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso);
+//                gpoSecciones.add(gpoSecc);
             }
             logger.debug("Se han leido un total de {} grupos-secciones", loop);
 

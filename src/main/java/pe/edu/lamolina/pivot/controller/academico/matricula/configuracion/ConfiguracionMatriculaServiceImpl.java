@@ -46,8 +46,9 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
         Integer cantAlumnos = Math.round(configuracionTurnosAtencion.getAlumnos() / cantTurnos);
         
+        Integer horaInicio = Integer.parseInt(configuracionTurnosAtencion.getHoraInicio()) +  configuracionTurnosAtencion.getDuracion();
         Integer b = 1;
-        Time horaInicio = (Time) configuracionTurnosAtencion.getHoraInicio();
+        
         
         List<TurnoAtencion> turnoAtencion = new ArrayList<TurnoAtencion>();
         TurnoAtencion objTurno = new TurnoAtencion();
@@ -55,8 +56,8 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
             for (int i = 1; i < configuracionTurnosAtencion.getTurnosDia(); i++) {
                 objTurno.setAlumnos(cantAlumnos);
                 objTurno.setFecha(configuracionTurnosAtencion.getFechaInicio());
-                objTurno.setHoraInicio(horaInicio);
-                objTurno.setHoraFinal(new Time(horaInicio.getMinutes() + (configuracionTurnosAtencion.getDuracion() - configuracionTurnosAtencion.getEspera())));
+//                objTurno.setHoraInicio(horaInicio);
+//                objTurno.setHoraFinal(new Time(horaInicio.getMinutes() + (configuracionTurnosAtencion.getDuracion() - configuracionTurnosAtencion.getEspera())));
                 objTurno.setConfiguracionTurnosAtencion(configuracionTurnosAtencion);
                 objTurno.setPrioridadInicio(b);
                 objTurno.setPrioridadFin(b + (cantAlumnos - 1));
@@ -64,9 +65,9 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 turnoAtencion.add(objTurno);
 
                 b = objTurno.getPrioridadFin() + 1;
-                horaInicio = new Time(horaInicio.getMinutes() + (configuracionTurnosAtencion.getDuracion() - configuracionTurnosAtencion.getEspera()));
+//                horaInicio = new Time(horaInicio.getMinutes() + (configuracionTurnosAtencion.getDuracion() - configuracionTurnosAtencion.getEspera()));
             }
-            horaInicio = (Time) configuracionTurnosAtencion.getHoraInicio();
+//            horaInicio = (Time) configuracionTurnosAtencion.getHoraInicio();
             b = 1;
         }
 
