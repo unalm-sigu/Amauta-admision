@@ -396,7 +396,7 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserRegistro(ds.getUsuario());
             docenteDAO.save(profeBD);
 
-        } else if (profeBD.getEstadoEnum() != EstadoEnum.ACT) {
+        } else if (profeBD.getEstadoEnum() != DocenteEstadoEnum.ACT) {
             profeBD.setEstado(DocenteEstadoEnum.ACT);
             profeBD.setFechaModifica(new Date());
             profeBD.setUserModifica(ds.getUsuario());
