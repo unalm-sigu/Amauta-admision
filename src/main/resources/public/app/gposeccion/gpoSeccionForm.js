@@ -322,6 +322,7 @@ var app = new Vue({
                 url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/loadGpoSeccionForm'),
                 success: function (response) {
                     if (response.success) {
+                        console.dir(response.data.tiposRepitenciaJson);
                         $vue.tiposRepitenciaOpt = response.data.tiposRepitenciaJson;
                     }
                 }
@@ -457,7 +458,54 @@ var app = new Vue({
             $global.$emit('saveRestriccion');
         }, showModalTipoRepitencia(seccion) {
             let $vue = this;
-            this.$refs.modalTipoRepitencia.open();
+            $vue.tiposRepitenciaArr = [];
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/loadModalRepitenciaRestriccion'),
+                data: {
+                    seccion: seccion.seccionId
+                }, success: function (response) {
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.seccionModal = response.data.seccion;
+                        if (response.data.restriccionesRepitencia != null) {
+                            $vue.tiposRepitenciaArr = response.data.restriccionesRepitencia;
+                        }
+                        $vue.$refs.modalTipoRepitencia.open();
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                },
+                error: function (error) {
+                    MODAL.hideWait();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, saveTipoRepRestriccion() {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveTipoRepRestriccion'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data:
+                        JSON.stringify($vue.tiposRepitenciaArr)
+                ,
+                success: function (response) {
+                    if (response.success) {
+                        MODAL.hideWait();
+                        $vue.$refs.modalTipoRepitencia.close();
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                },
+                error: function (response) {
+                    MODAL.hideWait();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 })

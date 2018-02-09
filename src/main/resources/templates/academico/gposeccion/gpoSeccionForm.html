@@ -311,9 +311,86 @@
 
             <modal-vik ref="modalTipoRepitencia"
                        v-bind="tipoRepitenciaModal"
-                       v-bind:okaction="saveRestriccion">
+                       v-bind:okaction="saveTipoRepRestriccion">
                 <div slot="body">
-                    modal tipo repitencia
+                    <form id="frmTipoRepitencia">
+
+                        <template v-if="seccionModal!=null">
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
+
+                                    <div class="col-md-10">
+                                        <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">Dpto. Academicos</label>
+
+                                    <div class="col-md-10">
+                                        <span> {{seccionModal.departamentoAcademico.nombre}} </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">Clave</label>
+
+                                    <div class="col-md-4">
+                                        <span> {{seccionModal.codigo}}</span>
+                                    </div>
+
+                                    <label class="col-md-2 control-label">Vacantes</label>
+
+                                    <div class="col-md-4">
+                                        <span> {{seccionModal.vacantes}} </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">Aula</label>
+
+                                    <div class="col-md-4">
+                                        <span v-if="seccionModal.aula!=''"> {{seccionModal.aula.codigo}}</span>
+                                    </div>
+
+                                    <label class="col-md-2 control-label">Horas</label>
+
+                                    <div class="col-md-4">
+                                        <span>{{seccionModal.horasSemanales}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <section class="panel-body">
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <div>Tipo Restriccion</div>
+
+                                        <multiselect 
+                                            v-model="tiposRepitenciaArr" 
+                                            v-bind:options="tiposRepitenciaOpt"
+                                            label='nombre'
+                                            track-by="id"
+                                            v-bind:multiple="true" 
+                                            v-bind:close-on-select="false" 
+                                            v-bind:clear-on-select="false" 
+                                            v-bind:hide-selected="true" 
+                                            v-bind:preserve-search="true" 
+                                            >
+                                        </multiselect>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </section>
+                    </form>
                 </div>
             </modal-vik>
 

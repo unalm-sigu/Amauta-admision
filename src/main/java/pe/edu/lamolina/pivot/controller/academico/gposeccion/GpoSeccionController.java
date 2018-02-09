@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -52,6 +53,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -889,6 +891,37 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("loadModalRepitenciaRestriccion")
+    public JsonResponse loadModalRepitenciaRestriccion(
+            @RequestParam("seccion") Long seccionId,
+            HttpSession session,
+            Model model) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            ObjectNode result = new ObjectNode(jsonFactory);
+            Seccion seccion = service.findSeccion(seccionId);
+            ArrayNode restriccionesRepitencia = null;
+            if (seccion.getRestriccionesRepitencia() != null && !seccion.getRestriccionesRepitencia().isEmpty()) {
+                restriccionesRepitencia = new ArrayNode(jsonFactory);
+                for (RestriccionRepitencia restriccionRepitenciaEach : seccion.getRestriccionesRepitencia()) {
+                    restriccionesRepitencia.add(restriccionRepitenciaEach.getTipoRepitencia().toJson());
+                }
+            }
+
+            result.putPOJO("seccion", seccion.toJson());
+            result.putPOJO("restriccionesRepitencia", restriccionesRepitencia);
+            response.setData(result);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("cambiarTipoRestriccion")
     public JsonResponse cambiarTipoRestriccion(
             @RequestParam("seccion") Long seccionId,
@@ -1483,6 +1516,38 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Grupo hora asignado correctamente.";
             service.saveSeccionGrupoHorario(seccionId, grupoHoras, ds.getCicloAcademico());
+
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{seccion}/saveTipoRepRestriccion")
+    public JsonResponse saveTipoRepRestriccion(
+            @PathVariable("seccion") Long seccionId,
+            @RequestBody ArrayNode tiposRepitencias,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<TipoRepitencia> tiposRepitencia = new ArrayList<>();
+            for (JsonNode it : tiposRepitencias) {
+                ObjectNode tipoRepitencia = (ObjectNode) it;
+                tiposRepitencia.add((TipoRepitencia) JsonHelper.fromJson(tipoRepitencia.toString(), TipoRepitencia.class));
+            }
+            service.saveTipoRepitenciaRestriccion(new Seccion(seccionId), ds.getUsuario(), tiposRepitencia);
+
+            String message = "Tipo repitencia asignada correctamente.";
 
             response.setSuccess(true);
             response.setMessage(message);

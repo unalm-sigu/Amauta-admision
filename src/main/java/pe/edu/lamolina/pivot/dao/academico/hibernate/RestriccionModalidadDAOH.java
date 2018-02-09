@@ -13,6 +13,11 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
 @Repository
 public class RestriccionModalidadDAOH extends AbstractEasyDAO<RestriccionModalidad> implements RestriccionModalidadDAO {
 
+    public RestriccionModalidadDAOH() {
+        super();
+        setClazz(RestriccionModalidad.class);
+    }
+
     @Override
     public List<RestriccionModalidad> allActivasBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()

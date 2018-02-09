@@ -136,4 +136,6 @@ public interface GpoSeccionService {
 
     List<TipoRepitencia> allTipoRepitencia();
 
+    void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRepitencia);
+
 }

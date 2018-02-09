@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
+import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -66,6 +67,7 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
@@ -141,6 +143,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     RestriccionFacultadDAO restriccionFacultadDAO;
+
+    @Autowired
+    RestriccionRepitenciaDAO restriccionRepitenciaDAO;
 
     @Autowired
     TipoRepitenciaDAO tipoRepitenciaDAO;
@@ -584,10 +589,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
         List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
         List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
+        List<RestriccionRepitencia> restriccionRepitencias = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
 
         seccion.setRestriccionesCarrera(restriccionesCarrera);
         seccion.setRestriccionesFacultad(restriccionesFacultad);
         seccion.setRestriccionesModalidad(restriccionesModalidad);
+        seccion.setRestriccionesRepitencia(restriccionRepitencias);
 
         return seccion;
     }
@@ -859,7 +866,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     restriccionCarrera.setFechaRegistro(today.toDate());
                     restriccionCarrera.setUsuarioRegistro(usuario);
                     restriccionCarrera.setSeccion(seccion);
-                    restriccionCarreraDAO.update(restriccionCarrera);
+                    restriccionCarreraDAO.save(restriccionCarrera);
                 }
             }
 
@@ -905,7 +912,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     restriccionFacultad.setFechaRegistro(today.toDate());
                     restriccionFacultad.setUsuarioRegistro(usuario);
                     restriccionFacultad.setSeccion(seccion);
-                    restriccionFacultadDAO.update(restriccionFacultad);
+                    restriccionFacultadDAO.save(restriccionFacultad);
                 }
             }
 
@@ -950,7 +957,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     restriccionModalidad.setFechaRegistro(today.toDate());
                     restriccionModalidad.setUsuarioRegistro(usuario);
                     restriccionModalidad.setSeccion(seccion);
-                    restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidad);
+                    restriccionModalidadDAO.save(restriccionModalidad);
                 }
             }
 
@@ -966,6 +973,37 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 restriccionFacultadEach.setFechaModificacion(today.toDate());
                 restriccionFacultadEach.setUsuarioModificacion(usuario);
                 restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRestriccionesSeleccionados) {
+        DateTime today = new DateTime();
+
+        List<RestriccionRepitencia> restriccionesRepitencia = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
+
+        //desactivamos los que ya no estan seleccionados
+        for (RestriccionRepitencia restriccionRepEach : restriccionesRepitencia) {
+            if (!tiposRestriccionesSeleccionados.contains(restriccionRepEach.getTipoRepitencia())) {
+                restriccionRepEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionRepEach.setFechaModificacion(today.toDate());
+                restriccionRepEach.setUsuarioModificacion(usuario);
+                restriccionRepitenciaDAO.updateEstadoFechaUsuario(restriccionRepEach);
+            }
+        }
+
+        //Grabar solo las nuevas selecciones
+        for (TipoRepitencia tipoRepitenciaEach : tiposRestriccionesSeleccionados) {
+            if (!tipoRepitenciaEach.isTieneRestriccion(restriccionesRepitencia)) {
+                RestriccionRepitencia restriccionRepitencia = new RestriccionRepitencia();
+                restriccionRepitencia.setTipoRepitencia(tipoRepitenciaEach);
+                restriccionRepitencia.setEstadoEnum(EstadoEnum.ACT);
+                restriccionRepitencia.setFechaRegistro(today.toDate());
+                restriccionRepitencia.setUsuarioRegistro(usuario);
+                restriccionRepitencia.setSeccion(seccion);
+                restriccionRepitenciaDAO.save(restriccionRepitencia);
             }
         }
     }

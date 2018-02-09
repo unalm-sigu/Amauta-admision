@@ -57,18 +57,11 @@ Vue.component("restriccion-component", {
         },
         saveRestriccion($vue) {
 
-            $(".multiselect__input").each(function () {
+            $('#frmRestriccion').find(".multiselect__input").each(function () {
                 $(this).attr("required", true);
             });
-            //.parsley-error
-            $('.multiselect__input').each(function () {
+            $('#frmRestriccion').find('.multiselect__input').each(function () {
                 var input = $(this);
-                /*
-                 if (input.closest('.multiselect').find('.multiselect__content li.multiselect__option--selected span').val() != '') {
-                 //  input.removeClass('parsley-error');
-                 //  input.parent().find('.parsley-errors-list').children().remove();
-                 $(this).removeAttr("required");
-                 }*/
                 let element = input.closest('.multiselect').find('.multiselect__tags-wrap');
 
                 if (element.css('display') != 'none' && element.html() != "") {

@@ -12,6 +12,11 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
 @Repository
 public class RestriccionFacultadDAOH extends AbstractEasyDAO<RestriccionFacultad> implements RestriccionFacultadDAO {
 
+    public RestriccionFacultadDAOH() {
+        super();
+        setClazz(RestriccionFacultad.class);
+    }
+
     @Override
     public List<RestriccionFacultad> allActivasBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()
