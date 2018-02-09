@@ -1,272 +1,276 @@
-<template v-if="seccionModal!=null">
-    <div class="row">
-        <div class="form-group">
-            <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
+<template id="grupoHorarioComp"> 
+    <div>
+        <template v-if="seccionModal!=null">
+            <div class="row">
+                <div class="form-group">
+                    <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
 
-            <div class="col-md-10">
-                <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
+                    <div class="col-md-10">
+                        <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group">
-            <label class="col-md-2 control-label">Dpto. Academicos</label>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Dpto. Academicos</label>
 
-            <div class="col-md-10">
-                <span> {{seccionModal.departamentoAcademico.nombre}} </span>
+                    <div class="col-md-10">
+                        <span> {{seccionModal.departamentoAcademico.nombre}} </span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group">
-            <label class="col-md-2 control-label">Clave</label>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Clave</label>
 
-            <div class="col-md-4">
-                <span> {{seccionModal.codigo}}</span>
+                    <div class="col-md-4">
+                        <span> {{seccionModal.codigo}}</span>
+                    </div>
+
+                    <label class="col-md-2 control-label">Vacantes</label>
+
+                    <div class="col-md-4">
+                        <span> {{seccionModal.vacantes}} </span>
+                    </div>
+                </div>
             </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Aula</label>
 
-            <label class="col-md-2 control-label">Vacantes</label>
+                    <div class="col-md-4">
+                        <span v-if="seccionModal.aula!=''"> {{seccionModal.aula.codigo}}</span>
+                    </div>
 
-            <div class="col-md-4">
-                <span> {{seccionModal.vacantes}} </span>
+                    <label class="col-md-2 control-label">Horas</label>
+
+                    <div class="col-md-4">
+                        <span>{{seccionModal.horasSemanales}}</span>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="form-group">
-            <label class="col-md-2 control-label">Aula</label>
+        </template>
 
-            <div class="col-md-4">
-                <span v-if="seccionModal.aula!=''"> {{seccionModal.aula.codigo}}</span>
-            </div>
+        <div id="tabGrupos" class="tabbable-line m-b-sm">	
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a  href="#grupo1" data-toggle="tab" >Regulares</a>
+                </li>
+                <li >
+                    <a href="#grupo2" data-toggle="tab" >Especiales</a>
+                </li>
+                <li>
+                    <a href="#grupo3" data-toggle="tab">Zetas</a>
+                </li>
+            </ul>
+            <section class="panel">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="grupo1">
+                        <section class="panel-body">
 
-            <label class="col-md-2 control-label">Horas</label>
+                            <div class="form-group">
+                                <multiselect  v-model="tabGrupos['regulares'].tipoGrupoHorasSeleccionado"
+                                              track-by="id"
+                                              v-bind:options="tabGrupos['regulares'].tipoGrupoHorasOpts"
+                                              label='descripcion'
+                                              v-on:input="cambiarCboTipoGrupoHorReg"
+                                              v-if="tabGrupos['regulares'].tipoGrupoHorasOpts!=null"
+                                              >
+                                </multiselect>
 
-            <div class="col-md-4">
-                <span>{{seccionModal.horasSemanales}}</span>
-            </div>
+
+                            </div>
+
+                            <section class="panel-body">
+                                <div class="table-responsive" >
+                                    <table class="table" v-if="tabGrupos['regulares'].tblHorarioRegular!=null">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 12.5%" class="text-center">Hora</th>
+                                                <th style="width: 12.5%" class="text-center" 
+                                                    v-for="dia in tabGrupos['regulares'].tblHorarioRegular.dias">
+                                                    {{dia.nombre}}
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="hora in tabGrupos['regulares'].tblHorarioRegular.horas">
+                                                <td class="v-middle">
+                                                    <span 
+                                                        >
+                                                        {{hora.descripcion}}
+                                                    </span>
+
+                                                </td>
+                                                <td  v-for="dia in tabGrupos['regulares'].tblHorarioRegular.dias"> 
+                                                    <template v-if="tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                        <span v-if="tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                                              v-on:click="selectGrupoHoraHorario(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                              class="form-control pointer"
+                                                              v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+                                                            {{tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+                                                        </span>
+                                                    </template>
+
+
+                                                    <span v-if="tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                                          class="form-control btn-danger"
+                                                          >
+                                                        {{tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
+                                                    </span>
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+
+                        </section>
+                    </div>
+                    <div class="tab-pane" id="grupo2" >
+                        <section class="panel-body">
+                            <dynatable-especial v-bind:onclick="seleccionarGrupoEsp"
+                                                v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                                ></dynatable-especial>
+
+
+                            <section class="panel-body">
+                                <div class="table-responsive" >
+
+
+                                    <table id="tblHorarioEsp" class="table" v-if="tabGrupos['especial'].tblHorarios!=null">
+
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 12.5%" class="text-center">Hora</th>
+                                                <th style="width: 12.5%" class="text-center" 
+                                                    v-for="dia in tabGrupos['especial'].tblHorarios.dias">
+                                                    {{dia.nombre}}
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="hora in tabGrupos['especial'].tblHorarios.horas">
+                                                <td class="v-middle">
+                                                    <span 
+                                                        >
+                                                        {{hora.descripcion}}
+                                                    </span>
+
+                                                </td>
+                                                <td  v-for="dia in tabGrupos['especial'].tblHorarios.dias"> 
+                                                    <template v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                        <span v-if="tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                                              v-on:click="selectGrupoHoraHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                              class="form-control pointer"
+                                                              v-bind:class="getClassGpoHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+
+                                                            {{tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+
+                                                        </span>
+                                                    </template>
+
+
+                                                    <span v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                                          class="form-control btn-danger"
+                                                          >
+                                                        {{tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
+                                                    </span>
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>                          
+
+
+                                </div>
+                            </section>
+
+                        </section>
+                    </div>
+                    <div class="tab-pane" id="grupo3" >
+
+
+                        <section class="panel-body">
+
+
+                            <dynatable v-bind:onclick="seleccionarGrupoZ"
+                                       v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
+                                       ></dynatable>
+                            <!-- 
+                                                        <div class="alert alert-warning">
+                                                            <a href="#" class="close" data-dismiss="alert">&times;</a>
+                                                            <strong>Error!</strong> {{tabGrupos['zetas'].tblHorarios.errors}}.
+                                                        </div>
+                            -->
+                            <section class="panel-body">
+                                <div class="table-responsive" >
+
+
+                                    <table class="table"
+                                           width="100%"
+                                           style="width: 100%;display: block;"
+                                           v-if="tabGrupos['zetas'].tblHorarios!=null">
+
+                                        <thead  style="width: 100%;display: block;">
+                                            <tr>
+                                                <th style="width: 100px !important;" class="text-center">Hora</th>
+                                                <th style="width: 12.5%" class="text-center" 
+                                                    v-for="dia in tabGrupos['zetas'].tblHorarios.dias">
+                                                    {{dia.nombre}}
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="width: 100%;height: 200px;display: block;overflow-y:auto;">
+                                            <tr v-for="hora in tabGrupos['zetas'].tblHorarios.horas">
+                                                <td class="v-middle" style="width: 100px !important;">
+                                                    <span 
+                                                        >
+                                                        {{hora.descripcion}}
+                                                    </span>
+
+                                                </td>
+                                                <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"
+                                                     style="width: 12.5%"> 
+                                                    <template v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
+                                                        <span v-if="tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
+                                                              v-on:click="selectGrupoHoraHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
+                                                              class="form-control pointer"
+                                                              v-bind:class="getClassGpoHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
+
+                                                            {{tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
+
+                                                        </span>
+                                                    </template>
+
+
+                                                    <span v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
+                                                          class="form-control btn-danger"
+                                                          >
+                                                        {{tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
+                                                    </span>
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                </div>
+                            </section>
+
+                        </section>
+
+                    </div>
+                </div>
+            </section>
+            <!-- 
+                <div class="alert alert-danger" v-if="errorsMessage">
+                    <strong>Error!</strong> {{errorsMessage}}
+                </div>
+            -->
         </div>
     </div>
 </template>
-
-<div id="tabGrupos" class="tabbable-line m-b-sm">	
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a  href="#grupo1" data-toggle="tab" >Regulares</a>
-        </li>
-        <li >
-            <a href="#grupo2" data-toggle="tab" >Especiales</a>
-        </li>
-        <li>
-            <a href="#grupo3" data-toggle="tab">Zetas</a>
-        </li>
-    </ul>
-    <section class="panel">
-        <div class="tab-content">
-            <div class="tab-pane active" id="grupo1">
-                <section class="panel-body">
-
-                    <div class="form-group">
-                        <multiselect  v-model="tabGrupos['regulares'].tipoGrupoHorasSeleccionado"
-                                      track-by="id"
-                                      v-bind:options="tabGrupos['regulares'].tipoGrupoHorasOpts"
-                                      label='descripcion'
-                                      v-on:input="cambiarCboTipoGrupoHorReg"
-                                      v-if="tabGrupos['regulares'].tipoGrupoHorasOpts!=null"
-                                      >
-                        </multiselect>
-
-
-                    </div>
-
-                    <section class="panel-body">
-                        <div class="table-responsive" >
-                            <table class="table" v-if="tabGrupos['regulares'].tblHorarioRegular!=null">
-
-                                <thead>
-                                    <tr>
-                                        <th style="width: 12.5%" class="text-center">Hora</th>
-                                        <th style="width: 12.5%" class="text-center" 
-                                            v-for="dia in tabGrupos['regulares'].tblHorarioRegular.dias">
-                                            {{dia.nombre}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="hora in tabGrupos['regulares'].tblHorarioRegular.horas">
-                                        <td class="v-middle">
-                                            <span 
-                                                >
-                                                {{hora.descripcion}}
-                                            </span>
-
-                                        </td>
-                                        <td  v-for="dia in tabGrupos['regulares'].tblHorarioRegular.dias"> 
-                                            <template v-if="tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id]==null">
-                                                <span v-if="tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
-                                                      v-on:click="selectGrupoHoraHorario(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
-                                                      class="form-control pointer"
-                                                      v-bind:class="getClassGpoHorario(tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
-                                                    {{tabGrupos['regulares'].tblHorarioRegular.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
-                                                </span>
-                                            </template>
-
-
-                                            <span v-if="tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id]" 
-                                                  class="form-control btn-danger"
-                                                  >
-                                                {{tabGrupos['regulares'].tblHorarioRegular.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
-                                            </span>
-
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                </section>
-            </div>
-            <div class="tab-pane" id="grupo2" >
-                <section class="panel-body">
-                    <dynatable-especial v-bind:onclick="seleccionarGrupoEsp"
-                                        v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
-                                        ></dynatable-especial>
-
-
-                    <section class="panel-body">
-                        <div class="table-responsive" >
-
-
-                            <table id="tblHorarioEsp" class="table" v-if="tabGrupos['especial'].tblHorarios!=null">
-
-                                <thead>
-                                    <tr>
-                                        <th style="width: 12.5%" class="text-center">Hora</th>
-                                        <th style="width: 12.5%" class="text-center" 
-                                            v-for="dia in tabGrupos['especial'].tblHorarios.dias">
-                                            {{dia.nombre}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="hora in tabGrupos['especial'].tblHorarios.horas">
-                                        <td class="v-middle">
-                                            <span 
-                                                >
-                                                {{hora.descripcion}}
-                                            </span>
-
-                                        </td>
-                                        <td  v-for="dia in tabGrupos['especial'].tblHorarios.dias"> 
-                                            <template v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
-                                                <span v-if="tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
-                                                      v-on:click="selectGrupoHoraHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
-                                                      class="form-control pointer"
-                                                      v-bind:class="getClassGpoHorario(tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
-
-                                                    {{tabGrupos['especial'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
-
-                                                </span>
-                                            </template>
-
-
-                                            <span v-if="tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
-                                                  class="form-control btn-danger"
-                                                  >
-                                                {{tabGrupos['especial'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
-                                            </span>
-
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>                          
-
-
-                        </div>
-                    </section>
-
-                </section>
-            </div>
-            <div class="tab-pane" id="grupo3" >
-
-
-                <section class="panel-body">
-
-
-                    <dynatable v-bind:onclick="seleccionarGrupoZ"
-                               v-bind:gruposeleccionado="tabGrupos.grupoHorarioSel"
-                               ></dynatable>
-                    <!-- 
-                                                <div class="alert alert-warning">
-                                                    <a href="#" class="close" data-dismiss="alert">&times;</a>
-                                                    <strong>Error!</strong> {{tabGrupos['zetas'].tblHorarios.errors}}.
-                                                </div>
-                    -->
-                    <section class="panel-body">
-                        <div class="table-responsive" >
-
-
-                            <table class="table"
-                                   width="100%"
-                                   style="width: 100%;display: block;"
-                                   v-if="tabGrupos['zetas'].tblHorarios!=null">
-
-                                <thead  style="width: 100%;display: block;">
-                                    <tr>
-                                        <th style="width: 100px !important;" class="text-center">Hora</th>
-                                        <th style="width: 12.5%" class="text-center" 
-                                            v-for="dia in tabGrupos['zetas'].tblHorarios.dias">
-                                            {{dia.nombre}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody style="width: 100%;height: 200px;display: block;overflow-y:auto;">
-                                    <tr v-for="hora in tabGrupos['zetas'].tblHorarios.horas">
-                                        <td class="v-middle" style="width: 100px !important;">
-                                            <span 
-                                                >
-                                                {{hora.descripcion}}
-                                            </span>
-
-                                        </td>
-                                        <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"
-                                             style="width: 12.5%"> 
-                                            <template v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
-                                                <span v-if="tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
-                                                      v-on:click="selectGrupoHoraHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
-                                                      class="form-control pointer"
-                                                      v-bind:class="getClassGpoHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])">
-
-                                                    {{tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id].grupoHorario.codigo}}
-
-                                                </span>
-                                            </template>
-
-
-                                            <span v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]" 
-                                                  class="form-control btn-danger"
-                                                  >
-                                                {{tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
-                                            </span>
-
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-
-                        </div>
-                    </section>
-
-                </section>
-
-            </div>
-        </div>
-    </section>
-    <!-- 
-        <div class="alert alert-danger" v-if="errorsMessage">
-            <strong>Error!</strong> {{errorsMessage}}
-        </div>
-    -->
-</div>

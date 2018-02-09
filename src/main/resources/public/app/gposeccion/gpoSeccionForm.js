@@ -94,6 +94,8 @@ var app = new Vue({
         docentesSeccion: [],
         seccionSeleccionada: null,
         seccionModal: null,
+        tiposRepitenciaOpt: [],
+        tiposRepitenciaArr: [],
         colorEstado: {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"},
         grupoModal: {
             id: 'modalGrupo',
@@ -116,11 +118,19 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalSize: 'modal-lg'
         },
+        tipoRepitenciaModal: {
+            id: 'modalTipoRepitencia',
+            header: true,
+            title: 'Tipo Repitencia',
+            okbtn: 'Aceptar',
+            modalSize: 'modal-lg'
+        },
         aulOeraSel: null,
         tblAulas: null,
         modulosCombo: {}
     }, created: function () {
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
+        this.loadGpoSeccionForm();
         this.loadSecciones();
     }, mounted: function () {
         let $vue = this;
@@ -305,6 +315,17 @@ var app = new Vue({
         },
         getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
+        }, loadGpoSeccionForm: function () {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/loadGpoSeccionForm'),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.tiposRepitenciaOpt = response.data.tiposRepitenciaJson;
+                    }
+                }
+            });
         }, loadSecciones: function () {
             let $vue = this;
             $.ajax({
@@ -434,6 +455,9 @@ var app = new Vue({
             this.$refs.modalRestriccion.open();
         }, saveRestriccion() {
             $global.$emit('saveRestriccion');
+        }, showModalTipoRepitencia(seccion) {
+            let $vue = this;
+            this.$refs.modalTipoRepitencia.open();
         }
     }
 })

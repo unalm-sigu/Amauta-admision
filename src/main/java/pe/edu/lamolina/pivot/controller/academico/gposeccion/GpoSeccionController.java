@@ -53,6 +53,7 @@ import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -202,6 +203,25 @@ public class GpoSeccionController {
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
 
         return "academico/gposeccion/gpoSeccionForm";
+    }
+
+    @ResponseBody
+    @RequestMapping("{gruposeccion}/loadGpoSeccionForm")
+    public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId) {
+        JsonResponse jsonResponse = new JsonResponse();
+        JsonNodeFactory nc = JsonNodeFactory.instance;
+
+        List<TipoRepitencia> tiposRepitencia = service.allTipoRepitencia();
+        ArrayNode tiposRepitenciaJson = new ArrayNode(nc);
+        for (TipoRepitencia tipoRepitencia : tiposRepitencia) {
+            tiposRepitenciaJson.add(tipoRepitencia.toJson());
+        }
+
+        ObjectNode result = new ObjectNode(nc);
+        result.set("tiposRepitenciaJson", tiposRepitenciaJson);
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(result);
+        return jsonResponse;
     }
 
     @ResponseBody

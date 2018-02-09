@@ -70,8 +70,7 @@
                                         <th class="col-md-1 text-center">Grupo</th>
                                         <th class="col-md-1 text-center">Condición</th>
                                         <th class="col-md-1 text-center">Restricion</th>
-                                        <th class="col-md-1 text-center">Carreras</th>
-                                        <th class="col-md-1 text-center">Facultades</th>
+                                        <th class="col-md-1 text-center">Tipo Repitencia</th>
                                         <th class="col-md-1 text-center">Vac</th>
                                         <th class="col-md-1 text-center">Mat</th>
                                         <th class="col-md-1 text-center">Docentes</th>
@@ -144,10 +143,11 @@
                                             </a>
                                         </td>
                                         <td>
+                                            <a v-on:click="showModalTipoRepitencia(seccion)" 
 
-                                        </td>
-                                        <td>
-
+                                               style="cursor:pointer;">
+                                                Tipo Repitencia
+                                            </a>
                                         </td>
                                         <td class="text-center">
                                             <div v-if="seccion.esTipoSeccionTcur" >
@@ -309,6 +309,14 @@
                 </div>
             </modal-vik>
 
+            <modal-vik ref="modalTipoRepitencia"
+                       v-bind="tipoRepitenciaModal"
+                       v-bind:okaction="saveRestriccion">
+                <div slot="body">
+                    modal tipo repitencia
+                </div>
+            </modal-vik>
+
         </div>
 
         <div th:substituteby="templates/modal"/>
@@ -317,21 +325,11 @@
 
         <div th:substituteby="_modules/vue-modal"/>
 
-        <template id="modalAulaComp"> 
-            <div> 
-                <div th:substituteby="academico/gposeccion/components/aulaComponent"/> 
-            </div> 
-        </template>
 
-        <template id="grupoHorarioComp"> 
-            <div> 
-                <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
-            </div> 
-        </template>
+        <div th:substituteby="academico/gposeccion/components/aulaComponent"/> 
+        <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
+        <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
 
-        <template id="restriccionComp"> 
-            <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
-        </template>
 
         <div id="autocomplete-doc">
             <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
