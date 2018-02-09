@@ -5,10 +5,13 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.TipoEvaluacion;
 
 public interface ResumenAlumnoEvaluacionDAO extends EasyDAO<ResumenAlumnoEvaluacion> {
 
     List<ResumenAlumnoEvaluacion> allByAlumnoGrupoSeccion(Alumno alumno, GrupoSeccion gpoSeccion);
+
+    ResumenAlumnoEvaluacion findByAlumnoGrupoTipo(Alumno alumno, GrupoSeccion grupoSeccion, TipoEvaluacion tipoEvaluacion);
 
     List<ResumenAlumnoEvaluacion> allByGrupoSeccion(GrupoSeccion grupoSeccion);
 

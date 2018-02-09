@@ -26,6 +26,7 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
 
     List<GrupoHoras> allByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico,
-            Seccion seccion);
+            Seccion seccion,
+            List<GrupoHoras> grupoHorasFilter);
 
 }

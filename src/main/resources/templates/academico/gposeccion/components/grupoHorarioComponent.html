@@ -207,9 +207,11 @@
                         <div class="table-responsive" >
 
 
-                            <table class="table" v-if="tabGrupos['zetas'].tblHorarios!=null">
+                            <table class="table"
+                                   style="width: 100%;display: block;"
+                                   v-if="tabGrupos['zetas'].tblHorarios!=null">
 
-                                <thead>
+                                <thead  style="width: 100%;display: block;">
                                     <tr>
                                         <th style="width: 12.5%" class="text-center">Hora</th>
                                         <th style="width: 12.5%" class="text-center" 
@@ -218,16 +220,17 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody style="width: 100%;height: 200px;display: block;overflow-y:auto;">
                                     <tr v-for="hora in tabGrupos['zetas'].tblHorarios.horas">
-                                        <td class="v-middle">
+                                        <td class="v-middle" style="width: 15%">
                                             <span 
                                                 >
                                                 {{hora.descripcion}}
                                             </span>
 
                                         </td>
-                                        <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"> 
+                                        <td  v-for="dia in tabGrupos['zetas'].tblHorarios.dias"
+                                             style="width: 12.5%"> 
                                             <template v-if="tabGrupos['zetas'].tblHorarios.jsonHorarioAula[dia.id+'_'+hora.id]==null">
                                                 <span v-if="tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id]" 
                                                       v-on:click="selectGrupoHoraHorario(tabGrupos['zetas'].tblHorarios.jsonDiaHoraGrupo[dia.id+'_'+hora.id])"
@@ -260,4 +263,9 @@
             </div>
         </div>
     </section>
+    <!-- 
+        <div class="alert alert-danger" v-if="errorsMessage">
+            <strong>Error!</strong> {{errorsMessage}}
+        </div>
+    -->
 </div>
