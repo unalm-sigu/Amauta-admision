@@ -82,7 +82,7 @@ public class UsuarioServiceImp implements UsuarioService {
     public void desactivaUsuario(Usuario usu, DataSessionPivot ds) {
 
         Usuario usuario = usuarioDAO.find(usu);
-        usuario.setEstadoEnum(UserEstadoEnum.INA);
+        usuario.setEstado(UserEstadoEnum.INA);
         usuarioDAO.update(usuario);
 
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUser(usuario);
@@ -102,7 +102,7 @@ public class UsuarioServiceImp implements UsuarioService {
     @Transactional
     public void activaUsuario(Usuario usu, DataSessionPivot ds) {
         Usuario usuario = usuarioDAO.find(usu);
-        usuario.setEstadoEnum(UserEstadoEnum.ACT);
+        usuario.setEstado(UserEstadoEnum.ACT);
         usuarioDAO.update(usuario);
     }
 
@@ -151,7 +151,7 @@ public class UsuarioServiceImp implements UsuarioService {
         Usuario usuarioBD;
         if (usuario.getId() == null) {
             usuarioBD = new Usuario();
-            usuarioBD.setEstadoEnum(UserEstadoEnum.ACT);
+            usuarioBD.setEstado(UserEstadoEnum.ACT);
             usuarioBD.setUsuario(personaForm.getEmailCompania());
             usuarioBD.setPersona(personaForm);
             usuarioBD.setUserRegistro(ds.getUsuario());
@@ -169,7 +169,7 @@ public class UsuarioServiceImp implements UsuarioService {
         }
 
         usuario.setId(usuarioBD.getId());
-        usuario.setEstadoEnum(usuarioBD.getEstadoEnum());
+        usuario.setEstado(usuarioBD.getEstadoEnum());
         usuario.setPersona(usuarioBD.getPersona());
         usuario.setUsuario(usuarioBD.getUsuario());
 

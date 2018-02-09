@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
@@ -331,12 +332,20 @@ public class ProgDataServiceImp implements ProgDataService {
                 UsuarioRol userRol = new UsuarioRol();
                 userRol.setUsuario(user);
                 userRol.setRol(new Rol(1));
+                userRol.setEstadoEnum(UserEstadoEnum.ACT);
+                userRol.setFechaInicio(new Date());
+                userRol.setFechaRegistro(new Date());
+                userRol.setUsuario(ds.getUsuario());
                 usuarioRolDAO.save(userRol);
             }
             if (!existeDocente && rol == RolEnum.DOC) {
                 UsuarioRol userRol = new UsuarioRol();
                 userRol.setUsuario(user);
                 userRol.setRol(new Rol(2));
+                userRol.setEstadoEnum(UserEstadoEnum.ACT);
+                userRol.setFechaInicio(new Date());
+                userRol.setFechaRegistro(new Date());
+                userRol.setUserRegistro(ds.getUsuario());
                 usuarioRolDAO.save(userRol);
             }
 
@@ -350,7 +359,7 @@ public class ProgDataServiceImp implements ProgDataService {
         user = new Usuario();
         user.setPersona(persona);
         user.setUsuario(persona.getEmailCompania().toLowerCase());
-        user.setEstadoEnum(UserEstadoEnum.ACT);
+        user.setEstado(UserEstadoEnum.ACT);
         user.setFechaRegistro(new Date());
         user.setUserRegistro(ds.getUsuario());
         usuarioDAO.save(user);
@@ -379,7 +388,7 @@ public class ProgDataServiceImp implements ProgDataService {
             DepartamentoAcademico dpto = mapDptos.get(docente.getCodigoDepartamento());
             profeBD = new Docente();
             profeBD.setCodigo(docente.getCodigo());
-            profeBD.setEstadoEnum(EstadoEnum.ACT);
+            profeBD.setEstado(DocenteEstadoEnum.ACT);
             profeBD.setDepartamentoAcademico(dpto);
             profeBD.setModalidadEstudio(modalidad);
             profeBD.setPersona(persona);
@@ -387,8 +396,8 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserRegistro(ds.getUsuario());
             docenteDAO.save(profeBD);
 
-        } else if (profeBD.getEstadoEnum() != EstadoEnum.ACT) {
-            profeBD.setEstadoEnum(EstadoEnum.ACT);
+        } else if (profeBD.getEstadoEnum() != DocenteEstadoEnum.ACT) {
+            profeBD.setEstado(DocenteEstadoEnum.ACT);
             profeBD.setFechaModifica(new Date());
             profeBD.setUserModifica(ds.getUsuario());
             docenteDAO.update(profeBD);
@@ -404,7 +413,7 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Docente docente : docentesActivos) {
             Docente profe = mapDocentes.get(docente.getCodigo());
             if (profe == null) {
-                docente.setEstadoEnum(EstadoEnum.INA);
+                docente.setEstado(DocenteEstadoEnum.INA);
                 docente.setFechaModifica(new Date());
                 docente.setUserModifica(ds.getUsuario());
                 docenteDAO.update(docente);
@@ -640,7 +649,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstadoEnum(UserEstadoEnum.INA);
+                    user.setEstado(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -671,7 +680,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstadoEnum(UserEstadoEnum.INA);
+                    user.setEstado(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -687,7 +696,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstadoEnum(UserEstadoEnum.INA);
+                    user.setEstado(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -860,7 +869,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 //seccionBD.setSeccionSuperior(seccionBD);
                 seccionDAO.save(seccionBD);
             } else {
-                System.out.println(seccion.getVacantes() + " " + seccion.getMatriculados());
+                //System.out.println(seccion.getVacantes() + " " + seccion.getMatriculados());
                 seccionBD.setGrupoHoras(gpoHoras);
                 seccionBD.setAula(aula);
                 seccionBD.setCodigo2(seccion.getCodigo2());
@@ -983,7 +992,7 @@ public class ProgDataServiceImp implements ProgDataService {
         }
     }
 
-    @Async
+    //@Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void loadDataMatriculados(
@@ -1160,7 +1169,7 @@ public class ProgDataServiceImp implements ProgDataService {
         return false;
     }
 
-    @Async
+    //@Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueadox) {
@@ -1335,7 +1344,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
     }
 
-    @Async
+    //@Async
     @Override
     public void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados) {
         if (1 == 1) {

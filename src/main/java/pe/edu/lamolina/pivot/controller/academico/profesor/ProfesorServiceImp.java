@@ -18,17 +18,22 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,6 +46,12 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     DocenteDAO docenteDAO;
+
+    @Autowired
+    UsuarioDAO usuarioDAO;
+    
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
 
     @Autowired
     RolDAO rolDAO;
@@ -132,12 +143,28 @@ public class ProfesorServiceImp implements ProfesorService {
             throw new PhobosException("Docente ya existe");
         }
         logger.debug("guardando docente ...");
-        docente.setEstado(DocenteEstadoEnum.ACT.name());
+        docente.setEstado(DocenteEstadoEnum.ACT);
         docente.setCodigo(this.getCodigo());
         docente.setFechaRegistro(new Date());
         docente.setUserRegistro(user);
         docenteDAO.save(docente);
         logger.debug("docente  guardado  {}", docente.getId());
+
+        Usuario usuarioDb = usuarioDAO.findByPersona(docente.getPersona());
+        logger.debug("existe usuario en db {}", (usuarioDb != null));
+        if (usuarioDb == null) {
+            usuarioDb = new Usuario();
+            usuarioDb.setEstado(UserEstadoEnum.ACT);
+            usuarioDb.setFechaRegistro(new Date());
+            usuarioDb.setUserRegistro(user);
+            usuarioDAO.save(usuarioDb);
+        }
+        
+        Rol rol = rolDAO.findByCode(RolEnum.DOC);
+        UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
+        if(userRol == null){
+            userRol = new UsuarioRol();
+        }
     }
 
     @Override
@@ -385,9 +412,9 @@ public class ProfesorServiceImp implements ProfesorService {
         Docente docenteBD = docenteDAO.find(docente.getId());
 
         if (DocenteEstadoEnum.INA.name().equalsIgnoreCase(docenteBD.getEstado())) {
-            docenteBD.setEstado(DocenteEstadoEnum.ACT.name());
+            docenteBD.setEstado(DocenteEstadoEnum.ACT);
         } else {
-            docenteBD.setEstado(DocenteEstadoEnum.INA.name());
+            docenteBD.setEstado(DocenteEstadoEnum.INA);
         }
         docenteDAO.update(docenteBD);
     }

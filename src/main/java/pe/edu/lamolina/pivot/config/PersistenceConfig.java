@@ -42,6 +42,18 @@ public class PersistenceConfig {
     @Value("${dialect}")
     String dialect;
 
+    @Value("${minPool}")
+    int minPool;
+
+    @Value("${maxPool}")
+    int maxPool;
+
+    @Value("${maxIddleTime}")
+    int maxIddleTime;
+
+    @Value("${acquireIncrement}")
+    int acquireIncrement;
+
     @Bean
     public ComboPooledDataSource dataSource() throws PropertyVetoException {
 
@@ -50,10 +62,10 @@ public class PersistenceConfig {
         ds.setJdbcUrl(this.jdbcUrl);
         ds.setUser(this.username);
         ds.setPassword(this.password);
-        ds.setAcquireIncrement(3);
-        ds.setMinPoolSize(5);
-        ds.setMaxPoolSize(20);
-        ds.setMaxIdleTime(20);
+        ds.setAcquireIncrement(this.acquireIncrement);
+        ds.setMinPoolSize(this.minPool);
+        ds.setMaxPoolSize(this.maxPool);
+        ds.setMaxIdleTime(this.maxIddleTime);
 
         return ds;
     }
