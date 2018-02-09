@@ -992,7 +992,7 @@ public class ProgDataServiceImp implements ProgDataService {
         }
     }
 
-    //@Async
+    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void loadDataMatriculados(
@@ -1169,7 +1169,7 @@ public class ProgDataServiceImp implements ProgDataService {
         return false;
     }
 
-    //@Async
+    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueadox) {
@@ -1344,7 +1344,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
     }
 
-    //@Async
+    @Async
     @Override
     public void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados) {
         if (1 == 1) {
