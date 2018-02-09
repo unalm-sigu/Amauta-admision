@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
@@ -111,6 +112,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         if (curso.isTieneCreditosVariables() && cant == 1) {
             AlumnoEvaluacion aEvaluacionLetra = evaluacionesAlumno.get(0);
             aEvaluacionLetra = alumnoEvaluacionDAO.findByFilter(aEvaluacionLetra.getId(), null, null);
+            Evaluacion evaluacion = evaluacionDAO.find(aEvaluacionLetra.getEvaluacion().getId());
             String notaLetra = "";
             if (aEvaluacionLetra.getValorLetra().equals("A")) {
                 notaLetra = "AP";
@@ -128,10 +130,21 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             matriculaCursoDAO.update(matriculaCurso);
 
             ResumenAlumnoEvaluacion resumenAlumnoEvaluacion
-                    = resumenAlumnoEvaluacionDAO.findByAlumnoGrupoTipo(alumno, grupoSeccion, aEvaluacionLetra.getEvaluacion().getTipoEvaluacion());
-            resumenAlumnoEvaluacion.setCreditos(matriculaCurso.getCreditosAprobados());
-            resumenAlumnoEvaluacion.setNota(aEvaluacionLetra.getNotaLetra());
-            resumenAlumnoEvaluacionDAO.update(resumenAlumnoEvaluacion);
+                    = resumenAlumnoEvaluacionDAO.findByAlumnoGrupoTipo(alumno, grupoSeccion, evaluacion.getTipoEvaluacion());
+            if (resumenAlumnoEvaluacion != null) {
+                resumenAlumnoEvaluacion.setCreditos(matriculaCurso.getCreditosAprobados());
+                resumenAlumnoEvaluacion.setNota(aEvaluacionLetra.getNotaLetra());
+                resumenAlumnoEvaluacionDAO.update(resumenAlumnoEvaluacion);
+            } else {
+                resumenAlumnoEvaluacion = new ResumenAlumnoEvaluacion();
+                resumenAlumnoEvaluacion.setAlumno(alumno);
+                resumenAlumnoEvaluacion.setCreditos(matriculaCurso.getCreditosAprobados());
+                resumenAlumnoEvaluacion.setEvaluaciones(BigDecimal.ONE.intValue());
+                resumenAlumnoEvaluacion.setGrupoSeccion(grupoSeccion);
+                resumenAlumnoEvaluacion.setNota(aEvaluacionLetra.getNotaLetra());
+                resumenAlumnoEvaluacion.setTipoEvaluacion(evaluacion.getTipoEvaluacion());
+                resumenAlumnoEvaluacionDAO.save(resumenAlumnoEvaluacion);
+            }
             return;
         }
 

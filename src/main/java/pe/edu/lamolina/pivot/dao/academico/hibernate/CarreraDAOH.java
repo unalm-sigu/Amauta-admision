@@ -227,4 +227,24 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<Carrera> allActivos() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EstadoCarreraEnum.ACT.name());
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Carrera> allActivasByModalidadesEstudio(List<String> modalidadesCodes) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .filter("ca.estado", EstadoCarreraEnum.ACT.name())
+                .in("me.codigo", modalidadesCodes);
+
+        return sql.all(getCurrentSession());
+    }
+
 }

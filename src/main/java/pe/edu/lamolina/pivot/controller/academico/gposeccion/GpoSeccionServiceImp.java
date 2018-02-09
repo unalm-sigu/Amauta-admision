@@ -30,16 +30,24 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -51,10 +59,19 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionFacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.RestriccionModalidadDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoRepitenciaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -106,6 +123,27 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     OficinaDAO oficinaDAO;
+
+    @Autowired
+    FacultadDAO facultadDAO;
+
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
+    @Autowired
+    RestriccionModalidadDAO restriccionModalidadDAO;
+
+    @Autowired
+    RestriccionCarreraDAO restriccionCarreraDAO;
+
+    @Autowired
+    RestriccionFacultadDAO restriccionFacultadDAO;
+
+    @Autowired
+    TipoRepitenciaDAO tipoRepitenciaDAO;
 
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
@@ -444,6 +482,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         for (Seccion seccion : secciones) {
             seccion.getDocenteSeccion().size();
+            List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
+            List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
+            List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
+            seccion.setRestriccionesCarrera(restriccionesCarrera);
+            seccion.setRestriccionesFacultad(restriccionesFacultad);
+            seccion.setRestriccionesModalidad(restriccionesModalidad);
         }
         return secciones;
     }
@@ -536,6 +580,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         seccion.setHorarioSeccion(horariosSeccion);
+
+        List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
+        List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
+        List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
+
+        seccion.setRestriccionesCarrera(restriccionesCarrera);
+        seccion.setRestriccionesFacultad(restriccionesFacultad);
+        seccion.setRestriccionesModalidad(restriccionesModalidad);
+
         return seccion;
     }
 
@@ -774,6 +827,150 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    @Transactional(readOnly = false)
+    public void saveRestriccion(Seccion seccion, Usuario usuario, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones) {
+        DateTime today = new DateTime();
+
+        if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
+            List<Carrera> carrerasSeleccionadas = new ArrayList<>();
+            for (Long restriccionEach : restricciones) {
+                carrerasSeleccionadas.add(new Carrera(restriccionEach));
+            }
+
+            List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
+            List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
+            List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
+
+            //Desactivar los deseleccionados
+            for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
+                if (!carrerasSeleccionadas.contains(restriccionCarreraEach.getCarrera())) {
+                    restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
+                    restriccionCarreraEach.setFechaModificacion(today.toDate());
+                    restriccionCarreraEach.setUsuarioModificacion(usuario);
+                    restriccionCarreraDAO.updateEstadoFechaUsuario(restriccionCarreraEach);
+                }
+            }
+            //Grabar solo las nuevas selecciones
+            for (Carrera carrerasEach : carrerasSeleccionadas) {
+                if (!carrerasEach.isTieneRestriccion(restriccionesCarrera)) {
+                    RestriccionCarrera restriccionCarrera = new RestriccionCarrera();
+                    restriccionCarrera.setCarrera(carrerasEach);
+                    restriccionCarrera.setEstadoEnum(EstadoEnum.ACT);
+                    restriccionCarrera.setFechaRegistro(today.toDate());
+                    restriccionCarrera.setUsuarioRegistro(usuario);
+                    restriccionCarrera.setSeccion(seccion);
+                    restriccionCarreraDAO.update(restriccionCarrera);
+                }
+            }
+
+            for (RestriccionFacultad restriccionFacultadEach : restriccionesFacultad) {
+                restriccionFacultadEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionFacultadEach.setFechaModificacion(today.toDate());
+                restriccionFacultadEach.setUsuarioModificacion(usuario);
+                restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
+            }
+
+            for (RestriccionModalidad restriccionModalidadEach : restriccionesModalidad) {
+                restriccionModalidadEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionModalidadEach.setFechaModificacion(today.toDate());
+                restriccionModalidadEach.setUsuarioModificacion(usuario);
+                restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidadEach);
+            }
+
+        } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.FAC)) {
+            List<Facultad> facultadesSeleccionadas = new ArrayList<>();
+            for (Long restriccionEach : restricciones) {
+                facultadesSeleccionadas.add(new Facultad(restriccionEach));
+            }
+
+            List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
+            List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
+            List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
+
+            //Desactivar los deseleccionados
+            for (RestriccionFacultad restriccionFacultadEach : restriccionesFacultad) {
+                if (!facultadesSeleccionadas.contains(restriccionFacultadEach.getFacultad())) {
+                    restriccionFacultadEach.setEstadoEnum(EstadoEnum.INA);
+                    restriccionFacultadEach.setFechaModificacion(today.toDate());
+                    restriccionFacultadEach.setUsuarioModificacion(usuario);
+                    restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
+                }
+            }
+            //Grabar solo las nuevas selecciones
+            for (Facultad facultadEach : facultadesSeleccionadas) {
+                if (!facultadEach.isTieneRestriccion(restriccionesFacultad)) {
+                    RestriccionFacultad restriccionFacultad = new RestriccionFacultad();
+                    restriccionFacultad.setFacultad(facultadEach);
+                    restriccionFacultad.setEstadoEnum(EstadoEnum.ACT);
+                    restriccionFacultad.setFechaRegistro(today.toDate());
+                    restriccionFacultad.setUsuarioRegistro(usuario);
+                    restriccionFacultad.setSeccion(seccion);
+                    restriccionFacultadDAO.update(restriccionFacultad);
+                }
+            }
+
+            for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
+                restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionCarreraEach.setFechaModificacion(today.toDate());
+                restriccionCarreraEach.setUsuarioModificacion(usuario);
+                restriccionCarreraDAO.updateEstadoFechaUsuario(restriccionCarreraEach);
+            }
+
+            for (RestriccionModalidad restriccionModalidadEach : restriccionesModalidad) {
+                restriccionModalidadEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionModalidadEach.setFechaModificacion(today.toDate());
+                restriccionModalidadEach.setUsuarioModificacion(usuario);
+                restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidadEach);
+            }
+        } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.MOD)) {
+            List<ModalidadEstudio> modalidadesSeleccioandas = new ArrayList<>();
+            for (Long restriccionEach : restricciones) {
+                modalidadesSeleccioandas.add(new ModalidadEstudio(restriccionEach));
+            }
+
+            List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
+            List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
+            List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
+
+            //Desactivar los deseleccionados
+            for (RestriccionModalidad restriccionaModalidadEach : restriccionesModalidad) {
+                if (!modalidadesSeleccioandas.contains(restriccionaModalidadEach.getModalidadEstudio())) {
+                    restriccionaModalidadEach.setEstadoEnum(EstadoEnum.INA);
+                    restriccionaModalidadEach.setFechaModificacion(today.toDate());
+                    restriccionaModalidadEach.setUsuarioModificacion(usuario);
+                    restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionaModalidadEach);
+                }
+            }
+            //Grabar solo las nuevas selecciones
+            for (ModalidadEstudio modalidadEstudioEach : modalidadesSeleccioandas) {
+                if (!modalidadEstudioEach.isTieneRestriccion(restriccionesModalidad)) {
+                    RestriccionModalidad restriccionModalidad = new RestriccionModalidad();
+                    restriccionModalidad.setModalidadEstudio(modalidadEstudioEach);
+                    restriccionModalidad.setEstadoEnum(EstadoEnum.ACT);
+                    restriccionModalidad.setFechaRegistro(today.toDate());
+                    restriccionModalidad.setUsuarioRegistro(usuario);
+                    restriccionModalidad.setSeccion(seccion);
+                    restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidad);
+                }
+            }
+
+            for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
+                restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionCarreraEach.setFechaModificacion(today.toDate());
+                restriccionCarreraEach.setUsuarioModificacion(usuario);
+                restriccionCarreraDAO.updateEstadoFechaUsuario(restriccionCarreraEach);
+            }
+
+            for (RestriccionFacultad restriccionFacultadEach : restriccionesFacultad) {
+                restriccionFacultadEach.setEstadoEnum(EstadoEnum.INA);
+                restriccionFacultadEach.setFechaModificacion(today.toDate());
+                restriccionFacultadEach.setUsuarioModificacion(usuario);
+                restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
+            }
+        }
+    }
+
+    @Override
     public List<Aula> allAulasSuperiorByOficina(Oficina oficina) {
         return aulaDAO.allAulasSuperiorByOficina(oficina);
     }
@@ -875,6 +1072,35 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         System.out.println(gpoAnexoE.getValue());
 
         return anexoBoletinDAO.allBySuperiorCiclo(new AnexoBoletin(gpoAnexoE.getValue()), ciclo);
+    }
+
+    @Override
+    public List<Facultad> allFacultadesActivas() {
+        return facultadDAO.allActivos();
+    }
+
+    @Override
+    public List<ModalidadEstudio> allModalidadesEstudioActivas() {
+        return modalidadEstudioDAO.allActivos();
+    }
+
+    @Override
+    public List<Carrera> allCarrerasActivas() {
+        return carreraDAO.allActivos();
+    }
+
+    @Override
+    public List<Carrera> allCarrerasActivasPrePost() {
+        List<String> modalidades = new ArrayList<>();
+        modalidades.add(ModalidadEstudioEnum.PRE.name());
+        modalidades.add(ModalidadEstudioEnum.EPG.name());
+
+        return carreraDAO.allActivasByModalidadesEstudio(modalidades);
+    }
+
+    @Override
+    public List<TipoRepitencia> allTipoRepitencia() {
+        return tipoRepitenciaDAO.all();
     }
 
 }

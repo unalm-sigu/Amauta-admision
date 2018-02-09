@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,12 +41,19 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RestriccionCarrera;
+import pe.edu.lamolina.model.academico.RestriccionFacultad;
+import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -59,6 +67,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -197,6 +206,25 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("{gruposeccion}/loadGpoSeccionForm")
+    public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId) {
+        JsonResponse jsonResponse = new JsonResponse();
+        JsonNodeFactory nc = JsonNodeFactory.instance;
+
+        List<TipoRepitencia> tiposRepitencia = service.allTipoRepitencia();
+        ArrayNode tiposRepitenciaJson = new ArrayNode(nc);
+        for (TipoRepitencia tipoRepitencia : tiposRepitencia) {
+            tiposRepitenciaJson.add(tipoRepitencia.toJson());
+        }
+
+        ObjectNode result = new ObjectNode(nc);
+        result.set("tiposRepitenciaJson", tiposRepitenciaJson);
+        jsonResponse.setSuccess(true);
+        jsonResponse.setData(result);
+        return jsonResponse;
+    }
+
+    @ResponseBody
     @RequestMapping("{gruposeccion}/findSecciones")
     public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId) {
         JsonResponse jsonResponse = new JsonResponse();
@@ -232,6 +260,12 @@ public class GpoSeccionController {
             node.put("estadoEnumValue", seccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", seccion.getEstadoEnum().name());
             node.put("editVacantes", Boolean.FALSE);
+
+            node.put("tieneRestriccion", seccion.isTieneRestriccion());
+            node.put("tieneRestriccionCarrera", seccion.isTieneRestriccionCarrera());
+            node.put("tieneRestriccionFacultad", seccion.isTieneRestriccionFacultad());
+            node.put("tieneRestriccionModalidad", seccion.isTieneRestriccionModalidad());
+
             array.add(node);
         }
         jsonResponse.setSuccess(true);
@@ -761,7 +795,7 @@ public class GpoSeccionController {
             //  nodeResult.put("aulaSel", "");
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 Aula aula = service.findAula(seccion.getAula().getId());
-                ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory);
+                ObjectNode aulaNode = aula.toJson();
 
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     //OERA
@@ -785,6 +819,197 @@ public class GpoSeccionController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("loadModalRestricciones")
+    public JsonResponse loadModalRestricciones(
+            @RequestParam("seccion") Long seccionId,
+            HttpSession session,
+            Model model) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ObjectNode nodeResult = new ObjectNode(jsonFactory);
+
+            Seccion seccion = service.findSeccion(seccionId);
+            List<Facultad> facultades = service.allFacultadesActivas();
+            List<ModalidadEstudio> modalidadesEstudio = service.allModalidadesEstudioActivas();
+
+            ArrayNode facultadesJson = new ArrayNode(jsonFactory);
+            for (Facultad facultadEach : facultades) {
+                facultadesJson.add(facultadEach.toJson());
+            }
+            ArrayNode modalidadesEstudioJson = new ArrayNode(jsonFactory);
+            for (ModalidadEstudio modalidadEstudioEach : modalidadesEstudio) {
+                modalidadesEstudioJson.add(modalidadEstudioEach.toJson());
+            }
+            ArrayNode tiposRestriccionesJson = new ArrayNode(jsonFactory);
+            for (TipoRestriccionEnum tipoRestriccionEnumEach : TipoRestriccionEnum.values()) {
+                ObjectNode tipoRestJson = new ObjectNode(jsonFactory);
+                tipoRestJson.put("codigo", tipoRestriccionEnumEach.name());
+                tipoRestJson.put("nombre", tipoRestriccionEnumEach.getValue());
+                tiposRestriccionesJson.add(tipoRestJson);
+            }
+
+            nodeResult.putPOJO("seccion", seccion.toJson());
+            nodeResult.set("facultades", facultadesJson);
+            nodeResult.set("modalidades", modalidadesEstudioJson);
+            nodeResult.set("tiposRestriccion", tiposRestriccionesJson);
+            ObjectNode tipoRestriccionSel = null;
+            if (seccion.isTieneRestriccionCarrera()) {
+                tipoRestriccionSel = new ObjectNode(jsonFactory);
+                tipoRestriccionSel.put("codigo", TipoRestriccionEnum.ESP.name());
+                tipoRestriccionSel.put("nombre", TipoRestriccionEnum.ESP.getValue());
+            } else if (seccion.isTieneRestriccionFacultad()) {
+                tipoRestriccionSel = new ObjectNode(jsonFactory);
+                tipoRestriccionSel.put("codigo", TipoRestriccionEnum.FAC.name());
+                tipoRestriccionSel.put("nombre", TipoRestriccionEnum.FAC.getValue());
+            } else if (seccion.isTieneRestriccionModalidad()) {
+                tipoRestriccionSel = new ObjectNode(jsonFactory);
+                tipoRestriccionSel.put("codigo", TipoRestriccionEnum.MOD.name());
+                tipoRestriccionSel.put("nombre", TipoRestriccionEnum.MOD.getValue());
+            }
+            nodeResult.set("tipoRestriccionSel", tipoRestriccionSel);
+
+            response.setData(nodeResult);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarTipoRestriccion")
+    public JsonResponse cambiarTipoRestriccion(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam("tipoRestriccion") String tipoRestriccion,
+            HttpSession session,
+            Model model) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        ObjectNode nodeResult = new ObjectNode(jsonFactory);
+        try {
+            logger.debug("entro a cambiarTipoRestriccion");
+
+            TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
+            Seccion seccion = service.findSeccion(seccionId);
+
+            nodeResult.put("esEspecialidad", Boolean.FALSE);
+            nodeResult.put("esFacultad", Boolean.FALSE);
+            nodeResult.put("esModalidad", Boolean.FALSE);
+
+            ArrayNode facultadesJson = null;
+            ArrayNode modalidadesJson = null;
+            ArrayNode carrerasJson = null;
+            ArrayNode restriccionesSeleccionadas = null;
+
+            if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
+                nodeResult.put("esEspecialidad", Boolean.TRUE);
+                carrerasJson = new ArrayNode(jsonFactory);
+                List<Carrera> carreras = service.allCarrerasActivasPrePost();
+                for (Carrera carreraeEach : carreras) {
+                    ObjectNode carreraJson = carreraeEach.toJson();
+                    carreraJson.put("tipoDescripcion", carreraeEach.getTipoEnum().getValue());
+                    carreraJson.put("esTipoDOC", carreraeEach.isTipoDOC());
+                    carreraJson.put("esTipoMAE", carreraeEach.isTipoMAE());
+                    carrerasJson.add(carreraJson);
+                }
+                if (seccion.getRestriccionesCarrera() != null && !seccion.getRestriccionesCarrera().isEmpty()) {
+                    restriccionesSeleccionadas = new ArrayNode(jsonFactory);
+                    for (RestriccionCarrera restriccionCarreraEach : seccion.getRestriccionesCarrera()) {
+                        restriccionesSeleccionadas.add(restriccionCarreraEach.getCarrera().toJson());
+                    }
+                }
+            } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.FAC)) {
+                nodeResult.put("esFacultad", Boolean.TRUE);
+                facultadesJson = new ArrayNode(jsonFactory);
+                List<Facultad> facultades = service.allFacultadesActivas();
+                for (Facultad facultadEach : facultades) {
+                    facultadesJson.add(facultadEach.toJson());
+                }
+                if (seccion.getRestriccionesFacultad() != null && !seccion.getRestriccionesFacultad().isEmpty()) {
+                    restriccionesSeleccionadas = new ArrayNode(jsonFactory);
+                    for (RestriccionFacultad restriccionFacultadEach : seccion.getRestriccionesFacultad()) {
+                        restriccionesSeleccionadas.add(restriccionFacultadEach.getFacultad().toJson());
+                    }
+                }
+            } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.MOD)) {
+                nodeResult.put("esModalidad", Boolean.TRUE);
+                modalidadesJson = new ArrayNode(jsonFactory);
+                List<ModalidadEstudio> modalidades = service.allModalidadesEstudioActivas();
+                for (ModalidadEstudio modalidadEach : modalidades) {
+                    modalidadesJson.add(modalidadEach.toJson());
+                }
+                if (seccion.getRestriccionesModalidad() != null && !seccion.getRestriccionesModalidad().isEmpty()) {
+                    restriccionesSeleccionadas = new ArrayNode(jsonFactory);
+                    for (RestriccionModalidad restriccionModalidadEach : seccion.getRestriccionesModalidad()) {
+                        restriccionesSeleccionadas.add(restriccionModalidadEach.getModalidadEstudio().toJson());
+                    }
+                }
+            }
+            nodeResult.set("restriccionesSeleccionadas", restriccionesSeleccionadas);
+            if (facultadesJson != null) {
+                nodeResult.set("tblRestricciones", facultadesJson);
+            }
+            if (modalidadesJson != null) {
+                nodeResult.set("tblRestricciones", modalidadesJson);
+            }
+            if (carrerasJson != null) {
+                nodeResult.set("tblRestricciones", carrerasJson);
+            }
+            response.setData(nodeResult);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveRestriccion")
+    public JsonResponse saveRestriccion(
+            @RequestBody ObjectNode restriccionJson,
+            RedirectAttributes redirectAttr,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            Seccion seccion = new Seccion(TypesUtil.getLong(restriccionJson.get("seccion")));
+            String tipoRestriccion = restriccionJson.get("tipoRestriccion").get("codigo").asText();
+            TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
+            ArrayNode restriccionesJson = (ArrayNode) restriccionJson.get("restriccionesArr");
+            List<Long> restriccionesList = new ArrayList<>();
+
+            for (JsonNode restriccionEach : restriccionesJson) {
+                restriccionesList.add(restriccionEach.get("id").asLong());
+            }
+
+            service.saveRestriccion(seccion, ds.getUsuario(), tipoRestriccionEnum, restriccionesList);
+            String message = "Restriccion asignada correctamente.";
+
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

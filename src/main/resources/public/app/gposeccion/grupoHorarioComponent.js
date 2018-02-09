@@ -498,8 +498,12 @@ Vue.component("grupohorario-component", {
                                     JSON.stringify($vue.tabGrupos.grupoHorarioSel)
                             ,
                             success: function (response) {
-                                MODAL.hideWait();
-                                $global.$emit("afterSaveGrupo", response);
+                                if (response.success) {
+                                    MODAL.hideWait();
+                                    $global.$emit("afterSaveGrupo", response);
+                                } else {
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                }
                             },
                             error: function (response) {
                                 MODAL.hideWait();
