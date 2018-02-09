@@ -23,8 +23,6 @@ public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    GpoSeccionResumen resumen();
-
     List<AnexoBoletin> allAnexosSuperiores();
 
     List<Curso> allCursosForProgramacion(String nomString);

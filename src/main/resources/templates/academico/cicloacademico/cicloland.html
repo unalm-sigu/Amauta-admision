@@ -23,16 +23,16 @@
 
                         <section style="max-height: 500px" class="panel-body text-center scrollable">
 
-                            <a class="ciclo btn btn-success m-b-md block" 
-                               th:each='ciclo : ${cicloAcademicos}'  
+                            <a class="ciclo btn btn-success m-b-md block"
+                               th:each='ciclo : ${cicloAcademicos}'
                                th:rel="${ciclo.id}" th:text="${ciclo.descripcion2}">
                                 ciclo
                             </a>
 
-                        </section> 
+                        </section>
                     </div>
                 </section>
-            </div>     
+            </div>
         </div>
 
         <div class="login-copyright text-muted">
@@ -42,6 +42,6 @@
         <div class="login-footer"></div>
 
         <div th:substituteby="_layout/includes :: javascript"/>
-        <script th:src="@{/app/academico/ciclo/ciclolanding.js}" charset="utf-8"/>
+        <script th:src="@{/app/academico/cicloacademico/ciclolanding.js}" charset="utf-8"/>
     </body>
 </html>

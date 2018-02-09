@@ -84,7 +84,7 @@ public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
 
     @Override
     public List<Alumno> allAlumnoByName(String nombre) {
-        return alumnoDAO.allAlumnoByName(nombre);
+        return alumnoDAO.allByName(nombre);
     }
 
     @Override

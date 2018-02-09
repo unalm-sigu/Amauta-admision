@@ -71,7 +71,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .searchFields("ca.nombre", "al.estado", "al.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .searchSubqueryFields("ca.nombre")
                 .orderBy("al.id desc");
 
         switch (RolEnum.valueOf(codigo)) {
@@ -244,7 +243,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allAlumnoByName(String nombre) {
+    public List<Alumno> allByName(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -288,7 +287,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
+    public List<Alumno> allByNameModalidadEstudioCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -318,7 +317,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public Alumno findAlumno(Alumno alumno) {
+    public Alumno find(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
@@ -335,6 +334,17 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .join("ca.modalidadEstudio moe", "ca.facultad fac")
                 //                .filter("cia.id", academico)
                 .filter("al.id", alumno);
+        return (Alumno) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "cicloIngreso ci")
+                .leftJoin("per.tipoDocumento td")
+                .filter("per.id", persona)
+                .filter("ci.id", ciclo);
         return (Alumno) sql.find(getCurrentSession());
     }
 

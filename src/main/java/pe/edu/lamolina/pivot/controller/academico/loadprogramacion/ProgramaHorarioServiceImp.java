@@ -654,13 +654,14 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String ciclo = getCellValue(1, row);
                 String gclave = getCellValue(2, row);
                 String curso = getCellValue(3, row);
+                String anexo = getCellValue(5, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-//                GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso);
-//                gpoSecciones.add(gpoSecc);
+                GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso, anexo);
+                gpoSecciones.add(gpoSecc);
             }
             logger.debug("Se han leido un total de {} grupos-secciones", loop);
 

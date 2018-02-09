@@ -1,0 +1,103 @@
+<table class="table no-top-border ">
+    <tbody>
+
+        <tr>
+
+            <td class="v-middle col-sm-3" rowspan="6">
+                <div class="text-center">
+                    <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+                </div>
+            </td>
+
+            <td class="v-middle" >
+                <a href="#" class="block text-primary bold detallePostulante h5 m-b-xs m-t-xs" >{{:nombre}}</a>
+                <span class="block">
+                    Matrícula: {{:codigo}}
+                </span>
+                {{if nroDocumento}}
+                <small class="block bold">{{:tipoDoc}} {{:nroDocumento}}</small>
+                {{/if}}
+            </td>
+
+
+        </tr>
+        <tr>
+
+
+            <td class="v-middle">
+
+                <span class="block bold">Programa</span>
+
+                {{if verTipoCarrera}}
+                <span class="block text-info bold">{{:tipoCarreraValue}} en</span>
+                {{/if}}
+                <span class="block text-success">
+                    {{:carrera}}
+                </span>
+                {{if verFacultad}}
+                <span class="block">Facultad de {{:facultad}}</span>
+                {{/if}}
+                <small class="block bold">{{:modalidad}}</small>
+            </td>
+
+            <td class="v-middle">
+                <span class="block bold">Situación Académica</span>
+                <span class="block h5 text-primary m-t-xs m-b-xs">{{:situacion}}</span>
+                <span class="block"><b>Ingresó:</b> {{:cicloIngreso}}</span>
+                <span class="block"><b>Último ciclo:</b> {{:cicloActivo}}</span>
+            </td>
+
+        </tr>
+
+        <tr>
+
+
+            <td>
+                <span class="block bold">Promedios  </span>
+                <span class="block">PPA: {{:ppa}}</span>
+                <span class="block">CCA: {{:cca}}</span>
+                <span class="block">CAPA: {{:capa}}</span>
+            </td>
+
+            <td class="v-middle">
+                <span class="clear">
+                    {{if estado == "ANU"}}
+                    <a href="#" data-toggle="tooltip" data-html="true" data-placement="left" title='{{:motivo}}'><span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span></a>
+                    {{else}}
+                    <span class="label label-{{:colorEstado}}">{{:estadoEnum}} </span>
+                    {{/if}}
+                </span>
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td>
+                <span class="block bold"> Teléfono </span>{{:telefono}}
+                <span class="block bold"> Celular </span>{{:celular}}
+                <span class="block bold"> Sexo </span>{{:sexo}}
+            </td>
+
+            <td>
+                <span class="block bold">Correo electrónico  </span> {{:email}}
+            </td>
+
+        </tr>
+        <tr>
+
+            <td>
+                <span class="block bold"> Correo institucional  </span>{{:emailEmpresa}}
+            </td>
+
+            <td>
+                <span class="block bold">Correo electrónico  </span> {{:email}}
+            </td>
+
+        </tr>
+
+    </tbody>
+</table>
+
+
+
