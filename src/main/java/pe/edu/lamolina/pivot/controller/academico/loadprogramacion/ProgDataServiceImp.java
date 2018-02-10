@@ -1009,8 +1009,6 @@ public class ProgDataServiceImp implements ProgDataService {
         loadDataMatriculadoService.load(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
 
         Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
-        alumno.setCreditosCursados(12);
-        System.out.println("\talumno 111 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
         alumnoDAO.update(alumno);
         System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
     }
