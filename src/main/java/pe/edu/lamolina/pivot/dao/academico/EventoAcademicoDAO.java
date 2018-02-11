@@ -6,6 +6,6 @@ import pe.edu.lamolina.model.academico.EventoAcademico;
 
 public interface EventoAcademicoDAO extends EasyDAO<EventoAcademico> {
 
-    public List<EventoAcademico> allEventoAcademicoByName(String nombre);
+    public List<EventoAcademico> allEventoAcademicoByName(String nombre);    
 
 }

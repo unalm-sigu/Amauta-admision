@@ -1,13 +1,14 @@
-
+Vue.component("date-picker", window.DatePicker.default);
 new Vue({
     el: '#configuracion',
     data: {
-        eventos: [{id: 1, value: 'Matricula Regular'},
-            {id: 2, value: 'Matricula verano'},
-            {id: 3, value: 'Reinscripción'}],
+        eventos: JSON.parse(eventosJson),
+        config: JSON.parse(configJson),
+        ciclo: cicloJson,
+
         tipos: [{id: 1, value: 'Por barrido'},
             {id: 2, value: 'En línea'}],
-        tabs: [{id: 1, value: 'Barrido'}, {id: 1, value: 'En línea'}],
+        lstTabs: [],
 //        config: {
 //            evento: 1,
 //            tipo: 2,
@@ -18,92 +19,21 @@ new Vue({
 //            fechaInicio: '12/08/2012',
 //            fechaFin: '12/08/2012'
 //        }
-        config: {},
-        dias: [{id: 1, dia: "07/02"},
-            {id: 2, dia: "08/02"},
-            {id: 3, dia: "09/02"},
-            {id: 4, dia: "10/02"}],
-        horas: [{id: 1, hora: "8:30",
-                turnos: [
-                    {id: 1, cant: "320"},
-                    {id: 2, cant: "9:00"},
-                    {id: 3, cant: "10:00"},
-                    {id: 4, cant: "10:30"}]},
-            {id: 2, hora: "9:00",
-                turnos: [
-                    {id: 5, cant: "320"},
-                    {id: 6, cant: "320"},
-                    {id: 7, cant: "10:00"},
-                    {id: 8, cant: "10:30"}]},
-            {id: 3, hora: "10:00",
-                turnos: [
-                    {id: 9, cant: "320"},
-                    {id: 10, cant: "320"},
-                    {id: 11, cant: "10:00"},
-                    {id: 12, cant: "10:30"}]},
-            {id: 4, hora: "10:30",
-                turnos: [
-                    {id: 13, cant: "8:30"},
-                    {id: 14, cant: "9:00"},
-                    {id: 15, cant: "10:00"},
-                    {id: 16, cant: "10:30"}]}]
+
+        dias: [],
+        horas: []
 
     },
     created() {
         let $vue = this;
-        $(function () {
 
-            $(document).ready(function () {
-//toggle `popup` / `inline` mode
-                $.fn.editable.defaults.mode = 'popup';
-                //make status editable
-                $('#status').editable({
-                    type: 'select',
-                    title: 'Select status',
-                    placement: 'right',
-                    value: 2,
-                    source: [
-                        {value: 1, text: 'status 1'},
-                        {value: 2, text: 'status 2'},
-                        {value: 3, text: 'status 3'}
-                    ]
-                            /*
-                             //uncomment these lines to send data on server
-                             ,pk: 1
-                             ,url: '/post'
-                             */
-                });
-                console.log($vue.horas);
-                $vue.horas.forEach(function (elem) {
-                    elem.turnos.forEach(function (turno) {
-                        $('#' + turno.id).editable();
-                    });
-                });
-                $('#1').editable();
-                $('#datepicker1').datepicker();
-                $('#datepicker2').datepicker();
-                $('#datetimepicker1').timepicker({
-                    timeFormat: 'HH:mm:ss',
-                    minTime: '11:45:00', // 11:45:00 AM,
-                    maxHour: 20,
-                    maxMinutes: 30,
-                    startTime: new Date(0, 0, 0, 15, 0, 0), // 3:00:00 PM - noon
-                    interval: 15 // 15 minutes
-                });
-                $('#datetimepicker2').timepicker();
-                $('#datetimepicker3').timepicker();
-                $('#date1').datepicker();
-                $('#date1').datepicker();
-            });
-        }
-        );
+        $vue.tabs();
+        $vue.carga($vue.config[0]);
+
     },
     mounted() {
 
         $('.numeric').numeric({negative: false});
-
-
-
     },
     methods: {
         convertDate(strDate) {
@@ -116,27 +46,15 @@ new Vue({
         },
         save() {
             let $vue = this;
+            console.log($vue.config);
+            $vue.config.duracion = $('#timeDuracion').val();
+            $vue.config.espera = $('#timeEspera').val();
+            $vue.config.horaInicio = $('#timeHoraInicio').val();
+            console.log($vue.config);
 
-            $('#datepicker1').datepicker().on(
-                    'changeDate', () => {
-                $vue.config.fechaInicio = $('#date1').val();
-                $vue.config.fechaInicio = $vue.convertDate($vue.config.fechaInicio);
-                console.log($vue.config.fechaInicio);
-            }
-            );
-            $('#datepicker2').datepicker().on(
-                    'changeDate', () => {
-                $vue.config.fechaFin = $('#date2').val();
-                $vue.config.fechaFin = $vue.convertDate($vue.config.fechaFin);
-                console.log($vue.config.fechaFin);
-            }
-            );
-            $vue.config.horaInicio = $vue.config.horaInicio.replace("AM","");
-            $vue.config.horaInicio = $vue.config.horaInicio.replace(":","");
-            $vue.config.horaInicio = $vue.config.horaInicio.replace("PM","");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matricula/configuracion'),
+                url: APP.url('academico/configuracionturno/configuracion'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.config),
                 success: function (response) {
@@ -145,25 +63,68 @@ new Vue({
             });
             $("#myModal").modal('hide');
         },
-        carga() {
-
+        carga(config) {
+            let $vue = this;
             $.ajax({
-                method: 'GET',
-                url: APP.url('academico/alumno/' + this.alumno.id + '/historial'),
+                method: 'POST',
+                url: APP.url('academico/configuracionturno/list'),
                 contentType: "application/json",
+                data: JSON.stringify(config),
                 success: function (response) {
-                    $vue.alumnoCurso = response.data;
-                    var i = 1;
-                    $vue.alumnoCurso.forEach(function (element) {
-                        var obj = {id: 1, value: element.descripción};
-                        $vue.listCiclos.push(obj);
-                        i++;
-                    })
-                    console.log($vue.listCiclos);
+                    $vue.horas = response.data[0];
+                    $vue.dias = response.data[1];
+                    $vue.jquery($vue.horas);
                 }
             });
         },
+        tabs() {
+            let $vue = this;
+            $vue.config.forEach(function (elem) {
+                $vue.lstTabs.push(elem);
+            });
+            console.log($vue.lstTabs);
+        },
+        jquery(horas) {
+            let $vue = this;
+            $(function () {
+
+                $(document).ready(function () {
+//toggle `popup` / `inline` mode
+                    $.fn.editable.defaults.mode = 'inline';
+                    //make status editable
+                    $('#status').editable({
+                        type: 'select',
+                        title: 'Select status',
+                        placement: 'right',
+                        value: 2,
+                        source: [
+                            {value: 1, text: 'status 1'},
+                            {value: 2, text: 'status 2'},
+                            {value: 3, text: 'status 3'}
+                        ]
+                                /*
+                                 //uncomment these lines to send data on server
+                                 ,pk: 1
+                                 ,url: '/post'
+                                 */
+                    });
+
+                    horas.forEach(function (elem) {
+                        elem.turnos.forEach(function (turnos) {
+                            $('#' + turnos.id).editable();
+                        });
+                    });
+
+                    $('#timeHoraInicio').timepicker();
+//                    $('#fechaInicio').datepicker();
+//                    $('#date2').datepicker();
+                    $('#timeDuracion').timepicker({'timeFormat': 'H:i:s'});
+                    $('#timeEspera').timepicker({'timeFormat': 'H:i:s'});
+                });
+            }
+            );
+        }
     }
 
-})
+});
         

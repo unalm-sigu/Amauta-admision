@@ -37,6 +37,8 @@
 <link rel="stylesheet" type="text/css" th:href="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/css/bootstrap-editable.css}"/>
 
 
+<link rel="stylesheet" type="text/css" href="/jquery-timepicker/jquery.timepicker.css" />
+
 
 
 
@@ -123,13 +125,16 @@
     <script type="text/javascript" th:src="@{/fullcalendar/fullcalendar.min.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/fullcalendar/lang/es.js}"  charset="utf-8"/>
 
+    <script type="text/javascript" src="/jquery-timepicker/jquery.timepicker.js"></script>
+    <script type="text/javascript" src="/jquery-timepicker/jquery.timepicker.min.js"></script>
+
     <script  th:inline="javascript" >
         /*<![CDATA[*/
         var contextPath = /*[[@{/}]]*/ '/app';
         /*]]>*/
     </script>
     <script type="text/javascript" src=" https://vuejs.org/js/vue.js" />
-
+    <script type="text/javascript" th:src="@{/vendor/vue2-datepicker/build.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
     <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
