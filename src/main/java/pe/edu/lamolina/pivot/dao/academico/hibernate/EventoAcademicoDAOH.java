@@ -28,4 +28,6 @@ public class EventoAcademicoDAOH extends AbstractEasyDAO<EventoAcademico> implem
         return sql.all(getCurrentSession());
     }
 
+   
+
 }
