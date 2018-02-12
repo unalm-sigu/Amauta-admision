@@ -13,8 +13,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -40,6 +38,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per")
+                .filter("alu.codigo", codigoAlumno);
+
+        return find(sql);
+    }
+
+    @Override
+    public Alumno findFlatByCodigo(String codigoAlumno) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
                 .filter("alu.codigo", codigoAlumno);
 
         return find(sql);
