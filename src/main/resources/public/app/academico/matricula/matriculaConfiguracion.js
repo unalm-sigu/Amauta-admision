@@ -1,3 +1,4 @@
+
 Vue.component("date-picker", window.DatePicker.default);
 new Vue({
     el: '#configuracion',
@@ -5,7 +6,6 @@ new Vue({
         eventos: JSON.parse(eventosJson),
         config: JSON.parse(configJson),
         ciclo: cicloJson,
-
         tipos: [{id: 1, value: 'Por barrido'},
             {id: 2, value: 'En línea'}],
         lstTabs: [],
@@ -21,7 +21,8 @@ new Vue({
 //        }
 
         dias: [],
-        horas: []
+        horas: [],
+        test: ""
 
     },
     created() {
@@ -34,6 +35,11 @@ new Vue({
     mounted() {
 
         $('.numeric').numeric({negative: false});
+        $('1').val();
+        console.log($('1').val());
+    },
+    updated() {
+        console.log("Objeto Actualizado y Renderizado");
     },
     methods: {
         convertDate(strDate) {
@@ -111,15 +117,20 @@ new Vue({
 
                     horas.forEach(function (elem) {
                         elem.turnos.forEach(function (turnos) {
-                            $('#' + turnos.id).editable();
+                            $('#' + turnos.id).editable({
+                                url: APP.url('academico/configuracionturno/updateconfiguracion'),
+                                contentType:'application/json',
+                                type: 'number',
+                                pk: turnos.id,
+                                title: 'Enter username'
+                            });
                         });
                     });
 
                     $('#timeHoraInicio').timepicker();
-//                    $('#fechaInicio').datepicker();
-//                    $('#date2').datepicker();
                     $('#timeDuracion').timepicker({'timeFormat': 'H:i:s'});
                     $('#timeEspera').timepicker({'timeFormat': 'H:i:s'});
+
                 });
             }
             );

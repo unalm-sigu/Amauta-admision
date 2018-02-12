@@ -22,5 +22,23 @@ public class TurnoAtencionDAOH extends AbstractEasyDAO<TurnoAtencion> implements
 
         return all(sql);
     }
-    
+     @Override
+    public List<TurnoAtencion> findTurnos(ConfiguracionTurnosAtencion config, Integer turno) {
+        Octavia sql = Octavia.query()
+                .from(TurnoAtencion.class, "ta")
+                .filter("ta.configuracionTurnosAtencion", config)
+                .filter("ta.turno",">", turno)
+                .orderBy("ta.turno");
+
+        return all(sql);
+    }
+
+    @Override
+    public TurnoAtencion findTurnosById(Long Id) {
+         Octavia sql = Octavia.query()
+                .from(TurnoAtencion.class, "ta")
+                .join("ta.configuracionTurnosAtencion")
+                .filter("ta.id", Id);
+        return find(sql);
+    }
 }

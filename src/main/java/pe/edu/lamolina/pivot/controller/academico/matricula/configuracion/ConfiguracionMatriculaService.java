@@ -18,5 +18,6 @@ public interface ConfiguracionMatriculaService {
 
     List<TurnoAtencion> allTurnosByConfiguracion(ConfiguracionTurnosAtencion config);
 
-    public void updateConfiguracion(TurnoAtencion turno);
+    void updateConfiguracion(Long id, String pk);
+
 }

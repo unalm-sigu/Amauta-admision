@@ -38,8 +38,11 @@
                                     <small v-text="turno.prioridadInicio" ></small>
                                     <small v-text="turno.prioridadFin" class="pull-right"></small>
                                 </span>
-                                <span class="block text-center">
-                                    <a href="#" v-bind:id="turno.id" data-type="text" data-placement="top" data-title="Enter username" v-text="turno.alumnos"></a>
+                                <span class="block text-center" >
+
+                                    <a href="#" v-bind:id="turno.id"  data-placement="top"  v-text="turno.alumnos"  >
+
+                                    </a>
                                 </span>
                             </div>
                         </td>                       

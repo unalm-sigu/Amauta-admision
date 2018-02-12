@@ -16,7 +16,12 @@ import pe.edu.lamolina.model.academico.TurnoAtencion;
  *
  * @author AlbatrossCloud
  */
-public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion>{
+public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
-     List<TurnoAtencion> findConfiguracion( ConfiguracionTurnosAtencion config);
+    List<TurnoAtencion> findConfiguracion(ConfiguracionTurnosAtencion config);
+
+    List<TurnoAtencion> findTurnos(ConfiguracionTurnosAtencion config, Integer turno);
+    
+    TurnoAtencion findTurnosById(Long Id);
+    
 }

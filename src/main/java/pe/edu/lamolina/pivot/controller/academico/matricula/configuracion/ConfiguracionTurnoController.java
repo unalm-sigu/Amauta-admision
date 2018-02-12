@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -141,13 +141,14 @@ public class ConfiguracionTurnoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "configuracion", method = RequestMethod.PUT)
-    public JsonResponse updateConfiguracion(@RequestBody TurnoAtencion turno, HttpSession session) {
+    @RequestMapping(value = "updateconfiguracion", method = RequestMethod.POST)
+    public JsonResponse updateConfiguracion(@RequestParam(value="name", required=true) String name,@RequestParam(value="value", required=true) String value,@RequestParam(value="pk", required=true) Long pk, HttpSession session) {
         JsonResponse response = new JsonResponse();
 
         try {
-
-            service.updateConfiguracion(turno);
+            System.err.println("VAlor" + pk);
+            service.updateConfiguracion(pk,value);
+            
             response.setSuccess(true);
 
         } catch (PhobosException e) {

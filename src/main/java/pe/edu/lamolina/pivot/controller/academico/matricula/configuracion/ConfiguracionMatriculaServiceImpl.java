@@ -37,7 +37,6 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcatemicoDAO;
 
- 
     @Override
     public void saveConfiguracion(ConfiguracionTurnosAtencion config) throws ParseException {
 
@@ -73,7 +72,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 objTurno.setHoraFinal(horaFinal.toString());
                 objTurno.setPrioridadInicio(prioridad);
                 prioridad = prioridad + cantAlumnos;
-                objTurno.setPrioridadFin(prioridad);
+                objTurno.setPrioridadFin(prioridad - 1);
                 objTurno.setTurno(j);
                 turnoAtencionDAO.save(objTurno);
                 prioridad++;
@@ -91,7 +90,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
         Map<Long, EventoAcademico> mapConfiguracionTurno = TypesUtil.convertListToMap("eventoAcademico.id", "eventoAcademico", lstEventoCiclo);
 
         List<EventoAcademico> evento = new ArrayList(mapConfiguracionTurno.values());
-        return evento; 
+        return evento;
     }
 
     @Override
@@ -106,8 +105,22 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     }
 
     @Override
-    public void updateConfiguracion(TurnoAtencion turno) {
-        turnoAtencionDAO.update(turno);
+    @Transactional
+    public void updateConfiguracion(Long id, String value) {
+        TurnoAtencion objTurno = turnoAtencionDAO.findTurnosById(id);
+        objTurno.setAlumnos(Integer.parseInt(value));
+        objTurno.setPrioridadFin(objTurno.getPrioridadInicio() + Integer.parseInt(value));
+        turnoAtencionDAO.update(objTurno);
+        
+        List<TurnoAtencion> lstTurno = turnoAtencionDAO.findTurnos(objTurno.getConfiguracionTurnosAtencion(),objTurno.getTurno());
+        Integer inicial = Integer.parseInt(value);
+        for (TurnoAtencion turnoAtencion : lstTurno) {
+            Integer fin = (inicial + 2 + turnoAtencion.getAlumnos());
+            turnoAtencion.setPrioridadInicio(inicial + 1);
+            turnoAtencion.setPrioridadFin(fin);
+            turnoAtencionDAO.update(turnoAtencion);
+        }
+            
     }
 
 }
