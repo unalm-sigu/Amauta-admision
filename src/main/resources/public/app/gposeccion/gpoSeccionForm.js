@@ -96,7 +96,7 @@ var app = new Vue({
         seccionModal: null,
         tiposRepitenciaOpt: [],
         tiposRepitenciaArr: [],
-        colorEstado: {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"},
+        colorEstado: {CRE: "default", ACT: "success", INA: "danger", ANU: "danger", BLO: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,
@@ -171,7 +171,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/addDocSeccion'),
                 data: {
-                    seccion: $vue.seccionSeleccionada.seccionId
+                    seccion: $vue.seccionSeleccionada.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -257,7 +257,115 @@ var app = new Vue({
                             method: 'POST',
                             url: APP.url('academico/gposeccion/deleteSeccion'),
                             data: {
-                                seccion: seccion.seccionId
+                                seccion: seccion.id
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.loadSecciones();
+                                    $vue.docentesSeccion = [];
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.message, "error");
+                                    MODAL.hideWait();
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                MODAL.hideWait();
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        bloquearSeccion: function (seccion) {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea bloquear la seccón?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/bloquearSeccion'),
+                            data: {
+                                seccion: seccion.id
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.loadSecciones();
+                                    $vue.docentesSeccion = [];
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.message, "error");
+                                    MODAL.hideWait();
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                MODAL.hideWait();
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        activarSeccion: function (seccion) {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea activar la seccón?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/activarSeccion'),
+                            data: {
+                                seccion: seccion.id
+                            },
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.loadSecciones();
+                                    $vue.docentesSeccion = [];
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.message, "error");
+                                    MODAL.hideWait();
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                MODAL.hideWait();
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        anularSeccion: function (seccion) {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea anular la seccón?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/anularSeccion'),
+                            data: {
+                                seccion: seccion.id
                             },
                             success: function (response) {
                                 if (response.success) {
@@ -345,7 +453,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/findDocentesSecciones'),
                 data: {
-                    seccion: $vue.seccionSeleccionada.seccionId
+                    seccion: $vue.seccionSeleccionada.id
                 },
                 success: function (response) {
                     if (response.success) {
@@ -356,7 +464,7 @@ var app = new Vue({
             });
         }, showModalGrupos(seccion) {
             let $vue = this;
-            $global.$emit('loadGrupoComponent', seccion.seccionId);
+            $global.$emit('loadGrupoComponent', seccion.id);
             this.$refs.modalGrupo.open();
 
         }, saveGrupo() {
@@ -385,8 +493,8 @@ var app = new Vue({
                 let form = $(event.target);
 
                 form.attr("data-parsley-type", "digits");
-                if (seccion.aula != "") {
-                    form.attr("data-parsley-max", seccion.aula.aforo);
+                if (seccion.aula != null) {
+                    form.attr("data-parsley-max", seccion.aula.capacidadAula);
                 } else {
                     form.removeAttr("data-parsley-max");
                 }
@@ -403,7 +511,7 @@ var app = new Vue({
                     type: 'POST',
                     async: false,
                     data: {
-                        seccion: seccion.seccionId,
+                        seccion: seccion.id,
                         vacantes: seccion.vacantes
                     },
                     success: function (response) {
@@ -423,7 +531,7 @@ var app = new Vue({
             }
         }, showModalAula(seccion) {
             let $vue = this;
-            $global.$emit('loadAulaComponent', seccion.seccionId);
+            $global.$emit('loadAulaComponent', seccion.id);
             this.$refs.modalAula.open();
         }, saveAula() {
             $global.$emit('saveAula');
@@ -452,7 +560,7 @@ var app = new Vue({
             })
         }, showModalRestriccion(seccion) {
             let $vue = this;
-            $global.$emit('loadRestriccionComponent', seccion.seccionId);
+            $global.$emit('loadRestriccionComponent', seccion.id);
             this.$refs.modalRestriccion.open();
         }, saveRestriccion() {
             $global.$emit('saveRestriccion');
@@ -463,7 +571,7 @@ var app = new Vue({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/loadModalRepitenciaRestriccion'),
                 data: {
-                    seccion: seccion.seccionId
+                    seccion: seccion.id
                 }, success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
@@ -497,6 +605,7 @@ var app = new Vue({
                     if (response.success) {
                         MODAL.hideWait();
                         $vue.$refs.modalTipoRepitencia.close();
+                        notify(response.message, "info");
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }

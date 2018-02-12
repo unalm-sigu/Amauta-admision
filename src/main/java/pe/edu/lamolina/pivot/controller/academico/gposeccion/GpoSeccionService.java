@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -28,6 +29,8 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    void cambiarEstadoGpoSeccion(EstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -53,6 +56,12 @@ public interface GpoSeccionService {
 
     void deleteSeccion(Seccion seccion);
 
+    void activarSeccion(Seccion seccion, Usuario usuario);
+
+    void bloquearSeccion(Seccion seccion, Usuario usuario);
+
+    void anularSeccion(Seccion seccion, Usuario usuario);
+
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
     void deleteDocSeccion(DocenteSeccion docenteSeccion);
@@ -63,7 +72,7 @@ public interface GpoSeccionService {
 
     void actualizarDocente(Long docenteSeccionId, Long docenteId);
 
-    void actualizarSeccionVacantes(Seccion seccion);
+    void actualizarSeccionVacantes(Seccion seccion, Usuario usuario);
 
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
 

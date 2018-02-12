@@ -141,6 +141,7 @@ public class GpoSeccionController {
                 nodeGpoSecc.put("creditos", gpoSeccion.getCurso().getCreditos());
                 nodeGpoSecc.put("anexo", gpoSeccion.getAnexoBoletin().getNombre());
                 nodeGpoSecc.put("estado", gpoSeccion.getEstado());
+
                 nodeGpoSecc.put("estadoValue", gpoSeccion.getEstado() != null ? EstadoEnum.valueOf(gpoSeccion.getEstado()).getValue() : "");
 
                 ArrayNode arraySecc = new ArrayNode(JsonNodeFactory.instance);
@@ -208,6 +209,42 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("{gruposeccion}/activarGrupo")
+    public JsonResponse activarGrupo(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cambiarEstadoGpoSeccion(EstadoEnum.ACT, new GrupoSeccion(gruposeccionId), ds.getUsuario());
+            response.setMessage("Activado correctamente.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("{gruposeccion}/desactivarGrupo")
+    public JsonResponse desactivarGrupo(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cambiarEstadoGpoSeccion(EstadoEnum.INA, new GrupoSeccion(gruposeccionId), ds.getUsuario());
+            response.setMessage("Desactivado correctamente.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
     @RequestMapping("{gruposeccion}/loadGpoSeccionForm")
     public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId) {
         JsonResponse jsonResponse = new JsonResponse();
@@ -234,24 +271,10 @@ public class GpoSeccionController {
         ArrayNode array = new ArrayNode(nc);
         List<Seccion> secciones = service.allSeccionesByGrupo(new GrupoSeccion(gruposeccionId));
         for (Seccion seccion : secciones) {
-            ObjectNode node = new ObjectNode(nc);
-            node.put("seccionId", seccion.getId());
-            node.put("seccionCodigo", seccion.getCodigo());
-            node.put("tipoSeccionValue", seccion.getTipoSeccionEnum().getValue());
-            //       node.put("aula", ObjectUtil.getParentTree(seccion, "aula.id") != null ? seccion.getAula().getCodigo() : "");
-            if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
-                node.putPOJO("aula", JsonHelper.createJson(seccion.getAula(), JsonNodeFactory.instance));
-            } else {
-                node.put("aula", "");
-            }
+            ObjectNode node = seccion.toJson();
+            //    node.put("seccionId", seccion.getId());
+            //   node.put("grupoHoras", ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null ? seccion.getGrupoHoras().getCodigo() : "");
 
-            node.put("grupoHoras", ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null ? seccion.getGrupoHoras().getCodigo() : "");
-            node.put("vacantes", seccion.getVacantes());
-            node.put("matriculados", seccion.getMatriculados());
-            node.put("esTipoSeccionTcur", seccion.isTipoSeccionTCUR());
-            node.put("esTipoSeccionPcur", seccion.isTipoSeccionPCUR());
-
-            node.put("cantidadDocentes", seccion.getDocentesCant());
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
                 if (docSeccion.getPorcentajeCarga() != null) {
@@ -259,14 +282,7 @@ public class GpoSeccionController {
                 }
             }
             node.put("porcentajeAvance", porcentajeAvance);
-            node.put("estadoEnumValue", seccion.getEstadoEnum().getValue());
-            node.put("estadoEnumCode", seccion.getEstadoEnum().name());
             node.put("editVacantes", Boolean.FALSE);
-
-            node.put("tieneRestriccion", seccion.isTieneRestriccion());
-            node.put("tieneRestriccionCarrera", seccion.isTieneRestriccionCarrera());
-            node.put("tieneRestriccionFacultad", seccion.isTieneRestriccionFacultad());
-            node.put("tieneRestriccionModalidad", seccion.isTieneRestriccionModalidad());
 
             array.add(node);
         }
@@ -506,6 +522,75 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("activarSeccion")
+    public JsonResponse activarSeccion(@RequestParam("seccion") Long seccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.activarSeccion(new Seccion(seccionId), ds.getUsuario());
+            String message = "Sección activada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("bloquearSeccion")
+    public JsonResponse bloquearSeccion(@RequestParam("seccion") Long seccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.bloquearSeccion(new Seccion(seccionId), ds.getUsuario());
+            String message = "Sección bloqueada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("anularSeccion")
+    public JsonResponse anularSeccion(@RequestParam("seccion") Long seccionId,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.anularSeccion(new Seccion(seccionId), ds.getUsuario());
+            String message = "Sección anulada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("deleteDocSeccion")
     public JsonResponse deleteDocSeccion(@RequestParam("docSeccion") Long docSeccionId,
             Model model,
@@ -651,11 +736,12 @@ public class GpoSeccionController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("seccion {}, vacantes {}", seccionId, vacantes);
 
             Seccion seccion = new Seccion(seccionId);
             seccion.setVacantes(vacantes);
-            service.actualizarSeccionVacantes(seccion);
+            service.actualizarSeccionVacantes(seccion, ds.getUsuario());
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Vacantes actualizadas");

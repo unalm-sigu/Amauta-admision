@@ -80,10 +80,10 @@
                                 </thead>
                                 <tbody>
                                     <tr  v-for="(seccion, index) in secciones" 
-                                         v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.seccionId==seccion.seccionId)}">
+                                         v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.id==seccion.id)}">
                                         <td class="text-center">
                                             <a v-on:click="seleccionarSeccion(seccion)" 
-                                               style="cursor:pointer;">{{ seccion.seccionCodigo }}
+                                               style="cursor:pointer;">{{ seccion.codigo }}
                                             </a>
                                         </td>
                                         <td>
@@ -91,13 +91,13 @@
                                         </td>
                                         <td class="text-center">
 
-                                            <a v-if="seccion.aula==''"
+                                            <a v-if="seccion.aula==null"
                                                v-on:click="showModalAula(seccion)" 
                                                style="cursor:pointer;">
                                                 Sin Aula
                                             </a>
 
-                                            <a v-if="seccion.aula!=''"
+                                            <a v-if="seccion.aula!=null"
                                                v-on:click="showModalAula(seccion)" 
                                                style="cursor:pointer;">
                                                 <div>
@@ -111,15 +111,15 @@
                                         <td class="text-center">
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras==''"
+                                               v-if="seccion.grupoHoras==null"
                                                style="cursor:pointer;">
                                                 Sin Grupo
                                             </a>
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras!=''"
+                                               v-if="seccion.grupoHoras!=null"
                                                style="cursor:pointer;">
-                                                {{ seccion.grupoHoras }} 
+                                                {{ seccion.grupoHoras.codigo }} 
                                             </a>
 
 
@@ -144,9 +144,14 @@
                                         </td>
                                         <td>
                                             <a v-on:click="showModalTipoRepitencia(seccion)" 
-
+                                               v-if="!seccion.tieneRestriccionFacultad"
                                                style="cursor:pointer;">
-                                                Tipo Repitencia
+                                                Sin Restricción
+                                            </a>
+                                            <a v-on:click="showModalTipoRepitencia(seccion)" 
+                                               v-if="seccion.tieneRestriccionFacultad"
+                                               style="cursor:pointer;">
+                                                Restricción Repitencia
                                             </a>
                                         </td>
                                         <td class="text-center">
@@ -185,9 +190,39 @@
                                             <span class="label" v-bind:class="getEstadoClass(seccion.estadoEnumCode)">{{ seccion.estadoEnumValue }}</span>
                                         </td>
                                         <td>
+                                            <!-- 
                                             <a  v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
                                                 v-on:click="deleteSeccion(seccion)"
                                                 class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                                            v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
+                                            -->
+
+                                            <div class="dropdown actions" 
+                                                 v-if="index > 0">
+
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                <ul class="dropdown-menu pull-right" >
+                                                    <li role="presentation">
+                                                        <a href="#"
+                                                           v-on:click="activarSeccion(seccion)"
+                                                           v-if="seccion.esEstadoBloqueado || seccion.esEstadoAnulado">
+                                                            Acivar
+                                                        </a>
+                                                        <a href="#"
+                                                           v-if="seccion.esEstadoActivo"
+                                                           v-on:click="anularSeccion(seccion)"
+                                                           >
+                                                            Anular
+                                                        </a>
+                                                        <a href="#"
+                                                           v-if="seccion.esEstadoActivo"
+                                                           v-on:click="bloquearSeccion(seccion)"
+                                                           >
+                                                            Bloquear
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
 
                                         </td>
                                     </tr>
@@ -205,7 +240,7 @@
                             <section class="panel-body" v-if="seccionSeleccionada">
 
                                 <header class="page-header">
-                                    <h4>Seccion {{seccionSeleccionada.seccionCodigo}}</h4>
+                                    <h4>Seccion {{seccionSeleccionada.codigo}}</h4>
                                 </header>
                                 <table class="table table-striped" >
                                     <thead> 
@@ -354,7 +389,7 @@
                                     <label class="col-md-2 control-label">Aula</label>
 
                                     <div class="col-md-4">
-                                        <span v-if="seccionModal.aula!=''"> {{seccionModal.aula.codigo}}</span>
+                                        <span v-if="seccionModal.aula!=null"> {{seccionModal.aula.codigo}}</span>
                                     </div>
 
                                     <label class="col-md-2 control-label">Horas</label>
