@@ -332,7 +332,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 UsuarioRol userRol = new UsuarioRol();
                 userRol.setUsuario(user);
                 userRol.setRol(new Rol(1));
-                userRol.setEstadoEnum(UserEstadoEnum.ACT);
+                userRol.setEstado(UserEstadoEnum.ACT);
                 userRol.setFechaInicio(new Date());
                 userRol.setFechaRegistro(new Date());
                 userRol.setUsuario(ds.getUsuario());
@@ -342,7 +342,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 UsuarioRol userRol = new UsuarioRol();
                 userRol.setUsuario(user);
                 userRol.setRol(new Rol(2));
-                userRol.setEstadoEnum(UserEstadoEnum.ACT);
+                userRol.setEstado(UserEstadoEnum.ACT);
                 userRol.setFechaInicio(new Date());
                 userRol.setFechaRegistro(new Date());
                 userRol.setUserRegistro(ds.getUsuario());

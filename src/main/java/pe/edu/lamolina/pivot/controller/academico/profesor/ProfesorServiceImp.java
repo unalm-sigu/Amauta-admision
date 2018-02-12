@@ -49,7 +49,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     UsuarioDAO usuarioDAO;
-    
+
     @Autowired
     UsuarioRolDAO usuarioRolDAO;
 
@@ -157,13 +157,26 @@ public class ProfesorServiceImp implements ProfesorService {
             usuarioDb.setEstado(UserEstadoEnum.ACT);
             usuarioDb.setFechaRegistro(new Date());
             usuarioDb.setUserRegistro(user);
+            usuarioDb.setPersona(docente.getPersona());
+            usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
             usuarioDAO.save(usuarioDb);
+        } else {
+            logger.debug("actualizando usuario");
+            usuarioDb.setFechaRegistro(new Date());
+            usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
+            usuarioDAO.update(usuarioDb);
         }
-        
+
         Rol rol = rolDAO.findByCode(RolEnum.DOC);
         UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
-        if(userRol == null){
+        if (userRol == null) {
             userRol = new UsuarioRol();
+            userRol.setEstado(UserEstadoEnum.ACT);
+            userRol.setFechaInicio(new Date());
+            userRol.setRol(rol);
+            userRol.setUsuario(usuarioDb);
+            userRol.setUserRegistro(ds.getUsuario());
+            usuarioRolDAO.save(userRol);
         }
     }
 
@@ -207,6 +220,7 @@ public class ProfesorServiceImp implements ProfesorService {
             persona.setFoto(personaForm.getFoto());
         }
         personaDAO.update(persona);
+
         Docente docenteDb = docenteDAO.findPersona(persona);
         docenteDb.setPersona(persona);
         docenteDb.setFechaModifica(new Date());
@@ -214,6 +228,29 @@ public class ProfesorServiceImp implements ProfesorService {
         docenteDb.setDepartamentoAcademico(docente.getDepartamentoAcademico());
         docenteDb.setModalidadEstudio(docente.getModalidadEstudio());
         docenteDAO.update(docenteDb);
+
+        Usuario usuarioDb = usuarioDAO.findByPersona(docente.getPersona());
+        logger.debug("existe usuario en db {}", (usuarioDb != null));
+        if (usuarioDb != null) {
+            logger.debug("actualizando usuario");
+            usuarioDb.setUserModifica(ds.getUsuario());
+            usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
+            usuarioDb.setFechaModifica(new Date());
+            usuarioDAO.update(usuarioDb);
+        }
+        
+        Rol rol = rolDAO.findByCode(RolEnum.DOC);
+        UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
+        if (userRol == null) {
+            userRol = new UsuarioRol();
+            userRol.setEstado(UserEstadoEnum.ACT);
+            userRol.setFechaInicio(new Date());
+            userRol.setRol(rol);
+            userRol.setUsuario(usuarioDb);
+            userRol.setUserRegistro(ds.getUsuario());
+            userRol.setFechaRegistro(new Date());
+            usuarioRolDAO.save(userRol);
+        }
     }
 
     private String getCodigo() {
