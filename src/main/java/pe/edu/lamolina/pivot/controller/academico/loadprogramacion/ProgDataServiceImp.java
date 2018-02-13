@@ -315,7 +315,7 @@ public class ProgDataServiceImp implements ProgDataService {
     }
 
     private void saveUsuario(Persona persona, RolEnum rol, DataSessionPivot ds) {
-        Usuario user = usuarioDAO.allByPersona(persona);
+        Usuario user = usuarioDAO.findByPersona(persona);
         if (user != null) {
 
             boolean existeAlumno = false;
