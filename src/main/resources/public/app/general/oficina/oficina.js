@@ -313,7 +313,8 @@ $(function () {
                         if ($("#" + record.select2Persona).select2("val") == "" || !form.parsley().validate()) {
                             return false;
                         }
-                        Oficina.ajaxAsignarJefe(form.serialize());
+                        Oficina.ajaxAsignarJefe(form, mimodal);
+                        return false;
                     }
                 }
             });
@@ -390,16 +391,17 @@ $(function () {
             form.find(".date").datepicker();
 
         },
-        ajaxAsignarJefe: function (parametros) {
+        ajaxAsignarJefe: function (form, mimodal) {
             $.ajax({
                 url: APP.url('general/oficina/asignarJefe'),
                 type: 'POST',
                 async: false,
-                data: parametros,
+                data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         dynatable.process();
+                        mimodal.modal('hide');
                     } else {
                         notify(response.message, "error");
                     }
