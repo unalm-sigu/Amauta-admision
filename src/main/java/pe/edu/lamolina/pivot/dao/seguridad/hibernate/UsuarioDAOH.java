@@ -51,16 +51,6 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
     }
 
     @Override
-    public Usuario allByPersona(Persona persona) {
-        Octavia sql = Octavia.query()
-                .from(Usuario.class, "u")
-                .join("persona per")
-                .filter("per.id", persona);
-
-        return find(sql);
-    }
-
-    @Override
     public List<Usuario> allByFilter(DynatableFilter filter) {
         Octavia subquery = Octavia.query()
                 .from(UsuarioRol.class, "u")
