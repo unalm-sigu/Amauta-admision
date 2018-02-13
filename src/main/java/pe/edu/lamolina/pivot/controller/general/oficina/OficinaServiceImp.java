@@ -393,7 +393,7 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     private void asignarRol(Persona personaJefe, RolEnum rolEnum, DataSessionPivot ds) {
-        Usuario usuarioDb = usuarioDAO.allByPersona(personaJefe);
+        Usuario usuarioDb = usuarioDAO.findByPersona(personaJefe);
         Docente docenteDb = docenteDAO.findDocenteByPersona(personaJefe);
 
         if (usuarioDb == null) {
