@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
@@ -52,6 +53,7 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -115,6 +117,8 @@ public class ProgDataServiceImp implements ProgDataService {
     SituacionAcademicaDAO situacionAcademicaDAO;
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Autowired
     LoadDataMatriculadoService loadDataMatriculadoService;
@@ -279,19 +283,37 @@ public class ProgDataServiceImp implements ProgDataService {
             personaDAO.update(persona);
         }
 
+        List<Carrera> carreras = carreraDAO.all();
+        Map<String, Carrera> mapCarreras = TypesUtil.convertListToMap("codigo", carreras);
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
+        Map<String, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("codigoAntiguo", ciclos);
+
         Alumno alu = mapAlumnos.get(alumno.getCodigo());
+        String cod = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
+        Carrera carrera = mapCarreras.get(cod);
+        ModalidadEstudio modalidad = carrera.getModalidadEstudio();
+        SituacionAcademica situacion = mapSituaciones.get(alumno.getSituacion());
+        CicloAcademico cicloInicio = mapCiclos.get(alumno.getCodigoCicloIngreso());
+        CicloAcademico cicloActivo = mapCiclos.get(alumno.getCodigoCicloActivo());
+
         if (alu != null) {
             alu.setPersona(persona);
+            alu.setCarrera(carrera);
+            alu.setSituacionAcademica(situacion);
+            alu.setModalidadEstudio(modalidad);
+            alu.setCicloActivo(cicloActivo);
+            alu.setCicloIngreso(cicloInicio);
             alumnoDAO.update(alu);
 
         } else {
-            String cod = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
-            Carrera carrera = carreraDAO.findByCodigo(cod);
+
             alumno.setCarrera(carrera);
-            SituacionAcademica situacion = mapSituaciones.get(alumno.getSituacion());
             alumno.setSituacionAcademica(situacion);
-            alumno.setCicloActivo(ds.getCicloAcademico());
-            alumno.setCicloIngreso(ds.getCicloAcademico());
+            alumno.setCicloActivo(cicloActivo);
+            alumno.setCicloIngreso(cicloInicio);
+            alumno.setEstado(AlumnoEstadoEnum.ACT);
+            alumno.setModalidadEstudio(modalidad);
+
             alumno.setRetirosCursos(0);
             alumno.setRetirosCiclos(0);
             alumno.setRetirosExtemporaneos(0);
@@ -308,7 +330,6 @@ public class ProgDataServiceImp implements ProgDataService {
             alumnoDAO.save(alumno);
 
             mapAlumnos.put(alumno.getCodigo(), alumno);
-
             saveUsuario(persona, RolEnum.ALU, ds);
         }
 

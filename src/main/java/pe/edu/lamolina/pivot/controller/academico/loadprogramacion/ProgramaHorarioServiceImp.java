@@ -446,6 +446,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String nombres = getCellValue(10, row);
                 String tipoDocumento = getCellValue(11, row);
                 String numeroDoc = getCellValue(12, row);
+                String cicloInicio = getCellValue(13, row);
+                String cicloActivo = getCellValue(14, row);
 
                 if (StringUtils.isEmpty(codigo)) {
                     break;
@@ -461,6 +463,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Persona persona = new Persona(paterno, materno, nombres, numeroDoc, tipoDocumento);
                 Alumno alumno = new Alumno(codigo, codigoEspecialidad, codigoPostgrado, situacion, email);
                 alumno.setPersona(persona);
+                alumno.setCodigoCicloIngreso(cicloInicio);
+                alumno.setCodigoCicloActivo(cicloActivo);
                 alumnnos.add(alumno);
             }
             logger.debug("Se han leido un total de {} alumnos", loop);
