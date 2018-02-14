@@ -5,12 +5,11 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoAcademico;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 
 public interface ConfiguracionMatriculaService {
 
-    void saveConfiguracion(ConfiguracionTurnosAtencion configuracionTurnosAtencion) throws ParseException;
+    Long saveConfiguracion(ConfiguracionTurnosAtencion configuracionTurnosAtencion) throws ParseException;
 
     List<EventoAcademico> findEventoCiclo(CicloAcademico cicloAcademico);
 
@@ -18,6 +17,8 @@ public interface ConfiguracionMatriculaService {
 
     List<TurnoAtencion> allTurnosByConfiguracion(ConfiguracionTurnosAtencion config);
 
-    void updateConfiguracion(Long id, String pk);
+    ConfiguracionTurnosAtencion updateTurnos(Long id, String pk);
+
+    void deleteConfiguracion(ConfiguracionTurnosAtencion config);
 
 }

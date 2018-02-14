@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -30,16 +31,18 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
+import pe.edu.lamolina.model.enums.TipoProspectoEnum;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/configuracionturno")
 public class ConfiguracionTurnoController {
-
+    
     @Autowired
     ConfiguracionMatriculaService service;
-
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
@@ -63,101 +66,139 @@ public class ConfiguracionTurnoController {
             }
         });
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) throws ParseException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<EventoAcademico> evento = service.findEventoCiclo(ds.getCicloAcademico());
         List<ConfiguracionTurnosAtencion> configuraciones = service.allConfiguraciones(ds.getCicloAcademico());
-
-        ArrayNode lstEventos = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode lstConfig = new ArrayNode(JsonNodeFactory.instance);
-        JsonNodeFactory factory = JsonNodeFactory.instance;
+        
         ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-        ObjectNode objNodeConfig = new ObjectNode(JsonNodeFactory.instance);
+        ArrayNode lst = new ArrayNode(JsonNodeFactory.instance);
+        
+        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
+            lst.add(d.getValue());
+        };
 
-        System.err.println("conf    " + configuraciones.size());
+//        lst.add();
+//        lst.add(TipoMatriculaEnum.BARRIDO.name());
         model.addAttribute("eventos", new EventoAcademico().toJsonArray(evento));
         model.addAttribute("configuraciones", new ConfiguracionTurnosAtencion().toJsonArray(configuraciones));
         model.addAttribute("ciclo", ds.getCicloAcademico().getDescripcion2());
-
+        model.addAttribute("tipoMatricula", lst.toString());
+        
         return "academico/matricula/matriculaConfiguracion";
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "list", method = RequestMethod.POST)
     public JsonResponse list(@RequestBody ConfiguracionTurnosAtencion config, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DateFormat formatter = new SimpleDateFormat("dd/MM");
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-        List<TurnoAtencion> turnos = service.allTurnosByConfiguracion(config);
-        Map<Integer, List<TurnoAtencion>> mapTurnos = new HashMap();
-
-        for (TurnoAtencion turno : turnos) {
-            List<TurnoAtencion> turnosHora = mapTurnos.get(turno.getTurno());
-            turnosHora = (turnosHora == null) ? new ArrayList() : turnosHora;
-            turnosHora.add(turno);
-            mapTurnos.put(turno.getTurno(), turnosHora);
-        }
         
-        ArrayNode lst = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode lstHoras = new ArrayNode(JsonNodeFactory.instance);
-        ArrayNode lstDias = new ArrayNode(JsonNodeFactory.instance);
-        for (Map.Entry<Integer, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
-            List<TurnoAtencion> turnosHora = map.getValue();
-            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-            ObjectNode objNodeDias = new ObjectNode(JsonNodeFactory.instance);
-            objNode.put("hora", turnosHora.get(0).getHoraInicio());
-            objNode.put("turnos", new TurnoAtencion().toJsonArray(turnosHora));
-            objNodeDias.put("dias", formatter.format(turnosHora.get(0).getFecha()));
-            lstHoras.add(objNode);
-            lstDias.add(objNodeDias);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            List<TurnoAtencion> turnos = service.allTurnosByConfiguracion(config);
+            Map<Integer, List<TurnoAtencion>> mapTurnos = new HashMap();
+            
+            for (TurnoAtencion turno : turnos) {
+                List<TurnoAtencion> turnosHora = mapTurnos.get(turno.getTurno());
+                turnosHora = (turnosHora == null) ? new ArrayList() : turnosHora;
+                turnosHora.add(turno);
+                mapTurnos.put(turno.getTurno(), turnosHora);
+            }
+            
+            ArrayNode lst = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode lstHoras = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode lstDias = new ArrayNode(JsonNodeFactory.instance);
+            
+            List<TurnoAtencion> turnosHora = null;
+            int i = 1;
+            for (Map.Entry<Integer, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
+                turnosHora = map.getValue();
+                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+                if (i == 1) {
+                    for (TurnoAtencion lstDia : turnosHora) {
+                        ObjectNode objNodeDias = new ObjectNode(JsonNodeFactory.instance);
+                        objNodeDias.put("dias", formatter.format(lstDia.getFecha()));
+                        lstDias.add(objNodeDias);
+                    }
+                    i++;
+                }
+                objNode.put("hora", turnosHora.get(0).getHoraInicio());
+                objNode.put("turnos", new TurnoAtencion().toJsonArray(turnosHora));
+                lstHoras.add(objNode);
+                
+            }
+            
+            lst.add(lstHoras);
+            lst.add(lstDias);
+            response.setData(lst);
+            
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+            
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
         }
-        lst.add(lstHoras);
-        lst.add(lstDias);
-        response.setData(lst);
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "configuracion", method = RequestMethod.POST)
     public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
-            service.saveConfiguracion(config);
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "updateconfiguracion", method = RequestMethod.POST)
-    public JsonResponse updateConfiguracion(@RequestParam(value="name", required=true) String name,@RequestParam(value="value", required=true) String value,@RequestParam(value="pk", required=true) Long pk, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-
-        try {
-            System.err.println("VAlor" + pk);
-            service.updateConfiguracion(pk,value);
             
+            Long Id = service.saveConfiguracion(config);
             response.setSuccess(true);
-
+            response.setData(Id);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-
+            
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
         return response;
     }
-
+    
+    @ResponseBody
+    @RequestMapping(value = "updateturnos", method = RequestMethod.POST)
+    public JsonResponse updateTurnos(@RequestParam(value = "name", required = true) String name, @RequestParam(value = "value", required = true) String value, Model model, @RequestParam(value = "pk", required = true) Long pk, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        
+        try {
+            ConfiguracionTurnosAtencion config = service.updateTurnos(pk, value);
+            JsonResponse json = list(config, model, session);
+            response.setData(json);
+            response.setSuccess(true);
+            
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+            
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "deleteconfiguracion", method = RequestMethod.DELETE)
+    public JsonResponse deleteConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        
+        try {
+            service.deleteConfiguracion(config);
+            response.setSuccess(true);
+            
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+            
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

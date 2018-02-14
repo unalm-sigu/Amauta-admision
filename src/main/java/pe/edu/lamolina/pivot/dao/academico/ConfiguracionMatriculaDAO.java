@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import java.io.Serializable;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
