@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -246,10 +247,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         long loop = 1;
         for (Alumno alumno : alumnos) {
             logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
-//            if (loop < 5320) {
-//                loop++;
-//                continue;
-//            }
             Persona persona = alumno.getPersona();
             persona = progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
             String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
@@ -284,29 +281,86 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {
         List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
+        int loop = 1;
+        for (MatriculaResumen aluResumen : alumnosResumen) {
+            Alumno alumno = aluResumen.getAlumno();
+            System.out.println(loop + ".- " + alumno.getCodigo() + " :::: ");
+            loop++;
+        }
+
         for (MatriculaResumen aluResumen : alumnosResumen) {
             progDataService.revisarAlumnoMatriculado(aluResumen, mapResumenes, mapBloqueados);
         }
 
         logger.debug("\trevisarAlumnosMatriculados envio {} alumnos a ser revisados", alumnosResumen.size());
         int procesadosAntes = -1;
+        long t1 = System.currentTimeMillis();
+        long t10 = System.currentTimeMillis();
+        boolean verError = true;
+        boolean iniciarTimer = false;
         for (;;) {
             boolean salir = true;
+            boolean ver = false;
+            boolean errorVisto = false;
+
             int procesados = 0;
-            for (MatriculaResumen aluResumen : alumnosResumen) {
-                if (aluResumen.getProcesado() == 0) {
+            if (ver) {
+                System.out.println("Tenemos un total de " + alumnosResumen.size() + " elementos");
+            }
+            if (iniciarTimer) {
+                long t6 = System.currentTimeMillis();
+                if (t6 - t10 > 5000) {
+                    verError = true;
+                }
+            }
+            for (MatriculaResumen matriResumen : alumnosResumen) {
+                Alumno alumno = matriResumen.getAlumno();
+                if (matriResumen.getProcesado() == 0) {
                     salir = false;
+                    if (matriResumen.getFechaInicioProceso() == null) {
+                        continue;
+                    }
+
+                    long t4 = System.currentTimeMillis();
+                    long t3 = matriResumen.getFechaInicioProceso().getTime();
+                    long dd = t4 - t3;
+                    if (dd > 5000 && verError) {
+                        System.out.println("\tResumen A sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
+                        errorVisto = true;
+                    }
                 } else {
                     procesados++;
                 }
             }
+            if (ver) {
+                ver = false;
+            }
+            if (errorVisto) {
+                verError = false;
+                iniciarTimer = true;
+                t10 = System.currentTimeMillis();
+            }
             if (salir) {
                 break;
             }
-
             if (procesadosAntes != procesados) {
                 logger.debug("\trevisarAlumnosMatriculados procesados {} de {}", procesados, alumnosResumen.size());
+                t1 = System.currentTimeMillis();
+            } else {
+                long t2 = System.currentTimeMillis();
+                long dd = t2 - t1;
+                if (dd > 5000) {
+                    for (MatriculaResumen matriResumen : alumnosResumen) {
+                        Alumno alumno = matriResumen.getAlumno();
+                        if (matriResumen.getProcesado() == 0) {
+                            System.out.println("\tResumen B sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
+                        }
+                    }
+                    t1 = System.currentTimeMillis();
+                }
+
             }
+
             procesadosAntes = procesados;
         }
     }
@@ -330,8 +384,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             for (MatriculaSeccion matriSecc : matriculasSecciones) {
                 if (matriSecc.getProcesado() == 0) {
                     salir = false;
-                    if (ver) {
-                        System.out.println("\tElemento sin procesar alumno:" + matriSecc.getCodigoAlumno() + " seccion:" + matriSecc.getCodigoSeccion());
+                    long t4 = System.currentTimeMillis();
+                    long t3 = matriSecc.getFechaInicioProceso() == null ? System.currentTimeMillis() : matriSecc.getFechaInicioProceso().getTime();
+                    long dd = t3 - t4;
+                    if (dd > 5000) {
+                        System.out.println("\tElemento sin procesar por " + dd + "mseg alumno:" + matriSecc.getCodigoAlumno() + " seccion:" + matriSecc.getCodigoSeccion());
                     }
                 } else {
                     procesados++;
@@ -345,13 +402,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             }
             if (procesadosAntes != procesados) {
                 logger.debug("\tloadDataMatriculados procesados {} de {}", procesados, matriculasSecciones.size());
-                t1 = System.currentTimeMillis();
-            } else {
-                if (t2 - t1 > 5000) {
-                    ver = true;
-                    t1 = System.currentTimeMillis();
-                }
+                //t1 = System.currentTimeMillis();
             }
+            if (t2 - t1 > 5000) {
+                ver = true;
+                t1 = System.currentTimeMillis();
+            }
+
             procesadosAntes = procesados;
         }
         return mapResumenes;
@@ -385,6 +442,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String nombres = getCellValue(10, row);
                 String tipoDocumento = getCellValue(11, row);
                 String numeroDoc = getCellValue(12, row);
+                String cicloInicio = getCellValue(13, row);
+                String cicloActivo = getCellValue(14, row);
 
                 if (StringUtils.isEmpty(codigo)) {
                     break;
@@ -400,6 +459,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Persona persona = new Persona(paterno, materno, nombres, numeroDoc, tipoDocumento);
                 Alumno alumno = new Alumno(codigo, codigoEspecialidad, codigoPostgrado, situacion, email);
                 alumno.setPersona(persona);
+                alumno.setCodigoCicloIngreso(cicloInicio);
+                alumno.setCodigoCicloActivo(cicloActivo);
                 alumnnos.add(alumno);
             }
             logger.debug("Se han leido un total de {} alumnos", loop);
@@ -614,13 +675,16 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String gclave = getCellValue(5, row);
                 String tclave = getCellValue(6, row);
                 String clave2 = getCellValue(8, row);
+                Integer vacantes = Integer.parseInt(getCellValue(10, row));
+                Integer matriculados = Integer.parseInt(getCellValue(11, row));
 
+                //System.out.println(vacantes + " " + matriculados);                
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-//                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave);
-//                secciones.add(seccion);
+                Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
+                secciones.add(seccion);
             }
             logger.debug("Se han leido un total de {} secciones", loop);
 

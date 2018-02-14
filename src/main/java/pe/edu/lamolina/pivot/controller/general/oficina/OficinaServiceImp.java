@@ -14,10 +14,13 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
@@ -25,8 +28,12 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.general.AusenciaJefeDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
@@ -34,6 +41,9 @@ import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -66,6 +76,18 @@ public class OficinaServiceImp implements OficinaService {
 
     @Autowired
     PersonaPerfilDAO personaPerfilDAO;
+
+    @Autowired
+    DocenteDAO docenteDAO;
+
+    @Autowired
+    UsuarioDAO usuarioDAO;
+
+    @Autowired
+    RolDAO rolDAO;
+
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -196,6 +218,8 @@ public class OficinaServiceImp implements OficinaService {
     @Transactional
     public void asignarJefe(Oficina oficina, DataSessionPivot ds) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
+        Docente docenteDB = docenteDAO.findDocenteByPersona(oficina.getPersonaJefe());
+
         if (oficinaBD.getPersonaJefe() != null) {
             throw new PhobosException("Esta Unidad ya tiene asignado un jefe");
         }
@@ -207,6 +231,10 @@ public class OficinaServiceImp implements OficinaService {
 
         if (oficinaBD.getCargoJefe() == null) {
             throw new PhobosException("Falta definir el Cargo de la jefatura de esta Unidad");
+        }
+
+        if (docenteDB == null) {
+            throw new PhobosException("La persona seleccionada no es un docente. Elija un docente activo.");
         }
 
         oficinaBD.setPersonaJefe(oficina.getPersonaJefe());
@@ -229,6 +257,8 @@ public class OficinaServiceImp implements OficinaService {
         perfil.setFechaRegistro(new Date());
         perfil.setUserRegistro(ds.getUsuario());
         personaPerfilDAO.save(perfil);
+
+        this.asignarRol(oficina.getPersonaJefe(), RolEnum.JEFE_DPTO_ACA, ds);
 
     }
 
@@ -277,10 +307,12 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setPersonaJefe(null);
         oficinaBD.setFechaInicioJefatura(null);
         oficinaDAO.update(oficinaBD);
+
     }
 
     @Override
     @Transactional
+
     public void asignarEncargado(Oficina oficina, DataSessionPivot ds) {
 
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
@@ -358,5 +390,27 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setFechaEncargatura(null);
         oficinaBD.setMotivoAusenciaJefe(null);
         oficinaDAO.update(oficinaBD);
+    }
+
+    private void asignarRol(Persona personaJefe, RolEnum rolEnum, DataSessionPivot ds) {
+        Usuario usuarioDb = usuarioDAO.findByPersona(personaJefe);
+        Docente docenteDb = docenteDAO.findDocenteByPersona(personaJefe);
+
+        if (usuarioDb == null) {
+            throw new PhobosException("La persona asignada no está registrado como usuario.");
+        } else {
+            Rol rol = rolDAO.findByCode(rolEnum);
+            UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
+            if (userRol == null) {
+                logger.debug("creando rol");
+                userRol = new UsuarioRol();
+                userRol.setEstado(UserEstadoEnum.ACT);
+                userRol.setFechaInicio(new Date());
+                userRol.setUserRegistro(ds.getUsuario());
+                userRol.setUsuario(usuarioDb);
+                userRol.setRol(rol);
+                usuarioRolDAO.save(userRol);
+            }
+        }
     }
 }

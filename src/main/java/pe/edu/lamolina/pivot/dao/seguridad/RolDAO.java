@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.seguridad;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
@@ -16,5 +17,7 @@ public interface RolDAO extends EasyDAO<Rol> {
     List<Rol> allRol(List<Rol> rolesMenu);
 
     List<Rol> allActivoByUsuario(Usuario usuario);
+
+    Rol findByCode(RolEnum rolEnum);
 
 }

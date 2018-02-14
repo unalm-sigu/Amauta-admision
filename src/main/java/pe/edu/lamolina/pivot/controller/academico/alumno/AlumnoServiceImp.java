@@ -241,7 +241,7 @@ public class AlumnoServiceImp implements AlumnoService {
     public void crearUsuario(String emailCompania, Persona persona, Usuario usuarioRegistra) {
         Usuario usuarioAlumno = new Usuario();
         usuarioAlumno.setUsuario(emailCompania);
-//        usuarioAlumno.setEstado(UserEstadoEnum.ACT.name());
+        usuarioAlumno.setEstado(UserEstadoEnum.ACT);
         usuarioAlumno.setFechaRegistro(new Date());
         usuarioAlumno.setPersona(persona);
         usuarioAlumno.setUserRegistro(usuarioRegistra);

@@ -14,8 +14,6 @@ public interface UsuarioDAO extends EasyDAO<Usuario> {
 
     List<Usuario> allByPersonas(List<Persona> personas);
 
-    Usuario allByPersona(Persona persona);
-
     List<Usuario> allByFilter(DynatableFilter filter);
 
     Usuario find(Usuario user);

@@ -9,18 +9,19 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 
 @Repository
 public class ResumenAlumnoEvaluacionDAOH extends AbstractEasyDAO<ResumenAlumnoEvaluacion> implements ResumenAlumnoEvaluacionDAO {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     public ResumenAlumnoEvaluacionDAOH() {
         super();
         setClazz(ResumenAlumnoEvaluacion.class);
     }
-
+    
     @Override
     public List<ResumenAlumnoEvaluacion> allByAlumnoGrupoSeccion(Alumno alumno, GrupoSeccion gpoSeccion) {
         Octavia sql = Octavia.query()
@@ -28,17 +29,28 @@ public class ResumenAlumnoEvaluacionDAOH extends AbstractEasyDAO<ResumenAlumnoEv
                 .join("tipoEvaluacion", "grupoSeccion gs", "alumno a")
                 .filter("a.id", alumno)
                 .filter("gs.id", gpoSeccion);
-
+        
         return all(sql);
     }
-
+    
+    @Override
+    public ResumenAlumnoEvaluacion findByAlumnoGrupoTipo(Alumno alumno, GrupoSeccion grupoSeccion, TipoEvaluacion tipoEvaluacion) {
+        Octavia sql = Octavia.query()
+                .from(ResumenAlumnoEvaluacion.class, "rae")
+                .join("tipoEvaluacion te", "grupoSeccion gs", "alumno a")
+                .filter("a.id", alumno)
+                .filter("te.id", tipoEvaluacion)
+                .filter("gs.id", grupoSeccion);
+        return find(sql);
+    }
+    
     @Override
     public List<ResumenAlumnoEvaluacion> allByGrupoSeccion(GrupoSeccion gpoSeccion) {
         Octavia sql = Octavia.query()
                 .from(ResumenAlumnoEvaluacion.class, "rae")
                 .join("tipoEvaluacion", "grupoSeccion gs", "alumno a")
                 .filter("gs.id", gpoSeccion);
-
+        
         return all(sql);
     }
 }

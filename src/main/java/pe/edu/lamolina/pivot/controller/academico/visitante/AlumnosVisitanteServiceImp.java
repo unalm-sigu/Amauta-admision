@@ -146,7 +146,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
             Usuario usuarioVisitante = new Usuario();
             usuarioVisitante.setUsuario(emailCompania);
-            usuarioVisitante.setEstado(UserEstadoEnum.ACT.name());
+            usuarioVisitante.setEstado(UserEstadoEnum.ACT);
             usuarioVisitante.setFechaRegistro(new Date());
             usuarioVisitante.setPersona(personaDB);
             usuarioVisitante.setUserRegistro(usuarioRegistra);
@@ -212,7 +212,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         Usuario usuarioVisitante = new Usuario();
         usuarioVisitante.setUsuario(emailCompania);
-        usuarioVisitante.setEstado(UserEstadoEnum.ACT.name());
+        usuarioVisitante.setEstado(UserEstadoEnum.ACT);
         usuarioVisitante.setFechaRegistro(new Date());
         usuarioVisitante.setPersona(persona);
         usuarioVisitante.setUserRegistro(usuario);

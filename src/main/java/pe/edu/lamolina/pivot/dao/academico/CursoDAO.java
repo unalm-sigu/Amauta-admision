@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.academico.PlanCalificacion;
 
 public interface CursoDAO extends EasyDAO<Curso> {
 
-    List<Curso> allForSistemaCalificacion(String nombre, Long idDepartamentoAca, PlanCalificacion planCalificacion, Long idCiclo);
+    List<Curso> allForSistemaCalificacion(String nombre, DepartamentoAcademico departamento, PlanCalificacion planCalificacion, CicloAcademico ciclo);
 
     List<Curso> allByPlan(PlanCalificacion plan);
 
