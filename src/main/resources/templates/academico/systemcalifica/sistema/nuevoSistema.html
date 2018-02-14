@@ -5,9 +5,9 @@
 
     <body>
         <div layout:fragment="main">
-             <header class="header b-b padder-lg">
+            <header class="header b-b padder-lg">
                 <h2>Creación Sistema de Calificación - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-                <span class="block"><strong>Departamento Academico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+                <span class="block"><strong>Departamento Academico:</strong> <span th:text="${departamento.nombre}">Matematicas</span></span>
             </header>
 
             <section class="panel">
@@ -34,6 +34,8 @@
 
                         <div class="m m">
                             <input type="hidden" id="txtFormula" name="formula"/>
+                            <input type="hidden" name="departamentoAcademico.id" th:value="${departamento.id}"/>
+
                             <table id="tblEvaluaciones" class="table table-md table-striped" width="%80">
                                 <thead>
                                     <tr class=""> 

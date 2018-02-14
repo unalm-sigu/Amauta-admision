@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -50,9 +51,9 @@ public class BuscarServiceImp implements BuscarService {
     EmpresaDAO empresaDAO;
 
     @Override
-    public List<Curso> allCursosSCA(String nombre, Long idDepartamentoAca, Long planCalificacionId, Long idCiclo) {
-        PlanCalificacion planCalificacion = planCalificacionDAO.find(planCalificacionId);
-        return cursoDAO.allForSistemaCalificacion(nombre, idDepartamentoAca, planCalificacion, idCiclo);
+    public List<Curso> allCursosSCA(String nombre, PlanCalificacion plan, CicloAcademico ciclo) {
+        PlanCalificacion planCalificacion = planCalificacionDAO.find(plan.getId());
+        return cursoDAO.allForSistemaCalificacion(nombre, planCalificacion.getDepartamentoAcademico(), planCalificacion, ciclo);
     }
 
     @Override
