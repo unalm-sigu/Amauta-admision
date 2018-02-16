@@ -247,10 +247,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         long loop = 1;
         for (Alumno alumno : alumnos) {
             logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
-//            if (loop < 5320) {
-//                loop++;
-//                continue;
-//            }
             Persona persona = alumno.getPersona();
             persona = progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
             String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);

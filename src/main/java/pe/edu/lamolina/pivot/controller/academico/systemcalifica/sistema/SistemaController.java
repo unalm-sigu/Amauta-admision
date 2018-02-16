@@ -51,7 +51,7 @@ public class SistemaController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    SistemaService sistemaService;
+    SistemaService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -82,7 +82,7 @@ public class SistemaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        model.addAttribute("departamentos", ds.getDepartamentos());
         return "academico/systemcalifica/sistema/sistema";
     }
 
@@ -94,9 +94,7 @@ public class SistemaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            DepartamentoAcademico dpto = ds.getDepartamentoAcademico();
-
-            List<PlanCalificacion> lstPLanCalificacion = sistemaService.allPlanesCalificacionByDynatable(filter, dpto);
+            List<PlanCalificacion> lstPLanCalificacion = service.allPlanesCalificacionByDynatable(filter, ds);
             logger.debug("Tamaño lista plan {}", lstPLanCalificacion.size());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -167,7 +165,7 @@ public class SistemaController {
             logger.debug("listCursos Plancalificacion {}", planCalificacion);
             CicloAcademico ciclo = ds.getCicloAcademico();
             /*
-                List<Curso> cursos = sistemaService.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
+                List<Curso> cursos = service.allCursosByPlanCalifica(filter, planCalificacion, ds.getDepartamentoAcademico().getId());
                         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Curso curso : cursos) {
@@ -181,7 +179,7 @@ public class SistemaController {
                 array.add(node);
             }
              */
-            List<PlanCalificacionCurso> planCursos = sistemaService.allPlanCalificacionCursosByFilterDyna(filter, new PlanCalificacion(planCalificacion));
+            List<PlanCalificacionCurso> planCursos = service.allPlanCalificacionCursosByFilterDyna(filter, new PlanCalificacion(planCalificacion));
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -210,7 +208,7 @@ public class SistemaController {
     @RequestMapping("{sistema}/detalleSistema")
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistema);
         /*    List<Curso> cursosByPlan = new ArrayList<>();
         for (PlanCalificacionCurso planCurso : planCalificacion.getPlanCalificacionCursos()) {
             cursosByPlan.add(planCurso.getCurso());
@@ -226,9 +224,9 @@ public class SistemaController {
     public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
-        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistema);
         model.addAttribute("planCalificacion", planCalificacion);
+        model.addAttribute("departamento", planCalificacion.getDepartamentoAcademico());
 
         return "academico/systemcalifica/sistema/cursos";
     }
@@ -237,23 +235,26 @@ public class SistemaController {
     public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("El sistema califica {}", idSistema);
-        PlanCalificacion planCalificacion = sistemaService.findPlanCalificacion(idSistema);
+        PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistema);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
         model.addAttribute("planCalificacion", planCalificacion);
 
         return "academico/systemcalifica/sistema/detalleSolicitud";
     }
 
-    @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session) {
+    @RequestMapping("nuevo/{departamento}")
+    public String nuevo(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        //    PlanCalificacion planCalificacion = new PlanCalificacion();
-        //   model.addAttribute("planCalificacion", planCalificacion);
-        model.addAttribute("tipoEvaluaciones", sistemaService.allTipoEvaluacion());
-        model.addAttribute("sistemasNotas", sistemaService.allSistemasNotas());
+        DepartamentoAcademico departamento = service.buscarDepartamento(idDepartamento, ds);
+        if (departamento == null) {
+            return "redirect:/academico/systemcalifica/sistema";
+        }
+
+        model.addAttribute("tipoEvaluaciones", service.allTipoEvaluacion());
+        model.addAttribute("sistemasNotas", service.allSistemasNotas());
         model.addAttribute("tiposSeccion", TipoSeccionEvalEnum.values());
-        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        model.addAttribute("departamento", departamento);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         return "academico/systemcalifica/sistema/nuevoSistema";
@@ -261,8 +262,7 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@ModelAttribute("planCalificacion") PlanCalificacion planCalificacion,
-            RedirectAttributes redirectAttr, HttpSession session) {
+    public JsonResponse save(PlanCalificacion planCalificacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -271,7 +271,7 @@ public class SistemaController {
             String message = "";
             if (planCalificacion.getId() == null) {
 
-                sistemaService.saveSistemaCalifica(planCalificacion, ds);
+                service.saveSistemaCalifica(planCalificacion, ds);
                 message = "Creado exitosamente.";
 
             } else {
@@ -298,7 +298,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("el comentario es {}", comentario);
-            sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.ACEP);
+            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.ACEP);
             response.setMessage(Messages.APPROVED);
             response.setSuccess(true);
 
@@ -319,7 +319,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("el comentario es {}", comentario);
-            sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.RHZ);
+            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.RHZ);
             response.setMessage(Messages.REJECT);
             response.setSuccess(true);
 
@@ -339,7 +339,7 @@ public class SistemaController {
             @RequestParam(value = "comentario", required = false) String comentario) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS);
+            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS);
             response.setMessage(Messages.OBSERVED);
             response.setSuccess(true);
 
@@ -358,7 +358,7 @@ public class SistemaController {
     public JsonResponse activar(@RequestParam("sistema") Long sistema) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT);
+            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT);
             response.setMessage(Messages.ACTIVATED);
             response.setSuccess(true);
 
@@ -377,7 +377,7 @@ public class SistemaController {
     public JsonResponse inactivar(@RequestParam("sistema") Long sistema) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
+            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
             response.setMessage(Messages.INACTIVATED);
             response.setSuccess(true);
 
@@ -396,7 +396,7 @@ public class SistemaController {
     public JsonResponse anull(@RequestParam("sistema") Long sistema) {
         JsonResponse response = new JsonResponse();
         try {
-            sistemaService.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
+            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
             response.setMessage(Messages.ANNULL);
             response.setSuccess(true);
 
@@ -418,7 +418,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            ObjectNode json = sistemaService.allTipoEvaluacionJson();
+            ObjectNode json = service.allTipoEvaluacionJson();
 
             response.setSuccess(true);
             response.setData(json);
@@ -436,13 +436,14 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("incluirCurso")
-    public JsonResponse incluirCurso(@RequestParam("curso") Long curso,
+    public JsonResponse incluirCurso(
+            @RequestParam("curso") Long curso,
             @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.asignarCurso(curso, planCalificacion, ds.getUsuario().getId());
+            service.asignarCurso(curso, planCalificacion, ds);
             response.setMessage("Curso asignado.");
             response.setSuccess(true);
 
@@ -464,7 +465,7 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            sistemaService.desasignarCurso(planCurso, ds.getPersona().getId());
+            service.desasignarCurso(planCurso, ds.getPersona().getId());
             response.setMessage("Curso desasignado.");
             response.setSuccess(true);
 

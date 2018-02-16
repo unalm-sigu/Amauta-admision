@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Curso;
@@ -114,7 +115,12 @@ public class SistemaServiceImp implements SistemaService {
     @Transactional(readOnly = false)
     public void saveSistemaCalifica(PlanCalificacion planCalificacion, DataSessionPivot ds) {
 
-        planCalificacion.setDepartamentoAcademico(ds.getDepartamentoAcademico());
+        DepartamentoAcademico departamento = buscarDepartamento(planCalificacion.getDepartamentoAcademico().getId(), ds);
+        if (departamento == null) {
+            throw new PhobosException("No tiene permiso para crear Planes de Calificación en este Departamento Académico");
+        }
+
+        planCalificacion.setDepartamentoAcademico(departamento);
         planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DEP);
         planCalificacion.setUserRegistro(ds.getUsuario());
 
@@ -169,9 +175,38 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacionDAO.save(planCalificacion);
     }
 
+    private List returnEmpty(DynatableFilter filter) {
+        filter.setFiltered(0);
+        filter.setTotal(0);
+        return new ArrayList();
+    }
+
     @Override
-    public List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DepartamentoAcademico dpto) {
-        List<PlanCalificacion> listaPlanes = planCalificacionDAO.allByDynatable(dynatableFilter, dpto);
+    public List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter filter, DataSessionPivot ds) {
+        if (filter.getQueries() == null) {
+            return returnEmpty(filter);
+        }
+
+        String dep = (String) filter.getQueries().get("departamento");
+        if (StringUtils.isEmpty(dep)) {
+            return returnEmpty(filter);
+        }
+
+        boolean tienePermiso = false;
+        DepartamentoAcademico dpto = new DepartamentoAcademico(dep);
+        List<DepartamentoAcademico> departamentos = ds.getDepartamentos();
+        for (DepartamentoAcademico dd : departamentos) {
+            tienePermiso = dd.getId().longValue() == dpto.getId();
+            if (tienePermiso) {
+                break;
+            }
+        }
+
+        if (!tienePermiso) {
+            return returnEmpty(filter);
+        }
+
+        List<PlanCalificacion> listaPlanes = planCalificacionDAO.allByDynatable(filter, dpto);
         for (PlanCalificacion plan : listaPlanes) {
             List<PlanCalificacionCurso> planesCursos = planCalificacionCursoDAO.allByFilter(plan, null, null, EstadoEnum.ACT);
             plan.setPlanCalificacionCursos(planesCursos);
@@ -295,13 +330,26 @@ public class SistemaServiceImp implements SistemaService {
 
     @Override
     @Transactional
-    public void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idUsuario) {
+    public void asignarCurso(Long idCurso, Long idPlanCalificacion, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
         PlanCalificacion planCalificacion = planCalificacionDAO.find(idPlanCalificacion);
         Curso curso = cursoDAO.find(idCurso);
+
         logger.debug("plan calificacion {}, {}", planCalificacion.getId());
         logger.debug("curso {}, {}", curso.getId());
+
+        DepartamentoAcademico dpto1 = curso.getDepartamentoAcademico();
+        DepartamentoAcademico dpto2 = planCalificacion.getDepartamentoAcademico();
+        if (dpto1.getId().longValue() != dpto2.getId()) {
+            throw new PhobosException("El curso y el plan deben pertenecer al mismo Departamento Académico");
+        }
+
+        DepartamentoAcademico departamento = buscarDepartamento(dpto1.getId(), ds);
+        if (departamento == null) {
+            throw new PhobosException("No tiene permiso para incluir cursos en este Planes de Calificación");
+        }
+
         /*
         if (planCalificacion.isTipoCicloNivelacion()) {
             curso.setPlanCalificacion(new PlanCalificacion(idPlanCalificacion));
@@ -314,7 +362,6 @@ public class SistemaServiceImp implements SistemaService {
         curso.setUserPlanCalificacion(idUsuario);
         cursoDAO.update(curso);
          */
-
         if (planCalificacion.getSistemaNotas().isLetras()) {
             if (!curso.isTieneCreditosVariables()) {
                 if (curso.getCreditos() != null && curso.getCreditos().compareTo(BigDecimal.ZERO.intValue()) != 0) {
@@ -362,6 +409,17 @@ public class SistemaServiceImp implements SistemaService {
     @Override
     public List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion) {
         return cursoDAO.allActiveByPlan(planCalificacion);
+    }
+
+    @Override
+    public DepartamentoAcademico buscarDepartamento(Long idDepartamento, DataSessionPivot ds) {
+        List<DepartamentoAcademico> departamentos = ds.getDepartamentos();
+        for (DepartamentoAcademico departamento : departamentos) {
+            if (departamento.getId().longValue() == idDepartamento) {
+                return departamento;
+            }
+        }
+        return null;
     }
 
 }

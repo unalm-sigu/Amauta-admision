@@ -183,9 +183,9 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     @Transactional
     public void update(Docente docente, DataSessionPivot ds) {
-        logger.debug("actualizando  docente {} ...", docente.getId());
+        logger.debug("Docente Actualizado -> {} ...", docente.getId());
         Usuario user = ds.getUsuario();
-        logger.debug("usuario actualiza {}", user.getId());
+        logger.debug("Actualizado por usuario -> {}", user.getId());
         Persona personaForm = docente.getPersona();
 
         ObjectUtil.eliminarAttrSinId(personaForm, "paisNacer");
@@ -195,23 +195,23 @@ public class ProfesorServiceImp implements ProfesorService {
         ObjectUtil.eliminarAttrSinId(personaForm, "ubicacionDomicilio");
         ObjectUtil.eliminarAttrSinId(personaForm, "tipoDocumento");
 
-        logger.debug("actualizando persona {}", personaForm.getId());
+        logger.debug("Actualizando persona -> {}", personaForm.getId());
         this.validarDNI(personaForm);
-        logger.debug("paso validacion dni");
+        logger.debug("-> DNI validado");
         if (Strings.isNullOrEmpty(personaForm.getEmailCompania())) {
-            throw new PhobosException("El correo principal es obligatorio");
+            throw new PhobosException("El correo principal es obligatorio.");
         }
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaForm);
-        logger.debug("paso validacion email empresa");
+        logger.debug("-> Email-Compania validado.");
         if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
             this.validarEmailConPersona(personaForm.getEmail(), personaForm);
-            logger.debug("paso validacion email personal");
+            logger.debug("-> Email-Persona validado.");
         }
         Persona persona = this.getPersonaBDbasic(personaForm);
-        logger.debug("update persona data basic");
+        logger.debug("-> Dato basicos de persona actualizados");
         if (persona.getFechaValidacionReniec() == null) {
             persona = this.getPersonaBDreniec(personaForm);
-            logger.debug("upadate persona data basic");
+            logger.debug("-> Dato basicos de persona actualizados");
         }
         if (Strings.isNullOrEmpty(personaForm.getFoto())) {
             persona.setFoto(null);
@@ -220,7 +220,7 @@ public class ProfesorServiceImp implements ProfesorService {
             persona.setFoto(personaForm.getFoto());
         }
         personaDAO.update(persona);
-
+        logger.debug("***Resolviendo en Tabla Docente***");
         Docente docenteDb = docenteDAO.findPersona(persona);
         docenteDb.setPersona(persona);
         docenteDb.setFechaModifica(new Date());
@@ -228,28 +228,41 @@ public class ProfesorServiceImp implements ProfesorService {
         docenteDb.setDepartamentoAcademico(docente.getDepartamentoAcademico());
         docenteDb.setModalidadEstudio(docente.getModalidadEstudio());
         docenteDAO.update(docenteDb);
-
+        logger.debug("***Resolviendo en Tabla Usuario***");
         Usuario usuarioDb = usuarioDAO.findByPersona(docente.getPersona());
-        logger.debug("existe usuario en db {}", (usuarioDb != null));
+        logger.debug("Está como usuario? {}", (usuarioDb != null));
         if (usuarioDb != null) {
-            logger.debug("actualizando usuario");
+            logger.debug("-> Actualizando usuario");
             usuarioDb.setUserModifica(ds.getUsuario());
             usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
             usuarioDb.setFechaModifica(new Date());
             usuarioDAO.update(usuarioDb);
+        } else {
+            logger.debug("-> Creando usuario");
+            usuarioDb = new Usuario();
+            usuarioDb.setEstado(UserEstadoEnum.ACT);
+            usuarioDb.setFechaRegistro(new Date());
+            usuarioDb.setPersona(persona);
+            usuarioDb.setUserRegistro(user);
+            usuarioDb.setUsuario(persona.getEmailCompania());
+            usuarioDAO.save(usuarioDb);
         }
-        
-        Rol rol = rolDAO.findByCode(RolEnum.DOC);
-        UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
-        if (userRol == null) {
-            userRol = new UsuarioRol();
-            userRol.setEstado(UserEstadoEnum.ACT);
-            userRol.setFechaInicio(new Date());
-            userRol.setRol(rol);
-            userRol.setUsuario(usuarioDb);
-            userRol.setUserRegistro(ds.getUsuario());
-            userRol.setFechaRegistro(new Date());
-            usuarioRolDAO.save(userRol);
+        logger.debug("***Resolviendo en Tabla Usuario_Rol***");
+        Rol rol = rolDAO.findByCode(RolEnum.DOC);        
+        UsuarioRol userRolDB = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
+        logger.debug("Tiene Rol? {}", (userRolDB != null));
+        if (userRolDB == null) {
+            logger.debug("-> Asignando Rol de Docente");
+            userRolDB = new UsuarioRol();
+            userRolDB.setEstado(UserEstadoEnum.ACT);
+            userRolDB.setFechaInicio(new Date());
+            userRolDB.setRol(rol);
+            userRolDB.setUsuario(usuarioDb);
+            userRolDB.setUserRegistro(ds.getUsuario());
+            userRolDB.setFechaRegistro(new Date());
+            usuarioRolDAO.save(userRolDB);
+        } else{
+            logger.debug("Rol Existente como docente.");
         }
     }
 

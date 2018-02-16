@@ -71,7 +71,7 @@ public class ProfesorController {
 
     @Autowired
     SpringTemplateEngine springHtml;
-    
+
     @Autowired
     CargaAcademicaService cargaAcademicaService;
 

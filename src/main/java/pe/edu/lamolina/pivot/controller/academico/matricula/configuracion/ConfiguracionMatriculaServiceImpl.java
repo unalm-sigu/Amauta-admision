@@ -35,29 +35,26 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     EventoCicloAcademicoDAO eventoCicloAcatemicoDAO;
 
     @Override
-    public void saveConfiguracion(ConfiguracionTurnosAtencion config) throws ParseException {
+    public Long saveConfiguracion(ConfiguracionTurnosAtencion config) throws ParseException {
 
         serviceConfiguracionMatriculaDAO.save(config);
         Date fechaInicial = new Date(config.getFechaInicio().getTime());
         Date fechaFinal = config.getFechaFin();
 
         int cantDias = (int) ((fechaFinal.getTime() - fechaInicial.getTime()) / 86400000);
-        System.out.println("cantDias---> " + cantDias);
-        int cantTurnos = cantDias * config.getTurnosDia();
-        Integer cantAlumnos = config.getAlumnos();
 
-        ArrayList<TurnoAtencion> lstTurno = new ArrayList<TurnoAtencion>();
+        Integer cantAlumnos = config.getAlumnos();
         TurnoAtencion objTurno = null;
 
         DateFormat formatter = new SimpleDateFormat("HH:mm");
 
         Integer prioridad = 1;
-        for (int i = 1; i <= cantDias + 1; i++) {
+        for (int i = 0; i <= cantDias; i++) {
             Time duracion = new Time(formatter.parse(config.getDuracion()).getTime());
             Time espera = new Time(formatter.parse(config.getEspera()).getTime());
             Time horaInicio = new Time(formatter.parse(config.getHoraInicio()).getTime());
             Time horaFinal = new Time(formatter.parse(config.getHoraInicio()).getTime());
-            fechaInicial = new Date(config.getFechaInicio().getTime());
+
             for (int j = 1; j <= config.getTurnosDia(); j++) {
                 objTurno = new TurnoAtencion();
                 objTurno.setAlumnos(cantAlumnos);
@@ -72,18 +69,17 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 objTurno.setPrioridadFin(prioridad - 1);
                 objTurno.setTurno(j);
                 turnoAtencionDAO.save(objTurno);
-                prioridad++;
-                horaInicio = horaFinal;
-                fechaInicial.setDate(fechaInicial.getDate() + 1);
+                horaInicio.setHours(horaInicio.getHours() + duracion.getHours());
+
             }
-
+            fechaInicial.setDate(fechaInicial.getDate() + 1);
         }
-
+        return config.getId();
     }
 
     @Override
     public List<EventoAcademico> findEventoCiclo(CicloAcademico cicloAcademico) {
-        List<EventoCicloAcademico> lstEventoCiclo = eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);;
+        List<EventoCicloAcademico> lstEventoCiclo = eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);
         Map<Long, EventoAcademico> mapConfiguracionTurno = TypesUtil.convertListToMap("eventoAcademico.id", "eventoAcademico", lstEventoCiclo);
 
         List<EventoAcademico> evento = new ArrayList(mapConfiguracionTurno.values());
@@ -103,21 +99,36 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
     @Override
     @Transactional
-    public void updateConfiguracion(Long id, String value) {
+    public ConfiguracionTurnosAtencion updateTurnos(Long id, String value) {
         TurnoAtencion objTurno = turnoAtencionDAO.findTurnosById(id);
         objTurno.setAlumnos(Integer.parseInt(value));
-        objTurno.setPrioridadFin(objTurno.getPrioridadInicio() + Integer.parseInt(value));
+        objTurno.setPrioridadFin(objTurno.getPrioridadInicio() + Integer.parseInt(value) - 1);
         turnoAtencionDAO.update(objTurno);
-        
-        List<TurnoAtencion> lstTurno = turnoAtencionDAO.findTurnos(objTurno.getConfiguracionTurnosAtencion(),objTurno.getTurno());
-        Integer inicial = Integer.parseInt(value);
+
+        List<TurnoAtencion> lstTurno = turnoAtencionDAO.findTurnos(objTurno.getConfiguracionTurnosAtencion(), objTurno.getId());
+        Integer inicial = objTurno.getPrioridadInicio() + Integer.parseInt(value);
         for (TurnoAtencion turnoAtencion : lstTurno) {
-            Integer fin = (inicial + 2 + turnoAtencion.getAlumnos());
-            turnoAtencion.setPrioridadInicio(inicial + 1);
-            turnoAtencion.setPrioridadFin(fin);
+            Integer fin = (inicial + turnoAtencion.getAlumnos());
+            turnoAtencion.setPrioridadInicio(inicial);
+            turnoAtencion.setPrioridadFin(fin - 1);
             turnoAtencionDAO.update(turnoAtencion);
+            inicial = fin;
+
         }
-            
+        return objTurno.getConfiguracionTurnosAtencion();
+                
+    }
+
+    @Override
+    @Transactional
+    public void deleteConfiguracion(ConfiguracionTurnosAtencion config) {
+
+        List<TurnoAtencion> lst = turnoAtencionDAO.findConfiguracion(config);
+        for (TurnoAtencion turnoAtencion : lst) {
+            turnoAtencionDAO.delete(turnoAtencion);
+        }
+        serviceConfiguracionMatriculaDAO.delete(config);
+
     }
 
 }

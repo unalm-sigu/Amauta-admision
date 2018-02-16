@@ -20,7 +20,7 @@ public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
     List<TurnoAtencion> findConfiguracion(ConfiguracionTurnosAtencion config);
 
-    List<TurnoAtencion> findTurnos(ConfiguracionTurnosAtencion config, Integer turno);
+    List<TurnoAtencion> findTurnos(ConfiguracionTurnosAtencion config, Long id);
     
     TurnoAtencion findTurnosById(Long Id);
     

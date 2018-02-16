@@ -292,9 +292,10 @@ public class ProgDataServiceImp implements ProgDataService {
         String cod = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
         Carrera carrera = mapCarreras.get(cod);
         ModalidadEstudio modalidad = carrera.getModalidadEstudio();
-        SituacionAcademica situacion = mapSituaciones.get(alumno.getSituacion());
         CicloAcademico cicloInicio = mapCiclos.get(alumno.getCodigoCicloIngreso());
         CicloAcademico cicloActivo = mapCiclos.get(alumno.getCodigoCicloActivo());
+        SituacionAcademica situacion = mapSituaciones.get(alumno.getSituacion());
+        situacion = (situacion == null) ? mapSituaciones.get("N") : situacion;
 
         if (alu != null) {
             alu.setPersona(persona);
