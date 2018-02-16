@@ -554,10 +554,6 @@ var app = new Vue({
         }, showModalAulaHorario(aula) {
             let $vue = this;
             $global.$emit('loadAulaHorarioComponent', aula);
-            $vue.aulaHorarioModal.title = "Horario Aula : " + aula.codigo;
-            if (aula.aulaSuperior != null) {
-                $vue.aulaHorarioModal.title += " (" + aula.aulaSuperior.codigo + " " + aula.aulaSuperior.nombre + ")";
-            }
             this.$refs.modalAulaHorario.open();
         }, saveAula() {
             $global.$emit('saveAula');
