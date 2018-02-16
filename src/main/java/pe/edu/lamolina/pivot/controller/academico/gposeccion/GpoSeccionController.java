@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -246,11 +245,19 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("{gruposeccion}/loadGpoSeccionForm")
-    public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId) {
+    public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory nc = JsonNodeFactory.instance;
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<TipoRepitencia> tiposRepitencia = service.allTipoRepitencia();
+        /*
+        List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
+
+        ArrayNode fechasJson = new ArrayNode(nc);
+        for (Date fecha : fechas) {
+            fechasJson.add(TypesUtil.getStringDate(fecha, "dd/MM/yyyy"));
+        }
+         */
         ArrayNode tiposRepitenciaJson = new ArrayNode(nc);
         for (TipoRepitencia tipoRepitencia : tiposRepitencia) {
             tiposRepitenciaJson.add(tipoRepitencia.toJson());
@@ -258,6 +265,14 @@ public class GpoSeccionController {
 
         ObjectNode result = new ObjectNode(nc);
         result.set("tiposRepitenciaJson", tiposRepitenciaJson);
+        /*   result.set("fechasPeriodos", fechasJson);
+        if (fechasJson.size() != 0) {
+            result.set("minFechaPeriodo", fechasJson.get(0));
+            result.set("maxFechaPeriodo", fechasJson.get(fechasJson.size() - 1));
+        } else {
+            result.set("minFechaPeriodo", null);
+            result.set("maxFechaPeriodo", null);
+        }*/
         jsonResponse.setSuccess(true);
         jsonResponse.setData(result);
         return jsonResponse;
@@ -265,10 +280,12 @@ public class GpoSeccionController {
 
     @ResponseBody
     @RequestMapping("{gruposeccion}/findSecciones")
-    public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId) {
+    public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory nc = JsonNodeFactory.instance;
         ArrayNode array = new ArrayNode(nc);
+        service.analizedDocenteSeccion(new GrupoSeccion(gruposeccionId), ds.getCicloAcademico());
         List<Seccion> secciones = service.allSeccionesByGrupo(new GrupoSeccion(gruposeccionId));
         for (Seccion seccion : secciones) {
             ObjectNode node = seccion.toJson();
@@ -316,24 +333,45 @@ public class GpoSeccionController {
     @ResponseBody
     @RequestMapping("findDocentesSecciones")
     public JsonResponse findDocentesSecciones(
-            @RequestParam("seccion") String seccionId) {
+            @RequestParam("seccion") String seccionId,
+            HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse jsonResponse = new JsonResponse();
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<DocenteSeccion> docentesSeccion = service.allDocentesSeccionBySeccion(new Seccion(seccionId));
+
+        List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
+        String fechaMin = null;
+        String fechaMax = null;
+        if (!fechas.isEmpty()) {
+            fechaMin = TypesUtil.getStringDate(fechas.get(0), "dd/MM/yyyy");
+            fechaMax = TypesUtil.getStringDate(fechas.get(fechas.size() - 1), "dd/MM/yyyy");
+        }
+
+        int idx = 0;
         for (DocenteSeccion docSeccion : docentesSeccion) {
+            idx++;
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            node.put("docSeccionId", docSeccion.getId());
-            node.put("docenteId", docSeccion.getDocente().getId());
-            node.put("personaApeNombres", ObjectUtil.getParentTree(docSeccion.getDocente(), "persona.id") == null ? "" : docSeccion.getDocente().getPersona().getApellidosNombres());
-            node.put("docSecFechaInicio", TypesUtil.getStringDate(docSeccion.getFechaInicio(), "dd/MM/yyyy"));
-            node.put("docSecFechaFin", TypesUtil.getStringDate(docSeccion.getFechaFin(), "dd/MM/yyyy"));
+            node = docSeccion.toJson();
             node.put("estadoEnumVal", docSeccion.getEstadoEnum().getValue());
             node.put("estadoEnumCode", docSeccion.getEstadoEnum().name());
-            node.put("principal", docSeccion.getPrincipal());
-            node.put("porcentajeCarga", docSeccion.getPorcentajeCarga());
+
             node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
+            node.put("disabledFechaInicio", false);
+            node.put("disabledFechaFin", false);
+            if (idx == 1) {
+                node.put("fechaInicioMin", fechaMin);
+                node.put("disabledFechaInicio", true);
+            }
+            if (idx == docentesSeccion.size()) {
+                node.put("fechaFinMax", fechaMax);
+                node.put("disabledFechaFin", true);
+            }
             array.add(node);
+
         }
+
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;
@@ -482,9 +520,59 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.addDocenteSeccion(new Seccion(seccionId));
+            service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
 
             String message = "Docente Sección agregada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateFechaInicio")
+    public JsonResponse updateFechaInicioDocSec(@RequestBody DocenteSeccion docenteSeccion,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            //service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
+            service.updateDocenteSecFechaInicio(docenteSeccion);
+            String message = "Fecha inicio actualizada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("updateFechaFin")
+    public JsonResponse updateFechaFin(@RequestBody DocenteSeccion docenteSeccion,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            //service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
+            service.updateDocenteSecFechaFin(docenteSeccion);
+            String message = "Fecha final actualizada.";
             response.setSuccess(true);
             response.setMessage(message);
 
@@ -1129,6 +1217,60 @@ public class GpoSeccionController {
         } catch (RuntimeException e) {
             e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("loadModalAulaHorario")
+    public JsonResponse loadModalAulaHorario(
+            @RequestParam("aula") Long aulaId,
+            HttpSession session,
+            Model model) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            Aula aula = service.findAulaFull(aulaId, ds.getCicloAcademico());
+
+            List<Dia> dias = service.allDia();
+            List<Hora> horasEncontradas = new ArrayList<>();
+            for (HorarioAula horarioAula : aula.getHorariosAula()) {
+                horasEncontradas.add(horarioAula.getHora());
+            }
+            Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(factory);
+
+            ArrayNode diasJson = new ArrayNode(factory);
+            for (Dia dia : dias) {
+                diasJson.add(JsonHelper.createJson(dia, factory));
+            }
+            ArrayNode horasJson = new ArrayNode(factory);
+            for (Hora horasEncontrada : horasEncontradas) {
+                horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
+            }
+
+            ObjectNode jsonHorarioAula = new ObjectNode(factory);
+            if (aula.getHorariosAula() != null) {
+                for (HorarioAula horarioAulaEach : aula.getHorariosAula()) {
+                    Long diaId = horarioAulaEach.getDia().getId();
+                    Long horaId = horarioAulaEach.getHora().getId();
+                    jsonHorarioAula.putPOJO(diaId + "_" + horaId, horarioAulaEach.toJson());
+                }
+            }
+
+            data.putPOJO("aula", aula.toJson());
+            data.set("dias", diasJson);
+            data.set("horas", horasJson);
+            data.set("jsonHorarioAula", jsonHorarioAula);
+            response.setData(data);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

@@ -45,4 +45,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateCodigoFechaModUsuarioMod(Seccion seccion);
 
+    void updateSituacionDocente(Seccion seccion);
+
 }

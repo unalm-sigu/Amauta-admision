@@ -225,4 +225,15 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         this.update(seccion);
     }
 
+    @Override
+    public void updateSituacionDocente(Seccion seccion) {
+
+        StringBuilder strb = new StringBuilder();
+        strb.append("update Seccion  set situacionDocente=:prm_sit_docente where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", seccion.getId());
+        query.setParameter("prm_sit_docente", seccion.getSituacionDocente());
+        query.executeUpdate();
+    }
+
 }
