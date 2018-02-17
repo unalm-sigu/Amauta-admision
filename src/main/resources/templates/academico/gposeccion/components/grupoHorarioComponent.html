@@ -83,7 +83,8 @@
 
                             <section class="panel-body">
                                 <div class="table-responsive" >
-                                    <table class="table" v-if="tabGrupos['regulares'].tblHorarioRegular!=null">
+                                    <table class="table table-bordered"
+                                           v-if="tabGrupos['regulares'].tblHorarioRegular!=null">
 
                                         <thead>
                                             <tr>
@@ -140,7 +141,9 @@
                                 <div class="table-responsive" >
 
 
-                                    <table id="tblHorarioEsp" class="table" v-if="tabGrupos['especial'].tblHorarios!=null">
+                                    <table id="tblHorarioEsp" 
+                                           class="table table-bordered"
+                                           v-if="tabGrupos['especial'].tblHorarios!=null">
 
                                         <thead>
                                             <tr>
@@ -209,7 +212,7 @@
                                 <div class="table-responsive" >
 
 
-                                    <table class="table"
+                                    <table class="table table-bordered"
                                            width="100%"
                                            style="width: 100%;display: block;"
                                            v-if="tabGrupos['zetas'].tblHorarios!=null">

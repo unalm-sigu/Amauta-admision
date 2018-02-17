@@ -31,6 +31,17 @@ Vue.component("restriccion-component", {
     methods: {
         loadComponent($vue, seccion) {
 
+            $vue.seccionModal = null,
+                    $vue.tiposRestriccionOptions = [],
+                    $vue.tipoRestriccionSel = null,
+                    $vue.tblRestricciones = null,
+                    $vue.restriccionesArr = [],
+                    $vue.tipoRestriccion = {
+                        esEspecialidad: false,
+                        esFacultad: false,
+                        esModalidad: false
+                    }
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/loadModalRestricciones'),
@@ -56,19 +67,19 @@ Vue.component("restriccion-component", {
             });
         },
         saveRestriccion($vue) {
-
-            $('#frmRestriccion').find(".multiselect__input").each(function () {
-                $(this).attr("required", true);
-            });
-            $('#frmRestriccion').find('.multiselect__input').each(function () {
-                var input = $(this);
-                let element = input.closest('.multiselect').find('.multiselect__tags-wrap');
-
-                if (element.css('display') != 'none' && element.html() != "") {
-                    $(this).removeAttr("required");
-                }
-            });
-
+            /*
+             $('#frmRestriccion').find(".multiselect__input").each(function () {
+             $(this).attr("required", true);
+             });
+             $('#frmRestriccion').find('.multiselect__input').each(function () {
+             var input = $(this);
+             let element = input.closest('.multiselect').find('.multiselect__tags-wrap');
+             
+             if (element.css('display') != 'none' && element.html() != "") {
+             $(this).removeAttr("required");
+             }
+             });
+             */
 
 
             var form = $("[id='frmRestriccion']");

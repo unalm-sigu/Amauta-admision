@@ -89,14 +89,15 @@ Vue.component("v-date-picker", {
         var $vue = this;
         this.createdDP($vue);
     }, watch: {
-
-        disabled(newValue) {
-
-        }, readonly(newValue) {
-
-        }, value(newValue) {
-
-        }
+        /*
+         disabled(newValue) {
+         
+         }, readonly(newValue) {
+         
+         }, value(newValue) {
+         
+         }
+         */
     }
 });
 

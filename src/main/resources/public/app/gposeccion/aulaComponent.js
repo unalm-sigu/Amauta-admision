@@ -109,7 +109,7 @@ Vue.component("aula-component", {
             let aulaSeleccionada = $vue.tabAulas.aulaSel;
 
             if (aulaSeleccionada == null) {
-                alert("Seleccione un aula");
+                notify(MESSAGES.errorComunicacion, "Seleccione un aula");
                 return;
             }
             bootbox.confirm({
