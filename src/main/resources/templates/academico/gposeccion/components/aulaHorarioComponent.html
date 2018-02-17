@@ -1,6 +1,6 @@
 <template id="modalAulaHorarioComp"> 
     <div> 
-        <section class="panel-body">
+        <section class="panel-body" v-if="aula">
             <div class="row">
                 <div class="form-group">
                     <label class="col-md-2 control-label">Aula</label>
@@ -48,7 +48,7 @@
         </section>
         <section class="panel-body">
             <div class="table-responsive" >
-                <table class="table" v-if="aula!=null">
+                <table class="table table-bordered" v-if="aula!=null">
 
                     <thead>
                         <tr>
@@ -62,16 +62,22 @@
                     <tbody>
                         <tr v-for="hora in horas">
                             <td class="v-middle">
-                                <span 
-                                    >
+                                <span class="bold"
+                                      >
                                     {{hora.descripcion}}
                                 </span>
 
                             </td>
-                            <td  v-for="dia in dias"> 
+                            <td  v-for="dia in dias" class="text-center"> 
                                 <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
-                                      class="form-control btn-success">
+                                      class="text-primary block">
+
                                     {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
+
+                                </span>
+                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
+                                      class="text-muted block">
+                                    {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoHoras.codigo}}
                                 </span>
                             </td>
                         </tr>

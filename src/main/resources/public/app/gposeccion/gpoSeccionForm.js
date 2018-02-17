@@ -546,7 +546,10 @@ var app = new Vue({
                     }
                 });
             }
-        }, showModalAula(seccion) {
+        }, directAula() {
+            alert("1");
+        }
+        , showModalAula(seccion) {
             let $vue = this;
             $global.$emit('loadAulaComponent', seccion.id);
             this.$refs.modalAula.open();
@@ -626,6 +629,7 @@ var app = new Vue({
                     if (response.success) {
                         MODAL.hideWait();
                         $vue.$refs.modalTipoRepitencia.close();
+                        $vue.loadSecciones();
                         notify(response.message, "info");
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
