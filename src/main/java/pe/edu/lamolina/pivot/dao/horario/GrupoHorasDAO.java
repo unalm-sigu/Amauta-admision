@@ -5,12 +5,15 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
 
     GrupoHoras findByCode(String codigo);
+
+    GrupoHoras findByCodeTipoCiclo(String codigo, TipoCicloEnum tipoCicloEnum);
 
     GrupoHoras findGrupoHorasByCode(String codigo);
 

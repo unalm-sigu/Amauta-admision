@@ -717,9 +717,35 @@ var app = new Vue({
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadSecciones();
-                        // $vue.docentesSeccion = [];
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        }, directEditGrupoHor(seccion, event) {
+            let $vue = this;
+            let target = $(event.target);
+            target.parsley().destroy();
+            target.parsley();
+            if (target.parsley().validate() !== true) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/cambiarGrupoHorDirect'),
+                data: {
+                    seccion: seccion.id,
+                    grupoHor: target.val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.loadSecciones();
+                    } else {
+                        alert("error");
                     }
                 }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");

@@ -56,6 +56,7 @@ import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -882,6 +883,33 @@ public class GpoSeccionController {
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Aula cambiada correctamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarGrupoHorDirect")
+    public JsonResponse cambiarGrupoHorDirect(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam("grupoHor") String codigoGrupoHor,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            GrupoHoras grupoHoras = service.findGrupoHorasForDirectUpdate(codigoGrupoHor, ds.getCicloAcademico(), new Seccion(seccionId));
+
+            service.saveSeccionGrupoHorario(seccionId, grupoHoras, ds.getCicloAcademico());
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Grupo horario cambiado correctamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {

@@ -137,18 +137,23 @@
                                         <td class="text-center">
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras==null"
+                                               v-if="seccion.grupoHoras==null &amp;&amp; !directEditSecciones"
                                                style="cursor:pointer;">
                                                 Sin Grupo
                                             </a>
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras"
+                                               v-if="seccion.grupoHoras &amp;&amp; !directEditSecciones"
                                                style="cursor:pointer;">
                                                 {{ seccion.grupoHoras.codigo }} 
                                             </a>
 
-
+                                            <input v-if="directEditSecciones"
+                                                   v-on:blur="directEditGrupoHor(seccion,$event)"
+                                                   v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
+                                                   required='true'
+                                                   v-bind:value="seccion.grupoHoras!=null ? seccion.grupoHoras.codigo : ''"
+                                                   class="form-control"/>
 
                                         </td>
                                         <td class="text-center">

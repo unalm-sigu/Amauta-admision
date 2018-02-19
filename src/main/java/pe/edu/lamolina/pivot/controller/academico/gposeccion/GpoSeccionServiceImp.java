@@ -57,6 +57,7 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -1053,10 +1054,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
-    public void saveSeccionGrupoHorario(Long seccionId, GrupoHoras grupoHorasArg, CicloAcademico cicloAcademico) {
+    public void saveSeccionGrupoHorario(Long seccionId, GrupoHoras grupoHorario, CicloAcademico cicloAcademico) {
 
-        if (!grupoHorasArg.isPermiteCeroHoras()) {
-            if (grupoHorasArg.getDiaHoraGrupo().isEmpty()) {
+        if (!grupoHorario.isPermiteCeroHoras()) {
+            if (grupoHorario.getDiaHoraGrupo().isEmpty()) {
                 throw new PhobosException("Debe seleccionar las horas");
             }
         }
@@ -1065,7 +1066,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setHorarioSeccion(horariosSeccion);
 
         GrupoHoras grupoHoraOld = seccion.getGrupoHoras();
-        GrupoHoras grupoHorasNew = grupoHorasDAO.find(grupoHorasArg.getId());
+        GrupoHoras grupoHorasNew = grupoHorasDAO.find(grupoHorario.getId());
         seccion.setGrupoHoras(grupoHorasNew);
 
         List<HorarioAula> horariosAulasSeccion = null;
@@ -1081,7 +1082,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //borrar los deseleccionados
         for (HorarioSeccion horarioSeccionEach : seccion.getHorarioSeccion()) {
 
-            if (!horarioSeccionEach.isTieneDiaHoraGrupo(grupoHorasArg.getDiaHoraGrupo())) {
+            if (!horarioSeccionEach.isTieneDiaHoraGrupo(grupoHorario.getDiaHoraGrupo())) {
                 if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                     horarioAulaDAO.deleteBySeccionDiaHoraAula(seccion, horarioSeccionEach.getDia(),
                             horarioSeccionEach.getHora(), seccion.getAula());
@@ -1095,7 +1096,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         }
          */
-        for (DiaHoraGrupo diaHoraGrupoEach : grupoHorasArg.getDiaHoraGrupo()) {
+        for (DiaHoraGrupo diaHoraGrupoEach : grupoHorario.getDiaHoraGrupo()) {
             //verificar si ya se encuentra registrado en base de datos
             if (diaHoraGrupoEach.isTieneHorarioSeccion(seccion.getHorarioSeccion())) {
                 continue;
@@ -1526,14 +1527,24 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (aula == null) {
             throw new PhobosException("Aula ingresada no existe");
         }
-        /*
-        Seccion seccion = seccionDAO.find(idSeccion);
-        if (seccion.getVacantes() != null) {
-            if (aula.getAforo().intValue() < seccion.getVacantes().intValue()) {
-                throw new PhobosException("Capacidad del aula menor que las vacantes.");
-            }
-        }*/
         return aula;
+    }
+
+    @Override
+    public GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion) {
+        seccion = seccionDAO.find(seccion.getId());
+        GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoCicloEnum());
+        if (grupoHorario == null) {
+            throw new PhobosException("Grupo Horario ingresada no existe");
+        }
+        List<DiaHoraGrupo> diasGrupoHoras = diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHorario, cicloAcademico);
+        grupoHorario.setDiaHoraGrupo(diasGrupoHoras);
+        if (!grupoHorario.isPermiteCeroHoras()) {
+            if (seccion.getHorasSemanales().compareTo(diasGrupoHoras.size()) != 0) {
+                throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
+            }
+        }
+        return grupoHorario;
     }
 
 }
