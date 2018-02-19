@@ -11,6 +11,8 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     Aula findByCode(String codigo);
 
+    Aula findActiveByCode(String code);
+
     List<Aula> allByDynatable(DynatableFilter filter);
 
     Integer findAforoByEdificio(Aula aula);

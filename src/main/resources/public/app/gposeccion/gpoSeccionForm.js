@@ -89,7 +89,8 @@ var app = new Vue({
     el: '#pageGpoSeccion',
     data: {
         grupoSeccion: {},
-        secciones: [],
+        secciones: null,
+        directEditSecciones: false,
         docentesSeccion: [],
         seccionSeleccionada: null,
         seccionModal: null,
@@ -131,14 +132,6 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalSize: 'modal-lg'
         },
-        configDate: {
-            format: 'DD/MM/YYYY',
-            useCurrent: false,
-            showClear: true,
-            showClose: true
-        },
-        aulOeraSel: null,
-        tblAulas: null,
         fecha: null,
         minFechaPeriodo: null,
         maxFechaPeriodo: null,
@@ -705,6 +698,34 @@ var app = new Vue({
                 }
             });
 
+        }, directEditAula(seccion, event) {
+            let $vue = this;
+            let target = $(event.target);
+            target.parsley().destroy();
+            target.parsley();
+            if (target.parsley().validate() !== true) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/gposeccion/cambiarAulaDirect'),
+                data: {
+                    seccion: seccion.id,
+                    aula: target.val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.loadSecciones();
+                        // $vue.docentesSeccion = [];
+                    } else {
+                        target.parsley().addError('forcederror', {message: response.message, updateClass: true});
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
         }
     }
 })

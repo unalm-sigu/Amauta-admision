@@ -868,6 +868,31 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("cambiarAulaDirect")
+    public JsonResponse cambiarAulaDirect(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam("aula") String codigoAula,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Aula aula = service.findAulaActiveByCode(codigoAula);
+            service.saveAula(seccionId, aula.getId(), ds.getCicloAcademico());
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Aula cambiada correctamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("findSeccion")
     public JsonResponse findSeccion(
             @RequestParam("seccion") Long seccionId,

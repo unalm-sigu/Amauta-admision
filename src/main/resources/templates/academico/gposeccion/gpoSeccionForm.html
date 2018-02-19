@@ -76,7 +76,10 @@
                                         <th class="col-md-1 text-center">Mat</th>
                                         <th class="col-md-1 text-center">Docentes</th>
                                         <th class="col-md-1 text-center">Estado</th>
-                                        <th class="col-md-1 text-center"></th>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox"
+                                                   v-model="directEditSecciones"/>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -92,14 +95,14 @@
                                         </td>
                                         <td class="text-center">
 
-                                            <a v-if="seccion.aula==null"
+                                            <a v-if="seccion.aula==null &amp;&amp; !directEditSecciones"
                                                v-on:click="showModalAula(seccion)" 
                                                v-on:dblclick="directAula"
                                                style="cursor:pointer;">
                                                 Sin Aula
                                             </a>
 
-                                            <div class="col-md-12" v-if="seccion.aula!=null">
+                                            <div class="col-md-12" v-if="seccion.aula!=null &amp;&amp; !directEditSecciones">
                                                 <div class="col-md-9">
                                                     <a 
                                                         v-on:click="showModalAula(seccion)" 
@@ -121,6 +124,13 @@
                                                 </div>
                                             </div>
 
+                                            <input v-if="directEditSecciones"
+                                                   v-on:blur="directEditAula(seccion,$event)"
+                                                   v-on:keyup.enter="directEditAula(seccion,$event)"
+                                                   required='true'
+                                                   v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
+                                                   class="form-control"/>
+
 
 
                                         </td>
@@ -133,10 +143,11 @@
                                             </a>
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras!=null"
+                                               v-if="seccion.grupoHoras"
                                                style="cursor:pointer;">
                                                 {{ seccion.grupoHoras.codigo }} 
                                             </a>
+
 
 
                                         </td>

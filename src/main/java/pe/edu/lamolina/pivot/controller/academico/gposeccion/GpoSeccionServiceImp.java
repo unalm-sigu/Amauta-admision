@@ -1516,15 +1516,24 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             fechas.add(new DateTime(eventosCicloAcademico.getFechaInicio()).toLocalDate().toDate());
             fechas.add(new DateTime(eventosCicloAcademico.getFechaFin()).toLocalDate().toDate());
         }
-        /*
-        Collections.sort(fechas, new Comparator<Date>() {
-            @Override
-            public int compare(Date o1, Date o2) {
-                return o1.compareTo(o2);
-            }
-        });*/
         Collections.sort(fechas, (Date va1, Date va2) -> va1.compareTo(va2));
         return fechas;
+    }
+
+    @Override
+    public Aula findAulaActiveByCode(String codigoAula) {
+        Aula aula = aulaDAO.findActiveByCode(codigoAula);
+        if (aula == null) {
+            throw new PhobosException("Aula ingresada no existe");
+        }
+        /*
+        Seccion seccion = seccionDAO.find(idSeccion);
+        if (seccion.getVacantes() != null) {
+            if (aula.getAforo().intValue() < seccion.getVacantes().intValue()) {
+                throw new PhobosException("Capacidad del aula menor que las vacantes.");
+            }
+        }*/
+        return aula;
     }
 
 }

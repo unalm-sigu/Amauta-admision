@@ -108,7 +108,7 @@ public interface GpoSeccionService {
     List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
 
     Aula findAula(Long aulaId);
-    
+
     Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico);
 
     List<Oficina> allOficinasWithAula(List<Oficina> oficinas);
@@ -163,5 +163,7 @@ public interface GpoSeccionService {
     void analizedDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
 
     void analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
+
+    Aula findAulaActiveByCode(String codigoAula);
 
 }
