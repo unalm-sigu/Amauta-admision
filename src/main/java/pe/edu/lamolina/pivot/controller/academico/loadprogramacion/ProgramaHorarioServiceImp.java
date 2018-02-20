@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -36,15 +37,21 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.EstadoCivil;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.general.EstadoCivilDAO;
+import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.general.UbicacionDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -71,6 +78,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     AlumnoDAO alumnoDAO;
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
+    @Autowired
+    EstadoCivilDAO estadoCivilDAO;
+    @Autowired
+    PaisDAO paisDAO;
+    @Autowired
+    UbicacionDAO ubicacionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -204,6 +217,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
         Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
+        List<EstadoCivil> estadosCiviles = estadoCivilDAO.all();
+        Map<String, EstadoCivil> mapEstadoCivil = MapUtil.storeItems("codigo", estadosCiviles);
+        List<Pais> paises = paisDAO.all();
+        Map<String, Pais> mapPaises = MapUtil.storeItems("codigo", paises);
+        List<Ubicacion> ubigeos = ubicacionDAO.all();
+        Map<String, Ubicacion> mapUbicacion = MapUtil.storeItems("codigo", ubigeos);
 
         List<DepartamentoAcademico> dptos = departamentoAcademicoDAO.all();
         Map<String, DepartamentoAcademico> mapDptos = MapUtil.storeItems("codigo", dptos);
@@ -219,10 +238,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             }
 
             Persona persona = docente.getPersona();
-            persona = progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
+            loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
+            List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            persona = progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
 
             docente.setPersona(persona);
             docente = progDataService.saveDocente(docente, modalidad, mapDptos, ds);
@@ -242,16 +263,27 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             Map<Long, Persona> mapIdPersonas,
             Map<String, Alumno> mapAlumnos,
             Map<String, SituacionAcademica> mapSituaciones, DataSessionPivot ds) {
+
         List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
         Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
+        List<EstadoCivil> estadosCiviles = estadoCivilDAO.all();
+        Map<String, EstadoCivil> mapEstadoCivil = MapUtil.storeItems("codigo", estadosCiviles);
+        List<Pais> paises = paisDAO.all();
+        Map<String, Pais> mapPaises = MapUtil.storeItems("codigo", paises);
+        List<Ubicacion> ubigeos = ubicacionDAO.all();
+        Map<String, Ubicacion> mapUbicacion = MapUtil.storeItems("codigo", ubigeos);
+
         long loop = 1;
         for (Alumno alumno : alumnos) {
             logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
             Persona persona = alumno.getPersona();
-            persona = progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
+            loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
+            List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            persona = progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            logger.debug("\temail-cia {}", emailCia);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
 
             if (mapIdPersonas.get(persona.getId()) == null) {
                 mapIdPersonas.put(persona.getId(), persona);
@@ -267,13 +299,23 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     private void savePersonas(List<Persona> personas, Map<String, List<Persona>> mapKeyPersonas, Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         List<TipoDocIdentidad> tiposDoc = tipoDocIdentidadDAO.all();
         Map<String, TipoDocIdentidad> mapTiposDoc = MapUtil.storeItems("simbolo", tiposDoc);
+        List<EstadoCivil> estadosCiviles = estadoCivilDAO.all();
+        Map<String, EstadoCivil> mapEstadoCivil = MapUtil.storeItems("codigo", estadosCiviles);
+        List<Pais> paises = paisDAO.all();
+        Map<String, Pais> mapPaises = MapUtil.storeItems("codigo", paises);
+        List<Ubicacion> ubigeos = ubicacionDAO.all();
+        Map<String, Ubicacion> mapUbicacion = MapUtil.storeItems("codigo", ubigeos);
+
         long loop = 1;
         for (Persona persona : personas) {
             logger.debug("Guardando persona {} de {}", loop, personas.size());
-            progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, mapKeyPersonas, mapDNIPersonas, ds);
-            progDataService.changeDocumentoIdentidad(persona, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
+            loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
+            List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            //progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
+            String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
             loop++;
         }
 
@@ -432,18 +474,28 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String codigo = getCellValue(1, row);
-                String codigoEspecialidad = getCellValue(2, row);
-                String codigoPostgrado = getCellValue(3, row);
-                String situacion = getCellValue(4, row);
-                String email = getCellValue(5, row);
-                String paterno = getCellValue(8, row);
-                String materno = getCellValue(9, row);
-                String nombres = getCellValue(10, row);
-                String tipoDocumento = getCellValue(11, row);
-                String numeroDoc = getCellValue(12, row);
-                String cicloInicio = getCellValue(13, row);
-                String cicloActivo = getCellValue(14, row);
+                String codigo = getCellStringValue(1, row);
+                String codigoEspecialidad = getCellStringValue(2, row);
+                String codigoPostgrado = getCellStringValue(3, row);
+                String situacion = getCellStringValue(4, row);
+                String emailCia = getCellStringValue(5, row);
+                String paterno = getCellStringValue(8, row);
+                String materno = getCellStringValue(9, row);
+                String nombres = getCellStringValue(10, row);
+                String tipoDocumento = getCellStringValue(11, row);
+                String numeroDoc = getCellStringValue(12, row);
+                String cicloInicio = getCellStringValue(13, row);
+                String cicloActivo = getCellStringValue(14, row);
+                Date fechaNace = getCellDateValue(15, row);
+                String ubigeoNac = getCellStringValue(16, row);
+                String paisNac = getCellStringValue(17, row);
+                String nacionalidad = getCellStringValue(18, row);
+                String estadoCivil = getCellStringValue(19, row);
+                String emailPersonal = getCellStringValue(20, row);
+                String celular = getCellStringValue(21, row);
+                String telefono = getCellStringValue(22, row);
+                String ubigeoDomicilio = getCellStringValue(24, row);
+                String domicilio = getCellStringValue(25, row);
 
                 if (StringUtils.isEmpty(codigo)) {
                     break;
@@ -452,12 +504,24 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 if (StringUtils.isEmpty(tipoDocumento)) {
                     tipoDocumento = "DNI";
                 }
-                if (StringUtils.isEmpty(email)) {
-                    email = null;
+                if (StringUtils.isEmpty(emailCia)) {
+                    emailCia = null;
                 }
 
                 Persona persona = new Persona(paterno, materno, nombres, numeroDoc, tipoDocumento);
-                Alumno alumno = new Alumno(codigo, codigoEspecialidad, codigoPostgrado, situacion, email);
+                persona.setFechaNacer(fechaNace);
+                persona.setUbigeoNacer(ubigeoNac);
+                persona.setCodigoPaisNacer(paisNac);
+                persona.setCodigoNacionalidad(nacionalidad);
+                persona.setCodigoEstadoCivil(estadoCivil);
+                persona.setEmail(emailPersonal);
+                persona.setEmailCompania(emailCia);
+                persona.setTelefono(telefono);
+                persona.setCelular(celular);
+                persona.setUbigeoDomicilio(ubigeoDomicilio);
+                persona.setDireccion(domicilio);
+
+                Alumno alumno = new Alumno(codigo, codigoEspecialidad, codigoPostgrado, situacion, emailCia);
                 alumno.setPersona(persona);
                 alumno.setCodigoCicloIngreso(cicloInicio);
                 alumno.setCodigoCicloActivo(cicloActivo);
@@ -492,10 +556,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String ciclo = getCellValue(1, row);
-                String codigoAlumno = getCellValue(2, row);
-                String codigoSeccion = getCellValue(3, row);
-                Integer creditos = Integer.valueOf(getCellValue(4, row));
+                String ciclo = getCellStringValue(1, row);
+                String codigoAlumno = getCellStringValue(2, row);
+                String codigoSeccion = getCellStringValue(3, row);
+                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
@@ -533,10 +597,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String ciclo = getCellValue(1, row);
-                String codigoDocente = getCellValue(2, row);
-                String codigoSeccion = getCellValue(3, row);
-                Integer principal = Integer.valueOf(getCellValue(4, row));
+                String ciclo = getCellStringValue(1, row);
+                String codigoDocente = getCellStringValue(2, row);
+                String codigoSeccion = getCellStringValue(3, row);
+                Integer principal = Integer.valueOf(getCellStringValue(4, row));
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
@@ -575,14 +639,14 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String nro = getCellValue(0, row);
-                String tipoDocumento = getCellValue(1, row);
-                String numeroDoc = getCellValue(2, row);
-                String codigo = getCellValue(3, row);
-                String dpto = getCellValue(4, row);
-                String paterno = getCellValue(5, row);
-                String materno = getCellValue(6, row);
-                String nombres = getCellValue(7, row);
+                String nro = getCellStringValue(0, row);
+                String tipoDocumento = getCellStringValue(1, row);
+                String numeroDoc = getCellStringValue(2, row);
+                String codigo = getCellStringValue(3, row);
+                String dpto = getCellStringValue(4, row);
+                String paterno = getCellStringValue(5, row);
+                String materno = getCellStringValue(6, row);
+                String nombres = getCellStringValue(7, row);
 
                 if (StringUtils.isEmpty(nro)) {
                     break;
@@ -622,11 +686,22 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String paterno = getCellValue(1, row);
-                String materno = getCellValue(2, row);
-                String nombres = getCellValue(3, row);
-                String tipoDoc = getCellValue(4, row);
-                String numeroDoc = getCellValue(5, row);
+                String paterno = getCellStringValue(1, row);
+                String materno = getCellStringValue(2, row);
+                String nombres = getCellStringValue(3, row);
+                String tipoDoc = getCellStringValue(4, row);
+                String numeroDoc = getCellStringValue(5, row);
+                String emailCia = getCellStringValue(6, row);
+                Date fechaNace = getCellDateValue(7, row);
+                String ubigeoNac = getCellStringValue(8, row);
+                String paisNac = getCellStringValue(9, row);
+                String nacionalidad = getCellStringValue(10, row);
+                String estadoCivil = getCellStringValue(11, row);
+                String emailPersonal = getCellStringValue(12, row);
+                String celular = getCellStringValue(13, row);
+                String telefono = getCellStringValue(14, row);
+                String ubigeoDomicilio = getCellStringValue(16, row);
+                String domicilio = getCellStringValue(17, row);
 
                 if (StringUtils.isEmpty(paterno)) {
                     break;
@@ -637,6 +712,17 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 Persona persona = new Persona(paterno, materno, nombres, numeroDoc, tipoDoc);
+                persona.setFechaNacer(fechaNace);
+                persona.setUbigeoNacer(ubigeoNac);
+                persona.setCodigoPaisNacer(paisNac);
+                persona.setCodigoNacionalidad(nacionalidad);
+                persona.setCodigoEstadoCivil(estadoCivil);
+                persona.setEmail(emailPersonal);
+                persona.setEmailCompania(emailCia);
+                persona.setTelefono(telefono);
+                persona.setCelular(celular);
+                persona.setUbigeoDomicilio(ubigeoDomicilio);
+                persona.setDireccion(domicilio);
                 personas.add(persona);
             }
             logger.debug("Se han leido un total de {} personas", loop);
@@ -668,20 +754,19 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String ciclo = getCellValue(1, row);
-                String clave = getCellValue(2, row);
-                String gpo = getCellValue(3, row);
-                String aula = getCellValue(4, row);
-                String gclave = getCellValue(5, row);
-                String tclave = getCellValue(6, row);
-                String clave2 = getCellValue(8, row);
-                Integer vacantes = Integer.parseInt(getCellValue(10, row));
-                Integer matriculados = Integer.parseInt(getCellValue(11, row));
-
-                //System.out.println(vacantes + " " + matriculados);                
+                String ciclo = getCellStringValue(1, row);
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
+
+                String clave = getCellStringValue(2, row);
+                String gpo = getCellStringValue(3, row);
+                String aula = getCellStringValue(4, row);
+                String gclave = getCellStringValue(5, row);
+                String tclave = getCellStringValue(6, row);
+                String clave2 = getCellStringValue(8, row);
+                Integer vacantes = getCellIntegerValue(10, row);
+                Integer matriculados = getCellIntegerValue(11, row);
 
                 Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
                 secciones.add(seccion);
@@ -715,10 +800,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     continue;
                 }
 
-                String ciclo = getCellValue(1, row);
-                String gclave = getCellValue(2, row);
-                String curso = getCellValue(3, row);
-                String anexo = getCellValue(5, row);
+                String ciclo = getCellStringValue(1, row);
+                String gclave = getCellStringValue(2, row);
+                String curso = getCellStringValue(3, row);
+                String anexo = getCellStringValue(5, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
@@ -751,7 +836,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         }
     }
 
-    private String getCellValue(int pos, Row row) {
+    private String getCellStringValue(int pos, Row row) {
         Cell cell = row.getCell(pos);
         if (cell == null) {
             return null;
@@ -781,6 +866,134 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         }
 
         return dato;
+    }
+
+    private BigDecimal getCellNumericValue(int pos, Row row) {
+        Cell cell = row.getCell(pos);
+        if (cell == null) {
+            return null;
+        }
+        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            return new BigDecimal(cell.getNumericCellValue());
+        }
+
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        String dato = cell.getStringCellValue();
+        if (dato == null) {
+            return null;
+        }
+
+        dato = StringUtils.replaceChars(dato, '\t', ' ');
+        dato = StringUtils.replaceChars(dato, '\r', ' ');
+        dato = StringUtils.replaceChars(dato, '\n', ' ');
+        dato = StringUtils.replaceChars(dato, ',', ' ');
+        dato = StringUtils.replaceChars(dato, '|', ' ');
+        dato = StringUtils.replaceChars(dato, '´', '\'');
+        dato = dato.replaceAll("\\s{2,}", " ").trim();
+
+        if (dato.equals(".")) {
+            return BigDecimal.ZERO;
+        }
+        if (dato.equals("-")) {
+            throw new PhobosException("Valor de integer desconocido");
+        }
+        if (dato.equals(",")) {
+            return BigDecimal.ZERO;
+        }
+        if (StringUtils.isEmpty(dato)) {
+            return null;
+        }
+
+        return new BigDecimal(dato);
+    }
+
+    private Integer getCellIntegerValue(int pos, Row row) {
+        Cell cell = row.getCell(pos);
+        if (cell == null) {
+            return null;
+        }
+        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            return new BigDecimal(cell.getNumericCellValue()).intValue();
+        }
+
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        String dato = cell.getStringCellValue();
+        if (dato == null) {
+            return null;
+        }
+
+        dato = StringUtils.replaceChars(dato, '\t', ' ');
+        dato = StringUtils.replaceChars(dato, '\r', ' ');
+        dato = StringUtils.replaceChars(dato, '\n', ' ');
+        dato = StringUtils.replaceChars(dato, ',', ' ');
+        dato = StringUtils.replaceChars(dato, '|', ' ');
+        dato = StringUtils.replaceChars(dato, '´', '\'');
+        dato = dato.replaceAll("\\s{2,}", " ").trim();
+
+        if (dato.equals(".")) {
+            return 0;
+        }
+        if (dato.equals("-")) {
+            throw new PhobosException("Valor de integer desconocido");
+        }
+        if (dato.equals(",")) {
+            return 0;
+        }
+        if (StringUtils.isEmpty(dato)) {
+            return null;
+        }
+
+        return Integer.valueOf(dato);
+    }
+
+    private Date getCellDateValue(int pos, Row row) {
+        Cell cell = row.getCell(pos);
+        if (cell == null) {
+            return null;
+        }
+        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            if (cell.getStringCellValue().equals("")) {
+                return null;
+            }
+            System.out.println("CONTE::: <<" + cell.getStringCellValue() + ">>");
+        }
+        Date dato = cell.getDateCellValue();
+        return dato;
+    }
+
+    private void loadInfoPersona(
+            Persona persona,
+            Map<String, TipoDocIdentidad> mapTiposDoc,
+            Map<String, EstadoCivil> mapEstadoCivil,
+            Map<String, Pais> mapPaises,
+            Map<String, Ubicacion> mapUbicacion) {
+        TipoDocIdentidad tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
+        if (tipoDoc == null) {
+            persona.setCodigoTipoDocumento("DNI");
+            tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
+        }
+        persona.setTipoDocumento(tipoDoc);
+
+        Pais paisNacer = mapPaises.get(persona.getCodigoPaisNacer());
+        Pais paisNacionalidad = mapPaises.get(persona.getCodigoNacionalidad());
+        Ubicacion ubigeoNacer = mapUbicacion.get(persona.getUbigeoNacer());
+        Ubicacion ubigeoDomicilio = mapUbicacion.get(persona.getUbigeoDomicilio());
+        EstadoCivil estadoCivil = mapEstadoCivil.get(persona.getCodigoEstadoCivil());
+
+        persona.setPaisNacer(paisNacer);
+        persona.setNacionalidad(paisNacionalidad);
+        persona.setUbicacionNacer(ubigeoNacer);
+        persona.setUbicacionDomicilio(ubigeoDomicilio);
+        persona.setEstadoCivil(estadoCivil);
+
+        String domicilio = persona.getDireccion();
+        if (domicilio != null) {
+            domicilio = domicilio.trim();
+        }
+        if (StringUtils.isEmpty(domicilio)) {
+            domicilio = null;
+            persona.setDireccion(domicilio);
+        }
     }
 
 }
