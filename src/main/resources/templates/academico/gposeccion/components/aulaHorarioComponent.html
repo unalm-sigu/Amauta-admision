@@ -81,6 +81,11 @@
                                 </span>
                             </td>
                         </tr>
+                        <tr v-if="horas.length == 0">
+                            <td v-bind:colspan="1+dias.length" class="text-left">
+                                Sin horario.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

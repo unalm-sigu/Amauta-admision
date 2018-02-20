@@ -158,12 +158,12 @@
                                         </td>
                                         <td class="text-center">
                                             <a v-on:click="showModalRestriccion(seccion)" 
-                                               v-if="!seccion.tieneRestriccion"
+                                               v-if="!seccion.tieneRestriccion &amp;&amp; !seccion.esTipoSeccionTcur"
                                                style="cursor:pointer;">
                                                 S/R
                                             </a>
                                             <div class="col-md-12"
-                                                 v-if="seccion.tieneRestriccion">
+                                                 v-if="seccion.tieneRestriccion &amp;&amp; !seccion.esTipoSeccionTcur">
 
                                                 <div class="col-md-12">
                                                     <a v-on:click="showModalRestriccion(seccion)" 
@@ -217,14 +217,14 @@
                                         </td>
                                         <td class="text-center">
                                             <a v-on:click="showModalTipoRepitencia(seccion)" 
-                                               v-if="!seccion.tieneRestriccionRepitencia"
+                                               v-if="!seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
                                                style="cursor:pointer;">
                                                 S/R
                                             </a>
 
 
                                             <a v-on:click="showModalTipoRepitencia(seccion)" 
-                                               v-if="seccion.tieneRestriccionRepitencia"
+                                               v-if="seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
                                                v-for="restRepitencia in seccion.restriccionesRepitencia"
                                                style="cursor:pointer;"
                                                class="col-md-3"> 
@@ -480,84 +480,7 @@
                        v-bind="tipoRepitenciaModal"
                        v-bind:okaction="saveTipoRepRestriccion">
                 <div slot="body">
-                    <form id="frmTipoRepitencia">
-
-                        <template v-if="seccionModal!=null">
-                            <div class="row">
-                                <div class="form-group">
-                                    <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
-
-                                    <div class="col-md-10">
-                                        <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label">Dpto. Academicos</label>
-
-                                    <div class="col-md-10">
-                                        <span> {{seccionModal.departamentoAcademico.nombre}} </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label">Clave</label>
-
-                                    <div class="col-md-4">
-                                        <span> {{seccionModal.codigo}}</span>
-                                    </div>
-
-                                    <label class="col-md-2 control-label">Vacantes</label>
-
-                                    <div class="col-md-4">
-                                        <span> {{seccionModal.vacantes}} </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label">Aula</label>
-
-                                    <div class="col-md-4">
-                                        <span v-if="seccionModal.aula!=null"> {{seccionModal.aula.codigo}}</span>
-                                    </div>
-
-                                    <label class="col-md-2 control-label">Horas</label>
-
-                                    <div class="col-md-4">
-                                        <span>{{seccionModal.horasSemanales}}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-
-                        <section class="panel-body">
-
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <div class="form-group">
-                                        <div>Tipo Restriccion</div>
-
-                                        <multiselect 
-                                            v-model="tiposRepitenciaArr" 
-                                            v-bind:options="tiposRepitenciaOpt"
-                                            label='nombre'
-                                            track-by="id"
-                                            v-bind:multiple="true" 
-                                            v-bind:close-on-select="false" 
-                                            v-bind:clear-on-select="false" 
-                                            v-bind:hide-selected="true" 
-                                            v-bind:preserve-search="true" 
-                                            >
-                                        </multiselect>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </section>
-                    </form>
+                    <repitencia-component></repitencia-component>
                 </div>
             </modal-vik>
 
@@ -570,26 +493,28 @@
         <div th:substituteby="_modules/vue-modal"/>
 
 
+        <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/> 
         <div th:substituteby="academico/gposeccion/components/aulaHorarioComponent"/> 
         <div th:substituteby="academico/gposeccion/components/aulaComponent"/> 
         <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
+        <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
 
-
-        <div id="autocomplete-doc">
-            <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
-        </div>
-
-        <div id="tablaHorarioReg"></div>
-
-        <script type="text/x-template" id="select2-template">
-            <input class="input-s-full" type="text" />
-        </script>
-
-        <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
-            {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
-        </div>
-
+        <!-- 
+              <div id="autocomplete-doc">
+                  <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
+              </div>
+      
+              <div id="tablaHorarioReg"></div>
+            
+                      <script type="text/x-template" id="select2-template">
+                          <input class="input-s-full" type="text" />
+                      </script>
+              
+                      <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+                          {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
+                      </div>
+        -->
     </section>
 
     <div layout:fragment="js">
@@ -604,6 +529,7 @@
         <script th:src="@{/app/gposeccion/aulaHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/restriccionComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/repitenciaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/datePickerComponent.js}" charset="utf-8"></script>
     </div>
 </body>

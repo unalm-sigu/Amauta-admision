@@ -36,7 +36,6 @@ Vue.component("autocomplete-doc", {
             },
             formatResult: function (info) {
                 return info.apellidosNombres;
-                //$.templates("#divBuscarCurso").render(info);
             },
             formatSelection: function (info) {
                 return info.personaNombre + " " + info.personaPaterno + " " + info.personaMaterno;
@@ -84,6 +83,13 @@ Vue.component("autocomplete-doc", {
     }
 });
 
+Vue.component("seccion-det-component", {
+    template: "#seccionDetComp",
+    props: {
+        seccion: null
+    }
+});
+
 
 var app = new Vue({
     el: '#pageGpoSeccion',
@@ -94,8 +100,6 @@ var app = new Vue({
         docentesSeccion: [],
         seccionSeleccionada: null,
         seccionModal: null,
-        tiposRepitenciaOpt: [],
-        tiposRepitenciaArr: [],
         colorEstado: {CRE: "default", ACT: "success", INA: "danger", ANU: "danger", BLO: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"},
         grupoModal: {
             id: 'modalGrupo',
@@ -150,6 +154,10 @@ var app = new Vue({
         });
         $global.$on("afterSaveRestriccion", function (response) {
             $vue.afterSaveRestriccion(response, $vue);
+        });
+
+        $global.$on("afterSaveTipoRepRestriccion", function (response) {
+            $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
 
     }, methods: {
@@ -439,7 +447,7 @@ var app = new Vue({
                 url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/loadGpoSeccionForm'),
                 success: function (response) {
                     if (response.success) {
-                        $vue.tiposRepitenciaOpt = response.data.tiposRepitenciaJson;
+
                         $vue.minFechaPeriodo = response.data.minFechaPeriodo;
                         $vue.maxFechaPeriodo = response.data.maxFechaPeriodo;
                     }
@@ -490,6 +498,14 @@ var app = new Vue({
             }
         }, afterSaveRestriccion(response, $vue) {
             $vue.$refs.modalRestriccion.close();
+            if (response.success) {
+                notify(response.message, "info");
+                $vue.loadSecciones();
+            } else {
+                notify(response.message, "error");
+            }
+        }, afterSaveTipoRepRestriccion(response, $vue) {
+            $vue.$refs.modalTipoRepitencia.close();
             if (response.success) {
                 notify(response.message, "info");
                 $vue.loadSecciones();
@@ -583,56 +599,10 @@ var app = new Vue({
             $global.$emit('saveRestriccion');
         }, showModalTipoRepitencia(seccion) {
             let $vue = this;
-            $vue.tiposRepitenciaArr = [];
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/gposeccion/loadModalRepitenciaRestriccion'),
-                data: {
-                    seccion: seccion.id
-                }, success: function (response) {
-                    if (response.success) {
-                        MODAL.hideWait();
-                        $vue.seccionModal = response.data.seccion;
-                        if (response.data.restriccionesRepitencia != null) {
-                            $vue.tiposRepitenciaArr = response.data.restriccionesRepitencia;
-                        }
-                        $vue.$refs.modalTipoRepitencia.open();
-                    } else {
-                        notify(MESSAGES.errorComunicacion, "error");
-                    }
-                },
-                error: function (error) {
-                    MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
+            $global.$emit('loadRepitenciaComponent', seccion.id);
+            this.$refs.modalTipoRepitencia.open();
         }, saveTipoRepRestriccion() {
-            let $vue = this;
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveTipoRepRestriccion'),
-                dataType: "json",
-                contentType: "application/json",
-                type: 'POST',
-                async: true,
-                data:
-                        JSON.stringify($vue.tiposRepitenciaArr)
-                ,
-                success: function (response) {
-                    if (response.success) {
-                        MODAL.hideWait();
-                        $vue.$refs.modalTipoRepitencia.close();
-                        $vue.loadSecciones();
-                        notify(response.message, "info");
-                    } else {
-                        notify(MESSAGES.errorComunicacion, "error");
-                    }
-                },
-                error: function (response) {
-                    MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
+            $global.$emit('saveTipoRepRestriccion');
         }, cambiarFechaIniPeriodo(docSeccion) {
             let $vue = this;
 
