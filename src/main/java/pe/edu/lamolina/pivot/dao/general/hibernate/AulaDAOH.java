@@ -33,6 +33,16 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
+    public Aula findActiveByCode(String code) {
+        Octavia sql = Octavia.query();
+        sql.from(Aula.class, "au");
+        sql.join("aulaSuperior aus");
+        sql.filter("au.codigo", code);
+        sql.filter("au.estado", EstadoEnum.ACT.name());
+        return find(sql);
+    }
+
+    @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")

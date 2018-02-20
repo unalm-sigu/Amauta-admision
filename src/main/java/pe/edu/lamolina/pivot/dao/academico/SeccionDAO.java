@@ -23,6 +23,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allActivosByGposSeccion(List<GrupoSeccion> gruposSeccion);
 
+    List<Seccion> allActivosByGpoSeccion(GrupoSeccion gruposSeccion);
+
     List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion);
 
     List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion);
@@ -38,5 +40,11 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     List<Seccion> allMatriculablesBySecciones(List<Seccion> secciones);
 
     public void allRegenerateReservadoByCiclo(CicloAcademico cicloAcademico);
+
+    void updateEstadoFechaModUsuarioMod(Seccion seccion);
+
+    void updateCodigoFechaModUsuarioMod(Seccion seccion);
+
+    void updateSituacionDocente(Seccion seccion);
 
 }

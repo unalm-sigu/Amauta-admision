@@ -1,0 +1,89 @@
+<template id="modalAulaHorarioComp"> 
+    <div> 
+        <section class="panel-body" v-if="aula">
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Aula</label>
+
+                    <div class="col-md-4">
+                        <span> {{aula.codigo}}</span>
+                    </div>
+
+                    <label class="col-md-2 control-label">Capacidad</label>
+
+                    <div class="col-md-4">
+                        <span> {{aula.capacidadAula}} </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Tipo Aula</label>
+
+                    <div class="col-md-4">
+                        <span v-if="aula.tipoAula"> {{aula.tipoAula.nombre}} </span>
+                    </div>
+                    <label class="col-md-2 control-label">Tipo Ambiente</label>
+
+                    <div class="col-md-4">
+                        <span v-if="aula.tipoAmbienteValue"> {{aula.tipoAmbienteValue}}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label">Pabellon</label>
+
+                    <div class="col-md-4">
+                        <span v-if="aula.aulaSuperior"> {{aula.aulaSuperior.nombre}}</span>
+                    </div>
+
+                    <label class="col-md-2 control-label">Oficina</label>
+
+                    <div class="col-md-4">
+                        <span v-if="aula.oficina"> {{aula.oficina.nombre}} </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel-body">
+            <div class="table-responsive" >
+                <table class="table table-bordered" v-if="aula!=null">
+
+                    <thead>
+                        <tr>
+                            <th style="width: 12.5%" class="text-center">Hora</th>
+                            <th style="width: 12.5%" class="text-center" 
+                                v-for="dia in dias">
+                                {{dia.nombre}}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="hora in horas">
+                            <td class="v-middle">
+                                <span class="bold"
+                                      >
+                                    {{hora.descripcion}}
+                                </span>
+
+                            </td>
+                            <td  v-for="dia in dias" class="text-center"> 
+                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
+                                      class="text-primary block">
+
+                                    {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
+
+                                </span>
+                                <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
+                                      class="text-muted block">
+                                    {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.grupoHoras.codigo}}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div> 
+</template>

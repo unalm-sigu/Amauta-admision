@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 
+import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -8,11 +9,15 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -28,6 +33,8 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 public interface GpoSeccionService {
 
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    void cambiarEstadoGpoSeccion(EstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -49,9 +56,15 @@ public interface GpoSeccionService {
 
     void addSeccion(GrupoSeccion grupoSeccion);
 
-    void addDocenteSeccion(Seccion seccion);
+    void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
 
     void deleteSeccion(Seccion seccion);
+
+    void activarSeccion(Seccion seccion, Usuario usuario);
+
+    void bloquearSeccion(Seccion seccion, Usuario usuario);
+
+    void anularSeccion(Seccion seccion, Usuario usuario);
 
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
@@ -63,7 +76,7 @@ public interface GpoSeccionService {
 
     void actualizarDocente(Long docenteSeccionId, Long docenteId);
 
-    void actualizarSeccionVacantes(Seccion seccion);
+    void actualizarSeccionVacantes(Seccion seccion, Usuario usuario);
 
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
 
@@ -96,6 +109,8 @@ public interface GpoSeccionService {
     List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
 
     Aula findAula(Long aulaId);
+
+    Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico);
 
     List<Oficina> allOficinasWithAula(List<Oficina> oficinas);
 
@@ -135,5 +150,23 @@ public interface GpoSeccionService {
     void saveRestriccion(Seccion seccion, Usuario usuario, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones);
 
     List<TipoRepitencia> allTipoRepitencia();
+
+    void saveTipoRepitenciaRestriccion(Seccion seccion, Usuario usuario, List<TipoRepitencia> tiposRepitencia);
+
+    List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico);
+
+    List<Date> allDatesEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico);
+
+    void updateDocenteSecFechaInicio(DocenteSeccion docenteSeccion);
+
+    void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion);
+
+    void analizedDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
+
+    void analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
+
+    Aula findAulaActiveByCode(String codigoAula);
+
+    GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion);
 
 }

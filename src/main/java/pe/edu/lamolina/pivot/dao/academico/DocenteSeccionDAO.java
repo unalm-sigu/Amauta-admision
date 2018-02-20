@@ -19,6 +19,8 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allBySeccion(Seccion seccion);
 
+    List<DocenteSeccion> allActivosBySeccion(Seccion seccion);
+
     List<DocenteSeccion> allPersonasActivasBySeccion(Seccion seccionResponsable);
 
     List<DocenteSeccion> allPersonasActivasBySecciones(List<Seccion> secciones);
@@ -48,5 +50,9 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
     void updateDocente(DocenteSeccion docenteSeccion);
 
     void updatePorcentajeAvance(DocenteSeccion docenteSeccion);
+
+    void updateFechaInicio(DocenteSeccion docenteSeccion);
+
+    void updateFechaFin(DocenteSeccion docenteSeccion);
 
 }

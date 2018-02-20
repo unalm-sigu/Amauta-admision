@@ -25,7 +25,7 @@ $(function () {
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
-        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger'};
+        var labelColor = {CRE: 'default', ACT: 'success', INA: 'danger', ANU: 'danger'};
         record.index = rowIndex;
         record.esActivo = record.estado == 'ACT' || record.estado == 'CRE';
         record.esInactivo = record.estado == 'INA';
@@ -232,6 +232,48 @@ $(function () {
             var idx = tr.attr("rel");
             var rec = dynatable.settings.dataset.records[idx];
             location.href = APP.url("academico/gposeccion/" + rec.id + "/editar");
+        }, desactivarGpoSeccion: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+            $.ajax({
+                url: APP.url("academico/gposeccion/" + rec.id + "/desactivarGrupo"),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, activarGpoSeccion: function ($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+            $.ajax({
+                url: APP.url("academico/gposeccion/" + rec.id + "/activarGrupo"),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatable.process();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         },
         loadAnexos() {
             $("#anexos").select2("destroy");
@@ -295,6 +337,17 @@ $(function () {
     $("body").delegate(".editar-gpo-seccion", "click", function (e) {
         GrupoSeccion.editarGpoSeccion($(this), e);
     });
+
+    $("body").delegate(".desactivar", "click", function (e) {
+        GrupoSeccion.desactivarGpoSeccion($(this), e);
+    });
+
+    $("body").delegate(".activar", "click", function (e) {
+        GrupoSeccion.activarGpoSeccion($(this), e);
+    });
+
+
+
 
     GrupoSeccion.loadAnexos();
 

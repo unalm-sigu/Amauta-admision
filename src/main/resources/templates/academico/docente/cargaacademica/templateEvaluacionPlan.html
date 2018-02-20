@@ -12,6 +12,8 @@
     <td class="v-middle text-center"
 
         >
+
+        {{if estadoGrupoCerrado!=true}}
         {{if editarPorcentaje==true}}
         <input value="{{:pesoEvaluacion}}"
                rel="{{:evaPlanId}}"
@@ -22,7 +24,8 @@
                />
         (de {{:evaluacionPlan.pesoTotal}} % )
         {{/if}}
-
+        {{/if}}
+        {{if estadoGrupoCerrado==true}}
         {{if editarPorcentaje==false}}
         <div><span class="block" style="{{:styleAbuelo}}">{{:pesoEvaluacion}}
                 {{if esAbuelo==true}}
@@ -30,7 +33,7 @@
                 {{/if}}
             </span></div>
         {{/if}}
-
+        {{/if}}
         <!--
         {{if esHijo}}  
             (de {{:evaluacionPlan.pesoTotal}}%)

@@ -20,88 +20,94 @@
 
 
     {{for secciones}}
-        {{if index != 0}}
-            <tr>
+    {{if index != 0}}
+<tr>
+    {{/if}}
+
+
+    <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
+        <span class="block text-primary">{{:codigo}}</span>
+        <small class="block">{{:tipoValue}}</small>
+    </td>
+    <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
+        <span class="block ">{{:aula}}</span>
+        <span class="block">{{:grupo}}</span>
+    </td>
+    <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
+        <span class="block bold">{{:vacantes}}/{{:matriculados}}</span>
+    </td>
+
+    {{for docentes}}
+    {{if index == 0}}
+    <td class="v-middle td-vacio {{:class}}" >
+        {{if principal == 1}}
+        <i class="fa fa-check-square text-success"></i> 
         {{/if}}
-
-
-        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="block text-primary">{{:codigo}}</span>
-            <small class="block">{{:tipoValue}}</small>
-        </td>
-        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="block ">{{:aula}}</span>
-            <span class="block">{{:grupo}}</span>
-        </td>
-        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="block bold">{{:vacantes}}/{{:matriculados}}</span>
-        </td>
-
-        {{for docentes}}
-            {{if index == 0}}
-                <td class="v-middle td-vacio {{:class}}" >
-                    {{if principal == 1}}
-                    <i class="fa fa-check-square text-success"></i> 
-                    {{/if}}
-                </td>
-                <td class="v-middle td-vacio {{:class}}" >
-                    {{:codigo}} 
-                </td>
-                <td class="v-middle {{:class}}" >
-                    {{:docente}}
-                </td>
-                <td class="v-middle text-center {{:class}}" >
-                    100%
-                </td>
-            {{/if}}
-        {{/for}}
-
-
-        <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="badge bg-primary">R</span>
-        </td>
-        <td class=" v-middle {{:class}}"  rowspan="{{:cantDocentes}}">
-            <span class="clear">
-                <span class="label label-{{:colorEstadoSec}}">{{:estadoValueSec}} </span>
-            </span>
-        </td> 
-
-        <td class="v-middle td-vacio {{:class}}"  rowspan="{{:cantDocentes}}"> 
-            <div class="dropdown actions">
-                <a class="dropdown-toggle" data-toggle="dropdown">
-                    <i class="glyphicon glyphicon-cog"></i>
-                </a> 
-                <ul class="dropdown-menu pull-right">
-                    <li><a class="btn-link pointer change-estado" rev="{{:estado}}">Desactivar</a></li>
-                    <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
-                </ul>
-            </div>
-        </td>
-
-        {{for docentes}}
-            {{if index != 0}}
-                <tr>
-                    <td class="v-middle td-vacio {{:class}}" >
-                        {{if principal == 1}}
-                        <i class="fa fa-check-square text-success"></i> 
-                        {{/if}}
-                    </td>
-                    <td class="v-middle td-vacio {{:class}}" >
-                        {{:codigo}}
-                    </td>
-                    <td class="v-middle {{:class}}" >
-                        {{:docente}}
-                    </td>
-                    <td class="v-middle text-center {{:class}}" >
-                        100%
-                    </td>
-                </tr>
-            {{/if}}
-        {{/for}}
-
-        {{if index != 0}}
-            </tr>
-        {{/if}}
-
+    </td>
+    <td class="v-middle td-vacio {{:class}}" >
+        {{:codigo}} 
+    </td>
+    <td class="v-middle {{:class}}" >
+        {{:docente}}
+    </td>
+    <td class="v-middle text-center {{:class}}" >
+        100%
+    </td>
+    {{/if}}
     {{/for}}
+
+
+    <td class="v-middle text-center {{:class}}"  rowspan="{{:cantDocentes}}">
+        <span class="badge bg-primary">R</span>
+    </td>
+    <td class=" v-middle {{:class}}"  rowspan="{{:cantDocentes}}">
+        <span class="clear">
+            <span class="label label-{{:colorEstadoSec}}">{{:estadoValueSec}} </span>
+        </span>
+
+    </td> 
+
+    <td class="v-middle td-vacio {{:class}}"  rowspan="{{:cantDocentes}}"> 
+        <div class="dropdown actions">
+            <a class="dropdown-toggle" data-toggle="dropdown">
+                <i class="glyphicon glyphicon-cog"></i>
+            </a> 
+            <ul class="dropdown-menu pull-right"> 
+                <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
+                {{if estadoGrupiInactivo}}
+                <li><a class="btn-link pointer activar" >Activar</a></li>
+                {{/if}}
+                {{if estadoGrupoActivo}}
+                <li><a class="btn-link pointer desactivar" >Desactivar</a></li>
+                {{/if}}
+            </ul>
+        </div>
+    </td>
+
+    {{for docentes}}
+    {{if index != 0}}
+<tr>
+    <td class="v-middle td-vacio {{:class}}" >
+        {{if principal == 1}}
+        <i class="fa fa-check-square text-success"></i> 
+        {{/if}}
+    </td>
+    <td class="v-middle td-vacio {{:class}}" >
+        {{:codigo}}
+    </td>
+    <td class="v-middle {{:class}}" >
+        {{:docente}}
+    </td>
+    <td class="v-middle text-center {{:class}}" >
+        100%
+    </td>
+</tr>
+{{/if}}
+{{/for}}
+
+{{if index != 0}}
+</tr>
+{{/if}}
+
+{{/for}}
 </tr>
