@@ -21,16 +21,19 @@ public interface ProgDataService {
 
     String extraerEmailCompania(
             Persona persona,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
     Persona extraerDocumentoIdentidad(
             Persona persona,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
     void changeDocumentoIdentidad(
             Persona persona,
+            List<Persona> personasVinculadas,
             TipoDocIdentidad tipoDocumento,
             String numeroDocIdentidad,
             String emailCompania,
@@ -39,7 +42,7 @@ public interface ProgDataService {
 
     Persona savePersona(
             Persona persona,
-            Map<String, TipoDocIdentidad> mapTiposDoc,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
@@ -55,6 +58,7 @@ public interface ProgDataService {
 
     Persona revisarPersona(
             Persona persona,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds);
 
@@ -85,5 +89,11 @@ public interface ProgDataService {
     void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados);
 
     void detenerRevisionBloqueado();
+
+    List<Persona> allPersonasByPer(
+            Persona persona,
+            Map<String, List<Persona>> mapKeyPersonas,
+            Map<String, Persona> mapDNIPersonas,
+            DataSessionPivot ds);
 
 }

@@ -140,19 +140,26 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String extraerEmailCompania(
             Persona perso,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         String email = null;
-        List<Persona> personas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
+//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
-        for (Persona persona : personas) {
+        for (Persona persona : personasVinculadas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
                 main = persona;
                 break;
             }
         }
-
-        for (Persona persona : personas) {
+        email = main.getEmailCompania();
+        String emails = "";
+        for (Persona persona : personasVinculadas) {
+            emails += emails.equals("") ? "" : "-.-";
+            emails += persona.getId() + "::" + persona.getEmailCompania();
+        }
+        logger.debug("\tmain de {} es {} y los emails son {}", perso.getKey(), main.getId(), emails);
+        for (Persona persona : personasVinculadas) {
             if (persona == main) {
                 continue;
             }
@@ -171,19 +178,20 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Persona extraerDocumentoIdentidad(
             Persona perso,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
         Persona dni = new Persona();
-        List<Persona> personas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
+//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
-        for (Persona persona : personas) {
+        for (Persona persona : personasVinculadas) {
             if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
                 main = persona;
                 break;
             }
         }
 
-        for (Persona persona : personas) {
+        for (Persona persona : personasVinculadas) {
             if (persona == main) {
                 continue;
             }
@@ -203,19 +211,21 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void changeDocumentoIdentidad(
             Persona perso,
+            List<Persona> personasVinculadas,
             TipoDocIdentidad tipoDocumento,
             String numeroDocIdentidad,
             String emailCompania,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
-        List<Persona> personas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
+//        List<Persona> personasVinculadas = allPersonasByPer(perso, mapKeyPersonas, mapDNIPersonas, ds);
         Persona main = null;
-        for (Persona persona : personas) {
-            if (persona.getEstado().equals(EstadoEnum.ACT.name())) {
+        for (Persona persona : personasVinculadas) {
+            if (persona.getEstadoEnum() == PersonaEstadoEnum.ACT) {
                 main = persona;
                 break;
             }
         }
+        logger.debug("\tmain de {} es {}", perso.getKey(), main.getId());
         if (StringUtils.isEmpty(main.getEmailCompania()) && !StringUtils.isEmpty(emailCompania)) {
             main.setEmailCompania(emailCompania);
         }
@@ -225,7 +235,7 @@ public class ProgDataServiceImp implements ProgDataService {
         }
         personaDAO.update(main);
 
-        for (Persona persona : personas) {
+        for (Persona persona : personasVinculadas) {
             Usuario user = usuarioDAO.findByPersona(persona);
             if (user == null) {
                 continue;
@@ -241,20 +251,26 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Persona savePersona(
             Persona persona,
-            Map<String, TipoDocIdentidad> mapTiposDoc,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
-        TipoDocIdentidad tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
-        if (tipoDoc == null) {
-            persona.setCodigoTipoDocumento("DNI");
-            tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
-        }
-
-        persona.setTipoDocumento(tipoDoc);
-        logger.debug("buscando {} {} con tipoDoc {}", persona.getCodigoTipoDocumento(), persona.getNumeroDocIdentidad(), tipoDoc);
+        TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
+        logger.debug("\tbuscando {} {} con tipoDoc {}", persona.getCodigoTipoDocumento(), persona.getNumeroDocIdentidad(), tipoDoc);
         if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
             Persona tempo = mapDNIPersonas.get(persona.getIdentificacion());
+            if (tempo == null) {
+                List<Persona> tempos = mapKeyPersonas.get(persona.getKey());
+                if (tempos != null && !tempos.isEmpty()) {
+                    Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+                    copiarDatosPersonales(perzoma, persona);
+                    perzoma.setTipoDocumento(persona.getTipoDocumento());
+                    perzoma.setNumeroDocIdentidad(persona.getNumeroDocIdentidad());
+                    personaDAO.update(perzoma);
+                    return perzoma;
+                }
+            }
+
             if (tempo == null) {
                 persona.setUserRegistro(ds.getUsuario());
                 persona.setFechaRegistro(new Date());
@@ -264,10 +280,49 @@ public class ProgDataServiceImp implements ProgDataService {
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
             }
 
-            return revisarPersona(persona, mapKeyPersonas, mapDNIPersonas, ds);
+            Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            copiarDatosPersonales(perzoma, persona);
+            personaDAO.update(perzoma);
+            return perzoma;
         }
-        return revisarPersona(persona, mapKeyPersonas, mapDNIPersonas, ds);
 
+        Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+        copiarDatosPersonales(perzoma, persona);
+        personaDAO.update(perzoma);
+        return perzoma;
+    }
+
+    private void copiarDatosPersonales(Persona personaDestino, Persona personaOrigen) {
+        if (personaDestino.getPaisNacer() == null) {
+            personaDestino.setPaisNacer(personaOrigen.getPaisNacer());
+        }
+        if (personaDestino.getNacionalidad() == null) {
+            personaDestino.setNacionalidad(personaOrigen.getNacionalidad());
+        }
+        if (personaDestino.getUbicacionNacer() == null) {
+            personaDestino.setUbicacionNacer(personaOrigen.getUbicacionNacer());
+        }
+        if (personaDestino.getUbigeoDomicilio() == null) {
+            personaDestino.setUbicacionDomicilio(personaOrigen.getUbicacionDomicilio());
+        }
+        if (personaDestino.getEstadoCivil() == null) {
+            personaDestino.setEstadoCivil(personaOrigen.getEstadoCivil());
+        }
+        if (personaDestino.getFechaNacer() == null) {
+            personaDestino.setFechaNacer(personaOrigen.getFechaNacer());
+        }
+        if (StringUtils.isEmpty(personaDestino.getEmail())) {
+            personaDestino.setEmail(personaOrigen.getEmail());
+        }
+        if (StringUtils.isEmpty(personaDestino.getTelefono())) {
+            personaDestino.setTelefono(personaOrigen.getTelefono());
+        }
+        if (StringUtils.isEmpty(personaDestino.getCelular())) {
+            personaDestino.setCelular(personaOrigen.getCelular());
+        }
+        if (StringUtils.isEmpty(personaDestino.getDireccion())) {
+            personaDestino.setDireccion(personaOrigen.getDireccion());
+        }
     }
 
     @Override
@@ -289,8 +344,8 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("codigoAntiguo", ciclos);
 
         Alumno alu = mapAlumnos.get(alumno.getCodigo());
-        String cod = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
-        Carrera carrera = mapCarreras.get(cod);
+        String codigoCarrera = StringUtils.isEmpty(alumno.getCodigoEspecialidad()) ? alumno.getCodigoPostgrado() : alumno.getCodigoEspecialidad();
+        Carrera carrera = mapCarreras.get(codigoCarrera);
         ModalidadEstudio modalidad = carrera.getModalidadEstudio();
         CicloAcademico cicloInicio = mapCiclos.get(alumno.getCodigoCicloIngreso());
         CicloAcademico cicloActivo = mapCiclos.get(alumno.getCodigoCicloActivo());
@@ -394,6 +449,8 @@ public class ProgDataServiceImp implements ProgDataService {
 
         UsuarioRol userRol = new UsuarioRol();
         userRol.setUsuario(user);
+        userRol.setEstado(UserEstadoEnum.ACT);
+        userRol.setFechaInicio(new Date());
         if (rol == RolEnum.ALU) {
             userRol.setRol(new Rol(1));
         }
@@ -446,7 +503,9 @@ public class ProgDataServiceImp implements ProgDataService {
         }
     }
 
-    private List<Persona> allPersonasByPer(
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<Persona> allPersonasByPer(
             Persona persona,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas,
@@ -456,6 +515,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personas == null) {
             personas = new ArrayList();
         }
+        logger.debug("\texisten {} personas por key {}", personas.size(), persona.getKey());
         if (!StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
             Persona per = mapDNIPersonas.get(persona.getIdentificacion());
             if (per != null) {
@@ -467,6 +527,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     }
                 }
                 if (!ok) {
+                    logger.debug("\tagregamos a personas por DNI {}", persona.getIdentificacion());
                     personas.add(per);
                 }
             }
@@ -495,38 +556,48 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional
     public Persona revisarPersona(
             Persona persona,
+            List<Persona> personasVinculadas,
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
-        List<Persona> personas = allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
-        logger.debug("existen {} duplicados parar {} {} {}", personas.size(), persona.getPaterno(), persona.getMaterno(), persona.getNombres());
+        //List<Persona> personasVinculadas = allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
+        String ids = "";
+        for (Persona per : personasVinculadas) {
+            ids += ids.equals("") ? "" : "-|-";
+            ids += per.getId() + "::" + per.getKey();
+        }
+        logger.debug("existen {} duplicados son {} {} {}", personasVinculadas.size(), ids);
 
-        if (personas.isEmpty()) {
+        if (personasVinculadas.isEmpty()) {
             Persona pp = new Persona(persona);
             pp.setUserRegistro(ds.getUsuario());
             pp.setFechaRegistro(new Date());
             pp.setEstado(PersonaEstadoEnum.ACT);
-            logger.debug("finalizo revision de persona {}", pp.getApellidosNombres());
+            personaDAO.save(pp);
+            logger.debug("finalizo revision EMPTY de persona {}", pp.getApellidosNombres());
+            personasVinculadas.add(pp);
             return pp;
         }
 
-        if (personas.size() == 1) {
-            Persona pp = personas.get(0);
+        if (personasVinculadas.size() == 1) {
+            Persona pp = personasVinculadas.get(0);
             pp.setEstado(PersonaEstadoEnum.ACT);
             personaDAO.update(pp);
-            logger.debug("finalizo revision de persona {}", pp.getApellidosNombres());
-            return personas.get(0);
+            logger.debug("finalizo revision SIZE1 de persona {}", pp.getApellidosNombres());
+            //personasVinculadas.add(pp);
+            return personasVinculadas.get(0);
         }
 
-        Persona main = findPersonaMain(personas);
-        datoToMain(personas, main, ds);
-        changePersonasNoMain(personas, main, ds);
+        Persona main = findPersonaMain(personasVinculadas);
+        logger.debug("\tPersona main de {} es el {} {}", persona.getKey(), main.getId(), main.getKey());
+        datoToMain(personasVinculadas, main, ds);
+        changePersonasNoMain(personasVinculadas, main, ds);
 
-        for (Persona p : personas) {
+        for (Persona p : personasVinculadas) {
             personaDAO.update(p);
         }
 
-        logger.debug("finalizo revision de persona {}", main.getApellidosNombres());
+        logger.debug("finalizo revision RETURN de persona {}", main.getApellidosNombres());
         return main;
     }
 
@@ -841,6 +912,46 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones) {
         int loop = 0;
+        Map<String, List<Seccion>> mapSeccionesPCUR = new LinkedHashMap();
+        Map<String, Seccion> mapSeccionesTCUR = new LinkedHashMap();
+        for (Seccion seccion : secciones) {
+            seccion.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
+                seccion.setVacantes(0);
+                seccion.setMatriculados(0);
+                List<Seccion> seccionesPCUR = mapSeccionesPCUR.get(seccion.getCodigoGrupoSeccion());
+                if (seccionesPCUR == null) {
+                    seccionesPCUR = new ArrayList();
+                    mapSeccionesPCUR.put(seccion.getCodigoGrupoSeccion(), seccionesPCUR);
+                }
+                mapSeccionesTCUR.put(seccion.getCodigoGrupoSeccion(), seccion);
+                
+            } else {
+                seccion.setVacantes(seccion.getVacantes() == null ? 0 : seccion.getVacantes());
+                seccion.setMatriculados(seccion.getMatriculados() == null ? 0 : seccion.getMatriculados());
+            }
+
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+
+                List<Seccion> seccionesPCUR = mapSeccionesPCUR.get(seccion.getCodigoGrupoSeccion());
+                if (seccionesPCUR == null) {
+                    seccionesPCUR = new ArrayList();
+                    mapSeccionesPCUR.put(seccion.getCodigoGrupoSeccion(), seccionesPCUR);
+                }
+                seccionesPCUR.add(seccion);
+            }
+        }
+
+        for (Map.Entry<String, Seccion> entry : mapSeccionesTCUR.entrySet()) {
+            String gpoSeccCode = entry.getKey();
+            Seccion seccionTCUR = entry.getValue();
+            List<Seccion> seccionesPCUR = mapSeccionesPCUR.get(gpoSeccCode);
+            for (Seccion seccion : seccionesPCUR) {
+                seccionTCUR.setVacantes(seccionTCUR.getVacantes() + seccion.getVacantes());
+                seccionTCUR.setMatriculados(seccionTCUR.getMatriculados() + seccion.getMatriculados());
+            }
+        }
+
         Map<String, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
@@ -860,9 +971,11 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setCodigo(seccion.getCodigo());
                 seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setGrupoSeccion(gpoSecc);
+                seccionBD.setVacantes(seccion.getVacantes());
                 seccionBD.setMatriculados(seccion.getMatriculados());
                 seccionBD.setRetirados(0);
-                seccionBD.setVacantes(seccion.getVacantes());
+                seccionBD.setReservados(0);
+                seccionBD.setPrematriculados(0);
                 seccionBD.setEsPrincipal(0);
                 seccionBD.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
                 seccionBD.setGrupoHoras(gpoHoras);
@@ -899,8 +1012,11 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionBD.setAula(aula);
                 seccionBD.setCodigo2(seccion.getCodigo2());
                 seccionBD.setEstado(EstadoEnum.ACT.name());
-                seccionBD.setMatriculados(seccion.getMatriculados());
                 seccionBD.setVacantes(seccion.getVacantes());
+                seccionBD.setMatriculados(seccion.getMatriculados());
+                seccionBD.setRetirados(0);
+                seccionBD.setReservados(0);
+                seccionBD.setPrematriculados(0);
                 seccionDAO.update(seccionBD);
             }
 
