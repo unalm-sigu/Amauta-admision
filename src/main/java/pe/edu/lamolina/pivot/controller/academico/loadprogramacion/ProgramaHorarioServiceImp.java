@@ -347,7 +347,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
             int procesados = 0;
             if (ver) {
-                System.out.println("Tenemos un total de " + alumnosResumen.size() + " elementos");
+                logger.debug("Tenemos un total de " + alumnosResumen.size() + " elementos");
             }
             if (iniciarTimer) {
                 long t6 = System.currentTimeMillis();
@@ -367,7 +367,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     long t3 = matriResumen.getFechaInicioProceso().getTime();
                     long dd = t4 - t3;
                     if (dd > 5000 && verError) {
-                        System.out.println("\tResumen A sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
+                        logger.debug("\tResumen A sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
                         errorVisto = true;
                     }
                 } else {
@@ -395,7 +395,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     for (MatriculaResumen matriResumen : alumnosResumen) {
                         Alumno alumno = matriResumen.getAlumno();
                         if (matriResumen.getProcesado() == 0) {
-                            System.out.println("\tResumen B sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
+                            logger.debug("\tResumen B sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
                         }
                     }
                     t1 = System.currentTimeMillis();
