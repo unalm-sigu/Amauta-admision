@@ -7,7 +7,6 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
@@ -50,12 +49,13 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
     }
 
     @Override
-    public List<EventoCicloAcademico> allEventoAcademicoByCicloAca(CicloAcademico cicloAcademico) {
+    public List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico ciclo) {
 
         Octavia sql = Octavia.query()
                 .from(EventoCicloAcademico.class, "eca")
-                .join("eventoAcademico ")
-                .filter("eca.cicloAcademico", cicloAcademico);
+                .join("eventoAcademico ea", "cicloAcademico ca")
+                .filter("ca.id", ciclo)
+                .filter("ea.tipo", "MAT");
 
         return all(sql);
     }

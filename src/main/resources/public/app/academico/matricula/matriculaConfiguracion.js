@@ -13,7 +13,7 @@ new Vue({
     data: {
         eventos: JSON.parse(eventosJson),
         Arryconfig: JSON.parse(configJson),
-        ciclo: cicloJson,
+        ciclo: JSON.parse(cicloJson),
         tipos: JSON.parse(tiposJson),
         tiposTemp: {},
         lstTabs: [],
@@ -60,16 +60,17 @@ new Vue({
             self.btnEnable();
             let $vue = this;
 
-            $vue.config.duracion = $('#timeDuracion').val();
-            $vue.config.espera = $('#timeEspera').val();
-            $vue.config.horaInicio = $('#timeHoraInicio').val();
+//            $vue.config.duracion = $('#timeDuracion').val();
+//            $vue.config.espera = $('#timeEspera').val();
+//            $vue.config.horaInicio = $('#timeHoraInicio').val();
 
-
+            let $envio = $vue.config;
+            $envio.eventoCicloAcademico = {id: $vue.config.eventoCicloAcademico.id};
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/configuracionturno/configuracion'),
+                url: APP.url('academico/configuracionturno/saveConfiguracion'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.config),
+                data: JSON.stringify($envio),
                 success: function (response) {
                     $vue.config.id = response.data;
                     $vue.Arryconfig.push($vue.config);
@@ -126,13 +127,13 @@ new Vue({
                 success: function (response) {
                     var i = 0;
                     $vue.lstTabs.forEach(function (elem) {
-                        if ($vue.idConfig.id == elem.id || $vue.idConfig  == elem.id) {
+                        if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
                             $vue.lstTabs.splice(i, 1);
                             $vue.Arryconfig.splice(i, 1);
                             $vue.horas.splice(0, $vue.horas.length);
                             $vue.dias.splice(0, $vue.dias.length);
                             $vue.tabs();
-                            
+
                         }
                         i++;
                     });
@@ -144,10 +145,10 @@ new Vue({
             let $vue = this;
             $vue.tipos = Object.assign({}, $vue.tiposTemp);
 
-            if ($vue.config.eventoCicloAcademico.codigo == 'MAT-REG') {
+            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT-REG') {
                 delete $vue.tipos[1];
             }
-            if ($vue.config.eventoCicloAcademico.codigo == 'MAT-VER') {
+            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT-VER') {
                 delete $vue.tipos[0];
             }
         },
@@ -155,6 +156,7 @@ new Vue({
             let $vue = this;
             $(function () {
                 $(document).ready(function () {
+                    /*
                     $.fn.editable.defaults.mode = 'inline';
                     horas.forEach(function (elem) {
                         elem.turnos.forEach(function (turnos) {
@@ -172,6 +174,7 @@ new Vue({
                             });
                         });
                     });
+                    */
                 });
             });
         }
