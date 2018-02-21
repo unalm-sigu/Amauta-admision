@@ -11,7 +11,11 @@ $(function () {
         table: {
             bodyRowSelector: 'tbody tr'
         }
+    }).bind('dynatable:afterUpdate', function (e, dynatable) {
+        $("#opopop").prepend($("#headDynatable"));
+        $('#headDynatable').removeClass('hide');
     }).data('dynatable');
+
     function ulWriter(rowIndex, record, columns, cellWriter) {
         var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
         record.colorEstado = colorEstado[record.estado];
@@ -23,7 +27,8 @@ $(function () {
     Sistema = {
         verNuevoSistema: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/systemcalifica/sistema/nuevo");
+            var dpto = $("#departamento").val();
+            location.href = APP.url("academico/systemcalifica/sistema/nuevo/" + dpto);
         },
         verEditarSistema: function ($this, e) {
             e.preventDefault();
@@ -295,6 +300,11 @@ $(function () {
                     }
                 }
             });
+        },
+        loadDepartamento: function () {
+            var dpto = $("#departamento").val();
+            dynatable.queries.add("departamento", dpto);
+            dynatable.process();
         }
     };
     $("body").delegate(".nuevo-sistema", "click", function (e) {
@@ -333,5 +343,10 @@ $(function () {
     $("body").delegate(".anull", "click", function () {
         Sistema.anull($(this));
     });
+    $("#departamento").change(function () {
+        Sistema.loadDepartamento();
+    });
+
+    Sistema.loadDepartamento();
 });
 

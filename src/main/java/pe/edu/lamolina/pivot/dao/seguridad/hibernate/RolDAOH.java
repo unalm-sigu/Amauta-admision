@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.MenuRol;
 import pe.edu.lamolina.model.seguridad.Rol;
@@ -74,4 +75,13 @@ public class RolDAOH extends AbstractEasyDAO<Rol> implements RolDAO {
 
     }
 
+    @Override
+    public Rol findByCode(RolEnum rolEnum) {
+        Octavia sql = Octavia.query()
+                .from(Rol.class, "r")
+                .filter("r.codigo", rolEnum);
+        return find(sql);
+    }
+
+    
 }

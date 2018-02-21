@@ -1,0 +1,53 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Administración de Personas</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="header b-b padder-lg">
+
+            <div class="pull-right m-t-md">                
+                <a class="btn btn-success btn-sm" type="button" th:href="@{/academico/profesor/nuevo}" >Nuevo</a>
+            </div>  
+
+            <h2>Docentes</h2>
+
+        </header>
+        <section class="wrapper-lg">
+            <section class="panel">
+
+                <section class="panel-body">
+
+                    <table id="dynaTable" class="table table-striped">
+                        <thead class="panel panel-heading">
+                            <tr>
+                                <th class="col-md-3 v-middle" colspan="2"></th>                    
+                                <th class="col-md-2 v-middle">Información de contacto</th>
+                                <th class="col-md-3 text-center v-middle"><span>Departamento Académico</span></th>
+                                <th class="col-md-3 text-center v-middle"><span>Situación laboral</span></th>
+                                <th class="col-md-1 text-center v-middle">Estado</th>                    
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                </section>
+            </section>
+        </section>
+        <script id="profesorTemplate" type="text/x-jsrender" class="hide" > 
+        <div th:substituteby="academico/profesor/profesorTemplate"/>
+        </script>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <script th:src="@{/app/academico/profesor/profesor.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

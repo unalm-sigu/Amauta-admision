@@ -14,6 +14,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     Alumno findByCodigo(String codigoAlumno);
 
+    Alumno findFlatByCodigo(String codigoAlumno);
+
     Alumno findLock(Long id);
 
     List<Alumno> allByPersona(Persona persona);

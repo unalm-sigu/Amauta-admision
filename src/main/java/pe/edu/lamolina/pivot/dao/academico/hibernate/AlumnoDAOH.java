@@ -44,6 +44,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public Alumno findFlatByCodigo(String codigoAlumno) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .filter("alu.codigo", codigoAlumno);
+
+        return find(sql);
+    }
+
+    @Override
     @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
     public Alumno findLock(Long id) {
         return (Alumno) getCurrentSession().load(Alumno.class, id, LockOptions.UPGRADE);
@@ -330,7 +339,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "al")
                 .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
                 .join("ca.modalidadEstudio moe", "ca.facultad fac")
-                .filter("cia.id", academico)
+                //                .filter("cia.id", academico)
                 .filter("al.id", alumno);
         return (Alumno) sql.find(getCurrentSession());
     }

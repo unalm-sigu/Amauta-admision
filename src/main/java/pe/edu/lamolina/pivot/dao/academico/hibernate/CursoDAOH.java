@@ -44,7 +44,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allForSistemaCalificacion(String nombre, Long idDepartamentoAca, PlanCalificacion planCalificacion, Long idCiclo) {
+    public List<Curso> allForSistemaCalificacion(String nombre, DepartamentoAcademico departamento, PlanCalificacion planCalificacion, CicloAcademico ciclo) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         StringBuilder sql = new StringBuilder();
         sql.append("  from ").append(Curso.class.getName()).append(" as cur ");
@@ -71,8 +71,8 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("PLAN_CAL", planCalificacion.getId());
-        query.setParameter("DEP_ACA", idDepartamentoAca);
-        query.setParameter("CICLO", idCiclo);
+        query.setParameter("DEP_ACA", departamento.getId());
+        query.setParameter("CICLO", ciclo.getId());
         query.setString("NOMBRE", nombre);
         query.setMaxResults(15);
 

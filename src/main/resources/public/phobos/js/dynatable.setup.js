@@ -1,4 +1,5 @@
 $(document.body).on('dynatable:init', '#dynaTable,#dynatable,.dynaTables', function (e, dynatable) {
+    // $('.dynatable-search').wrapAll('<div class="row m-b-sm"><div class="col-md-12" id="opopop"/></div>');
 
     //  $('.dynatable-record-count, .dynatable-paginate').wrapAll('<div class="footer m-t-lg"/>');
     /*

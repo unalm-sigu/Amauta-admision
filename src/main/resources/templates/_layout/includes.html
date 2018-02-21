@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" th:href="@{/bootstrap-datepicker/1.3.0/css/datepicker3.css}"/>
 
 <link rel="stylesheet" type="text/css" th:href="@{/bootstrap-timepicker/css/bootstrap-timepicker.min.css}"/>
+<link rel="stylesheet" type="text/css" th:href="@{/bootstrap-timepicker/css/bootstrap-timepicker.css}"/>
 
 <link rel="stylesheet" type="text/css" th:href="@{/select2/3.5.1/select2.css}"/>
 <link rel="stylesheet" type="text/css" th:href="@{/font-awesome/4.6.2/css/font-awesome.min.css}"/>
@@ -32,6 +33,13 @@
 <link rel="stylesheet" type="text/css" th:href="@{/phobos/css/left.css}" />
 
 <link rel="stylesheet" type="text/css" th:href="@{/vendor/vue-multiselect/vue-multiselect.min.css}" />
+
+<link rel="stylesheet" type="text/css" th:href="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/css/bootstrap-editable.css}"/>
+
+
+<link rel="stylesheet" type="text/css" href="/jquery-timepicker/jquery.timepicker.css" />
+
+
 
 
 
@@ -80,6 +88,7 @@
 <meta name="msapplication-TileColor" content="#ffffff"/>
 <meta name="msapplication-TileImage" th:content="@{/phobos/images/favicon/mstile-150x150.png}"/>
 <meta name="msapplication-config" th:content="@{/phobos/images/favicon/browserconfig.xml}"/>
+<link rel="stylesheet" type="text/css" th:href="@{/vendor/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css}"/>
 
 <!--<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700|Roboto:400,500,700" rel="stylesheet"/>-->
 </base>
@@ -103,6 +112,7 @@
     <script type="text/javascript" th:src="@{/bootstrap-datepicker/1.3.0/js/locales/bootstrap-datepicker.es.js}"/>
 
     <script type="text/javascript" th:src="@{/bootstrap-timepicker/js/bootstrap-timepicker.min.js}"/>
+    <script type="text/javascript" th:src="@{/bootstrap-timepicker/js/bootstrap-timepicker.js}"/>
 
     <script type="text/javascript" th:src="@{/select2/3.5.1/select2.min.js}"/>
     <script type="text/javascript" th:src="@{/select2/3.5.1/select2_locale_es.js}" charset="utf-8"/>
@@ -116,13 +126,16 @@
     <script type="text/javascript" th:src="@{/fullcalendar/fullcalendar.min.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/fullcalendar/lang/es.js}"  charset="utf-8"/>
 
+    <script type="text/javascript" src="/jquery-timepicker/jquery.timepicker.js"></script>
+    <script type="text/javascript" src="/jquery-timepicker/jquery.timepicker.min.js"></script>
+
     <script  th:inline="javascript" >
         /*<![CDATA[*/
         var contextPath = /*[[@{/}]]*/ '/app';
         /*]]>*/
     </script>
     <script type="text/javascript" src=" https://vuejs.org/js/vue.js" />
-
+    <script type="text/javascript" th:src="@{/vendor/vue2-datepicker/build.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
     <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
@@ -139,8 +152,10 @@
 
     <script th:src="@{/vendor/vue-multiselect/vue-multiselect.min.js}" charset="utf-8"></script>
     <script th:src="@{/vendor/vue-pagination/vue-pagination-2.min.js}" charset="utf-8"></script>
-    
-     
+
+    <script  type="text/javascript"  th:src="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/js/bootstrap-editable.min.js}"/>
+    <script  type="text/javascript"  th:src="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/js/bootstrap-editable.js}"/>
+
 </div>
 
 
@@ -189,7 +204,7 @@
         }
         var msgJson = /*[[${notificaciones.all()}]]*/ mensajes;
 
-        $(function() {
+        $(function () {
             for (var i = 0; i < msgJson.length; i++) {
                 notify(msgJson[i].mensaje, msgJson[i].tipo);
             }
@@ -220,7 +235,7 @@
 <div th:fragment="tawkto">
     <script th:if="${TAWKTO == 'true'}" type="text/javascript">
         var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-        (function() {
+        (function () {
             var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
             s1.async = true;
             s1.src = 'https://embed.tawk.to/58923aba85dc370a6b942edb/default';

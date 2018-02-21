@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
@@ -75,16 +76,14 @@ public class BuscarController {
     @RequestMapping("cursosSCA")
     public DynatableResponse cursosSCA(DynatableFilter filter,
             @RequestParam("nombre") String nombre,
-            @RequestParam("planCalificacion") Long planCalificacion,
+            @RequestParam("planCalificacion") Long idPlanCalifica,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            logger.debug("el plan calificacion es " + planCalificacion);
             CicloAcademico ciclo = ds.getCicloAcademico();
-
-            List<Curso> cursos = buscarService.allCursosSCA(nombre, ds.getDepartamentoAcademico().getId(), planCalificacion, ciclo.getId());
+            List<Curso> cursos = buscarService.allCursosSCA(nombre, new PlanCalificacion(idPlanCalifica), ciclo);
 
             for (Curso curso : cursos) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);

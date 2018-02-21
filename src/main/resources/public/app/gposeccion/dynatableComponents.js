@@ -116,7 +116,9 @@ Vue.component("dynatable-especial", {
         let $vue = this;
         $global.$on("reloadDynaEspecial", function (seccion) {
             if ($vue.dynatable == null) {
-                $vue.createDynatable(seccion);
+                $vue.createDynatable();
+                $vue.dynatable.queries.add("seccion", seccion);
+                $vue.dynatable.process();
             }
             if ($vue.dynatable != null && $vue.dynatable.queries != null) {
                 $vue.dynatable.queries.remove("search");
@@ -139,7 +141,7 @@ Vue.component("dynatable-especial", {
 
     },
     methods: {
-        createDynatable: function (seccion) {
+        createDynatable: function () {
             let $vue = this;
 
             $vue.dynatable = $('#dynaTableEspecial').dynatable({
@@ -147,8 +149,7 @@ Vue.component("dynatable-especial", {
                     ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipoEspecial'),
                     perPageDefault: 6,
                     ajaxData: {
-                        tipoGrupoHora: "ESPECIAL",
-                        seccion: seccion
+                        tipoGrupoHora: "ESPECIAL"
                     }
                 },
                 writers: {_rowWriter: $vue.writter},

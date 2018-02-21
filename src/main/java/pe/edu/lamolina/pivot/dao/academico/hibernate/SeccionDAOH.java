@@ -94,6 +94,18 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allActivosByGpoSeccion(GrupoSeccion gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("gs.id", gruposSeccion);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allByGposSeccion(List<GrupoSeccion> gruposSeccion) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
@@ -132,12 +144,18 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
 
     @Override
     public void updateSeccionVacantes(Seccion seccion) {
+
         StringBuilder strb = new StringBuilder();
         strb.append("update Seccion  set vacantes=:prm_vacantes where id=:prm_id ");
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_id", seccion.getId());
         query.setParameter("prm_vacantes", seccion.getVacantes());
         query.executeUpdate();
+
+        /*
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "vacantes");
+        this.update(seccion);*/
     }
 
     @Override
@@ -187,6 +205,35 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         query.setLong("CICLO", cicloAcademico.getId());
         query.executeUpdate();
 
+    }
+
+    @Override
+    public void updateEstadoFechaModUsuarioMod(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "estado");
+        octavia.set(seccion, "usuarioModificacion");
+        octavia.set(seccion, "fechaModificacion");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateCodigoFechaModUsuarioMod(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "codigo");
+        octavia.set(seccion, "usuarioModificacion");
+        octavia.set(seccion, "fechaModificacion");
+        this.update(seccion);
+    }
+
+    @Override
+    public void updateSituacionDocente(Seccion seccion) {
+
+        StringBuilder strb = new StringBuilder();
+        strb.append("update Seccion  set situacionDocente=:prm_sit_docente where id=:prm_id ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", seccion.getId());
+        query.setParameter("prm_sit_docente", seccion.getSituacionDocente());
+        query.executeUpdate();
     }
 
 }

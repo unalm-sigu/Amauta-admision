@@ -1,0 +1,58 @@
+<tr rel="{{:index}}">
+
+    <td class="v-middle">
+        <div class="pull-left">
+            <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+        </div>
+    </td>
+    <td class="v-middle">
+        <div class="v-middle">
+            <a href="#"><span class="block text-primary bold detallePostulante" >{{:nombre}}</span></a>
+            <span class="block">
+                Código: {{:codigo}} 
+            </span>
+            {{if nroDocumento}}
+                <small class="block bold">{{:tipoDoc}} {{:nroDocumento}}</small>
+            {{/if}}
+        </div>
+    </td>
+    <td class="v-middle">
+        {{if emailEmpresa}}
+        <span class="block"><i class="fa fa-envelope text-primary"></i> {{:emailEmpresa}}</span>
+        {{/if}}
+        {{if email}}
+        <span class="block"><i class="fa fa-envelope-o"></i> {{:email}}</span>
+        {{/if}}
+        {{if celular}}
+        <span class="block"><i class="fa fa-mobile"></i> {{:celular}}</span>
+        {{/if}}
+        {{if telefono}}
+        <span class="block"><i class="fa fa-phone"></i> {{:telefono}}</span>
+        {{/if}}
+    </td>
+    <td class="text-center v-middle">
+        <span class="block text-primary">{{:departamentoAcademico}}</span>
+        <small class="block">Facultad de {{:facultad}}</small>
+    </td>
+    <td class="text-center v-middle">{{:situacion}}</td>
+    <td class="text-center v-middle">
+        <label class="label label-{{:colorEstado}}" >{{:nameEstado}}</label>
+    </td>
+    <td class="v-middle">
+        <div class="actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                <li><a class="btn-link modificar" th:href="@{/academico/profesor/{{:id}}/update}">Editar</a></li>
+                <li role="presentation">
+                    {{if estado == 'ACT'}}
+                        <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
+                    {{/if}}
+                    {{if estado == 'INA'}}
+                        <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
+                    {{/if}}                    
+                </li>
+                <li><a class="btn-link modificar" th:href="@{/academico/profesor/{{:id}}/cargaacademica}">Carga académica</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>

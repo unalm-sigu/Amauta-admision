@@ -22,7 +22,7 @@ public interface SistemaService {
 
     void saveSistemaCalifica(PlanCalificacion planCalificacion, DataSessionPivot ds);
 
-    List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DepartamentoAcademico dpto);
+    List<PlanCalificacion> allPlanesCalificacionByDynatable(DynatableFilter dynatableFilter, DataSessionPivot ds);
 
     PlanCalificacion findPlanCalificacion(Long idPlanCalificacion);
 
@@ -30,12 +30,14 @@ public interface SistemaService {
 
     void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadiPlanCalificaEnum);
 
-    void asignarCurso(Long idCurso, Long idPlanCalificacion, Long idPersona);
+    void asignarCurso(Long idCurso, Long idPlanCalificacion, DataSessionPivot ds);
 
     void desasignarCurso(Long idPlanCurso, Long idPersona);
 
     List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
 
     List<PlanCalificacionCurso> allPlanCalificacionCursosByFilterDyna(DynatableFilter dynatableFilter, PlanCalificacion planCalificacion);
+
+    DepartamentoAcademico buscarDepartamento(Long idDepartamento, DataSessionPivot ds);
 
 }

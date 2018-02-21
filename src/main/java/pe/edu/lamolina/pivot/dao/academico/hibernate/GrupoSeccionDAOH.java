@@ -2,8 +2,11 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -213,6 +216,21 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
+    public void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion) {
+        Octavia octavia = Octavia.update(GrupoSeccion.class);
+        octavia.set(grupoSeccion, "estado");
+        octavia.set(grupoSeccion, "usuarioModificacion");
+        octavia.set(grupoSeccion, "fechaModificacion");
+        this.update(grupoSeccion);
+    }
+
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
+    public GrupoSeccion findLock(Long id) {
+        return (GrupoSeccion) getCurrentSession().load(GrupoSeccion.class, id, LockOptions.UPGRADE);
+    }
+
+    @Override
     public List<GrupoSeccion> allActivoByCiclo(CicloAcademico cicloAcademico) {
 
         Octavia sql = Octavia.query()
@@ -237,4 +255,5 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         return all(sql);
     }
+
 }
