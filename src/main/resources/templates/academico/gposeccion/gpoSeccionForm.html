@@ -241,14 +241,14 @@
                                             </div>
 
                                             <div v-if="!seccion.esTipoSeccionTcur" 
-                                                 v-show="!seccion.editVacantes">
+                                                 v-show="!seccion.editVacantes &amp;&amp; !directEditSecciones">
                                                 <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
                                             </div>
 
                                             <input v-if="!seccion.esTipoSeccionTcur" 
-                                                   v-show="seccion.editVacantes" 
+                                                   v-show="seccion.editVacantes || directEditSecciones" 
                                                    size="5"
-
+                                                   class="form-control"
                                                    v-model="seccion.vacantes"
                                                    v-on:blur="changeVacantes(seccion,$event)"
                                                    v-on:keyup.enter="changeVacantes(seccion,$event)">
