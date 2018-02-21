@@ -13,12 +13,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.CicloEstadoEnum;
 import pe.edu.lamolina.model.enums.NumeroCicloAcademicoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 
 @Service
@@ -32,6 +34,9 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
 
     @Override
     public List<CicloAcademico> allCicloAcademico(Integer maxResultado) {
@@ -114,16 +119,20 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
     @Override
     @Transactional
-    public void cerrar(CicloAcademico cicloAcademico) {
-        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
-        cicloAcademicoDB.setEstado(CicloEstadoEnum.CER);
-        cicloAcademicoDAO.update(cicloAcademicoDB);
-    }
-
-    @Override
-    @Transactional
     public void anular(CicloAcademico cicloAcademico) {
+
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+
+        if (!(CicloEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
+                || CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+            throw new PhobosException("Su estado previo debe ser CONFIGURADO o ACTIVO");
+        }
+
+        List<GrupoSeccion> grupos = grupoSeccionDAO.allActivoByCiclo(cicloAcademicoDB);
+        if (!grupos.isEmpty()) {
+            throw new PhobosException("No puede anular un ciclo académico que contiene datos");
+        }
+
         cicloAcademicoDB.setEstado(CicloEstadoEnum.ANU);
         cicloAcademicoDB.setMotivoAnulacion(cicloAcademico.getMotivoAnulacion());
         cicloAcademicoDAO.update(cicloAcademicoDB);
@@ -133,30 +142,88 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     @Transactional
     public void desactivar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+
+        if (!(CicloEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+            throw new PhobosException("Su estado previo debe ser CREADO");
+        }
+
+        List<GrupoSeccion> grupos = grupoSeccionDAO.allActivoByCiclo(cicloAcademicoDB);
+        if (!grupos.isEmpty()) {
+            throw new PhobosException("No puede desactivar un ciclo académico que contiene datos");
+        }
+
         cicloAcademicoDB.setEstado(CicloEstadoEnum.DES);
         cicloAcademicoDB.setMotivoAnulacion("No se usa el ciclo.");
         cicloAcademicoDAO.update(cicloAcademicoDB);
+
+    }
+
+    @Override
+    @Transactional
+    public void configurar(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+
+        if (!(CicloEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+            throw new PhobosException("Su estado previo debe ser CREADO");
+        }
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.CFG);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+
     }
 
     @Override
     @Transactional
     public void activar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
-        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivo();
+
+        if (!(CicloEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
+                || CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+            throw new PhobosException("Su estado previo debe ser CONFIGURADO o ACTIVO");
+        }
+
+        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(cicloAcademicoDB.getModalidadEstudio());
         if (cicloAcademicoActivo != null) {
             cicloAcademicoActivo.setEstado(CicloEstadoEnum.PEND);
+            cicloAcademicoDAO.update(cicloAcademicoActivo);
         }
+
         cicloAcademicoDB.setEstado(CicloEstadoEnum.ACT);
-        cicloAcademicoDAO.update(cicloAcademicoActivo);
         cicloAcademicoDAO.update(cicloAcademicoDB);
+
+    }
+
+    @Override
+    @Transactional
+    public void cerrar(CicloAcademico cicloAcademico) {
+        CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+
+        if (!(CicloEstadoEnum.PEND.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
+                || CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+            throw new PhobosException("Su estado previo debe ser PENDIENTE o ACTIVO");
+        }
+
+        List<GrupoSeccion> grupos = grupoSeccionDAO.allActivoByCicloGrupoNoCerrado(cicloAcademicoDB);
+        if (!grupos.isEmpty()) {
+            throw new PhobosException("No se puede cerrar el ciclo académico , aun contiene actas sin cerrar.");
+        }
+
+        cicloAcademicoDB.setEstado(CicloEstadoEnum.CER);
+        cicloAcademicoDAO.update(cicloAcademicoDB);
+
     }
 
     @Override
     @Transactional
     public void pendiente(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
+
+        if (!(CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+            throw new PhobosException("Su estado previo debe ser ACTIVO");
+        }
+
         cicloAcademicoDB.setEstado(CicloEstadoEnum.PEND);
         cicloAcademicoDAO.update(cicloAcademicoDB);
+
     }
 
     @Override

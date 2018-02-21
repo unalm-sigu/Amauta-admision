@@ -37,4 +37,6 @@ public interface CicloAcademicoService {
 
     List<Integer> allYear();
 
+    void configurar(CicloAcademico cicloAcademico);
+
 }

@@ -38,4 +38,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     GrupoSeccion findLock(Long id);
 
+    List<GrupoSeccion> allActivoByCiclo(CicloAcademico cicloAcademico);
+
+    List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico);
+
 }

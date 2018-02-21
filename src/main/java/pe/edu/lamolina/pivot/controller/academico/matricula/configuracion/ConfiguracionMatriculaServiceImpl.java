@@ -1,20 +1,16 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
-import java.sql.Time;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
-import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.pivot.dao.academico.ConfiguracionMatriculaDAO;
@@ -26,7 +22,7 @@ import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatriculaService {
 
     @Autowired
-    ConfiguracionMatriculaDAO serviceConfiguracionMatriculaDAO;
+    ConfiguracionMatriculaDAO configuracionMatriculaDAO;
 
     @Autowired
     TurnoAtencionDAO turnoAtencionDAO;
@@ -35,77 +31,71 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     EventoCicloAcademicoDAO eventoCicloAcatemicoDAO;
 
     @Override
+    @Transactional
     public Long saveConfiguracion(ConfiguracionTurnosAtencion config) throws ParseException {
 
-        serviceConfiguracionMatriculaDAO.save(config);
-        Date fechaInicial = new Date(config.getFechaInicio().getTime());
-        Date fechaFinal = config.getFechaFin();
+        configuracionMatriculaDAO.save(config);
 
-        int cantDias = (int) ((fechaFinal.getTime() - fechaInicial.getTime()) / 86400000);
+        DateTime inicio = new DateTime(config.getFechaInicio());
+        DateTime fin = new DateTime(config.getFechaFin());
 
-        Integer cantAlumnos = config.getAlumnos();
-        TurnoAtencion objTurno = null;
+        DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+        Integer dias = Days.daysBetween(inicio, fin).getDays() + 1;
+        Integer prioridad = 0;
+        Integer nroTurno = 1;
+        for (int i = 0; i < dias; i++) {
 
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
+            DateTime fecha = inicio.plusDays(i);
+            DateTime fechaHora = format.parseDateTime(fecha.toString("yyyy-MM-dd") + " " + config.getHoraInicio());
+            for (int j = 0; j < config.getTurnosDia(); j++) {
+                prioridad += 1;
+                DateTime fechaHoraTurno = fechaHora.plusMinutes(j * config.getDuracion());
+                DateTime fechaHoraTurnoFin = fechaHoraTurno.plusMinutes(config.getDuracion() - config.getEspera());
 
-        Integer prioridad = 1;
-        for (int i = 0; i <= cantDias; i++) {
-            Time duracion = new Time(formatter.parse(config.getDuracion()).getTime());
-            Time espera = new Time(formatter.parse(config.getEspera()).getTime());
-            Time horaInicio = new Time(formatter.parse(config.getHoraInicio()).getTime());
-            Time horaFinal = new Time(formatter.parse(config.getHoraInicio()).getTime());
+                TurnoAtencion turno = new TurnoAtencion();
+                turno.setFecha(fecha.toDate());
+                turno.setAlumnos(config.getAlumnos());
+                turno.setConfiguracionTurnosAtencion(config);
+                turno.setHoraInicio(fechaHoraTurno.toString("HH:mm"));
+                turno.setHoraFinal(fechaHoraTurnoFin.toString("HH:mm"));
+                turno.setTurno(nroTurno);
+                turno.setConfiguracionTurnosAtencion(config);
 
-            for (int j = 1; j <= config.getTurnosDia(); j++) {
-                objTurno = new TurnoAtencion();
-                objTurno.setAlumnos(cantAlumnos);
-                objTurno.setConfiguracionTurnosAtencion(config);
-                objTurno.setFecha(fechaInicial);
-                objTurno.setHoraInicio(horaInicio.toString());
-                int min = ((duracion.getHours() * 60) + duracion.getMinutes()) - espera.getMinutes();
-                horaFinal.setMinutes(horaFinal.getMinutes() + min);
-                objTurno.setHoraFinal(horaFinal.toString());
-                objTurno.setPrioridadInicio(prioridad);
-                prioridad = prioridad + cantAlumnos;
-                objTurno.setPrioridadFin(prioridad - 1);
-                objTurno.setTurno(j);
-                turnoAtencionDAO.save(objTurno);
-                horaInicio.setHours(horaInicio.getHours() + duracion.getHours());
-
+                turno.setPrioridadInicio(prioridad);
+                prioridad += config.getAlumnos() - 1;
+                turno.setPrioridadFin(prioridad);
+                turnoAtencionDAO.save(turno);
+                nroTurno++;
             }
-            fechaInicial.setDate(fechaInicial.getDate() + 1);
         }
+
         return config.getId();
     }
 
     @Override
-    public List<EventoAcademico> findEventoCiclo(CicloAcademico cicloAcademico) {
-        List<EventoCicloAcademico> lstEventoCiclo = eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);
-        Map<Long, EventoAcademico> mapConfiguracionTurno = TypesUtil.convertListToMap("eventoAcademico.id", "eventoAcademico", lstEventoCiclo);
-
-        List<EventoAcademico> evento = new ArrayList(mapConfiguracionTurno.values());
-        return evento;
+    public List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico ciclo) {
+        return eventoCicloAcatemicoDAO.allEventosMatriculaByCiclo(ciclo);
     }
 
     @Override
     public List<ConfiguracionTurnosAtencion> allConfiguraciones(CicloAcademico cicloAcademico) {
-
-        return serviceConfiguracionMatriculaDAO.allByCicloAcad(cicloAcademico);
+        return configuracionMatriculaDAO.allByCiclo(cicloAcademico);
     }
 
     @Override
     public List<TurnoAtencion> allTurnosByConfiguracion(ConfiguracionTurnosAtencion config) {
-        return turnoAtencionDAO.findConfiguracion(config);
+        return turnoAtencionDAO.allByConfiguracion(config);
     }
 
     @Override
     @Transactional
     public ConfiguracionTurnosAtencion updateTurnos(Long id, String value) {
-        TurnoAtencion objTurno = turnoAtencionDAO.findTurnosById(id);
+        TurnoAtencion objTurno = turnoAtencionDAO.findById(id);
         objTurno.setAlumnos(Integer.parseInt(value));
         objTurno.setPrioridadFin(objTurno.getPrioridadInicio() + Integer.parseInt(value) - 1);
         turnoAtencionDAO.update(objTurno);
 
-        List<TurnoAtencion> lstTurno = turnoAtencionDAO.findTurnos(objTurno.getConfiguracionTurnosAtencion(), objTurno.getId());
+        List<TurnoAtencion> lstTurno = turnoAtencionDAO.allByIdTurno(objTurno.getConfiguracionTurnosAtencion(), objTurno.getId());
         Integer inicial = objTurno.getPrioridadInicio() + Integer.parseInt(value);
         for (TurnoAtencion turnoAtencion : lstTurno) {
             Integer fin = (inicial + turnoAtencion.getAlumnos());
@@ -116,18 +106,18 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
         }
         return objTurno.getConfiguracionTurnosAtencion();
-                
+
     }
 
     @Override
     @Transactional
     public void deleteConfiguracion(ConfiguracionTurnosAtencion config) {
 
-        List<TurnoAtencion> lst = turnoAtencionDAO.findConfiguracion(config);
+        List<TurnoAtencion> lst = turnoAtencionDAO.allByConfiguracion(config);
         for (TurnoAtencion turnoAtencion : lst) {
             turnoAtencionDAO.delete(turnoAtencion);
         }
-        serviceConfiguracionMatriculaDAO.delete(config);
+        configuracionMatriculaDAO.delete(config);
 
     }
 

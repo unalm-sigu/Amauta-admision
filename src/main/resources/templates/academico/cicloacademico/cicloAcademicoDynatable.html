@@ -58,6 +58,7 @@
             <span v-if="cicloAcademico.estado=='ANU'" class="label label-danger" >Anulado</span>
             <span v-if="cicloAcademico.estado=='PEND'" class="label label-info" >Pendiente</span>
             <span v-if="cicloAcademico.estado=='DES'" class="label label-default" >Desactivado</span>
+            <span v-if="cicloAcademico.estado=='CFG'" class="label label-default" >Configurando</span>
         </td>
 
         <td class="v-middle">
@@ -67,21 +68,31 @@
                 </a>
                 <ul class="dropdown-menu pull-right">
 
-                    <li  v-if="cicloAcademico.estado=='CRE' || cicloAcademico.estado=='PEND' "  >
-                        <a v-on:click.prevent="activarCiclo(cicloAcademico.id)"  href="#">Activar ciclo</a>
-                    </li>
-                    <li v-if="cicloAcademico.estado=='PEND'">
-                        <a v-on:click.prevent="cerrarCiclo(cicloAcademico.id)"  href="#">Cerrar ciclo</a>
-                    </li>
-                    <li  v-if="cicloAcademico.estado=='ACT'">
+                    <li  v-if="cicloAcademico.estado=='ACT'  || cicloAcademico.estado=='CFG' ">
                         <a v-on:click.prevent="anularCiclo(cicloAcademico.id)"  href="#">Anular ciclo</a>
                     </li>
+
+                    <li  v-if="cicloAcademico.estado=='CRE'">
+                        <a v-on:click.prevent="desactivarCiclo(cicloAcademico.id)"  href="#">Desactivar ciclo</a>
+                    </li>
+
+                    <li  v-if="cicloAcademico.estado=='CRE'">
+                        <a v-on:click.prevent="configurarCiclo(cicloAcademico.id)"  href="#">Configurar ciclo</a>
+                    </li>
+
+                    <li  v-if="cicloAcademico.estado=='CFG' "  >
+                        <a v-on:click.prevent="activarCiclo(cicloAcademico.id)"  href="#">Activar ciclo</a>
+                    </li>
+
+                    <li v-if="cicloAcademico.estado=='ACT'  || cicloAcademico.estado=='PEND'">
+                        <a v-on:click.prevent="cerrarCiclo(cicloAcademico.id)"  href="#">Cerrar ciclo</a>
+                    </li>
+
                     <li v-if="cicloAcademico.estado=='ACT'">
                         <a v-on:click.prevent="pendienteCiclo(cicloAcademico.id)"  href="#">Ciclo pendiente</a>
                     </li>
-                    <li  v-if="cicloAcademico.estado=='ACT'">
-                        <a v-on:click.prevent="desactivarCiclo(cicloAcademico.id)"  href="#">Desactivar ciclo</a>
-                    </li>
+
+
                     <li class="divider"></li>
                     <li>
                         <a v-on:click.prevent="editar(cicloAcademico.id)"  href="#">Editar ciclo</a>
