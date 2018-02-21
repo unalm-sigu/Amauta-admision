@@ -87,6 +87,10 @@ Vue.component("seccion-det-component", {
     template: "#seccionDetComp",
     props: {
         seccion: null
+    }, watch: {
+        seccion(newValue) {
+
+        }
     }
 });
 
@@ -466,6 +470,17 @@ var app = new Vue({
             });
         }, loadDocentesSec: function () {
             let $vue = this;
+            $vue.docentesSeccion = null;
+            /*
+             for (let idx in this.$refs.datePicker) {
+             let element = this.$refs.datePicker[idx];
+             console.dir(element);
+             element.$destroy();
+             }
+             for (let idx in this.$refs.datePicker) {
+             let element = this.$refs.datePicker[idx];
+             element.$mount('#elementidhere')
+             }*/
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
@@ -475,7 +490,7 @@ var app = new Vue({
                 },
                 success: function (response) {
                     if (response.success) {
-                        $vue.docentesSeccion = null;
+
                         $vue.docentesSeccion = response.data;
                         MODAL.hideWait();
                     }

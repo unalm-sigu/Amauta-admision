@@ -1,9 +1,8 @@
 Vue.component("v-date-picker", {
-    template: `<div><div class='input-group date' v-bind:id="id">
+    template: `<div><div class='input-group date'>
                         <input  type="text" 
                                class="form-control"
                                v-bind:data-parsley-errors-container="'#'+'error'+id"
-                           
                                v-bind:required="required"/>
                         <span class="input-group-addon">
                             <i class="fa fa-calendar" aria-hidden="true"></i>
@@ -89,15 +88,15 @@ Vue.component("v-date-picker", {
         var $vue = this;
         this.createdDP($vue);
     }, watch: {
-        /*
-         disabled(newValue) {
-         
-         }, readonly(newValue) {
-         
-         }, value(newValue) {
-         
-         }
-         */
+        disabled(newValue) {
+
+        }, readonly(newValue) {
+
+        }, value(newValue) {
+            //this.elem.datepicker().datepicker('setDate', newValue);
+        }
+    }, beforeDestroy() {
+        //  console.log("destruira datepicker")
     }
 });
 
