@@ -5,14 +5,19 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 
 public interface VacanteAlumnoDAO extends EasyDAO<VacanteAlumno> {
 
     public List<VacanteAlumno> allBySeccion(List<Seccion> secciones);
 
+    List<VacanteAlumno> allActivosBySeccion(Seccion seccion);
+
     public List<VacanteAlumno> allByAlumno(Alumno alumno);
 
     public void deleteAllByCiclo(CicloAcademico cicloAcademico);
+
+    void updateEstadoFechaModUsuarioMod(VacanteAlumno vacanteAlumno);
 
 }

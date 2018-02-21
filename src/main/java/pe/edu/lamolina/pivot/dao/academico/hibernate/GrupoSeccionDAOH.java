@@ -2,19 +2,22 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
@@ -211,4 +214,46 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         return (GpoSeccionResumen) query.uniqueResult();
     }
+
+    @Override
+    public void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion) {
+        Octavia octavia = Octavia.update(GrupoSeccion.class);
+        octavia.set(grupoSeccion, "estado");
+        octavia.set(grupoSeccion, "usuarioModificacion");
+        octavia.set(grupoSeccion, "fechaModificacion");
+        this.update(grupoSeccion);
+    }
+
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
+    public GrupoSeccion findLock(Long id) {
+        return (GrupoSeccion) getCurrentSession().load(GrupoSeccion.class, id, LockOptions.UPGRADE);
+    }
+
+    @Override
+    public List<GrupoSeccion> allActivoByCiclo(CicloAcademico cicloAcademico) {
+
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("secciones s", "curso cur", "cicloAcademico ca")
+                .leftJoin("planCalificacion pc")
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("ca.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("secciones s", "curso cur", "cicloAcademico ca")
+                .leftJoin("planCalificacion pc")
+                .filter("gs.estado", EstadoEnum.ACT)
+                .filter("gs.estadoGrupo", "<>", EstadoGrupoSeccionEnum.CER)
+                .filter("ca.id", cicloAcademico);
+
+        return all(sql);
+    }
+
 }

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Query;
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
@@ -32,6 +35,19 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
                 .from(GrupoHoras.class, "gh")
                 .filter("gh.codigo", codigo);
 
+        return find(sql);
+    }
+
+    @Override
+    public GrupoHoras findByCodeTipoCiclo(String codigo, TipoCicloEnum tipoCicloEnum) {
+        List<String> tiposCiclos = new ArrayList<>();
+        tiposCiclos.add(tipoCicloEnum.name());
+        tiposCiclos.add(TipoCicloEnum.AMB.name());
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "grup")
+                .join("tipoGrupoHoras tgh")
+                .filter("codigo", codigo)
+                .in("tgh.tipoCiclo", tiposCiclos);
         return find(sql);
     }
 

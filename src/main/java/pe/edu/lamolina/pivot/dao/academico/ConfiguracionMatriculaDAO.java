@@ -7,7 +7,6 @@ import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 
 public interface ConfiguracionMatriculaDAO extends EasyDAO<ConfiguracionTurnosAtencion> {
 
-    List<ConfiguracionTurnosAtencion> findEventoByConfTurnoAten(CicloAcademico cicloAcademico);
-
-     List<ConfiguracionTurnosAtencion> allByCicloAcad(CicloAcademico cicloAcademico);
+//    List<ConfiguracionTurnosAtencion> findEventoByConfTurnoAten(CicloAcademico cicloAcademico);
+    List<ConfiguracionTurnosAtencion> allByCiclo(CicloAcademico cicloAcademico);
 }

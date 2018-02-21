@@ -59,16 +59,17 @@ new Vue({
             self.btnEnable();
             let $vue = this;
 
-            $vue.config.duracion = $('#timeDuracion').val();
-            $vue.config.espera = $('#timeEspera').val();
-            $vue.config.horaInicio = $('#timeHoraInicio').val();
+//            $vue.config.duracion = $('#timeDuracion').val();
+//            $vue.config.espera = $('#timeEspera').val();
+//            $vue.config.horaInicio = $('#timeHoraInicio').val();
 
-
+            let $envio = $vue.config;
+            $envio.eventoCicloAcademico = {id: $vue.config.eventoCicloAcademico.id};
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/configuracionturno/configuracion'),
+                url: APP.url('academico/configuracionturno/saveConfiguracion'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.config),
+                data: JSON.stringify($envio),
                 success: function (response) {
                     $vue.config.id = response.data;
                     $vue.Arryconfig.push($vue.config);
@@ -143,17 +144,18 @@ new Vue({
             let $vue = this;
             $vue.tipos = Object.assign({}, $vue.tiposTemp);
 
-            if ($vue.config.eventoCicloAcademico.codigo == 'MAT-REG') {
-                delete $vue.tipos['ONLINE'];
+            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT-REG') {
+                delete $vue.tipos[1];
             }
-            if ($vue.config.eventoCicloAcademico.codigo == 'MAT-VER') {
-                delete $vue.tipos['BARRIDO'];
+            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT-VER') {
+                delete $vue.tipos[0];
             }
         },
         jquery(horas) {
             let $vue = this;
             $(function () {
                 $(document).ready(function () {
+                    /*
                     $.fn.editable.defaults.mode = 'inline';
                     horas.forEach(function (elem) {
                         elem.turnos.forEach(function (turnos) {
@@ -171,6 +173,7 @@ new Vue({
                             });
                         });
                     });
+                    */
                 });
             });
         }

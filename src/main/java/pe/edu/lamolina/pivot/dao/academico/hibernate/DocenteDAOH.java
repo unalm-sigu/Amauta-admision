@@ -113,6 +113,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
 
     @Override
     public List<Docente> allCoordinadoresByIdDptoName(Long idDpto, String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Docente.class, "do")
                 .join("persona per", "departamentoAcademico dpto")
@@ -125,6 +126,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
 
     @Override
     public List<Docente> allByNombreFilter(String nombre, Integer limit) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per")

@@ -25,6 +25,9 @@ var DynatableRowTemplate = Vue.component("dynatableRow", {
         pendienteCiclo: function(id) {
             $global.$emit("pendienteCiclo", id);
         },
+        configurarCiclo: function(id) {
+            $global.$emit("configurarCiclo", id);
+        },
     }
 });
 

@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -28,11 +27,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
-import pe.edu.lamolina.model.academico.EventoAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
-import pe.edu.lamolina.model.enums.TipoProspectoEnum;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -111,14 +111,14 @@ public class ConfiguracionTurnoController {
 
             List<TurnoAtencion> turnosHora = null;
             int i = 1;
-            for (Map.Entry<Integer, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
-                turnosHora = map.getValue();
-                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+            for (Map.Entry<String, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
+                List<TurnoAtencion> turnosHora = map.getValue();
+                ObjectNode nodeHoraTurno = new ObjectNode(JsonNodeFactory.instance);
                 if (i == 1) {
-                    for (TurnoAtencion lstDia : turnosHora) {
-                        ObjectNode objNodeDias = new ObjectNode(JsonNodeFactory.instance);
-                        objNodeDias.put("dias", formatter.format(lstDia.getFecha()));
-                        lstDias.add(objNodeDias);
+                    for (TurnoAtencion turno : turnosHora) {
+                        ObjectNode nodeDia = new ObjectNode(JsonNodeFactory.instance);
+                        nodeDia.put("dias", formatter.format(turno.getFecha()));
+                        dias.add(nodeDia);
                     }
                     i++;
                 }
@@ -142,7 +142,7 @@ public class ConfiguracionTurnoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "configuracion", method = RequestMethod.POST)
+    @RequestMapping(value = "saveConfiguracion", method = RequestMethod.POST)
     public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
 

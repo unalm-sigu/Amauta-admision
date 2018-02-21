@@ -279,7 +279,10 @@ public class CargaAcademicaController {
             boolean editarPorcentajeGeneral = false;
 
             for (EvaluacionExpandida evaluacionExpandida : lstEvaluacionPlan) {
-                logger.debug("Padre - Tipo evaluacion {}", evaluacionExpandida.getTipoEvaluacion().getNombre() + " " + evaluacionExpandida.getNumero());
+                logger.debug("Padre Id {} - Tipo evaluacion {}, Peso {}",
+                        evaluacionExpandida.getId().toString(),
+                        evaluacionExpandida.getTipoEvaluacion().getNombre() + " " + evaluacionExpandida.getNumero(),
+                        evaluacionExpandida.getPeso());
 
                 ObjectNode node = castEvaluacionExpandida(evaluacionExpandida);
                 node.put("esAbuelo", true);
@@ -303,7 +306,11 @@ public class CargaAcademicaController {
                 }*/
 
                 for (EvaluacionExpandida evaluacionHija : evaluacionExpandida.getEvaluacionesExpandidas()) {
-                    logger.debug("Hija - Tipo evaluacion {}", evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionHija.getNumero());
+                    logger.debug("Hija Id {} - Tipo evaluacion {}, Peso {}",
+                            evaluacionHija.getId(),
+                            evaluacionHija.getTipoEvaluacion().getNombre() + " " + evaluacionHija.getNumero(),
+                            evaluacionHija.getPeso()
+                    );
                     ObjectNode nodeHijo = castEvaluacionExpandida(evaluacionHija);
                     //            nodeHijo.put("editarPorcentaje", evaluacionHija.isPorcentajeVariable() && !estaEvaluado && !evaluacionHija.isDesagregado());
                     nodeHijo.put("editarPorcentaje", false);
@@ -325,7 +332,11 @@ public class CargaAcademicaController {
                     }*/
 
                     for (EvaluacionExpandida evaluacionNieta : evaluacionHija.getEvaluacionesExpandidas()) {
-                        logger.debug("Nieta - Tipo evaluacion {}", evaluacionNieta.getTipoEvaluacion().getNombre() + " " + evaluacionNieta.getNumero());
+                        logger.debug("Nieta Id {} - Tipo evaluacion {}, Peso {}",
+                                evaluacionNieta.getId(),
+                                evaluacionNieta.getTipoEvaluacion().getNombre() + " " + evaluacionNieta.getNumero(),
+                                evaluacionNieta.getPeso());
+
                         ObjectNode nodeNieta = castEvaluacionExpandida(evaluacionNieta);
                         //            nodeNieta.put("editarPorcentaje", evaluacionExpandida.isPorcentajeVariable() && !estaEvaluado && !evaluacionExpandida.isDesagregado());
                         nodeNieta.put("editarPorcentaje", false);

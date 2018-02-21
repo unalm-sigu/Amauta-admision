@@ -21,133 +21,219 @@
                     <input v-model="grupoSeccion.id" type="hidden" />
                     <section class="panel">
                         <section class="panel-body">
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="cboAnexo" class="col-md-2 control-label">Anexo</label>
+                                    <div class="col-md-4">
+                                        <span  th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
+                                    </div>
 
-                            <div class="form-group">
-                                <label for="cboAnexo" class="col-sm-2 control-label">Anexo</label>
-                                <div class="col-md-5">
-                                    <span vclass="form-control" th:text="|${grupoSeccion.anexoBoletin.codigo} - ${grupoSeccion.anexoBoletin.nombre}|"></span>
+                                    <label for="cboCategoria" class="col-md-2 control-label">Categoria</label>
+                                    <div class="col-md-4">
+                                        <span  th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label for="cboCategoria" class="col-sm-2 control-label">Categoria</label>
-                                <div class="col-md-5">
-                                    <span vclass="form-control" th:text="|${grupoSeccion.anexoBoletin.anexoSuperior.codigo} - ${grupoSeccion.anexoBoletin.anexoSuperior.nombre}|"></span>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="cboCurso" class="col-md-2 control-label">Curso</label>
+                                    <div class="col-md-10">
+                                        <span vclass="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label  class="col-md-2 control-label">Estructura</label>
+                                    <div class="col-md-1">
+                                        <span  th:text="${grupoSeccion.curso.codigo}"></span>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <span  th:text="${grupoSeccion.curso.tpc}"></span>
 
-                            <div class="form-group">
-                                <label for="cboCurso" class="col-sm-2 control-label">Curso</label>
-                                <div class="col-md-5">
-                                    <span vclass="form-control" th:text="|${grupoSeccion.curso.codigo} - ${grupoSeccion.curso.nombre}|"></span>
+
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="form-group">
-                                <label  class="col-md-2 control-label">Estructura</label>
-                                <div class="col-md-2">
-                                    <span class="form-control" th:text="${grupoSeccion.curso.codigo}"></span>
-                                </div>
-                                <div class="col-md-2">
-                                    <span class="form-control" th:text="${grupoSeccion.curso.tpc}"></span>
-                                </div>
-                                <div class="col-md-2">
-                                    <span class="form-control"></span>
-                                </div>
-                            </div>
-
                         </section>
                     </section>
 
                     <section class="panel">
                         <section class="panel-body">
+
+
+
+
                             <table class="table" >
                                 <thead> 
                                     <tr class=""> 
                                         <th class="col-md-1 text-center">Clave </th>
-                                        <th class="col-md-1 text-center">Tipo</th>
-                                        <th class="col-md-1 text-center">Aula</th>
+                                        <th class="col-md-2 text-center">Aula</th>
                                         <th class="col-md-1 text-center">Grupo</th>
-                                        <th class="col-md-1 text-center">Condición</th>
-                                        <th class="col-md-1 text-center">Restricion</th>
+                                        <th class="col-md-2 text-center">Restricion</th>
                                         <th class="col-md-1 text-center">Tipo Repitencia</th>
                                         <th class="col-md-1 text-center">Vac</th>
                                         <th class="col-md-1 text-center">Mat</th>
                                         <th class="col-md-1 text-center">Docentes</th>
                                         <th class="col-md-1 text-center">Estado</th>
-                                        <th class="col-md-1 text-center"></th>
+                                        <th class="col-md-1 text-center">
+                                            <input type="checkbox"
+                                                   v-model="directEditSecciones"/>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr  v-for="(seccion, index) in secciones" 
-                                         v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.seccionId==seccion.seccionId)}">
+                                         v-bind:class="{'active' : (seccionSeleccionada!=null &amp;&amp; seccionSeleccionada.id==seccion.id)}">
                                         <td class="text-center">
                                             <a v-on:click="seleccionarSeccion(seccion)" 
-                                               style="cursor:pointer;">{{ seccion.seccionCodigo }}
+                                               style="cursor:pointer;">{{ seccion.codigo }}
                                             </a>
-                                        </td>
-                                        <td>
-                                            {{ seccion.tipoSeccionValue }}
+                                            <div>
+                                                {{ seccion.tipoSeccionEvaluacionValue }}
+                                            </div>
                                         </td>
                                         <td class="text-center">
 
-                                            <a v-if="seccion.aula==''"
+                                            <a v-if="seccion.aula==null &amp;&amp; !directEditSecciones"
                                                v-on:click="showModalAula(seccion)" 
+                                               v-on:dblclick="directAula"
                                                style="cursor:pointer;">
                                                 Sin Aula
                                             </a>
 
-                                            <a v-if="seccion.aula!=''"
-                                               v-on:click="showModalAula(seccion)" 
-                                               style="cursor:pointer;">
-                                                <div>
-                                                    {{ seccion.aula.codigo }}
+                                            <div class="col-md-12" v-if="seccion.aula!=null &amp;&amp; !directEditSecciones">
+                                                <div class="col-md-9">
+                                                    <a 
+                                                        v-on:click="showModalAula(seccion)" 
+                                                        style="cursor:pointer;">
+                                                        <div>
+                                                            {{ seccion.aula.codigo }}
+                                                        </div>
+                                                        <div>
+                                                            (Cap. {{ seccion.aula.capacidadAula }})
+                                                        </div>
+                                                    </a>
                                                 </div>
-                                                <div>
-                                                    (Cap. {{ seccion.aula.capacidadAula }})
+                                                <div class="col-md-3">
+                                                    <a href="#"
+                                                       v-on:click="showModalAulaHorario(seccion.aula)">
+                                                        <i class="fa fa-calendar text-success">
+                                                        </i>
+                                                    </a>
                                                 </div>
-                                            </a>
+                                            </div>
+
+                                            <input v-if="directEditSecciones"
+                                                   v-on:blur="directEditAula(seccion,$event)"
+                                                   v-on:keyup.enter="directEditAula(seccion,$event)"
+                                                   required='true'
+                                                   v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
+                                                   class="form-control"/>
+
+
+
                                         </td>
                                         <td class="text-center">
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras==''"
+                                               v-if="seccion.grupoHoras==null &amp;&amp; !directEditSecciones"
                                                style="cursor:pointer;">
                                                 Sin Grupo
                                             </a>
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras!=''"
+                                               v-if="seccion.grupoHoras &amp;&amp; !directEditSecciones"
                                                style="cursor:pointer;">
-                                                {{ seccion.grupoHoras }} 
+                                                {{ seccion.grupoHoras.codigo }} 
                                             </a>
 
+                                            <input v-if="directEditSecciones"
+                                                   v-on:blur="directEditGrupoHor(seccion,$event)"
+                                                   v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
+                                                   required='true'
+                                                   v-bind:value="seccion.grupoHoras!=null ? seccion.grupoHoras.codigo : ''"
+                                                   class="form-control"/>
 
                                         </td>
-                                        <td>
-
-                                        </td>
-                                        <td>
+                                        <td class="text-center">
                                             <a v-on:click="showModalRestriccion(seccion)" 
-                                               v-if="!seccion.tieneRestriccion"
+                                               v-if="!seccion.tieneRestriccion &amp;&amp; !seccion.esTipoSeccionTcur"
                                                style="cursor:pointer;">
-                                                Sin Restricción
+                                                S/R
                                             </a>
+                                            <div class="col-md-12"
+                                                 v-if="seccion.tieneRestriccion &amp;&amp; !seccion.esTipoSeccionTcur">
 
-                                            <a v-on:click="showModalRestriccion(seccion)" 
-                                               v-if="seccion.tieneRestriccion"
-                                               style="cursor:pointer;">
-                                                <span v-if="seccion.tieneRestriccionCarrera">Restricción Especialidad</span>
-                                                <span v-if="seccion.tieneRestriccionFacultad">Restricción Facultad</span>
-                                                <span v-if="seccion.tieneRestriccionModalidad">Restricción Modalidad</span>
-                                            </a>
+                                                <div class="col-md-12">
+                                                    <a v-on:click="showModalRestriccion(seccion)" 
+                                                       v-if="seccion.tieneRestriccionCarrera"
+                                                       class="pointer">
+                                                        Especialidad <span class="badge">{{seccion.restriccionesCarrera.length}}</span>
+                                                    </a>
+                                                    <a v-on:click="showModalRestriccion(seccion)" 
+                                                       v-if="seccion.restriccionesFacultad"
+                                                       class="pointer">
+                                                        Facultad <span class="badge">{{seccion.restriccionesFacultad.length}}</span>
+                                                    </a>
+                                                    <a v-on:click="showModalRestriccion(seccion)"
+                                                       v-if="seccion.restriccionesModalidad"
+                                                       class="pointer">
+                                                        Modalidad <span class="badge">{{seccion.restriccionesModalidad.length}}</span>
+                                                    </a>
+                                                </div>
+
+                                                <a v-on:click="showModalRestriccion(seccion)" 
+                                                   v-if="seccion.tieneRestriccionCarrera"
+                                                   v-for="restCarrera in seccion.restriccionesCarrera"
+                                                   style="cursor:pointer;"
+                                                   class="col-md-3"> 
+                                                    <span class="label label-primary">
+                                                        {{restCarrera.carrera.codigo}}  
+                                                    </span>
+                                                </a>  
+                                                <a v-on:click="showModalRestriccion(seccion)" 
+                                                   v-if="seccion.tieneRestriccionFacultad"
+                                                   v-for="restFacultad in seccion.restriccionesFacultad" 
+                                                   style="cursor:pointer;"
+                                                   class="col-md-3"> 
+                                                    <span class="label label-primary">
+                                                        {{restFacultad.facultad.codigo}} 
+                                                    </span>
+                                                </a> 
+
+                                                <a v-on:click="showModalRestriccion(seccion)" 
+                                                   v-if="seccion.tieneRestriccionModalidad"
+                                                   v-for="restFacultad in seccion.restriccionesModalidad" 
+                                                   style="cursor:pointer;"
+                                                   class="col-md-3"> 
+                                                    <span class="label label-primary">
+                                                        {{restModalidad.modalidad.codigo}} 
+                                                    </span>
+                                                </a> 
+
+
+                                            </div>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <a v-on:click="showModalTipoRepitencia(seccion)" 
-
+                                               v-if="!seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
                                                style="cursor:pointer;">
-                                                Tipo Repitencia
+                                                S/R
                                             </a>
+
+
+                                            <a v-on:click="showModalTipoRepitencia(seccion)" 
+                                               v-if="seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
+                                               v-for="restRepitencia in seccion.restriccionesRepitencia"
+                                               style="cursor:pointer;"
+                                               class="col-md-3"> 
+                                                <span class="label label-primary">
+                                                    {{restRepitencia.tipoRepitencia.codigo}}  
+                                                </span>
+                                            </a>  
+
+
                                         </td>
                                         <td class="text-center">
                                             <div v-if="seccion.esTipoSeccionTcur" >
@@ -176,18 +262,50 @@
                                             {{ seccion.matriculados }}
                                         </td>
                                         <td class="text-center">
-                                            <span v-if="seccion.porcentajeAvance==100">
+                                            <span v-if="seccion.situacionDocente=='COR'">
                                                 {{ seccion.cantidadDocentes }}
                                             </span>
-                                            <span v-if="seccion.porcentajeAvance!=100" class="label label-danger" >Error</span>
+                                            <span v-if="seccion.situacionDocente=='ERR'" class="label label-danger" >
+                                                {{seccion.situacionDocenteValue}}
+                                            </span>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             <span class="label" v-bind:class="getEstadoClass(seccion.estadoEnumCode)">{{ seccion.estadoEnumValue }}</span>
                                         </td>
                                         <td>
+                                            <!-- 
                                             <a  v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
                                                 v-on:click="deleteSeccion(seccion)"
                                                 class="btn btn-default delete-tipo-evaluacion"><i class="fa fa-times text-danger"></i></a>
+                                            v-if="index == secciones.length - 1 &amp;&amp; secciones.length > 0"
+                                            -->
+
+                                            <div class="dropdown actions" 
+                                                 v-if="index > 0">
+
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
+                                                <ul class="dropdown-menu pull-right" >
+                                                    <li role="presentation">
+                                                        <a href="#"
+                                                           v-on:click="activarSeccion(seccion)"
+                                                           v-if="seccion.esEstadoBloqueado || seccion.esEstadoAnulado">
+                                                            Acivar
+                                                        </a>
+                                                        <a href="#"
+                                                           v-if="seccion.esEstadoActivo"
+                                                           v-on:click="anularSeccion(seccion)"
+                                                           >
+                                                            Anular
+                                                        </a>
+                                                        <a href="#"
+                                                           v-if="seccion.esEstadoActivo"
+                                                           v-on:click="bloquearSeccion(seccion)"
+                                                           >
+                                                            Bloquear
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
 
                                         </td>
                                     </tr>
@@ -205,30 +323,33 @@
                             <section class="panel-body" v-if="seccionSeleccionada">
 
                                 <header class="page-header">
-                                    <h4>Seccion {{seccionSeleccionada.seccionCodigo}}</h4>
+                                    <h4>Seccion {{seccionSeleccionada.codigo}}</h4>
                                 </header>
-                                <table class="table table-striped" >
+                                <table >
                                     <thead> 
                                         <tr > 
-                                            <th class="col-md-4 text-center">Nombre</th>
+                                            <th class="col-md-3">Docente</th>
                                             <th class="col-md-1 text-center">Principal</th>
                                             <th class="col-md-1 text-center">%Carga</th>
-                                            <th class="col-md-2 text-center">Periodo</th>
-                                            <th class="col-md-2 text-center">Situación Laboral</th>
+                                            <th class="col-md-4 text-center">Periodo clases</th>
+                                            <th class="col-md-1 text-center">Situación Laboral</th>
                                             <th class="col-md-1 text-center">Estado</th>
                                             <th class="col-md-1 text-center"></th>
                                         </tr>
                                         <tr v-for="(docSeccion, index) in docentesSeccion">
-                                            <td>
+                                            <td class="v-middle">
 
-                                    <autocomplete-doc v-model="docSeccion.docenteId"
-                                                      v-bind:rel="docSeccion.personaApeNombres"
-                                                      v-bind:docseccion="docSeccion.docSeccionId"
+                                    <autocomplete-doc v-model="docSeccion.docente.id"
+                                                      v-bind:rel="docSeccion.docente.persona!=null? docSeccion.docente.persona.apellidosNombres:''"
+                                                      v-bind:docseccion="docSeccion.id"
                                                       v-if="docSeccion.docenteNN">
                                     </autocomplete-doc>
-                                    {{docSeccion.personaApeNombres}}
+                                    <span v-if="docSeccion.docente.persona != null">
+                                        <span class="block bold">{{docSeccion.docente.persona.apellidosNombres}}</span>
+                                        <span class="block">{{docSeccion.docente.codigo}}</span>
+                                    </span>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <!--
                                         <span class="block" v-if="docSeccion.principal==1">Si</span>
                                         <span class="block" v-if="docSeccion.principal==0">No</span>
@@ -245,20 +366,59 @@
                                     <td>
                                         <input v-model="docSeccion.porcentajeCarga"
                                                name="porcentajeCarga"
-                                               v-on:blur ="cambiarPorcentajeCarga(docSeccion)"
-                                               v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion)"
+                                               v-on:blur ="cambiarPorcentajeCarga(docSeccion,$event)"
+                                               v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion,$event)"
                                                class="form-control"
+                                               required="true"
+                                               min="1"
                                                data-parsley-group="porcentaje-car"
                                                data-parsley-type="number"
                                                />
                                     </td>
-                                    <td>
-                                        {{ docSeccion.docSecFechaInicio }}
+                                    <td class="text-center">
+                                        <!-- 
+                                    <date-picker v-bind:config="configDate"  
+                                                 v-model="docSeccion.docSecFechaInicio"></date-picker>  
+                                        -->
+                                        <div class="col-md-12">
+                                            <v-date-picker v-model="docSeccion.fechaInicio"
+                                                           v-bind:id="'fechaInicio'+index"
+                                                           v-bind:startdate="docSeccion.fechaInicioMin"
+                                                           v-bind:enddate="docSeccion.fechaFinMax" 
+                                                           v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
+                                                           required="true"
+                                                           class="col-md-6"
+                                                           ></v-date-picker>
+                                            <!-- 
+                                            <div class="col-md-6"
+                                                 v-if="docSeccion.disabledFechaInicio">
+                                                <div class="form-control">
+                                                    {{docSeccion.docSecFechaInicio}}
+                                                </div>
+                                            </div>
+                                            -->
+                                            <v-date-picker v-model="docSeccion.fechaFin"
+                                                           v-bind:id="'fechaFin'+index"
+                                                           v-bind:startdate="docSeccion.fechaInicioMin"
+                                                           v-bind:enddate="docSeccion.fechaFinMax" 
+                                                           v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
+                                                           required="true"
+                                                           class="col-md-6"
+                                                           ></v-date-picker>
+                                            <!-- 
+                                             <div v-if="docSeccion.disabledFechaFin"
+                                                  class="col-md-6">
+                                                 <div class="form-control">
+                                                     {{docSeccion.docSecFechaFin}}
+                                                 </div>
+                                             </div>
+                                            -->
+                                        </div>
                                     </td>
                                     <td>
 
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <span class="label" v-bind:class="getEstadoClass(docSeccion.estadoEnumCode)">
                                             {{ docSeccion.estadoEnumVal }}
                                         </span>
@@ -293,6 +453,14 @@
                 </div>
             </modal-vik>
 
+            <modal-vik ref="modalAulaHorario"
+                       v-bind="aulaHorarioModal"
+                       v-bind:showaccept="false">
+                <div slot="body">
+                    <aula-horario-component></aula-horario-component>
+                </div>
+            </modal-vik>
+
             <modal-vik ref="modalGrupo"
                        v-bind="grupoModal"
                        v-bind:okaction="saveGrupo">
@@ -311,9 +479,9 @@
 
             <modal-vik ref="modalTipoRepitencia"
                        v-bind="tipoRepitenciaModal"
-                       v-bind:okaction="saveRestriccion">
+                       v-bind:okaction="saveTipoRepRestriccion">
                 <div slot="body">
-                    modal tipo repitencia
+                    <repitencia-component></repitencia-component>
                 </div>
             </modal-vik>
 
@@ -326,25 +494,28 @@
         <div th:substituteby="_modules/vue-modal"/>
 
 
+        <div th:substituteby="academico/gposeccion/components/seccionDetalleComponent"/> 
+        <div th:substituteby="academico/gposeccion/components/aulaHorarioComponent"/> 
         <div th:substituteby="academico/gposeccion/components/aulaComponent"/> 
         <div th:substituteby="academico/gposeccion/components/grupoHorarioComponent"/>
         <div th:substituteby="academico/gposeccion/components/restriccionComponent"/>
+        <div th:substituteby="academico/gposeccion/components/repitenciaComponent"/>
 
-
-        <div id="autocomplete-doc">
-            <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
-        </div>
-
-        <div id="tablaHorarioReg"></div>
-
-        <script type="text/x-template" id="select2-template">
-            <input class="input-s-full" type="text" />
-        </script>
-
-        <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
-            {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
-        </div>
-
+        <!-- 
+              <div id="autocomplete-doc">
+                  <input class="input-s-full" v-bind:rel="rel" type="hidden"  />
+              </div>
+      
+              <div id="tablaHorarioReg"></div>
+            
+                      <script type="text/x-template" id="select2-template">
+                          <input class="input-s-full" type="text" />
+                      </script>
+              
+                      <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+                          {{:personaNombre}}  {{:personaPaterno}}  {{:personaMaterno}}
+                      </div>
+        -->
     </section>
 
     <div layout:fragment="js">
@@ -356,8 +527,11 @@
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/gpoSeccionForm.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/aulaHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/grupoHorarioComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/restriccionComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/repitenciaComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/gposeccion/datePickerComponent.js}" charset="utf-8"></script>
     </div>
 </body>
 </html>

@@ -8,4 +8,9 @@ import pe.edu.lamolina.pivot.dao.academico.TipoRepitenciaDAO;
 @Repository
 public class TipoRepitenciaDAOH extends AbstractEasyDAO<TipoRepitencia> implements TipoRepitenciaDAO {
 
+    public TipoRepitenciaDAOH() {
+        super();
+        setClazz(TipoRepitencia.class);
+    }
+
 }

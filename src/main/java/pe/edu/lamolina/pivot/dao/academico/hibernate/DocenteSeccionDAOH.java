@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import java.util.Map;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import org.springframework.stereotype.Repository;
@@ -9,7 +8,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -94,6 +92,20 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("sec.id", seccion);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteSeccion> allActivosBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
+                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .filter("sec.id", seccion)
+                .filter("ds.estado", EstadoEnum.ACT.name());
 
         return all(sql);
     }
@@ -281,6 +293,36 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_doc_seccion", docenteSeccion.getId());
         query.setParameter("porcentaje_avance", docenteSeccion.getPorcentajeCarga());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updateFechaInicio(DocenteSeccion docenteSeccion) {
+        /*  Octavia octavia = Octavia.update(DocenteSeccion.class);
+        octavia.set(docenteSeccion, "fechaInicio");
+        this.update(docenteSeccion);
+         */
+        StringBuilder strb = new StringBuilder();
+        strb.append("update DocenteSeccion ds set ds.fechaInicio=:fecha_inicio_prm where ds.id=:id_prm ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("fecha_inicio_prm", docenteSeccion.getFechaInicio());
+        query.setParameter("id_prm", docenteSeccion.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void updateFechaFin(DocenteSeccion docenteSeccion) {
+        /*
+        Octavia octavia = Octavia.update(DocenteSeccion.class);
+        octavia.set(docenteSeccion, "fechaFin");
+        System.out.println(octavia.toString());
+        this.update(octavia);*/
+
+        StringBuilder strb = new StringBuilder();
+        strb.append("update DocenteSeccion ds set ds.fechaFin=:fecha_fin_prm where ds.id=:id_prm ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("fecha_fin_prm", docenteSeccion.getFechaFin());
+        query.setParameter("id_prm", docenteSeccion.getId());
         query.executeUpdate();
     }
 

@@ -12,6 +12,11 @@ import pe.edu.lamolina.pivot.dao.academico.RestriccionCarreraDAO;
 @Repository
 public class RestriccionCarreraDAOH extends AbstractEasyDAO<RestriccionCarrera> implements RestriccionCarreraDAO {
 
+    public RestriccionCarreraDAOH() {
+        super();
+        setClazz(RestriccionCarrera.class);
+    }
+
     @Override
     public List<RestriccionCarrera> allActivasBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()

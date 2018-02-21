@@ -1,56 +1,6 @@
 <template id="modalAulaComp"> 
     <div> 
-        <template v-if="seccionModal!=null">
-
-            <div class="row">
-                <div class="form-group">
-                    <label for="docIdentidad" class="col-md-2 control-label">Curso</label>
-
-                    <div class="col-md-10">
-                        <span> {{seccionModal.curso.codigo}} {{seccionModal.curso.nombre}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Dpto. Academicos</label>
-
-                    <div class="col-md-10">
-                        <span> {{seccionModal.departamentoAcademico.nombre}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Clave</label>
-
-                    <div class="col-md-4">
-                        <span> {{seccionModal.codigo}}</span>
-                    </div>
-
-                    <label class="col-md-2 control-label">Vacantes</label>
-
-                    <div class="col-md-4">
-                        <span> {{seccionModal.vacantes}} </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label class="col-md-2 control-label">Grupo</label>
-
-                    <div class="col-md-4">
-                        {{seccionModal.grupoHoras.codigo}}
-                    </div>
-
-                    <label class="col-md-2 control-label">Horas</label>
-
-                    <div class="col-md-4">
-                        <span>{{seccionModal.horasSemanales}}</span>
-                    </div>
-                </div>
-            </div>
-        </template>
+        <seccion-det-component v-bind:seccion="seccionModal"></seccion-det-component>
 
         <div id="exTab2" class="tabbable-line m-b-sm">	
             <ul class="nav nav-tabs">

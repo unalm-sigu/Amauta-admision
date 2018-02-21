@@ -1,0 +1,31 @@
+<template id="repitenciaComp"> 
+    <form id="frmTipoRepitencia">
+        <seccion-det-component v-bind:seccion="seccionModal"></seccion-det-component>
+
+        <section class="panel-body">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <div>Tipo Restriccion</div>
+
+                        <multiselect 
+                            v-model="tiposRepitenciaArr" 
+                            v-bind:options="tiposRepitenciaOpt"
+                            label='nombre'
+                            track-by="id"
+                            v-bind:multiple="true" 
+                            v-bind:close-on-select="false" 
+                            v-bind:clear-on-select="false" 
+                            v-bind:hide-selected="true" 
+                            v-bind:preserve-search="true" 
+                            >
+                        </multiselect>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </form>
+</template>
