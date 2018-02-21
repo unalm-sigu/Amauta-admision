@@ -51,6 +51,9 @@ new Vue({
         $global.$on("anularCiclo", function(id) {
             vue.anularCiclo(id);
         });
+        $global.$on("configurarCiclo", function(id) {
+            vue.configurarCiclo(id);
+        });
         vue.margen = margen;
         vue.filtroInicial();
 
@@ -277,6 +280,34 @@ new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/cicloacademico/pendiente'),
+                            data: {id: id},
+                            success: function(response) {
+                                if (response.success) {
+                                    notify(response.message, 'info');
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function() {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        },
+        configurarCiclo: function(id) {
+            bootbox.confirm({
+                message: '¿Seguro que desea iniciar la configuración del ciclo académico?',
+                buttons: {
+                    confirm: {label: 'Si,Aceptar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/cicloacademico/configurar'),
                             data: {id: id},
                             success: function(response) {
                                 if (response.success) {
