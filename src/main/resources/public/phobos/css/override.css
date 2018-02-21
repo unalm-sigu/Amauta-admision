@@ -1054,3 +1054,7 @@ div.notas {
 .no-top-border > tbody > tr > td {
     border: none;
 }
+
+.tabbable-line .nav li a{
+    display: inline-block!important;
+}

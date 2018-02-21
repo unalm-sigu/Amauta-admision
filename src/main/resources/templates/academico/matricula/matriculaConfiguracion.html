@@ -13,18 +13,20 @@
                 </div> 
             </div>
 
-            <div class="pull-right m-t-md" v-if="!flag">   
-                <div class="col-md-2">
-                    <a class="btn btn-primary" v-on:click="eliminar" href="#"  >Eliminar</a>
-                </div> 
-            </div>
-            <h2 >Turno de atencion <span v-text="ciclo"></span></h2> 
+            <!-- <div class="pull-right m-t-md" v-if="!flag">   
+                 <div class="col-md-2">
+                     <a class="btn btn-primary" v-on:click="eliminar" href="#"  >Eliminar</a>
+                 </div> 
+             </div>-->
+            <h2 >Turno de atencion <span v-text="ciclo.descripcion"></span></h2> 
 
             <div  class="tabbable-line">
                 <ul class="nav nav-tabs" >
                     <li v-for="(tab, index) in lstTabs" v-on:click="carga(tab)" v-bind:class="active(index)">
-                        <a href="#" data-toggle="tab"  v-text="tab.tipo" ></a>
-                    </li> <!--v-on:click="updateTabs(tab)"-->
+                        <a href="#" data-toggle="tab"  v-text="tab.tipo" >                            
+                        </a>    
+                        <button class="btn-primary btn-xs" v-on:click="eliminar" href="#"  >x</button>
+                    </li>
                 </ul>  
             </div>
         </header>
@@ -48,12 +50,12 @@
                                     <small v-text="turno.prioridadFin" class="pull-right"></small>
                                 </span>
                                 <span class="block text-center" >
-                                    <a href="#" v-bind:id="turno.id"  data-placement="top"  v-text="turno.alumnos" class="numeric editable editable-click" >
+                                    <a href="#" v-bind:id="turno.id"  data-placement="top"  v-text="turno.alumnos" class="numeric  editable-click" >
                                     </a>
                                 </span>
                             </div>
                         </td>                       
-                    </tr>
+                    </tr>   
                 </tbody>
             </table>
         </section>
@@ -69,74 +71,76 @@
                             <h4 class="modal-title" id="myModalLabel"> Configuración </h4>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Evento</label>
-                                <div class="col-sm-6">
-                                    <select required="true" class="form-control " v-model="config.eventoCicloAcademico" placeholder="Seleccione un evento" v-on:change="tipoEvento()">
-                                        <option v-for="eventoCicloAcademico in eventos"   v-text="eventoCicloAcademico.nombre"  v-bind:value="eventoCicloAcademico" />
-                                    </select>                                
+                            <div class="col-md-offset-1 ">
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Evento</label>
+                                    <div class="col-sm-6">
+                                        <select required="true" class="form-control " v-model="config.eventoCicloAcademico" placeholder="Seleccione un evento" v-on:change="tipoEvento(config)">
+                                            <option v-for="eventoCicloAcademico in eventos"   v-text="eventoCicloAcademico.nombre"  v-bind:value="eventoCicloAcademico" />
+                                        </select>                                
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Fecha Inicio</label>
-                                <div class="col-sm-6">
-                                    <date-picker required="true" v-model="config.fechaInicio" lang="es" format="dd/MM/yyyy" input-class="mx-input"></date-picker>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Fecha Inicio</label>
+                                    <div class="col-sm-6">
+                                        <date-picker required="true" v-model="config.fechaInicio" lang="es" format="dd/MM/yyyy" input-class="mx-input"></date-picker>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Fecha Fin</label>
-                                <div class="col-sm-6">
-                                    <date-picker   v-model="config.fechaFin" lang="es" format="dd/MM/yyyy" input-class="mx-input" ></date-picker>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Fecha Fin</label>
+                                    <div class="col-sm-6">
+                                        <date-picker   v-model="config.fechaFin" lang="es" format="dd/MM/yyyy" input-class="mx-input" ></date-picker>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class='form-group row'>
-                                <label class="col-sm-2 control-label">Hora Inicio</label>
-                                <div class="col-sm-6">
-                                    <div class="input-group bootstrap-timepicker timepicker">
-                                        <input  id="timeHoraInicio" type="text" class="form-control input-small" placeholder="Ingrese una hora inicio"/>
-                                        <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                                    </div>   
+                                <div class='form-group row'>
+                                    <label class="col-sm-3 control-label">Hora Inicio</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group bootstrap-timepicker timepicker ">
+                                            <input  id="timeHoraInicio" type="text" class="form-control input-small" placeholder="Ingrese una hora inicio"/>
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                        </div>   
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Turno por día</label>
+                                    <div class="col-sm-6">
+                                        <input required="true" type="text" class="form-control numeric" v-model="config.turnosDia" placeholder="Ingrese cantidad de turnos"/>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Tipo</label>
+                                    <div class="col-sm-6">
+                                        <select required="true" class="form-control " v-model="config.tipo">
+                                            <option v-for="tipo in tipos"  v-text="tipo" v-bind:value="tipo" placeholder="Seleccione un tipo"/>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Duración (min)</label>                                                     
+                                    <div class="col-sm-6">
+                                        <input id="timeDuracion" type="text" class="time form-control numeric" placeholder="Ingrese la duración del turno"/>                            
+                                    </div>                       
+                                </div> 
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Espera (min)</label>
+                                    <div class="col-sm-6">
+                                        <input required="true" id="timeEspera" type="text" class="time form-control numeric" placeholder="Ingrese el tiempo de espera"/>
+                                    </div>
+                                </div> 
+                                <div class="form-group row">
+                                    <label class="col-sm-3 control-label">Alumno</label>
+                                    <div class="col-sm-6 ">
+                                        <input required="true" type="text"  class="form-control numeric" v-model="config.alumnos" placeholder="Ingrese cantidad de alumnos"/>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Turno por día</label>
-                                <div class="col-sm-6">
-                                    <input required="true" type="text" class="form-control numeric" v-model="config.turnosDia" placeholder="Ingrese cantidad de turnos"/>
-                                </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-success" v-on:click.prevent="save" >Guardar</button>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Tipo</label>
-                                <div class="col-sm-6">
-                                    <select required="true" class="form-control " v-model="config.tipo">
-                                        <option v-for="tipo in tipos"  v-text="tipo" v-bind:value="tipo" placeholder="Seleccione un tipo"/>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Duración</label>                                                     
-                                <div class="col-sm-6">
-                                    <input id="timeDuracion" type="text" class="time form-control numeric" placeholder="Ingrese la duración del turno"/>
-                                </div>                       
-                            </div> 
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Espera</label>
-                                <div class="col-sm-6">
-                                    <input required="true" id="timeEspera" type="text" class="time form-control numeric" placeholder="Ingrese el tiempo de espera"/>
-                                </div>
-                            </div> 
-                            <div class="form-group row">
-                                <label class="col-sm-2 control-label">Alumno</label>
-                                <div class="col-sm-6">
-                                    <input required="true" type="text"  class="form-control numeric" v-model="config.alumnos" placeholder="Ingrese cantidad de alumnos"/>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-success" v-on:click.prevent="save" >Guardar</button>
                         </div>
                     </div>
                 </form>

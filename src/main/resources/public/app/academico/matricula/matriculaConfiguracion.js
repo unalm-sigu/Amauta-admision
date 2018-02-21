@@ -2,9 +2,8 @@ $(function () {
 
     $(document).ready(function () {
 
-        $('#timeHoraInicio').timepicker();
-        $('#timeDuracion').timepicker({'timeFormat': 'H:i:s'});
-        $('#timeEspera').timepicker({'timeFormat': 'H:i:s'});
+        $('#timeHoraInicio').timepicker({'timeFormat': 'H:i'});
+
     });
 });
 Vue.component("date-picker", window.DatePicker.default);
@@ -13,7 +12,7 @@ new Vue({
     data: {
         eventos: JSON.parse(eventosJson),
         Arryconfig: JSON.parse(configJson),
-        ciclo: cicloJson,
+        ciclo: JSON.parse(cicloJson),
         tipos: JSON.parse(tiposJson),
         tiposTemp: {},
         lstTabs: [],
@@ -126,13 +125,13 @@ new Vue({
                 success: function (response) {
                     var i = 0;
                     $vue.lstTabs.forEach(function (elem) {
-                        if ($vue.idConfig.id == elem.id || $vue.idConfig  == elem.id) {
+                        if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
                             $vue.lstTabs.splice(i, 1);
                             $vue.Arryconfig.splice(i, 1);
                             $vue.horas.splice(0, $vue.horas.length);
                             $vue.dias.splice(0, $vue.dias.length);
                             $vue.tabs();
-                            
+
                         }
                         i++;
                     });
@@ -145,10 +144,10 @@ new Vue({
             $vue.tipos = Object.assign({}, $vue.tiposTemp);
 
             if ($vue.config.eventoCicloAcademico.codigo == 'MAT-REG') {
-                delete $vue.tipos[1];
+                delete $vue.tipos['ONLINE'];
             }
             if ($vue.config.eventoCicloAcademico.codigo == 'MAT-VER') {
-                delete $vue.tipos[0];
+                delete $vue.tipos['BARRIDO'];
             }
         },
         jquery(horas) {

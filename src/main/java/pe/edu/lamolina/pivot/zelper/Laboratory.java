@@ -1,21 +1,32 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
-import pe.edu.lamolina.model.general.Persona;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import pe.edu.lamolina.model.enums.TipoDocumentoBienestarEnum;
+import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
 
 public class Laboratory {
 
     public static void main2(String[] args) {
 
-        GrupoAnexoEnum gpoAnexoE = GrupoAnexoEnum.get2("ingresantes");
-        System.out.println(gpoAnexoE.name());
-        System.out.println(gpoAnexoE.getValue());
+        DateTime inicio = new DateTime("2018-02-20");
+        DateTime fin = new DateTime("2018-02-21");
 
-        Persona p = new Persona();
-        p.setPaterno("Postulante No Inscrito");
-        p.setNombres("");
+        int dias = Days.daysBetween(inicio, fin).getDays();
+        System.out.println("dias " + dias);
+        
+        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode objNode1 = new ObjectNode(JsonNodeFactory.instance);
 
-        System.out.println(p.getKey());
+//        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
+//           objNode.put(d.name(),d.getValue());
+//        };
+                
+      
 
+        System.out.println("value: " + objNode );
     }
 }

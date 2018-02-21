@@ -39,12 +39,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/configuracionturno")
 public class ConfiguracionTurnoController {
-    
+
     @Autowired
     ConfiguracionMatriculaService service;
-    
+
     @InitBinder
-    public void initBinder(WebDataBinder dataBinder) {
+    public void initBinder(WebDataBinder dataBinder)    {
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -66,52 +66,49 @@ public class ConfiguracionTurnoController {
             }
         });
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) throws ParseException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<EventoAcademico> evento = service.findEventoCiclo(ds.getCicloAcademico());
         List<ConfiguracionTurnosAtencion> configuraciones = service.allConfiguraciones(ds.getCicloAcademico());
-        
-        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-        ArrayNode lst = new ArrayNode(JsonNodeFactory.instance);
-        
-        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
-            lst.add(d.getValue());
-        };
 
-//        lst.add();
-//        lst.add(TipoMatriculaEnum.BARRIDO.name());
+        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+
+        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
+           objNode.put(d.name(),d.getValue());
+        };
+            
         model.addAttribute("eventos", new EventoAcademico().toJsonArray(evento));
         model.addAttribute("configuraciones", new ConfiguracionTurnosAtencion().toJsonArray(configuraciones));
-        model.addAttribute("ciclo", ds.getCicloAcademico().getDescripcion2());
-        model.addAttribute("tipoMatricula", lst.toString());
-        
+        model.addAttribute("ciclo", ds.getCicloAcademico().toJson());
+        model.addAttribute("tipoMatricula", objNode.toString());
+
         return "academico/matricula/matriculaConfiguracion";
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "list", method = RequestMethod.POST)
     public JsonResponse list(@RequestBody ConfiguracionTurnosAtencion config, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DateFormat formatter = new SimpleDateFormat("dd/MM");
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             List<TurnoAtencion> turnos = service.allTurnosByConfiguracion(config);
             Map<Integer, List<TurnoAtencion>> mapTurnos = new HashMap();
-            
+
             for (TurnoAtencion turno : turnos) {
                 List<TurnoAtencion> turnosHora = mapTurnos.get(turno.getTurno());
                 turnosHora = (turnosHora == null) ? new ArrayList() : turnosHora;
                 turnosHora.add(turno);
                 mapTurnos.put(turno.getTurno(), turnosHora);
             }
-            
+
             ArrayNode lst = new ArrayNode(JsonNodeFactory.instance);
             ArrayNode lstHoras = new ArrayNode(JsonNodeFactory.instance);
             ArrayNode lstDias = new ArrayNode(JsonNodeFactory.instance);
-            
+
             List<TurnoAtencion> turnosHora = null;
             int i = 1;
             for (Map.Entry<Integer, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
@@ -128,74 +125,74 @@ public class ConfiguracionTurnoController {
                 objNode.put("hora", turnosHora.get(0).getHoraInicio());
                 objNode.put("turnos", new TurnoAtencion().toJsonArray(turnosHora));
                 lstHoras.add(objNode);
-                
+
             }
-            
+
             lst.add(lstHoras);
             lst.add(lstDias);
             response.setData(lst);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-            
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "configuracion", method = RequestMethod.POST)
     public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             Long Id = service.saveConfiguracion(config);
             response.setSuccess(true);
             response.setData(Id);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-            
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "updateturnos", method = RequestMethod.POST)
     public JsonResponse updateTurnos(@RequestParam(value = "name", required = true) String name, @RequestParam(value = "value", required = true) String value, Model model, @RequestParam(value = "pk", required = true) Long pk, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        
+
         try {
             ConfiguracionTurnosAtencion config = service.updateTurnos(pk, value);
             JsonResponse json = list(config, model, session);
             response.setData(json);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-            
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "deleteconfiguracion", method = RequestMethod.DELETE)
     public JsonResponse deleteConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        
+
         try {
             service.deleteConfiguracion(config);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-            
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

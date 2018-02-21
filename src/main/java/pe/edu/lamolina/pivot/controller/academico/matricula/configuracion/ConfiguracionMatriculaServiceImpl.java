@@ -5,9 +5,15 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import static javassist.CtMethod.ConstParameter.string;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,38 +47,42 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
         Date fechaInicial = new Date(config.getFechaInicio().getTime());
         Date fechaFinal = config.getFechaFin();
 
+        TurnoAtencion objTurno = null;
+        Integer cantAlumnos = config.getAlumnos();
+        DateTime inicio = new DateTime(config.getFechaInicio());
+        DateTime fin = new DateTime(config.getFechaFin());
+
         int cantDias = (int) ((fechaFinal.getTime() - fechaInicial.getTime()) / 86400000);
 
-        Integer cantAlumnos = config.getAlumnos();
-        TurnoAtencion objTurno = null;
+        int dias = Days.daysBetween(inicio, fin).getDays() + 1;
 
-        DateFormat formatter = new SimpleDateFormat("HH:mm");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
 
+        Integer duracion = Integer.valueOf(config.getDuracion());
+        Integer espera = Integer.valueOf(config.getEspera());
         Integer prioridad = 1;
-        for (int i = 0; i <= cantDias; i++) {
-            Time duracion = new Time(formatter.parse(config.getDuracion()).getTime());
-            Time espera = new Time(formatter.parse(config.getEspera()).getTime());
-            Time horaInicio = new Time(formatter.parse(config.getHoraInicio()).getTime());
-            Time horaFinal = new Time(formatter.parse(config.getHoraInicio()).getTime());
 
+        for (int i = 0; i < dias; i++) {
+            DateTime fecha = inicio.plusDays(i);
+            DateTime fechaHora = formatter.parseDateTime(fecha.toString("yyyy-MM-dd") + " " + config.getHoraInicio());
+            fechaHora = fechaHora.minusMinutes(Integer.valueOf(config.getDuracion()));
             for (int j = 1; j <= config.getTurnosDia(); j++) {
+                fechaHora = fechaHora.plusMinutes(duracion);
+                String horaInicio = fechaHora.toString("HH:mm");
+                DateTime fechaHoraFin = fechaHora.plusMinutes(duracion - espera);
+                String horaFin = fechaHoraFin.toString("HH:mm");
                 objTurno = new TurnoAtencion();
                 objTurno.setAlumnos(cantAlumnos);
                 objTurno.setConfiguracionTurnosAtencion(config);
-                objTurno.setFecha(fechaInicial);
-                objTurno.setHoraInicio(horaInicio.toString());
-                int min = ((duracion.getHours() * 60) + duracion.getMinutes()) - espera.getMinutes();
-                horaFinal.setMinutes(horaFinal.getMinutes() + min);
-                objTurno.setHoraFinal(horaFinal.toString());
+                objTurno.setFecha(fecha.toDate());
+                objTurno.setHoraInicio(horaInicio);
+                objTurno.setHoraFinal(horaFin);
                 objTurno.setPrioridadInicio(prioridad);
                 prioridad = prioridad + cantAlumnos;
                 objTurno.setPrioridadFin(prioridad - 1);
                 objTurno.setTurno(j);
                 turnoAtencionDAO.save(objTurno);
-                horaInicio.setHours(horaInicio.getHours() + duracion.getHours());
-
             }
-            fechaInicial.setDate(fechaInicial.getDate() + 1);
         }
         return config.getId();
     }
@@ -116,7 +126,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
         }
         return objTurno.getConfiguracionTurnosAtencion();
-                
+
     }
 
     @Override
