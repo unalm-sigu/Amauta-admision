@@ -1,0 +1,96 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Inscripción de Postulantes</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="page-header">
+        </header>
+        <section class="panel">
+            <section class="panel-body">
+
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="panel panel-primary">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Carga de restricciones de matrícula </h3>
+                            </div>
+
+                            <div class="panel-body">
+                                <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/oficinas/matricula/restriccionmatricula/cargarDatos}">
+
+                                    <div class="row m-b-md">
+
+                                        <div class="form-horizontal form-group">
+                                            <div class="col-md-2 control-label">
+                                                <label>Tipo</label>
+                                            </div>
+                                            <div class="col-md-4">                            
+                                                <select class="form-control select2" name="idTipoDeudaAlumno">
+                                                    <option th:each="tipoDeuda :${tiposDeuda}"
+                                                            th:value="${tipoDeuda.id}"
+                                                            th:text="${tipoDeuda.nombre}"></option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="row m-b-md">
+                                        <div class="col-md-9"> 
+                                            <span class="block underline">Carga restrcciones de matrícula (archivo .xlsx) </span>
+                                            <span class="block">Seleccionar el archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
+                                            <p>
+                                                <a class="bold block" href="https://lamolina-admision.s3.amazonaws.com/publico/formatos/Formato%20de%20Carga%20Ingresantes%20CEPRE.xls">
+                                                    <i class="fa fa-file-excel-o"></i> Formato de carga de restricciones
+                                                </a>
+                                            </p>
+                                            <div class="form-group">
+                                                <span class="btn bg-gradient">
+                                                    <input type="file" name="file" accept=".xlsx" id="fileText" class="archivo" autocomplete="off" required="true" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="progress" id="progress">
+                                        <div class="progress-bar progress-bar-success"></div>
+                                    </div>
+                                    <div class="panel-body m-b-md" id="mensajeRespuesta"></div>
+                                    <span id="footerLoadAbonos" class="col-md-12 text-center">
+                                        <a class="btn btn-link" th:href="@{'/oficinas/matricula/restriccionmatricula'}">Regresar</a>
+                                        <a class="btn btn-primary" id="btnLoad">Iniciar Carga</a>
+                                    </span>
+                                </form>
+                            </div>
+
+                        </div>
+                        <br/>
+
+                        <div id="pandelObservados" class="panel panel-success hide">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Registros observados</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div id="observados"> </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </section>
+
+    </div>
+    <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <div th:substituteby="_layout/includes :: javascript-upload"/>
+        <script src="/app/oficinas/matricula/restriccionmatricula/restriccionMatriculaUpload.js" charset="utf-8"></script>
+
+    </div>
+
+</body>
+</html>

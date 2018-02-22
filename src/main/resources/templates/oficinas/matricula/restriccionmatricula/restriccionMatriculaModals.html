@@ -1,0 +1,41 @@
+<div id="divEditar" type="text/x-jsrender" class="hide" >
+    <form name="formEditar" data-parsley-validate="true">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <div class="form-group">
+            <label> Deudor </label>
+            <span class="form-control"> {{:nombre}} </span>
+        </div>
+        <div class="form-group">
+            <label> Tipo </label>
+            <span class="form-control"> {{:tipo}} </span>
+        </div>
+        <div class="form-group">
+            <label>Descripción</label>
+            <textarea rows="6" required="true" type="text" name="descripcion" data-trigger="change" class="form-control"/>
+        </div>
+    </form>
+</div>
+
+<div id="divAnular" type="text/x-jsrender" class="hide" >
+    <form name="formAnular" data-parsley-validate="true">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <div class="form-group">
+            <label> Deudor </label>
+            <span class="form-control"> {{:nombre}} </span>
+        </div>
+        <div class="form-group">
+            <label> Tipo </label>
+            <span class="form-control"> {{:tipo}} </span>
+        </div>
+        <div class="form-group">
+            <label> Descripción </label>
+            <span class="form-control"> {{:descripcion}} </span>
+        </div>
+        <div class="form-group">
+            <label>Motivo</label>
+            <textarea name="motivoAnula" row="6" required="true" type="text" data-trigger="change" class="form-control"/>
+        </div>
+    </form>
+</div>
+
+
