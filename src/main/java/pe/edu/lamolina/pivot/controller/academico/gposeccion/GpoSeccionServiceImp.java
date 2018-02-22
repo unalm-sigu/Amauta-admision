@@ -974,9 +974,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Collections.sort(listaDiaHoraGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
             grupoHora.setDiaHoraGrupo(listaDiaHoraGrupo);
         }
-        //buscando grupos con las horas requeridas por dia
+        //buscando grupos con las horas requeridas por dia (filtramos los grupos horas)
         for (GrupoHoras grupoHora : grupoHoras) {
+            /*
+            if (grupoHora.getDiaHoraGrupo().size() >= seccion.getHorasSemanales()) {
+                grupoHorasFiltrado.add(grupoHora);
+            }*/
+            List<Integer> horasSemana = new ArrayList<>();
             for (Dia dia : dias) {
+
                 List<DiaHoraGrupo> horasPorDias = new ArrayList<>();
 
                 for (DiaHoraGrupo horasPorDia : grupoHora.getDiaHoraGrupo()) {
@@ -984,6 +990,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                         horasPorDias.add(horasPorDia);
                     }
                 }
+                if (horasPorDias.size() <= seccion.getHorasSemanales()) {
+                    grupoHora.setHorasMismoDia(Boolean.TRUE);
+                    horasSemana.add(horasPorDias.size());
+                }
+                /*
                 if (horasPorDias.size() == seccion.getHorasSemanales()) {
                     Integer numeroAnterior = null;
                     boolean success = true;
@@ -1003,10 +1014,39 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                         grupoHorasFiltrado.add(grupoHora);
                     }
                 }
+                 */
+
             }
+            /*
+            List<Integer> allCombinations = new ArrayList<>();
+            for (Integer horasSem : horasSemana) {
+                allCombinations.add(horasSem);
+                for (Integer hora : horasSemana) {
+
+                }
+            }*/
+            List<Integer> listaInteger = new ArrayList<Integer>();
+            getAllSums(horasSemana, 0, 0, listaInteger, seccion.getHorasSemanales());
+
+            if (!listaInteger.isEmpty()) {
+                grupoHorasFiltrado.add(grupoHora);
+            }
+            /*  if (grupoHora.isHorasMismoDia() && grupoHora.getDiaHoraGrupo().size() >= seccion.getHorasSemanales()) {
+                grupoHorasFiltrado.add(grupoHora);
+            }*/
         }
 
         return grupoHorasFiltrado;
+    }
+
+    private void getAllSums(List<Integer> array, int startingValue, int pos, List<Integer> result, Integer comparation) {
+        for (int i = pos; i < array.size(); i++) {
+            int currentValue = startingValue + array.get(i);
+            if (currentValue == comparation) {
+                result.add(currentValue);
+            }
+            getAllSums(array, currentValue, i + 1, result, comparation);
+        }
     }
 
     @Override
@@ -1456,6 +1496,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public GrupoHoras findGrupoHoras(GrupoHoras grupoHoras) {
         return grupoHorasDAO.find(grupoHoras);
+    }
+
+    @Override
+    public GrupoHoras findGrupoHorasFull(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        grupoHoras = grupoHorasDAO.find(grupoHoras);
+        List<DiaHoraGrupo> diasHorasGrupo = diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHoras, cicloAcademico);
+        grupoHoras.setDiaHoraGrupo(diasHorasGrupo);
+        return grupoHoras;
     }
 
     @Override

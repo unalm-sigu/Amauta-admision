@@ -78,7 +78,8 @@
                                         <th class="col-md-1 text-center">Estado</th>
                                         <th class="col-md-1 text-center">
                                             <input type="checkbox"
-                                                   v-model="directEditSecciones"/>
+                                                   v-model="directEditSecciones"
+                                                   v-on:click="directAulaChange($event)"/>
                                         </th>
                                     </tr>
                                 </thead>
@@ -97,7 +98,6 @@
 
                                             <a v-if="seccion.aula==null &amp;&amp; !directEditSecciones"
                                                v-on:click="showModalAula(seccion)" 
-                                               v-on:dblclick="directAula"
                                                style="cursor:pointer;">
                                                 Sin Aula
                                             </a>
