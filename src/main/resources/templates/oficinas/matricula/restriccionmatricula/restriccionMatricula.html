@@ -6,21 +6,30 @@
 
 <body>
     <div layout:fragment="main">
-
         <header class="header b-b padder-lg">
-
             <div class="pull-right m-t-md">                 
-                <a th:href="@{'/oficinas/matricula/restriccionmatricula/upload'}" class="btn btn-success btn-sm" type="button" id="btnAddPersona">Cargar Datos</a>
+                <a th:href="@{'/oficinas/matricula/restriccionmatricula/upload'}" class="btn btn-success" type="button" id="btnAddPersona">Cargar Datos</a>
             </div>  
 
             <h2> Restricciones de Matrícula </h2>
+            
         </header>
+            
         <section class="wrapper-lg">
             <section class="panel">
                 <section class="panel-body">
+                    <div class="m-t-lg m-l-n col-lg-4" id="headDynatable">
+                        <div class="">
+                            <select class="form-control select2" id="tipoDeuda">
+                                <option th:each="tipo : ${tiposDeuda}"
+                                        th:value="${tipo.id}"
+                                        th:text="${tipo.nombre}"></option>
+                            </select>
+                        </div>
+                    </div>
                     <table id="dynaTable" class="table table-striped">
                         <thead class="panel panel-heading">
-                              <tr>
+                            <tr>
                                 <th class="col-md-1"></th>
                                 <th class="col-md-3">Alumno</th>
                                 <th class="col-md-3">Tipo</th>
@@ -46,7 +55,7 @@
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/oficinas/matricula//restriccionmatricula/restriccionMatricula.js}" charset="utf-8"></script>
+        <script th:src="@{/app/oficinas/matricula/restriccionmatricula/restriccionMatricula.js}" charset="utf-8"></script>
     </div>
 
 </body>

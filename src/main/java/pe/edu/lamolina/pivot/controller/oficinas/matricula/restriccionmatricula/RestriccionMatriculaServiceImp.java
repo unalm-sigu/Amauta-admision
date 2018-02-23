@@ -54,9 +54,25 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
     @Autowired
     AlumnoDAO alumnoDAO;
 
+    private List returnEmpty(DynatableFilter filter) {
+        filter.setFiltered(0);
+        filter.setTotal(0);
+        return new ArrayList();
+    }
+    
     @Override
     public List<DeudaAlumno> allDeudaAlumno(DynatableFilter filter) {
-        return deudaAlumnoDAO.allByDynatable(filter);
+        if (filter.getQueries() == null) {
+            return returnEmpty(filter);
+        }
+
+        String tipoDeuda = (String) filter.getQueries().get("tipoDeuda");
+        if (StringUtils.isEmpty(tipoDeuda)) {
+            return returnEmpty(filter);
+        }
+        
+        TipoDeudaAlumno tipo = new TipoDeudaAlumno(tipoDeuda);
+        return deudaAlumnoDAO.allByDynatableTipoDeuda(filter, tipo);
     }
 
     @Override

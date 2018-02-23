@@ -137,15 +137,22 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        loadDeuda: function () {
+            var tipoDeuda = $("#tipoDeuda").val();
+            dynatable.queries.add("tipoDeuda", tipoDeuda);
+            dynatable.process();
         }
     };
 
     $("body").delegate(".anular", "click", function (e) {
         DeudaAlumno.verModalAnular($(this), e);
     });
+
     $("body").delegate(".levantar", "click", function (e) {
         DeudaAlumno.levantar($(this), e);
     });
+
     $("body").delegate(".editar", "click", function (e) {
         DeudaAlumno.verModalEditar($(this), e);
     });
@@ -153,7 +160,15 @@ $(function () {
     $("body").delegate("#btnEditar", "click", function (e) {
         DeudaAlumno.guardar();
     });
+
     $("body").delegate("#btnAnular", "click", function (e) {
         DeudaAlumno.anular();
     });
+
+    $("#tipoDeuda").change(function () {
+        DeudaAlumno.loadDeuda();
+    });
+
+    DeudaAlumno.loadDeuda();
+
 });

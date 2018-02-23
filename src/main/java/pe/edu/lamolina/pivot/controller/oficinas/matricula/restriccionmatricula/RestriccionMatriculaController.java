@@ -40,7 +40,8 @@ public class RestriccionMatriculaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-
+        List<TipoDeudaAlumno> tiposDeuda = service.allTipoDeudaAlumno();
+        model.addAttribute("tiposDeuda", tiposDeuda);
         return "oficinas/matricula/restriccionmatricula/restriccionMatricula";
     }
 
