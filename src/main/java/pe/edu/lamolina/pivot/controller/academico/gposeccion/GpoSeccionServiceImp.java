@@ -994,41 +994,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     grupoHora.setHorasMismoDia(Boolean.TRUE);
                     horasSemana.add(horasPorDias.size());
                 }
-                /*
-                if (horasPorDias.size() == seccion.getHorasSemanales()) {
-                    Integer numeroAnterior = null;
-                    boolean success = true;
-                    for (DiaHoraGrupo diaHoraGrupo : horasPorDias) {
-                        if (numeroAnterior == null) {
-                            numeroAnterior = diaHoraGrupo.getHora().getNumero();
-                        } else {
-                            numeroAnterior++;
-                            if (numeroAnterior != diaHoraGrupo.getHora().getNumero().intValue()) {
-                                success = false;
-                            }
-                        }
-                    }
-                    if (success) {
-                        grupoHora.setHorasMismoDia(Boolean.TRUE);
-                        grupoHora.setDiaHoraGrupo(horasPorDias);
-                        grupoHorasFiltrado.add(grupoHora);
-                    }
-                }
-                 */
-
             }
-            /*
-            List<Integer> allCombinations = new ArrayList<>();
-            for (Integer horasSem : horasSemana) {
-                allCombinations.add(horasSem);
-                for (Integer hora : horasSemana) {
 
-                }
-            }*/
-            List<Integer> listaInteger = new ArrayList<Integer>();
-            getAllSums(horasSemana, 0, 0, listaInteger, seccion.getHorasSemanales());
+            List<Integer> combinations = new ArrayList<Integer>();
+            getAllSums(horasSemana, 0, 0, combinations, seccion.getHorasSemanales());
 
-            if (!listaInteger.isEmpty()) {
+            if (!combinations.isEmpty()) {
                 grupoHorasFiltrado.add(grupoHora);
             }
             /*  if (grupoHora.isHorasMismoDia() && grupoHora.getDiaHoraGrupo().size() >= seccion.getHorasSemanales()) {
@@ -1581,11 +1552,29 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion) {
         seccion = seccionDAO.find(seccion.getId());
         GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoCicloEnum());
+        List<Dia> dias = diaDAO.all();
+        List<Dia> utilDays = new ArrayList<>();
+
         if (grupoHorario == null) {
             throw new PhobosException("Grupo Horario ingresada no existe");
         }
         List<DiaHoraGrupo> diasGrupoHoras = diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHorario, cicloAcademico);
+        Collections.sort(diasGrupoHoras, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
         grupoHorario.setDiaHoraGrupo(diasGrupoHoras);
+
+        for (Dia dia : dias) {
+            dia.setDiaHoraGrupo(new ArrayList<>());
+
+            for (DiaHoraGrupo horasPorDia : grupoHorario.getDiaHoraGrupo()) {
+                if (horasPorDia.getDia().getId().equals(dia.getId())) {
+                    dia.getDiaHoraGrupo().add(horasPorDia);
+                }
+            }
+            if (!dia.getDiaHoraGrupo().isEmpty()) {
+                utilDays.add(dia);
+            }
+        }
+
         if (!grupoHorario.isPermiteCeroHoras()) {
             if (seccion.getHorasSemanales().compareTo(diasGrupoHoras.size()) != 0) {
                 throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
