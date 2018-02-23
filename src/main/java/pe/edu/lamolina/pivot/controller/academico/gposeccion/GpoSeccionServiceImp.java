@@ -523,7 +523,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             seccionDAO.delete(seccion);
 
-            List<Seccion> seccionesActivas = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
+            List<Seccion> seccionesActivas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
             Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo().compareTo(va2.getCodigo()));
             int i = 0;
             for (Seccion seccionEach : seccionesActivas) {
@@ -740,7 +740,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional(propagation = Propagation.MANDATORY)
     public void actualizarVacantesTCUR(GrupoSeccion grupoSeccion, Usuario usuario, DateTime today) {
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
-            List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
+            List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
 
             Seccion seccionTCUR = null;
             Integer vacantes = BigDecimal.ZERO.intValue();
@@ -828,7 +828,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public void analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
-        List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
+        List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
         for (Seccion seccion : secciones) {
             this.analizedDocenteSeccion(seccion, cicloAcademico);
         }
@@ -853,11 +853,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         BigDecimal porcentajeCarga = BigDecimal.ZERO;
         for (DocenteSeccion docenteSeccion : docentesSeccion) {
-            if (docenteSeccion.getPorcentajeCarga() != null) {
-                porcentajeCarga = porcentajeCarga.add(docenteSeccion.getPorcentajeCarga());
+            if (docenteSeccion.getPorcentajeCarga() == null) {
+                porcentajeCarga = null;
+            } else {
+                if (porcentajeCarga != null) {
+                    porcentajeCarga = porcentajeCarga.add(docenteSeccion.getPorcentajeCarga());
+                }
             }
         }
-        if (porcentajeCarga.compareTo(BigDecimal.valueOf(100)) != 0) {
+        if (porcentajeCarga == null || porcentajeCarga.compareTo(BigDecimal.valueOf(100)) != 0) {
             errorPorcentajeCarga = Boolean.TRUE;
         }
 

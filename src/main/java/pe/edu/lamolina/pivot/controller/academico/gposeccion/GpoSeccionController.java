@@ -1282,7 +1282,9 @@ public class GpoSeccionController {
             List<Dia> dias = service.allDia();
             List<Hora> horasEncontradas = new ArrayList<>();
             for (HorarioAula horarioAula : aula.getHorariosAula()) {
-                horasEncontradas.add(horarioAula.getHora());
+                if (!horasEncontradas.contains(horarioAula.getHora())) {
+                    horasEncontradas.add(horarioAula.getHora());
+                }
             }
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
 

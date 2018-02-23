@@ -196,6 +196,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        $vue.loadSecciones();
                         $vue.loadDocentesSec();
                     } else {
                         notify(response.message, "error");
@@ -427,6 +428,7 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
+                                    $vue.loadSecciones();
                                     $vue.loadDocentesSec();
                                     MODAL.hideWait();
                                 } else {

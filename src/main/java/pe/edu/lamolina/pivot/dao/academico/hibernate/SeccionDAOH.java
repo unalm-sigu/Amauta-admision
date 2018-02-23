@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -100,6 +102,24 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula", "grupoHoras")
                 .filter("estado", EstadoEnum.ACT)
+                .filter("gs.id", gruposSeccion);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allOperativesByGpoSeccion(GrupoSeccion gruposSeccion) {
+        List<EstadoEnum> estados = Arrays.asList(EstadoEnum.ACT, EstadoEnum.BLO);
+        return this.allByGpoSeccionEstados(gruposSeccion, estados);
+    }
+
+    @Override
+    public List<Seccion> allByGpoSeccionEstados(GrupoSeccion gruposSeccion, List<EstadoEnum> estadoEnums) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .leftJoin("aula", "grupoHoras")
+                .in("estado", estadoEnums)
                 .filter("gs.id", gruposSeccion);
 
         return all(sql);
