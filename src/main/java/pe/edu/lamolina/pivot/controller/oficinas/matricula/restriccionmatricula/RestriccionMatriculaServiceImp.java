@@ -164,7 +164,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
 
                 if (registrados.contains(alumnoBD.getId()) || deudaRepetida(deuda)) {
                     if (!mapObservados.containsKey(alumnoBD.getId())) {
-                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda. (Fila " + fila + ")");
+                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo. (Fila " + fila + ")");
                     }
                     continue;
                 }
