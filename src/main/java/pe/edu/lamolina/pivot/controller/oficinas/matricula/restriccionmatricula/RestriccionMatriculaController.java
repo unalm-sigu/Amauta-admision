@@ -75,6 +75,7 @@ public class RestriccionMatriculaController {
                 node.put("tipo", deuda.getTipoDeuda().getNombre());
                 node.put("respNombre", deuda.getTipoDeuda().getResponsable().getPersona().getNombreCompleto());
                 node.put("respTelefono", deuda.getTipoDeuda().getResponsable().getTelefono());
+                node.put("respOficina", deuda.getTipoDeuda().getResponsable().getOficina().getNombre());
                 if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
                     node.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
                 } else {
