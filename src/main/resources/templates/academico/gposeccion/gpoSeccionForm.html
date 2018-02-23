@@ -13,6 +13,9 @@
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
             <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <div class="pull-right m-t-md">
+                <a class="btn btn-default"   th:href="@{/academico/gposeccion}"  >Regresar</a>
+            </div>
         </header>
         <div id="pageGpoSeccion">
 
