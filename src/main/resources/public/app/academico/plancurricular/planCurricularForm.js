@@ -2,7 +2,7 @@ $(function () {
 
     var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
         dataset: {
-            ajaxUrl: APP.url('accmbUpdateademico/planCurricular/cursosObligatorios'),
+            ajaxUrl: APP.url('academico/planCurricular/cursosObligatorios'),
             perPageDefault: 10
         }, features: {
             paginate: false,
@@ -319,21 +319,21 @@ $(function () {
             var idx = tr.attr("rel");
             var rec = dynatableCursosObl.settings.dataset.records[idx];
 
-            MODAL.init("lg");
-            MODAL.title("Edición Curso " + rec.curso);
+            MODAL.init("lg");            
+            MODAL.title("Añadir cursos Equivalentes a " + rec.curso);
             MODAL.buttons('<a class="btn btn-primary" id="btnAddCurObl">Aceptar</a>');
             MODAL.show();
-
+            
             $.ajax({
-                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursoObligatorio'),
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursosEquivalentes'),
                 type: 'POST',
                 async: false,
-                success: function (response) {
+                success: function (response) {                    
                     MODAL.body(response);
                     $("#txtNumeroCiclo").val(NuevaCurricula.numeroCicloElegido.attr("rel"));
 
                     $.ajax({
-                        url: APP.url('academico/planCurricular/' + $("#txtTipoCurCur").val() + '/cambiarTipoCursoCurricula'),
+                        url: APP.url('academico/planCurricular/' + $("#txtTipoCurCur").val() + '/buscarCursosEquivalentes'),
                         type: 'POST',
                         async: false,
                         success: function (response) {
@@ -790,7 +790,7 @@ $(function () {
                     $('#txtCreditoReq').prop("readonly", true);
                     $('#txtCreditos').prop("readonly", true);
 
-
+ºº
                     $("#cboCurso").select2(NuevaCurricula.select2BuscarCursos).on('select2-selecting', function (e) {
                         if (jQuery.type(NuevaCurricula.tipoCursoCurricula.tieneCreditoManual) === "undefined") {
                             $("#txtCreditos").val(e.object.creditos);

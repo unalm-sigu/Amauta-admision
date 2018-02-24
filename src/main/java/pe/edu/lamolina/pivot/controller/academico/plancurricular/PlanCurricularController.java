@@ -425,13 +425,13 @@ public class PlanCurricularController {
         return "academico/plancurricular/agregarCursoObli";
     }
     
-    @RequestMapping("{cursoCurricula}/editarCursoRequisito")
-    public String editarCursoRequisito(@PathVariable("cursoCurricula") Long cursoCurriculaId, Model model, HttpSession session) {
+    @RequestMapping("{cursoCurricula}/editarCursosEquivalentes")
+    public String editarCursosEquivalentes(@PathVariable("cursoCurricula") Long cursoCurriculaId, Model model, HttpSession session) {
         CursoCurricula cursoCurricula = service.findCursoCurricula(cursoCurriculaId);
 
         model.addAttribute("cursoCurricula", cursoCurricula);
         model.addAttribute("format", new NumberFormat());
-        return "academico/plancurricular/agregarCursoRequi";
+        return "academico/plancurricular/agregarCursoEqui";
     }
 
     @RequestMapping("{plancurricular}/agregarCursoElectivo")
@@ -490,6 +490,37 @@ public class PlanCurricularController {
     @ResponseBody
     @RequestMapping("{tipoCursoCurricula}/cambiarTipoCursoCurricula")
     public JsonResponse cambiarTipoCursoCurricula(@PathVariable("tipoCursoCurricula") Long tipoCursoCurriculaId, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            TipoCursoCurricula tipoCursoCurricula = service.findTipoCurricula(tipoCursoCurriculaId);
+            List<Curso> cursos = service.allCursosByCodigo(tipoCursoCurricula.getCodigo());
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("tieneRequisitos", tipoCursoCurricula.isTieneRequisitos());
+            node.put("tieneCreditoManual", tipoCursoCurricula.isTieneCreditoManual());
+            if (cursos != null && !cursos.isEmpty()) {
+                ObjectNode nodeCurso = new ObjectNode(JsonNodeFactory.instance);
+                nodeCurso.put("id", cursos.get(0).getId());
+                nodeCurso.put("codigo", cursos.get(0).getCodigo());
+                nodeCurso.put("curso", cursos.get(0).getNombre());
+                node.putPOJO("cursoDefault", nodeCurso);
+            }
+            response.setData(node);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    @ResponseBody
+    @RequestMapping("{tipoCursoCurricula}/buscarCursosEquivalentes")
+    public JsonResponse buscarCursosEquivalentes(@PathVariable("tipoCursoCurricula") Long tipoCursoCurriculaId, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
