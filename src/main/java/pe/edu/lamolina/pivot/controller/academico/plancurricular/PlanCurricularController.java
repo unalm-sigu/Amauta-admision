@@ -1162,4 +1162,23 @@ public class PlanCurricularController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("procesaralumnos")
+    public JsonResponse procesaralumnos(PlanCurricular planCurricular, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.procesarAlumnos(planCurricular, ds.getCicloAcademico());
+            response.setSuccess(true);
+            response.setMessage("Se han procesado los alumnos");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
 }

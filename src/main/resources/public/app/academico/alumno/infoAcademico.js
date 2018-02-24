@@ -31,15 +31,15 @@ new Vue({
             {id: 4, name: "Matricula"},
             {id: 5, name: "Horario"},
             {id: 6, name: "Malla"}];
-        console.log($vue.tabs);
-        if ($vue.alumno.persona.identificacion == undefined) {
+        console.log($vue.alumno);
+        if ($vue.alumno.persona.numeroDocIdentidad == undefined) {
             $vue.ident = false;
         }
         if ($vue.alumno.modalidadEstudio.codigo == 'VIS' || $vue.alumno.modalidadEstudio.codigo == 'ESP') {
             $vue.flag = false;
             $vue.facu = false;
         }
-        if ($vue.alumno.carrera.codigo == $vue.alumno.facultad.codigo) {
+        if ($vue.alumno.carrera.codigo == $vue.alumno.carrera.facultad.codigo) {
             $vue.facu = false;
         }
     },

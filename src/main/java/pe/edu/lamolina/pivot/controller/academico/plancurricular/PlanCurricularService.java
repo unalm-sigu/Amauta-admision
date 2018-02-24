@@ -93,4 +93,6 @@ public interface PlanCurricularService {
 
     void moveCurso(CursoCurricula cursoCurricula, String direccion, DataSessionPivot ds);
 
+    void procesarAlumnos(PlanCurricular plan, CicloAcademico cicloAcademico);
+
 }

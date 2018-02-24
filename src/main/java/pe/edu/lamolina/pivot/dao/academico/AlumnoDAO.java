@@ -40,7 +40,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     Alumno find(Alumno alumno);
 
-    Alumno find(Alumno alumno, CicloAcademico academico);
+    //Alumno find(Alumno alumno, CicloAcademico academico);
 
     Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
 

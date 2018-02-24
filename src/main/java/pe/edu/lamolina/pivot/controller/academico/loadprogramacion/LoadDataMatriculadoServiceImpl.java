@@ -18,7 +18,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -189,7 +189,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             resumen.setCreditosRetirados(0);
             resumen.setCursosMatriculados(0);
             resumen.setCursosRetirados(0);
-            resumen.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
             resumen.setNotaAcumulada("0");
             resumen.setNotaAvance("0");
             resumen.setNotaFinal("0");
@@ -202,9 +202,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             mapResumenes.put(alumno.getCodigo(), resumen);
         }
 
-        if (resumen.getEstadoEnum() != EstadoMatriculaCursoEnum.MAT) {
+        if (resumen.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
             System.out.println("\t" + rr + " guardando mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
-            resumen.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaResumenDAO.update(resumen);
         }
 
@@ -215,7 +215,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         if (matriSeccBD == null) {
             System.out.println("\t" + rr + " creando mat-seccion del alumno " + alumno.getCodigo());
             matriSeccBD = new MatriculaSeccion();
-            matriSeccBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            matriSeccBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriSeccBD.setFechaRegistro(new Date());
             matriSeccBD.setUserRegistro(ds.getUsuario());
             matriSeccBD.setSeccion(seccion);
@@ -230,9 +230,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             resumen.getMatriculaSeccion().add(matriSeccBD);
         }
 
-        if (matriSeccBD.getEstadoEnum() != EstadoMatriculaCursoEnum.MAT) {
+        if (matriSeccBD.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
             System.out.println("\t" + rr + " guardando mat-seccion " + matriSeccBD.getId() + " del alumno " + alumno.getCodigo());
-            matriSeccBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            matriSeccBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaSeccionDAO.update(matriSeccBD);
         }
 
@@ -246,7 +246,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriCursoBD = new MatriculaCurso();
 
             matriCursoBD.setCurso(curso);
-            matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+            matriCursoBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriCursoBD.setMatriculaResumen(resumen);
             matriCursoBD.setNotaAcumulada("0");
             matriCursoBD.setNotaAvance("0");
@@ -270,8 +270,8 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             System.out.println("\t" + rr + " finalizo actualizacion mat-resumen " + resumen.getId() + " para el mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo());
         }
 
-        if (matriCursoBD.getEstadoEnum() != EstadoMatriculaCursoEnum.MAT) {
-            matriCursoBD.setEstadoEnum(EstadoMatriculaCursoEnum.MAT);
+        if (matriCursoBD.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
+            matriCursoBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaCursoDAO.update(matriCursoBD);
         }
         matriSecc.setProcesado(1);

@@ -2,7 +2,7 @@ $(function () {
 
     var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
         dataset: {
-            ajaxUrl: APP.url('academico/planCurricular/cursosObligatorios'),
+            ajaxUrl: APP.url('accmbUpdateademico/planCurricular/cursosObligatorios'),
             perPageDefault: 10
         }, features: {
             paginate: false,
@@ -931,6 +931,25 @@ $(function () {
                 }
             });
         },
+        procesarAlumnos: function () {
+            var form = $("[id='frmPlanCurricular']");
+            $.ajax({
+                url: APP.url('academico/planCurricular/procesaralumnos'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         addCursoObl: function () {
             var form = $("[id='frmAgregarCurso']");
             form.parsley().destroy();
@@ -1534,6 +1553,10 @@ $(function () {
 
     $("body").delegate("#cmbUpdate", "click", function (e) {
         NuevaCurricula.savePlanCurricular();
+    });
+
+    $("body").delegate("#procesarAlumnos", "click", function (e) {
+        NuevaCurricula.procesarAlumnos();
     });
 
     $("body").delegate("#cboTipoCursoCurricula", "change", function (e) {
