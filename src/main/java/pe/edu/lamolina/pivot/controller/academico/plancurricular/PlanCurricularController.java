@@ -424,6 +424,15 @@ public class PlanCurricularController {
         model.addAttribute("format", new NumberFormat());
         return "academico/plancurricular/agregarCursoObli";
     }
+    
+    @RequestMapping("{cursoCurricula}/editarCursoRequisito")
+    public String editarCursoRequisito(@PathVariable("cursoCurricula") Long cursoCurriculaId, Model model, HttpSession session) {
+        CursoCurricula cursoCurricula = service.findCursoCurricula(cursoCurriculaId);
+
+        model.addAttribute("cursoCurricula", cursoCurricula);
+        model.addAttribute("format", new NumberFormat());
+        return "academico/plancurricular/agregarCursoRequi";
+    }
 
     @RequestMapping("{plancurricular}/agregarCursoElectivo")
     public String agregarCursoElectivo(@PathVariable("plancurricular") Long plancurricularId, Model model, HttpSession session) {
