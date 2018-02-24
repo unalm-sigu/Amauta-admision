@@ -123,7 +123,7 @@ $(function () {
             e.preventDefault();
             var tr = $this.closest("tr");
             var idx = tr.attr("rel");
-
+            var nsp = $this.attr("title");
             //
 
 
@@ -139,7 +139,7 @@ $(function () {
                 async: false,
                 data: {
                     matriculaSeccion: $this.attr("rel"),
-                    nsp: $this.attr("title")
+                    nsp: nsp
                 },
                 success: function (response) {
                     MODAL.body(response);
@@ -338,13 +338,13 @@ $(function () {
             });
 
         }, eliminarEvals: function ($this, e) {
-
+            e.preventDefault();
             if ($("#txtCodeSel").val() != "") {
                 bootbox.alert("Tiene una evaluacion pendiente, verifique.");
                 return;
             }
 
-            bootbox.confirm({
+            var dialog = bootbox.confirm({
                 message: "¿Está seguro que desea eliminar las notas de la evaluación?",
                 buttons: {
                     confirm: {label: 'Si', className: "btn-warning"},
@@ -352,6 +352,10 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
+                        var confirm = dialog.find('[data-bb-handler="confirm"]');
+                        confirm.html("Espere");
+                        confirm.prop("disabled", true);
+
                         MODAL.showWait("Espere un momento por favor");
 
                         $.ajax({
@@ -415,8 +419,8 @@ $(function () {
 
 
         },
-        verGrabarNotas: function () {
-
+        verGrabarNotas: function (e) {
+            e.preventDefault();
             var evaluacion = $("#txtCodeSel").val();
             var jsonObj = [];
             $("select[title='" + evaluacion + "'], input[title='" + evaluacion + "']").each(function () {
@@ -497,7 +501,7 @@ $(function () {
                 return;
             }
 
-            bootbox.confirm({
+            var dialog = bootbox.confirm({
                 message: "¿Está seguro que desea registrar las notas de la evaluación?",
                 buttons: {
                     confirm: {label: 'Si', className: "btn-warning"},
@@ -505,6 +509,10 @@ $(function () {
                 },
                 callback: function (result) {
                     if (result) {
+                        var confirm = dialog.find('[data-bb-handler="confirm"]');
+                        confirm.text("Espere");
+                        confirm.prop("disabled", true);
+
                         MODAL.showWait("Espere un momento por favor");
                         NotasAcademicas.grabarNotas(jsonObj);
                         MODAL.hideWait();
@@ -842,7 +850,7 @@ $(function () {
     });
 
     $("body").delegate("#cmbSaveNotas", "click", function (e) {
-        NotasAcademicas.verGrabarNotas();
+        NotasAcademicas.verGrabarNotas(e);
     });
 
     $("body").delegate("#cmbGuardarCambio", "click", function (e) {

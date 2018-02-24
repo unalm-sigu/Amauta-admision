@@ -177,8 +177,8 @@ $(function () {
                 }
             }
         },
-        saveHeaderGrupo: function () {
-
+        saveHeaderGrupo: function (e) {
+            e.preventDefault();
 
             var form = $("[id='frmPlanCurricular']");
             // form.submit();
@@ -327,13 +327,13 @@ $(function () {
     });
 
     $("body").delegate("#btnSaveGpo", "click", function (e) {
-        GrupoSeccion.saveHeaderGrupo();
+        GrupoSeccion.saveHeaderGrupo(e);
     });
-
-    $("body").delegate(".editar-gpo", "click", function (e) {
-        GrupoSeccion.saveHeaderGrupo();
-    });
-
+    /*
+     $("body").delegate(".editar-gpo", "click", function (e) {
+     GrupoSeccion.saveHeaderGrupo();
+     });
+     */
     $("body").delegate(".editar-gpo-seccion", "click", function (e) {
         GrupoSeccion.editarGpoSeccion($(this), e);
     });

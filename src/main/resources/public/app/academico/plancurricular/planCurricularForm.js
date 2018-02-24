@@ -313,6 +313,46 @@ $(function () {
                 }
             });
         },
+        editarCursoEqui($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatableCursosObl.settings.dataset.records[idx];
+
+            MODAL.init("lg");
+            MODAL.title("Edición Curso " + rec.curso);
+            MODAL.buttons('<a class="btn btn-primary" id="btnAddCurObl">Aceptar</a>');
+            MODAL.show();
+
+            $.ajax({
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursoObligatorio'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    MODAL.body(response);
+                    $("#txtNumeroCiclo").val(NuevaCurricula.numeroCicloElegido.attr("rel"));
+
+                    $.ajax({
+                        url: APP.url('academico/planCurricular/' + $("#txtTipoCurCur").val() + '/cambiarTipoCursoCurricula'),
+                        type: 'POST',
+                        async: false,
+                        success: function (response) {
+                            NuevaCurricula.tipoCursoCurricula = response.data;
+                            if (response.data.tieneRequisitos) {
+                                $("#cboCursosReq").select2(NuevaCurricula.select2RequisitoCursoCurricula);
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        }
+                    });
+
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         editarCursoElec($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
@@ -1545,6 +1585,10 @@ $(function () {
 
     $("body").delegate(".editar-cur-obl", "click", function (e) {
         NuevaCurricula.editarCursoObl($(this), e);
+    });
+
+    $("body").delegate(".editar-cur-equi", "click", function (e) {
+        NuevaCurricula.editarCursoEqui($(this), e);
     });
 
     $("body").delegate(".editar-cur-elec", "click", function (e) {

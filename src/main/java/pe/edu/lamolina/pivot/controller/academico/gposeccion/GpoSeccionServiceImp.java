@@ -264,6 +264,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
 
         DateTime today = new DateTime();
+        final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
 
         grupoSeccion.setSecciones(new ArrayList<Seccion>());
         if (curso.isTipoCursoTEO()) {
@@ -273,6 +274,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionTEO.setCodigo2(seccionTEO.getCodigo());
             seccionTEO.setEstadoEnum(EstadoEnum.CRE);
             seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
+            seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
             /*
             seccionTEO.setHorasPractica(curso.getHorasPractica());
             seccionTEO.setHorasTeoria(curso.getHorasTeoria());
@@ -287,7 +289,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion.setSeccion(seccionTEO);
-            docenteSeccion.setPorcentajeCarga(BigDecimal.valueOf(100));
+            docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             seccionTEO.getDocenteSeccion().add(docenteSeccion);
 
             grupoSeccion.getSecciones().add(seccionTEO);
@@ -299,6 +301,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPRA.setCodigo2(seccionPRA.getCodigo());
             seccionPRA.setEstadoEnum(EstadoEnum.CRE);
             seccionPRA.setTipoSeccionEnum(TipoSeccionEnum.PRA);
+            seccionPRA.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
             /*
             seccionPRA.setHorasPractica(curso.getHorasPractica());
             seccionPRA.setHorasTeoria(curso.getHorasTeoria());
@@ -313,7 +316,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion.setSeccion(seccionPRA);
-            docenteSeccion.setPorcentajeCarga(BigDecimal.valueOf(100));
+            docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             seccionPRA.getDocenteSeccion().add(docenteSeccion);
 
             grupoSeccion.getSecciones().add(seccionPRA);
@@ -325,6 +328,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionTCUR.setCodigo2(seccionTCUR.getCodigo());
             seccionTCUR.setEstadoEnum(EstadoEnum.CRE);
             seccionTCUR.setTipoSeccionEnum(TipoSeccionEnum.TCUR);
+            seccionTCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
             //   seccionTCUR.setHorasPractica(curso.getHorasPractica());
             //   seccionTCUR.setHorasTeoria(curso.getHorasTeoria());
             seccionTCUR.setHorasSemanales(horasTeoria);
@@ -337,7 +341,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion.setSeccion(seccionTCUR);
-            docenteSeccion.setPorcentajeCarga(BigDecimal.valueOf(50));
+            docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             seccionTCUR.getDocenteSeccion().add(docenteSeccion);
 
             grupoSeccion.getSecciones().add(seccionTCUR);
@@ -348,6 +352,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
             seccionPCUR.setEstadoEnum(EstadoEnum.CRE);
             seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
+            seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
             //  seccionPCUR.setHorasPractica(curso.getHorasPractica());
             //   seccionPCUR.setHorasTeoria(curso.getHorasTeoria());
             seccionPCUR.setHorasSemanales(horasPractica);
@@ -360,7 +365,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion2.setFechaInicio(cicloAcademico.getFechaRegistro());
             docenteSeccion2.setPrincipal(BigDecimal.ONE.intValue());
             docenteSeccion2.setSeccion(seccionPCUR);
-            docenteSeccion2.setPorcentajeCarga(BigDecimal.valueOf(50));
+            docenteSeccion2.setPorcentajeCarga(PORCENTAJE_CARGA);
             seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
 
             grupoSeccion.getSecciones().add(seccionPCUR);
@@ -523,7 +528,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             seccionDAO.delete(seccion);
 
-            List<Seccion> seccionesActivas = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
+            List<Seccion> seccionesActivas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
             Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo().compareTo(va2.getCodigo()));
             int i = 0;
             for (Seccion seccionEach : seccionesActivas) {
@@ -740,7 +745,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional(propagation = Propagation.MANDATORY)
     public void actualizarVacantesTCUR(GrupoSeccion grupoSeccion, Usuario usuario, DateTime today) {
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
-            List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
+            List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
 
             Seccion seccionTCUR = null;
             Integer vacantes = BigDecimal.ZERO.intValue();
@@ -828,7 +833,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public void analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
-        List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
+        List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
         for (Seccion seccion : secciones) {
             this.analizedDocenteSeccion(seccion, cicloAcademico);
         }
@@ -853,11 +858,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         BigDecimal porcentajeCarga = BigDecimal.ZERO;
         for (DocenteSeccion docenteSeccion : docentesSeccion) {
-            if (docenteSeccion.getPorcentajeCarga() != null) {
-                porcentajeCarga = porcentajeCarga.add(docenteSeccion.getPorcentajeCarga());
+            if (docenteSeccion.getPorcentajeCarga() == null) {
+                porcentajeCarga = null;
+            } else {
+                if (porcentajeCarga != null) {
+                    porcentajeCarga = porcentajeCarga.add(docenteSeccion.getPorcentajeCarga());
+                }
             }
         }
-        if (porcentajeCarga.compareTo(BigDecimal.valueOf(100)) != 0) {
+        if (porcentajeCarga == null || porcentajeCarga.compareTo(BigDecimal.valueOf(100)) != 0) {
             errorPorcentajeCarga = Boolean.TRUE;
         }
 
@@ -974,9 +983,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Collections.sort(listaDiaHoraGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
             grupoHora.setDiaHoraGrupo(listaDiaHoraGrupo);
         }
-        //buscando grupos con las horas requeridas por dia
+        //buscando grupos con las horas requeridas por dia (filtramos los grupos horas)
         for (GrupoHoras grupoHora : grupoHoras) {
+            /*
+            if (grupoHora.getDiaHoraGrupo().size() >= seccion.getHorasSemanales()) {
+                grupoHorasFiltrado.add(grupoHora);
+            }*/
+            List<Integer> horasSemana = new ArrayList<>();
             for (Dia dia : dias) {
+
                 List<DiaHoraGrupo> horasPorDias = new ArrayList<>();
 
                 for (DiaHoraGrupo horasPorDia : grupoHora.getDiaHoraGrupo()) {
@@ -984,29 +999,34 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                         horasPorDias.add(horasPorDia);
                     }
                 }
-                if (horasPorDias.size() == seccion.getHorasSemanales()) {
-                    Integer numeroAnterior = null;
-                    boolean success = true;
-                    for (DiaHoraGrupo diaHoraGrupo : horasPorDias) {
-                        if (numeroAnterior == null) {
-                            numeroAnterior = diaHoraGrupo.getHora().getNumero();
-                        } else {
-                            numeroAnterior++;
-                            if (numeroAnterior != diaHoraGrupo.getHora().getNumero().intValue()) {
-                                success = false;
-                            }
-                        }
-                    }
-                    if (success) {
-                        grupoHora.setHorasMismoDia(Boolean.TRUE);
-                        grupoHora.setDiaHoraGrupo(horasPorDias);
-                        grupoHorasFiltrado.add(grupoHora);
-                    }
+                if (horasPorDias.size() <= seccion.getHorasSemanales()) {
+                    grupoHora.setHorasMismoDia(Boolean.TRUE);
+                    horasSemana.add(horasPorDias.size());
                 }
             }
+
+            List<Integer> combinations = new ArrayList<Integer>();
+            getAllSums(horasSemana, 0, 0, combinations, seccion.getHorasSemanales());
+
+            if (!combinations.isEmpty()) {
+                grupoHorasFiltrado.add(grupoHora);
+            }
+            /*  if (grupoHora.isHorasMismoDia() && grupoHora.getDiaHoraGrupo().size() >= seccion.getHorasSemanales()) {
+                grupoHorasFiltrado.add(grupoHora);
+            }*/
         }
 
         return grupoHorasFiltrado;
+    }
+
+    private void getAllSums(List<Integer> array, int startingValue, int pos, List<Integer> result, Integer comparation) {
+        for (int i = pos; i < array.size(); i++) {
+            int currentValue = startingValue + array.get(i);
+            if (currentValue == comparation) {
+                result.add(currentValue);
+            }
+            getAllSums(array, currentValue, i + 1, result, comparation);
+        }
     }
 
     @Override
@@ -1459,6 +1479,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    public GrupoHoras findGrupoHorasFull(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        grupoHoras = grupoHorasDAO.find(grupoHoras);
+        List<DiaHoraGrupo> diasHorasGrupo = diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHoras, cicloAcademico);
+        grupoHoras.setDiaHoraGrupo(diasHorasGrupo);
+        return grupoHoras;
+    }
+
+    @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
         return grupoSeccionDAO.resumenByCiclo(ciclo);
     }
@@ -1533,11 +1561,29 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion) {
         seccion = seccionDAO.find(seccion.getId());
         GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoCicloEnum());
+        List<Dia> dias = diaDAO.all();
+        List<Dia> utilDays = new ArrayList<>();
+
         if (grupoHorario == null) {
             throw new PhobosException("Grupo Horario ingresada no existe");
         }
         List<DiaHoraGrupo> diasGrupoHoras = diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHorario, cicloAcademico);
+        Collections.sort(diasGrupoHoras, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
         grupoHorario.setDiaHoraGrupo(diasGrupoHoras);
+
+        for (Dia dia : dias) {
+            dia.setDiaHoraGrupo(new ArrayList<>());
+
+            for (DiaHoraGrupo horasPorDia : grupoHorario.getDiaHoraGrupo()) {
+                if (horasPorDia.getDia().getId().equals(dia.getId())) {
+                    dia.getDiaHoraGrupo().add(horasPorDia);
+                }
+            }
+            if (!dia.getDiaHoraGrupo().isEmpty()) {
+                utilDays.add(dia);
+            }
+        }
+
         if (!grupoHorario.isPermiteCeroHoras()) {
             if (seccion.getHorasSemanales().compareTo(diasGrupoHoras.size()) != 0) {
                 throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
