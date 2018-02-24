@@ -196,6 +196,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        $vue.loadSecciones();
                         $vue.loadDocentesSec();
                     } else {
                         notify(response.message, "error");
@@ -427,6 +428,7 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
+                                    $vue.loadSecciones();
                                     $vue.loadDocentesSec();
                                     MODAL.hideWait();
                                 } else {
@@ -570,8 +572,11 @@ var app = new Vue({
                     }
                 });
             }
-        }, directAula() {
-            alert("1");
+        }, directAulaChange(event) {
+            let target = event.target.closest("table");
+            $(target).find('[class*="parsley-errors"]').each(function () {
+                this.remove();
+            });
         }
         , showModalAula(seccion) {
             let $vue = this;
@@ -730,7 +735,7 @@ var app = new Vue({
                         notify(response.message, "info");
                         $vue.loadSecciones();
                     } else {
-                        alert("error");
+                        target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
                 }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");

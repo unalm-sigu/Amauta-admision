@@ -1,4 +1,4 @@
-Vue.component("dynatable", {
+Vue.component("dynatable-zeta", {
     template: "#dynatableTemplate",
     props: {
         project: {required: false},
@@ -146,7 +146,7 @@ Vue.component("dynatable-especial", {
 
             $vue.dynatable = $('#dynaTableEspecial').dynatable({
                 dataset: {
-                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosByTipoEspecial'),
+                    ajaxUrl: APP.url('academico/gposeccion/listGrupoHorariosEspeciales'),
                     perPageDefault: 6,
                     ajaxData: {
                         tipoGrupoHora: "ESPECIAL"

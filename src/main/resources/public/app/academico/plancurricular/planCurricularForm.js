@@ -325,7 +325,7 @@ $(function () {
             MODAL.show();
 
             $.ajax({
-                url: APP.url('academico/planCurricular/' + rec.id + '/agregarCursoRequi'),
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursoObligatorio'),
                 type: 'POST',
                 async: false,
                 success: function (response) {
