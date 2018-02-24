@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12">
     <div class="row">
         <div class="col-sm-4">
             <label class="col-sm-6 control-label">Sólo aprobados</label>
@@ -22,7 +22,9 @@
             <label class="col-sm-6 control-label">Ciclos</label>
             <div class="col-sm-6">
                 <select  class="form-control" onchange="window.location.href = this.value">
-                    <option v-for="ciclo in listCiclos" v-bind:value="'#'+ ciclo.value"  v-text="ciclo.value" />
+                    <option v-for="ciclo in listCiclos" 
+                            v-bind:value="'#'+ ciclo.value"  
+                            v-text="ciclo.value" />
                 </select>
             </div>
         </div>
@@ -31,7 +33,7 @@
 
 <hr/>
 
-<div class="pre-scrollable">
+<div class="pre-scrollable col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12">
     <table v-bind:id="tab.descripción" v-for="tab in alumnoCurso" class="table table-striped col-md-12 " v-if="general">
         <thead class="thead-dark">
             <tr >
@@ -43,19 +45,21 @@
                 <th scope="col" class="col-md-8">
                     Nombre del curso
                 </th>
-                <th scope="col" class="col-md-2">
-                    Cred.
+                <th scope="col" class="col-md-2 text-center">
+                    Créditos
                 </th>
-                <th scope="col" class="col-md-2">
+                <th scope="col" class="col-md-2 text-center">
                     Nota
                 </th>
             </tr>
-            <tr v-for="curso in tab.cursos" v-if="validarNota(curso,typeSearch)"> 
+            <tr v-for="curso in tab.cursos" 
+                v-if="validarNota(curso,typeSearch)"> 
                 <td class="col-md-8">
                     <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
                 </td>
-                <td class="col-md-2" v-text="curso.creditos"/> 
-                <td class="col-md-2"> 
+                <td class="col-md-2 text-center" 
+                    v-text="curso.creditos"/> 
+                <td class="col-md-2 text-center"> 
                     <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>         
                 </td>
 
@@ -96,7 +100,8 @@
         </tbody>
     </table>
 </div>
-<div class="pre-scrollable" v-if="!general">
+<div class="pre-scrollable col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12" 
+     v-if="!general">
     <table v-if="!general" class="table table-striped col-md-12 ">
         <tr>
             <th scope="col" class="col-md-8">
