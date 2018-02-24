@@ -5,7 +5,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
@@ -13,6 +13,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allByCiclo(CicloAcademico ciclo);
 
-    MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaCursoEnum estadoMatriculaCursoEnum);
+    MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaEnum estadoMatriculaCursoEnum);
 
 }

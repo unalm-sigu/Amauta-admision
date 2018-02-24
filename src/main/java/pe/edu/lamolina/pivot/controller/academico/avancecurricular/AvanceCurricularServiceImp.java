@@ -18,7 +18,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
-import pe.edu.lamolina.model.enums.AlumnoCursoCurriculaEstadoEnum;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -127,7 +127,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 contNoMatricula++;
                 continue;
             }
-            alumnoCursoCurricula.setEstado(AlumnoCursoCurriculaEstadoEnum.APR.name());
+            alumnoCursoCurricula.setEstado(CursoCurriculaEstadoEnum.APR.name());
             alumnoCursoCurricula.setCicloAprobado(cursoAprobado.getAlumnoCiclo().getCicloAcademico());
             alumnoCursoCurricula.setCreditos(cursoAprobado.getCreditos());
             alumnoCursoCurricula.setNota(cursoAprobado.getNota());
@@ -162,7 +162,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 nuevoCursoAlumno.setCreditos(entry.getValue().getCreditos());
                 nuevoCursoAlumno.setCurso(curso);
                 nuevoCursoAlumno.setCursoCurricula(entry.getValue());
-                nuevoCursoAlumno.setEstado(AlumnoCursoCurriculaEstadoEnum.NREQ.name());
+                nuevoCursoAlumno.setEstado(CursoCurriculaEstadoEnum.NREQ.name());
                 nuevoCursoAlumno.setNota(null);
                 nuevoCursoAlumno.setValidado(false);
                 nuevoCursoAlumno.setVecesCursado(0);
@@ -195,7 +195,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
             if (creditosAprobadosRequisito <= creditosAprobados && credidosCurriculaRequisito <= creditosCurriculaAprobados) {
                 contValid++;
-                alumnoCurso.setEstado(AlumnoCursoCurriculaEstadoEnum.HAB.name());
+                alumnoCurso.setEstado(CursoCurriculaEstadoEnum.HAB.name());
                 alumnoCurso.setValidado(true);
             } else {
                 contNoValid++;
@@ -210,14 +210,14 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
 
-            if (evaluado.isValidado() || evaluado.getEstadoEnum() == AlumnoCursoCurriculaEstadoEnum.APR) {
+            if (evaluado.isValidado() || evaluado.getEstadoEnum() == CursoCurriculaEstadoEnum.APR) {
                 continue;
             }
 
             List<RequisitoCursoCurricula> requisitos = requisitosPorCurso.get(entry.getKey());
 
             if (cumpleRequisitos(requisitos, mapAlumnoCursoCurriculaByCursoCurricula, evaluado)) {
-                evaluado.setEstado(AlumnoCursoCurriculaEstadoEnum.HAB.name());
+                evaluado.setEstado(CursoCurriculaEstadoEnum.HAB.name());
                 evaluado.setValidado(true);
             }
         }
@@ -242,7 +242,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
             if (!alumnoCursoCurricula.isValidado()) {
                 alumnoCursoCurricula.setValidado(true);
-                alumnoCursoCurricula.setEstado(AlumnoCursoCurriculaEstadoEnum.NREQ.name());
+                alumnoCursoCurricula.setEstado(CursoCurriculaEstadoEnum.NREQ.name());
             }
         }
     }

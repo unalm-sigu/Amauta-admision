@@ -15,7 +15,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 
 @Repository
 public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> implements AlumnoEvaluacionDAO {
