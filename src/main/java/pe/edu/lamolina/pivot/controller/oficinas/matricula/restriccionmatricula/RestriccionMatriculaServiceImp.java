@@ -59,7 +59,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         filter.setTotal(0);
         return new ArrayList();
     }
-    
+
     @Override
     public List<DeudaAlumno> allDeudaAlumno(DynatableFilter filter) {
         if (filter.getQueries() == null) {
@@ -70,7 +70,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         if (StringUtils.isEmpty(tipoDeuda)) {
             return returnEmpty(filter);
         }
-        
+
         TipoDeudaAlumno tipo = new TipoDeudaAlumno(tipoDeuda);
         return deudaAlumnoDAO.allByDynatableTipoDeuda(filter, tipo);
     }
@@ -231,7 +231,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         }
 
         deudaBD.setEstado(DeudaAlumnoEstadoEnum.LEV);
-         deudaBD.setFechaDesactiva(new Date());
+        deudaBD.setFechaDesactiva(new Date());
         deudaBD.setUserDesactivacion(ds.getUsuario());
         deudaAlumnoDAO.update(deudaBD);
     }

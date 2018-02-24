@@ -18,7 +18,7 @@ public interface RestriccionMatriculaService {
     void guardarDeuda(DeudaAlumno deudaForm);
 
     List<TipoDeudaAlumno> allTipoDeudaAlumno();
-    
+
     List<String> cargarDeudas(MultipartFile file, TipoDeudaAlumno tipo, DataSessionPivot ds);
-    
+
 }
