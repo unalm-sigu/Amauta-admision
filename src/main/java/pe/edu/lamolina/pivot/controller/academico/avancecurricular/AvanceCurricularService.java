@@ -8,6 +8,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public interface AvanceCurricularService {
 
     public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, CicloAcademico cicloAcademico, DataSessionPivot ds);
-    
+
     public void generarAvanceCurricularByAlumnoCiclo(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
 }
