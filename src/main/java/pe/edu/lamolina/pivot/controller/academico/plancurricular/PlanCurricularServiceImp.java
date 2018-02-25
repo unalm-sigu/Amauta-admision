@@ -40,6 +40,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoGrupoHorariosEnum.OBL;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoAdicionalCurriculaDAO;
@@ -98,7 +99,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
-    
+
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
         return carreraDAO.allRegularesByCarreras(carreras);
@@ -107,6 +111,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public List<OrientacionCarrera> allOrientacionByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum) {
         return orientacionCarreraDAO.allByCarreraEstado(carrera, estadoEnum);
+    }
+
+    @Override
+    public Long countAlumnosByPlanCurricularCicloAcademico(PlanCurricular planCurricular, CicloAcademico cicloAcademico) {
+        return alumnoCicloDAO.countByCicloAcademicoPlanCurricular(cicloAcademico, planCurricular);
     }
 
     @Override
@@ -881,7 +890,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
 
     }
-    
+
     @Override
     @Transactional
     public void generarAvanceCurricular(PlanCurricular plan, CicloAcademico cicloAcademico, DataSessionPivot ds) {

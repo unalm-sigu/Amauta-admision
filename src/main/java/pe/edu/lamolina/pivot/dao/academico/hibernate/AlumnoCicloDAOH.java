@@ -24,7 +24,20 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("cicloAcademico ca", "alumno alu")
                 .filter("cicloAcademico", ciclo)
                 .filter("alu.planCurricular", plan);
-        
+
         return sql.all(getCurrentSession());
     }
+
+    @Override
+    public Long countByCicloAcademicoPlanCurricular( CicloAcademico ciclo, PlanCurricular plan) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCiclo.class, "ac")
+                .join("cicloAcademico ca", "alumno alu")
+                .filter("cicloAcademico", ciclo)
+                .filter("alu.planCurricular", plan);
+
+        return (Long) sql.find(getCurrentSession());
+    }
+
 }
