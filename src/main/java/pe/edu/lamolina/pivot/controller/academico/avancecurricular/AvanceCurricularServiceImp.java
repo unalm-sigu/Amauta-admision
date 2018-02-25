@@ -45,42 +45,42 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class AvanceCurricularServiceImp implements AvanceCurricularService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     PlanCurricularDAO planCurricularDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-    
+
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    
+
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    
+
     @Autowired
     RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
-    
+
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @Autowired
     AlumnoCursoSimultaneoDAO alumnoCursoSimultaneoDAO;
-    
+
     @Autowired
     AvanceCurricularAsincronoService avanceCurricularAsincronoService;
 
     @Override
     @Transactional
-    public void generarAvanceCurricular(PlanCurricular planCurricular, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         PlanCurricular planBD = planCurricularDAO.find(planCurricular.getId());
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByCicloAcademicoPlanCurricular(planBD, cicloBD);
@@ -93,149 +93,13 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
             avanceCurricularAsincronoService.procesarAlumno(alumnoCiclo, ds);
         }
     }
-    
-    private void validarHistorial(Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCurso, Alumno alumno) {
-        
-        Map<Long, AlumnoCicloCurso> mapAlumnoCicloCursoAprobadoByCurso = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno)
-                .stream()
-                .filter(x -> x.getCurso() != null)
-                .collect(Collectors.toMap(x -> x.getCurso().getId(), x -> x, (a, b) -> a));
-        
-        for (AlumnoCicloCurso cursoAprobado : mapAlumnoCicloCursoAprobadoByCurso.values()) {
-            AlumnoCursoCurricula alumnoCursoCurricula = mapAlumnoCursoCurriculaByCurso.get(cursoAprobado.getCurso().getId());
-            if (alumnoCursoCurricula == null) {
-                continue;
-            }
-            alumnoCursoCurricula.setEstado(APR.name());
-            alumnoCursoCurricula.setCicloAprobado(cursoAprobado.getAlumnoCiclo().getCicloAcademico());
-            alumnoCursoCurricula.setCreditos(cursoAprobado.getCreditos());
-            alumnoCursoCurricula.setNota(cursoAprobado.getNota());
-            alumnoCursoCurricula.setValidado(true);
-        }
-        
-        for (AlumnoCursoCurricula alumnoCursoCurricula : mapAlumnoCursoCurriculaByCurso.values()) {
-            alumnoCursoCurricula.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumno(alumnoCursoCurricula.getCurso(), alumno).intValue());
-        }
+
+    @Override
+    @Transactional
+    public void generarAvanceCurricularByAlumnoCiclo(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
+        AlumnoCiclo alumnoCicloBD = alumnoCicloDAO.find(alumnoCiclo.getId());
+        alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoCicloBD.getAlumno());
+        avanceCurricularAsincronoService.procesarAlumno(alumnoCiclo, ds);
     }
-    
-    private void sincronizarConCurricula(Map<Long, CursoCurricula> cursosCurriculaById, Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCursoCurricula, Alumno alumno) {
-        sincronizarCursosEliminados(cursosCurriculaById, mapAlumnoCursoCurriculaByCursoCurricula);
-        sincronizarCursosAgregados(cursosCurriculaById, mapAlumnoCursoCurriculaByCursoCurricula, alumno);
-    }
-    
-    private void sincronizarCursosEliminados(Map<Long, CursoCurricula> cursosCurricula, Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCursoCurricula) {
-        for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapAlumnoCursoCurriculaByCursoCurricula.entrySet()) {
-            if (!cursosCurricula.containsKey(entry.getKey())) {
-                mapAlumnoCursoCurriculaByCursoCurricula.remove(entry.getKey());
-            }
-        }
-    }
-    
-    private void sincronizarCursosAgregados(Map<Long, CursoCurricula> cursosCurricula, Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCursoCurricula, Alumno alumno) {
-        for (Map.Entry<Long, CursoCurricula> entry : cursosCurricula.entrySet()) {
-            if (!mapAlumnoCursoCurriculaByCursoCurricula.containsKey(entry.getKey())) {
-                Curso curso = entry.getValue().getCurso();
-                AlumnoCursoCurricula nuevoCursoAlumno = new AlumnoCursoCurricula();
-                nuevoCursoAlumno.setAlumno(alumno);
-                nuevoCursoAlumno.setCicloAprobado(null);
-                nuevoCursoAlumno.setCreditos(entry.getValue().getCreditos());
-                nuevoCursoAlumno.setCurso(curso);
-                nuevoCursoAlumno.setCursoCurricula(entry.getValue());
-                nuevoCursoAlumno.setEstado(NREQ.name());
-                nuevoCursoAlumno.setNota(null);
-                nuevoCursoAlumno.setValidado(false);
-                nuevoCursoAlumno.setVecesCursado(0);
-                
-                mapAlumnoCursoCurriculaByCursoCurricula.put(nuevoCursoAlumno.getCursoCurricula().getId(), nuevoCursoAlumno);
-            }
-        }
-        
-    }
-    
-    private void validarCreditosAprobados(Map<Long, CursoCurricula> requisitos, Collection<AlumnoCursoCurricula> alumnoCursos, int creditosAprobados, int creditosCurriculaAprobados) {
-        
-        for (AlumnoCursoCurricula alumnoCurso : alumnoCursos) {
-            
-            if (alumnoCurso.isValidado()) {
-                continue;
-            }
-            
-            Long idCurso = alumnoCurso.getCursoCurricula().getId();
-            
-            Integer creditosAprobadosRequisito = requisitos.get(idCurso).getCreditosRequisito() != null ? requisitos.get(idCurso).getCreditosRequisito() : 0;
-            Integer credidosCurriculaRequisito = requisitos.get(idCurso).getCreditosCurriculaRequisito() != null ? requisitos.get(idCurso).getCreditosCurriculaRequisito() : 0;
-            
-            if (creditosAprobadosRequisito <= creditosAprobados && credidosCurriculaRequisito <= creditosCurriculaAprobados) {
-                alumnoCurso.setEstado(HAB.name());
-                alumnoCurso.setValidado(true);
-            }
-        }
-        
-    }
-    
-    private void validarCursosRequisito(Map<Long, List<RequisitoCursoCurricula>> requisitosPorCurso, Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCursoCurricula, DataSessionPivot ds) {
-        
-        List<AlumnoCursoSimultaneo> simultaneos = new ArrayList<>();
-        
-        for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapAlumnoCursoCurriculaByCursoCurricula.entrySet()) {
-            
-            AlumnoCursoCurricula evaluado = entry.getValue();
-            
-            if (evaluado.isValidado() || evaluado.getEstadoEnum() == APR || evaluado.getEstadoEnum() == EQUIV) {
-                continue;
-            }
-            
-            List<RequisitoCursoCurricula> requisitos = requisitosPorCurso.get(entry.getKey());
-            simultaneos.clear();
-            
-            if (cumpleRequisitos(simultaneos, requisitos, mapAlumnoCursoCurriculaByCursoCurricula, evaluado, ds)) {
-                if (simultaneos.size() > 0) {
-                    evaluado.setEstado(SIM.name());
-                    for (AlumnoCursoSimultaneo simultaneo : simultaneos) {
-                        alumnoCursoSimultaneoDAO.save(simultaneo);
-                    }
-                } else {
-                    evaluado.setEstado(HAB.name());
-                }
-                evaluado.setValidado(true);
-            }
-        }
-        
-    }
-    
-    private boolean cumpleRequisitos(List<AlumnoCursoSimultaneo> cursosSimultaneo, List<RequisitoCursoCurricula> requisitos, Map<Long, AlumnoCursoCurricula> cursos, AlumnoCursoCurricula evaluado, DataSessionPivot ds) {
-        boolean requisitosCumplidos = true;
-        
-        for (RequisitoCursoCurricula requisito : requisitos) {
-            AlumnoCursoCurricula cursoRequisito = cursos.get(requisito.getCursoRequisito().getId());
-            if (cursoRequisito == null || (cursoRequisito.getEstadoEnum() != APR && cursoRequisito.getEstadoEnum() != EQUIV)) {
-                if (requisito.getSimultaneo() == 0) {
-                    cursosSimultaneo.clear();
-                    requisitosCumplidos = false;
-                    break;
-                } else {
-                    AlumnoCursoSimultaneo alumnoCursoSimultaneo = new AlumnoCursoSimultaneo();
-                    alumnoCursoSimultaneo.setAlumnoCursoCurricula(evaluado);
-                    alumnoCursoSimultaneo.setCurso(requisito.getCursoRequisito().getCurso());
-                    alumnoCursoSimultaneo.setFechaRegistro(new Date());
-                    alumnoCursoSimultaneo.setUserRegistro(ds.getUsuario());
-                    alumnoCursoSimultaneo.setEstado(AlumnoCursoSimultaneoEstadoEnum.NMAT);
-                    cursosSimultaneo.add(alumnoCursoSimultaneo);
-                }
-            }
-            
-        }
-        
-        return requisitosCumplidos;
-    }
-    
-    private void validarEstenValidados(Collection<AlumnoCursoCurricula> alumnoCursoCurriculas) {
-        for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-            if (!alumnoCursoCurricula.isValidado()) {
-                alumnoCursoCurricula.setValidado(true);
-                alumnoCursoCurricula.setEstado(CursoCurriculaEstadoEnum.NREQ.name());
-            }
-        }
-    }
-    
+
 }
