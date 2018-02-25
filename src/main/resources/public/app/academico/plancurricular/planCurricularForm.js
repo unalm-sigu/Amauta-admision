@@ -892,6 +892,7 @@ $(function () {
             });
         },
         procesarAlumnos: function () {
+            MODAL.showWait();
             var form = $("[id='frmPlanCurricular']");
             $.ajax({
                 url: APP.url('academico/planCurricular/procesaralumnos'),
@@ -904,9 +905,11 @@ $(function () {
                     } else {
                         notify(response.message, "error");
                     }
+                    MODAL.hideWait();
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
                 }
             });
         },

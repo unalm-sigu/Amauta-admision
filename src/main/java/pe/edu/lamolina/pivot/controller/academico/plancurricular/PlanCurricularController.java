@@ -1155,13 +1155,13 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("procesaralumnos")
-    public JsonResponse procesaralumnos(PlanCurricular planCurricular, HttpSession session) {
+    public JsonResponse generarAvanceCurricular(PlanCurricular planCurricular, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.procesarAlumnos(planCurricular, ds.getCicloAcademico());
+            service.generarAvanceCurricular(planCurricular, ds.getCicloAcademico(), ds);
             response.setSuccess(true);
-            response.setMessage("Se han procesado los alumnos");
+            response.setMessage("Avances curricular generados");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

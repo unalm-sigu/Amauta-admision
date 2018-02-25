@@ -884,8 +884,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     
     @Override
     @Transactional
-    public void procesarAlumnos(PlanCurricular plan, CicloAcademico cicloAcademico) {
-        avanceCurricularService.procesarAlumnos(plan, cicloAcademico);
+    public void generarAvanceCurricular(PlanCurricular plan, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        avanceCurricularService.generarAvanceCurricular(plan, cicloAcademico, ds);
     }
 
 }
