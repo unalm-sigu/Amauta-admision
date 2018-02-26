@@ -38,14 +38,7 @@ new Vue({
 
     },
     methods: {
-        options(){
-            let $vue = this;
-            $vue.option = {};
-            $vue.eventos.forEach(function (elem){
-                $vue.option.id = elem.id;
-                $vue.option.name = elem.eventoAcademico.nombre;
-            })  
-        },
+        
         convertDate(strDate) {
             var parts = strDate.split("/");
             return new Date(parts[2], parts[1] - 1, parts[0]);
