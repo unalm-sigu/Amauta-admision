@@ -22,7 +22,7 @@ new Vue({
         idConfig: {},
         test: "",
         flag: true
-
+        
     },
     created() {
         let $vue = this;
@@ -43,8 +43,9 @@ new Vue({
             return new Date(parts[2], parts[1] - 1, parts[0]);
         },
         nuevo() {
-
+            let $vue = this;
             $("#myModal").modal('show');
+            $vue.config.eventoCicloAcademico = '';
         },
         save(e) {
             var self = $(e.currentTarget);
@@ -65,13 +66,15 @@ new Vue({
                 contentType: "application/json",
                 data: JSON.stringify($vue.config),
                 success: function (response) {
-                    if (response.success == true) {
+                    if (response.success) {
                         $vue.config.id = response.data;
                         $vue.Arryconfig.push($vue.config);
                         $vue.tabs();
                         $vue.carga(response.data);
                         $vue.flag = true;
                         $vue.config = {};
+                        notify(response.message, 'info');
+
                     }
                 }
             });
@@ -87,10 +90,13 @@ new Vue({
                 contentType: "application/json",
                 data: JSON.stringify(config),
                 success: function (response) {
-                    $vue.horas = response.data[0];
-                    $vue.dias = response.data[1];
-                    $vue.jquery($vue.horas);
-                    $vue.flag = false;
+                    if (response.success) {
+
+                        $vue.horas = response.data[0];
+                        $vue.dias = response.data[1];
+                        $vue.jquery($vue.horas);
+                        $vue.flag = false;
+                    }
                 }
             });
 
@@ -129,19 +135,22 @@ new Vue({
                             contentType: "application/json",
                             data: JSON.stringify($vue.idConfig),
                             success: function (response) {
-                                var i = 0;
-                                $vue.lstTabs.forEach(function (elem) {
-                                    if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
-                                        $vue.lstTabs.splice(i, 1);
-                                        $vue.Arryconfig.splice(i, 1);
-                                        $vue.horas.splice(0, $vue.horas.length);
-                                        $vue.dias.splice(0, $vue.dias.length);
-                                        $vue.tabs();
+                                if (response.success) {
+                                    var i = 0;
+                                    $vue.lstTabs.forEach(function (elem) {
+                                        if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
+                                            $vue.lstTabs.splice(i, 1);
+                                            $vue.Arryconfig.splice(i, 1);
+                                            $vue.horas.splice(0, $vue.horas.length);
+                                            $vue.dias.splice(0, $vue.dias.length);
+                                            $vue.tabs();
 
-                                    }
-                                    i++;
-                                });
-                                $vue.flag = true;
+                                        }
+                                        i++;
+                                    });
+                                    $vue.flag = true;
+                                    notify(response.message, 'info');
+                                }
                             }
                         });
                     }
@@ -174,10 +183,13 @@ new Vue({
                                 type: 'text',
                                 pk: turnos.id,
                                 success: function (response) {
+                                    if (response.success) {
 
-                                    $vue.horas = response.data.data[0];
-                                    $vue.dias = response.data.data[1];
-                                    $vue.jquery($vue.horas);
+                                        $vue.horas = response.data.data[0];
+                                        $vue.dias = response.data.data[1];
+                                        $vue.jquery($vue.horas);
+                                        notify(response.message, 'info');
+                                    }
                                 }
                             });
                         });

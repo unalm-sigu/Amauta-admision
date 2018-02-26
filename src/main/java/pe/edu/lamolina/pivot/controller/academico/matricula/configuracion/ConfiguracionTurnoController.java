@@ -45,7 +45,7 @@ public class ConfiguracionTurnoController {
     ConfiguracionMatriculaService service;
 
     @InitBinder
-    public void initBinder(WebDataBinder dataBinder)    {
+    public void initBinder(WebDataBinder dataBinder) {
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -77,9 +77,9 @@ public class ConfiguracionTurnoController {
         ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
 
         for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
-           objNode.put(d.name(),d.getValue());
+            objNode.put(d.name(), d.getValue());
         };
-            
+
         model.addAttribute("eventos", new EventoCicloAcademico().toJsonArray(evento));
         model.addAttribute("configuraciones", new ConfiguracionTurnosAtencion().toJsonArray(configuraciones));
         model.addAttribute("ciclo", ds.getCicloAcademico().toJson());
@@ -125,6 +125,7 @@ public class ConfiguracionTurnoController {
             jsonArray.add(horas);
             jsonArray.add(dias);
             response.setData(jsonArray);
+            response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -145,7 +146,7 @@ public class ConfiguracionTurnoController {
             Long Id = service.saveConfiguracion(config);
             response.setSuccess(true);
             response.setData(Id);
-
+            response.setMessage("Se guardó la configuración satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
@@ -165,7 +166,7 @@ public class ConfiguracionTurnoController {
             JsonResponse json = list(config, model, session);
             response.setData(json);
             response.setSuccess(true);
-
+            response.setMessage("Se actualizó la configuración satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
@@ -183,7 +184,7 @@ public class ConfiguracionTurnoController {
         try {
             service.deleteConfiguracion(config);
             response.setSuccess(true);
-
+            response.setMessage("Se eliminó la configuración satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
