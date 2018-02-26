@@ -71,7 +71,7 @@ public class ConfiguracionTurnoController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) throws ParseException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<EventoAcademico> evento = service.findEventoCiclo(ds.getCicloAcademico());
+        List<EventoCicloAcademico> evento = service.findEventoCiclo(ds.getCicloAcademico());
         List<ConfiguracionTurnosAtencion> configuraciones = service.allConfiguraciones(ds.getCicloAcademico());
 
         ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
@@ -80,7 +80,7 @@ public class ConfiguracionTurnoController {
            objNode.put(d.name(),d.getValue());
         };
             
-        model.addAttribute("eventos", new EventoAcademico().toJsonArray(evento));
+        model.addAttribute("eventos", new EventoCicloAcademico().toJsonArray(evento));
         model.addAttribute("configuraciones", new ConfiguracionTurnosAtencion().toJsonArray(configuraciones));
         model.addAttribute("ciclo", ds.getCicloAcademico().toJson());
         model.addAttribute("tipoMatricula", objNode.toString());
@@ -97,41 +97,34 @@ public class ConfiguracionTurnoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             List<TurnoAtencion> turnos = service.allTurnosByConfiguracion(config);
-            Map<Integer, List<TurnoAtencion>> mapTurnos = new HashMap();
+            Map<String, List<TurnoAtencion>> mapTurnos = TypesUtil.convertListToMapList("horaInicio", turnos);
 
-            for (TurnoAtencion turno : turnos) {
-                List<TurnoAtencion> turnosHora = mapTurnos.get(turno.getTurno());
-                turnosHora = (turnosHora == null) ? new ArrayList() : turnosHora;
-                turnosHora.add(turno);
-                mapTurnos.put(turno.getTurno(), turnosHora);
-            }
+            ArrayNode jsonArray = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode horas = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode dias = new ArrayNode(JsonNodeFactory.instance);
 
-            ArrayNode lst = new ArrayNode(JsonNodeFactory.instance);
-            ArrayNode lstHoras = new ArrayNode(JsonNodeFactory.instance);
-            ArrayNode lstDias = new ArrayNode(JsonNodeFactory.instance);
-
-            List<TurnoAtencion> turnosHora = null;
+//            List<TurnoAtencion> turnosHora = null;
             int i = 1;
-            for (Map.Entry<Integer, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
-                turnosHora = map.getValue();
-                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+            for (Map.Entry<String, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
+                List<TurnoAtencion> turnosHora = map.getValue();
+                ObjectNode nodeHoraTurno = new ObjectNode(JsonNodeFactory.instance);
                 if (i == 1) {
                     for (TurnoAtencion lstDia : turnosHora) {
                         ObjectNode objNodeDias = new ObjectNode(JsonNodeFactory.instance);
                         objNodeDias.put("dias", formatter.format(lstDia.getFecha()));
-                        lstDias.add(objNodeDias);
+                        dias.add(objNodeDias);
                     }
                     i++;
                 }
-                objNode.put("hora", turnosHora.get(0).getHoraInicio());
-                objNode.put("turnos", new TurnoAtencion().toJsonArray(turnosHora));
-                lstHoras.add(objNode);
+                nodeHoraTurno.put("hora", turnosHora.get(0).getHoraInicio() + " - " + turnosHora.get(0).getHoraFinal());
+                nodeHoraTurno.set("turnos", new TurnoAtencion().toJsonArray(turnosHora));
+                horas.add(nodeHoraTurno);
 
             }
 
-            lst.add(lstHoras);
-            lst.add(lstDias);
-            response.setData(lst);
+            jsonArray.add(horas);
+            jsonArray.add(dias);
+            response.setData(jsonArray);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

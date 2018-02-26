@@ -28,8 +28,6 @@ new Vue({
         let $vue = this;
         $vue.tiposTemp = Object.assign({}, $vue.tipos);
         $vue.tabs();
-
-
     },
     mounted() {
         $('.numeric').numeric({negative: false});
@@ -59,25 +57,22 @@ new Vue({
             self.btnEnable();
             let $vue = this;
 
-//            $vue.config.duracion = $('#timeDuracion').val();
-//            $vue.config.espera = $('#timeEspera').val();
-//            $vue.config.horaInicio = $('#timeHoraInicio').val();
+            $vue.config.horaInicio = $('#timeHoraInicio').val();
 
-            let $envio = $vue.config;
-            $envio.eventoCicloAcademico = {id: $vue.config.eventoCicloAcademico.id};
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/configuracionturno/saveConfiguracion'),
+                url: APP.url('academico/configuracionturno/configuracion'),
                 contentType: "application/json",
-                data: JSON.stringify($envio),
+                data: JSON.stringify($vue.config),
                 success: function (response) {
-                    $vue.config.id = response.data;
-                    $vue.Arryconfig.push($vue.config);
-                    $vue.tabs();
-                    $vue.carga(response.data);
-                    $vue.flag = true;
-                    $vue.config = {};
-
+                    if (response.success == true) {
+                        $vue.config.id = response.data;
+                        $vue.Arryconfig.push($vue.config);
+                        $vue.tabs();
+                        $vue.carga(response.data);
+                        $vue.flag = true;
+                        $vue.config = {};
+                    }
                 }
             });
             $("#myModal").modal('hide');
@@ -106,7 +101,10 @@ new Vue({
             $vue.Arryconfig.forEach(function (elem) {
                 $vue.lstTabs.push(elem);
             });
-            $vue.carga($vue.lstTabs[$vue.lstTabs.length - 1]);
+            if ($vue.lstTabs.length > 0) {
+                $vue.carga($vue.lstTabs[$vue.lstTabs.length - 1]);
+            }
+
         },
         active(index) {
             let $vue = this;
@@ -117,49 +115,60 @@ new Vue({
         },
         eliminar() {
             let $vue = this;
+            bootbox.confirm({
+                message: '¿Seguro que desea eliminar la configuración?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            method: 'DELETE',
+                            url: APP.url('academico/configuracionturno/deleteconfiguracion'),
+                            contentType: "application/json",
+                            data: JSON.stringify($vue.idConfig),
+                            success: function (response) {
+                                var i = 0;
+                                $vue.lstTabs.forEach(function (elem) {
+                                    if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
+                                        $vue.lstTabs.splice(i, 1);
+                                        $vue.Arryconfig.splice(i, 1);
+                                        $vue.horas.splice(0, $vue.horas.length);
+                                        $vue.dias.splice(0, $vue.dias.length);
+                                        $vue.tabs();
 
-            $.ajax({
-                method: 'DELETE',
-                url: APP.url('academico/configuracionturno/deleteconfiguracion'),
-                contentType: "application/json",
-                data: JSON.stringify($vue.idConfig),
-                success: function (response) {
-                    var i = 0;
-                    $vue.lstTabs.forEach(function (elem) {
-                        if ($vue.idConfig.id == elem.id || $vue.idConfig == elem.id) {
-                            $vue.lstTabs.splice(i, 1);
-                            $vue.Arryconfig.splice(i, 1);
-                            $vue.horas.splice(0, $vue.horas.length);
-                            $vue.dias.splice(0, $vue.dias.length);
-                            $vue.tabs();
-
-                        }
-                        i++;
-                    });
-                    $vue.flag = true;
+                                    }
+                                    i++;
+                                });
+                                $vue.flag = true;
+                            }
+                        });
+                    }
                 }
             });
+
         },
         tipoEvento(evento) {
             let $vue = this;
             $vue.tipos = Object.assign({}, $vue.tiposTemp);
 
-            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT-REG') {
-                delete $vue.tipos[1];
+            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT_REG') {
+                delete $vue.tipos['BARRIDO'];
             }
-            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT-VER') {
-                delete $vue.tipos[0];
+            if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT_VER') {
+                delete $vue.tipos['ONLINE'];
             }
         },
         jquery(horas) {
             let $vue = this;
             $(function () {
                 $(document).ready(function () {
-                    /*
                     $.fn.editable.defaults.mode = 'inline';
                     horas.forEach(function (elem) {
                         elem.turnos.forEach(function (turnos) {
                             $('#' + turnos.id).editable({
+
                                 url: APP.url('academico/configuracionturno/updateturnos'),
                                 contentType: 'application/json',
                                 type: 'text',
@@ -173,11 +182,10 @@ new Vue({
                             });
                         });
                     });
-                    */
                 });
             });
         }
     }
 
 });
-        
+
