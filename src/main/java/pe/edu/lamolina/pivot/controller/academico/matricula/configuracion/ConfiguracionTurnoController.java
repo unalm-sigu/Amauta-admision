@@ -30,6 +30,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
+import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
@@ -111,14 +112,14 @@ public class ConfiguracionTurnoController {
 
             List<TurnoAtencion> turnosHora = null;
             int i = 1;
-            for (Map.Entry<String, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
-                List<TurnoAtencion> turnosHora = map.getValue();
-                ObjectNode nodeHoraTurno = new ObjectNode(JsonNodeFactory.instance);
+            for (Map.Entry<Integer, List<TurnoAtencion>> map : mapTurnos.entrySet()) {
+                turnosHora = map.getValue();
+                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
                 if (i == 1) {
-                    for (TurnoAtencion turno : turnosHora) {
-                        ObjectNode nodeDia = new ObjectNode(JsonNodeFactory.instance);
-                        nodeDia.put("dias", formatter.format(turno.getFecha()));
-                        dias.add(nodeDia);
+                    for (TurnoAtencion lstDia : turnosHora) {
+                        ObjectNode objNodeDias = new ObjectNode(JsonNodeFactory.instance);
+                        objNodeDias.put("dias", formatter.format(lstDia.getFecha()));
+                        lstDias.add(objNodeDias);
                     }
                     i++;
                 }
@@ -142,7 +143,7 @@ public class ConfiguracionTurnoController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "saveConfiguracion", method = RequestMethod.POST)
+    @RequestMapping(value = "configuracion", method = RequestMethod.POST)
     public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
 

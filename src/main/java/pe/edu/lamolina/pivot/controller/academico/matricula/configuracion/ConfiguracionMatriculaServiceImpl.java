@@ -1,7 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
@@ -9,8 +11,10 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
+import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.pivot.dao.academico.ConfiguracionMatriculaDAO;
@@ -73,8 +77,12 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     }
 
     @Override
-    public List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico ciclo) {
-        return eventoCicloAcatemicoDAO.allEventosMatriculaByCiclo(ciclo);
+    public List<EventoAcademico> findEventoCiclo(CicloAcademico cicloAcademico) {
+        List<EventoCicloAcademico> lstEventoCiclo = eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);
+        Map<Long, EventoAcademico> mapConfiguracionTurno = TypesUtil.convertListToMap("eventoAcademico.id", "eventoAcademico", lstEventoCiclo);
+
+        List<EventoAcademico> evento = new ArrayList(mapConfiguracionTurno.values());
+        return evento;
     }
 
     @Override
