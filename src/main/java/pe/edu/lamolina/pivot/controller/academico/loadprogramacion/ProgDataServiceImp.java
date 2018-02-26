@@ -35,7 +35,7 @@ import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaCursoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -1209,7 +1209,7 @@ public class ProgDataServiceImp implements ProgDataService {
             MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
 
             if (resumen == null) {
-                aluResumen.setEstadoEnum(EstadoMatriculaCursoEnum.RCI);
+                aluResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
                 aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
                 aluResumen.setCreditosMatriculados(0);
                 aluResumen.setCursosRetirados(aluResumen.getCursosRetirados() + aluResumen.getCursosMatriculados());
@@ -1218,13 +1218,13 @@ public class ProgDataServiceImp implements ProgDataService {
 
                 List<MatriculaCurso> alumnoCursos = matriculaCursoDAO.allByMatriculaResumen(aluResumen);
                 for (MatriculaCurso alumnoCurso : alumnoCursos) {
-                    alumnoCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    alumnoCurso.setEstadoEnum(EstadoMatriculaEnum.RET);
                     matriculaCursoDAO.update(alumnoCurso);
                 }
 
                 List<MatriculaSeccion> alumnoSecciones = matriculaSeccionDAO.allByMatriculaSeccion(aluResumen);
                 for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
-                    alumnoSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    alumnoSeccion.setEstadoEnum(EstadoMatriculaEnum.RET);
                     matriculaSeccionDAO.update(alumnoSeccion);
                 }
                 //mapBloqueados.remove(alumno.getCodigo());
@@ -1246,7 +1246,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     resumen.setCreditosRetirados(resumen.getCreditosRetirados() + curso.getCreditos());
                     resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() - curso.getCreditos());
 
-                    aluCurso.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    aluCurso.setEstadoEnum(EstadoMatriculaEnum.RET);
                     matriculaCursoDAO.update(aluCurso);
                 }
             }
@@ -1255,7 +1255,7 @@ public class ProgDataServiceImp implements ProgDataService {
             for (MatriculaSeccion aluSeccion : alumnoSecciones) {
                 Seccion secc = aluSeccion.getSeccion();
                 if (!existeSeccion(resumen.getMatriculaSeccion(), secc)) {
-                    aluSeccion.setEstadoEnum(EstadoMatriculaCursoEnum.RET);
+                    aluSeccion.setEstadoEnum(EstadoMatriculaEnum.RET);
                     matriculaSeccionDAO.update(aluSeccion);
                 }
             }

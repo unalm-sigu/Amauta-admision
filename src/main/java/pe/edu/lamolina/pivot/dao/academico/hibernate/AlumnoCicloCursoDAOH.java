@@ -7,7 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 
 @Repository
 public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> implements AlumnoCicloCursoDAO {
@@ -15,6 +15,54 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     public AlumnoCicloCursoDAOH() {
         super();
         setClazz(AlumnoCicloCurso.class);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("al.id", alumno)
+                .filter("registroActivo", 1);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allAprobadoActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("al.id", alumno)
+                .filter("estaAprobado", 1)
+                .filter("registroActivo", 1);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allDesaprobadoActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("al.id", alumno)
+                .filter("estaAprobado", 0)
+                .filter("registroActivo", 1);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Long countByCursoAlumno(Curso curso, Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("acc.curso", curso)
+                .filter("ac.alumno", alumno)
+                .filter("registroActivo", 1);
+
+        return (Long) sql.find(getCurrentSession());
     }
 
     @Override

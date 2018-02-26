@@ -13,6 +13,9 @@
     <section  layout:fragment="main">
         <header class="header b-b padder-lg">
             <h2>Programacion de Cursos <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <div class="pull-right m-t-md">
+                <a class="btn btn-default"   th:href="@{/academico/gposeccion}"  >Regresar</a>
+            </div>
         </header>
         <div id="pageGpoSeccion">
 
@@ -78,7 +81,8 @@
                                         <th class="col-md-1 text-center">Estado</th>
                                         <th class="col-md-1 text-center">
                                             <input type="checkbox"
-                                                   v-model="directEditSecciones"/>
+                                                   v-model="directEditSecciones"
+                                                   v-on:click="directAulaChange($event)"/>
                                         </th>
                                     </tr>
                                 </thead>
@@ -97,7 +101,6 @@
 
                                             <a v-if="seccion.aula==null &amp;&amp; !directEditSecciones"
                                                v-on:click="showModalAula(seccion)" 
-                                               v-on:dblclick="directAula"
                                                style="cursor:pointer;">
                                                 Sin Aula
                                             </a>
@@ -204,11 +207,11 @@
 
                                                 <a v-on:click="showModalRestriccion(seccion)" 
                                                    v-if="seccion.tieneRestriccionModalidad"
-                                                   v-for="restFacultad in seccion.restriccionesModalidad" 
+                                                   v-for="restModalidad in seccion.restriccionesModalidad" 
                                                    style="cursor:pointer;"
                                                    class="col-md-3"> 
                                                     <span class="label label-primary">
-                                                        {{restModalidad.modalidad.codigo}} 
+                                                        {{restModalidad.modalidadEstudio.codigo}} 
                                                     </span>
                                                 </a> 
 
@@ -222,16 +225,17 @@
                                                 S/R
                                             </a>
 
-
-                                            <a v-on:click="showModalTipoRepitencia(seccion)" 
-                                               v-if="seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
-                                               v-for="restRepitencia in seccion.restriccionesRepitencia"
-                                               style="cursor:pointer;"
-                                               class="col-md-3"> 
-                                                <span class="label label-primary">
-                                                    {{restRepitencia.tipoRepitencia.codigo}}  
-                                                </span>
-                                            </a>  
+                                            <div class="col-md-12">
+                                                <a v-on:click="showModalTipoRepitencia(seccion)" 
+                                                   v-if="seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
+                                                   v-for="restRepitencia in seccion.restriccionesRepitencia"
+                                                   style="cursor:pointer;"
+                                                   class="col-md-3"> 
+                                                    <span class="label label-primary">
+                                                        {{restRepitencia.tipoRepitencia.codigo}}  
+                                                    </span>
+                                                </a>  
+                                            </div>
 
 
                                         </td>
@@ -241,14 +245,14 @@
                                             </div>
 
                                             <div v-if="!seccion.esTipoSeccionTcur" 
-                                                 v-show="!seccion.editVacantes">
+                                                 v-show="!seccion.editVacantes &amp;&amp; !directEditSecciones">
                                                 <a v-on:click="seccion.editVacantes=true" class="pointer"> {{ seccion.vacantes }} </a>
                                             </div>
 
                                             <input v-if="!seccion.esTipoSeccionTcur" 
-                                                   v-show="seccion.editVacantes" 
+                                                   v-show="seccion.editVacantes || directEditSecciones" 
                                                    size="5"
-
+                                                   class="form-control"
                                                    v-model="seccion.vacantes"
                                                    v-on:blur="changeVacantes(seccion,$event)"
                                                    v-on:keyup.enter="changeVacantes(seccion,$event)">
@@ -404,6 +408,7 @@
                                                            v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
                                                            required="true"
                                                            class="col-md-6"
+                                                           ref="datePicker"
                                                            ></v-date-picker>
                                             <!-- 
                                              <div v-if="docSeccion.disabledFechaFin"

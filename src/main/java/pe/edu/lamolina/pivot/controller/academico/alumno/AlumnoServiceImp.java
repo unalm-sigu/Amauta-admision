@@ -96,8 +96,8 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    public Alumno findAlumno(Alumno alumno, CicloAcademico academico) {
-        return alumnoDAO.find(alumno, academico);
+    public Alumno findAlumno(Alumno alumno) {
+        return alumnoDAO.find(alumno);
     }
 
     @Override

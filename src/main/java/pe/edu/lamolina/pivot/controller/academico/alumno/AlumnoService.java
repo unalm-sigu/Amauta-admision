@@ -22,7 +22,7 @@ public interface AlumnoService {
 
     List<MatriculaCurso> allMatriculaCursoByAlumno(Long idAlumno);
 
-    Alumno findAlumno(Alumno alumno, CicloAcademico academico);
+    Alumno findAlumno(Alumno alumno);
 
     List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno);
 

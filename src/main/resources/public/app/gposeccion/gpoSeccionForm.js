@@ -87,6 +87,10 @@ Vue.component("seccion-det-component", {
     template: "#seccionDetComp",
     props: {
         seccion: null
+    }, watch: {
+        seccion(newValue) {
+
+        }
     }
 });
 
@@ -192,6 +196,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        $vue.loadSecciones();
                         $vue.loadDocentesSec();
                     } else {
                         notify(response.message, "error");
@@ -423,6 +428,7 @@ var app = new Vue({
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
+                                    $vue.loadSecciones();
                                     $vue.loadDocentesSec();
                                     MODAL.hideWait();
                                 } else {
@@ -466,6 +472,17 @@ var app = new Vue({
             });
         }, loadDocentesSec: function () {
             let $vue = this;
+            $vue.docentesSeccion = null;
+            /*
+             for (let idx in this.$refs.datePicker) {
+             let element = this.$refs.datePicker[idx];
+             console.dir(element);
+             element.$destroy();
+             }
+             for (let idx in this.$refs.datePicker) {
+             let element = this.$refs.datePicker[idx];
+             element.$mount('#elementidhere')
+             }*/
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
@@ -475,7 +492,7 @@ var app = new Vue({
                 },
                 success: function (response) {
                     if (response.success) {
-                        $vue.docentesSeccion = null;
+
                         $vue.docentesSeccion = response.data;
                         MODAL.hideWait();
                     }
@@ -555,8 +572,11 @@ var app = new Vue({
                     }
                 });
             }
-        }, directAula() {
-            alert("1");
+        }, directAulaChange(event) {
+            let target = event.target.closest("table");
+            $(target).find('[class*="parsley-errors"]').each(function () {
+                this.remove();
+            });
         }
         , showModalAula(seccion) {
             let $vue = this;
@@ -715,7 +735,7 @@ var app = new Vue({
                         notify(response.message, "info");
                         $vue.loadSecciones();
                     } else {
-                        alert("error");
+                        target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
                 }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
