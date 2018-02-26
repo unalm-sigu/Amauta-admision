@@ -2,7 +2,7 @@ $(function () {
 
     var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
         dataset: {
-            ajaxUrl: APP.url('accmbUpdateademico/planCurricular/cursosObligatorios'),
+            ajaxUrl: APP.url('academico/planCurricular/cursosObligatorios'),
             perPageDefault: 10
         }, features: {
             paginate: false,
@@ -294,6 +294,46 @@ $(function () {
 
                     $.ajax({
                         url: APP.url('academico/planCurricular/' + $("#txtTipoCurCur").val() + '/cambiarTipoCursoCurricula'),
+                        type: 'POST',
+                        async: false,
+                        success: function (response) {
+                            NuevaCurricula.tipoCursoCurricula = response.data;
+                            if (response.data.tieneRequisitos) {
+                                $("#cboCursosReq").select2(NuevaCurricula.select2RequisitoCursoCurricula);
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        }
+                    });
+
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        editarCursoEqui($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatableCursosObl.settings.dataset.records[idx];
+
+            MODAL.init("lg");            
+            MODAL.title("Añadir cursos Equivalentes a " + rec.curso);
+            MODAL.buttons('<a class="btn btn-primary" id="btnAddCurObl">Aceptar</a>');
+            MODAL.show();
+            
+            $.ajax({
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursosEquivalentes'),
+                type: 'POST',
+                async: false,
+                success: function (response) {                    
+                    MODAL.body(response);
+                    $("#txtNumeroCiclo").val(NuevaCurricula.numeroCicloElegido.attr("rel"));
+
+                    $.ajax({
+                        url: APP.url('academico/planCurricular/' + $("#txtTipoCurCur").val() + '/buscarCursosEquivalentes'),
                         type: 'POST',
                         async: false,
                         success: function (response) {
@@ -750,7 +790,7 @@ $(function () {
                     $('#txtCreditoReq').prop("readonly", true);
                     $('#txtCreditos').prop("readonly", true);
 
-
+ºº
                     $("#cboCurso").select2(NuevaCurricula.select2BuscarCursos).on('select2-selecting', function (e) {
                         if (jQuery.type(NuevaCurricula.tipoCursoCurricula.tieneCreditoManual) === "undefined") {
                             $("#txtCreditos").val(e.object.creditos);
@@ -1548,6 +1588,10 @@ $(function () {
 
     $("body").delegate(".editar-cur-obl", "click", function (e) {
         NuevaCurricula.editarCursoObl($(this), e);
+    });
+
+    $("body").delegate(".editar-cur-equi", "click", function (e) {
+        NuevaCurricula.editarCursoEqui($(this), e);
     });
 
     $("body").delegate(".editar-cur-elec", "click", function (e) {
