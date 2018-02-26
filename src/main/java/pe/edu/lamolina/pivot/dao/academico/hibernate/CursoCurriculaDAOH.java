@@ -93,7 +93,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .__().like("cur.codigo", cursoCurricula.getCurso().getNombre())
                 .endBlock()
                 .filter("pc.id", cursoCurricula.getPlanCurricular())
-                .filter("cc.numeroCiclo", "<", cursoCurricula.getNumeroCiclo())
+                .filter("cc.numeroCiclo", "<=", cursoCurricula.getNumeroCiclo())
                 .filter("cc.numeroCiclo", ">", 0)
                 .orderBy("cur.nombre")
                 .limit(limit);
