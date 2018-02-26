@@ -306,8 +306,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.albatrosscloud</groupId>
-            <!--<groupId>pe.albatross</groupId>-->
+            <!--<groupId>com.github.albatrosscloud</groupId>-->
+            <groupId>pe.albatross</groupId>
             <artifactId>octavia</artifactId>
             <version>1.0.9</version>
         </dependency>

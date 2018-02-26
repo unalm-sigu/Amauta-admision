@@ -57,7 +57,6 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     AvanceCurricularAsincronoService avanceCurricularAsincronoService;
 
     @Override
-    @Transactional
     public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         PlanCurricular planBD = planCurricularDAO.find(planCurricular.getId());
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
@@ -65,8 +64,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         logger.debug("Alumnos: {}", alumnoCiclos.size());
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-            alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoCiclo.getAlumno());
+            avanceCurricularAsincronoService.deleteSimultaneos(alumnoCiclo.getAlumno());
         }
+
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
             avanceCurricularAsincronoService.procesarAlumno(alumnoCiclo, ds);
         }

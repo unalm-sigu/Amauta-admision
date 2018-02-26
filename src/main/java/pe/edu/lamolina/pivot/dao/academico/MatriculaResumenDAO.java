@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -14,5 +15,7 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     List<MatriculaResumen> allByCiclo(CicloAcademico ciclo);
 
     MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaEnum estadoMatriculaCursoEnum);
+
+    List<MatriculaResumen> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
 }

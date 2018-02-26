@@ -72,8 +72,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
     @Async
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void procesarAlumno(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
 
@@ -296,6 +296,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
 
         return requisitosCumplidos;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteSimultaneos(Alumno alumno) {
+        alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumno);
     }
 
 }

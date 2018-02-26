@@ -23,9 +23,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
@@ -120,26 +125,30 @@ public class MatriculableController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             FotoHelper helper = new FotoHelper();
-            List<Alumno> alumnos = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), ds.getRolActivo().getCodigo(), filtros);
+            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), ds.getRolActivo().getCodigo(), filtros);
 
-            for (Alumno alumn : alumnos) {
+            for (MatriculaResumen matriculable : matriculables) {
+                Alumno alumn = matriculable.getAlumno();
                 Persona persona = alumn.getPersona();
                 Carrera carrera = alumn.getCarrera();
                 Facultad facultad = carrera.getFacultad();
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", alumn.getId());
+                node.put("id", matriculable.getId());
+                node.put("prioridad", matriculable.getPrioridad());
+                node.put("puntajePrioridad", matriculable.getPuntajePrioridad());
+                node.put("idAlumno", alumn.getId());
                 node.put("nombre", persona.getApellidosNombres());
                 node.put("codigo", alumn.getCodigo());
                 node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-                node.put("simbolo", persona.getTipoDocumento().getSimbolo());
+//                node.put("simbolo", persona.getTipoDocumento().getSimbolo());
                 node.put("numeroDoc", persona.getNumeroDocIdentidad());
                 node.put("tipoDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("carrera", carrera.getNombre());
                 node.put("facultad", facultad.getNombre());
                 node.put("situacion", alumn.getSituacionAcademica().getNombre());
-                node.put("cicloIngreso", alumn.getCicloIngreso().getDescripcion());
-                node.put("cicloActivo", alumn.getCicloActivo().getDescripcion2());
+                node.put("cicloIngreso", (String) ObjectUtil.getParentTree(alumn, "cicloIngreso.descripcion"));
+                node.put("cicloActivo", (String) ObjectUtil.getParentTree(alumn, "cicloActivo.descripcion"));
                 node.put("estado", alumn.getEstado());
                 node.put("estadoEnum", alumn.getEstadoEnum() != null ? alumn.getEstadoEnum().getValue() : "");
                 node.put("ppa", alumn.getPromedioAcumulado());
@@ -173,10 +182,23 @@ public class MatriculableController {
         return "academico/matriculable/matriculableModal";
     }
 
+    @ResponseBody
     @RequestMapping("generar")
-    public String generar(Model model, HttpSession session) {
+    public JsonResponse generar(Model model, HttpSession session) {
 
-        return "academico/matriculable/generar";
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.generar(ds.getCicloAcademico(), ds);
+            response.setMessage("Matriculables generados satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @RequestMapping("estadoVisor")
