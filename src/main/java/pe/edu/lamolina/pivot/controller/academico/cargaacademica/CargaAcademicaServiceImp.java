@@ -1883,6 +1883,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             matriculaCurso.getCurso();
             promedioService.promedio(matriculaCurso, usuario);
         }
+
     }
 
     @Override
