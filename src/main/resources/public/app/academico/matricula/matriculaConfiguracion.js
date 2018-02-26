@@ -22,7 +22,7 @@ new Vue({
         idConfig: {},
         test: "",
         flag: true
-        
+
     },
     created() {
         let $vue = this;
@@ -38,6 +38,14 @@ new Vue({
 
     },
     methods: {
+        options(){
+            let $vue = this;
+            $vue.option = {};
+            $vue.eventos.forEach(function (elem){
+                $vue.option.id = elem.id;
+                $vue.option.name = elem.eventoAcademico.nombre;
+            })  
+        },
         convertDate(strDate) {
             var parts = strDate.split("/");
             return new Date(parts[2], parts[1] - 1, parts[0]);
@@ -45,7 +53,7 @@ new Vue({
         nuevo() {
             let $vue = this;
             $("#myModal").modal('show');
-            $vue.config.eventoCicloAcademico = '';
+
         },
         save(e) {
             var self = $(e.currentTarget);
