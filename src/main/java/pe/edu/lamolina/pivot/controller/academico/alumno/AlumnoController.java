@@ -28,6 +28,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -160,8 +161,8 @@ public class AlumnoController {
                 node.put("codigoModalidad", carrera.getModalidadEstudio().getCodigo());
                 node.put("modalidad", carrera.getModalidadEstudio().getNombre());
                 node.put("situacion", alumn.getSituacionAcademica().getNombre());
-                node.put("cicloIngreso", alumn.getCicloIngreso().getDescripcion());
-                node.put("cicloActivo", alumn.getCicloActivo().getDescripcion());
+                node.put("cicloIngreso", (String) ObjectUtil.getParentTree(alumn, "cicloIngreso.descripcion"));
+                node.put("cicloActivo", (String) ObjectUtil.getParentTree(alumn, "cicloActivo.descripcion"));
                 node.put("estado", alumn.getEstado());
                 node.put("estadoEnum", alumn.getEstadoEnum() != null ? alumn.getEstadoEnum().getValue() : "");
                 node.put("ppa", alumn.getPromedioAcumulado());
@@ -456,7 +457,7 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("Ciclo academico : --- > {}" + ds.getCicloAcademico().getId() + " - " + idAlumno);
-        Alumno alumno = service.findAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
+        Alumno alumno = service.findAlumno(new Alumno(idAlumno));
         logger.debug("Alumno: --- > {}" + alumno.getId());
         model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
 

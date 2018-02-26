@@ -30,6 +30,54 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public List<AlumnoCicloCurso> allActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("al.id", alumno)
+                .filter("registroActivo", 1);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allAprobadoActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("al.id", alumno)
+                .filter("estaAprobado", 1)
+                .filter("registroActivo", 1);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allDesaprobadoActivoByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("al.id", alumno)
+                .filter("estaAprobado", 0)
+                .filter("registroActivo", 1);
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Long countByCursoAlumno(Curso curso, Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .filter("acc.curso", curso)
+                .filter("ac.alumno", alumno)
+                .filter("registroActivo", 1);
+
+        return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
     public List<AlumnoCicloCurso> findHistorial(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")

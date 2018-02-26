@@ -139,8 +139,22 @@
             </div>
         </div>
     </div>
+
+    <div class="row" th:if="${planCurricular.id}">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label > Alumnos Matriculados </label>
+                <span th:if="${planCurricular.id}" th:text="${cantAlumnos}" class="form-control"></span>
+            </div>
+        </div>
+        <div class="col-md-4 v-middle">
+            <div class="form-group v-middle m-t-md">
+                <a href="#" th:if="${planCurricular.id}" id="procesarAlumnos" class="btn btn-default btn-sm">Generar Avance Curricular</a>
+            </div>
+        </div>
+    </div>
 </form>
 
-<section class="text-center">
+<section class="text-right">
     <a href="#" th:if="${planCurricular.id}" id="cmbUpdate" class="btn btn-primary">Actualizar</a>
 </section>

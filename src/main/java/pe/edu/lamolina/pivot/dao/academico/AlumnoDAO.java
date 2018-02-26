@@ -6,6 +6,8 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
@@ -19,6 +21,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     Alumno findLock(Long id);
 
     List<Alumno> allByPersona(Persona persona);
+
+    List<Alumno> allByPlanCurricular(PlanCurricular planCurricular);
 
     List<Alumno> allByRolDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 
@@ -40,8 +44,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     Alumno find(Alumno alumno);
 
-    Alumno find(Alumno alumno, CicloAcademico academico);
+    Long countByPlanCurricular(PlanCurricular plan);
 
     Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
+
+    List<Alumno> allBySituaciones(ModalidadEstudio modalidad, List<SituacionAcademica> situaciones);
 
 }

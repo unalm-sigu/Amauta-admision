@@ -25,10 +25,14 @@
                             <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
                         </div>
                         <div class="col-md-12" v-if="ident">
-                            <span  v-text="alumno.persona.identificacion"/> 
+                            <span v-text="alumno.persona.tipoDocumento.simbolo"/> 
+                            <span v-text="alumno.persona.numeroDocIdentidad"/> 
                         </div>
                         <div class="col-md-12" v-if="flag">
-                            <span  v-text="alumno.carrera.nombre"/> - <span v-if="facu" v-text="alumno.facultad.nombre"/>
+                            <span v-text="alumno.carrera.nombre"/>
+                            <span v-if="alumno.carrera.codigo != alumno.carrera.facultad.codigo">
+                                  - <span v-text="alumno.carrera.facultad.nombre"/>
+                            </span>
                         </div>
                         <div class="col-md-12">
                             <span > <small v-text="alumno.modalidadEstudio.nombre"> </small> </span> 
@@ -79,9 +83,7 @@
 
         <script th:inline="javascript">
             /*<![CDATA[*/
-            var alumnoJson = [[${datoAlumno.toString()
-            }
-            ]];
+            var alumnoJson = [[${datoAlumno.toString()}]];
             /*]]>*/
         </script>
 

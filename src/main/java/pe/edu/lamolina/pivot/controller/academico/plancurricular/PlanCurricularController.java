@@ -425,6 +425,15 @@ public class PlanCurricularController {
         return "academico/plancurricular/agregarCursoObli";
     }
 
+    @RequestMapping("{cursoCurricula}/editarCursosEquivalentes")
+    public String editarCursosEquivalentes(@PathVariable("cursoCurricula") Long cursoCurriculaId, Model model, HttpSession session) {
+        CursoCurricula cursoCurricula = service.findCursoCurricula(cursoCurriculaId);
+
+        model.addAttribute("cursoCurricula", cursoCurricula);
+        model.addAttribute("format", new NumberFormat());
+        return "academico/plancurricular/agregarCursoEqui";
+    }
+
     @RequestMapping("{plancurricular}/agregarCursoElectivo")
     public String agregarCursoElectivo(@PathVariable("plancurricular") Long plancurricularId, Model model, HttpSession session) {
         List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivos();
@@ -481,6 +490,38 @@ public class PlanCurricularController {
     @ResponseBody
     @RequestMapping("{tipoCursoCurricula}/cambiarTipoCursoCurricula")
     public JsonResponse cambiarTipoCursoCurricula(@PathVariable("tipoCursoCurricula") Long tipoCursoCurriculaId, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            TipoCursoCurricula tipoCursoCurricula = service.findTipoCurricula(tipoCursoCurriculaId);
+            List<Curso> cursos = service.allCursosByCodigo(tipoCursoCurricula.getCodigo());
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("tieneRequisitos", tipoCursoCurricula.isTieneRequisitos());
+            node.put("tieneCreditoManual", tipoCursoCurricula.isTieneCreditoManual());
+            if (cursos != null && !cursos.isEmpty()) {
+                ObjectNode nodeCurso = new ObjectNode(JsonNodeFactory.instance);
+                nodeCurso.put("id", cursos.get(0).getId());
+                nodeCurso.put("codigo", cursos.get(0).getCodigo());
+                nodeCurso.put("curso", cursos.get(0).getNombre());
+                node.putPOJO("cursoDefault", nodeCurso);
+            }
+            response.setData(node);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{tipoCursoCurricula}/buscarCursosEquivalentes")
+    public JsonResponse buscarCursosEquivalentes(@PathVariable("tipoCursoCurricula") Long tipoCursoCurriculaId, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -736,14 +777,14 @@ public class PlanCurricularController {
         List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(carrera, EstadoEnum.ACT);
         List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivos();
         List<TipoCursoCurricula> tiposCursoCurriculasObli = service.allTiposCursoCurriculasObligatorios();
-
+        Integer cantAlumnos = service.countAlumnosByPlanCurricular(planCurricular).intValue();
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("planCurricular", planCurricular);
         model.addAttribute("orientaciones", orientaciones);
         model.addAttribute("format", new NumberFormat());
         model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
         model.addAttribute("tiposCursoCurriculasObli", tiposCursoCurriculasObli);
-
+        model.addAttribute("cantAlumnos", cantAlumnos);
         return "academico/plancurricular/planCurricularForm";
     }
 
@@ -1143,6 +1184,25 @@ public class PlanCurricularController {
 
             response.setSuccess(true);
             response.setMessage("El curso se ha movido satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("procesaralumnos")
+    public JsonResponse generarAvanceCurricular(PlanCurricular planCurricular, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.generarAvanceCurricular(planCurricular, ds.getCicloAcademico(), ds);
+            response.setSuccess(true);
+            response.setMessage("Avances curricular generados");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

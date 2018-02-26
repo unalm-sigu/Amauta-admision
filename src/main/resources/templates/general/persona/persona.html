@@ -21,12 +21,13 @@
                     <table id="dynaTable" class="table table-striped">
                         <thead class="panel panel-heading">
                             <tr>
-                                <th class="v-middle"></th>                    
-                                <th class="col-md-4 v-middle">Nombre</th>                    
-                                <th class="col-md-4 text-center"><span>Correo Principal</span></th>
-                                <th class="col-md-4 v-middle">Contacto</th>                    
+                                <th class="col-md-1"></th>
+                                <th class="col-md-3">Alumno</th>
+                                <th class="col-md-3">Tipo</th>
+                                <th class="col-md-3">Descripción</th>
+                                <th class="col-md-2">Estado</th>
                                 <th></th>
-                            </tr>
+                            </tr> 
                         </thead>
                         <tbody></tbody>
                     </table>
@@ -34,17 +35,17 @@
             </section>
         </section>
 
-        <form id="formPersonaEdit"  action="" method="POST">
+<!--        <form id="formPersonaEdit"  action="" method="POST">
             <input type="hidden" name="origen" value="" id="origenUrl"/>
-        </form>
+        </form>-->
 
         <div th:substituteby="templates/modal"></div>
-        <script id="templatePersona" type="text/x-jsrender" class="hide" ><div th:substituteby="general/persona/templatePersona"/></script>
+        <!--<script id="templatePersona" type="text/x-jsrender" class="hide" ><div th:substituteby="general/persona/templatePersona"/></script>-->
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/general/persona/persona.js}" charset="utf-8"></script>
+        <!--<script th:src="@{/app/general/persona/persona.js}" charset="utf-8"></script>-->
     </div>
 
 </body>

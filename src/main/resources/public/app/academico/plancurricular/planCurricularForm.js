@@ -313,6 +313,46 @@ $(function () {
                 }
             });
         },
+        editarCursoEqui($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatableCursosObl.settings.dataset.records[idx];
+
+            MODAL.init("lg");
+            MODAL.title("Añadir cursos Equivalentes a " + rec.curso);
+            MODAL.buttons('<a class="btn btn-primary" id="btnAddCurObl">Aceptar</a>');
+            MODAL.show();
+
+            $.ajax({
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursosEquivalentes'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    MODAL.body(response);
+                    $("#txtNumeroCiclo").val(NuevaCurricula.numeroCicloElegido.attr("rel"));
+
+                    $.ajax({
+                        url: APP.url('academico/planCurricular/' + $("#txtTipoCurCur").val() + '/buscarCursosEquivalentes'),
+                        type: 'POST',
+                        async: false,
+                        success: function (response) {
+                            NuevaCurricula.tipoCursoCurricula = response.data;
+                            if (response.data.tieneRequisitos) {
+                                $("#cboCursosReq").select2(NuevaCurricula.select2RequisitoCursoCurricula);
+                            }
+                        },
+                        error: function () {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        }
+                    });
+
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         editarCursoElec($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
@@ -750,7 +790,6 @@ $(function () {
                     $('#txtCreditoReq').prop("readonly", true);
                     $('#txtCreditos').prop("readonly", true);
 
-
                     $("#cboCurso").select2(NuevaCurricula.select2BuscarCursos).on('select2-selecting', function (e) {
                         if (jQuery.type(NuevaCurricula.tipoCursoCurricula.tieneCreditoManual) === "undefined") {
                             $("#txtCreditos").val(e.object.creditos);
@@ -888,6 +927,28 @@ $(function () {
 
 
                     }
+                }
+            });
+        },
+        procesarAlumnos: function () {
+            MODAL.showWait();
+            var form = $("[id='frmPlanCurricular']");
+            $.ajax({
+                url: APP.url('academico/planCurricular/procesaralumnos'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
                 }
             });
         },
@@ -1496,6 +1557,10 @@ $(function () {
         NuevaCurricula.savePlanCurricular();
     });
 
+    $("body").delegate("#procesarAlumnos", "click", function (e) {
+        NuevaCurricula.procesarAlumnos();
+    });
+
     $("body").delegate("#cboTipoCursoCurricula", "change", function (e) {
         NuevaCurricula.cambiarTipoCursoCurricula($(this), e);
     });
@@ -1522,6 +1587,10 @@ $(function () {
 
     $("body").delegate(".editar-cur-obl", "click", function (e) {
         NuevaCurricula.editarCursoObl($(this), e);
+    });
+
+    $("body").delegate(".editar-cur-equi", "click", function (e) {
+        NuevaCurricula.editarCursoEqui($(this), e);
     });
 
     $("body").delegate(".editar-cur-elec", "click", function (e) {
