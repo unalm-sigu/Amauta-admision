@@ -73,14 +73,20 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno) {
+        alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumno);
+    }
+
+    @Override
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void procesarAlumno(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
+    public void procesarAlumno(Alumno alumno, DataSessionPivot ds) {
 
         List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList<>();
 
-        AlumnoCiclo alumnoCicloBD = alumnoCicloDAO.find(alumnoCiclo.getId());
-        Map<Long, CursoCurricula> cursosCurricula = alumnoCicloBD.getAlumno().getPlanCurricular().getCursoCurricula()
+        Alumno alumnoBD = alumnoDAO.find(alumno.getId());
+        Map<Long, CursoCurricula> cursosCurricula = alumnoBD.getPlanCurricular().getCursoCurricula()
                 .stream()
                 .filter(p -> p.getCurso() != null)
                 .collect(Collectors.toMap(x -> x.getId(), x -> x, (a, b) -> a));
@@ -90,10 +96,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         Map<Long, AlumnoCursoCurricula> cursosAlumno = new HashMap<>();
 
-        int creditosAproboados = alumnoCicloBD.getAlumno().getCreditosAprobados();
-        int creditosCurriculaAprobados = alumnoCicloBD.getAlumno().getCreditosCarreraAprobados();
+        int creditosAproboados = alumnoBD.getCreditosAprobados();
+        int creditosCurriculaAprobados = alumnoBD.getCreditosCarreraAprobados();
 
-        alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allNoOpcionalByAlumno(alumnoCicloBD.getAlumno());
+        alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allNoOpcionalByAlumno(alumnoBD);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
             alumnoCursoCurricula.setValidado(false);
@@ -101,10 +107,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             cursosAlumno.put(alumnoCursoCurricula.getCursoCurricula().getId(), alumnoCursoCurricula);
         }
 
-        sincronizarConCurricula(cursosCurricula, cursosAlumno, alumnoCicloBD.getAlumno());
+        sincronizarConCurricula(cursosCurricula, cursosAlumno, alumnoBD);
 
         validarCreditosAprobados(cursosCurricula, cursosAlumno.values(), creditosAproboados, creditosCurriculaAprobados);
-        validarHistorial(mapAlumnoCursoCurriculaByCurso, alumnoCicloBD.getAlumno());
+        validarHistorial(mapAlumnoCursoCurriculaByCurso, alumnoBD);
         validarCursosRequisito(cursosCurricula, cursosAlumno, ds);
         validarCursosSimultaneo(cursosCurricula, cursosAlumno, cursosSimultaneos, ds);
 
@@ -133,6 +139,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             alumnoCursoCurricula.setCreditos(cursoAprobado.getCreditos());
             alumnoCursoCurricula.setNota(cursoAprobado.getNota());
             alumnoCursoCurricula.setValidado(true);
+            logger.debug("! curso aprobado !");
         }
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosAlumnoByIdCurso.values()) {
@@ -245,7 +252,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
             AlumnoCursoCurricula evaluado = entry.getValue();
 
-            if (evaluado.isValidado() || evaluado.getEstadoEnum() != HAB) {
+            if (evaluado.getEstadoEnum() != HAB) {
                 continue;
             }
 
@@ -257,6 +264,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 if (requisitosSimultaneo.size() > 0) {
                     evaluado.setEstado(SIM.name());
                     cursosSimultaneo.addAll(requisitosSimultaneo);
+                } else {
+                    evaluado.setEstado(HAB.name());
                 }
             } else {
                 evaluado.setEstado(NREQ.name());

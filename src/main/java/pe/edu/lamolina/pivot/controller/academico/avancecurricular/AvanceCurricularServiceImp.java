@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
-import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -58,26 +57,25 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
     @Override
     @Transactional
-    public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, DataSessionPivot ds) {
         PlanCurricular planBD = planCurricularDAO.find(planCurricular.getId());
-        CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByCicloAcademicoPlanCurricular(planBD, cicloBD);
+        List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(planBD);
 
-        logger.debug("Alumnos: {}", alumnoCiclos.size());
-        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-            alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoCiclo.getAlumno());
+        logger.debug("Alumnos: {}", alumnos.size());
+        
+        for (Alumno alumno : alumnos) {
+            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
         }
-        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-            avanceCurricularAsincronoService.procesarAlumno(alumnoCiclo, ds);
+        for (Alumno alumno : alumnos) {
+            avanceCurricularAsincronoService.procesarAlumno(alumno, ds);
         }
     }
 
     @Override
     @Transactional
-    public void generarAvanceCurricularByAlumnoCiclo(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
-        AlumnoCiclo alumnoCicloBD = alumnoCicloDAO.find(alumnoCiclo.getId());
-        alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoCicloBD.getAlumno());
-        avanceCurricularAsincronoService.procesarAlumno(alumnoCiclo, ds);
+    public void generarAvanceCurricularByAlumno(Alumno alumno, DataSessionPivot ds) {
+        alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumno);
+        avanceCurricularAsincronoService.procesarAlumno(alumno, ds);
     }
 
 }
