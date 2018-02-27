@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -57,6 +58,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -156,6 +158,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    PromedioService promedioService;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -1828,7 +1833,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         boolean evaluactionsComplete = true;
-        List<String> lstSeccion = new ArrayList<String>();
+        List<String> lstSeccionesIncompletes = new ArrayList<String>();
         for (Seccion seccion : grupoSeccion.getSecciones()) {
             List<Evaluacion> evaluacionesBySeccion = this.allEvaluacionByFilter(null, null, seccion.getId());
 
@@ -1851,16 +1856,30 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 }
             }
             if (!evaluactionsComplete) {
-                lstSeccion.add(seccion.getCodigo2() + " - " + seccion.getGrupoHoras().getCodigo());
+                lstSeccionesIncompletes.add(seccion.getCodigo2() + " - " + seccion.getGrupoHoras().getCodigo());
             }
         }
         if (!evaluactionsComplete) {
-            throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(", ", lstSeccion)));
+            throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(", ", lstSeccionesIncompletes)));
         }
         grupoSeccion.setUsuarioCierraActa(usuario);
         grupoSeccion.setFechaCierreActa(new DateTime().toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
+
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
+        List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<String> idsMatsResumen = matriculasResumen.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
+        logger.debug(String.join(",", idsMatsResumen));
+
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
+        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+            matriculaCurso.getMatriculaResumen().getAlumno();
+            matriculaCurso.getMatriculaResumen().getCicloAcademico();
+            matriculaCurso.getCurso();
+            promedioService.promedio(matriculaCurso, usuario);
+        }
+
     }
 
     @Override

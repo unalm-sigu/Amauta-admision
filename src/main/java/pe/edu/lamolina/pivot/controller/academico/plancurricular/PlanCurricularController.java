@@ -424,7 +424,7 @@ public class PlanCurricularController {
         model.addAttribute("format", new NumberFormat());
         return "academico/plancurricular/agregarCursoObli";
     }
-    
+
     @RequestMapping("{cursoCurricula}/editarCursosEquivalentes")
     public String editarCursosEquivalentes(@PathVariable("cursoCurricula") Long cursoCurriculaId, Model model, HttpSession session) {
         CursoCurricula cursoCurricula = service.findCursoCurricula(cursoCurriculaId);
@@ -518,6 +518,7 @@ public class PlanCurricularController {
         }
         return response;
     }
+
     @ResponseBody
     @RequestMapping("{tipoCursoCurricula}/buscarCursosEquivalentes")
     public JsonResponse buscarCursosEquivalentes(@PathVariable("tipoCursoCurricula") Long tipoCursoCurriculaId, HttpSession session) {
@@ -776,7 +777,7 @@ public class PlanCurricularController {
         List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(carrera, EstadoEnum.ACT);
         List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivos();
         List<TipoCursoCurricula> tiposCursoCurriculasObli = service.allTiposCursoCurriculasObligatorios();
-        Integer cantAlumnos = service.countAlumnosByPlanCurricularCicloAcademico(planCurricular, ds.getCicloAcademico()).intValue();
+        Integer cantAlumnos = service.countAlumnosByPlanCurricular(planCurricular).intValue();
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("planCurricular", planCurricular);
         model.addAttribute("orientaciones", orientaciones);
