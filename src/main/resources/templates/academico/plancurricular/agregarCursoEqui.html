@@ -1,18 +1,9 @@
 <div class="wrapper scrollable">
     <form id="frmAgregarCursosEquivalentes" >
-
-        <input id="txtPlanCurricular" name="planCurricular.id" type="hidden" th:value="${cursoCurricula.planCurricular.id}"/>
-        <input id="txtCursoCurricula" name="id" type="hidden" th:value="${cursoCurricula.id}"
-               th:if="${cursoCurricula.id}"/>
-
-        <input id="txtNumeroCiclo" type="hidden" name="numeroCiclo" />
-        <input id="txtTipoCurCur" type="hidden" th:value="${cursoCurricula.tipoCursoCurricula.id}" 
-               th:if="${cursoCurricula.id}"/>
+        <input name="cursoCurricula.id" type="hidden" th:value="${cursoCurricula.id}"/>
 
         <fieldset>
             <div class="row">
-                 <input type="hidden" name="tipoCursoCurricula.id" th:value="${cursoCurricula.tipoCursoCurricula.id}"
-                           th:if="${cursoCurricula.id}" />
                 <div class="form-group col-md-9">
                     <label for="cboCursosEquiObli">Buscar aquí los cursos que forman parte del grupo</label>
                     <input id="cboCursosEquiObli" class="form-control" type="text" />
@@ -24,30 +15,39 @@
                 </div>
             </div>
 
-            <table id="tableEquivalentesObli" class="table table-striped">
+            <table id="tableEquivalentesObli" class="table table-striped" >
                 <tbody id="tableBodyEquivalentesObli"></tbody>
             </table>
-            
+
             <div class="row">
                 <div class="form-group col-md-3">
-                    <a class="btn btn-default btn-sm input-s-full" id="btnAddRequisitoCursoObli">Guardar grupo</a>
+                    <a class="btn btn-default btn-sm input-s-full" id="btnGuardarGrupoEquivalente">Guardar grupo</a>
                 </div>
             </div>
-            <table class="table"> 
+            <table id="tableEquivalentesAgregar" th:class="|table ${gruposEquivalentes.isEmpty()? 'hide':''}|"> 
                 <thead>
                     <tr>
                         <th class="col-md-1 text-center v-middle">Grupo</th>
                         <th class="col-md-2 v-middle">Código</th>
-                        <th class="col-md-9 text-center v-middle" colspan="2">Curso Equivalente</th>
+                        <th class="col-md-8 text-center v-middle" colspan="2">Curso Equivalente</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody th:each="grupo, i : ${gruposEquivalentes}">
+                <tbody  id="tableBodyEquivalentesAgregar">
+                <th:block th:each="grupo, i : ${gruposEquivalentes}">
                     <tr th:each="curso, j : ${grupo.cursoEquivalente}">
-                        <td th:if="${j.index == 0}" th:rowspan="${#lists.size(grupo.cursoEquivalente)}" class="v-middle text-center"> <span th:text="${grupo.numeroGrupo}"/></td>
+                        <td th:if="${j.index == 0}" th:rowspan="${#lists.size(grupo.cursoEquivalente)}" class="v-middle text-center">  
+                            <input name="cursoCurricula.id" type="hidden" th:value="${cursoCurricula.id}"/> 
+                            <span name="numero-grupo" th:text="${grupo.numeroGrupo}"/>
+                        </td>
                         <td> <span th:text="${curso.cursoEquivalente.codigo}"/></td>
-                        <td> <span th:text="${curso.cursoEquivalente.nombre}"/></td>
-                        <td> <span th:text="${curso.cursoEquivalente.tpc}"/></td>
+                        <td class="col-md-6"> <span th:text="${curso.cursoEquivalente.nombre}"/></td>
+                        <td class="col-md-2 text-center"> <span th:text="${curso.cursoEquivalente.tpc}"/></td>
+                        <td th:if="${j.index == 0}" th:rowspan="${#lists.size(grupo.cursoEquivalente)}" class="v-middle text-center"> 
+                            <a rel="${j.index}" class="pointer btn-delete-grupo-equivalente"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+                        </td>
                     </tr>
+                </th:block>
                 </tbody>
             </table>
         </fieldset>
@@ -55,5 +55,29 @@
     </form>
 </div>
 
-<script id="templateRequisitoCursoObligatorio" 
+<script id="templateEquivalenteCursoObligatorio" 
 type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/agregarCursoEquiObliTemplate"/></script>
+
+
+<script id="templateEquivalentesCursos" type="text/x-jsrender" class="hide">
+    {{for array ~grupo=grupo ~cursoCurricula=cursoCurricula}}
+    <tr>
+    {{if #index == 0}}
+    <td rowspan='{{:#get("array").data.length}}' class="v-middle text-center" > 
+        <input name="cursoCurricula.id" type="hidden" value="{{:~cursoCurricula}}"/> 
+        <span name="numero-grupo">
+                {{:~grupo}}</span>
+    </td>
+    {{/if}}
+    <td>{{:codigo}}</td>
+<td class="col-md-6">{{:nombre}}</td>
+<td class="col-md-2 text-center">{{:tpc}}</td>
+        {{if #index == 0}}
+<td rowspan='{{:#get("array").data.length}}' class="v-middle text-center" > 
+    <a class="pointer btn-delete-grupo-equivalente"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+</td>
+{{/if}}
+</tr>
+{{/for}}
+</script>
+

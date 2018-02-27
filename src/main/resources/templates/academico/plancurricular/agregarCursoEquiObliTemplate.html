@@ -1,7 +1,7 @@
 <tr>
     <td class="v-middle text-center">
-        <input name="cursos[{{:index}}].id" value="{{:id}}" type="hidden"/>
-        <span name="codigoObli_{{:index}}">{{:codigo}}</span>
+        <input name="cursoEquivalente[{{:index}}].cursoEquivalente.id" value="{{:id}}" type="hidden"/>
+        <span> {{:codigo}} </span>
         {{if codigo2}}
             <small class="block bold text-primary">{{:codigo2}}</small>
         {{/if}}
@@ -10,6 +10,6 @@
         <span>{{:curso}}</span>
     </td>
     <td class="v-middle text-center">
-        <a rel="{{:index}}" class="cbo-delete-requisito-obli pointer"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+        <a rel="{{:index}}" class="btn-delete-curso-equivalente pointer"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
     </td>
 </tr>

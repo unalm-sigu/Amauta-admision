@@ -69,6 +69,8 @@ public interface PlanCurricularService {
 
     void saveCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
 
+    void deleteCursoEquivalenteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso);
+    
     List<CursoAdicionalCurricula> allCursosAdcByDynatable(DynatableFilter filter);
 
     void deleteCursoAdicional(Long cursoAdicionalId);
@@ -90,6 +92,8 @@ public interface PlanCurricularService {
     void deletePlanCurricular(PlanCurricular plan);
 
     void desactivarPlanCurricular(PlanCurricular plan);
+    
+    void saveGrupoEquivalente(GrupoCursoEquivalente grupo, DataSessionPivot ds);
 
     PlanCurricular clonarPlanCurricular(PlanCurricular plan, CicloAcademico ciclo, DataSessionPivot ds);
 
