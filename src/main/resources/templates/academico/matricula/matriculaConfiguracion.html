@@ -156,26 +156,11 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        var eventosJson = [[${eventos.toString()
-        }
-        ]];
+        var eventosJson = [[${eventos.toString() }]]; // ${eventos.toString() }
+        var configJson = [[${configuraciones.toString()}]]; // ${eventos.toString() }
+        var cicloJson = [[${ciclo.toString()}]]; // ${eventos.toString() }
+        var tiposJson = [[${tipoMatricula}]]; // ${eventos.toString() }
         /*]]>*/
-        /*<![CDATA[*/
-        var configJson = [[${configuraciones.toString()
-        }
-        ]];
-        /*<![CDATA[*/
-        var cicloJson = [[${ciclo.toString()
-        }
-        ]];
-        /*]]>*/
-        /*<![CDATA[*/
-        var tiposJson = [[${tipoMatricula
-        }
-        ]];
-        /*]]>*/
-
-        var ww = JSON.parse(eventosJson)
 
     </script>
 
