@@ -70,7 +70,7 @@
                                 <div class="form-group row">
                                     <label class="col-sm-3 control-label">Evento</label>
                                     <div class="col-sm-6">
-                                        
+
                                         <select required="true" class="form-control " 
                                                 v-model="config.eventoCicloAcademico"
                                                 v-on:change="tipoEvento()" 
@@ -157,26 +157,11 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        var eventosJson = [[${eventos.toString()
-        }
-        ]];
+        var eventosJson = [[${eventos.toString() }]]; // ${eventos.toString() }
+        var configJson = [[${configuraciones.toString()}]]; // ${eventos.toString() }
+        var cicloJson = [[${ciclo.toString()}]]; // ${eventos.toString() }
+        var tiposJson = [[${tipoMatricula}]]; // ${eventos.toString() }
         /*]]>*/
-        /*<![CDATA[*/
-        var configJson = [[${configuraciones.toString()
-        }
-        ]];
-        /*<![CDATA[*/
-        var cicloJson = [[${ciclo.toString()
-        }
-        ]];
-        /*]]>*/
-        /*<![CDATA[*/
-        var tiposJson = [[${tipoMatricula
-        }
-        ]];
-        /*]]>*/
-
-        var ww = JSON.parse(eventosJson)
 
     </script>
 

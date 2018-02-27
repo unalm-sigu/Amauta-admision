@@ -38,7 +38,7 @@ new Vue({
 
     },
     methods: {
-        
+
         convertDate(strDate) {
             var parts = strDate.split("/");
             return new Date(parts[2], parts[1] - 1, parts[0]);
@@ -58,14 +58,16 @@ new Vue({
             }
             self.btnEnable();
             let $vue = this;
+            let $cfg = $vue.config;
 
-            $vue.config.horaInicio = $('#timeHoraInicio').val();
+            $cfg.horaInicio = $('#timeHoraInicio').val();
+            $cfg.eventoCicloAcademico = {id: $vue.config.eventoCicloAcademico.id};
 
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/configuracionturno/configuracion'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.config),
+                data: JSON.stringify($cfg),
                 success: function (response) {
                     if (response.success) {
                         $vue.config.id = response.data;
@@ -164,10 +166,10 @@ new Vue({
             $vue.tipos = Object.assign({}, $vue.tiposTemp);
 
             if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT_REG') {
-                delete $vue.tipos['BARRIDO'];
+                delete $vue.tipos['ONLINE'];
             }
             if ($vue.config.eventoCicloAcademico.eventoAcademico.codigo == 'MAT_VER') {
-                delete $vue.tipos['ONLINE'];
+                delete $vue.tipos['BARRIDO'];
             }
         },
         jquery(horas) {
