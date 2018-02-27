@@ -60,7 +60,7 @@ new Vue({
             let $vue = this;
 
             $vue.config.horaInicio = $('#timeHoraInicio').val();
-
+            $vue.config.eventoCicloAcademico = {id : $vue.config.eventoCicloAcademico.id}
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/configuracionturno/configuracion'),
