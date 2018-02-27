@@ -113,6 +113,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
+    public List<Curso> allCursoByNombre(Curso curso) {
+        return cursoDAO.allByNombreTipoCurricula(curso.getNombre(), Arrays.asList(TipoCurriculaEnum.REG.name()), 10);
+    }
+
+    @Override
     public List<OrientacionCarrera> allOrientacionByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum) {
         return orientacionCarreraDAO.allByCarreraEstado(carrera, estadoEnum);
     }

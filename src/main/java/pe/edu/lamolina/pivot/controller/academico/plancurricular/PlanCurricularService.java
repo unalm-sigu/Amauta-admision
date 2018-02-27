@@ -49,6 +49,8 @@ public interface PlanCurricularService {
 
     List<CursoCurricula> allCursosCurriculaByFilter(TipoCursoCurricula tipoCursoCurricula);
 
+    List<Curso> allCursoByNombre(Curso cursoForm);
+    
     List<Curso> allCursoByNombreTipoCurricula(String nombre, List<TipoCurriculaEnum> tiposCurriculaEnum);
 
     TipoCursoCurricula findTipoCurricula(Long tipoCursoCurricula);
