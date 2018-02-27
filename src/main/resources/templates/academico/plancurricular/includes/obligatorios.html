@@ -49,8 +49,9 @@
             <tr>
                 <th class="col-md-1 v-middle text-center">Tipo</th>
                 <th class="col-md-1 v-middle"></th>
-                <th class="col-md-6 v-middle">Curso</th>
+                <th class="col-md-5 v-middle">Curso</th>
                 <th class="col-md-1 v-middle text-center">Créditos</th>
+                <th class="col-md-1 v-middle text-center">Cursos equivalentes</th>
                 <th class="col-md-1 v-middle text-center">Créditos requisitos</th>
                 <th class="col-md-1 v-middle text-center">Cursos requisitos</th>
                 <th class="col-md-1 v-middle text-center">Pre requisito de</th>
@@ -107,82 +108,111 @@
 
 <script id="templatePreRequisitos" type="text/x-jsrender" class="hide"><p class="h5 m-b-lg">
     {{if tipoRequisitos=="pre"}}
-        Los pre-requisitos del curso <b class="text-primary">{{:curso}}</b> son:
+    Los pre-requisitos del curso <b class="text-primary">{{:curso}}</b> son:
     {{else tipoRequisitos=="post"}}
-        El curso <b class="text-primary">{{:curso}}</b> es pre-requisito de los siguientes cursos:
+    El curso <b class="text-primary">{{:curso}}</b> es pre-requisito de los siguientes cursos:
     {{/if}}
     </p>
     <table class="table table-striped">
-        <thead>
-            <tr>
-                <th class="col-md-1 text-center v-middle">Código</th>
-                <th class="col-md-7 text-center v-middle">Nombre</th>
-                <th class="col-md-1 text-center v-middle">Simultáneo</th>
-                <th class="col-md-1 text-center v-middle">Nª Ciclo</th>
-                <th class="col-md-2 text-center v-middle">Tipo curso</th>
-            </tr>
-        </thead>
-        <tbody>
-        {{if tipoRequisitos=="pre"}}
-            {{for prerrequisitos}}
-            <tr>
-                <td class="text-center v-middle">
-                    <span class="block">{{:codigo}}</span>
-                    {{if codigo2}}
-                        <small class="block text-primary">{{:codigo2}}</small>
-                    {{/if}}
-                </td>
-                <td class="v-middle">{{:curso}}</td>
-                <td class="text-center v-middle">
-                {{if simultaneo==1}}
-                    <i class="fa fa-check-square-o fa-2x text-success"></i>
-                {{/if}}
-                </td>
-                <td class="text-center v-middle">{{:numeroRomano}}</td>
-                <td class="text-center v-middle">{{:tipoCurso}}</td>
-            </tr>
-            {{/for}}
-        {{else tipoRequisitos=="post"}}
-            {{for postrrequisitos}}
-            <tr>
-                <td class="text-center v-middle">
-                    <span class="block">{{:codigo}}</span>
-                    {{if codigo2}}
-                        <small class="block text-primary">{{:codigo2}}</small>
-                    {{/if}}
-                </td>
-                <td class="v-middle">{{:curso}}</td>
-                <td class="text-center v-middle">
-                {{if simultaneo==1}}
-                    <i class="fa fa-check-square-o fa-2x text-success"></i>
-                {{/if}}
-                </td>
-                <td class="text-center v-middle">{{:numeroRomano}}</td>
-                <td class="text-center v-middle">{{:tipoCurso}}</td>
-            </tr>
-            {{/for}}
-            {{for postrrequisitosOpc}}
-            <tr>
-                <td class="text-center v-middle">
-                    <span class="block">{{:codigo}}</span>
-                    {{if codigo2}}
-                        <small class="block text-primary">{{:codigo2}}</small>
-                    {{/if}}
-                </td>
-                <td class="v-middle">{{:curso}}</td>
-                <td class="text-center v-middle">
-                {{if simultaneo==1}}
-                    <i class="fa fa-check-square-o fa-2x text-success"></i>
-                {{/if}}
-                </td>
-                <td></td>
-                <td class="text-center v-middle">{{:tipoCurso}}</td>
-            </tr>
-            {{/for}}
-        {{/if}}
-        </tbody>
+    <thead>
+    <tr>
+    <th class="col-md-1 text-center v-middle">Código</th>
+    <th class="col-md-7 text-center v-middle">Nombre</th>
+    <th class="col-md-1 text-center v-middle">Simultáneo</th>
+    <th class="col-md-1 text-center v-middle">Nª Ciclo</th>
+    <th class="col-md-2 text-center v-middle">Tipo curso</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{if tipoRequisitos=="pre"}}
+    {{for prerrequisitos}}
+    <tr>
+    <td class="text-center v-middle">
+    <span class="block">{{:codigo}}</span>
+    {{if codigo2}}
+    <small class="block text-primary">{{:codigo2}}</small>
+    {{/if}}
+    </td>
+    <td class="v-middle">{{:curso}}</td>
+    <td class="text-center v-middle">
+    {{if simultaneo==1}}
+    <i class="fa fa-check-square-o fa-2x text-success"></i>
+    {{/if}}
+    </td>
+    <td class="text-center v-middle">{{:numeroRomano}}</td>
+    <td class="text-center v-middle">{{:tipoCurso}}</td>
+    </tr>
+    {{/for}}
+    {{else tipoRequisitos=="post"}}
+    {{for postrrequisitos}}
+    <tr>
+    <td class="text-center v-middle">
+    <span class="block">{{:codigo}}</span>
+    {{if codigo2}}
+    <small class="block text-primary">{{:codigo2}}</small>
+    {{/if}}
+    </td>
+    <td class="v-middle">{{:curso}}</td>
+    <td class="text-center v-middle">
+    {{if simultaneo==1}}
+    <i class="fa fa-check-square-o fa-2x text-success"></i>
+    {{/if}}
+    </td>
+    <td class="text-center v-middle">{{:numeroRomano}}</td>
+    <td class="text-center v-middle">{{:tipoCurso}}</td>
+    </tr>
+    {{/for}}
+    {{for postrrequisitosOpc}}
+    <tr>
+    <td class="text-center v-middle">
+    <span class="block">{{:codigo}}</span>
+    {{if codigo2}}
+    <small class="block text-primary">{{:codigo2}}</small>
+    {{/if}}
+    </td>
+    <td class="v-middle">{{:curso}}</td>
+    <td class="text-center v-middle">
+    {{if simultaneo==1}}
+    <i class="fa fa-check-square-o fa-2x text-success"></i>
+    {{/if}}
+    </td>
+    <td></td>
+    <td class="text-center v-middle">{{:tipoCurso}}</td>
+    </tr>
+    {{/for}}
+    {{/if}}
+    </tbody>
     </table>
 </script>
 
+    <script id="templateEquivalentes" type="text/x-jsrender" class="hide">
+        <p class="h5 m-b-lg">
+    El curso <b class="text-primary">{{:curso}}</b> {{:codigo}} es equivalente los siguientes grupos de cursos:
+    </p>
+    <table class="table">
+    <thead>
+    <tr>
+    <th class="col-md-1 text-center v-middle">Grupo</th>
+    <th class="col-md-2 text-center v-middle">Código</th>
+    <th class="col-md-9 text-center v-middle" colspan="2">Curso Equivalente</th>
+    </tr>
+    </thead>
+    {{for arrayGruposEquivalentes}}
+    <tbody>
+        {{for arrCursosEquivalantes ~nroGrupo=numeroGrupo}}
+        <tr>
+        {{if #index == 0}}
+            <td rowspan='{{:#get("array").data.length}}' class="v-middle text-center" > {{:~nroGrupo}} </td>
+        {{/if}}
+        <td>{{:codigo}}</td>
+        <td class="col-md-7">{{:curso}}</td>
+        <td class="col-md-2 text-center">{{:tpc}}</td>
+    </tr>
+                    {{/for}}
+    </tbody>
+                    {{/for}}
+    </table>
+</script>
+    
 <script id="templateCursoCurricula" 
 type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/obligatoriosTemplate"/></script>
