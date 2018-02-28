@@ -11,6 +11,8 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.SituacionConfig;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionConfigDAO;
 
@@ -26,10 +28,21 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
     @Autowired
     SituacionConfigDAO situacionConfigDAO;
 
+    @Autowired
+    AlumnoDAO alumnoDAO;
+
     @Override
-    public SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, Alumno alumno, CicloAcademico cicloAcademico) {
+    public SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, SituacionAcademica situacionAcademicaIni, Alumno alumno, CicloAcademico cicloAcademico) {
+        if (situacionAcademicaIni == null) {
+            alumno = alumnoDAO.find(alumno);
+            if (alumno.getModalidadEstudio().isPregrado()) {
+                situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_8.getValue());
+            } else {
+                situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
+            }
+        }
         SituacionConfig situacionConfig = new SituacionConfig();
-        situacionConfig.setSituacionInicial(alumno.getSituacionAcademica());
+        situacionConfig.setSituacionInicial(situacionAcademicaIni);
         situacionConfig.setAprobado(alumnoCiclo.getEstaAprobado());
         situacionConfig.setCiclosEstudiados(alumno.getCiclosEstudiados());
         situacionConfig.setAutorizado(BigDecimal.ZERO.intValue());
@@ -39,7 +52,7 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
         situacionConfig.setCicloRegular(cicloAcademico.isTipoRegular() ? BigDecimal.ONE.intValue() : BigDecimal.ZERO.intValue());
 
         logger.debug("Alumno {}, Situacion Inicial {}, Esta Aprobado {}, Ciclos Estudiados {}, Capa {}, Ciclo Regular {}",
-                alumno.getId(), alumno.getSituacionAcademica().getId(), alumnoCiclo.getEstaAprobado(),
+                alumno.getId(), situacionAcademicaIni.getId(), alumnoCiclo.getEstaAprobado(),
                 alumno.getCiclosEstudiados(), situacionConfig.getCapa(), situacionConfig.getCicloRegular());
 
         //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);

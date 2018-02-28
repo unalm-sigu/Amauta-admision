@@ -20,12 +20,15 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,6 +49,12 @@ public class PromedioServiceImp implements PromedioService {
     @Autowired
     SituacionAcademicaService situacionAcademicaService;
 
+    @Autowired
+    SituacionAcademicaDAO situacionAcademicaDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
+
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
@@ -54,6 +63,7 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico cicloAcademico = matriculaCurso.getMatriculaResumen().getCicloAcademico();
         Curso curso = cursoDAO.find(matriculaCurso.getCurso().getId());
 
+        AlumnoCiclo alumnoCicloLast = alumnoCicloDAO.findLastByAlumno(alumno);
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
         AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
         DateTime today = new DateTime();
@@ -200,9 +210,17 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCicloDAO.update(alumnoCiclo);
         alumnoCiclo.getId();
         if (calcularSituacionAcadFinal) {
-            SituacionAcademica situacionAcademica = situacionAcademicaService.findSituacionFinal(alumnoCiclo, alumno, cicloAcademico);
-            alumnoCiclo.setSituacionFinal(situacionAcademica);
+            SituacionAcademica situacionAcademicaIni = alumnoCicloLast != null ? alumnoCicloLast.getSituacionFinal() : null;
+            SituacionAcademica situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(alumnoCiclo, situacionAcademicaIni, alumno, cicloAcademico);
+
+            alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
             alumnoCicloDAO.update(alumnoCiclo);
+
+            Alumno alumnoUpd = new Alumno();
+            alumnoUpd.setId(alumno.getId());
+            alumnoUpd.setCicloActivo(cicloAcademico);
+            alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
+            alumnoDAO.updateCicloActivoSituacionAcad(alumnoUpd);
         }
     }
 

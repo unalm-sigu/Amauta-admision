@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -353,7 +354,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td", "cicloActivo ci")
+                .leftJoin("per.tipoDocumento td", "cicloActivo ci", "modalidadEstudio me")
                 .filter("alu.id", alumno);
         return (Alumno) sql.find(getCurrentSession());
     }
@@ -377,6 +378,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("me.id", modalidad)
                 .in("sa.id", situaciones);
         return all(sql);
+    }
+
+    @Override
+    public void updateCicloActivoSituacionAcad(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "cicloActivo");
+        this.update(octavia);
     }
 
 }

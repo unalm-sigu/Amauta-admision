@@ -7,6 +7,6 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 
 public interface SituacionAcademicaService {
 
-    SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, Alumno alumno, CicloAcademico cicloAcademico);
+    SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, SituacionAcademica situacionAcademicaIni, Alumno alumno, CicloAcademico cicloAcademico);
 
 }
