@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import java.util.Date;
 import org.joda.time.DateTime;
 
 public class Laboratory {
