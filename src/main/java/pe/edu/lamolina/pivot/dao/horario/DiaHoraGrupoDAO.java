@@ -3,8 +3,10 @@ package pe.edu.lamolina.pivot.dao.horario;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 
 public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
@@ -19,4 +21,8 @@ public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
 
     List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
 
+    DiaHoraGrupo findByCicloAcademicoGrupoHorasDiaHora(CicloAcademico cicloAcademico, GrupoHoras grupo, Dia dia, Hora hora);
+    
+    void deleteAllByNotInList(List<DiaHoraGrupo> horarios);
+    
 }
