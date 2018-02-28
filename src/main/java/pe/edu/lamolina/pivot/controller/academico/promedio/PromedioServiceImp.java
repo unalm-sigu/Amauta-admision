@@ -49,7 +49,7 @@ public class PromedioServiceImp implements PromedioService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void promedio(MatriculaCurso matriculaCurso, Usuario usuario) {
+    public void promedio(MatriculaCurso matriculaCurso, Usuario usuario, boolean calcularSituacionAcadFinal) {
         Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
         CicloAcademico cicloAcademico = matriculaCurso.getMatriculaResumen().getCicloAcademico();
         Curso curso = cursoDAO.find(matriculaCurso.getCurso().getId());
@@ -199,10 +199,11 @@ public class PromedioServiceImp implements PromedioService {
         }
         alumnoCicloDAO.update(alumnoCiclo);
         alumnoCiclo.getId();
-
-        SituacionAcademica situacionAcademica = situacionAcademicaService.findSituacionFinal(alumnoCiclo, alumno, cicloAcademico);
-        alumnoCiclo.setSituacionFinal(situacionAcademica);
-        alumnoCicloDAO.update(alumnoCiclo);
+        if (calcularSituacionAcadFinal) {
+            SituacionAcademica situacionAcademica = situacionAcademicaService.findSituacionFinal(alumnoCiclo, alumno, cicloAcademico);
+            alumnoCiclo.setSituacionFinal(situacionAcademica);
+            alumnoCicloDAO.update(alumnoCiclo);
+        }
     }
 
     public Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Curso curso) {

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +18,19 @@ import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -60,6 +65,12 @@ public class TestController {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
+
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+
+    @Autowired
+    PromedioService promedioService;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -174,6 +185,34 @@ public class TestController {
             loop++;
 
         }
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularAllPromediosByCiclo")
+    public String calcularAllPromediosByCiclo(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByCiclo(ciclo);
+
+        for (MatriculaSeccion ms : alumnosSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+
+            List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
+            List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+            List<String> idsMatsResumen = matriculasResumen.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
+
+            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());
+            for (MatriculaCurso matriculaCurso : matriculasCurso) {
+                matriculaCurso.getMatriculaResumen().getAlumno();
+                matriculaCurso.getMatriculaResumen().getCicloAcademico();
+                matriculaCurso.getCurso();
+                promedioService.promedio(matriculaCurso, ds.getUsuario(), false);
+            }
+
+        }
+
         return "yeah";
     }
 

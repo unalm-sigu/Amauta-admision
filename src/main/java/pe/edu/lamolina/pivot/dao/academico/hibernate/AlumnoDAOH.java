@@ -165,6 +165,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         sql.append("  inner join ca.modalidadEstudio moe ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
+
         query.setString("PRE", PRE.name());
         query.setString("EPG", EPG.name());
         query.setString("VIS", VIS.name());
@@ -252,10 +253,10 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         sql.append("select new ").append(MatriculableResumen.class.getName());
         sql.append(" (   ");
-        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :PRE then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :EPG then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :VIS  then 1 else 0 end),0),   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :ESP  then 1 else 0 end),0)   ");
         sql.append(" )   ");
         sql.append("  from ").append(Alumno.class.getName()).append(" as al ");
         sql.append(" inner join al.carrera ca ");

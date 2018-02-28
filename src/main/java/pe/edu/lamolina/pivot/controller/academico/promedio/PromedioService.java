@@ -5,6 +5,6 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface PromedioService {
 
-    void promedio(MatriculaCurso matriculaCurso, Usuario usuario);
+    void promedio(MatriculaCurso matriculaCurso, Usuario usuario, boolean calcularSituacionAcadFinal);
 
 }
