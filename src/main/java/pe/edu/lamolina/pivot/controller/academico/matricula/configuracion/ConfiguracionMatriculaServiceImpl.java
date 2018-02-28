@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -59,8 +58,9 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
             for (int j = 0; j < config.getTurnosDia(); j++) {
                 prioridad += 1;
                 DateTime fechaHoraTurno = fechaHora.plusMinutes(j * config.getDuracion());
-                DateTime fechaHoraTurnoFin = fechaHoraTurno.plusMinutes(config.getDuracion() - config.getEspera());
-
+                DateTime fechaHoraTurnoEspera = fechaHoraTurno.plusMinutes(config.getDuracion() - config.getEspera());
+                DateTime fechaHoraTurnoFin = fechaHoraTurno.plusMinutes(config.getDuracion());
+                
                 TurnoAtencion turno = new TurnoAtencion();
                 turno.setFecha(fecha.toDate());
                 turno.setFechaHoraInicio(format.parseDateTime(fechaHoraTurno.toString("yyyy-MM-dd HH:mm")).toDate());
@@ -68,7 +68,8 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 turno.setAlumnos(config.getAlumnos());
                 turno.setConfiguracionTurnosAtencion(config);
                 turno.setHoraInicio(fechaHoraTurno.toString("HH:mm"));
-                turno.setHoraFinal(fechaHoraTurnoFin.toString("HH:mm"));
+                turno.setHoraFinal(fechaHoraTurnoEspera.toString("HH:mm"));
+                turno.setFechaHoraEspera(format.parseDateTime(fechaHoraTurnoEspera.toString("yyyy-MM-dd HH:mm")).toDate());
                 turno.setTurno(nroTurno);
                 turno.setConfiguracionTurnosAtencion(config);
 
