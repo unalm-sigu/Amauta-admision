@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -67,6 +68,27 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .filter("per.id", persona);
 
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allByPlanCurricular(PlanCurricular planCurricular) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("planCurricular pc")
+                .filter("planCurricular", planCurricular);
+
+        return all(sql);
+    }
+
+    @Override
+    public Long countByPlanCurricular(PlanCurricular plan) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(Alumno.class, "alu")
+                .join("planCurricular pc")
+                .filter("alu.planCurricular", plan);
+
+        return (Long) sql.find(getCurrentSession());
     }
 
     @Override
@@ -335,15 +357,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return (Alumno) sql.find(getCurrentSession());
     }
 
-//    @Override
-//    public Alumno find(Alumno alumno, CicloAcademico academico) {
-//        Octavia sql = Octavia.query()
-//                .from(Alumno.class, "al")
-//                .join("persona per", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia", "carrera ca", "situacionAcademica sita")
-//                .join("ca.modalidadEstudio moe", "ca.facultad fac")
-//                .filter("al.id", alumno);
-//        return (Alumno) sql.find(getCurrentSession());
-//    }
     @Override
     public Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()

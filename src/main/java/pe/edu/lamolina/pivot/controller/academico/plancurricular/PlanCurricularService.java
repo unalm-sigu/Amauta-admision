@@ -96,4 +96,7 @@ public interface PlanCurricularService {
     void generarAvanceCurricular(PlanCurricular plan, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     Long countAlumnosByPlanCurricularCicloAcademico(PlanCurricular planCurricular, CicloAcademico cicloAcademico);
+
+    Long countAlumnosByPlanCurricular(PlanCurricular planCurricular);
+
 }
