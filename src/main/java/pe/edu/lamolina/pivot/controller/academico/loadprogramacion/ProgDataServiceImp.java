@@ -275,17 +275,6 @@ public class ProgDataServiceImp implements ProgDataService {
         }
     }
 
-//    @Override
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-//    public void revisarHorarioSecciones(List<HorarioSeccion> horariosSeccion, CicloAcademico ciclo) {
-//        List<HorarioSeccion> antiguos = horariosSeccion.stream().filter( x-> x.getId() != null).collect(Collectors.toList());
-//        horarioSeccionDAO.deleteAllByNotInList(antiguos);
-//
-//        for (HorarioSeccion horario : horariosSeccion) {
-//            horarioSeccionDAO.save(horario);
-//        }
-//    }
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Persona savePersona(
@@ -554,7 +543,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personas == null) {
             personas = new ArrayList();
         }
-//        logger.debug("\texisten {} personas por key {}", personas.size(), persona.getKey());
+        logger.debug("\texisten {} personas por key {}", personas.size(), persona.getKey());
         if (!StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
             Persona per = mapDNIPersonas.get(persona.getIdentificacion());
             if (per != null) {
@@ -566,7 +555,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     }
                 }
                 if (!ok) {
-//                    logger.debug("\tagregamos a personas por DNI {}", persona.getIdentificacion());
+                    logger.debug("\tagregamos a personas por DNI {}", persona.getIdentificacion());
                     personas.add(per);
                 }
             }
@@ -605,7 +594,7 @@ public class ProgDataServiceImp implements ProgDataService {
             ids += ids.equals("") ? "" : "-|-";
             ids += per.getId() + "::" + per.getKey();
         }
-//        logger.debug("existen {} duplicados son {} {} {}", personasVinculadas.size(), ids);
+        logger.debug("existen {} duplicados son {} {} {}", personasVinculadas.size(), ids);
 
         if (personasVinculadas.isEmpty()) {
             Persona pp = new Persona(persona);
@@ -613,7 +602,7 @@ public class ProgDataServiceImp implements ProgDataService {
             pp.setFechaRegistro(new Date());
             pp.setEstado(PersonaEstadoEnum.ACT);
             personaDAO.save(pp);
-//            logger.debug("finalizo revision EMPTY de persona {}", pp.getApellidosNombres());
+            logger.debug("finalizo revision EMPTY de persona {}", pp.getApellidosNombres());
             personasVinculadas.add(pp);
             return pp;
         }
@@ -622,13 +611,13 @@ public class ProgDataServiceImp implements ProgDataService {
             Persona pp = personasVinculadas.get(0);
             pp.setEstado(PersonaEstadoEnum.ACT);
             personaDAO.update(pp);
-//            logger.debug("finalizo revision SIZE1 de persona {}", pp.getApellidosNombres());
+            logger.debug("finalizo revision SIZE1 de persona {}", pp.getApellidosNombres());
             //personasVinculadas.add(pp);
             return personasVinculadas.get(0);
         }
 
         Persona main = findPersonaMain(personasVinculadas);
-//        logger.debug("\tPersona main de {} es el {} {}", persona.getKey(), main.getId(), main.getKey());
+        logger.debug("\tPersona main de {} es el {} {}", persona.getKey(), main.getId(), main.getKey());
         datoToMain(personasVinculadas, main, ds);
         changePersonasNoMain(personasVinculadas, main, ds);
 
@@ -636,7 +625,7 @@ public class ProgDataServiceImp implements ProgDataService {
             personaDAO.update(p);
         }
 
-//        logger.debug("finalizo revision RETURN de persona {}", main.getApellidosNombres());
+        logger.debug("finalizo revision RETURN de persona {}", main.getApellidosNombres());
         return main;
     }
 
@@ -902,12 +891,12 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("codigo", anexosBD);
         for (GrupoSeccion gpoSecc : gruposSecciones) {
 
-//            logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
+            logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
             GrupoSeccion gpoSeccBD = grupoSeccionDAO.findByCodeCiclo(gpoSecc.getCodigo(), ciclo);
             Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
             AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
-//            logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
-//            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
+            logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
+            logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
             if (gpoSeccBD == null) {
 
                 gpoSeccBD = new GrupoSeccion();
@@ -1065,7 +1054,7 @@ public class ProgDataServiceImp implements ProgDataService {
             secciones.set(loop, seccionBD);
             mapSecciones.put(seccionBD.getCodigo(), seccionBD);
             loop++;
-//            logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
+            logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
         }
 
         return mapSecciones;
@@ -1187,14 +1176,14 @@ public class ProgDataServiceImp implements ProgDataService {
 
         Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
         alumnoDAO.update(alumno);
-//        System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
+        System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
     }
 
     private MatriculaCurso findMatriculaCurso(List<MatriculaCurso> alumnoCursos, Curso curso, int rr) {
         for (MatriculaCurso alumnoCurso : alumnoCursos) {
             Curso cur = alumnoCurso.getCurso();
             if (cur.getId().longValue() == curso.getId()) {
-//                System.out.println("\t" + rr + " entregando " + alumnoCurso.getId() + " mat-curso");
+                System.out.println("\t" + rr + " entregando " + alumnoCurso.getId() + " mat-curso");
                 return alumnoCurso;
             }
         }
@@ -1314,7 +1303,7 @@ public class ProgDataServiceImp implements ProgDataService {
     public void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo) {
         Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
-            //logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
+            logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             seccion.setMatriculados(seccion.getMatriculaSeccion().size());
             seccionDAO.update(seccion);
             mapSecciones.put(seccion.getId(), seccion);
@@ -1323,14 +1312,14 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
         for (Seccion secc : seccionesBD) {
             Seccion seccion = mapSecciones.get(secc.getId());
-//            logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
+            logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             if (seccion == null) {
 //                logger.debug("\tanulando sección {}", secc.getCodigo());
                 secc.setEstado(EstadoEnum.INA.name());
                 seccionDAO.update(secc);
             }
         }
-//        logger.debug("\tRevision de secciones finalizada");
+        logger.debug("\tRevision de secciones finalizada");
     }
 
     @Override

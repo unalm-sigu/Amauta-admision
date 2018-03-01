@@ -269,7 +269,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("horariosSeccion");
-        List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
+//        List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosSeccion ejecutado en {} mseg", (t2 - t1));
 
@@ -585,7 +585,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 List<DiaHoraGrupo> nuevos = inspector.getNewList();
                 List<DiaHoraGrupo> muertos = inspector.getDeadList();
 
+                logger.debug("\tNuevos grupos por agregar {}", nuevos.size());
+                int cont = 0;
                 for (DiaHoraGrupo nuevo : nuevos) {
+                    logger.debug("\t({}, {}) {} {} {}",cont++, nuevos.size(), nuevo.getGrupoHorario().getCodigo(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero());
                     diaHoraGrupoDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
