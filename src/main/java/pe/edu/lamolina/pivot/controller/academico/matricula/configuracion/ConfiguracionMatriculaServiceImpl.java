@@ -42,8 +42,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
         };
 
         configuracionMatriculaDAO.save(config);
-        
-      
+
         DateTime inicio = new DateTime(config.getFechaInicio());
         DateTime fin = new DateTime(config.getFechaFin());
 
@@ -57,17 +56,17 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
             DateTime fechaHora = format.parseDateTime(fecha.toString("yyyy-MM-dd") + " " + config.getHoraInicio());
             for (int j = 0; j < config.getTurnosDia(); j++) {
                 prioridad += 1;
-                DateTime fechaHoraTurno = fechaHora.plusMinutes(j * config.getDuracion());
-                DateTime fechaHoraTurnoEspera = fechaHoraTurno.plusMinutes(config.getDuracion() - config.getEspera());
-                DateTime fechaHoraTurnoFin = fechaHoraTurno.plusMinutes(config.getDuracion());
-                
+                DateTime fechaHoraTurnoInicio = fechaHora.plusMinutes(j * config.getDuracion());
+                DateTime fechaHoraTurnoEspera = fechaHoraTurnoInicio.plusMinutes(config.getDuracion() - config.getEspera());
+                DateTime fechaHoraTurnoFin = fechaHoraTurnoInicio.plusMinutes(config.getDuracion());
+
                 TurnoAtencion turno = new TurnoAtencion();
                 turno.setFecha(fecha.toDate());
-                turno.setFechaHoraInicio(format.parseDateTime(fechaHoraTurno.toString("yyyy-MM-dd HH:mm")).toDate());
-                turno.setFechaHoraFin(format.parseDateTime(fechaHoraTurnoFin.toString("yyyy-MM-dd HH:mm")).toDate());
+                turno.setFechaHoraInicio(fechaHoraTurnoInicio.toDate());
+                turno.setFechaHoraFin(fechaHoraTurnoFin.toDate());
                 turno.setAlumnos(config.getAlumnos());
                 turno.setConfiguracionTurnosAtencion(config);
-                turno.setHoraInicio(fechaHoraTurno.toString("HH:mm"));
+                turno.setHoraInicio(fechaHoraTurnoInicio.toString("HH:mm"));
                 turno.setHoraFinal(fechaHoraTurnoEspera.toString("HH:mm"));
                 turno.setFechaHoraEspera(format.parseDateTime(fechaHoraTurnoEspera.toString("yyyy-MM-dd HH:mm")).toDate());
                 turno.setTurno(nroTurno);
