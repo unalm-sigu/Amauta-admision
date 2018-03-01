@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
-import groovy.inspect.Inspector;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -133,23 +132,23 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     public void loadArchivosHorario(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
         logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
 
-//        String rutaFileGpoSecciones = saveFile(files[0]);
-//        String rutaFileSecciones = saveFile(files[1]);
-//        String rutaFilePersonas = saveFile(files[2]);
-//        String rutaFileProfes = saveFile(files[3]);
-//        String rutaFileProfeSecciones = saveFile(files[4]);
-//        String rutaFileAlumno = saveFile(files[5]);
-//        String rutaFileAlumnoSecciones = saveFile(files[6]);
-        String rutaFileHorarioGrupos = saveFile(files[0]);
-        String rutaFileHorarioSecciones = saveFile(files[1]);
-//
-//        List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
-//        List<Seccion> secciones = crearSecciones(rutaFileSecciones);
-//        List<Persona> personas = crearPersonas(rutaFilePersonas);
-//        List<Docente> docentes = crearDocentes(rutaFileProfes);
-//        List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
-//        List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
-//        List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
+        String rutaFileGpoSecciones = saveFile(files[0]);
+        String rutaFileSecciones = saveFile(files[1]);
+        String rutaFilePersonas = saveFile(files[2]);
+        String rutaFileProfes = saveFile(files[3]);
+        String rutaFileProfeSecciones = saveFile(files[4]);
+        String rutaFileAlumno = saveFile(files[5]);
+        String rutaFileAlumnoSecciones = saveFile(files[6]);
+        String rutaFileHorarioGrupos = saveFile(files[7]);
+        String rutaFileHorarioSecciones = saveFile(files[8]);
+
+        List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
+        List<Seccion> secciones = crearSecciones(rutaFileSecciones);
+        List<Persona> personas = crearPersonas(rutaFilePersonas);
+        List<Docente> docentes = crearDocentes(rutaFileProfes);
+        List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
+        List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
+        List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
         List<Persona> personasDB = personaDAO.all();
         Map<String, List<Persona>> mapKeyPersonas = TypesUtil.convertListToMapList("key", personasDB);
@@ -166,95 +165,102 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-//        this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
+        this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
-//        for (Persona persona : personas) {
-//            if (mapIdPersonas.get(persona.getId()) == null) {
-//                mapIdPersonas.put(persona.getId(), persona);
-//            }
-//        }
-//        List<Alumno> alumnosDB = alumnoDAO.all();
-//        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
-//        for (Alumno alumno : alumnosDB) {
-//            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
-//            if (persona != null) {
-//                alumno.setPersona(persona);
-//            }
-//        }
+        for (Persona persona : personas) {
+            if (mapIdPersonas.get(persona.getId()) == null) {
+                mapIdPersonas.put(persona.getId(), persona);
+            }
+        }
+
+        List<Alumno> alumnosDB = alumnoDAO.all();
+        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
+        for (Alumno alumno : alumnosDB) {
+            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
+            if (persona != null) {
+                alumno.setPersona(persona);
+            }
+        }
         List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
         Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
 
-//        t1 = System.currentTimeMillis();
-//        logger.debug("saveAlumnos");
-//        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
-//        t1 = System.currentTimeMillis();
-//        logger.debug("loadDataDocentes");
-//        Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
+        t1 = System.currentTimeMillis();
+        logger.debug("saveAlumnos");
+        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("loadDataDocentes");
+        Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
-//        Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
+        Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataGpoSecciones ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataSecciones");
-//        Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones);
+        Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataSecciones ejecutado en {} mseg", (t2 - t1));
 
-//        t1 = System.currentTimeMillis();
-//        logger.debug("loadDataDocentesSecciones");
-//        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
-//
-//        t1 = System.currentTimeMillis();
-//        logger.debug("revisarDocenteSecciones");
-//        progDataService.revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
-//        t1 = System.currentTimeMillis();
-//        logger.debug("loadDataMatriculados");
-//        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
-//        t1 = System.currentTimeMillis();
-//        logger.debug("revisarAlumnosMatriculados");
-//        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
-        logger.debug("Generando mapas de apoyo");
-        Map<String, Seccion> mapSecciones = seccionDAO.allByCiclo(ciclo).stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
-//        t1 = System.currentTimeMillis();
-//        logger.debug("revisarSecciones");
-//        progDataService.revisarSecciones(secciones, ciclo);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
+        logger.debug("loadDataDocentesSecciones");
+        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
 
+        t1 = System.currentTimeMillis();
+        logger.debug("revisarDocenteSecciones");
+        progDataService.revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("loadDataMatriculados");
+        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("revisarAlumnosMatriculados");
+        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+        t2 = System.currentTimeMillis();
+        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("revisarSecciones");
+        progDataService.revisarSecciones(secciones, ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("Obtener mapas para horarios");
         Map<Integer, Dia> mapDias = diaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumeroDia(), x -> x));
         Map<Integer, Hora> mapHoras = horaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumero(), x -> x));
         Map<String, GrupoHoras> mapGrupos = grupoHorasDAO.all().stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
         Map<String, Aula> mapAulas = aulaDAO.all().stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
-        List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
-        List<DiaHoraGrupo> horariosGrupo = crearHorarioGrupos(rutaFileHorarioGrupos, mapDias, mapHoras, mapGrupos, ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\tObtener mapas para horarios ejecutado en {} mseg", (t2 - t1));
 
-//        t1 = System.currentTimeMillis();
-//        logger.debug("revisarHorarioSecciones");
-//        progDataService.revisarHorarioSecciones(horariosSeccion, ciclo);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\trevisarHorarioSecciones ejecutado en {} mseg", (t2 - t1));
-//        t1 = System.currentTimeMillis();
-//        logger.debug("revisarHorarioGrupos");
-//        progDataService.revisarHorarioGrupos(horariosGrupo, ciclo);
-//        t2 = System.currentTimeMillis();
-//        logger.debug("\trevisarHorarioGrupos ejecutado en {} mseg", (t2 - t1));
+        t1 = System.currentTimeMillis();
+        logger.debug("horariosSeccion");
+        List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\thorariosSeccion ejecutado en {} mseg", (t2 - t1));
+
+        t1 = System.currentTimeMillis();
+        logger.debug("horariosGrupo");
+        List<DiaHoraGrupo> horariosGrupo = crearHorarioGrupos(rutaFileHorarioGrupos, mapDias, mapHoras, mapGrupos, ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\thorariosGrupo ejecutado en {} mseg", (t2 - t1));
+
     }
 
     private Map<String, Docente> saveDocentes(
@@ -565,9 +571,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     diaHoraGrupoDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
-                for (DiaHoraGrupo muerto : muertos) {
-                    diaHoraGrupoDAO.delete(muerto);
-                }
+                
+                diaHoraGrupoDAO.deleteAllInList(muertos);
+                
             }
 
             return horarios;
@@ -622,8 +628,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     mapSeccHorarios.put(clave, horarioSecc);
                 }
 
-                //logger.debug("{} {} {} {}", seccion.getId(), dia.getId(), hora.getId(), aula.getId());
-                logger.debug("{} {} {} {}", clave, diaNum, horaNum, aulaCod);
                 HorarioSeccion horario = new HorarioSeccion(seccion, dia, hora, aula);
                 horarioSecc.add(horario);
 
@@ -643,9 +647,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     horarioSeccionDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
-                for (HorarioSeccion muerto : muertos) {
-                    horarioSeccionDAO.delete(muerto);
-                }
+                
+                horarioSeccionDAO.deleteAllInList(muertos);
 
                 List<HorarioSeccion> existentesBD = inspector.getOldListDB();
                 List<HorarioSeccion> existentesForm = inspector.getOldListForm();

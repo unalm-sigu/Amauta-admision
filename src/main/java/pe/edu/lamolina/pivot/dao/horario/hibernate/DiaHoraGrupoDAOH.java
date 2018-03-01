@@ -35,6 +35,18 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
     }
 
     @Override
+    public void deleteAllInList(List<DiaHoraGrupo> diaHoraGrupos) {
+        if (diaHoraGrupos.isEmpty()) {
+            return;
+        }
+
+        String sql = "delete DiaHoraGrupo dh where dh in :GRUPOS";
+        Query query = getCurrentSession().createQuery(sql);
+        query.setParameterList("GRUPOS", diaHoraGrupos);
+        query.executeUpdate();
+    }
+
+    @Override
     public DiaHoraGrupo findByCicloAcademicoGrupoHorasDiaHora(CicloAcademico cicloAcademico, GrupoHoras grupo, Dia dia, Hora hora) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
