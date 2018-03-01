@@ -57,26 +57,34 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
     public void deleteAllByNotInList(List<HorarioSeccion> horarios) {
         StringBuilder sql = new StringBuilder();
 
-        sql.append("delete HorarioSeccion hs where hs not in :HORARIOS");
+        if (horarios.isEmpty()) {
+            sql.append("delete HorarioSeccion");
+        } else {
+            sql.append("delete HorarioSeccion hs where hs not in :HORARIOS");
+        }
 
         Query query = getCurrentSession().createQuery(sql.toString());
 
-        query.setParameter("HORARIOS", horarios);
+        if (!horarios.isEmpty()) {
+            query.setParameterList("HORARIOS", horarios);
+        }
 
         query.executeUpdate();
     }
 
-    @Override
-    public HorarioSeccion findBySeccionDiaHoraAula(Seccion seccion, Dia dia, Hora hora, Aula aula) {
+    public HorarioSeccion findBySeccionDiaHora(Seccion seccion, Dia dia, Hora hora) {
         Octavia sql = Octavia.query()
                 .from(HorarioSeccion.class, "hs")
                 .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gru", "gru.cicloAcademico ciclo", "gru.curso cu")
                 .filter("seccion", seccion)
                 .filter("dia", dia)
-                .filter("aula", aula)
                 .filter("hora", hora);
 
         return (HorarioSeccion) sql.find(getCurrentSession());
+    }
+
+    public HorarioSeccion findBySeccionDiaHoraAula(Seccion seccion, Dia dia, Hora hora, Aula aula) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

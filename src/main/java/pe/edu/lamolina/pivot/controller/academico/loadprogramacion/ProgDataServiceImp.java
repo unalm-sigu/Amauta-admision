@@ -130,14 +130,20 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
-    
+
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static boolean revisar = true;
 
     private Integer random;
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteHorarioSeccionNoUsados(List<HorarioSeccion> horarios, CicloAcademico cicloAcademico) {
+        horarioSeccionDAO.deleteAllByNotInList(horarios);
+    }
 
     private synchronized Integer getRandom() {
         if (random == null) {
@@ -261,10 +267,10 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisarHorarioGrupos(List<DiaHoraGrupo> horariosGrupo, CicloAcademico ciclo) {
-        List<DiaHoraGrupo> antiguos = horariosGrupo.stream().filter( x-> x.getId() != null).collect(Collectors.toList());
+        List<DiaHoraGrupo> antiguos = horariosGrupo.stream().filter(x -> x.getId() != null).collect(Collectors.toList());
         diaHoraGrupoDAO.deleteAllByNotInList(antiguos);
-        
-        for(DiaHoraGrupo horario : horariosGrupo) {
+
+        for (DiaHoraGrupo horario : horariosGrupo) {
             diaHoraGrupoDAO.save(horario);
         }
     }

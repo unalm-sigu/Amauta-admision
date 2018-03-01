@@ -56,6 +56,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
@@ -122,6 +123,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     @Autowired
     AulaDAO aulaDAO;
 
+    @Autowired
+    SeccionDAO seccionDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -129,18 +133,18 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     public void loadArchivosHorario(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
         logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
 
-        String rutaFileGpoSecciones = saveFile(files[0]);
-        String rutaFileSecciones = saveFile(files[1]);
+//        String rutaFileGpoSecciones = saveFile(files[0]);
+//        String rutaFileSecciones = saveFile(files[1]);
 //        String rutaFilePersonas = saveFile(files[2]);
 //        String rutaFileProfes = saveFile(files[3]);
 //        String rutaFileProfeSecciones = saveFile(files[4]);
 //        String rutaFileAlumno = saveFile(files[5]);
 //        String rutaFileAlumnoSecciones = saveFile(files[6]);
-        String rutaFileHorarioGrupos = saveFile(files[7]);
-        String rutaFileHorarioSecciones = saveFile(files[8]);
-
-        List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
-        List<Seccion> secciones = crearSecciones(rutaFileSecciones);
+        String rutaFileHorarioGrupos = saveFile(files[0]);
+        String rutaFileHorarioSecciones = saveFile(files[1]);
+//
+//        List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
+//        List<Seccion> secciones = crearSecciones(rutaFileSecciones);
 //        List<Persona> personas = crearPersonas(rutaFilePersonas);
 //        List<Docente> docentes = crearDocentes(rutaFileProfes);
 //        List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
@@ -194,13 +198,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 //        logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
-        Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
+//        Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataGpoSecciones ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataSecciones");
-        Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones);
+//        Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -226,18 +230,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 //        t2 = System.currentTimeMillis();
 //        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
-        logger.debug("revisarSecciones");
-        progDataService.revisarSecciones(secciones, ciclo);
-        t2 = System.currentTimeMillis();
-        logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
-
-        t1 = System.currentTimeMillis();
-        logger.debug("revisarGrupoSecciones");
-        progDataService.revisarGrupoSecciones(gruposSecciones, ciclo);
-        t2 = System.currentTimeMillis();
-        logger.debug("\trevisarGrupoSecciones ejecutado en {} mseg", (t2 - t1));
-
-        progDataService.detenerRevisionBloqueado();
+        logger.debug("Generando mapas de apoyo");
+        Map<String, Seccion> mapSecciones = seccionDAO.allByCiclo(ciclo).stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
+//        t1 = System.currentTimeMillis();
+//        logger.debug("revisarSecciones");
+//        progDataService.revisarSecciones(secciones, ciclo);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
 
         Map<Integer, Dia> mapDias = diaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumeroDia(), x -> x));
         Map<Integer, Hora> mapHoras = horaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumero(), x -> x));
@@ -249,13 +248,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 //        t1 = System.currentTimeMillis();
 //        logger.debug("revisarHorarioSecciones");
 //        progDataService.revisarHorarioSecciones(horariosSeccion, ciclo);
-
 //        t2 = System.currentTimeMillis();
 //        logger.debug("\trevisarHorarioSecciones ejecutado en {} mseg", (t2 - t1));
-
 //        t1 = System.currentTimeMillis();
 //        logger.debug("revisarHorarioGrupos");
-
 //        progDataService.revisarHorarioGrupos(horariosGrupo, ciclo);
 //        t2 = System.currentTimeMillis();
 //        logger.debug("\trevisarHorarioGrupos ejecutado en {} mseg", (t2 - t1));
