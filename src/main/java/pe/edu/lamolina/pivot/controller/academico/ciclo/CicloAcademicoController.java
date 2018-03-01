@@ -263,7 +263,7 @@ public class CicloAcademicoController {
 
     @RequestMapping("changeciclo")
     public String changeciclo(HttpSession session, Model model) {
-        List<CicloAcademico> ciclos = service.allCicloAcademico(4);
+        List<CicloAcademico> ciclos = service.allCicloAcademico(8);
         model.addAttribute("cicloAcademicos", ciclos);
         return "academico/cicloacademico/cicloland";
     }
