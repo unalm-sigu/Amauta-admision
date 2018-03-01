@@ -18,4 +18,10 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     List<AlumnoCiclo> allByAlumno(Alumno alumno);
 
     AlumnoCiclo findLastByAlumno(Alumno alumno);
+
+    List<AlumnoCiclo> allActivesByAlumnoAsc(Alumno alumno);
+
+    AlumnoCiclo findActiveByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+
+    Long countCiclosEstudiados(Alumno alumno, CicloAcademico cicloAcademico);
 }

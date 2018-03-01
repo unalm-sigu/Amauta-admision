@@ -45,8 +45,8 @@ public class SituacionConfigDAOH extends AbstractEasyDAO<SituacionConfig> implem
         strbQuery.append(" case situacionc0_.aprobado when -1 then :APROBADO else situacionc0_.aprobado end = :APROBADO  ");
         strbQuery.append(" AND case situacionc0_.ciclos_estudiados when -1 then :CICLO_EST else situacionc0_.ciclos_estudiados end = :CICLO_EST  ");
         strbQuery.append(" AND case situacionc0_.autorizado when -1 then :AUTORIZADO else situacionc0_.autorizado end = :AUTORIZADO  ");
-        strbQuery.append(" AND case when (situacionc0_.capa > 0 and situacionc0_.capa_mayore = 0) then situacionc0_.capa < :CAPA ");
-        strbQuery.append(" when (situacionc0_.capa > 0 and situacionc0_.capa_mayore = 1) then situacionc0_.capa >= :CAPA ");
+        strbQuery.append(" AND case when (situacionc0_.capa > 0 and situacionc0_.capa_mayore = 0) then situacionc0_.capa > :CAPA ");
+        strbQuery.append(" when (situacionc0_.capa > 0 and situacionc0_.capa_mayore = 1) then situacionc0_.capa <= :CAPA ");
         strbQuery.append(" else (1=1) end AND case situacionc0_.siguiente_ciclo when -1 then :SGTE_CICLO else situacionc0_.siguiente_ciclo end = :SGTE_CICLO ");
         strbQuery.append(" AND case situacionc0_.tramite when -1 then :TRAMITE else situacionc0_.tramite end = :TRAMITE ");
         strbQuery.append(" AND case situacionc0_.ciclo_regular when -1 then :CICLO_REG else situacionc0_.ciclo_regular end = :CICLO_REG ");

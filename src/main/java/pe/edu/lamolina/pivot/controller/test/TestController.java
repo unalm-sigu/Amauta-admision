@@ -28,6 +28,7 @@ import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasServi
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
@@ -71,6 +72,9 @@ public class TestController {
 
     @Autowired
     PromedioService promedioService;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -193,24 +197,35 @@ public class TestController {
     public String calcularAllPromediosByCiclo(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByCiclo(ciclo);
 
-        for (MatriculaSeccion ms : alumnosSeccion) {
-            Seccion seccion = ms.getSeccion();
-            GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
+        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+            // if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(28154L) == 0) {
+            matriculaCurso.getMatriculaResumen().getAlumno();
+            matriculaCurso.getMatriculaResumen().getCicloAcademico();
+            matriculaCurso.getCurso();
+            promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
+            // }
+        }
 
-            List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, grupoSeccion.getCicloAcademico());
-            List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
-            List<String> idsMatsResumen = matriculasResumen.stream().map(x -> x.getId().toString()).collect(Collectors.toList());
+        return "yeah";
+    }
 
-            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());
-            for (MatriculaCurso matriculaCurso : matriculasCurso) {
+    @ResponseBody
+    @RequestMapping("calcularAllPromediosByCiclo/{alumno}/{ciclo}")
+    public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId,
+            @PathVariable("ciclo") Long ciclo) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ciclo);
+
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(cicloAcademico);
+        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+            if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(alumnoId) == 0) {
                 matriculaCurso.getMatriculaResumen().getAlumno();
                 matriculaCurso.getMatriculaResumen().getCicloAcademico();
                 matriculaCurso.getCurso();
-                promedioService.promedio(matriculaCurso, ds.getUsuario(), false);
+                promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
             }
-
         }
 
         return "yeah";

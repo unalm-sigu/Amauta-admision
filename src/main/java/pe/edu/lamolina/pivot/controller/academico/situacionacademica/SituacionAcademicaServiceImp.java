@@ -32,28 +32,28 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
     AlumnoDAO alumnoDAO;
 
     @Override
-    public SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, SituacionAcademica situacionAcademicaIni, Alumno alumno, CicloAcademico cicloAcademico) {
-        if (situacionAcademicaIni == null) {
+    public SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, SituacionAcademica situacionAcademicaIni, Integer ciclosEstudiados, Integer capa, CicloAcademico cicloAcademico) {
+        /* if (situacionAcademicaIni == null) {
             alumno = alumnoDAO.find(alumno);
             if (alumno.getModalidadEstudio().isPregrado()) {
                 situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_8.getValue());
             } else {
                 situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
             }
-        }
+        }*/
         SituacionConfig situacionConfig = new SituacionConfig();
         situacionConfig.setSituacionInicial(situacionAcademicaIni);
         situacionConfig.setAprobado(alumnoCiclo.getEstaAprobado());
-        situacionConfig.setCiclosEstudiados(alumno.getCiclosEstudiados());
+        situacionConfig.setCiclosEstudiados(ciclosEstudiados);
         situacionConfig.setAutorizado(BigDecimal.ZERO.intValue());
-        situacionConfig.setCapa(alumno.getCreditosAprobados());
+        situacionConfig.setCapa(capa);
         situacionConfig.setSiguienteCiclo(BigDecimal.ONE.intValue());
         situacionConfig.setTramite(-1);
         situacionConfig.setCicloRegular(cicloAcademico.isTipoRegular() ? BigDecimal.ONE.intValue() : BigDecimal.ZERO.intValue());
 
-        logger.debug("Alumno {}, Situacion Inicial {}, Esta Aprobado {}, Ciclos Estudiados {}, Capa {}, Ciclo Regular {}",
-                alumno.getId(), situacionAcademicaIni.getId(), alumnoCiclo.getEstaAprobado(),
-                alumno.getCiclosEstudiados(), situacionConfig.getCapa(), situacionConfig.getCicloRegular());
+        logger.debug("Situacion Inicial {}, Esta Aprobado {}, Ciclos Estudiados {}, Capa {}, Ciclo Regular {}",
+                situacionAcademicaIni.getId(), alumnoCiclo.getEstaAprobado(),
+                ciclosEstudiados, situacionConfig.getCapa(), situacionConfig.getCicloRegular());
 
         //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);
         SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(situacionConfig);

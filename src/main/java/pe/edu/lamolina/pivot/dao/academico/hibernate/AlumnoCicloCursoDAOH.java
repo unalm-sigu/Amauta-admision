@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 @Repository
 public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> implements AlumnoCicloCursoDAO {
@@ -108,6 +109,22 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("ac.carrera", "ac.situacionInicio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera")
                 .filter("al.id", alumno)
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allOperativesByAlumnoCicloAnteriores(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("al.id", alumno)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.codigo desc", "cu.nombre");
 
         return sql.all(getCurrentSession());

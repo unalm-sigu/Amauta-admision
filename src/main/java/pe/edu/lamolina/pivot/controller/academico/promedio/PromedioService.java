@@ -7,4 +7,6 @@ public interface PromedioService {
 
     void promedio(MatriculaCurso matriculaCurso, Usuario usuario, boolean calcularSituacionAcadFinal);
 
+    void trasladoPromediosSource(MatriculaCurso matriculaCurso, Usuario usuario);
+
 }
