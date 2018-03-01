@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -39,6 +40,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.EstadoCivil;
@@ -52,6 +54,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -125,6 +128,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     @Autowired
     SeccionDAO seccionDAO;
 
+    @Autowired
+    CursoDAO cursoDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -141,6 +147,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         String rutaFileAlumnoSecciones = saveFile(files[6]);
         String rutaFileHorarioGrupos = saveFile(files[7]);
         String rutaFileHorarioSecciones = saveFile(files[8]);
+        String rutaFileCursos = saveFile(files[9]);
 
         List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
         List<Seccion> secciones = crearSecciones(rutaFileSecciones);
@@ -185,6 +192,17 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         }
         List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
         Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
+
+        t1 = System.currentTimeMillis();
+        logger.debug("Mapas para cursos");
+        Map<String, Curso> mapCursos = cursoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
+        Map<String, DepartamentoAcademico> mapDepartamentosAcademicos = departamentoAcademicoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
+        t2 = System.currentTimeMillis();
+        logger.debug("\tmapas para cursos ejecutado en {} mseg", (t2 - t1));
+
+        logger.debug("cantidad de cursos antes: {}", mapCursos.size());
+        crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
+        logger.debug("cantidad de cursos despues: {}", mapCursos.size());
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
@@ -571,9 +589,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     diaHoraGrupoDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
-                
+
                 diaHoraGrupoDAO.deleteAllInList(muertos);
-                
+
             }
 
             return horarios;
@@ -632,7 +650,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 horarioSecc.add(horario);
 
             }
-
+            
+            logger.debug("{} horarioSeccion leídos", mapSeccHorarios.size());
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
                 Seccion seccion = mapSecciones.get(clave);
@@ -643,11 +662,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 List<HorarioSeccion> nuevos = inspector.getNewList();
                 List<HorarioSeccion> muertos = inspector.getDeadList();
 
+                int contador = 0;
                 for (HorarioSeccion nuevo : nuevos) {
+                    logger.debug("\t ( {} / {} ) Agregando seccion {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
                     horarioSeccionDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
-                
+
                 horarioSeccionDAO.deleteAllInList(muertos);
 
                 List<HorarioSeccion> existentesBD = inspector.getOldListDB();
@@ -659,12 +680,73 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     HorarioSeccion hsBD = entry2.getValue();
                     HorarioSeccion hsForm = mapHorarioSeccForm.get(entry2.getKey());
                     hsBD.setAula(hsForm.getAula());
+                    logger.debug("\tActualizando seccion {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getSeccion().getCodigo());
                     horarioSeccionDAO.update(hsBD);
                     horarios.add(hsBD);
                 }
             }
 
             return horarios;
+        } catch (FileNotFoundException ex) {
+            throw new PhobosException("Archivo no puede ser ubicado en el servidor");
+        } catch (IOException ex) {
+            throw new PhobosException("El archivo no puede ser leido");
+        }
+    }
+
+    private void crearCursos(String rutaFileCursos, Map<String, Curso> mapCursos, Map<String, DepartamentoAcademico> mapDepartamentosAcademicos) {
+
+        try {
+            FileInputStream fis = new FileInputStream(rutaFileCursos);
+            Workbook myWorkBook = new HSSFWorkbook(fis);
+            Sheet mySheet = myWorkBook.getSheetAt(0);
+
+            Iterator<Row> rowIterator = mySheet.iterator();
+            int loop = 0;
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                String curCodigo = getCellStringValue(1, row);
+                String curNuevo = getCellStringValue(2, row);
+                String nombre = getCellStringValue(3, row);
+                String depCodigo = getCellStringValue(4, row);
+                String curCredit = getCellStringValue(5, row);
+                String curCrevar = getCellStringValue(6, row);
+                String curTeoria = getCellStringValue(7, row);
+                String curPracti = getCellStringValue(8, row);
+                String tCurso = getCellStringValue(9, row);
+                String tipo = getCellStringValue(10, row);
+
+                if (mapCursos.get(curNuevo) != null) {
+                    continue;
+                }
+
+                Curso curso = new Curso();
+                curso.setCodigo(curNuevo);
+                curso.setCreditos(Integer.parseInt(curCredit));
+                curso.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
+                curso.setCodigoAnterior1(curCodigo);
+                curso.setCreditosVariables(Integer.parseInt(curCrevar));
+                curso.setHorasTeoria(Integer.parseInt(curTeoria));
+                curso.setHorasPractica(Integer.parseInt(curPracti));
+
+                if (tCurso.compareTo("TT") == 0) {
+                    curso.setTipoCurso(TipoCursoEnum.TEO.name());
+                } else if (tCurso.compareTo("TP") == 0) {
+                    curso.setTipoCurso(TipoCursoEnum.TEOPRA.name());
+                } else if (tCurso.compareTo("PP") == 0) {
+                    curso.setTipoCurso(TipoCursoEnum.PRA.name());
+                }
+
+                cursoDAO.save(curso);
+                mapCursos.put(curso.getCodigo(), curso);
+            }
+
         } catch (FileNotFoundException ex) {
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
