@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
@@ -27,6 +29,8 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
@@ -75,6 +79,12 @@ public class TestController {
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -216,18 +226,23 @@ public class TestController {
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId,
             @PathVariable("ciclo") Long ciclo) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ciclo);
-
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(cicloAcademico);
-        for (MatriculaCurso matriculaCurso : matriculasCurso) {
-            if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(alumnoId) == 0) {
-                matriculaCurso.getMatriculaResumen().getAlumno();
-                matriculaCurso.getMatriculaResumen().getCicloAcademico();
-                matriculaCurso.getCurso();
-                promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
+        if (TypesUtil.getInt(cicloAcademico.getCodigo()) >= 201700) {
+            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(cicloAcademico);
+            for (MatriculaCurso matriculaCurso : matriculasCurso) {
+                if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(alumnoId) == 0) {
+                    matriculaCurso.getMatriculaResumen().getAlumno();
+                    matriculaCurso.getMatriculaResumen().getCicloAcademico();
+                    matriculaCurso.getCurso();
+                    promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
+                }
             }
-        }
+        } else {
+            Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
+            promedioService.promediarAsync(alumno, ds.getUsuario());
 
+        }
         return "yeah";
     }
 

@@ -161,6 +161,14 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    public void promediarAsync(Alumno alumno, Usuario usuario) {
+        DateTime today = new DateTime();
+        this.promediarTraslados(alumno, usuario, today);
+    }
+
     public void promediarTraslados(Alumno alumno, Usuario usuario, DateTime today) {
 
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
@@ -177,6 +185,7 @@ public class PromedioServiceImp implements PromedioService {
             Integer cursosInscritosAlumnoCiclo = BigDecimal.ZERO.intValue();
             Integer cursosAprInscritosAlumnoCiclo = BigDecimal.ZERO.intValue();
 
+            /*Obtenemos la informacion del ciclo actual*/
             List<AlumnoCicloCurso> alumnosCicloCursoByAlumnoCiclo = alumnoCicloCursoDAO.allOperativesByAlumnoCiclo(alumno, alumnoCicloEach.getCicloAcademico());
 
             BigDecimal sumNotasCreditos = BigDecimal.ZERO;
@@ -199,6 +208,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
             }
 
+            //
             List<AlumnoCicloCurso> alumnosCicloCursosCiclosAnteriores = alumnoCicloCursoDAO.allOperativesByAlumnoCicloAnteriores(alumno, alumnoCicloEach.getCicloAcademico());
             BigDecimal sumNotasCreditosTotal = sumNotasCreditos;
             BigDecimal sumCreditosTotal = sumCreditos;
@@ -253,6 +263,8 @@ public class PromedioServiceImp implements PromedioService {
             SituacionAcademica situacionAcademicaFinal = null;
             if (ciclosEstudiados.intValue() == 1 || ciclosEstudiados.intValue() == 2) {
                 situacionAcademicaFinal = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
+            } else if (alumnoCicloEach.getCicloAcademico().isTipoNivelacion()) {
+                situacionAcademicaFinal = alumnoCicloEach.getSituacionInicio();
             } else {
                 situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(alumnoCicloEach, alumnoCicloEach.getSituacionInicio(), -1, alumnoCicloEach.getCreditosAprobadosAcumulados(), alumnoCicloEach.getCicloAcademico());
             }
