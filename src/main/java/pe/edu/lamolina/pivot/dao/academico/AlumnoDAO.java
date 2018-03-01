@@ -50,4 +50,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allBySituaciones(ModalidadEstudio modalidad, List<SituacionAcademica> situaciones);
 
+    void updateCicloActivoSituacionAcad(Alumno alumno);
+
 }

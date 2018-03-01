@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -13,6 +14,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
 import pe.edu.lamolina.pivot.dao.academico.ConfiguracionMatriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
@@ -34,6 +36,12 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     @Transactional
     public Long saveConfiguracion(ConfiguracionTurnosAtencion config) throws ParseException {
 
+        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
+            if (config.getTipo().equals(d.getValue())) {
+                config.setTipo(d.name());
+            }
+        };
+
         configuracionMatriculaDAO.save(config);
 
         DateTime inicio = new DateTime(config.getFechaInicio());
@@ -49,14 +57,16 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
             DateTime fechaHora = format.parseDateTime(fecha.toString("yyyy-MM-dd") + " " + config.getHoraInicio());
             for (int j = 0; j < config.getTurnosDia(); j++) {
                 prioridad += 1;
-                DateTime fechaHoraTurno = fechaHora.plusMinutes(j * config.getDuracion());
-                DateTime fechaHoraTurnoFin = fechaHoraTurno.plusMinutes(config.getDuracion() - config.getEspera());
+                DateTime fechaHoraTurnoInicio = fechaHora.plusMinutes(j * config.getDuracion());
+                DateTime fechaHoraTurnoFin = fechaHoraTurnoInicio.plusMinutes(config.getDuracion() - config.getEspera());
 
                 TurnoAtencion turno = new TurnoAtencion();
                 turno.setFecha(fecha.toDate());
+                turno.setFechaHoraInicio(fechaHoraTurnoInicio.toDate());
+                turno.setFechaHoraFin(fechaHoraTurnoFin.toDate());
                 turno.setAlumnos(config.getAlumnos());
                 turno.setConfiguracionTurnosAtencion(config);
-                turno.setHoraInicio(fechaHoraTurno.toString("HH:mm"));
+                turno.setHoraInicio(fechaHoraTurnoInicio.toString("HH:mm"));
                 turno.setHoraFinal(fechaHoraTurnoFin.toString("HH:mm"));
                 turno.setTurno(nroTurno);
                 turno.setConfiguracionTurnosAtencion(config);
@@ -64,6 +74,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 turno.setPrioridadInicio(prioridad);
                 prioridad += config.getAlumnos() - 1;
                 turno.setPrioridadFin(prioridad);
+
                 turnoAtencionDAO.save(turno);
                 nroTurno++;
             }
@@ -73,8 +84,9 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     }
 
     @Override
-    public List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico ciclo) {
-        return eventoCicloAcatemicoDAO.allEventosMatriculaByCiclo(ciclo);
+    public List<EventoCicloAcademico> findEventoCiclo(CicloAcademico cicloAcademico) {
+
+        return eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);
     }
 
     @Override

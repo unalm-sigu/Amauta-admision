@@ -320,7 +320,7 @@ $(function () {
             var rec = dynatableCursosObl.settings.dataset.records[idx];
 
             MODAL.init("lg");
-            MODAL.title("Añadir grupos equivalentes a " + rec.curso);
+            MODAL.title("Añadir cursos Equivalentes a " + rec.curso);
             MODAL.show();
 
             $.ajax({
@@ -787,7 +787,6 @@ $(function () {
                     $('#txtCreditoReq').prop("readonly", true);
                     $('#txtCreditos').prop("readonly", true);
 
-                    ºº
                     $("#cboCurso").select2(NuevaCurricula.select2BuscarCursos).on('select2-selecting', function (e) {
                         if (jQuery.type(NuevaCurricula.tipoCursoCurricula.tieneCreditoManual) === "undefined") {
                             $("#txtCreditos").val(e.object.creditos);
@@ -1031,8 +1030,8 @@ $(function () {
             if (!form.parsley().validate()) {
                 return;
             }
-
-            console.log(form.serialize());
+            var rowCount = $('#tableEquivalentesObli tr').length;
+            if(rowCount === 0) return;
 
             $.ajax({
                 url: APP.url('academico/planCurricular/saveGrupoEquivalente'),

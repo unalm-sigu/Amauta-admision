@@ -2,6 +2,8 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
 import java.util.Map;
+import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -17,6 +19,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
@@ -67,6 +70,37 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public AlumnoResumen findResumenByCicloRolDynateable(CicloAcademico ciclo, String codigo, List<Long> filtros) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("select new ").append(AlumnoResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :PRE then 1 else 0 end),0) AS pregrado,   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :EPG then 1 else 0 end),0) AS postgrado,   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :VIS  then 1 else 0 end),0) AS visitante,   ");
+        sql.append("   COALESCE(sum(case moe.codigo when :ESP  then 1 else 0 end),0) AS  especiales  ");
+        sql.append(" )   ");
+        sql.append("  from ").append(MatriculaResumen.class.getName()).append(" as mr ");
+        sql.append(" inner join mr.alumno al ");
+        sql.append(" inner join mr.cicloAcademico ca ");
+        sql.append(" inner join al.persona per ");
+        sql.append(" inner join al.carrera car ");
+        sql.append(" inner join al.situacionAcademica sita ");
+        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" inner join car.facultad fac ");
+        sql.append(" where 1=1 ");
+        sql.append(" and ca.id=:prm_ciclo ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        //  query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        query.setParameter("prm_ciclo", ciclo.getId());
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+        return (AlumnoResumen) query.uniqueResult();
+    }
+
+    @Override
     public List<MatriculaResumen> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico ciclo, String codigo, List<Long> filtros) {
 
         DynatableSql sql = new DynatableSql(filter);
@@ -82,7 +116,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .searchFields("car.nombre", "fac.nombre", "al.estado", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                        .in("ca.id", filtros)
+                        .in("car.id", filtros)
                         .orderBy("mr.id desc");
                 break;
             case TODO:

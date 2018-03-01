@@ -464,6 +464,16 @@ public class AlumnoController {
         return "academico/alumno/infoAcademico";
     }
 
+    @RequestMapping("{idAlumno}/gomatricula")
+    public String goMatricula(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        String codigo = service.goMatricula(idAlumno);
+        
+        session.invalidate();
+        return "redirect:http://localhost:9977/amauta/" + codigo;
+    }
+
     @ResponseBody
     @RequestMapping(value = "{idAlumno}/historial", method = RequestMethod.GET)
     public JsonResponse alumnoHistorial(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
