@@ -96,6 +96,8 @@ public interface ProgDataService {
 
     void detenerRevisionBloqueado();
 
+    void deleteHorarioSeccionNoUsados(List<HorarioSeccion> horarios, CicloAcademico cicloAcademico);
+    
     List<Persona> allPersonasByPer(
             Persona persona,
             Map<String, List<Persona>> mapKeyPersonas,
