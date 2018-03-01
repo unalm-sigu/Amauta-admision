@@ -52,4 +52,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateCicloActivoSituacionAcad(Alumno alumno);
 
+    void updateSituacionAcad(Alumno alumno);
+
 }

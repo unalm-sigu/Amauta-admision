@@ -57,7 +57,7 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
 
         //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);
         SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(situacionConfig);
-        return situacionFinal.getSituacionFinal();
+        return situacionFinal != null ? situacionAcademicaDAO.find(situacionFinal.getSituacionFinal().getId()) : null;
     }
 
 }
