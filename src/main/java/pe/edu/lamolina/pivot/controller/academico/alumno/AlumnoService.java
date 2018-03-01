@@ -60,4 +60,6 @@ public interface AlumnoService {
 
     Alumno findAlumno(Long idAlumno);
 
+    String goMatricula(Long idAlumno);
+
 }

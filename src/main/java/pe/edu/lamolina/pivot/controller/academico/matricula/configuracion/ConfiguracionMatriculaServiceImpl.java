@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.matricula.configuracion;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -13,6 +14,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
 import pe.edu.lamolina.pivot.dao.academico.ConfiguracionMatriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
@@ -34,8 +36,15 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     @Transactional
     public Long saveConfiguracion(ConfiguracionTurnosAtencion config) throws ParseException {
 
-        configuracionMatriculaDAO.save(config);
+        for (TipoMatriculaEnum d : TipoMatriculaEnum.values()) {
+            if (config.getTipo().equals(d.getValue())) {
+                config.setTipo(d.name());
+            }
+        };
 
+        configuracionMatriculaDAO.save(config);
+        
+      
         DateTime inicio = new DateTime(config.getFechaInicio());
         DateTime fin = new DateTime(config.getFechaFin());
 
@@ -54,6 +63,8 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
 
                 TurnoAtencion turno = new TurnoAtencion();
                 turno.setFecha(fecha.toDate());
+                turno.setFechaHoraInicio(format.parseDateTime(fechaHoraTurno.toString("yyyy-MM-dd HH:mm")).toDate());
+                turno.setFechaHoraFin(format.parseDateTime(fechaHoraTurnoFin.toString("yyyy-MM-dd HH:mm")).toDate());
                 turno.setAlumnos(config.getAlumnos());
                 turno.setConfiguracionTurnosAtencion(config);
                 turno.setHoraInicio(fechaHoraTurno.toString("HH:mm"));
@@ -64,6 +75,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 turno.setPrioridadInicio(prioridad);
                 prioridad += config.getAlumnos() - 1;
                 turno.setPrioridadFin(prioridad);
+
                 turnoAtencionDAO.save(turno);
                 nroTurno++;
             }
@@ -73,8 +85,9 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     }
 
     @Override
-    public List<EventoCicloAcademico> allEventosMatriculaByCiclo(CicloAcademico ciclo) {
-        return eventoCicloAcatemicoDAO.allEventosMatriculaByCiclo(ciclo);
+    public List<EventoCicloAcademico> findEventoCiclo(CicloAcademico cicloAcademico) {
+
+        return eventoCicloAcatemicoDAO.allEventoAcademicoByCicloAca(cicloAcademico);
     }
 
     @Override

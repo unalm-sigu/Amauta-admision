@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,13 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -44,6 +48,7 @@ import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
@@ -76,6 +81,8 @@ public class AlumnoServiceImp implements AlumnoService {
     UsuarioDAO usuarioDAO;
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    @Autowired
+    TokenIngresanteDAO tokenIngresanteDAO;
 
     @Autowired
     MailerService mailerService;
@@ -532,6 +539,22 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public Alumno findAlumno(Long idAlumno) {
         return alumnoDAO.find(new Alumno(idAlumno));
+    }
+
+    @Override
+    @Transactional
+    public String goMatricula(Long idAlumno) {
+        
+        Alumno alumno = findAlumno(new Alumno(idAlumno));
+        String valor = RandomStringUtils.randomAlphanumeric(45);
+        TokenIngresante token = new TokenIngresante();
+        token.setEstado(TokenEstadoEnum.ACT);
+        token.setFechaRegistro(new Date());
+        token.setFechaVencimiento(new DateTime().plusSeconds(5).toDate());
+        token.setPersona(alumno.getPersona());
+        token.setValor(valor);
+        tokenIngresanteDAO.save(token);
+        return alumno.getCodigo();
     }
 
 }
