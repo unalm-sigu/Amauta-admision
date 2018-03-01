@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,9 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaPerfil;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.inscripcion.Postulante;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -67,7 +70,9 @@ import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
@@ -123,10 +128,22 @@ public class ProgDataServiceImp implements ProgDataService {
     @Autowired
     LoadDataMatriculadoService loadDataMatriculadoService;
 
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static boolean revisar = true;
 
     private Integer random;
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteHorarioSeccionNoUsados(List<HorarioSeccion> horarios, CicloAcademico cicloAcademico) {
+        horarioSeccionDAO.deleteAllByNotInList(horarios);
+    }
 
     private synchronized Integer getRandom() {
         if (random == null) {
@@ -249,6 +266,17 @@ public class ProgDataServiceImp implements ProgDataService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void revisarHorarioGrupos(List<DiaHoraGrupo> horariosGrupo, CicloAcademico ciclo) {
+        List<DiaHoraGrupo> antiguos = horariosGrupo.stream().filter(x -> x.getId() != null).collect(Collectors.toList());
+        diaHoraGrupoDAO.deleteAllByNotInList(antiguos);
+
+        for (DiaHoraGrupo horario : horariosGrupo) {
+            diaHoraGrupoDAO.save(horario);
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Persona savePersona(
             Persona persona,
             List<Persona> personasVinculadas,
@@ -256,7 +284,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
         TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
-        logger.debug("\tbuscando {} {} con tipoDoc {}", persona.getCodigoTipoDocumento(), persona.getNumeroDocIdentidad(), tipoDoc);
+//        logger.debug("\tbuscando {} {} con tipoDoc {}", persona.getCodigoTipoDocumento(), persona.getNumeroDocIdentidad(), tipoDoc);
         if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
             Persona tempo = mapDNIPersonas.get(persona.getIdentificacion());
             if (tempo == null) {
@@ -925,7 +953,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     mapSeccionesPCUR.put(seccion.getCodigoGrupoSeccion(), seccionesPCUR);
                 }
                 mapSeccionesTCUR.put(seccion.getCodigoGrupoSeccion(), seccion);
-                
+
             } else {
                 seccion.setVacantes(seccion.getVacantes() == null ? 0 : seccion.getVacantes());
                 seccion.setMatriculados(seccion.getMatriculados() == null ? 0 : seccion.getMatriculados());
@@ -1275,7 +1303,7 @@ public class ProgDataServiceImp implements ProgDataService {
     public void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo) {
         Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
-            //logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
+            logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             seccion.setMatriculados(seccion.getMatriculaSeccion().size());
             seccionDAO.update(seccion);
             mapSecciones.put(seccion.getId(), seccion);
@@ -1286,7 +1314,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Seccion seccion = mapSecciones.get(secc.getId());
             logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             if (seccion == null) {
-                logger.debug("\tanulando sección {}", secc.getCodigo());
+//                logger.debug("\tanulando sección {}", secc.getCodigo());
                 secc.setEstado(EstadoEnum.INA.name());
                 seccionDAO.update(secc);
             }
