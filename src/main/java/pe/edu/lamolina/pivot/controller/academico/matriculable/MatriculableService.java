@@ -1,10 +1,12 @@
 package pe.edu.lamolina.pivot.controller.academico.matriculable;
 
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MatriculableService {
@@ -16,5 +18,7 @@ public interface MatriculableService {
     List<ModalidadEstudio> allModalidadEstudioByCodigos(List<String> codigos);
 
     void generar(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
 }

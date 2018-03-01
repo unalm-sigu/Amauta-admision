@@ -159,7 +159,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     public void updateSeccionAula(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "aula");
-        this.update(seccion);
+        this.update(octavia);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         /*
         Octavia octavia = Octavia.update(Seccion.class);
         octavia.set(seccion, "vacantes");
-        this.update(seccion);*/
+        this.update(octavia);*/
     }
 
     @Override
@@ -233,7 +233,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         octavia.set(seccion, "estado");
         octavia.set(seccion, "usuarioModificacion");
         octavia.set(seccion, "fechaModificacion");
-        this.update(seccion);
+        this.update(octavia);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         octavia.set(seccion, "codigo");
         octavia.set(seccion, "usuarioModificacion");
         octavia.set(seccion, "fechaModificacion");
-        this.update(seccion);
+        this.update(octavia);
     }
 
     @Override
