@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -65,12 +66,13 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
     }
 
     @Override
-    public HorarioSeccion findBySeccionDiaHora(Seccion seccion, Dia dia, Hora hora) {
+    public HorarioSeccion findBySeccionDiaHoraAula(Seccion seccion, Dia dia, Hora hora, Aula aula) {
         Octavia sql = Octavia.query()
                 .from(HorarioSeccion.class, "hs")
                 .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gru", "gru.cicloAcademico ciclo", "gru.curso cu")
                 .filter("seccion", seccion)
                 .filter("dia", dia)
+                .filter("aula", aula)
                 .filter("hora", hora);
 
         return (HorarioSeccion) sql.find(getCurrentSession());

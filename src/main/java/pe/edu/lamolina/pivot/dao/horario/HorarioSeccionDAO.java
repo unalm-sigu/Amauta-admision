@@ -5,6 +5,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -17,7 +18,7 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
 
     List<HorarioSeccion> allBySeccion(Seccion seccion);
 
-    HorarioSeccion findBySeccionDiaHora(Seccion seccion, Dia dia, Hora hora);
+    HorarioSeccion findBySeccionDiaHoraAula(Seccion seccion, Dia dia, Hora hora, Aula aula);
     
     void deleteAllByNotInList(List<HorarioSeccion> horarios);
 }

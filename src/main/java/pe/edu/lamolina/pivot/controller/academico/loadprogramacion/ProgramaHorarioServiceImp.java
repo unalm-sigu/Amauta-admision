@@ -38,6 +38,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.EstadoCivil;
 import pe.edu.lamolina.model.general.Pais;
@@ -54,6 +55,7 @@ import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.EstadoCivilDAO;
 import pe.edu.lamolina.pivot.dao.general.PaisDAO;
@@ -115,6 +117,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
 
+    @Autowired
+    AulaDAO aulaDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -124,9 +129,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         String rutaFileGpoSecciones = saveFile(files[0]);
         String rutaFileSecciones = saveFile(files[1]);
-        String rutaFilePersonas = saveFile(files[2]);
-        String rutaFileProfes = saveFile(files[3]);
-        String rutaFileProfeSecciones = saveFile(files[4]);
+//        String rutaFilePersonas = saveFile(files[2]);
+//        String rutaFileProfes = saveFile(files[3]);
+//        String rutaFileProfeSecciones = saveFile(files[4]);
 //        String rutaFileAlumno = saveFile(files[5]);
 //        String rutaFileAlumnoSecciones = saveFile(files[6]);
         String rutaFileHorarioGrupos = saveFile(files[7]);
@@ -134,9 +139,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
         List<Seccion> secciones = crearSecciones(rutaFileSecciones);
-        List<Persona> personas = crearPersonas(rutaFilePersonas);
-        List<Docente> docentes = crearDocentes(rutaFileProfes);
-        List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
+//        List<Persona> personas = crearPersonas(rutaFilePersonas);
+//        List<Docente> docentes = crearDocentes(rutaFileProfes);
+//        List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
 //        List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
 //        List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
 
@@ -155,25 +160,23 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-        this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
+//        this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
-        for (Persona persona : personas) {
-            if (mapIdPersonas.get(persona.getId()) == null) {
-                mapIdPersonas.put(persona.getId(), persona);
-            }
-        }
-
-        List<Alumno> alumnosDB = alumnoDAO.all();
-        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
-        for (Alumno alumno : alumnosDB) {
-            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
-            if (persona != null) {
-                alumno.setPersona(persona);
-            }
-        }
-
+//        for (Persona persona : personas) {
+//            if (mapIdPersonas.get(persona.getId()) == null) {
+//                mapIdPersonas.put(persona.getId(), persona);
+//            }
+//        }
+//        List<Alumno> alumnosDB = alumnoDAO.all();
+//        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
+//        for (Alumno alumno : alumnosDB) {
+//            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
+//            if (persona != null) {
+//                alumno.setPersona(persona);
+//            }
+//        }
         List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
         Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
 
@@ -182,13 +185,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 //        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
 //        t2 = System.currentTimeMillis();
 //        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
-
-        t1 = System.currentTimeMillis();
-        logger.debug("loadDataDocentes");
-        Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
-
+//        t1 = System.currentTimeMillis();
+//        logger.debug("loadDataDocentes");
+//        Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
         Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
@@ -201,30 +202,27 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataSecciones ejecutado en {} mseg", (t2 - t1));
 
-        t1 = System.currentTimeMillis();
-        logger.debug("loadDataDocentesSecciones");
-        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
-
-        t1 = System.currentTimeMillis();
-        logger.debug("revisarDocenteSecciones");
-        progDataService.revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
-
+//        t1 = System.currentTimeMillis();
+//        logger.debug("loadDataDocentesSecciones");
+//        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
+//
+//        t1 = System.currentTimeMillis();
+//        logger.debug("revisarDocenteSecciones");
+//        progDataService.revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
 //        t1 = System.currentTimeMillis();
 //        logger.debug("loadDataMatriculados");
 //        Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
 //        t2 = System.currentTimeMillis();
 //        logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
-
 //        t1 = System.currentTimeMillis();
 //        logger.debug("revisarAlumnosMatriculados");
 //        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
 //        t2 = System.currentTimeMillis();
 //        logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
-
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
         progDataService.revisarSecciones(secciones, ciclo);
@@ -242,14 +240,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         Map<Integer, Dia> dias = diaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumeroDia(), x -> x));
         Map<Integer, Hora> horas = horaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumero(), x -> x));
         Map<String, GrupoHoras> grupos = grupoHorasDAO.all().stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
-
         List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, dias, horas, ciclo);
         List<DiaHoraGrupo> horariosGrupo = crearHorarioGrupos(rutaFileHorarioGrupos, dias, horas, grupos, ciclo);
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarHorarioSecciones");
         progDataService.revisarHorarioSecciones(horariosSeccion, ciclo);
-        
+
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarHorarioSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -540,11 +537,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 if (diaHoraGrupo == null) {
                     diaHoraGrupo = new DiaHoraGrupo();
-                    diaHoraGrupo.setCicloAcademico(ciclo);
-                    diaHoraGrupo.setDia(dia);
-                    diaHoraGrupo.setGrupoHorario(grupo);
-                    diaHoraGrupo.setHora(hora);
                 }
+                diaHoraGrupo.setCicloAcademico(ciclo);
+                diaHoraGrupo.setDia(dia);
+                diaHoraGrupo.setGrupoHorario(grupo);
+                diaHoraGrupo.setHora(hora);
                 horarios.add(diaHoraGrupo);
 
             }
@@ -575,7 +572,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String clave = getCellStringValue(2, row);
-                String hdia = getCellStringValue(3, row);
                 String diaNum = getCellStringValue(4, row);
                 String horaNum = getCellStringValue(5, row);
                 String aulaCod = getCellStringValue(6, row);
@@ -585,13 +581,18 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Seccion seccion = secciones.get(clave);
                 Dia dia = dias.get(Integer.parseInt(diaNum));
                 Hora hora = horas.get(Integer.parseInt(horaNum));
-                HorarioSeccion horario = horarioSeccionDAO.findBySeccionDiaHora(seccion, dia, hora);
+                Aula aula = aulaDAO.findByCode(aulaCod);
+                
+                logger.debug("{} {} {} {}",seccion.getId(), dia.getId(), hora.getId(), aula.getId());
+                logger.debug("{} {} {} {}", clave, diaNum, horaNum, aulaCod );
+                HorarioSeccion horario = horarioSeccionDAO.findBySeccionDiaHoraAula(seccion, dia, hora, aula);
                 if (horario == null) {
                     horario = new HorarioSeccion();
-                    horario.setSeccion(seccion);
-                    horario.setDia(dia);
-                    horario.setHora(hora);
                 }
+                horario.setSeccion(seccion);
+                horario.setDia(dia);
+                horario.setHora(hora);
+                horario.setAula(aula);
                 horarios.add(horario);
 
             }

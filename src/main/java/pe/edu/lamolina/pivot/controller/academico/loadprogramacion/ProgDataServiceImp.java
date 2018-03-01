@@ -1059,7 +1059,7 @@ public class ProgDataServiceImp implements ProgDataService {
             secciones.set(loop, seccionBD);
             mapSecciones.put(seccionBD.getCodigo(), seccionBD);
             loop++;
-            logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
+//            logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
         }
 
         return mapSecciones;
