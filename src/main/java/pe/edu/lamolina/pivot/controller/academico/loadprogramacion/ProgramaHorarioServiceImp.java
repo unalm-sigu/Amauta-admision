@@ -269,7 +269,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("horariosSeccion");
-//        List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
+        List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosSeccion ejecutado en {} mseg", (t2 - t1));
 
