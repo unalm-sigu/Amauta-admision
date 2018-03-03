@@ -15,6 +15,8 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ProgDataService {
@@ -88,8 +90,14 @@ public interface ProgDataService {
 
     void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados);
 
+//    void revisarHorarioSecciones(List<HorarioSeccion> horariosSeccion, CicloAcademico ciclo);
+
+    void revisarHorarioGrupos(List<DiaHoraGrupo> horariosGrupo, CicloAcademico ciclo);
+
     void detenerRevisionBloqueado();
 
+    void deleteHorarioSeccionNoUsados(List<HorarioSeccion> horarios, CicloAcademico cicloAcademico);
+    
     List<Persona> allPersonasByPer(
             Persona persona,
             Map<String, List<Persona>> mapKeyPersonas,

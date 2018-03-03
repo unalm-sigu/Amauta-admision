@@ -23,4 +23,14 @@ public class DiaDAOH extends AbstractEasyDAO<Dia> implements DiaDAO {
 
         return all(sql);
     }
+
+    @Override
+    public Dia findByNumeroDia(Integer numero) {
+        Octavia sql = Octavia.query()
+                .from(Dia.class, "di")
+                .filter("numeroDia", numero)
+                .orderBy("di.numeroDia");
+
+        return (Dia) sql.find(getCurrentSession());
+    }
 }
