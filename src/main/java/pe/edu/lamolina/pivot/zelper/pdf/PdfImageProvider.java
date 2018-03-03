@@ -17,6 +17,7 @@ class PdfImageProvider extends AbstractImageProvider {
     @Override
     public Image retrieve(String src) {
         try {
+
             return Image.getInstance(this.getClass().getResource(PATH + src));
         } catch (BadElementException ex) {
             ex.printStackTrace();

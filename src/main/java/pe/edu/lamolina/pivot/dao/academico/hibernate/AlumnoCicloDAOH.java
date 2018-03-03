@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import org.springframework.stereotype.Repository;
@@ -64,6 +65,19 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur", "orientacionCarrera oc")
                 .leftJoin("userModificacion um")
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("alu.id", alumno)
+                .filter("ca.id", cicloAcademico);
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findByAlumnoCicloEstado(Alumno alumno, CicloAcademico cicloAcademico, List<EstadoMatriculaEnum> estadosEnums) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur", "orientacionCarrera oc")
+                .leftJoin("userModificacion um")
+                .in("ac.estado", estadosEnums)
                 .filter("alu.id", alumno)
                 .filter("ca.id", cicloAcademico);
         return find(sql);
