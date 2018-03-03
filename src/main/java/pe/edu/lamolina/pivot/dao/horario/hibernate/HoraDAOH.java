@@ -24,4 +24,14 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
         return all(sql);
     }
 
+    @Override
+    public Hora findByNumeroHora(Integer numero) {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .filter("numero", numero)
+                .orderBy("ho.numero");
+
+        return (Hora) sql.find(getCurrentSession());
+    }
+
 }

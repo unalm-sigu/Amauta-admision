@@ -1,11 +1,13 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
 
 @Repository
@@ -14,6 +16,16 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
     public CursoEquivalenteDAOH() {
         super();
         setClazz(CursoEquivalente.class);
+    }
+
+    @Override
+    public List<CursoEquivalente> allActivoByCursoCurricula(CursoCurricula cursoCurricula) {
+        Octavia sql = Octavia.query()
+                .from(CursoEquivalente.class, "ce")
+                .filter("cursoCurricula", cursoCurricula)
+                .filter("estado", EstadoEnum.ACT.name());
+
+        return sql.all(getCurrentSession());
     }
 
     @Override

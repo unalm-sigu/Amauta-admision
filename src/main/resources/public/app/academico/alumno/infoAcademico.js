@@ -16,7 +16,9 @@ new Vue({
         isAprob: true,
         cursos: [],
         general: true,
-        searchCiclo: 1
+        searchCiclo: 1,
+        cursosCurricula: [],
+        ciclosCurricula: []
     },
     created() {
         //ajax  
@@ -31,7 +33,7 @@ new Vue({
             {id: 4, name: "Matricula"},
             {id: 5, name: "Horario"},
             {id: 6, name: "Malla"}];
-        console.log($vue.alumno);
+
         if ($vue.alumno.persona.numeroDocIdentidad == undefined) {
             $vue.ident = false;
         }
@@ -46,16 +48,45 @@ new Vue({
     mounted: function () {
         let $vue = this;
         $vue.alumnoCursoTemp = $vue.alumnoCurso;
-        console.log("tipo::: " + $vue.typeSearch)
+
     },
     methods: {
-
+        cicloSelecc: function (cicloSelecc) {
+            let $vue = this;
+            $vue.searchCiclo = cicloSelecc;
+            $vue.cargaAvance()
+        },
         updateTabs: function (tab) {
+
             let $vue = this;
             $vue.tabId = tab.id;
-            this.carga();
+            if ($vue.tabId == 2) {
+                this.cargaHistorial();
+            } else if ($vue.tabId == 3) {
+                this.cargaAvance();
+            }
+
         },
-        carga() {
+        cargaAvance() {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/' + this.alumno.id + '/' + $vue.searchCiclo + '/avance'),
+                contentType: "application/json",
+                success: function (response) {
+                    $vue.cursosCurricula = response.data.cursos;
+                    if ($vue.searchCiclo == 1) {
+                        $vue.ciclosCurricula = response.data.ciclos;
+                        $vue.cantidadCursos = $vue.cursosCurricula.length;
+                    }
+
+
+                }
+            });
+        },
+        cargaHistorial() {
             let $vue = this;
             $.ajax({
                 method: 'GET',
@@ -70,7 +101,6 @@ new Vue({
                         $vue.listCiclos.push(obj);
                         i++;
                     })
-                    console.log($vue.listCiclos);
                 }
             });
         },
@@ -80,6 +110,18 @@ new Vue({
             } else {
                 return "text-primary";
             }
+        },
+        styleEstadoCurr(nombre) {
+            if (nombre == 'APR' || nombre == 'EQUIV') {
+                return "text-success";
+            } else if (nombre == 'SIM') {
+                return "text-warning";
+            } else if (nombre == 'NREQ') {
+                return "text-secondary";
+            } else if (nombre == 'HAB') {
+                return "text-primary";
+            }
+
         },
         changeSearch() {
             let $vue = this;
@@ -108,6 +150,13 @@ new Vue({
             } else {
                 if (curso.nota >= 11)
                     return true;
+            }
+        },
+        active(index) {
+            let $vue = this;
+            let tabSize = $vue.searchCiclo - 1;
+            if (index == tabSize) {
+                return "active";
             }
         }
     }

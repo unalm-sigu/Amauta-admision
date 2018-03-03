@@ -8,4 +8,5 @@ public interface HoraDAO extends EasyDAO<Hora> {
 
     List<Hora> allHora();
 
+    Hora findByNumeroHora(Integer numero);
 }
