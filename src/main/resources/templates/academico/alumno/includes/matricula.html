@@ -1,1 +1,52 @@
-hola6
+
+<h3 class="v-middle text-left">Cursos matriculados</h3>
+
+<div class="container contents">
+    <div>
+        <p><strong >Créditos Matriculados: </strong>  <span v-text="creditosMatriculado"></span></p>
+
+        <p><strong >Cursos Matriculados: </strong> <span  v-text="cursosMatriculado"></span> </p>
+
+    </div>
+
+    <table class="table table-striped "  >
+        <thead class="panel panel-heading">
+            <tr>
+                <th class="col-md-1 v-middle text-left">Cursos</th>
+                <th class="col-md-1 v-middle text-center ">Docente</th>
+                <th class="col-md-1 v-middle text-center">Nota Final</th>
+                <th class="col-md-1 v-middle text-center">Estado</th>
+            </tr>
+        </thead>
+        <tbody >           
+            <tr v-for="cursoMatri in cursosMatriculados">
+                <td class="v-middle text-left" > 
+                    <div>
+                        <strong v-text="cursoMatri.curso"></strong><br/>
+                        <small  v-text="cursoMatri.creditos" ></small> créditos<br/>
+                        <small v-text="cursoMatri.codigoCurso" class="text-primary"></small>
+                    </div>                   
+                </td>
+                <td class="v-middle text-center">
+
+                    <small class="text-muted clear text-ellipsis"
+                           v-for="matSecc in cursoMatri.docentes">
+                        <span V-text="matSecc.codigo">0091</span> - 
+                        <span v-text="matSecc.nombreDocente">Marco Antonio Perez</span>
+
+                    </small>
+
+                </td>
+                <td class="v-middle text-center">
+                    <div v-text="cursoMatri.notaFinal"  v-if="cursoMatri.notaFinal != null"></div>
+                    <div v-text="cursoMatri.notaAvance"  v-if="cursoMatri.notaFinal == null"></div>
+                </td>
+                <td class="v-middle text-center">
+                    <span v-text="cursoMatri.estado.valor" v-bind:class="estadoMatricula(cursoMatri.estado.nombre)"></span>
+                </td>
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+

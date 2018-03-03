@@ -43,7 +43,7 @@
             <td  class="v-middle text-left" > 
                 <b v-text="curso.nombre"></b>
             </td>
-            <td  class="v-middle text-left" > 
+            <td  class="v-middle text-center" > 
                 <b v-text="curso.vecesCursado"></b>
             </td>
             <td  class="v-middle text-center"> 
@@ -54,7 +54,7 @@
 
             <td class="v-middle text-center">
 
-                <span class="estado-blue" v-text="curso.nota"></span>
+                <span v-bind:class="styleNotaCurri(curso.nota)" v-text="curso.nota"></span>
 
 
             </td>

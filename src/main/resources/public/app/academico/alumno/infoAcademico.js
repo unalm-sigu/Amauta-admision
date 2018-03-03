@@ -18,7 +18,11 @@ new Vue({
         general: true,
         searchCiclo: 1,
         cursosCurricula: [],
-        ciclosCurricula: []
+        ciclosCurricula: [],
+        cursosMatriculados:[],
+        creditosMatriculado:"",
+        cursosMatriculado:""
+        
     },
     created() {
         //ajax  
@@ -64,8 +68,26 @@ new Vue({
                 this.cargaHistorial();
             } else if ($vue.tabId == 3) {
                 this.cargaAvance();
+            } else if ($vue.tabId == 4) {
+                this.cargaMatricula();
             }
 
+        },
+        cargaMatricula() {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/' + this.alumno.id +'/cursoMatri'),
+                contentType: "application/json",
+                success: function (response) {
+                    
+                    $vue.cursosMatriculados = response.data.cursosMatriculados;
+                    $vue.creditosMatriculado = response.data.creditosMatriculado;
+                    $vue.cursosMatriculado = response.data.cursosMatriculado;
+                }
+            });
         },
         cargaAvance() {
 
@@ -109,6 +131,13 @@ new Vue({
                 return "text-danger";
             } else {
                 return "text-primary";
+            }
+        },
+        styleNotaCurri(nota) {
+            if (nota == null) {
+
+            } else {
+                return "estado-blue";
             }
         },
         styleEstadoCurr(nombre) {
@@ -157,6 +186,15 @@ new Vue({
             let tabSize = $vue.searchCiclo - 1;
             if (index == tabSize) {
                 return "active";
+            }
+        }
+        ,
+        estadoMatricula(name) {
+       
+            if (name == 'MAT') {
+                return "label label-success";
+            }if (name=='RET') {
+                return "label label-danger";
             }
         }
     }
