@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoCursoSimultaneoEstadoEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.APR;
@@ -27,8 +28,11 @@ import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.EQUIV;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.NREQ;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -39,6 +43,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -74,6 +79,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Autowired
     CursoEquivalenteDAO cursoEquivalenteDAO;
+
+    @Autowired
+    AlumnoAvanceCurricularDAO avanceCurricularDAO;
+
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -127,8 +138,60 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (AlumnoCursoSimultaneo cursosSimultaneo : cursosSimultaneos) {
             alumnoCursoSimultaneoDAO.save(cursosSimultaneo);
         }
+
+        generarAvanceCurricular(cursosAlumno.values(), alumnoBD);
     }
 
+    private void generarAvanceCurricular(Collection<AlumnoCursoCurricula> alumnoCursos, Alumno alumno) {
+          Map<TipoCursoCurriculaEnum, TipoCursoCurricula> tipos = tipoCursoCurriculaDAO.all()
+                .stream()
+                .filter(x -> x.getCodigo() != null)
+                .collect(Collectors.toMap(x -> x.getCodigoEnum(), x -> x, (a, b) -> a));
+
+        Map<TipoCursoCurriculaEnum, AlumnoAvanceCurricular> avances = avanceCurricularDAO.allByAlumno(alumno)
+                .stream()
+                .filter(x -> x.getTipoCursoCurricula() != null)
+                .collect(Collectors.toMap(x -> x.getTipoCursoCurricula().getCodigoEnum(), x -> x, (a, b) -> a));
+
+        Map<TipoCursoCurriculaEnum, Integer> creditos = new HashMap<>();
+        Map<TipoCursoCurriculaEnum, Integer> cursos = new HashMap<>();
+
+        for (TipoCursoCurricula tipo : tipos.values()) {
+            creditos.put(tipo.getCodigoEnum(), 0);
+            cursos.put(tipo.getCodigoEnum(), 0);
+        }
+
+        for (AlumnoCursoCurricula curso : alumnoCursos) {
+            if (curso.getEstadoEnum() == APR || curso.getEstadoEnum() == EQUIV) {
+
+                TipoCursoCurriculaEnum tipo = curso.getCursoCurricula().getTipoCursoCurricula().getCodigoEnum();
+                Integer prevCreditos = creditos.get(tipo);
+                prevCreditos += curso.getCreditos();
+
+                Integer prevCursos = cursos.get(tipo);
+                prevCursos++;
+
+                creditos.replace(tipo, prevCreditos);
+                cursos.replace(tipo, prevCursos);
+
+            }
+        }
+
+        for (TipoCursoCurricula tipo : tipos.values()) {
+            AlumnoAvanceCurricular avance = avances.get(tipo.getCodigoEnum());
+            if(avance == null){
+                avance = new AlumnoAvanceCurricular();
+                avance.setTipoCursoCurricula(tipo);
+                avance.setAlumno(alumno);
+            }
+            avance.setCreditos(creditos.get(tipo.getCodigoEnum()));
+            avance.setCursos(cursos.get(tipo.getCodigoEnum()));
+            
+            avanceCurricularDAO.save(avance);
+        }
+
+    }
+    
     private void validarEquivalencias(Map<Long, AlumnoCursoCurricula> cursosAlumno, Alumno alumno) {
 
         Map<Long, AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno)
@@ -270,8 +333,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 continue;
             }
 
-            List<RequisitoCursoCurricula> requisitos = cursosCurricula.get(evaluado.getCursoCurricula().getId()).getRequisitosCursoCurricula();
-
+            List<RequisitoCursoCurricula> requisitos = cursosCurricula.get(evaluado.getCursoCurricula().getId()).getCursosCurricula();
             if (cumpleRequisitos(requisitos, cursosAlumno, evaluado, ds)) {
                 evaluado.setEstado(HAB.name());
             } else {

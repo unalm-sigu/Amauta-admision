@@ -194,15 +194,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
 
         t1 = System.currentTimeMillis();
-        logger.debug("Mapas para cursos");
         Map<String, Curso> mapCursos = cursoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
         Map<String, DepartamentoAcademico> mapDepartamentosAcademicos = departamentoAcademicoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
         t2 = System.currentTimeMillis();
-        logger.debug("\tmapas para cursos ejecutado en {} mseg", (t2 - t1));
 
-        logger.debug("cantidad de cursos antes: {}", mapCursos.size());
         crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
-        logger.debug("cantidad de cursos despues: {}", mapCursos.size());
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
