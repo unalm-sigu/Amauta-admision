@@ -49,6 +49,8 @@ public interface PlanCurricularService {
 
     List<CursoCurricula> allCursosCurriculaByFilter(TipoCursoCurricula tipoCursoCurricula);
 
+    List<Curso> allCursoByNombre(Curso cursoForm);
+    
     List<Curso> allCursoByNombreTipoCurricula(String nombre, List<TipoCurriculaEnum> tiposCurriculaEnum);
 
     TipoCursoCurricula findTipoCurricula(Long tipoCursoCurricula);
@@ -67,6 +69,8 @@ public interface PlanCurricularService {
 
     void saveCursoAdicional(CursoAdicionalCurricula cursoAdicionalCurricula, DataSessionPivot ds);
 
+    void deleteCursoEquivalenteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso);
+    
     List<CursoAdicionalCurricula> allCursosAdcByDynatable(DynatableFilter filter);
 
     void deleteCursoAdicional(Long cursoAdicionalId);
@@ -88,6 +92,8 @@ public interface PlanCurricularService {
     void deletePlanCurricular(PlanCurricular plan);
 
     void desactivarPlanCurricular(PlanCurricular plan);
+    
+    void saveGrupoEquivalente(GrupoCursoEquivalente grupo, DataSessionPivot ds);
 
     PlanCurricular clonarPlanCurricular(PlanCurricular plan, CicloAcademico ciclo, DataSessionPivot ds);
 
@@ -96,4 +102,7 @@ public interface PlanCurricularService {
     void generarAvanceCurricular(PlanCurricular plan, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     Long countAlumnosByPlanCurricularCicloAcademico(PlanCurricular planCurricular, CicloAcademico cicloAcademico);
+
+    Long countAlumnosByPlanCurricular(PlanCurricular planCurricular);
+
 }

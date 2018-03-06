@@ -27,7 +27,11 @@
         <span class="estado-green">{{:creditos}}</span>
     {{/if}}
     </td>
-    
+    <td class="v-middle text-center">
+        {{if numEquivalentes > 0}}
+            <a class="pointer ver-equivalentes"><span class="estado-blue">{{:numEquivalentes}}</span></a>
+        {{/if}}
+    </td>
     <td class="v-middle text-center">
         {{if creditosRequisito > 0}}
             <span class="estado-gray">{{:creditosRequisito}}</span>
@@ -52,7 +56,7 @@
                         <a class="editar-cur-obl" href="#">Editar</a>
                     </li>
                     <li role="presentation">
-                        <a class="editar-cur-equi" href="#">Cursos Equivalentes</a>
+                        <a class="editar-cur-equi-obl" href="#">Cursos Equivalentes</a>
                     </li>
                     <li role="presentation">
                         <a class="delete-cur-obl" href="#">Eliminar</a>

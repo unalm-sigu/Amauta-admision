@@ -7,23 +7,51 @@
 <body>
     <div layout:fragment="main">
         <header class="header b-b padder-lg">        
-            <div class="pull-right" >
+            <div class="pull-right panel-body" >
 
                 <a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-success cerrar-acta" href="#" >Entregar Acta</a>
 
                 <a class="btn btn-primary" href="#" id="cmbReporteNotas">Descargar Reporte</a>
-
+                <a class="btn btn-default"   th:href="@{/academico/docente/cargaacademica}"  >Regresar</a>
             </div>
 
             <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Registro de Notas|'>2016-II</span></h2>
 
-            <span class="block"><strong>Tipo sección:</strong>
-                <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
-            </span>
-            <span class="block"><strong>Clave:</strong> <span th:text="${seccion.codigo2}">2130</span></span>
-            <span class="block"><strong>Sistema Notas:</strong> <span th:text="${sistemaNotas.nombre}">2130</span></span>
+
             <input id="txtSistemaNotas" type="hidden" th:value="${sistemaNotas.id}"/>
-            <span class="block"><strong>Estado del Acta:</strong> <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span></span>
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label bold"><strong>Tipo sección:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
+                    </div>
+
+                    <label for="cboCategoria" class="col-md-2 control-label bold"><strong>Clave:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${seccion.codigo2}">2130</span>
+                    </div>
+
+                    <label for="cboCategoria" class="col-md-2 control-label bold"><strong>Sistema Notas:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${sistemaNotas.nombre}">2130</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label  class="col-md-2 control-label bold"><strong>Estado del Acta:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span>
+                    </div>
+
+
+                    <label  class="col-md-2 control-label bold"><strong>Creditos:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${curso.creditos}">2130</span>
+                    </div>
+                </div>
+            </div>
+
 
             <style>
                 body    {overflow-x:scroll;}

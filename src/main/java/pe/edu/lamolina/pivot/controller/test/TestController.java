@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,21 +12,30 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -60,6 +70,21 @@ public class TestController {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
+
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+
+    @Autowired
+    PromedioService promedioService;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -172,6 +197,50 @@ public class TestController {
 
             calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
             loop++;
+
+        }
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularAllPromediosByCiclo")
+    public String calcularAllPromediosByCiclo(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
+        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+            // if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(28154L) == 0) {
+            matriculaCurso.getMatriculaResumen().getAlumno();
+            matriculaCurso.getMatriculaResumen().getCicloAcademico();
+            matriculaCurso.getCurso();
+            promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
+            // }
+        }
+
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularAllPromediosByCiclo/{alumno}/{ciclo}")
+    public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId,
+            @PathVariable("ciclo") Long ciclo) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ciclo);
+        if (TypesUtil.getInt(cicloAcademico.getCodigo()) >= 201700) {
+            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(cicloAcademico);
+            for (MatriculaCurso matriculaCurso : matriculasCurso) {
+                if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(alumnoId) == 0) {
+                    matriculaCurso.getMatriculaResumen().getAlumno();
+                    matriculaCurso.getMatriculaResumen().getCicloAcademico();
+                    matriculaCurso.getCurso();
+                    promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
+                }
+            }
+        } else {
+            Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
+            promedioService.promediarAsync(alumno, ds.getUsuario());
 
         }
         return "yeah";

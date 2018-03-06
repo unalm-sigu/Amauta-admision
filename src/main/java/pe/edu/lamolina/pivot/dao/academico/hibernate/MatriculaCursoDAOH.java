@@ -53,6 +53,25 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
     }
 
     @Override
+    public List<MatriculaCurso> allByMatriculaResumen(List<MatriculaResumen> resumenes) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .in("mr.id", resumenes);
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaCurso> allByMatriculaResumenCurso(List<MatriculaResumen> resumenes, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("cu.id", curso)
+                .in("mr.id", resumenes);
+        return all(sql);
+    }
+
+    @Override
     public List<MatriculaCurso> allByAlumno(Long idAlumno) {
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "macu")
@@ -62,4 +81,37 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
         return all(sql);
     }
-}
+
+    @Override
+    public List<MatriculaCurso> allByCursoCiclo(Curso curso, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("ca.id", ciclo)
+                .filter("cu.id", curso);
+
+        return all(sql);
+    }
+
+     @Override
+    public List<MatriculaCurso> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+    
+    @Override
+    public List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno ,CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu","mr.cicloAcademico ca")
+                .join("curso cu", "cu.departamentoAcademico")
+                .filter("ca.id", ciclo)
+                .filter("alu.id", alumno);
+
+        return all(sql);
+    }
+ }    

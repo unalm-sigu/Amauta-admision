@@ -7,7 +7,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 @Repository
 public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> implements AlumnoCicloCursoDAO {
@@ -15,6 +17,17 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     public AlumnoCicloCursoDAOH() {
         super();
         setClazz(AlumnoCicloCurso.class);
+    }
+
+    @Override
+    public AlumnoCicloCurso findByAlumnoCicloCurso(Alumno alumno, CicloAcademico cicloAcademico, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .filter("al.id", alumno)
+                .filter("ca.id", cicloAcademico)
+                .filter("cur.id", curso);
+        return find(sql);
     }
 
     @Override
@@ -89,6 +102,48 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public List<AlumnoCicloCurso> allOperativesByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("al.id", alumno)
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allOperativesByAlumnoAnterioresCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("al.id", alumno)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allOperativesByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("al.id", alumno)
+                .filter("ca.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoCicloCurso> allByAlumnoOrdeyByCurso(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -99,5 +154,22 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .orderBy("cu.nombre asc", "cu.nombre");
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public Long countByCursoAlumnoAnterioresCiclo(Curso curso, Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectCount()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("al.id", alumno)
+                .filter("cu.id", curso)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
+
+        return (Long) sql.find(getCurrentSession());
     }
 }

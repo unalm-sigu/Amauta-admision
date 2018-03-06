@@ -99,13 +99,13 @@
                                         </td>
                                         <td class="text-center">
 
-                                            <a v-if="seccion.aula==null &amp;&amp; !directEditSecciones"
+                                            <a v-if="seccion.aula.id==null &amp;&amp; !directEditSecciones"
                                                v-on:click="showModalAula(seccion)" 
                                                style="cursor:pointer;">
                                                 Sin Aula
                                             </a>
 
-                                            <div class="col-md-12" v-if="seccion.aula!=null &amp;&amp; !directEditSecciones">
+                                            <div class="col-md-12" v-if="seccion.aula.id!=null &amp;&amp; !directEditSecciones">
                                                 <div class="col-md-9">
                                                     <a 
                                                         v-on:click="showModalAula(seccion)" 
@@ -140,13 +140,13 @@
                                         <td class="text-center">
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras==null &amp;&amp; !directEditSecciones"
+                                               v-if="seccion.grupoHoras.id==null &amp;&amp; !directEditSecciones"
                                                style="cursor:pointer;">
                                                 Sin Grupo
                                             </a>
 
                                             <a v-on:click="showModalGrupos(seccion)" 
-                                               v-if="seccion.grupoHoras &amp;&amp; !directEditSecciones"
+                                               v-if="seccion.grupoHoras.id &amp;&amp; !directEditSecciones"
                                                style="cursor:pointer;">
                                                 {{ seccion.grupoHoras.codigo }} 
                                             </a>
@@ -155,7 +155,7 @@
                                                    v-on:blur="directEditGrupoHor(seccion,$event)"
                                                    v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
                                                    required='true'
-                                                   v-bind:value="seccion.grupoHoras!=null ? seccion.grupoHoras.codigo : ''"
+                                                   v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
                                                    class="form-control"/>
 
                                         </td>
