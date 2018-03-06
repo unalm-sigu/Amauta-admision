@@ -112,6 +112,51 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public AlumnoCiclo findActiveSiguienteByAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .join("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um", "orientacionCarrera oc")
+                .filter("alu.id", alumno)
+                .filter("ca.codigo", ">", cicloAcademico.getCodigo())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .orderBy("ca.year asc", "ca.numeroCiclo asc")
+                .limit(1);
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findInhaSiguienteByAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .join("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um", "orientacionCarrera oc")
+                .filter("alu.id", alumno)
+                .filter("ca.codigo", ">", cicloAcademico.getCodigo())
+                .filter("ac.estado", EstadoMatriculaEnum.INH.name())
+                .orderBy("ca.year asc", "ca.numeroCiclo asc")
+                .limit(1);
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findInhaAnteriorByAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .join("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um", "orientacionCarrera oc")
+                .filter("alu.id", alumno)
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("ac.estado", EstadoMatriculaEnum.INH.name())
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
+                .limit(1);
+        return find(sql);
+    }
+
+    @Override
     public List<AlumnoCiclo> allByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")

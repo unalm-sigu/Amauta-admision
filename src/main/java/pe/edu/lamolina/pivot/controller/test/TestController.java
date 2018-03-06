@@ -240,7 +240,7 @@ public class TestController {
             }
         } else {
             Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
-            promedioService.promediarAsync(alumno, ds.getUsuario());
+            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
 
         }
         return "yeah";
