@@ -372,7 +372,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 continue;
             }
 
-            List<RequisitoCursoCurricula> requisitos = cursosCurricula.get(evaluado.getCursoCurricula().getId()).getRequisitosCursoCurricula();
+            List<RequisitoCursoCurricula> requisitos = cursosCurricula.get(evaluado.getCursoCurricula().getId()).getCursosCurricula();
 
             List<AlumnoCursoSimultaneo> requisitosSimultaneo = new ArrayList<>();
 
