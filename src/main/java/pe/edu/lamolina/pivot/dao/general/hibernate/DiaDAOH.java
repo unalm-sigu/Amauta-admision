@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import org.springframework.stereotype.Repository;

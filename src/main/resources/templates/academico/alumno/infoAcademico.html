@@ -31,7 +31,7 @@
                         <div class="col-md-12" v-if="flag">
                             <span v-text="alumno.carrera.nombre"/>
                             <span v-if="alumno.carrera.codigo != alumno.carrera.facultad.codigo">
-                                  - <span v-text="alumno.carrera.facultad.nombre"/>
+                                - <span v-text="alumno.carrera.facultad.nombre"/>
                             </span>
                         </div>
                         <div class="col-md-12">
@@ -85,6 +85,7 @@
             /*<![CDATA[*/
             var alumnoJson = [[${datoAlumno.toString()}]];
             /*]]>*/
+             var horasJson = /*[[${horasBD.toString()}]]*/ 'json';
         </script>
 
 
