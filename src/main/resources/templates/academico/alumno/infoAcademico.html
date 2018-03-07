@@ -44,7 +44,7 @@
 
             <div  class="tabbable-line">
                 <ul class="nav nav-tabs" >
-                    <li v-for="tab in tabs"  ><a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name"></a></li>
+                    <li v-for="tab in tabs"  v-bind:class="styleMenu(tab.id)"><a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name" ></a></li>
                 </ul>  
             </div>
         </header>

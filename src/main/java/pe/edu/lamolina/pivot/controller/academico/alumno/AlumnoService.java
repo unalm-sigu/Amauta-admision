@@ -37,7 +37,6 @@ public interface AlumnoService {
 //    List<MatriculaCurso> allMatriculaCursoByAlumno(Long idAlumno);
 //
 //    Alumno findAlumno(Alumno alumno, CicloAcademico academico);
-
     List<CicloAcademico> allCicloAcademico();
 
     List<TipoDocIdentidad> allDocumento();
@@ -61,5 +60,7 @@ public interface AlumnoService {
     Alumno findAlumno(Long idAlumno);
 
     String goMatricula(Long idAlumno);
+
+    Alumno allInfo(Alumno alumno);
 
 }

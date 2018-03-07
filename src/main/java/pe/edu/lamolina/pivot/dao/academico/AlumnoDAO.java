@@ -54,4 +54,5 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateSituacionAcad(Alumno alumno);
 
+    Alumno findAllInfo(Long id);
 }

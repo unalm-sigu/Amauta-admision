@@ -19,9 +19,10 @@ new Vue({
         searchCiclo: 1,
         cursosCurricula: [],
         ciclosCurricula: [],
-        cursosMatriculados:[],
-        creditosMatriculado:"",
-        cursosMatriculado:""
+        cursosMatriculados: [],
+        creditosMatriculado: "",
+        cursosMatriculado: "",
+        alumnoInfo: {}
         
     },
     created() {
@@ -48,6 +49,7 @@ new Vue({
         if ($vue.alumno.carrera.codigo == $vue.alumno.carrera.facultad.codigo) {
             $vue.facu = false;
         }
+        $vue.cargaInicio();
     },
     mounted: function () {
         let $vue = this;
@@ -70,6 +72,8 @@ new Vue({
                 this.cargaAvance();
             } else if ($vue.tabId == 4) {
                 this.cargaMatricula();
+            } else if ($vue.tabId == 1) {
+                this.cargaInicio();
             }
 
         },
@@ -79,13 +83,29 @@ new Vue({
 
             $.ajax({
                 method: 'GET',
-                url: APP.url('academico/alumno/' + this.alumno.id +'/cursoMatri'),
+                url: APP.url('academico/alumno/' + this.alumno.id + '/cursoMatri'),
                 contentType: "application/json",
                 success: function (response) {
                     
                     $vue.cursosMatriculados = response.data.cursosMatriculados;
                     $vue.creditosMatriculado = response.data.creditosMatriculado;
                     $vue.cursosMatriculado = response.data.cursosMatriculado;
+                }
+            });
+        },
+        cargaInicio() {
+
+            let $vue = this;
+
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/' + this.alumno.id + '/alumno'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.alumnoInfo = response.data.alumno;
+                    }
+
                 }
             });
         },
@@ -98,6 +118,7 @@ new Vue({
                 url: APP.url('academico/alumno/' + this.alumno.id + '/' + $vue.searchCiclo + '/avance'),
                 contentType: "application/json",
                 success: function (response) {
+             
                     $vue.cursosCurricula = response.data.cursos;
                     if ($vue.searchCiclo == 1) {
                         $vue.ciclosCurricula = response.data.ciclos;
@@ -115,6 +136,7 @@ new Vue({
                 url: APP.url('academico/alumno/' + this.alumno.id + '/historial'),
                 contentType: "application/json",
                 success: function (response) {
+                    if (response.success) {
                     $vue.alumnoCurso = response.data;
 
                     var i = 1;
@@ -123,6 +145,7 @@ new Vue({
                         $vue.listCiclos.push(obj);
                         i++;
                     })
+                }
                 }
             });
         },
@@ -193,10 +216,18 @@ new Vue({
        
             if (name == 'MAT') {
                 return "label label-success";
-            }if (name=='RET') {
+            }
+            if (name == 'RET') {
                 return "label label-danger";
             }
+        },
+        styleMenu(index) {
+            let $vue = this;
+            let id = $vue.tabId;
+            if (index == id) {
+                return "active";
         }
+    }
     }
 
 })
