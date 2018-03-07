@@ -5,7 +5,6 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.dao.SqlUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -102,10 +101,23 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         Octavia sqlUtil = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
-                .join("seccion s", "s.grupoSeccion gs", "gs.curso" )
+                .join("seccion s", "s.grupoSeccion gs", "gs.curso")
                 .left("s.aula")
                 .filter("ca.id", ciclo)
                 .filter("alu.id", alumno);
         return all(sqlUtil);
+    }
+
+    @Override
+    public Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectCountDistinct("s")
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
+                .join("seccion s", "s.grupoSeccion gs", "gs.curso")
+                .left("s.aula")
+                .filter("ca.id", cicloAcademico)
+                .filter("ms.estado", EstadoMatriculaEnum.PMAT);
+        return (Long) sql.find(getCurrentSession());
     }
 }

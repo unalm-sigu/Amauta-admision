@@ -6,10 +6,12 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 @Repository
 public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implements MatriculaCursoDAO {
@@ -93,7 +95,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         return all(sql);
     }
 
-     @Override
+    @Override
     public List<MatriculaCurso> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
@@ -102,16 +104,29 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
         return all(sql);
     }
-    
+
     @Override
-    public List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno ,CicloAcademico ciclo) {
+    public List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
-                .join("matriculaResumen mr", "mr.alumno alu","mr.cicloAcademico ca")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("curso cu", "cu.departamentoAcademico")
                 .filter("ca.id", ciclo)
                 .filter("alu.id", alumno);
 
         return all(sql);
     }
- }    
+
+    @Override
+    public Long countAllAlumnoPrematriculado(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectCountDistinct("alu")
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
+                .join("curso cu", "cu.departamentoAcademico")
+                .filter("ca.id", cicloAcademico)
+                .filter("mc.estado", EstadoMatriculaEnum.PMAT);
+        return (Long) sql.find(getCurrentSession());
+    }
+
+}

@@ -1,0 +1,90 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Matricular</title>
+    </head>
+    <body >
+
+        <div layout:fragment="main">
+            <div id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <h2 th:inline="text">Turno de atención  [[${turnoAtencion.turno}]]  ( [[${cicloAcademico.descripcion}]] )   </h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel m-b-xs col-sm-8 col-sm-offset-2">
+
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <div class="row">
+
+                                    <div style="" v-if="onProceso">
+                                        El proceso de matrícula empezara en <span v-text="countdown"></span>
+                                        segundos.
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+
+
+                                    <div class="btn-group pull-right">
+
+                                        <a class="btn btn-info pull-right btn-sm"
+                                           v-if="initProceso"
+                                           v-on:click.prevent="on"
+                                           href="#"  >Iniciar</a>
+
+                                        <a class="btn btn-info pull-right btn-sm"
+                                           v-if="onProceso"
+                                           v-on:click.prevent="stop"
+                                           href="#" >Detener</a>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row m-t-lg">
+
+                                    <table class="table table-responsive" th:inline="text">
+                                        <tbody>
+
+                                            <tr >
+                                                <td class="col-xs-8 text-left">Alumnos programados</td>
+                                                <td class="col-xs-4 text-left"> [[${turnoAtencion.alumnos}]]</td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="col-xs-8 text-left">Alumnos prematriculados</td>
+                                                <td class="col-xs-4 text-left"> [[${alumnosPrematriculados}]]</td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="col-xs-8 text-left">Secciones prematriculadas</td>
+                                                <td class="col-xs-4 text-left">[[${seccionesPrematriculados}]]</td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </section>
+
+                    </section>
+                </section>
+
+            </div>
+        </div>
+
+    </body>
+
+    <div layout:fragment="js">
+        <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/matricular/matricular.js}" charset="utf-8"></script>
+    </div>
+</html>
