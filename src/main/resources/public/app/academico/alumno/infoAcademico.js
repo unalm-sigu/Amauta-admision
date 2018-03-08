@@ -231,6 +231,7 @@ let app = new Vue({
         verMalla() {
             let $vue = this;
             var id = $vue.alumno.planCurricular.id;
+           if(id === undefined) return;
             $.ajax({
                 url: APP.url('academico/planCurricular/dataCurricula'),
                 type: 'POST',

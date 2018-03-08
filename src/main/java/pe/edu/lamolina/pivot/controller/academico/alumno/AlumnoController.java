@@ -567,7 +567,9 @@ public class AlumnoController {
             objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
             objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
             objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
-            objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
+            if (alumno.getPlanCurricular() != null) {
+                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
+            }
             objNode.set("alumno", objNodeInfo);
             response.setData(objNode);
             response.setSuccess(true);
