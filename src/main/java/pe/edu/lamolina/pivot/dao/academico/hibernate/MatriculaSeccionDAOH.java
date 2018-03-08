@@ -120,4 +120,15 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("ms.estado", EstadoMatriculaEnum.PMAT);
         return (Long) sql.find(getCurrentSession());
     }
+
+    @Override
+    public List<MatriculaSeccion> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
+                .in("mr.id", matriculaResumens)
+                .filter("ms.estado", EstadoMatriculaEnum.PMAT);
+        return all(sql);
+    }
 }

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
@@ -127,6 +126,16 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .filter("ca.id", cicloAcademico)
                 .filter("mc.estado", EstadoMatriculaEnum.PMAT);
         return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<MatriculaCurso> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .in("mr.id", matriculaResumens)
+                .filter("mc.estado", EstadoMatriculaEnum.PMAT);
+        return all(sql);
     }
 
 }

@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
-import org.hibernate.transform.Transformers;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -162,6 +161,17 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             }
         }
 
+    }
+
+    @Override
+    public List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .filter("mr.id", EstadoMatriculaEnum.NMAT)
+                .orderBy("mr.prioridad");
+        return all(sql);
     }
 
 }

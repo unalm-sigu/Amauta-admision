@@ -27,4 +27,6 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico);
 
+    public List<MatriculaSeccion> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens);
+
 }
