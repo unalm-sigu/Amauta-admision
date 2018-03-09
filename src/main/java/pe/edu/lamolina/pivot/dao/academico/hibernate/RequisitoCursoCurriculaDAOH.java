@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 
 @Repository
@@ -22,6 +23,16 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cr.curso cur")
                 .filter("cCur.id", cursoCurricula);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RequisitoCursoCurricula> allByPlanCurricular(PlanCurricular plan) {
+        Octavia sql = Octavia.query()
+                .from(RequisitoCursoCurricula.class, "rcc")
+                .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur", "cr.curso", "cCur.planCurricular")
+                .filter("cCur.planCurricular", plan);
 
         return all(sql);
     }

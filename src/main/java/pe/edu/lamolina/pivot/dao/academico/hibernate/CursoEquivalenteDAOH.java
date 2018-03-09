@@ -7,6 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
 
@@ -23,6 +24,17 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         Octavia sql = Octavia.query()
                 .from(CursoEquivalente.class, "ce")
                 .filter("cursoCurricula", cursoCurricula)
+                .filter("estado", EstadoEnum.ACT.name());
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<CursoEquivalente> allActivoByPlanCurricular(PlanCurricular planCurricular) {
+        Octavia sql = Octavia.query()
+                .from(CursoEquivalente.class, "ce")
+                .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
+                .filter("cc.planCurricular", planCurricular)
                 .filter("estado", EstadoEnum.ACT.name());
 
         return sql.all(getCurrentSession());

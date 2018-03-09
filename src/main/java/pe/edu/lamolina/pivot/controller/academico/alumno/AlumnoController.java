@@ -456,9 +456,7 @@ public class AlumnoController {
     public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        logger.debug("Ciclo academico : --- > {}" + ds.getCicloAcademico().getId() + " - " + idAlumno);
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        logger.debug("Alumno: --- > {}" + alumno.getId());
         model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
 
         return "academico/alumno/infoAcademico";

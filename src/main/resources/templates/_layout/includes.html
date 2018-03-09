@@ -255,3 +255,18 @@
 <div th:fragment="bootstrap-colorpicker">
     <script type="text/javascript" th:src="@{/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js}"/>
 </div>
+
+
+<div th:fragment="google-analytics">
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89883780-4"></script>
+    <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+
+            gtag('config', 'UA-89883780-4');
+    </script>
+</div>
+
