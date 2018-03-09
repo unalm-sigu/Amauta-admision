@@ -165,7 +165,6 @@ public class PlanCurricularController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 Integer esRequisitoDe = cursoCurricula.getRequisitosCursoCurricula().size()
                         + cursoCurricula.getRequisitosCursoOpcional().size();
-                logger.debug("Pasa bien ");
                 node.put("id", cursoCurricula.getId());
                 node.put("tipoCurso", cursoCurricula.getTipoCursoCurricula().getNombre());
                 node.put("curso", cursoCurricula.getCurso().getNombre());
@@ -236,16 +235,12 @@ public class PlanCurricularController {
                     if (!grupos.containsKey(grupo)) {
                         grupos.put(cursoEquivalente.getGrupo(), new ArrayNode(JsonNodeFactory.instance));
                     }
-                    logger.debug("Agregando curso");
                     grupos.get(grupo).add(nodeEquivalente);
                 }
                 for (Map.Entry<Integer, ArrayNode> entry : grupos.entrySet()) {
                     Integer numeroGrupo = entry.getKey();
                     ArrayNode arrCursosEquivalantes = entry.getValue();
 
-                    if (arrCursosEquivalantes == null) {
-                        logger.debug("Error no tiene cursos este grupo");
-                    }
                     ObjectNode nodeGrupoEquivalente = new ObjectNode(JsonNodeFactory.instance);
 
                     nodeGrupoEquivalente.put("numeroGrupo", numeroGrupo);
@@ -326,7 +321,6 @@ public class PlanCurricularController {
             List<CursoAdicionalCurricula> cursosAdicionales = service.allCursosAdcByDynatable(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            logger.debug("size cursso curricula {}", cursosAdicionales.size());
 
             for (CursoAdicionalCurricula cursoAdicional : cursosAdicionales) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);

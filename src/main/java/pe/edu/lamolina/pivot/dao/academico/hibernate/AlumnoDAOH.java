@@ -17,7 +17,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
-import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -399,9 +398,20 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("modalidadEstudio me", "carrera ca", "ca.facultad")
+                .left("planCurricular", "situacionAcademica")
                 .left("cicloIngreso")
                 .filter("alu.id", id);
 
         return (Alumno) sql.find(getCurrentSession());
     }
+}
+    @Override
+    public void updateSituacionCicloCapa(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "situacionAcademica");
+        octavia.set(alumno, "creditosAprobados");
+        octavia.set(alumno, "cicloActivo");
+        this.update(octavia);
+    }
+
 }

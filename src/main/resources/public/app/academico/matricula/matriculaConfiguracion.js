@@ -179,7 +179,6 @@ new Vue({
                     horas.forEach(function (elem) {
                         elem.turnos.forEach(function (turnos) {
                             $('#' + turnos.id).editable({
-
                                 url: APP.url('academico/configuracionturno/updateturnos'),
                                 contentType: 'application/json',
                                 type: 'text',

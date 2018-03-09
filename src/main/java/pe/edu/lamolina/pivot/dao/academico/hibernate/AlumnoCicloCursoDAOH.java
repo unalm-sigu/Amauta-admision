@@ -26,7 +26,22 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
                 .filter("al.id", alumno)
                 .filter("ca.id", cicloAcademico)
-                .filter("cur.id", curso);
+                .filter("cur.id", curso)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCicloCurso findByAlumnoCicloCursoEstados(Alumno alumno, CicloAcademico cicloAcademico, Curso curso, List<EstadoMatriculaEnum> estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .filter("al.id", alumno)
+                .filter("ca.id", cicloAcademico)
+                .filter("cur.id", curso)
+                .in("acc.estado", estados)
+                .in("ac.estado", estados);
         return find(sql);
     }
 
@@ -137,6 +152,8 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
                 .join("ac.carrera", "ac.situacionInicio")
                 .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("al.id", alumno)
                 .filter("ca.id", cicloAcademico);
 
