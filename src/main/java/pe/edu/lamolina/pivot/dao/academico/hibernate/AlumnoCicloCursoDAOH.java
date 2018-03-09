@@ -60,7 +60,8 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     public List<AlumnoCicloCurso> allAprobadoActivoByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
-                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
+                .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
                 .filter("estaAprobado", 1)
                 .filter("registroActivo", 1);

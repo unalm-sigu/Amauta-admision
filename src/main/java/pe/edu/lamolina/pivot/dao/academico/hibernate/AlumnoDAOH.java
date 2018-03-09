@@ -394,6 +394,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         this.update(octavia);
     }
 
+    @Override
     public Alumno findAllInfo(Long id) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")

@@ -63,6 +63,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
                 .filter("pc.id", planCurricular)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return sql.all(getCurrentSession());

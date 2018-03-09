@@ -559,10 +559,8 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     public Alumno allInfo(Alumno alumno) {
-
-//        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
-//        return alu;
-        return null;
+        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
+        return alu;
     }
 
 }
