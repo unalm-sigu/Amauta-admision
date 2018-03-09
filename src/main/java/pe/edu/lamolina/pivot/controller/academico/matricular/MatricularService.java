@@ -2,15 +2,16 @@ package pe.edu.lamolina.pivot.controller.academico.matricular;
 
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MatricularService {
 
     TurnoAtencion findTurnoAtencion(Long turno);
 
-    void matricular(TurnoAtencion turnoAtencion, CicloAcademico cicloAcademico);
-
     Long countAllAlumnoPrematriculado(CicloAcademico cicloAcademico);
 
     Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico);
+
+    void matricular(TurnoAtencion turnoAtencion, DataSessionPivot ds);
 
 }

@@ -87,8 +87,7 @@ public class MatricularController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            service.matricular(turnoAtencion, cicloAcademico);
+            service.matricular(turnoAtencion, ds);
             response.setMessage("Registro actualizado");
             response.setSuccess(true);
         } catch (PhobosException e) {
