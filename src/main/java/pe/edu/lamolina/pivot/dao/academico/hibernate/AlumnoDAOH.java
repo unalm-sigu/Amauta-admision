@@ -404,7 +404,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
         return (Alumno) sql.find(getCurrentSession());
     }
-}
+
     @Override
     public void updateSituacionCicloCapa(Alumno alumno) {
         Octavia octavia = Octavia.update(Alumno.class);

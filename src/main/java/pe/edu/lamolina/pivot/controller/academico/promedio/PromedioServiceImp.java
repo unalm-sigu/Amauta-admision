@@ -24,7 +24,6 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import pe.edu.lamolina.model.enums.SituacionAcademicaEnum.*;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
@@ -277,7 +276,7 @@ public class PromedioServiceImp implements PromedioService {
         AlumnoCiclo alumnoCicloAnteriorInha = alumnoCicloDAO.findInhaAnteriorByAlumno(alumno, cicloAcademico);
         AlumnoCiclo alumnoCicloSiguienteInha = alumnoCicloDAO.findInhaSiguienteByAlumno(alumno, cicloAcademico);
 
-        if (alumnoCiclo.isNoMatriculado()) {
+        if (alumnoCiclo.isNoMatriculado()) {   
             int maxConsecutivos = cicloAcademico.getCodigoInt() <= 201710 ? 2 : 3;
             int maxIntercalados = 6;
 
