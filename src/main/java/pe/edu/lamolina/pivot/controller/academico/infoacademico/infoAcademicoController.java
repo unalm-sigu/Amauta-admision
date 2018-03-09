@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,8 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/alumno")
@@ -38,5 +39,21 @@ public class infoAcademicoController {
 
         return response;
     }
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/cursoMatri", method = RequestMethod.GET)
+    public JsonResponse alumnoListCursoMatri(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+             ObjectNode lst= service.allAlumnosByCursosMatri(new Alumno(idAlumno),ds.getCicloAcademico());
+            response.setData(lst);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
 
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
 }

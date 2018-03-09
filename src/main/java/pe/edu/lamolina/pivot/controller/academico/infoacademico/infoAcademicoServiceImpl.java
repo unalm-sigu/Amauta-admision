@@ -3,7 +3,8 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,11 +12,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,6 +36,14 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
 
     @Override
     public ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo) {
@@ -55,7 +76,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             objNode.put("codigo", alumnoCursoCurricula.getCurso().getCodigo());
             objNode.put("codigoAnterior", alumnoCursoCurricula.getCurso().getCodigoAnterior1());
             objNode.put("tipoCurso", alumnoCursoCurricula.getCurso() == null ? "" : TipoCursoCurriculaEnum.getNombre(alumnoCursoCurricula.getCursoCurricula().getTipoCursoCurricula().getNombre()));
-            objNode.put("vecesCursado", alumnoCursoCurricula.getVecesCursado());
+            objNode.put("vecesCursado", alumnoCursoCurricula.getVecesCursado().toString().equals("0") ? "" : alumnoCursoCurricula.getVecesCursado().toString());
             objNode.put("nombre", alumnoCursoCurricula.getCurso().getNombre());
             objNode.put("nota", alumnoCursoCurricula.getNota());
             objNode.put("creditos", alumnoCursoCurricula.getCreditos());
@@ -65,6 +86,80 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         objNodeCursos.put("cursos", lstCursos);
 
         return objNodeCursos;
+    }
+
+    @Override
+    public ObjectNode allAlumnosByCursosMatri(Alumno alumno, CicloAcademico cicloAca) {
+
+        List<Seccion> secciones = new ArrayList();
+        Map<Long, Seccion> mapSecciones = new LinkedHashMap();
+        Map<Long, List<MatriculaSeccion>> mapMatriculaSecciones = new LinkedHashMap();
+
+        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, cicloAca);
+        for (MatriculaSeccion ms : matriculaSecciones) {
+            Seccion seccion = ms.getSeccion();
+            seccion.setDocenteSeccion(new ArrayList());
+            secciones.add(seccion);
+            mapSecciones.put(seccion.getId(), seccion);
+
+            Curso curso = ms.getSeccion().getGrupoSeccion().getCurso();
+            List<MatriculaSeccion> matriculaSeccionesCurso = mapMatriculaSecciones.get(curso.getId());
+            if (matriculaSeccionesCurso == null) {
+                matriculaSeccionesCurso = new ArrayList();
+                mapMatriculaSecciones.put(curso.getId(), matriculaSeccionesCurso);
+            }
+            matriculaSeccionesCurso.add(ms);
+        }
+
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allBySecciones(secciones);
+        for (DocenteSeccion profeSeccion : docentesSecciones) {
+            Seccion seccionProfe = profeSeccion.getSeccion();
+            Seccion seccion = mapSecciones.get(seccionProfe.getId());
+            profeSeccion.setSeccion(seccion);
+            seccion.getDocenteSeccion().add(profeSeccion);
+        }
+
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumnoCiclo(alumno, cicloAca);
+
+        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode objNodeSeccion = new ObjectNode(JsonNodeFactory.instance);
+        ArrayNode lstNode = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode lstNodeDocente = new ArrayNode(JsonNodeFactory.instance);
+        Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("matriculaResumen.id", "matriculaResumen", matriculaCursos);
+
+        for (Map.Entry<Long, MatriculaResumen> entry : mapMatriculaResumen.entrySet()) {
+            objNode.put("cursosMatriculado", entry.getValue().getCursosMatriculados());
+            objNode.put("creditosMatriculado", entry.getValue().getCreditosMatriculados());
+
+        }
+        for (MatriculaCurso mc : matriculaCursos) {
+            Curso curso = mc.getCurso();
+            mc.setMatriculaSeccion(mapMatriculaSecciones.get(curso.getId()));
+        }
+
+        for (MatriculaCurso matriculaCurso : matriculaCursos) {
+            ObjectNode objNodeCursos = new ObjectNode(JsonNodeFactory.instance);
+            objNodeCursos.put("curso", matriculaCurso.getCurso().getNombre());
+            objNodeCursos.put("codigoCurso", matriculaCurso.getCurso().getCodigo());
+            objNodeCursos.put("creditos", matriculaCurso.getCreditos());
+            objNodeCursos.put("estado", EstadoMatriculaEnum.getNombreAndName(matriculaCurso.getEstado()));
+            objNodeCursos.put("notaFinal", matriculaCurso.getNotaFinal());
+            objNodeCursos.put("notaAvance", matriculaCurso.getNotaAvance());
+            lstNodeDocente = new ArrayNode(JsonNodeFactory.instance);
+            for (MatriculaSeccion obj : matriculaCurso.getMatriculaSeccion()) {
+                for (DocenteSeccion docenteSeccion : obj.getSeccion().getDocenteSeccion()) {
+                    ObjectNode objNodeDocente = new ObjectNode(JsonNodeFactory.instance);
+                    objNodeDocente.put("codigo", obj.getSeccion().getCodigo2());
+                    objNodeDocente.put("nombreDocente", docenteSeccion.getDocente().getPersona().getNombreCompleto());
+                    lstNodeDocente.add(objNodeDocente);
+                }
+            }
+            objNodeCursos.set("docentes", lstNodeDocente);
+            lstNode.add(objNodeCursos);
+        }
+        objNode.set("cursosMatriculados", lstNode);
+        return objNode;
+
     }
 
 }

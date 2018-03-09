@@ -457,7 +457,7 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         logger.debug("Ciclo academico : --- > {}" + ds.getCicloAcademico().getId() + " - " + idAlumno);
-        Alumno alumno = service.findAlumno(new Alumno(idAlumno));
+        Alumno alumno = service.allInfo(new Alumno(idAlumno));
         logger.debug("Alumno: --- > {}" + alumno.getId());
         model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
 
@@ -469,7 +469,7 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         String codigo = service.goMatricula(idAlumno);
-        
+
         session.invalidate();
         return "redirect:http://localhost:9977/amauta/" + codigo;
     }
@@ -507,6 +507,7 @@ public class AlumnoController {
                 }
                 objNode.set("cursos", lstCurso);
                 lstNode.add(objNode);
+                response.setSuccess(true);
             }
             response.setData(lstNode);
         } catch (PhobosException e) {
@@ -539,6 +540,39 @@ public class AlumnoController {
             }
             objNode.set("cursos", lstCurso);
             response.setData(objNode);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/alumno", method = RequestMethod.GET)
+    public JsonResponse allAlumno(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            Alumno alumno = service.allInfo(new Alumno(idAlumno));
+
+            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
+            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
+            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
+            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
+            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
+            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
+            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
+            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
+            if (alumno.getPlanCurricular() != null) {
+                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
+            }
+            objNode.set("alumno", objNodeInfo);
+            response.setData(objNode);
+            response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 

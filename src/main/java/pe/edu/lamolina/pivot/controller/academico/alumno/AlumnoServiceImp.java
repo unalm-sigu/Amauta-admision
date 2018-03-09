@@ -544,7 +544,7 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     @Transactional
     public String goMatricula(Long idAlumno) {
-        
+
         Alumno alumno = findAlumno(new Alumno(idAlumno));
         String valor = RandomStringUtils.randomAlphanumeric(45);
         TokenIngresante token = new TokenIngresante();
@@ -555,6 +555,14 @@ public class AlumnoServiceImp implements AlumnoService {
         token.setValor(valor);
         tokenIngresanteDAO.save(token);
         return alumno.getCodigo();
+    }
+
+    @Override
+    public Alumno allInfo(Alumno alumno) {
+
+        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
+
+        return alu;
     }
 
 }

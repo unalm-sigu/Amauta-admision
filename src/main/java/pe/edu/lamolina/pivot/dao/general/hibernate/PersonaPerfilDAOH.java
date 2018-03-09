@@ -39,10 +39,10 @@ public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements
         DynatableSql sql = new DynatableSql(filter)
                 .from(PersonaPerfil.class, "pp")
                 .join("perfilCompania peco", "persona per")
-                .leftJoin("oficina")
-                .searchFields("peco.nombre", "ofi.tipo", "ofi.nombre")
+                .leftJoin("oficina ofi")
+                .searchFields("peco.nombre", "ofi.tipoOficina", "ofi.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesceperpj.materno,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("pp.id DESC");
 
         return all(sql);
