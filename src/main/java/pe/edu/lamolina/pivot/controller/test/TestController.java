@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +14,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
@@ -37,7 +51,9 @@ import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -85,6 +101,12 @@ public class TestController {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    SituacionAcademicaDAO situacionAcademicaDAO;
+
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -209,13 +231,45 @@ public class TestController {
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
+        logger.debug("Catidad de registros a procesar {}", matriculasCurso.size());
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
-            // if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(28154L) == 0) {
+            //   if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(54234L) == 0) {
+
             matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             matriculaCurso.getCurso();
             promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
-            // }
+
+            //  }
+        }
+
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("promediarAll")
+    public String promediarAll(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        ModalidadEstudio pre = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        ModalidadEstudio epg = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
+
+        List<SituacionAcademica> situacionesPregrado = situacionAcademicaDAO.allByCodes(
+                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_EM, S_3U, S_2U, S_4U, S_6U, S_TU));
+        List<SituacionAcademica> situacionesPosgrado = situacionAcademicaDAO.allByCodes(
+                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_EM));
+
+        List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
+        List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
+
+        for (Alumno alumno : pregrados) {
+            alumno = alumnoDAO.find(alumno);
+            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+        }
+        for (Alumno alumno : posgrados) {
+            alumno = alumnoDAO.find(alumno);
+            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
         }
 
         return "yeah";
@@ -240,8 +294,7 @@ public class TestController {
             }
         } else {
             Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
-            promedioService.promediarAsync(alumno, ds.getUsuario());
-
+            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
         }
         return "yeah";
     }

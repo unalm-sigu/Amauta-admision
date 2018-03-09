@@ -686,4 +686,10 @@ public class AlumnoServiceImp implements AlumnoService {
         return horaDAO.allHora();
     }
 
+    @Override
+    public Alumno allInfo(Alumno alumno) {
+        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
+        return alu;
+    }
+
 }

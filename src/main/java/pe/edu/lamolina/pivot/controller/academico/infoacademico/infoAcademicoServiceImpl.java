@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -155,10 +154,10 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
                     lstNodeDocente.add(objNodeDocente);
                 }
             }
-            objNodeCursos.put("docentes", lstNodeDocente);
+            objNodeCursos.set("docentes", lstNodeDocente);
             lstNode.add(objNodeCursos);
         }
-        objNode.put("cursosMatriculados", lstNode);
+        objNode.set("cursosMatriculados", lstNode);
         return objNode;
 
     }

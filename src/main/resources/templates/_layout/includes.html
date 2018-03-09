@@ -34,7 +34,7 @@
 
 <link rel="stylesheet" type="text/css" th:href="@{/vendor/vue-multiselect/vue-multiselect.min.css}" />
 
-<link rel="stylesheet" type="text/css" th:href="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/css/bootstrap-editable.css}"/>
+<link rel="stylesheet" type="text/css" th:href="@{/meteor-x-editable-bootstrap-master/lib/bootstrap-editable/css/bootstrap-editable.css}"/>
 
 
 <link rel="stylesheet" type="text/css" href="/jquery-timepicker/jquery.timepicker.css" />
@@ -135,7 +135,7 @@
         var contextPath = /*[[@{/}]]*/ '/app';
         /*]]>*/
     </script>
-    <script type="text/javascript" src=" https://vuejs.org/js/vue.js" />
+    <script type="text/javascript" th:src="@{/vendor/vuejs/vue.min.js}" />
     <script type="text/javascript" th:src="@{/vendor/vue2-datepicker/build.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
@@ -154,12 +154,14 @@
     <script th:src="@{/vendor/vue-multiselect/vue-multiselect.min.js}" charset="utf-8"></script>
     <script th:src="@{/vendor/vue-pagination/vue-pagination-2.min.js}" charset="utf-8"></script>
 
-    <script  type="text/javascript"  th:src="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/js/bootstrap-editable.min.js}"/>
-    <script  type="text/javascript"  th:src="@{/meteor-x-editable-bootstrap/lib/bootstrap3-editable/js/bootstrap-editable.js}"/>
+    <script  type="text/javascript"  th:src="@{/meteor-x-editable-bootstrap-master/lib/bootstrap-editable/js/bootstrap-editable.js}"/>
 
 </div>
 
-
+<div th:fragment="svgjs">
+    <script type="text/javascript" th:src="@{/jquery-ui/jquery-ui.min.js}"/>
+    <script type="text/javascript" th:src="@{/vendor/svgjs/svg.min.js}"/>
+</div>
 
 <div th:fragment="javascript-upload">
     <script type="text/javascript" th:src="@{/jquery-ui/jquery-ui.min.js}"/>
@@ -253,3 +255,18 @@
 <div th:fragment="bootstrap-colorpicker">
     <script type="text/javascript" th:src="@{/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js}"/>
 </div>
+
+
+<div th:fragment="google-analytics">
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89883780-4"></script>
+    <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+
+            gtag('config', 'UA-89883780-4');
+    </script>
+</div>
+

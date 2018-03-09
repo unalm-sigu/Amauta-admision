@@ -40,7 +40,6 @@ public interface AlumnoService {
 //    List<MatriculaCurso> allMatriculaCursoByAlumno(Long idAlumno);
 //
 //    Alumno findAlumno(Alumno alumno, CicloAcademico academico);
-
     List<CicloAcademico> allCicloAcademico();
 
     List<TipoDocIdentidad> allDocumento();
@@ -72,5 +71,6 @@ public interface AlumnoService {
     Hora getHoraByNroHora(Integer numero);
     
     List<Hora> allHoras();
+    Alumno allInfo(Alumno alumno);
 
 }

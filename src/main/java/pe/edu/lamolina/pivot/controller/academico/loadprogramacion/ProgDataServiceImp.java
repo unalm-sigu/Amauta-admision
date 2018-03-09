@@ -977,10 +977,13 @@ public class ProgDataServiceImp implements ProgDataService {
             for (Seccion seccion : seccionesPCUR) {
                 seccionTCUR.setVacantes(seccionTCUR.getVacantes() + seccion.getVacantes());
                 seccionTCUR.setMatriculados(seccionTCUR.getMatriculados() + seccion.getMatriculados());
+                seccion.setSeccionSuperior(seccionTCUR);
             }
         }
 
         Map<String, Seccion> mapSecciones = new LinkedHashMap();
+        Map<String, List<Seccion>> mapSeccionesPCurBD = new LinkedHashMap();
+        Map<String, Seccion> mapSeccionesTCurBD = new LinkedHashMap();
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
             if (gpoSecc == null) {
@@ -1048,6 +1051,18 @@ public class ProgDataServiceImp implements ProgDataService {
                 seccionDAO.update(seccionBD);
             }
 
+            if (seccionBD.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
+                mapSeccionesTCurBD.put(gpoSecc.getCodigo(), seccionBD);
+            }
+            if (seccionBD.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                List<Seccion> seccionesPCUR = mapSeccionesPCurBD.get(gpoSecc.getCodigo());
+                if (seccionesPCUR == null) {
+                    seccionesPCUR = new ArrayList();
+                    mapSeccionesPCurBD.put(gpoSecc.getCodigo(), seccionesPCUR);
+                }
+                seccionesPCUR.add(seccionBD);
+            }
+
             gpoSecc.getSecciones().add(seccionBD);
             seccionBD.setDocenteSeccion(new ArrayList());
             seccionBD.setMatriculaSeccion(new ArrayList());
@@ -1055,6 +1070,16 @@ public class ProgDataServiceImp implements ProgDataService {
             mapSecciones.put(seccionBD.getCodigo(), seccionBD);
             loop++;
             logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
+        }
+
+        for (Map.Entry<String, Seccion> entry : mapSeccionesTCurBD.entrySet()) {
+            String gpoSeccCode = entry.getKey();
+            Seccion seccionTCUR = entry.getValue();
+            List<Seccion> seccionesPCUR = mapSeccionesPCurBD.get(gpoSeccCode);
+            for (Seccion seccionPCUR : seccionesPCUR) {
+                seccionPCUR.setSeccionSuperior(seccionTCUR);
+                seccionDAO.update(seccionPCUR);
+            }
         }
 
         return mapSecciones;
