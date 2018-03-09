@@ -35,4 +35,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     AlumnoCiclo findInhaSiguienteByAlumno(Alumno alumno, CicloAcademico cicloAcademico);
 
     AlumnoCiclo findInhaAnteriorByAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+
+    List<AlumnoCiclo> allAnterioresEQByCicloAlumno(Alumno alumno, CicloAcademico cicloAcademico, Integer limit);
 }

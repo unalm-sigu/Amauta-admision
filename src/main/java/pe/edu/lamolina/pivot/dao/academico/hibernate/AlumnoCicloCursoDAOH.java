@@ -33,6 +33,19 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
+    public AlumnoCicloCurso findByAlumnoCicloCursoEstados(Alumno alumno, CicloAcademico cicloAcademico, Curso curso, List<EstadoMatriculaEnum> estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .filter("al.id", alumno)
+                .filter("ca.id", cicloAcademico)
+                .filter("cur.id", curso)
+                .in("acc.estado", estados)
+                .in("ac.estado", estados);
+        return find(sql);
+    }
+
+    @Override
     public List<AlumnoCicloCurso> allActivoByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
