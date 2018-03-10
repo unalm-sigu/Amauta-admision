@@ -69,8 +69,11 @@ public interface AlumnoService {
     ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios);
 
     Hora getHoraByNroHora(Integer numero);
-    
+
+    List<MatriculaCurso> allCursosMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+
     List<Hora> allHoras();
+
     Alumno allInfo(Alumno alumno);
 
 }

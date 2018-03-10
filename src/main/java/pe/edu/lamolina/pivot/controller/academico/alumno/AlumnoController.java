@@ -36,8 +36,10 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -95,7 +97,7 @@ public class AlumnoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("resumen", service.findResumen());
-        
+
         return "academico/alumno/alumno";
     }
 
@@ -460,15 +462,40 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
-        //horas
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        ObjectNode alumnoJson = alumno.toJson();
+        List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+
+        ArrayNode array = new ArrayNode(factory);
+        for (MatriculaCurso matriculaCurso : matriculaCursos) {
+            ObjectNode matriculaCursoNode = matriculaCurso.toJson();
+
+            ArrayNode detalle = new ArrayNode(factory);
+            for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
+                ObjectNode node = new ObjectNode(factory);
+                node.put("tipo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.tipoSeccion"));
+                node.put("codigo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.codigo"));
+                node.put("grupo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.grupoHoras.codigo"));
+                node.put("aula", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.aula.codigo"));
+                DocenteSeccion docenteSeccion = matriculaSeccion.getSeccion().getDocenteSeccion().get(0);
+                node.put("docente", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.persona.nombreCompleto"));
+                node.put("docenteCodigo", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.codigo"));
+                detalle.add(node);
+            }
+            matriculaCursoNode.set("detalle", detalle);
+            array.add(matriculaCursoNode);
+        }
+
+        model.addAttribute("datoAlumno", alumnoJson);
+        model.addAttribute("matriculaCursos", array);
+
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = service.allHoras();
         for (Hora hora : horas) {
             horasJson.add(hora.toJson());
         }
         model.addAttribute("horasBD", horasJson);
-        //
         return "academico/alumno/infoAcademico";
     }
 

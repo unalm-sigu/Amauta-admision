@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,6 +30,7 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -109,7 +111,6 @@ public class AlumnoServiceImp implements AlumnoService {
     DiaDAO diaDAO;
     @Autowired
     HoraDAO horaDAO;
-
     @Autowired
     MailerService mailerService;
 
@@ -690,6 +691,50 @@ public class AlumnoServiceImp implements AlumnoService {
     public Alumno allInfo(Alumno alumno) {
         Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
         return alu;
+    }
+
+    @Override
+    public List<MatriculaCurso> allCursosMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
+
+        List<Seccion> secciones = new ArrayList();
+        Map<Long, Seccion> mapSecciones = new LinkedHashMap();
+        Map<Long, List<MatriculaSeccion>> mapMatriculaSecciones = new LinkedHashMap();
+
+        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, ciclo);
+        for (MatriculaSeccion ms : matriculaSecciones) {
+            Seccion seccion = ms.getSeccion();
+            seccion.setDocenteSeccion(new ArrayList());
+            secciones.add(seccion);
+            mapSecciones.put(seccion.getId(), seccion);
+
+            Curso curso = ms.getSeccion().getGrupoSeccion().getCurso();
+            List<MatriculaSeccion> matriculaSeccionesCurso = mapMatriculaSecciones.get(curso.getId());
+            if (matriculaSeccionesCurso == null) {
+                matriculaSeccionesCurso = new ArrayList();
+                mapMatriculaSecciones.put(curso.getId(), matriculaSeccionesCurso);
+            }
+            matriculaSeccionesCurso.add(ms);
+        }
+
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allBySecciones(secciones);
+        for (DocenteSeccion profeSeccion : docentesSecciones) {
+            if (!profeSeccion.esDocentePrincipal()) {
+                continue;
+            }
+            Seccion seccionProfe = profeSeccion.getSeccion();
+            Seccion seccion = mapSecciones.get(seccionProfe.getId());
+            profeSeccion.setSeccion(seccion);
+            seccion.getDocenteSeccion().add(profeSeccion);
+        }
+
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, ciclo);
+        for (MatriculaCurso mc : matriculaCursos) {
+            Curso curso = mc.getCurso();
+            mc.setMatriculaSeccion(mapMatriculaSecciones.get(curso.getId()));
+        }
+
+        return matriculaCursos;
+
     }
 
 }

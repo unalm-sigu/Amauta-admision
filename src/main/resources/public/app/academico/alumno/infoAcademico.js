@@ -23,7 +23,7 @@ let app = new Vue({
         cursosMatriculados: [],
         creditosMatriculado: "",
         cursosMatriculado: "",
-
+        cursos: [],
         coloresCurso: [],
         secciones: [],
         horas: [],
@@ -62,7 +62,23 @@ let app = new Vue({
         $vue.cargaInicio();
     },
     computed: {
+        mostrarCreditos() {
+            if (this.alumnoInfo.creditosCursados !== undefined && this.alumnoInfo.creditosCursados !== 0) {
+                return true;
+            }
+            return false;
+        },
+        mostrarOrientacion() {
+            if (this.alumno.planCurricular.orientacionCarrera !== undefined) {
+                return true;
+            }
+            return false;
+        },
+    },
+    beforeMount() {
+        let $vue = this;
 
+        $vue.cursos = JSON.parse(cursosJson);
     },
     mounted: function () {
         let $vue = this;
@@ -75,21 +91,21 @@ let app = new Vue({
         cicloSelecc: function (cicloSelecc) {
             let $vue = this;
             $vue.searchCiclo = cicloSelecc;
-            $vue.cargaAvance()
+            $vue.cargaAvance();
         },
         updateTabs: function (tab) {
 
             let $vue = this;
             $vue.tabId = tab.id;
-            if ($vue.tabId == 2) {
+            if ($vue.tabId === 2) {
                 this.cargaHistorial();
-            } else if ($vue.tabId == 3) {
+            } else if ($vue.tabId === 3) {
                 this.cargaAvance();
-            } else if ($vue.tabId == 4) {
+            } else if ($vue.tabId === 4) {
                 this.cargaMatricula();
-            } else if ($vue.tabId == 5) {
+            } else if ($vue.tabId === 5) {
                 $vue.cargaHorario();
-            } else if ($vue.tabId == 1) {
+            } else if ($vue.tabId === 1) {
                 this.cargaInicio();
             }
 
@@ -434,7 +450,7 @@ let app = new Vue({
                     $vue.settingSeccionColor();
                     $vue.settingHoras();
                     $vue.validandoTabla();
-              }
+                }
             });
         },
         styleMenu(index) {
@@ -448,7 +464,8 @@ let app = new Vue({
         verMalla() {
             let $vue = this;
             var id = $vue.alumno.planCurricular.id;
-           if(id === undefined) return;
+            if (id === undefined)
+                return;
             $.ajax({
                 url: APP.url('academico/planCurricular/dataCurricula'),
                 type: 'POST',
@@ -456,7 +473,6 @@ let app = new Vue({
                 data: {id: id},
                 success: function (response) {
                     if (response.success) {
-                        console.log(JSON.stringify(response.data, null, 2));
                         $vue.buildMalla(response.data);
                     } else {
                         notify(response.message, "error");
@@ -538,7 +554,6 @@ let app = new Vue({
                     var x2 = x1 + ww;
                     var xc = x1 + ww / 2 - 60;
                     var tempXC = xc + 'px';
-                    console.log(xc)
                     var y1 = pad + (hh + pady) * (cursos[row].numeroCurso - 1);
                     var y2 = y1 + hh;
                     var yc = y1 + hh / 2 - 15;
@@ -583,7 +598,7 @@ let app = new Vue({
 
                     } else if (data.length == 3) {
                         var y1 = (yc - 17) + 'px';
-                        var y2 = (yc -1) + 'px';
+                        var y2 = (yc - 1) + 'px';
                         var y3 = (yc + 15) + 'px';
                         var t1 = draw.text(data[0]).move(tempXC, y1).fill(colorLetra[cursos[row]["tipo"]]);
                         var t2 = draw.text(data[1]).move(tempXC, y2).fill(colorLetra[cursos[row]["tipo"]]);
@@ -639,6 +654,49 @@ let app = new Vue({
             data[idx] = cod + " - " + cred + " crédito";
             data[idx] += (cred == 1) ? "" : "s";
             return data;
+        },
+        colornota(nota) {
+            let $vue = this;
+            if ($vue.alumno.modalidadEstudio.nombre === 'Posgrado') {
+                return {
+                    'text-danger': nota < 13
+                };
+            } else {
+                return {
+                    'text-danger': nota < 11
+                };
+            }
+        },
+        displayCreditos(item) {
+            if (item.curso.creditos === 1) {
+                return "1 crédito";
+            } else {
+                return item.curso.creditos + " créditos";
+            }
+        },
+        labelclass(item) {
+            return {
+                'label-success': item.estado === 'MAT',
+                'label-warning': item.estado === 'PMAT',
+                'label-danger': item.estado === 'RCU' || item.estado === 'RET' || item.estado === 'RCI'
+            };
+        },
+        labeltext(item) {
+            switch (item.estado) {
+                case 'MAT':
+                    return 'Matriculado';
+                case 'PMAT':
+                    return 'Prematriculado';
+                case 'RCU':
+                    return 'Retirado Curso';
+                case 'RCI':
+                    return 'Retirado Ciclo';
+                case 'RET':
+                    return 'Retirado';
+            }
+        },
+        verDetalleCurso(id) {
+            location.href = APP.url("academico/cursosmatriculados/" + id + "/curso");
         }
     }
 

@@ -84,8 +84,9 @@
         <script th:inline="javascript">
             /*<![CDATA[*/
             var alumnoJson = /*[[${datoAlumno.toString()}]]*/ 'json';
+            var cursosJson = /*[[${matriculaCursos.toString()}]]*/ 'json';
+            var horasJson = /*[[${horasBD.toString()}]]*/ 'json';
             /*]]>*/
-             var horasJson = /*[[${horasBD.toString()}]]*/ 'json';
         </script>
 
         <div th:substituteby="_layout/includes :: svgjs"/>
