@@ -84,6 +84,13 @@
     </body>
 
     <div layout:fragment="js">
+        <script  th:inline="javascript" >
+            /*<![CDATA[*/
+            var turno = /*[[${turnoAtencion.id}]]*/ '';
+            /*]]>*/
+        </script>
+        <script th:src="@{/vendor/wsockets/sockjs-0.3.4.min.js}" type="text/javascript" ></script>
+        <script th:src="@{/vendor/wsockets/stomp.min.js}" type="text/javascript" ></script>
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/matricular/matricular.js}" charset="utf-8"></script>
     </div>

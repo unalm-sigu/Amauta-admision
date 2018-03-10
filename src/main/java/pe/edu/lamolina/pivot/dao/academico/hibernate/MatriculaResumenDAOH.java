@@ -169,7 +169,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
-                .filter("mr.id", EstadoMatriculaEnum.NMAT)
+                .filter("mr.estado", EstadoMatriculaEnum.NMAT)
                 .orderBy("mr.prioridad");
         return all(sql);
     }

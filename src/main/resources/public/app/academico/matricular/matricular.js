@@ -19,7 +19,8 @@ new Vue({
     watch: {
         countdown: function(newVal, oldVal) {
             let vue = this;
-            if (newVal < 0) {
+            if (newVal === -1) {
+                console.log('call play');
                 vue.play();
                 clearInterval(vue.myCountDown);
             }
@@ -52,6 +53,7 @@ new Vue({
             vue.myCountDown = null;
         },
         play: function() {
+
             let vue = this;
             vue.initProceso = false;
             vue.onProceso = false;
@@ -60,18 +62,43 @@ new Vue({
             $.ajax({
                 url: APP.url('academico/matricular/iniciar'),
                 type: 'POST',
-                async: false,
-                data: {idAlumno: alumno},
+                async: true,
+                data: {id: turno},
                 success: function(response) {
                     if (response.success) {
-
+                        vue.stop();
                     } else {
+                        vue.stop();
                         notify(response.message, "error");
                     }
                 },
                 error: function() {
+                    vue.stop();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
+            });
+
+            vue.tracer();
+
+        },
+        tracer: function() {
+
+            var socket = new SockJS('/wsconnect');
+
+            stompClient = Stomp.over(socket);
+
+            stompClient.debug = null;
+
+            stompClient.connect({}, function(frame) {
+                console.log(frame);
+                stompClient.subscribe('/user/monitoreo/notify', function(notification) {
+                    var notificacion = JSON.parse(notification.body);
+                    console.log(notificacion);
+//                    if (notificacion.tipo == 'NOTIFICACION') {
+//                        notify(notificacion.message, "error");
+//                    } else {
+//                    }
+                });
             });
 
         },
