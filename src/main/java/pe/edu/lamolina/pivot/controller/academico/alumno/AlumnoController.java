@@ -50,6 +50,8 @@ import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
@@ -93,6 +95,7 @@ public class AlumnoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("resumen", service.findResumen());
+        
         return "academico/alumno/alumno";
     }
 
@@ -456,11 +459,16 @@ public class AlumnoController {
     public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        logger.debug("Ciclo academico : --- > {}" + ds.getCicloAcademico().getId() + " - " + idAlumno);
-        Alumno alumno = service.findAlumno(new Alumno(idAlumno));
-        logger.debug("Alumno: --- > {}" + alumno.getId());
+        Alumno alumno = service.allInfo(new Alumno(idAlumno));
         model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
-
+        //horas
+        ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<Hora> horas = service.allHoras();
+        for (Hora hora : horas) {
+            horasJson.add(hora.toJson());
+        }
+        model.addAttribute("horasBD", horasJson);
+        //
         return "academico/alumno/infoAcademico";
     }
 
@@ -469,7 +477,7 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         String codigo = service.goMatricula(idAlumno);
-        
+
         session.invalidate();
         return "redirect:http://localhost:9977/amauta/" + codigo;
     }
@@ -507,6 +515,7 @@ public class AlumnoController {
                 }
                 objNode.set("cursos", lstCurso);
                 lstNode.add(objNode);
+                response.setSuccess(true);
             }
             response.setData(lstNode);
         } catch (PhobosException e) {
@@ -539,12 +548,83 @@ public class AlumnoController {
             }
             objNode.set("cursos", lstCurso);
             response.setData(objNode);
+            response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/alumno", method = RequestMethod.GET)
+    public JsonResponse allAlumno(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            Alumno alumno = service.allInfo(new Alumno(idAlumno));
+
+            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
+            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
+            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
+            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
+            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
+            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
+            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
+            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
+            if (alumno.getPlanCurricular() != null) {
+                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
+            }
+            objNode.set("alumno", objNodeInfo);
+            response.setData(objNode);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/horario", method = RequestMethod.GET)
+    public JsonResponse alumnoLoadHorario(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico academico = ds.getCicloAcademico();
+        try {
+            List<HorarioSeccion> seccionesHorarios = service.allSeccionHorarioAlumnoByAlumnoCicloACademico(new Alumno(idAlumno), academico);
+            ObjectNode horarios = service.findHorarioBySeccionesHorarios(seccionesHorarios);
+            response.setData(horarios);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{numero}/hora", method = RequestMethod.GET)
+    public JsonResponse getHoraByNroHora(@PathVariable("numero") Integer numero, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            Hora hora = service.getHoraByNroHora(numero);
+            response.setData(hora.toJson());
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 }

@@ -1,5 +1,7 @@
+
 $(function () {
 
+    $(".date").datepickerBoot();
     var dynatableCursosObl = $('#dynaTableCurObl').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/planCurricular/cursosObligatorios'),
@@ -119,7 +121,7 @@ $(function () {
         tipoCursoCurricula: null,
         record: null,
         init: function () {
-            $('#inpDateFechaVig').datepicker();
+//            $('.date').datepicker();
             if (NuevaCurricula.idPlan != null) {
                 $(NuevaCurricula.numeroCicloElegido).attr("rel", "1")
                 NuevaCurricula.numeroCicloElegido = $("li.ver-tab-ciclo-cur-obl").first();
@@ -1031,7 +1033,8 @@ $(function () {
                 return;
             }
             var rowCount = $('#tableEquivalentesObli tr').length;
-            if(rowCount === 0) return;
+            if (rowCount === 0)
+                return;
 
             $.ajax({
                 url: APP.url('academico/planCurricular/saveGrupoEquivalente'),
@@ -1387,8 +1390,7 @@ $(function () {
             var draw = SVG('divMalla').size((ww + 2 * padx) * ciclos.length, pad + (hh + pady) * maxRows);
             for (var col = 0; col < ciclos.length; col++) {
                 var text = draw.text("Ciclo " + ciclos[col].numeroRomano).addClass("h4");
-                text.cx((ww + 2 * padx) / 2 + (ww + 2 * padx) * col);
-                text.cy(20);
+                text.move(((ww + 2 * padx) / 2 + (ww + 2 * padx) * col - 30) + 'px', '5px');
             }
 
             var lazos = {};
@@ -1428,10 +1430,13 @@ $(function () {
                 for (var row = 0; row < cursos.length; row++) {
                     var x1 = padx + (ww + 2 * padx) * col;
                     var x2 = x1 + ww;
-                    var xc = x1 + ww / 2;
+                    var xc = x1 + ww / 2 - 60;
+                    var tempXC = xc + 'px';
+                    console.log(xc)
                     var y1 = pad + (hh + pady) * (cursos[row].numeroCurso - 1);
                     var y2 = y1 + hh;
-                    var yc = y1 + hh / 2;
+                    var yc = y1 + hh / 2 - 15;
+                    var tempYC = yc + 'px';
 
                     var polygon = draw.rect(ww, hh).radius(5).fill(colorBG[cursos[row]["tipo"]]).move(x1, y1).stroke({color: colorDot, width: 1});
                     var dot1 = draw.rect(10, 10).fill("#fff").move(x1 - 5, yc - 5).stroke({color: colorDot, width: 1});
@@ -1454,7 +1459,7 @@ $(function () {
                         NuevaCurricula.moveCurso(idCurso, "UP");
                     });
 
-                    var tncur = draw.text(cursos[row]["numeroCurso"] + "").move(x1 + 2, y2 - 14).fill(colorLetra[cursos[row]["tipo"]]).style("font-size", "7");
+                    var tncur = draw.text(cursos[row]["numeroCurso"] + "").move((x1 + 4) + 'px', (y2 - 26) + 'px').fill(colorLetra[cursos[row]["tipo"]]).style("font-size", "12px");
                     var group = draw.group();
                     group.add(polygon);
                     group.add(dot1);
@@ -1478,15 +1483,25 @@ $(function () {
 
                     var data = NuevaCurricula.getConteCurso(cursos[row].curso, cursos[row].codigo, cursos[row].creditos);
                     if (data.length == 2) {
-                        var t1 = draw.text(data[0]).cx(xc).cy(yc - 8).fill(colorLetra[cursos[row]["tipo"]]);
-                        var t2 = draw.text(data[1]).cx(xc).cy(yc + 8).fill(colorLetra[cursos[row]["tipo"]]);
+                        var y1 = yc - 8;
+                        var y1 = y1 + 'px';
+                        var y2 = yc + 8;
+                        var y2 = y2 + 'px';
+
+                        var t1 = draw.text(data[0]).move(tempXC, y1).fill(colorLetra[cursos[row]["tipo"]]);
+                        var t2 = draw.text(data[1]).move(tempXC, y2).fill(colorLetra[cursos[row]["tipo"]]);
+                        console.log(xc.toFixed(3));
+                        console.log(yc.toFixed(3));
                         group.add(t1);
                         group.add(t2);
 
                     } else if (data.length == 3) {
-                        var t1 = draw.text(data[0]).cx(xc).cy(yc - 16).fill(colorLetra[cursos[row]["tipo"]]);
-                        var t2 = draw.text(data[1]).cx(xc).cy(yc).fill(colorLetra[cursos[row]["tipo"]]);
-                        var t3 = draw.text(data[2]).cx(xc).cy(yc + 16).fill(colorLetra[cursos[row]["tipo"]]);
+                        var y1 = (yc - 16) + 'px';
+                        var y2 = (yc) + 'px';
+                        var y3 = (yc + 16) + 'px';
+                        var t1 = draw.text(data[0]).move(tempXC, y1).fill(colorLetra[cursos[row]["tipo"]]);
+                        var t2 = draw.text(data[1]).move(tempXC, y2).fill(colorLetra[cursos[row]["tipo"]]);
+                        var t3 = draw.text(data[2]).move(tempXC, y3).fill(colorLetra[cursos[row]["tipo"]]);
                         group.add(t1);
                         group.add(t2);
                         group.add(t3);

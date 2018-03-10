@@ -1827,7 +1827,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional
     public void saveCerrarActa(GrupoSeccion grupoSeccion, Usuario usuario) {
         grupoSeccion = this.findGrupo(grupoSeccion.getId());
-
+        DateTime today = new DateTime();
         if (grupoSeccion.isEstadoGrupoCerrado()) {
             throw new PhobosException("No se puede cerrar el acta debido a que el acta ya se encuentra cerrada.");
         }
@@ -1863,7 +1863,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(", ", lstSeccionesIncompletes)));
         }
         grupoSeccion.setUsuarioCierraActa(usuario);
-        grupoSeccion.setFechaCierreActa(new DateTime().toDate());
+        grupoSeccion.setFechaCierreActa(today.toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
 
@@ -1874,10 +1874,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
         for (MatriculaCurso matriculaCurso : matriculasCurso) {
-            matriculaCurso.getMatriculaResumen().getAlumno();
+            Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
-            matriculaCurso.getCurso();
-            promedioService.promedio(matriculaCurso, usuario, true);
+            Curso curso = matriculaCurso.getCurso();
+            // promedioService.promedio(matriculaCurso, usuario, true);
+            promedioService.generarHistorialNotas(alumno, curso, matriculaCurso, grupoSeccion.getCicloAcademico(), usuario, today);
         }
 
     }

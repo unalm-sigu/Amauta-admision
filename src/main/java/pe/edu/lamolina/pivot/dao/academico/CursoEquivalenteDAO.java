@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 
 public interface CursoEquivalenteDAO extends EasyDAO<CursoEquivalente> {
 
@@ -13,5 +14,6 @@ public interface CursoEquivalenteDAO extends EasyDAO<CursoEquivalente> {
     
     List<CursoEquivalente> allActivoByCursoCurricula(CursoCurricula cursoCurricula);
     
+    List<CursoEquivalente> allActivoByPlanCurricular(PlanCurricular planCurricular);
 }
 

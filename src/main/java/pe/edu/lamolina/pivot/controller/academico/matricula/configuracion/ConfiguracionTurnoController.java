@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,7 @@ import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
+import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -39,6 +41,9 @@ public class ConfiguracionTurnoController {
 
     @Autowired
     ConfiguracionMatriculaService service;
+    
+    @Autowired
+    InterceptorService interceptorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -134,15 +139,18 @@ public class ConfiguracionTurnoController {
 
     @ResponseBody
     @RequestMapping(value = "configuracion", method = RequestMethod.POST)
-    public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
+    public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session,HttpServletRequest servlet) {
         JsonResponse response = new JsonResponse();
-
         try {
 
             Long Id = service.saveConfiguracion(config);
+//            config.toJson().put("tipo", "creacion de turnos");
+//            config.toJson().put("ciclo", 473);
+//            interceptorService.saveInterceptor(servlet, config.toJson());
             response.setSuccess(true);
             response.setData(Id);
             response.setMessage("Se guardó la configuración satisfactoriamente");
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 

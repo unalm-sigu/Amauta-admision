@@ -1,0 +1,32 @@
+<div>
+    <label><strong>Modalidad de estudio: </strong></label>
+    <span v-text="alumnoInfo.modalidad"></span>
+</div>
+<div>
+    <label><strong>Carrera: </strong></label>
+    <span v-text="alumnoInfo.carrera"></span>
+</div>
+<div>
+    <label><strong>Facultad: </strong></label>
+    <span v-text="alumnoInfo.facultad"></span>
+</div>
+<div>
+    <label><strong>Cantidad de créditos: </strong></label>
+    <span v-text="alumnoInfo.creditosCursados"></span>
+</div>
+<div>
+    <label><strong>Cantidad de créditos aprobados: </strong></label>
+    <span v-text="alumnoInfo.creditosAprobados"></span>
+</div>
+<div>
+    <label><strong>Promedio: </strong></label>
+    <span v-text="alumnoInfo.promedioAcumulado"></span>
+</div>
+<div v-if="alumnoInfo.cicloIngreso != ''">
+    <label><strong>Ciclo de ingreso: </strong></label>
+    <span v-text="alumnoInfo.cicloIngreso"></span>
+</div>
+<div v-if="alumnoInfo.ultimoCiclo != ''">
+    <label><strong>Ultimo ciclo: </strong></label>
+    <span v-text="alumnoInfo.ultimoCiclo"></span>
+</div>
