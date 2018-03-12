@@ -124,6 +124,11 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
+    public Alumno allInfo(Alumno alumno) {
+        return alumnoDAO.findAllInfo(alumno.getId());
+    }
+
+    @Override
     public AlumnoResumen findResumen() {
         return alumnoDAO.findResumen();
     }
@@ -142,26 +147,6 @@ public class AlumnoServiceImp implements AlumnoService {
     public List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno) {
 
         return alumnoCicloCursoDAO.findHistorial(alumno);
-    }
-
-    @Override
-    public List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno) {
-        List<AlumnoCicloCurso> cursosCiclos = alumnoCicloCursoDAO.allByAlumno(alumno);
-        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumnoCiclo.id", "alumnoCiclo", cursosCiclos);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", cursosCiclos);
-
-        List<AlumnoCiclo> promedios = new ArrayList(mapAlumnoCiclo.values());
-        for (AlumnoCiclo promedio : promedios) {
-            List<AlumnoCicloCurso> cursos = mapAlumnoCicloCurso.get(promedio.getId());
-            promedio.setAlumnoCicloCurso(cursos);
-        }
-        return promedios;
-    }
-
-    @Override
-    public List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno) {
-
-        return alumnoCicloCursoDAO.allByAlumnoOrdeyByCurso(alumno);
     }
 
 //    @Override
@@ -207,11 +192,6 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<ModalidadEstudio> allModalidadEstudioByCodigos(List<String> codigos) {
         return modalidadEstudioDAO.allByCodigos(codigos);
-    }
-
-    @Override
-    public void generarAvance(Alumno alumno, DataSessionPivot ds) {
-        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
 
     @Override
@@ -689,61 +669,6 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public Hora getHoraByNroHora(Integer numero) {
         return horaDAO.findByNumeroHora(numero);
-    }
-
-    @Override
-    public List<Hora> allHoras() {
-        return horaDAO.allHora();
-    }
-
-    @Override
-    public Alumno allInfo(Alumno alumno) {
-        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
-        return alu;
-    }
-
-    @Override
-    public List<MatriculaCurso> allCursosMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
-
-        List<Seccion> secciones = new ArrayList();
-        Map<Long, Seccion> mapSecciones = new LinkedHashMap();
-        Map<Long, List<MatriculaSeccion>> mapMatriculaSecciones = new LinkedHashMap();
-
-        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCiclo(alumno, ciclo);
-        for (MatriculaSeccion ms : matriculaSecciones) {
-            Seccion seccion = ms.getSeccion();
-            seccion.setDocenteSeccion(new ArrayList());
-            secciones.add(seccion);
-            mapSecciones.put(seccion.getId(), seccion);
-
-            Curso curso = ms.getSeccion().getGrupoSeccion().getCurso();
-            List<MatriculaSeccion> matriculaSeccionesCurso = mapMatriculaSecciones.get(curso.getId());
-            if (matriculaSeccionesCurso == null) {
-                matriculaSeccionesCurso = new ArrayList();
-                mapMatriculaSecciones.put(curso.getId(), matriculaSeccionesCurso);
-            }
-            matriculaSeccionesCurso.add(ms);
-        }
-
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allBySecciones(secciones);
-        for (DocenteSeccion profeSeccion : docentesSecciones) {
-            if (!profeSeccion.esDocentePrincipal()) {
-                continue;
-            }
-            Seccion seccionProfe = profeSeccion.getSeccion();
-            Seccion seccion = mapSecciones.get(seccionProfe.getId());
-            profeSeccion.setSeccion(seccion);
-            seccion.getDocenteSeccion().add(profeSeccion);
-        }
-
-        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, ciclo);
-        for (MatriculaCurso mc : matriculaCursos) {
-            Curso curso = mc.getCurso();
-            mc.setMatriculaSeccion(mapMatriculaSecciones.get(curso.getId()));
-        }
-
-        return matriculaCursos;
-
     }
 
 }

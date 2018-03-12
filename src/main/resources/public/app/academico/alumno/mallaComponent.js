@@ -7,17 +7,19 @@ Vue.component("malla-component", {
         let $vue = this;
         $vue.verMalla();
     },
-     computed: {
-      titulo() {
-          return this.alumno.planCurricular.carrera.nombre + ' ' +  this.alumno.planCurricular.cicloInicioVigencia.descripcion;
-      }  
+    computed: {
+        titulo() {
+            if (this.alumno.planCurricular === undefined || this.alumno.planCurricular === null)
+                return '';
+            return 'Malla Curricular de ' + this.alumno.planCurricular.carrera.nombre + ': ' + this.alumno.planCurricular.cicloInicioVigencia.descripcion;
+        }
     },
     methods: {
         verMalla() {
             let $vue = this;
-            var id = this.alumno.planCurricular.id;
-            if (id === undefined)
+            if (this.alumno.planCurricular === undefined || this.alumno.planCurricular === null)
                 return;
+            var id = this.alumno.planCurricular.id;
             $.ajax({
                 url: APP.url('academico/planCurricular/dataCurricula'),
                 type: 'POST',
@@ -48,7 +50,6 @@ Vue.component("malla-component", {
             var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff"};
             var colorLine = "#E74C3C";
             var colorDot = "#34495E";
-            var colorArrow = "#D7DBDD";
             var maxRows = 0;
             for (var col = 0; col < ciclos.length; col++) {
                 var cursos = ciclos[col].cursos;

@@ -32,7 +32,7 @@ new Vue({
     },
     computed: {
         tituloHorario() {
-            return 'Horario ' + this.ciclo.descripcion;
+            return 'Horario de Clases ' + this.ciclo.descripcion;
         }
     },
     created() {
@@ -52,7 +52,6 @@ new Vue({
         if ($vue.alumno.carrera.codigo == $vue.alumno.carrera.facultad.codigo) {
             $vue.facu = false;
         }
-        $vue.cargaInicio();
     },
     mounted: function () {
         let $vue = this;

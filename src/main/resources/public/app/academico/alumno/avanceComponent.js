@@ -64,12 +64,14 @@ Vue.component("avance-component", {
         },
         generarAvance() {
             let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + $vue.alumno.id + '/generaravance'),
                 contentType: "application/json",
                 success: function (response) {
                     $vue.cargaAvance();
+                    MODAL.hideWait();
                 }
             });
         },

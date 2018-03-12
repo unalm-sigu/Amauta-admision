@@ -15,7 +15,10 @@ Vue.component("matricula-component", {
         },
         cantidadCreditos() {
             let $vue = this;
-            return $vue.cursos.map(x => x.curso.creditos).reduce((a, b) => a + b);
+            if ($vue.cursos.length > 0)
+                return $vue.cursos.map(x => x.curso.creditos).reduce((a, b) => a + b);
+            else
+                return 0;
         }
     },
     mounted() {

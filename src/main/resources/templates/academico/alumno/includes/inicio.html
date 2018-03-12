@@ -31,20 +31,20 @@
         <div v-if="alumno.promedioAcumulado > 0">
             <label><strong>Promedio Acumulado: </strong></label>
             <span v-text="alumno.promedioAcumulado"></span>
-        </div><!--
-        <div v-if="alumnoInfo.cicloIngreso != ''">
-            <label><strong>Ciclo de Ingreso: </strong></label>
-            <span v-text="alumnoInfo.cicloIngreso"></span>
         </div>
-        <div v-if="alumnoInfo.cicloIngreso != ''">
+        <div>
+            <label><strong>Ciclo Ingreso: </strong></label>
+            <span v-text="alumno.cicloIngreso.descripcion"></span>
+        </div>
+        <div v-if="alumno.postulantePregrado !== undefined">
             <label><strong>Modalidad de Ingreso: </strong></label>
-            <span v-text="alumnoInfo.cicloIngreso"></span>
+            <span v-text="alumno.postulantePregrado.modalidadIngreso.nombre"></span>
         </div>
-        <div v-if="alumnoInfo.ultimoCiclo != ''">
-            <label><strong>Ultimo ciclo: </strong></label>
-            <span v-text="alumnoInfo.ultimoCiclo"></span>
+        <div>
+            <label><strong>Ciclo Activo: </strong></label>
+            <span v-text="alumno.cicloActivo.descripcion"></span>
         </div>
--->        <div v-if="alumno.retirosCursos > 0">
+        <div v-if="alumno.retirosCursos > 0">
             <label><strong>Retiros de Cursos: </strong></label>
             <span v-text="alumno.retirosCursos"></span>
         </div>

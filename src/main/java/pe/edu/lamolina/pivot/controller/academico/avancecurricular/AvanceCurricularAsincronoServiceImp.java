@@ -31,6 +31,7 @@ import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.EQUIV;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.NREQ;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.SIM;
+import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.CONV;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
@@ -112,7 +113,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
             DataSessionPivot ds) {
-        
+
         procesarAlumnoSincrono(alumno, cursosCurricula, mapRequisitos, mapEquivalentes, ds);
 
     }
@@ -265,7 +266,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (alumnoCursoCurricula == null) {
                 continue;
             }
-            alumnoCursoCurricula.setEstado(APR.name());
+            if (cursoAprobado.getNota().equals("TE")) {
+                alumnoCursoCurricula.setEstado(CONV.name());
+            } else {
+                alumnoCursoCurricula.setEstado(APR.name());
+            }
             alumnoCursoCurricula.setCicloAprobado(cursoAprobado.getAlumnoCiclo().getCicloAcademico());
             alumnoCursoCurricula.setCreditos(cursoAprobado.getCreditos());
             alumnoCursoCurricula.setNota(cursoAprobado.getNota());
@@ -372,7 +377,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     convalidacion.setCurso(alumnoCicloCurso.getCurso());
                     convalidacion.setCursoCurricula(acc.getCursoCurricula());
                     convalidacion.setCursoOpcional(null);
-                    convalidacion.setEstado(CursoCurriculaEstadoEnum.APR.name());
+                    if (alumnoCicloCurso.getNota().equals("TE")) {
+                        convalidacion.setEstado(CONV.name());
+                    } else {
+                        convalidacion.setEstado(APR.name());
+                    }
                     convalidacion.setNota(alumnoCicloCurso.getNota());
                     convalidacion.setNumeroCiclo(acc.getNumeroCiclo());
                     convalidacion.setValidado(true);
@@ -428,7 +437,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 continue;
             }
             AlumnoCursoCurricula cursoRequisito = cursos.get(requisito.getCursoRequisito().getId());
-            if (cursoRequisito == null || (cursoRequisito.getEstadoEnum() != APR && cursoRequisito.getEstadoEnum() != EQUIV)) {
+            if (cursoRequisito == null || (cursoRequisito.getEstadoEnum() != APR && cursoRequisito.getEstadoEnum() != EQUIV && cursoRequisito.getEstadoEnum() != CONV)) {
                 requisitosCumplidos = false;
                 break;
             }

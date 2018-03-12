@@ -5,90 +5,100 @@
             <div class="pull-right m-t-n">
             </div>
         </div>
-        <div class="row m-b-md">
-            <div class="col-md-3 col-md-offset-2">
-                <div class="col-md-7 text-right">
-                    <span > Cantidad de cursos: </span>
-                </div>
-                <div class="col-md-5 text-left">
-                    <span class="estado-blue" v-text="cursos.length"></span>
-                </div>
-            </div>
-            <div class="col-md-3 col-md-offset-2">
-                <div class="col-md-7 text-right">
-                    <span > Cantidad de créditos: </span>
-                </div>
-                <div class="col-md-5 text-left">
-                    <span class="estado-blue" v-text="cantidadCreditos"></span>
-                </div>
+        <div v-if="cursos.length === 0">
+            <div class="row">
+                <span class="text-muted col-md-12">
+                    No tiene cursos matriculados en el ciclo
+                </span>
             </div>
         </div>
-        <table class="table table-body-hover">
-            <thead>
-                <tr>
-                    <th class="col-md-4 v-middle text-left">Curso</th>
-                    <th></th>
-                    <th class="col-md-1 v-middle text-center">Clave</th>
-                    <th class="col-md-1 v-middle text-center">Grupo</th>
-                    <th class="col-md-1 v-middle text-center">Aula</th>
-                    <th class="col-md-3 v-middle text-left">Docente</th>
-                    <th class="col-md-1 v-middle text-center">Nota Final</th>
-                    <th class="col-md-1 v-middle text-center">Estado</th>
-                </tr>
-            </thead>
-            <tbody  v-for="item in cursos" v-bind:key="item.id">
-                <tr>
-                    <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1">
-                        <span class="block m-t-sm">
-                            <span class="text-left h4 text-primary bold" v-text="item.curso.nombre"/>
-                            <span class="block text-muted p-no-margin" v-text="item.curso.codigo + ' ' + displayCreditos(item)"/>
-                            <span class="block text-muted m-b-sm" v-text="item.curso.departamentoAcademico.nombre"/>
-                        </span>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-if="item.detalle[0].tipo==='PCUR'" class="fa fa-flask"/>
-                        <span v-else="" class="fa fa-book"/>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-text="item.detalle[0].codigo"/>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-text="item.detalle[0].grupo"/>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-text="item.detalle[0].aula"/>
-                    </td>
-                    <td class="v-middle">
-                        <span v-if="item.detalle[0].docenteCodigo !== 'N.N.'" v-text="item.detalle[0].docenteCodigo + ' - '+ item.detalle[0].docente"/>
-                        <span v-else="" v-text="item.detalle[0].docenteCodigo + ' - Desconocido'"/>
-                    </td>
-                    <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1" class="v-middle text-center">
-                        <span v-bind:class="colornota(item.notaFinal)" v-text="item.notaFinal"/>
-                    </td>
-                    <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1" class="v-middle text-center">
-                        <span class="label" v-bind:class="labelclass(item)" v-text="labeltext(item)"></span>
-                    </td>
-                </tr>
-                <tr v-if="item.curso.tipoCurso === 'TEOPRA'">
-                    <td class="text-center v-middle">
-                        <span v-if="item.detalle[1].tipo==='PCUR'" class="fa fa-flask"/>
-                        <span v-else="" class="fa fa-book"/>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-text="item.detalle[1].codigo"/>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-text="item.detalle[1].grupo"/>
-                    </td>
-                    <td class="text-center v-middle">
-                        <span v-text="item.detalle[1].aula"/>
-                    </td>
-                    <td class="v-middle">
-                        <span v-if="item.detalle[1].docenteCodigo !== 'N.N.'" v-text="item.detalle[1].docenteCodigo + ' - '+ item.detalle[1].docente"/>
-                        <span v-else="" v-text="item.detalle[1].docenteCodigo + ' - Desconocido'"/>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div v-else="">
+            <div class="row m-b-md">
+                <div class="col-md-3 col-md-offset-2">
+                    <div class="col-md-7 text-right">
+                        <span > Cantidad de cursos: </span>
+                    </div>
+                    <div class="col-md-5 text-left">
+                        <span class="estado-blue" v-text="cursos.length"></span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-md-offset-2">
+                    <div class="col-md-7 text-right">
+                        <span > Cantidad de créditos: </span>
+                    </div>
+                    <div class="col-md-5 text-left">
+                        <span class="estado-blue" v-text="cantidadCreditos"></span>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-body-hover">
+                <thead>
+                    <tr>
+                        <th class="col-md-4 v-middle text-left">Curso</th>
+                        <th></th>
+                        <th class="col-md-1 v-middle text-center">Clave</th>
+                        <th class="col-md-1 v-middle text-center">Grupo</th>
+                        <th class="col-md-1 v-middle text-center">Aula</th>
+                        <th class="col-md-3 v-middle text-left">Docente</th>
+                        <th class="col-md-1 v-middle text-center">Nota Final</th>
+                        <th class="col-md-1 v-middle text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody  v-for="item in cursos" v-bind:key="item.id">
+                    <tr>
+                        <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1">
+                            <span class="block m-t-sm">
+                                <span class="text-left h4 text-primary bold" v-text="item.curso.nombre"/>
+                                <span class="block text-muted p-no-margin" v-text="item.curso.codigo + ' ' + displayCreditos(item)"/>
+                                <span class="block text-muted m-b-sm" v-text="item.curso.departamentoAcademico.nombre"/>
+                            </span>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-if="item.detalle[0].tipo==='PCUR'" class="fa fa-flask"/>
+                            <span v-else="" class="fa fa-book"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-text="item.detalle[0].codigo"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-text="item.detalle[0].grupo"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-text="item.detalle[0].aula"/>
+                        </td>
+                        <td class="v-middle">
+                            <span v-if="item.detalle[0].docenteCodigo !== 'N.N.'" v-text="item.detalle[0].docenteCodigo + ' - '+ item.detalle[0].docente"/>
+                            <span v-else="" v-text="item.detalle[0].docenteCodigo + ' - Desconocido'"/>
+                        </td>
+                        <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1" class="v-middle text-center">
+                            <span v-bind:class="colornota(item.notaFinal)" v-text="item.notaFinal"/>
+                        </td>
+                        <td v-bind:rowspan="item.curso.tipoCurso === 'TEOPRA' ? 2 : 1" class="v-middle text-center">
+                            <span class="label" v-bind:class="labelclass(item)" v-text="labeltext(item)"></span>
+                        </td>
+                    </tr>
+                    <tr v-if="item.curso.tipoCurso === 'TEOPRA'">
+                        <td class="text-center v-middle">
+                            <span v-if="item.detalle[1].tipo==='PCUR'" class="fa fa-flask"/>
+                            <span v-else="" class="fa fa-book"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-text="item.detalle[1].codigo"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-text="item.detalle[1].grupo"/>
+                        </td>
+                        <td class="text-center v-middle">
+                            <span v-text="item.detalle[1].aula"/>
+                        </td>
+                        <td class="v-middle">
+                            <span v-if="item.detalle[1].docenteCodigo !== 'N.N.'" v-text="item.detalle[1].docenteCodigo + ' - '+ item.detalle[1].docente"/>
+                            <span v-else="" v-text="item.detalle[1].docenteCodigo + ' - Desconocido'"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </section>
 </template>

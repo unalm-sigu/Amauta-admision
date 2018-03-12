@@ -16,7 +16,6 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AlumnoService {
 
@@ -29,10 +28,6 @@ public interface AlumnoService {
     Alumno findAlumno(Alumno alumno);
 
     List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno);
-
-    List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
-
-    List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno);
 
 //    List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 //
@@ -71,12 +66,5 @@ public interface AlumnoService {
 
     Hora getHoraByNroHora(Integer numero);
 
-    List<MatriculaCurso> allCursosMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
-
-    List<Hora> allHoras();
-
     Alumno allInfo(Alumno alumno);
-    
-    void generarAvance(Alumno alumno, DataSessionPivot ds);
-
 }

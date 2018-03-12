@@ -31,7 +31,6 @@ Vue.component("historial-component", {
                 success: function (response) {
                     if (response.success) {
                         $vue.alumnoCurso = response.data;
-                        console.log($vue.alumnoCurso);
                         var i = 1;
                         $vue.alumnoCurso.forEach(function (element) {
                             var obj = {id: 1, value: element.descripción};
