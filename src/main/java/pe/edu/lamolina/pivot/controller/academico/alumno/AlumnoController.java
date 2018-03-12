@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -36,8 +37,10 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -95,7 +98,7 @@ public class AlumnoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("resumen", service.findResumen());
-        
+
         return "academico/alumno/alumno";
     }
 
@@ -455,23 +458,6 @@ public class AlumnoController {
         return response;
     }
 
-    @RequestMapping("{idAlumno}/infoacademico")
-    public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        model.addAttribute("datoAlumno", alumno.toJsonInfoAcademico());
-        //horas
-        ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
-        List<Hora> horas = service.allHoras();
-        for (Hora hora : horas) {
-            horasJson.add(hora.toJson());
-        }
-        model.addAttribute("horasBD", horasJson);
-        //
-        return "academico/alumno/infoAcademico";
-    }
-
     @RequestMapping("{idAlumno}/gomatricula")
     public String goMatricula(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
 
@@ -480,82 +466,6 @@ public class AlumnoController {
 
         session.invalidate();
         return "redirect:http://localhost:9977/amauta/" + codigo;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "{idAlumno}/historial", method = RequestMethod.GET)
-    public JsonResponse alumnoHistorial(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-
-        try {
-            List<AlumnoCiclo> promedios = service.allPromediosByAlumno(new Alumno(idAlumno));
-            ArrayNode lstNode = new ArrayNode(JsonNodeFactory.instance);
-            for (AlumnoCiclo promedio : promedios) {
-                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-                objNode.put("ciclo", promedio.getCicloAcademico().getDescripcion2());
-                objNode.put("descripción", promedio.getCicloAcademico().getDescripcion());
-                objNode.put("promedio", promedio.getPromedioCiclo());
-                objNode.put("promedioPonderadoAcum", promedio.getPromedioAcumulado());
-                objNode.put("CreditoCursadosCiclo", promedio.getCreditosCursadosCiclo());
-                objNode.put("CreditoAprobadosAcu", promedio.getCreditosAprobadosAcumulados());
-                objNode.put("CreditoAprobaCiclo", promedio.getCreditosAprobadosCiclo());
-                objNode.put("creditoAcumulado", promedio.getCreditosAcumulados());
-                List<AlumnoCicloCurso> cursos = promedio.getAlumnoCicloCurso();
-
-                ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
-                for (AlumnoCicloCurso cicloCurso : cursos) {
-                    ObjectNode objCurso = new ObjectNode(JsonNodeFactory.instance);
-                    Curso curso = cicloCurso.getCurso();
-                    objCurso.put("curso", curso.getNombre());
-                    objCurso.put("codigo", curso.getCodigo());
-                    objCurso.put("creditos", cicloCurso.getCreditos());
-                    objCurso.put("nota", cicloCurso.getNota());
-
-                    lstCurso.add(objCurso);
-                }
-                objNode.set("cursos", lstCurso);
-                lstNode.add(objNode);
-                response.setSuccess(true);
-            }
-            response.setData(lstNode);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "{idAlumno}/listHistorial", method = RequestMethod.GET)
-    public JsonResponse alumnoListHistorial(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            List<AlumnoCicloCurso> alumnoCicloCurso = service.allPromediosByAlumnoOrderByCurso(new Alumno(idAlumno));
-
-            ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
-            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-            objNode.put("alumnoCodigo", alumnoCicloCurso.get(0).getAlumnoCiclo().getAlumno().getCodigo());
-            for (AlumnoCicloCurso curso : alumnoCicloCurso) {
-                ObjectNode objCurso = new ObjectNode(JsonNodeFactory.instance);
-                objCurso.put("curso", curso.getCurso().getNombre());
-                objCurso.put("codigo", curso.getCurso().getCodigo());
-                objCurso.put("creditos", curso.getCreditos());
-                objCurso.put("nota", curso.getNota());
-                lstCurso.add(objCurso);
-            }
-            objNode.set("cursos", lstCurso);
-            response.setData(objNode);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
     }
 
     @ResponseBody

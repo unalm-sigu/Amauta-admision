@@ -1,32 +1,60 @@
-<div>
-    <label><strong>Modalidad de estudio: </strong></label>
-    <span v-text="alumnoInfo.modalidad"></span>
-</div>
-<div>
-    <label><strong>Carrera: </strong></label>
-    <span v-text="alumnoInfo.carrera"></span>
-</div>
-<div>
-    <label><strong>Facultad: </strong></label>
-    <span v-text="alumnoInfo.facultad"></span>
-</div>
-<div>
-    <label><strong>Cantidad de créditos: </strong></label>
-    <span v-text="alumnoInfo.creditosCursados"></span>
-</div>
-<div>
-    <label><strong>Cantidad de créditos aprobados: </strong></label>
-    <span v-text="alumnoInfo.creditosAprobados"></span>
-</div>
-<div>
-    <label><strong>Promedio: </strong></label>
-    <span v-text="alumnoInfo.promedioAcumulado"></span>
-</div>
-<div v-if="alumnoInfo.cicloIngreso != ''">
-    <label><strong>Ciclo de ingreso: </strong></label>
-    <span v-text="alumnoInfo.cicloIngreso"></span>
-</div>
-<div v-if="alumnoInfo.ultimoCiclo != ''">
-    <label><strong>Ultimo ciclo: </strong></label>
-    <span v-text="alumnoInfo.ultimoCiclo"></span>
-</div>
+<template id="inicioComponent">
+    <section class="panel-body">
+        <div>
+            <label class="text-lg"><strong>Situacion Académica: </strong></label>
+            <span class="text-lg" v-text="alumno.situacionAcademica.nombre"></span>
+        </div>
+        <div>
+            <label><strong>Modalidad de Estudio: </strong></label>
+            <span v-text="alumno.modalidadEstudio.nombre"></span>
+        </div>
+        <div v-if="alumno.carrera.codigo !== alumno.carrera.facultad.codigo">
+            <label><strong>Carrera: </strong></label>
+            <span v-text="alumno.carrera.nombre"></span>
+        </div>
+        <div>
+            <label><strong>Facultad: </strong></label>
+            <span v-text="alumno.carrera.facultad.nombre"></span>
+        </div>
+        <div v-if="mostrarOrientacion">
+            <label><strong>Orientacion: </strong></label>
+            <span v-text="alumno.planCurricular.orientacionCarrera.nombre"></span>
+        </div>
+        <div v-if="mostrarCreditos">
+            <label><strong>Créditos Cursados: </strong></label>
+            <span v-text="alumno.creditosCursados"></span>
+        </div>
+        <div v-if="mostrarCreditos">
+            <label><strong>Créditos Aprobados: </strong></label>
+            <span v-text="alumno.creditosAprobados"></span>
+        </div>
+        <div v-if="alumno.promedioAcumulado > 0">
+            <label><strong>Promedio Acumulado: </strong></label>
+            <span v-text="alumno.promedioAcumulado"></span>
+        </div>
+        <div>
+            <label><strong>Ciclo Ingreso: </strong></label>
+            <span v-text="alumno.cicloIngreso.descripcion"></span>
+        </div>
+        <div v-if="alumno.postulantePregrado !== undefined">
+            <label><strong>Modalidad de Ingreso: </strong></label>
+            <span v-text="alumno.postulantePregrado.modalidadIngreso.nombre"></span>
+        </div>
+        <div>
+            <label><strong>Ciclo Activo: </strong></label>
+            <span v-text="alumno.cicloActivo.descripcion"></span>
+        </div>
+        <div v-if="alumno.retirosCursos > 0">
+            <label><strong>Retiros de Cursos: </strong></label>
+            <span v-text="alumno.retirosCursos"></span>
+        </div>
+        <div v-if="alumno.retirosCiclos > 0">
+            <label><strong>Retiros de Ciclos: </strong></label>
+            <span v-text="alumno.retirosCiclos"></span>
+        </div>
+        <div v-if="alumno.retirosExtemporaneos > 0">
+            <label><strong>Retiros Extemporáneos de Cursos: </strong></label>
+            <span v-text="alumno.retirosExtemporaneos"></span>
+        </div>
+    </section>
+</template>
