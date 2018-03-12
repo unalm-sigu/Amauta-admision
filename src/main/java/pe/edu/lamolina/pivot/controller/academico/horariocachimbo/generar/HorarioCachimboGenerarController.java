@@ -216,7 +216,7 @@ public class HorarioCachimboGenerarController {
                         for (SeccionHorarioCachimbos shc : shcHorario) {
                             ObjectNode horaSeccion = new ObjectNode(jsonFactory);
                             horaSeccion.put("hora", service.getClave(shc));
-                            horaSeccion.put("seccion", ObjectUtil.getParentTree(shc, "seccion.codigo").toString());
+                            horaSeccion.put("seccion", ObjectUtil.getParentTree(shc, "seccion.codigo2").toString());
                             horaSeccion.put("grupo", ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
                             horarios.add(horaSeccion);
                         }
@@ -397,7 +397,7 @@ public class HorarioCachimboGenerarController {
 
                     for (HorarioSeccion horarioSeccion : seccionHorarioDia) {
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
-                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo2());
                         seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
                         seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
                         seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
@@ -602,7 +602,7 @@ public class HorarioCachimboGenerarController {
                     ArrayNode arraySeccion = new ArrayNode(jsonFactory);
                     for (HorarioSeccion horarioSeccion : horariosSeccionesDia) {
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
-                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo2());
                         seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
                         seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
                         seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
