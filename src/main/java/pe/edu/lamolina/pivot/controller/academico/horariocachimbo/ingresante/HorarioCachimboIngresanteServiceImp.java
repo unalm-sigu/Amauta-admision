@@ -281,6 +281,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     }
 
     @Override
+    @Transactional
     public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user) {
         seccionDAO.allRegenerateReservadoByCiclo(cicloAcademico);
         seccionHorarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
