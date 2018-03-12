@@ -1,98 +1,76 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Alumnos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable" th:remove="tag"></div>
+    <div th:substituteby="_layout/includes :: styles-dynatable"/>
+    <style type="text/css">
+    </style>
 </head>
 
 <body>
-    <div layout:fragment="main" id="infoAcademico" >
-
-        <header class="header b-b padder-lg">        
-            <a th:href="@{/academico/alumno}" class="btn btn-default btn-sm pull-right">Regresar</a>
-            <h2>Información Académica</h2>
-
-
-            <section class="panel-body">
-                <div class="col-md-12" >
-                    <div class="col-md-2" align="center"  >
-                        <img  class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/unknown-person.gif"> </img>
-                    </div>
-                    <div class="col-md-10">
-                        <div class="col-md-12">
-                            <h3 v-text='alumno.persona.apellidosNombres'> </h3>                          
-                        </div>
-                        <div class="col-md-12">
-                            <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
-                        </div>
-                        <div class="col-md-12" v-if="ident">
-                            <span v-text="alumno.persona.tipoDocumento.simbolo"/> 
-                            <span v-text="alumno.persona.numeroDocIdentidad"/> 
-                        </div>
-                        <div class="col-md-12" v-if="flag">
-                            <span v-text="alumno.carrera.nombre"/>
-                            <span v-if="alumno.carrera.codigo != alumno.carrera.facultad.codigo">
-                                - <span v-text="alumno.carrera.facultad.nombre"/>
-                            </span>
-                        </div>
-                        <div class="col-md-12">
-                            <span > <small v-text="alumno.modalidadEstudio.nombre"> </small> </span> 
-                        </div>
-                    </div>
+    <section  layout:fragment="main">
+        <div id="infoAcademico" >
+            <header class="header b-b padder-lg">        
+                <h2>Información Académica</h2>
+                <div class="pull-right m-t-md">
+                    <a th:href="@{/academico/alumno}" class="btn btn-default">Regresar</a>
                 </div>
-            </section>
-
-            <div  class="tabbable-line">
-                <ul class="nav nav-tabs" >
-                    <li v-for="tab in tabs"  v-bind:class="styleMenu(tab.id)"><a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name" ></a></li>
-                </ul>  
-            </div>
-        </header>
-        <div class="wrapper-lg">
-            <section class="panel">
-                <section class="panel-body">
-                    <div class="tab-content">
-                        <div v-if="1 == tabId"  >
-                            <th:block th:substituteby="academico/alumno/includes/inicio"/>
+                <header-info-component v-bind:alumno="alumno"></header-info-component>
+                <div class="tabbable-line">
+                    <ul class="nav nav-tabs" >
+                        <li v-for="tab in tabs" v-bind:class="styleMenu(tab.id)">
+                            <a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name"></a>
+                        </li>
+                    </ul>  
+                </div>
+            </header>
+            <div class="wrapper-md">
+                <section class="panel">
+                    <section class="panel-body">
+                        <div v-show="1 == tabId"  >
+                            <inicio-component v-bind:alumno="alumno" v-bind:alumnoInfo="alumnoInfo"></inicio-component>
                         </div>       
-                        <div v-if="2 == tabId" >
-                            <th:block th:substituteby="academico/alumno/includes/historial"/>
+                        <div v-show="2 == tabId" >
+                            <historial-component v-bind:alumno="alumno"></historial-component>
                         </div>   
-                        <div v-if="3 == tabId" >
-                            <th:block th:substituteby="academico/alumno/includes/avance"/>
+                        <div v-show="3 == tabId" >
+                            <avance-component v-bind:alumno="alumno"></avance-component>
                         </div>   
-                        <div v-if="4 == tabId" >
-                            <th:block th:substituteby="academico/alumno/includes/matricula"/>
+                        <div v-show="4 == tabId" >
+                            <matricula-component v-bind:alumno="alumno"></matricula-component>
                         </div>   
-                        <div v-if="5 == tabId"  >
+                        <div v-show="5 == tabId"  >
                             <th:block th:substituteby="academico/alumno/includes/horario"/>
                         </div>   
                         <div v-show="6 == tabId">
-                            <th:block th:substituteby="academico/alumno/includes/malla"/>
+                            <malla-component v-bind:alumno="alumno"></malla-component>
                         </div>   
-                    </div>
-                </section>               
-            </section>
+                    </section>               
+                </section>
+            </div>
         </div>
-
-
-
-
-
-    </div>
+        <div th:substituteby="academico/alumno/includes/headerInfo"/> 
+        <div th:substituteby="academico/alumno/includes/inicio"/> 
+        <div th:substituteby="academico/alumno/includes/historial"/> 
+        <div th:substituteby="academico/alumno/includes/avance"/> 
+        <div th:substituteby="academico/alumno/includes/matricula"/> 
+        <div th:substituteby="academico/alumno/includes/malla"/> 
+    </section>
     <div layout:fragment="js">
-
         <script th:inline="javascript">
             /*<![CDATA[*/
             var alumnoJson = /*[[${datoAlumno.toString()}]]*/ 'json';
-            var cursosJson = /*[[${matriculaCursos.toString()}]]*/ 'json';
             var horasJson = /*[[${horasBD.toString()}]]*/ 'json';
+            var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
             /*]]>*/
         </script>
-
         <div th:substituteby="_layout/includes :: svgjs"/>
+        <script th:src="@{/app/academico/alumno/headerInfoComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/avanceComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/alumno/mallaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/academico/alumno/infoAcademico.js}" charset="utf-8"></script>
-
     </div>
 </body>
-
 </html>

@@ -51,6 +51,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -70,6 +71,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -113,6 +115,8 @@ public class AlumnoServiceImp implements AlumnoService {
     HoraDAO horaDAO;
     @Autowired
     MailerService mailerService;
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
@@ -203,6 +207,11 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<ModalidadEstudio> allModalidadEstudioByCodigos(List<String> codigos) {
         return modalidadEstudioDAO.allByCodigos(codigos);
+    }
+
+    @Override
+    public void generarAvance(Alumno alumno, DataSessionPivot ds) {
+        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
     }
 
     @Override

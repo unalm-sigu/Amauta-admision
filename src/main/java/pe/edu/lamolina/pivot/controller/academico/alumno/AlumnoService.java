@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AlumnoService {
 
@@ -75,5 +76,7 @@ public interface AlumnoService {
     List<Hora> allHoras();
 
     Alumno allInfo(Alumno alumno);
+    
+    void generarAvance(Alumno alumno, DataSessionPivot ds);
 
 }

@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -462,34 +463,10 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        CicloAcademico ciclo = ds.getCicloAcademico();
         ObjectNode alumnoJson = alumno.toJson();
-        List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-
-        ArrayNode array = new ArrayNode(factory);
-        for (MatriculaCurso matriculaCurso : matriculaCursos) {
-            ObjectNode matriculaCursoNode = matriculaCurso.toJson();
-
-            ArrayNode detalle = new ArrayNode(factory);
-            for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
-                ObjectNode node = new ObjectNode(factory);
-                node.put("tipo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.tipoSeccion"));
-                node.put("codigo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.codigo"));
-                node.put("grupo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.grupoHoras.codigo"));
-                node.put("aula", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.aula.codigo"));
-                DocenteSeccion docenteSeccion = matriculaSeccion.getSeccion().getDocenteSeccion().get(0);
-                node.put("docente", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.persona.nombreCompleto"));
-                node.put("docenteCodigo", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.codigo"));
-                detalle.add(node);
-            }
-            matriculaCursoNode.set("detalle", detalle);
-            array.add(matriculaCursoNode);
-        }
 
         model.addAttribute("datoAlumno", alumnoJson);
-        model.addAttribute("matriculaCursos", array);
-
+        model.addAttribute("ciclo", ds.getCicloAcademico().toJson());
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = service.allHoras();
         for (Hora hora : horas) {
@@ -552,6 +529,73 @@ public class AlumnoController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/cursosmatriculados", method = RequestMethod.GET)
+    public JsonResponse cursosMatriculados(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode data = new ObjectNode(factory);
+        ArrayNode cursosJson = new ArrayNode(factory);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            Alumno alumno = new Alumno(idAlumno);
+            List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
+            for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                ObjectNode matriculaCursoNode = matriculaCurso.toJson();
+                ArrayNode detalle = new ArrayNode(factory);
+                List<MatriculaSeccion> matriculaSeccions = matriculaCurso.getMatriculaSeccion();
+                if (matriculaSeccions == null) {
+                    continue;
+                }
+                for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
+                    ObjectNode node = new ObjectNode(factory);
+                    node.put("tipo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.tipoSeccion"));
+                    node.put("codigo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.codigo"));
+                    node.put("grupo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.grupoHoras.codigo"));
+                    node.put("aula", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.aula.codigo"));
+                    DocenteSeccion docenteSeccion = matriculaSeccion.getSeccion().getDocenteSeccion().get(0);
+                    node.put("docente", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.persona.nombreCompleto"));
+                    node.put("docenteCodigo", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.codigo"));
+                    detalle.add(node);
+                }
+                matriculaCursoNode.set("detalle", detalle);
+                cursosJson.add(matriculaCursoNode);
+
+            }
+            data.set("cursos", cursosJson);
+            data.set("ciclo", JsonHelper.createJson(ciclo, factory));
+            response.setData(data);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/generaravance", method = RequestMethod.GET)
+    public JsonResponse generarAvance(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            service.generarAvance(new Alumno(idAlumno), ds);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

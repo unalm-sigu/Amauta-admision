@@ -1,130 +1,131 @@
+<template id="historialComponent">
+    <section class="panel-body m-t-sm">
 
-<div class="form-group m-t-n col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12">
-<h3 class="v-middle text-left m-t-md">Historial académico</h3>
-    <div class="row">
-        <div class="col-sm-4">
-            <label class="col-sm-6 control-label">Sólo aprobados</label>
-            <div class="col-sm-6">
-                <label class="switch">
-                    <input type="checkbox" v-model="typeSearch" v-on:change="changeSearch()"/>
-                    <span></span>
-                </label>
+        <div class=" m-t-n col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12">
+            <h3 class="v-middle text-left m-t-sm">Historial Académico</h3>
+            <div class="row m-t-md m-b-sm">
+                <div class="col-sm-4">
+                    <label class="col-sm-6 control-label">Sólo aprobados</label>
+                    <div class="col-sm-6">
+                        <label class="switch">
+                            <input type="checkbox" v-model="typeSearch" v-on:change="changeSearch()"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <label class="col-sm-6 control-label">Listado general</label>
+                    <div class="col-sm-6">
+                        <label class="switch">
+                            <input type="checkbox" v-model="typeSearch2" v-on:change="changeSearch2()"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-4" v-show="general">
+                    <label class="col-sm-6 control-label">Ciclos</label>
+                    <div class="col-sm-6">
+                        <select class="form-control" onchange="window.location.href = this.value">
+                            <option v-for="ciclo in listCiclos" 
+                                    v-bind:value="'#'+ ciclo.value"  
+                                    v-text="ciclo.value">
+                            </option>
+                        </select>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-sm-4">
-            <label class="col-sm-6 control-label">Listado general</label>
-            <div class="col-sm-6">
-                <label class="switch">
-                    <input type="checkbox" v-model="typeSearch2" v-on:change="changeSearch2()"/>
-                    <span></span>
-                </label>
-            </div>
-        </div>
-        <div class="col-sm-4"  v-if="general">
-            <label class="col-sm-6 control-label">Ciclos</label>
-            <div class="col-sm-6">
-                <select  class="form-control" onchange="window.location.href = this.value">
-                    <option v-for="ciclo in listCiclos" 
-                            v-bind:value="'#'+ ciclo.value"  
-                            v-text="ciclo.value" />
-                </select>
-            </div>
-        </div>
-    </div>
-</div>
-
-<hr/>
-
-<div class="pre-scrollable col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12">
-    <table v-bind:id="tab.descripción" v-for="tab in alumnoCurso" class="table table-striped col-md-12 " v-if="general">
-        <thead class="thead-dark">
-            <tr >
-                <td colspan="3" class="col-md-12 p-3 mb-2 bg-primary text-white text-center" v-text="tab.ciclo" />
-            </tr>
-        </thead>
-        <tbody >
-            <tr>
-                <th scope="col" class="col-md-8">
-                    Nombre del curso
-                </th>
-                <th scope="col" class="col-md-2 text-center">
-                    Créditos
-                </th>
-                <th scope="col" class="col-md-2 text-center">
-                    Nota
-                </th>
-            </tr>
-            <tr v-for="curso in tab.cursos" 
-                v-if="validarNota(curso,typeSearch)"> 
-                <td class="col-md-8">
-                    <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
-                </td>
-                <td class="col-md-2 text-center" 
-                    v-text="curso.creditos"/> 
-                <td class="col-md-2 text-center"> 
-                    <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>         
-                </td>
-
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <table class="table table-striped col-md-12">
+            <div class="pre-scrollable" v-show="general">
+                <table class="table table-striped col-md-12" v-bind:id="tab.descripción" v-for="tab in alumnoCurso">
+                    <thead class="thead-dark">
                         <tr>
-                            <th scope="col" class="col-md-12 text-center" colspan="4" >
-                                RESUMEN ACADÉMICO
+                            <td colspan="3" class="col-md-12 p-3 mb-2 bg-primary text-white text-center" v-text="tab.ciclo" />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="col" class="col-md-8">
+                                Nombre del curso
+                            </th>
+                            <th scope="col" class="col-md-2 text-center">
+                                Créditos
+                            </th>
+                            <th scope="col" class="col-md-2 text-center">
+                                Nota
                             </th>
                         </tr>
-                        <tr>
-                            <td colspan="2" class="col-md-6 text-center">SEMESTRAL</td>
-                            <td colspan="2" class="col-md-6 text-center">ACUMULADO</td>
-                        </tr>
-                        <tr>
-                            <td>Créditos cursados</td>
-                            <td v-text="tab.CreditoCursadosCiclo"></td>
-                            <td>Créditos cursados</td>
-                            <td v-text="tab.creditoAcumulado"></td>
-                        </tr>
-                        <tr>
-                            <td>Créditos aprobados</td>
-                            <td v-text="tab.CreditoAprobaCiclo"></td>
-                            <td>Créditos aprobados</td>
-                            <td v-text="tab.CreditoAprobadosAcu"></td>
-                        </tr>
-                        <tr>
-                            <td>Promedio ponderado</td>
-                            <td v-text="tab.promedio"></td>
-                            <td>Promedio ponderado</td>
-                            <td v-text="tab.promedioPonderadoAcum"></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div class="pre-scrollable col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 col-sm-12" 
-     v-if="!general">
-    <table v-if="!general" class="table table-striped col-md-12 ">
-        <tr>
-            <th scope="col" class="col-md-8">
-                Nombre del curso
-            </th>
-            <th scope="col" class="col-md-2">
-                Cred.
-            </th>
-            <th scope="col" class="col-md-2">
-                Nota
-            </th>
-        </tr>
-        <tr v-for="curso in cursos" v-if="validarNota(curso,typeSearch)"> 
-            <td class="col-md-8">
-                <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
-            </td>
-            <td class="col-md-2" v-text="curso.creditos"/> 
-            <td class="col-md-2"> 
-                <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>         
-            </td>
+                        <tr v-for="curso in tab.cursos" 
+                            v-if="validarNota(curso,typeSearch)"> 
+                            <td class="col-md-8">
+                                <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
+                            </td>
+                            <td class="col-md-2 text-center" 
+                                v-text="curso.creditos"/> 
+                            <td class="col-md-2 text-center"> 
+                                <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>         
+                            </td>
 
-        </tr>
-    </table>
-</div>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <table class="table table-striped col-md-12">
+                                    <tr>
+                                        <th scope="col" class="col-md-12 text-center" colspan="4" >
+                                            RESUMEN ACADÉMICO
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="col-md-6 text-center">SEMESTRAL</td>
+                                        <td colspan="2" class="col-md-6 text-center">ACUMULADO</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Créditos cursados</td>
+                                        <td v-text="tab.CreditoCursadosCiclo"></td>
+                                        <td>Créditos cursados</td>
+                                        <td v-text="tab.creditoAcumulado"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Créditos aprobados</td>
+                                        <td v-text="tab.CreditoAprobaCiclo"></td>
+                                        <td>Créditos aprobados</td>
+                                        <td v-text="tab.CreditoAprobadosAcu"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Promedio ponderado</td>
+                                        <td v-text="tab.promedio"></td>
+                                        <td>Promedio ponderado</td>
+                                        <td v-text="tab.promedioPonderadoAcum"></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pre-scrollable" v-show="!general">
+                <table v-if="!general" class="table table-striped col-md-12 ">
+                    <tr>
+                        <th scope="col" class="col-md-8">
+                            Nombre del curso
+                        </th>
+                        <th scope="col" class="col-md-2">
+                            Cred.
+                        </th>
+                        <th scope="col" class="col-md-2">
+                            Nota
+                        </th>
+                    </tr>
+                    <tr v-for="curso in cursos" v-if="validarNota(curso,typeSearch)"> 
+                        <td class="col-md-8">
+                            <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
+                        </td>
+                        <td class="col-md-2" v-text="curso.creditos"/> 
+                        <td class="col-md-2"> 
+                            <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>         
+                        </td>
+
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </section>
+</template>
