@@ -49,6 +49,36 @@ public class DataSessionPivot implements Serializable {
 
     private List<Menu> menu;
 
+    private String browser;
+
+    private String direccionIp;
+
+    private String sistemaOperativo;
+
+    public String getBrowser() {
+        return browser;
+    }
+
+    public void setBrowser(String browser) {
+        this.browser = browser;
+    }
+
+    public String getDireccionIp() {
+        return direccionIp;
+    }
+
+    public void setDireccionIp(String direccionIp) {
+        this.direccionIp = direccionIp;
+    }
+
+    public String getSistemaOperativo() {
+        return sistemaOperativo;
+    }
+
+    public void setSistemaOperativo(String sistemaOperativo) {
+        this.sistemaOperativo = sistemaOperativo;
+    }
+
     public String getEmail() {
         return email;
     }
