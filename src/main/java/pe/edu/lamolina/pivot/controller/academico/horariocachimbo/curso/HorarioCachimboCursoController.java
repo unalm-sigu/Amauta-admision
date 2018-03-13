@@ -153,9 +153,9 @@ public class HorarioCachimboCursoController {
                         }
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
                         seccionNode.put("id", seccion.getId());
-                        seccionNode.put("codigo", seccion.getCodigo());
+                        seccionNode.put("codigo", seccion.getCodigo2());
                         seccionNode.put("tipo", seccion.getTipoSeccion());
-                        seccionNode.put("suscritos", seccion.getSuscritos());
+                        seccionNode.put("suscritos", seccion.getReservados());
                         seccionNode.put("seleccionado", scc != null);
                         seccionNode.put("anexo", grupoSeccion.getAnexoBoletin().getNombre());
                         seccionesArray.add(seccionNode);

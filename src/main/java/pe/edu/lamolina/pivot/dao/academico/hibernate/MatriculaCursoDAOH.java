@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import org.springframework.stereotype.Repository;
@@ -114,6 +115,16 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .filter("alu.id", alumno);
 
         return all(sql);
+    }
+
+    @Override
+    public List<MatriculaCurso> allActivoByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.MAT.name(), EstadoMatriculaEnum.RCI.name(), EstadoMatriculaEnum.RCU.name()))
+                .filter("ca.id", ciclo)
+                .filter("alu.id", alumno);
+        return sql.all(getCurrentSession());
     }
 
     @Override

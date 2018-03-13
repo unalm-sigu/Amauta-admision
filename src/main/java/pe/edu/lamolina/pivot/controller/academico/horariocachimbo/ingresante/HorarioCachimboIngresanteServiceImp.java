@@ -92,7 +92,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             alumnoHorario = new AlumnoHorario();
             alumnoHorario.setAlumno(alumno);
             alumnoHorario.setCicloAcademico(cicloAcademico);
-            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND);
             alumnoHorarioDAO.save(alumnoHorario);
 
             CarreraCachimbos ch = carreraCachimbosDAO.findByCarreraCiclo(carrera, cicloAcademico);
@@ -122,7 +122,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Transactional
     public void activarMatricula(AlumnoHorario alumnoHorario) {
         AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario);
-        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.MATR.name());
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.MATR);
         alumnoHorarioDAO.update(alumnoHorarioDb);
 
         Carrera carrera = (Carrera) ObjectUtil.getParentTree(alumnoHorarioDb, "alumno.carrera");
@@ -139,7 +139,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Transactional
     public void suspenderMatricula(AlumnoHorario alumnoHorario) {
         AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario.getId());
-        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.SUSP.name());
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.SUSP);
         alumnoHorarioDAO.update(alumnoHorarioDb);
 
         Carrera carrera = (Carrera) ObjectUtil.getParentTree(alumnoHorarioDb, "alumno.carrera");
@@ -181,7 +181,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         }
 
         alumnoHorarioDb.setHorarioCachimbos(null);
-        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+        alumnoHorarioDb.setEstado(EstadoAlumnoHorarioEnum.PEND);
         alumnoHorarioDAO.update(alumnoHorarioDb);
 
         Carrera carrera = (Carrera) ObjectUtil.getParentTree(alumnoHorarioDb, "alumno.carrera");
@@ -221,8 +221,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
         List<CarreraCachimbos> carreraCachimbos = carreraCachimbosDAO.allByCicloAcademico(cicloAcademico);
-        List<Alumno> alumnoExclude = alumnoHorarios.stream().map(AlumnoHorario::getAlumno).collect(Collectors.toList());
-        List<Alumno> alumnosIngresantes = alumnoDAO.allIngresantePregradoByCiclo(modalidad, cicloAcademico, alumnoExclude);
+        List<Alumno> existentes = alumnoHorarios.stream().map(AlumnoHorario::getAlumno).collect(Collectors.toList());
+        List<Alumno> alumnosIngresantes = alumnoDAO.allIngresantePregradoByCiclo(modalidad, cicloAcademico, existentes);
 
         if (alumnosIngresantes.isEmpty()) {
             throw new PhobosException("No existen alumnos nuevos");
@@ -233,22 +233,24 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         Map<Long, Integer> mapIngresantes = new LinkedHashMap();
         Map<Long, CarreraCachimbos> mapCarreraCachimbos = TypesUtil.convertListToMap("carrera.id", carreraCachimbos);
 
-        for (Alumno alumnosIngresante : alumnosIngresantes) {
+        for (Alumno ingresante : alumnosIngresantes) {
             AlumnoHorario alumnoHorario = new AlumnoHorario();
-            alumnoHorario.setAlumno(alumnosIngresante);
+            alumnoHorario.setAlumno(ingresante);
             alumnoHorario.setCicloAcademico(cicloAcademico);
-            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND);
             alumnoHorario.setFechaCreacion(new Date());
             alumnoHorario.setUserCreacion(user);
             alumnoHorarioDAO.save(alumnoHorario);
 
-            Carrera carr = alumnosIngresante.getCarrera();
-            Integer cant = mapIngresantes.get(carr.getId());
+            Carrera carrera = ingresante.getCarrera();
+            Integer cant = mapIngresantes.get(carrera.getId());
             cant = (cant == null) ? 1 : cant + 1;
-            mapCarreras.put(carr.getId(), carr);
-            mapIngresantes.put(carr.getId(), cant);
+            mapCarreras.put(carrera.getId(), carrera);
+            mapIngresantes.put(carrera.getId(), cant);
         }
 
+        logger.debug("Existe {} carreras en el map", mapCarreras.values().size());
+        logger.debug("Hay {} carreras preexistentes en el map", mapCarreraCachimbos.values().size());
         for (Carrera carrera : mapCarreras.values()) {
             Integer ingresantes = mapIngresantes.get(carrera.getId());
 
@@ -266,6 +268,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 ch.setSuspendidos(0);
                 carreraCachimbosDAO.save(ch);
                 mapCarreraCachimbos.put(ch.getId(), ch);
+
             } else {
                 ch.setIngresantes(ingresantes + ch.getIngresantes());
                 ch.setSinHorario(ingresantes + ch.getSinHorario());
@@ -281,6 +284,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     }
 
     @Override
+    @Transactional
     public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user) {
         seccionDAO.allRegenerateReservadoByCiclo(cicloAcademico);
         seccionHorarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
@@ -305,6 +309,24 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             cantidad.add(ingresanteCantidad);
         }
         return cantidad;
+    }
+
+    @Override
+    @Transactional
+    public void deleteIngresante(AlumnoHorario alumnoHorario, CicloAcademico cicloAcademico) {
+        AlumnoHorario aluHorario = alumnoHorarioDAO.find(alumnoHorario);
+        Carrera carrera = aluHorario.getAlumno().getCarrera();
+
+        if (aluHorario.getHorarioCachimbos() == null) {
+            alumnoHorarioDAO.delete(aluHorario);
+
+            CarreraCachimbos cachimbos = carreraCachimbosDAO.findByCarreraCiclo(carrera, cicloAcademico);
+            cachimbos.setIngresantes(cachimbos.getIngresantes() - 1);
+            cachimbos.setSinHorario(cachimbos.getSinHorario() - 1);
+            carreraCachimbosDAO.update(cachimbos);
+        } else {
+            throw new PhobosException("No se puede eliminar por que tiene un horario asignado.");
+        }
     }
 
 }

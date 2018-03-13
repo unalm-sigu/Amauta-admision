@@ -26,9 +26,9 @@ public interface HorarioCachimboGenerarService {
 
     List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void delete(HorarioCachimbos horarioCachimbos, Usuario usuario);
+    void delete(HorarioCachimbos horarioCachimbos, CicloAcademico ciclo, Usuario usuario);
 
-    void delete(HorarioCachimboForm form, Usuario usuario);
+    void delete(HorarioCachimboForm form, CicloAcademico ciclo,  Usuario usuario);
 
     List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario);
 

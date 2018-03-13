@@ -17,6 +17,13 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<CursoEquivalente>> mapEquivalentes,
             DataSessionPivot ds);
 
+    void procesarAlumnoSincrono(
+            Alumno alumno,
+            Map<Long, CursoCurricula> cursosCurricula,
+            Map<Long, List<RequisitoCursoCurricula>> mapRequisitos,
+            Map<Long, List<CursoEquivalente>> mapEquivalentes,
+            DataSessionPivot ds);
+    
     void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno);
 
     void deleteAllAlumnoCursoCurriculaByAlumno(Alumno alumno);

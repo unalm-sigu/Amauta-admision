@@ -28,8 +28,10 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     List<MatriculaCurso> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
-    public Long countAllAlumnoPrematriculado(CicloAcademico cicloAcademico);
+    List<MatriculaCurso> allActivoByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
-    public List<MatriculaCurso> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens);
+    Long countAllAlumnoPrematriculado(CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens);
 
 }

@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -29,6 +30,7 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -49,6 +51,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -68,6 +71,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -109,13 +113,19 @@ public class AlumnoServiceImp implements AlumnoService {
     DiaDAO diaDAO;
     @Autowired
     HoraDAO horaDAO;
-
     @Autowired
     MailerService mailerService;
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
         return alumnoDAO.allByRolDynatable(filter, codigo, filtros);
+    }
+
+    @Override
+    public Alumno allInfo(Alumno alumno) {
+        return alumnoDAO.findAllInfo(alumno.getId());
     }
 
     @Override
@@ -137,26 +147,6 @@ public class AlumnoServiceImp implements AlumnoService {
     public List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno) {
 
         return alumnoCicloCursoDAO.findHistorial(alumno);
-    }
-
-    @Override
-    public List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno) {
-        List<AlumnoCicloCurso> cursosCiclos = alumnoCicloCursoDAO.allByAlumno(alumno);
-        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumnoCiclo.id", "alumnoCiclo", cursosCiclos);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", cursosCiclos);
-
-        List<AlumnoCiclo> promedios = new ArrayList(mapAlumnoCiclo.values());
-        for (AlumnoCiclo promedio : promedios) {
-            List<AlumnoCicloCurso> cursos = mapAlumnoCicloCurso.get(promedio.getId());
-            promedio.setAlumnoCicloCurso(cursos);
-        }
-        return promedios;
-    }
-
-    @Override
-    public List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno) {
-
-        return alumnoCicloCursoDAO.allByAlumnoOrdeyByCurso(alumno);
     }
 
 //    @Override
@@ -679,17 +669,6 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public Hora getHoraByNroHora(Integer numero) {
         return horaDAO.findByNumeroHora(numero);
-    }
-
-    @Override
-    public List<Hora> allHoras() {
-        return horaDAO.allHora();
-    }
-
-    @Override
-    public Alumno allInfo(Alumno alumno) {
-        Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
-        return alu;
     }
 
 }

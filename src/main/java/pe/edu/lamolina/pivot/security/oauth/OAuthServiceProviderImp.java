@@ -1,14 +1,18 @@
 package pe.edu.lamolina.pivot.security.oauth;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.oauth.OAuthService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,6 +32,8 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
+import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -77,6 +83,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     @Autowired
     FacultadDAO facultadDAO;
 
+    @Autowired
+    InterceptorService interceptorService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -92,7 +101,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     }
 
     @Override
-    public void loginManually(String email, HttpSession session) {
+    public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {
 
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
         Usuario usuario = usuarioDAO.findByEmail(email);
@@ -123,6 +132,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         dataSession.setPersona(usuario.getPersona());
         dataSession.setRoles(roles);
         dataSession.setCicloAcademico(cicloAcademico);
+        dataSession.setBrowser(servlet.getHeader("User-Agent"));
+        dataSession.setDireccionIp(servlet.getRemoteAddr());
+        dataSession.setSistemaOperativo(getClientOS(servlet));
 
         Docente docente = docenteDAO.findPersona(usuario.getPersona());
         if (docente != null) {
@@ -159,4 +171,44 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
     }
 
+    @Async
+    @Override
+    public void createLogJson(DataSessionPivot ds, HttpSession session) {
+        ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode objData = new ObjectNode(JsonNodeFactory.instance);
+        obj.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
+        objData.put("data", obj);
+        objData.put("tipo", "Inicio Sesión");
+        interceptorService.saveInterceptor(objData, session);
+    }
+
+    @Async
+    @Override
+    public void createLogJsonLogout(DataSessionPivot ds, HttpSession session) {
+        ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode objData = new ObjectNode(JsonNodeFactory.instance);
+        obj.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
+        objData.put("data", obj);
+        objData.put("tipo", "Logout");
+        interceptorService.saveInterceptor(objData, session);
+    }
+ public String getClientOS(HttpServletRequest request) {
+        final String browserDetails = request.getHeader("User-Agent");
+
+        //=================OS=======================
+        final String lowerCaseBrowser = browserDetails.toLowerCase();
+        if (lowerCaseBrowser.contains("windows")) {
+            return "Windows";
+        } else if (lowerCaseBrowser.contains("mac")) {
+            return "Mac";
+        } else if (lowerCaseBrowser.contains("x11")) {
+            return "Unix";
+        } else if (lowerCaseBrowser.contains("android")) {
+            return "Android";
+        } else if (lowerCaseBrowser.contains("iphone")) {
+            return "IPhone";
+        } else {
+            return "UnKnown, More-Info: " + browserDetails;
+        }
+    }
 }

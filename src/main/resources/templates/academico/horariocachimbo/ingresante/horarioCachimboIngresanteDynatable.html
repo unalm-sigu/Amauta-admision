@@ -64,6 +64,7 @@
                     <li class="divider"></li>
                     <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
                     <li><a class=""  v-if="horario.estado=='CHOR'"   v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
+                    <li><a class=""  v-if="horario.estado=='PEND'"   v-on:click.prevent="deleteAlumno(horario.id)"  href="#">Eliminar</a></li>
                 </ul>
             </div>
         </td>

@@ -29,10 +29,6 @@ public interface AlumnoService {
 
     List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno);
 
-    List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
-
-    List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno);
-
 //    List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 //
 //    AlumnoResumen findResumen();
@@ -69,8 +65,6 @@ public interface AlumnoService {
     ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios);
 
     Hora getHoraByNroHora(Integer numero);
-    
-    List<Hora> allHoras();
-    Alumno allInfo(Alumno alumno);
 
+    Alumno allInfo(Alumno alumno);
 }
