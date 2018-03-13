@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.security.oauth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -51,7 +52,7 @@ public class OAuthController {
 
     @RequestMapping(value = "callback", method = RequestMethod.GET)
     public String callback(@RequestParam(value = "oauth_token", required = false) String oauthToken,
-            @RequestParam(value = "code", required = false) String oauthVerifier, HttpSession session) throws IOException {
+            @RequestParam(value = "code", required = false) String oauthVerifier, HttpSession session, HttpServletRequest servlet) throws IOException {
 
         try {
             OAuthService service = serviceProvider.getService();
@@ -68,7 +69,7 @@ public class OAuthController {
 
             JsonNode jsonNode = new ObjectMapper().readTree(oauthResponse.getBody());
 
-            serviceProvider.loginManually(jsonNode.get("email").asText(), session);
+            serviceProvider.loginManually(jsonNode.get("email").asText(), session,servlet);
 
         } catch (PhobosException e) {
             session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
@@ -79,10 +80,11 @@ public class OAuthController {
     }
 
     @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
-    public String loginGoogle(@PathVariable String email, HttpSession session, Model model) {
+    public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        serviceProvider.loginManually(email, session);
+        serviceProvider.loginManually(email, session, servlet);
+        serviceProvider.createLogJson(ds, session);
         return "redirect:/route66";
     }
 
