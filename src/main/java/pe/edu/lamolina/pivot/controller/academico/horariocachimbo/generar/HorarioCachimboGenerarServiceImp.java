@@ -394,7 +394,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
                     horario.setSuscritos(horario.getSuscritos() + 1);
                     alumno.setHorarioCachimbos(horario);
-                    alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR.name());
+                    alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR);
                     CarreraCachimbos cc = mapCarreraCachimbos.get(carrera.getId());
                     cc.setConHorario(cc.getConHorario() + 1);
                     cc.setSinHorario(cc.getSinHorario() - 1);
