@@ -140,7 +140,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByHorarioCachimbos(horarioCachimbos);
         for (AlumnoHorario alumno : alumnos) {
             alumno.setHorarioCachimbos(null);
-            alumno.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+            alumno.setEstado(EstadoAlumnoHorarioEnum.PEND);
             alumnoHorarioDAO.update(alumno);
             List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(alumno.getAlumno());
             for (VacanteAlumno vacanteAlumno : vacanteAlumnos) {
@@ -178,7 +178,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             List<AlumnoHorario> ahs = alumnoHorarioDAO.allByHorarioCachimbos(horarioCachimbos);
             for (AlumnoHorario ah : ahs) {
                 ah.setHorarioCachimbos(null);
-                ah.setEstado(EstadoAlumnoHorarioEnum.PEND.name());
+                ah.setEstado(EstadoAlumnoHorarioEnum.PEND);
                 List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(ah.getAlumno());
                 for (VacanteAlumno vacanteAlumno : vacanteAlumnos) {
                     vacanteAlumno.setAlumno(null);
@@ -408,7 +408,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
                     horario.setSuscritos(horario.getSuscritos() + 1);
                     alumno.setHorarioCachimbos(horario);
-                    alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR.name());
+                    alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR);
                     CarreraCachimbos cc = mapCarreraCachimbos.get(carrera.getId());
                     cc.setConHorario(cc.getConHorario() + 1);
                     cc.setSinHorario(cc.getSinHorario() - 1);
