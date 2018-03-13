@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.matricular;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -66,22 +67,46 @@ public class MatricularController {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         TurnoAtencion turnoAtencion = service.findTurnoAtencion(turno);
 
-        Long alumnosPrematriculados = service.countAllAlumnoPrematriculado(cicloAcademico);
-        Long seccionesPrematriculados = service.countAllSeccionPrematriculado(cicloAcademico);
-
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("turnoAtencion", turnoAtencion);
-        model.addAttribute("alumnosPrematriculados", alumnosPrematriculados);
-        model.addAttribute("seccionesPrematriculados", seccionesPrematriculados);
+
         return "academico/matricular/matricular";
 
+    }
+
+    @ResponseBody
+    @RequestMapping("detalle")
+    public JsonResponse detalle(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            Long alumnosPrematriculados = service.countAllAlumnoPrematriculado(cicloAcademico);
+            Long seccionesPrematriculados = service.countAllSeccionPrematriculado(cicloAcademico);
+            ObjectNode data = new ObjectNode(jsonFactory);
+
+            data.put("alumnosPrematriculados", alumnosPrematriculados);
+            data.put("seccionesPrematriculados", seccionesPrematriculados);
+
+            response.setData(data);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody
     @RequestMapping("iniciar")
     public JsonResponse matricular(TurnoAtencion turnoAtencion, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {

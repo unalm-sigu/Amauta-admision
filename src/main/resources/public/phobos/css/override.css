@@ -1061,12 +1061,12 @@ div.notas {
 
 /*HORARIO*/
 .over-schedule {
-  position: relative;
-  width: 100%;
-  min-height: 2rem;
-  overflow: hidden;
-  padding-left: 15px; }
-  .over-schedule .days {
+    position: relative;
+    width: 100%;
+    min-height: 2rem;
+    overflow: hidden;
+    padding-left: 15px; }
+.over-schedule .days {
     position: relative;
     width: calc(100% - 7rem);
     margin-left: 7rem;
@@ -1077,38 +1077,38 @@ div.notas {
     border-right: 1px solid #cfcfcf;
     padding-left: 0;
     overflow: visible; }
-    .over-schedule .days li {
-      display: block;
-      position: relative;
-      float: left;
-      width: 14.2%;
-      text-align: center;
-      height: 10px;
-      line-height: 30px;
-      font-size: 10px;
-      color: #9b9b9b;
-      overflow: visible;
-      border-right: 1px solid #cfcfcf; }
-      .over-schedule .days li span {
-        display: block;
-        position: absolute;
-        width: 100%;
-        text-align: center;
-        height: 30px;
-        margin-top: -20px;
-        line-height: 30px; }
-      .over-schedule .days li:last-child {
-        border-right: none;
-        width: 14.8%; }
+.over-schedule .days li {
+    display: block;
+    position: relative;
+    float: left;
+    width: 14.2%;
+    text-align: center;
+    height: 10px;
+    line-height: 30px;
+    font-size: 10px;
+    color: #9b9b9b;
+    overflow: visible;
+    border-right: 1px solid #cfcfcf; }
+.over-schedule .days li span {
+    display: block;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    height: 30px;
+    margin-top: -20px;
+    line-height: 30px; }
+.over-schedule .days li:last-child {
+    border-right: none;
+    width: 14.8%; }
 
 .schedule {
-  position: relative;
-  width: 100%;
-  min-height: 2rem;
-  overflow: hidden;
-  padding-left: 15px;
-  margin-bottom: 20px; }
-  .schedule .numbers {
+    position: relative;
+    width: 100%;
+    min-height: 2rem;
+    overflow: hidden;
+    padding-left: 15px;
+    margin-bottom: 20px; }
+.schedule .numbers {
     position: relative;
     float: left;
     width: 7rem;
@@ -1116,80 +1116,80 @@ div.notas {
     font-size: 11px!important;
     border-top: 1px solid #cfcfcf;
     border-bottom: 1px solid #cfcfcf; }
-    .schedule .numbers .hours {
-      color: #9b9b9b;
-      width: 100%;
-      padding-right: 2rem;
-      text-align: right;
-      height: 30px;
-      line-height: 30px;
-      overflow: hidden;
-      margin: 0; }
-  .schedule .schels {
+.schedule .numbers .hours {
+    color: #9b9b9b;
+    width: 100%;
+    padding-right: 2rem;
+    text-align: right;
+    height: 30px;
+    line-height: 30px;
+    overflow: hidden;
+    margin: 0; }
+.schedule .schels {
     position: relative;
     float: left;
     width: calc(100% - 7rem);
     height: 45rem;
     background: #fff;
     border: 1px solid #cfcfcf; }
-    .schedule .schels .tr-items {
-      position: relative;
-      width: 100%;
-      overflow: visible;
-      border-bottom: 1px dashed #cfcfcf;
-      height: 30px; }
-      .schedule .schels .tr-items.errored {
-        z-index: 600; }
-      .schedule .schels .tr-items:last-child {
-        border-bottom: none; }
-      .schedule .schels .tr-items .sc-items {
-        position: relative;
-        float: left;
-        width: 14.2%;
-        height: 100%;
-        overflow: visible;
-        border-right: 1px solid #cfcfcf; }
-        .schedule .schels .tr-items .sc-items:last-child {
-          border-right: none;
-          width: 14.8%; }
+.schedule .schels .tr-items {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+    border-bottom: 1px dashed #cfcfcf;
+    height: 30px; }
+.schedule .schels .tr-items.errored {
+    z-index: 600; }
+.schedule .schels .tr-items:last-child {
+    border-bottom: none; }
+.schedule .schels .tr-items .sc-items {
+    position: relative;
+    float: left;
+    width: 14.2%;
+    height: 100%;
+    overflow: visible;
+    border-right: 1px solid #cfcfcf; }
+.schedule .schels .tr-items .sc-items:last-child {
+    border-right: none;
+    width: 14.8%; }
 
 .header-schedule {
-  position: relative;
-  padding-left: 15px;
-  height: 4.6rem;
-  margin-bottom: 3rem;
-  border-bottom: 1px solid #cfcfcf;
-  overflow: hidden;
-  display: table;
-  width: calc(100% - 15px);
-  margin-left: 15px; }
-  .header-schedule .descriptive {
+    position: relative;
+    padding-left: 15px;
+    height: 4.6rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid #cfcfcf;
+    overflow: hidden;
+    display: table;
+    width: calc(100% - 15px);
+    margin-left: 15px; }
+.header-schedule .descriptive {
     display: table-cell;
     position: relative;
     height: 100%;
     vertical-align: middle;
     float: left;
     margin-right: 30px; }
-    .header-schedule .descriptive .svg-inline--fa {
-      display: inline-block;
-      position: relative;
-      float: left;
-      margin-right: 2px;
-      top: 50%;
-      transform: translateY(-75%);
-      color: #999; }
-    .header-schedule .descriptive p {
-      float: left;
-      height: 4.6rem;
-      font-size: 14px;
-      padding-left: 5px;
-      margin: 0;
-      color: #6b6b6b; }
-      .header-schedule .descriptive p span {
-        color: #B9B8B8;
-        font-size: 10px;
-        display: block; }
-  .header-schedule .btn {
+.header-schedule .descriptive .svg-inline--fa {
+    display: inline-block;
+    position: relative;
+    float: left;
+    margin-right: 2px;
+    top: 50%;
+    transform: translateY(-75%);
+    color: #999; }
+.header-schedule .descriptive p {
+    float: left;
+    height: 4.6rem;
+    font-size: 14px;
+    padding-left: 5px;
+    margin: 0;
+    color: #6b6b6b; }
+.header-schedule .descriptive p span {
+    color: #B9B8B8;
+    font-size: 10px;
+    display: block; }
+.header-schedule .btn {
     display: inline-block;
     position: relative;
     color: #fff;
@@ -1197,18 +1197,18 @@ div.notas {
     background: #73C05B;
     top: 9px;
     border: none; }
-  .curso {
-  display: block;
-  position: relative;
-  width: calc(100% - 4px);
-  min-height: calc(100% - 4px);
-  border-radius: 3px;
-  background: rgba(218, 218, 222, 0.9);
-  overflow: hidden;
-  margin: 2px;
-  cursor: pointer;
-  z-index: 500; }
-  .curso.size-1 {
+.curso {
+    display: block;
+    position: relative;
+    width: calc(100% - 4px);
+    min-height: calc(100% - 4px);
+    border-radius: 3px;
+    background: rgba(218, 218, 222, 0.9);
+    overflow: hidden;
+    margin: 2px;
+    cursor: pointer;
+    z-index: 500; }
+.curso.size-1 {
     min-height: calc(100% - 4px);
     max-height: calc(100% - 4px);
     -webkit-transition: all 0.3s ease;
@@ -1216,19 +1216,19 @@ div.notas {
     -ms-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease; }
-    .curso.size-1:hover {
-      min-height: calc(100% - 4px);
-      max-height: 200px;
-      -webkit-transition: all 0.3s ease;
-      -moz-transition: all 0.3s ease;
-      -ms-transition: all 0.3s ease;
-      -o-transition: all 0.3s ease;
-      transition: all 0.3s ease; }
-  .curso.size-3 {
+.curso.size-1:hover {
+    min-height: calc(100% - 4px);
+    max-height: 200px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease; }
+.curso.size-3 {
     height: calc(100% - 4px); }
-  .curso:hover {
+.curso:hover {
     z-index: 800; }
-  .curso.verde:before {
+.curso.verde:before {
     content: "";
     display: block;
     position: absolute;
@@ -1237,7 +1237,7 @@ div.notas {
     top: 0;
     width: 2px;
     background: #1DD1A1; }
-  .curso.rojo:before {
+.curso.rojo:before {
     content: "";
     display: block;
     position: absolute;
@@ -1246,7 +1246,7 @@ div.notas {
     top: 0;
     width: 2px;
     background: #FF6B6B; }
-  .curso.naranja:before {
+.curso.naranja:before {
     content: "";
     display: block;
     position: absolute;
@@ -1255,119 +1255,119 @@ div.notas {
     top: 0;
     width: 2px;
     background: #FF9F43; }
-  .curso .svg-inline--fa {
+.curso .svg-inline--fa {
     margin: 4px;
     margin-top: 8px;
     float: left;
     color: #9b9b9b; }
-  .curso .data-curso {
+.curso .data-curso {
     text-align: right;
     width: 70%;
     float: right;
     padding-top: 6px;
     padding-right: 3px; }
-    .curso .data-curso span {
-      color: #9b9b9b; }
-  .curso.azul {
+.curso .data-curso span {
+    color: #9b9b9b; }
+.curso.azul {
     background: rgba(84, 160, 255, 0.83);
     color: #fff; }
-    .curso.azul .svg-inline--fa {
-      color: rgba(255, 255, 255, 0.6); }
-    .curso.azul .data-curso span {
-      color: rgba(255, 255, 255, 0.6); }
-    .curso.azul:before {
-      display: none !important;
-      content: "";
-      display: block;
-      position: absolute;
-      height: 100%;
-      left: 0;
-      top: 0;
-      width: 2px;
-      background: #FF9F43; }
-  .curso.error {
+.curso.azul .svg-inline--fa {
+    color: rgba(255, 255, 255, 0.6); }
+.curso.azul .data-curso span {
+    color: rgba(255, 255, 255, 0.6); }
+.curso.azul:before {
+    display: none !important;
+    content: "";
+    display: block;
+    position: absolute;
+    height: 100%;
+    left: 0;
+    top: 0;
+    width: 2px;
+    background: #FF9F43; }
+.curso.error {
     background: rgba(255, 107, 107, 0.8);
     color: #fff; }
-    .curso.error .svg-inline--fa {
-      color: rgba(255, 255, 255, 0.6); }
-    .curso.error .data-curso span {
-      color: rgba(255, 255, 255, 0.6); }
-    .curso.error:before {
-      display: none !important;
-      content: "";
-      display: block;
-      position: absolute;
-      height: 100%;
-      left: 0;
-      top: 0;
-      width: 2px;
-      background: #FF9F43; }
-      #schedule-wrapper {
+.curso.error .svg-inline--fa {
+    color: rgba(255, 255, 255, 0.6); }
+.curso.error .data-curso span {
+    color: rgba(255, 255, 255, 0.6); }
+.curso.error:before {
+    display: none !important;
+    content: "";
+    display: block;
+    position: absolute;
+    height: 100%;
+    left: 0;
+    top: 0;
+    width: 2px;
+    background: #FF9F43; }
+#schedule-wrapper {
     overflow: auto; }
-    #schedule-wrapper .header-schedule, #schedule-wrapper .over-schedule, #schedule-wrapper .schedule {
-      width: 96%; }
-    #schedule-wrapper .list-cursos li {
-      height: initial;
-      min-height: 20px;
-      overflow: hidden;
-      padding-bottom: 15px; }
-    
-    
-    .tabla-8 .numbers{
-        height: 448px;
-    }
-   
-    .tabla-8 .numbers .hours{
-        height: 56px;
-    }
-    
-    .tabla-8 .schedule .schels{
-        height: 448px;
-        
-    }
-    
-    .tabla-8 .schedule .schels .tr-items{
-        height: 56px;
-    }
-    
-    .tabla-8 .curso.size-1{
-        min-height: calc(100% - 4px);
-    }
-    
-    
-    
-    .tabla-4 .numbers{
-        height: 448px;
-    }
-   
-    .tabla-4 .numbers .hours{
-        height: 112px;
-    }
-    
-    .tabla-4 .schedule .schels{
-        height: 448px;
-        
-    }
-    
-    .tabla-4 .schedule .schels .tr-items{
-        height: 112px;
-    }
-    
-    .tabla-4 .curso.size-1{
-        height: calc(100% - 4px);
-    }
-    
-    
-    .curso .fa{
-        padding: 7px;
-    }
-    
-    .curso .data-curso span{
-        display: block;
-    }
-    
-    
-    .curso.color1:before {
+#schedule-wrapper .header-schedule, #schedule-wrapper .over-schedule, #schedule-wrapper .schedule {
+    width: 96%; }
+#schedule-wrapper .list-cursos li {
+    height: initial;
+    min-height: 20px;
+    overflow: hidden;
+    padding-bottom: 15px; }
+
+
+.tabla-8 .numbers{
+    height: 448px;
+}
+
+.tabla-8 .numbers .hours{
+    height: 56px;
+}
+
+.tabla-8 .schedule .schels{
+    height: 448px;
+
+}
+
+.tabla-8 .schedule .schels .tr-items{
+    height: 56px;
+}
+
+.tabla-8 .curso.size-1{
+    min-height: calc(100% - 4px);
+}
+
+
+
+.tabla-4 .numbers{
+    height: 448px;
+}
+
+.tabla-4 .numbers .hours{
+    height: 112px;
+}
+
+.tabla-4 .schedule .schels{
+    height: 448px;
+
+}
+
+.tabla-4 .schedule .schels .tr-items{
+    height: 112px;
+}
+
+.tabla-4 .curso.size-1{
+    height: calc(100% - 4px);
+}
+
+
+.curso .fa{
+    padding: 7px;
+}
+
+.curso .data-curso span{
+    display: block;
+}
+
+
+.curso.color1:before {
     content: "";
     display: block;
     position: absolute;
@@ -1376,8 +1376,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #4183D7; }
-    
-    .curso.color2:before {
+
+.curso.color2:before {
     content: "";
     display: block;
     position: absolute;
@@ -1386,8 +1386,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #336E7B; }
-    
-    .curso.color3:before {
+
+.curso.color3:before {
     content: "";
     display: block;
     position: absolute;
@@ -1396,8 +1396,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #68C3A3; }
-    
-    .curso.color4:before {
+
+.curso.color4:before {
     content: "";
     display: block;
     position: absolute;
@@ -1406,8 +1406,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #FABE58; }
-    
-    .curso.color5:before {
+
+.curso.color5:before {
     content: "";
     display: block;
     position: absolute;
@@ -1416,8 +1416,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #6C7A89; }
-    
-    .curso.color6:before {
+
+.curso.color6:before {
     content: "";
     display: block;
     position: absolute;
@@ -1426,8 +1426,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #947CB0; }
-    
-    .curso.color7:before {
+
+.curso.color7:before {
     content: "";
     display: block;
     position: absolute;
@@ -1436,8 +1436,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #BE8C6B; }
-    
-    .curso.color8:before {
+
+.curso.color8:before {
     content: "";
     display: block;
     position: absolute;
@@ -1446,8 +1446,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: #003780; }
-    
-    .curso.color9:before {
+
+.curso.color9:before {
     content: "";
     display: block;
     position: absolute;
@@ -1456,8 +1456,8 @@ div.notas {
     top: 0;
     width: 2px;
     background: yellow; }
-    
-    .curso.color10:before {
+
+.curso.color10:before {
     content: "";
     display: block;
     position: absolute;
@@ -1466,7 +1466,7 @@ div.notas {
     top: 0;
     width: 2px;
     background: #870000; }
-    .curso.color11:before {
+.curso.color11:before {
     content: "";
     display: block;
     position: absolute;
@@ -1475,7 +1475,7 @@ div.notas {
     top: 0;
     width: 2px;
     background: navajowhite; }
-    .curso.color12:before {
+.curso.color12:before {
     content: "";
     display: block;
     position: absolute;
@@ -1484,7 +1484,7 @@ div.notas {
     top: 0;
     width: 2px;
     background: #c2d5f2; }
-    .curso.color13:before {
+.curso.color13:before {
     content: "";
     display: block;
     position: absolute;
@@ -1493,4 +1493,14 @@ div.notas {
     top: 0;
     width: 2px;
     background: #006C11; }
-    /*end horario*/
+/*end horario*/
+/*table borderless*/
+.borderless > tbody > tr > td,
+.borderless > tbody > tr > th,
+.borderless > tfoot > tr > td,
+.borderless > tfoot > tr > th,
+.borderless > thead > tr > td,
+.borderless > thead > tr > th {
+    border: none !important;
+}
+/*end table borderless*/
