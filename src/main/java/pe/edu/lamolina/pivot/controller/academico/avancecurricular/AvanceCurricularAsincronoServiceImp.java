@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -288,10 +289,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void sincronizarCursosEliminados(Map<Long, CursoCurricula> cursosCurricula, Map<Long, AlumnoCursoCurricula> cursosAlumno) {
+        List<Long> toBeRemoved = new LinkedList<>();
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : cursosAlumno.entrySet()) {
             if (!cursosCurricula.containsKey(entry.getKey())) {
-                cursosAlumno.remove(entry.getKey());
+                toBeRemoved.add(entry.getKey());
             }
+        }
+        for (Long id : toBeRemoved) {
+            cursosAlumno.remove(id);
         }
     }
 

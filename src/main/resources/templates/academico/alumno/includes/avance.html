@@ -1,12 +1,25 @@
 <template id="avanceComponent">
-    <section class="panel-body m-t-sm">
-       <div class="m-b-sm">        
+    <section class="panel-body m-t-md">
+        <div class="m-b-sm">        
             <h3 class="m-t-n" style="display: inline-block" v-text="titulo"></h3>
             <div class="pull-right m-t-n">
-                <a v-on:click="generarAvance" class="btn btn-primary">Actualizar</a>
             </div>
         </div>
-        <div class="tabbable-line m-b-md m-t-n">
+        <form class="form-horizontal m-b-md">
+            <div class="form-group">
+                <label class="control-label col-sm-1" for="email">Plan Curricular: </label>
+                <div class="col-sm-2">
+                    <select id='planes' class="form-control" v-model="planTemp.id">
+                        <option v-for="plan in planes" v-bind:value="plan.id" v-text="plan.cicloInicioVigencia.descripcion"></option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <button v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </button> 
+                </div>
+
+            </div>
+        </form>
+        <div class="tabbable-line m-b-md m-t-md">
             <div class="tabbable-line" id="subBar">
                 <ul class="nav nav-tabs">
                     <li class="">

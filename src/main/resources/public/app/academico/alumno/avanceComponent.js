@@ -2,6 +2,7 @@ Vue.component("avance-component", {
     template: "#avanceComponent",
     props: {
         alumno: {},
+        planes: []
     },
     data: function () {
         return {
@@ -9,16 +10,20 @@ Vue.component("avance-component", {
             ciclosCurricula: [],
             cursosCurricula: [],
             cantidadCursos: 0,
-            searchCiclo: 1
+            searchCiclo: 1,
+            planTemp: { id:0}
         }
     },
     computed: {
-      titulo() {
-          return 'Avance Curricular';
-      }  
+        titulo() {
+            return 'Avance Curricular';
+        }
     },
     beforeMount() {
         this.cargaAvance();
+    },
+    mounted() {
+        this.planTemp.id = this.alumno.planCurricular.id;
     },
     methods: {
         active(index) {
@@ -62,8 +67,31 @@ Vue.component("avance-component", {
                 }
             });
         },
+        cambiarPlanCurricular() {
+            let $vue = this;
+            $.ajax({
+                async: false,
+                method: 'GET',
+                url: APP.url('academico/alumno/' + $vue.alumno.id + '/' + $vue.planTemp.id + '/cambiarplan'),
+                contentType: "application/json",
+                success: function (response) {
+                    $vue.alumno.planCurricular.id = $vue.planTemp.id;
+                    notify('Plan curricular actualizado', 'info');
+                }
+            });
+        },
         generarAvance() {
             let $vue = this;
+            console.log($vue.planTemp.id )
+            console.log($vue.alumno.planCurricular.id )
+            if ($vue.planTemp.id !== $vue.alumno.planCurricular.id) {
+                console.log('cambiar de plan');
+                $vue.cambiarPlanCurricular();
+            }
+                console.log('cambiar de planassadas');
+            if ($vue.planTemp.id !== $vue.alumno.planCurricular.id) {
+                return;
+            }
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'GET',

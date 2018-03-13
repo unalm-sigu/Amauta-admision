@@ -33,7 +33,7 @@
                             <historial-component v-bind:alumno="alumno"></historial-component>
                         </div>   
                         <div v-show="3 == tabId" >
-                            <avance-component v-bind:alumno="alumno"></avance-component>
+                            <avance-component v-bind:alumno.sync="alumno" v-bind:planes="planes"></avance-component>
                         </div>   
                         <div v-show="4 == tabId" >
                             <matricula-component v-bind:alumno="alumno"></matricula-component>
@@ -61,6 +61,7 @@
             var alumnoJson = /*[[${datoAlumno.toString()}]]*/ 'json';
             var horasJson = /*[[${horasBD.toString()}]]*/ 'json';
             var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
+            var planesJson = /*[[${planes.toString()}]]*/ 'json';
             /*]]>*/
         </script>
         <div th:substituteby="_layout/includes :: svgjs"/>

@@ -132,7 +132,7 @@ public class HorarioCachimboGenerarController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
-            service.delete(horarioCachimbos, usuario);
+            service.delete(horarioCachimbos, ds.getCicloAcademico(), usuario);
             response.setMessage("Horario eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -150,7 +150,7 @@ public class HorarioCachimboGenerarController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
-            service.delete(form, usuario);
+            service.delete(form, ds.getCicloAcademico(), usuario);
             response.setMessage("Horarios eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

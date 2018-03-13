@@ -5,8 +5,10 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -27,5 +29,9 @@ public interface infoAcademicoService {
     List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
+    
+    List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera);
+    
+    void cambiarPlan(Alumno alumno, PlanCurricular planCurricular);
 
 }

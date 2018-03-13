@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -77,9 +78,17 @@ public class infoAcademicoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
+        ArrayNode planesJson = new ArrayNode(JsonNodeFactory.instance);
+
+        List<PlanCurricular> planes = service.allPlanCurricularByCarrera(alumno.getCarrera());
+        for (PlanCurricular plan : planes) {
+            planesJson.add(plan.toJson());
+        }
 
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclo", ds.getCicloAcademico().toJson());
+        model.addAttribute("planes", planesJson);
+
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = service.allHoras();
         for (Hora hora : horas) {
@@ -222,6 +231,22 @@ public class infoAcademicoController {
             }
             objNode.set("cursos", lstCurso);
             response.setData(objNode);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/{idPlan}/cambiarplan", method = RequestMethod.GET)
+    public JsonResponse cambiarPlan(@PathVariable("idAlumno") Long idAlumno, @PathVariable("idPlan") Long idPlan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.cambiarPlan(new Alumno(idAlumno), new PlanCurricular(idPlan));
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

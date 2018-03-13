@@ -3,6 +3,7 @@ new Vue({
     data: {
         alumno: JSON.parse(alumnoJson),
         allHoras: JSON.parse(horasJson),
+        planes: JSON.parse(planesJson),
         ciclo: JSON.parse(cicloJson),
         tabId: 1,
         objtab: {},

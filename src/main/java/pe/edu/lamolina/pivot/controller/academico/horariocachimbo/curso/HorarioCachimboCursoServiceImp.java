@@ -234,7 +234,7 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
                         }
                     }
 
-                    sex.setSuscritos(totalSuscritos);
+                    sex.setReservados(totalSuscritos);
                     sexs.add(sex);
                 }
                 grupo.setSecciones(sexs);

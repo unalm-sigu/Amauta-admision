@@ -16,12 +16,15 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -32,9 +35,11 @@ import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricu
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -66,12 +71,20 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
+    @Autowired
+    PlanCurricularDAO planCurricularDAO;
+    
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
+
     @Override
     public ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo) {
         ArrayNode lstCiclos = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode lstCursos = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode objNodeCursos = new ObjectNode(JsonNodeFactory.instance);
-        List<AlumnoCursoCurricula> lst = alumnoCursoCurriculaDAO.allByAlumno(alumno, numeroCiclo);
+        alumno = alumnoDAO.findAllInfo(alumno.getId());
+        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularNroCiclo(alumno.getPlanCurricular(), numeroCiclo.intValue());
+        List<AlumnoCursoCurricula> lst = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursoCurriculas);
         if (numeroCiclo == 1l) {
             List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
 
@@ -236,6 +249,20 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
         return matriculaCursos;
 
+    }
+
+    @Override
+    public List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera) {
+        return planCurricularDAO.allActivoByCarrera(carrera);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarPlan(Alumno alumno, PlanCurricular planCurricular) {
+        Alumno alumnoBD = alumnoDAO.find(alumno.getId());
+        PlanCurricular planCurricularBD = planCurricularDAO.find(planCurricular.getId());
+        alumnoBD.setPlanCurricular(planCurricularBD);
+        alumnoDAO.update(alumnoBD);
     }
 
     @Override

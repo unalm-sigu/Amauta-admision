@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 
@@ -15,6 +16,19 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public AlumnoCursoCurriculaDAOH() {
         super();
         setClazz(AlumnoCursoCurricula.class);
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> allByAlumnoCursosCurricula(Alumno alumno, List<CursoCurricula> cursosCurricula) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .isNull("cursoOpcional")
+                .join("alumno alu", "curso cur", "cursoCurricula ccur")
+                .filter("alumno", alumno)
+                .in("ccur.id", cursosCurricula)
+                .orderBy("acc.numeroCiclo");
+
+        return all(sql);
     }
 
     @Override
@@ -58,4 +72,5 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         query.setParameter("ALUMNO", alumno.getId());
         query.executeUpdate();
     }
+
 }
