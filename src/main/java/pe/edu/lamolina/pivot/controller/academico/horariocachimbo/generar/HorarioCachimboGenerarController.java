@@ -215,7 +215,7 @@ public class HorarioCachimboGenerarController {
                     if (shcHorario != null) {
                         for (SeccionHorarioCachimbos shc : shcHorario) {
                             ObjectNode horaSeccion = new ObjectNode(jsonFactory);
-                            horaSeccion.put("hora", service.getClave(shc));
+                            horaSeccion.put("hora", service.getHoraSeccion(shc));
                             horaSeccion.put("seccion", ObjectUtil.getParentTree(shc, "seccion.codigo2").toString());
                             horaSeccion.put("grupo", ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
                             horarios.add(horaSeccion);

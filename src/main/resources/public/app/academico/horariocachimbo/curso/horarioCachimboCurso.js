@@ -2,7 +2,7 @@
 var $global = new Vue({});
 var ItemCursoTemplate = Vue.component("itemCurso", {
     template: "#itemCursoTemplate",
-    data: function() {
+    data: function () {
         return {curso: {}, total: 0};
     },
     methods: {
@@ -12,7 +12,7 @@ var ItemCursoTemplate = Vue.component("itemCurso", {
     },
     watch: {
         curso: {
-            handler: function(after, before) {
+            handler: function (after, before) {
                 $global.$emit("updateTotalCredito", after, before);
             },
             deep: true,
@@ -22,7 +22,7 @@ var ItemCursoTemplate = Vue.component("itemCurso", {
 
 var DynatableRowTemplate = Vue.component("dynatableRow", {
     template: "#dynatableRowTemplate",
-    data: function() {
+    data: function () {
         return {curso: []};
     },
     methods: {
@@ -39,12 +39,12 @@ let  dynatable = null;
 
 Vue.component("dynatable", {
     template: "#dynatableTemplate",
-    mounted: function() {
+    mounted: function () {
         var $vue = this;
         $vue.createDynatable();
     },
     methods: {
-        createDynatable: function() {
+        createDynatable: function () {
             var $vue = this;
             dynatable = $('#dynaTable').dynatable({
                 dataset: {
@@ -54,7 +54,7 @@ Vue.component("dynatable", {
                 },
                 writers: {_rowWriter: $vue.writter},
                 table: {bodyRowSelector: "tbody tr"}
-            }).bind("dynatable:afterUpdate", function(e) {
+            }).bind("dynatable:afterUpdate", function (e) {
 
                 var records = dynatable.settings.dataset.records;
                 for (var i = 0, max = records.length; i < max; i++) {
@@ -77,7 +77,7 @@ Vue.component("dynatable", {
                 }
             }).data('dynatable');
         },
-        writter: function(rowIndex, record, columns, cellWriter) {
+        writter: function (rowIndex, record, columns, cellWriter) {
             return "";
         }
     }
@@ -96,6 +96,8 @@ new Vue({
         carrera: {},
         grupoSecciones: [],
         checkedSeccion: [],
+        todos: 0,
+        msgTodos: "Seleccionar todas las claves",
         addCursoCarreraModal: {
             id: 'modalAddCursoCarrera',
             header: true,
@@ -113,18 +115,18 @@ new Vue({
     created() {
         let $vue = this;
     },
-    mounted: function() {
+    mounted: function () {
         let $vue = this;
-        $global.$on("eliminar", function(id) {
+        $global.$on("eliminar", function (id) {
             $vue.eliminar(id);
         });
-        $global.$on("seleccionarSecciones", function(id) {
+        $global.$on("seleccionarSecciones", function (id) {
             $vue.seleccionarSecciones(id);
         });
-        $global.$on("deleteItem", function(id) {
+        $global.$on("deleteItem", function (id) {
             $vue.deleteItem(id);
         });
-        $global.$on("updateTotalCredito", function(after, before) {
+        $global.$on("updateTotalCredito", function (after, before) {
             $vue.updateTotalCredito(after, before);
         });
     },
@@ -159,7 +161,7 @@ new Vue({
             this.$refs.modalAddCursoCarrera.open();
 
             $('#formCursoCarrera').parsley().destroy();
-            $('#formCursoCarrera [name="curso.id"]').select2(vue.selectCurso(vue)).on("change.select2", function(e) {
+            $('#formCursoCarrera [name="curso.id"]').select2(vue.selectCurso(vue)).on("change.select2", function (e) {
                 if (e && e.removed) {
                     if (e.val == '') {
                         vue.curso = [];
@@ -174,14 +176,14 @@ new Vue({
                     url: APP.url("academico/horariocachimbo/curso/searchcarrera"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         var datos = {
                             id: element.val(),
@@ -190,17 +192,17 @@ new Vue({
                         callback(datos);
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return $.templates("#divBuscarCarrera").render(info);
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     vue.carrera = info;
                     return info.nombre;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
-            }).on("change.select2", function(e) {
+            }).on("change.select2", function (e) {
                 if (e && e.removed) {
                     if (e.val == '') {
                         vue.carrera = [];
@@ -229,14 +231,14 @@ new Vue({
                     url: APP.url("academico/horariocachimbo/curso/searchcurso"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         var datos = {
                             id: element.val(),
@@ -245,14 +247,14 @@ new Vue({
                         callback(datos);
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return $.templates("#divBuscarCurso").render(info);
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     self.curso = info;
                     return info.codigo + " - " + info.curso;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
@@ -281,14 +283,14 @@ new Vue({
                 method: 'POST',
                 url: APP.url('academico/horariocachimbo/curso/addcurso'),
                 data: $('#formCursoCarrera').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         vue.$refs.modalAddCursoCarrera.close();
                         dynatable.process();
                     } else {
                         notify(response.message, 'error');
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -301,20 +303,20 @@ new Vue({
                     confirm: {label: 'Si, eliminar', className: "btn-danger"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/horariocachimbo/curso/delete'),
                             data: {id: id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
                                     dynatable.process();
                                 } else {
                                     notify(response.message, 'error');
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -329,7 +331,7 @@ new Vue({
             itemCursoTemplate.curso = curso;
             var component = itemCursoTemplate.$mount();
             $('#tableCurso tbody').append(component.$el);
-            $('#tableCurso tbody tr:last').find('.cursoItem').select2(vue.selectCurso(itemCursoTemplate)).on("change.select2", function(e) {
+            $('#tableCurso tbody tr:last').find('.cursoItem').select2(vue.selectCurso(itemCursoTemplate)).on("change.select2", function (e) {
                 if (e && e.removed) {
                     if (e.val == '') {
                         itemCursoTemplate.curso = [];
@@ -351,8 +353,10 @@ new Vue({
             var vue = this;
             var record = vue.getRecord(id);
             vue.curso = record;
+            vue.todos = 0;
             vue.checkedSeccion = [];
             vue.grupoSecciones = record.grupos;
+            vue.msgTodos = "Seleccionar todas las claves";
 
             for (var grupo of vue.grupoSecciones) {
                 for (var secc of grupo.secciones) {
@@ -373,7 +377,7 @@ new Vue({
                 method: 'POST',
                 url: APP.url('academico/horariocachimbo/curso/updateseccioncursocachimbo'),
                 data: $('#formSeleccionarClave').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
                         dynatable.process();
@@ -381,7 +385,7 @@ new Vue({
                     } else {
                         notify(response.message, 'error');
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -390,6 +394,20 @@ new Vue({
             var vue = this;
             vue.anexo = anexo;
             vue.verAnexo = true;
+        },
+        checkarAll(grupoSecciones) {
+            var vue = this;
+            if (vue.todos == 1) {
+                for (var grupo of grupoSecciones) {
+                    for (var secc of grupo.secciones) {
+                        vue.checkedSeccion.push(secc.id);
+                    }
+                }
+                vue.msgTodos = "Desmarcar todas las claves";
+            } else {
+                vue.msgTodos = "Seleccionar todas las claves";
+                vue.checkedSeccion = [];
+            }
         }
     }
 });
