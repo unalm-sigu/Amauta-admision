@@ -24,6 +24,7 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
         DynatableSql sql = new DynatableSql(filter)
                 .from(EventoCicloAcademico.class, "eca")
                 .join("cicloAcademico ca", "eventoAcademico ea")
+                .filter("ca.id", cicloAcademico)
                 .searchFields("ea.codigo", "ea.nombre")
                 .orderBy("eca.fechaFin desc");
         sql.beginRelativeFilters();
@@ -59,8 +60,8 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
 
         return all(sql);
     }
-    
-     @Override
+
+    @Override
     public List<EventoCicloAcademico> allEventoAcademicoByCicloAca(CicloAcademico cicloAcademico) {
 
         Octavia sql = Octavia.query()

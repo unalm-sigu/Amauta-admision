@@ -321,94 +321,92 @@
 
                                     </div>
                                 </div>
+                                <div  th:if='${alumno.id==null}'>
+                                    <div  class="col-xs-12">
+                                        <h4>Datos Académicos</h4>
+                                    </div>
 
-                                <div  class="col-xs-12">
-                                    <h4>Datos Académicos</h4>
-                                </div>
+
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+
+                                            <label>Ciclo Ingreso</label>
+
+                                            <select name="cicloIngreso.id"
+                                                    class="form-control" required="true">
+                                                <option></option>
+
+                                                <option th:each="ciclo : ${ciclos}"
+                                                        th:value="${ciclo.id}"
+                                                        th:selected="${alumno.cicloIngreso!=null?alumno.cicloIngreso.id==ciclo.id:0}"
+                                                        th:text="${ciclo.descripcion}"></option>
+
+                                            </select>
+
+                                        </div>
+                                    </div>
 
 
 
-                                <div  class="col-sm-6">
-                                    <div class="form-group">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="modalidadEstudio.id" >Modalidad de Estudio</label>
+                                            <select name="modalidadEstudio.id"
+                                                    required="true"
+                                                    class="form-control" >
+                                                <option></option>
+                                                <option th:each="item : ${modalidades}"
+                                                        th:text="${item.nombre}"
+                                                        th:selected="${alumno.modalidadEstudio!=null} ? ${alumno.modalidadEstudio.id==item.id}"
+                                                        th:value="${item.id}" ></option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                                        <label>Ciclo Ingreso</label>
 
-                                        <select name="cicloIngreso.id"
-                                                class="form-control" required="true">
-                                            <option></option>
 
-                                            <option th:each="ciclo : ${ciclos}"
-                                                    th:value="${ciclo.id}"
-                                                    th:selected="${alumno.cicloIngreso!=null?alumno.cicloIngreso.id==ciclo.id:0}"
-                                                    th:text="${ciclo.descripcion}"></option>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
 
-                                        </select>
+                                            <label for="codigo" >Matrícula</label>
+                                            <input  class="inline form-control"
+                                                    data-trigger="change" required="true" type="text"
+                                                    maxlength="9"
+                                                    data-trim-value="true"
+                                                    th:value='${alumno.codigo}'
+                                                    name="codigo" id="codigo" />
 
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label class="m-t-md"></label>
+                                            <label class="m-t-md checkbox-inline form-control-static">
+                                                <input type="checkbox" id="chkbxGenMat"  v-on:click="checkMatricula"/>Generar Automáticamente
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label>Carrera</label>
+                                            <input type="text"
+                                                   class="form-control buscar-distrito"
+                                                   id="carrera"
+                                                   name="carrera.id"
+                                                   data-trigger="change"
+                                                   th:rel="${helper.getParentTree(alumno,'carrera.nombre')}"
+                                                   th:value="${helper.getParentTree(alumno,'carrera.id')}"
+                                                   required="true"/>
+                                        </div>
                                     </div>
                                 </div>
-
-
-
-                                <div  th:if='${alumno.id==null}' class="col-sm-6">
-                                    <div class="form-group">
-                                        <label for="modalidadEstudio.id" >Modalidad de Estudio</label>
-                                        <select name="modalidadEstudio.id"
-                                                required="true"
-                                                class="form-control" >
-                                            <option></option>
-                                            <option th:each="item : ${modalidades}"
-                                                    th:text="${item.nombre}"
-                                                    th:selected="${alumno.modalidadEstudio!=null} ? ${alumno.modalidadEstudio.id==item.id}"
-                                                    th:value="${item.id}" ></option>
-                                        </select>
-                                    </div>
-                                </div>
-
-
-
-                                <div th:if='${alumno.id==null}' class="col-sm-6">
-                                    <div class="form-group">
-
-                                        <label for="codigo" >Matrícula</label>
-                                        <input  class="inline form-control"
-                                                data-trigger="change" required="true" type="text"
-                                                maxlength="9"
-                                                data-trim-value="true"
-                                                th:value='${alumno.codigo}'
-                                                name="codigo" id="codigo" />
-
-                                    </div>
-                                </div>
-
-
-
-                                <div th:if='${alumno.id==null}' class="col-sm-6">
-                                    <div class="form-group">
-                                        <label class="m-t-md"></label>
-                                        <label class="m-t-md checkbox-inline form-control-static">
-                                            <input type="checkbox" id="chkbxGenMat"  v-on:click="checkMatricula"/>Generar Automáticamente
-                                        </label>
-                                    </div>
-                                </div>
-
-
-
-                                <div  th:if='${alumno.id==null}' class="col-sm-6">
-                                    <div class="form-group">
-                                        <label>Carrera</label>
-                                        <input type="text"
-                                               class="form-control buscar-distrito"
-                                               id="carrera"
-                                               name="carrera.id"
-                                               data-trigger="change"
-                                               th:rel="${helper.getParentTree(alumno,'carrera.nombre')}"
-                                               th:value="${helper.getParentTree(alumno,'carrera.id')}"
-                                               required="true"/>
-                                    </div>
-                                </div>
-
-
-
                             </div>
 
                             <hr/>

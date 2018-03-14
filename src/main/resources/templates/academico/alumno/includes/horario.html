@@ -1,1 +1,116 @@
-hola3
+<section class="panel-body m-t-sm">
+    <div class="m-b-sm">        
+        <h3 class="m-t-n" style="display: inline-block" v-text="tituloHorario"></h3>
+        <div class="pull-right m-t-n">
+        </div>
+    </div>
+    <div id="horarioVue" v-cloak="">  
+        <div class="row" v-if="tabla8">
+            <div class="col-md-12 schedule-wrapper tabla-8"  id="schedule-wrapper">
+                <div class="over-schedule">
+                    <ul class="days">
+                        <li  v-for="dia in horarios.dias" >
+                            <span>{{dia.dia}}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="schedule">
+                    <div class="numbers">
+                        <p class="hours" v-for="hora in horarios.horarios" >
+                            {{hora.hora}}
+                        </p>
+                    </div>
+                    <div class="schels">
+                        <div class="tr-items" v-for="item in horarios.horarios" >
+                            <div class="sc-items" v-for="dia in item.dias">
+                                <div v-for="seccion in dia.secciones" v-bind:class="getColorBySeccion(seccion.seccion)">
+                                    <i v-if="seccion.tipoSeccion==='TCUR' " class="fa fa-book fa-lg"></i>
+                                    <i v-if="seccion.tipoSeccion==='PCUR' " class="fa fa-flask fa-lg"></i>
+                                    <p  class="data-curso">
+                                        {{ seccion ? seccion.curso : '' }}
+                                        <span>{{ seccion ? seccion.docente : '' }} </span>
+                                        <span>{{ seccion ? seccion.aula : '' }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" v-if="tabla4">
+            <div class="col-md-12 schedule-wrapper tabla-4"  id="schedule-wrapper">
+                <div class="over-schedule">
+                    <ul class="days">
+                        <li  v-for="dia in horarios.dias" >
+                            <span>{{dia.dia}}</span>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="schedule">
+                    <div class="numbers">
+                        <p class="hours" v-for="hora in horarios.horarios" >
+                            {{hora.hora}}
+                        </p>
+                    </div>
+                    <div class="schels" >
+                        <div class="tr-items" v-for="item in horarios.horarios" >
+                            <div class="sc-items" v-for="dia in item.dias">
+                                <div v-for="seccion in dia.secciones"   v-bind:class="getColorBySeccion(seccion.seccion)">
+                                    <i v-if="seccion.tipoSeccion==='TCUR' " class="fa fa-book fa-lg"></i>
+                                    <i v-if="seccion.tipoSeccion==='PCUR' " class="fa fa-flask fa-lg"></i>
+                                    <p  class="data-curso">
+                                        {{ seccion ? seccion.curso : '' }}
+                                        <span>{{ seccion ? seccion.docente : '' }} </span>
+                                        <span>{{ seccion ? seccion.aula : '' }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row" v-if="tabla14">
+            <div class="col-md-12 schedule-wrapper"  id="schedule-wrapper">
+                <div class="over-schedule">
+                    <ul class="days">
+                        <li  v-for="dia in horarios.dias" >
+                            <span>{{dia.dia}}</span>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="schedule">
+                    <div class="numbers">
+                        <p class="hours" v-for="hora in horarios.horarios" >
+                            {{hora.hora}}
+                        </p>
+                    </div>
+                    <div class="schels" >
+                        <div class="tr-items" v-for="item in horarios.horarios" >
+                            <div class="sc-items" v-for="dia in item.dias" >
+                                <div v-for="seccion in dia.secciones"  v-bind:class="getColorBySeccion(seccion.seccion)">
+                                    <i v-if="seccion.tipoSeccion==='TCUR' " class="fa fa-book fa-lg"></i>
+                                    <i v-if="seccion.tipoSeccion==='PCUR' " class="fa fa-flask fa-lg"></i>
+                                    <p  class="data-curso">
+                                        {{ seccion ? seccion.curso : '' }}
+                                        <span>{{ seccion ? seccion.docente : '' }} </span>
+                                        <span>{{ seccion ? seccion.aula : '' }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

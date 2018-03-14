@@ -50,10 +50,15 @@
 
     <div slot="body">
         <div class="panel-body">
-            
+
             <div class="block text-primary bold h4 m-t-xs m-b-xs">{{curso.nombre}}</div>
             <small class="block m-t-xs m-b-xs">{{curso.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{curso.tpc}}</small>
             <span class="block m-t-xs m-b text-primary">Carrera: {{curso.carrera}}</span>
+            <span class="block text-danger bold">
+                <label><input type="checkbox" true-value="1" v-model="todos" false-value="0" v-on:change="checkarAll(grupoSecciones)"/> 
+                    &nbsp;{{msgTodos}}
+                </label>
+            </span>
 
             <form id="formSeleccionarClave" >
 
@@ -66,7 +71,7 @@
                         <div class="checkbox ver-anexo"
                              v-on:mouseover="verAnexoSeccion(seccion.anexo)"
                              v-on:mouseleave="verAnexo=false"
-                              >
+                             >
                             <label>
                                 <input 
                                     type="checkbox"
@@ -84,7 +89,7 @@
                 <div v-for="( hellSeccion , index  )  in checkedSeccion" >
                     <input type="hidden"  v-bind:name="'secciones['+index+'].id'"    v-bind:value="hellSeccion" />
                 </div>
-                
+
                 <div class="text-center col-xs-12 alert alert-warning" v-if="verAnexo">{{anexo}}</div>
 
             </form>

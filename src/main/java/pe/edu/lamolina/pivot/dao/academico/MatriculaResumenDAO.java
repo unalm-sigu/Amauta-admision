@@ -23,5 +23,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     AlumnoResumen findResumenByCicloRolDynateable(CicloAcademico ciclo, String codigo, List<Long> filtros);
 
     void updatePuntajePrioridad(MatriculaResumen matriculaResumen);
+    public List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico);
 
 }

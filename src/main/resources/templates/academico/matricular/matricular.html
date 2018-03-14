@@ -1,0 +1,139 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Matricular</title>
+    </head>
+    <body >
+
+        <div layout:fragment="main">
+            <div id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <h2 th:inline="text">Turno de atención  [[${turnoAtencion.turno}]]  ( [[${cicloAcademico.descripcion}]] )   </h2>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel m-b-xs col-sm-8 col-sm-offset-2">
+
+                        <section class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12">
+
+                                    <div class="text-success" v-if="onProceso">
+                                        El proceso de matrícula empezara en <span v-text="countdown"></span>
+                                        segundos.
+                                    </div>
+
+                                </div>
+                                <div class="col-xs-12">
+
+
+                                    <div class="btn-group pull-right">
+
+                                        <a class="btn btn-link pull-right btn-sm"
+                                           v-if="updateProceso"
+                                           v-on:click.prevent="update"
+                                           href="#" ><i class="fa fa-refresh" aria-hidden="true"></i></a>
+
+                                        <a class="btn btn-info pull-right btn-sm"
+                                           v-if="initProceso"
+                                           v-on:click.prevent="on"
+                                           href="#"  >Iniciar</a>
+
+                                        <a class="btn btn-info pull-right btn-sm"
+                                           v-if="onProceso"
+                                           v-on:click.prevent="stop"
+                                           href="#" >Detener</a>
+
+                                    </div>
+
+                                </div>
+                                <div class="col-xs-12 m-t-xl">
+
+                                    <table class="table borderless" th:inline="text">
+                                        <tbody>
+
+                                            <tr >
+                                                <td class="col-xs-8 text-left">Alumnos programados</td>
+                                                <td class="col-xs-4 text-left"> [[${turnoAtencion.alumnos}]]</td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="col-xs-8 text-left">Alumnos prematriculados</td>
+                                                <td class="col-xs-4 text-left" v-text="alumnosPrematriculados">0</td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="col-xs-8 text-left">Secciones prematriculadas</td>
+                                                <td class="col-xs-4 text-left" v-text="seccionesPrematriculados">0</td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                                <div class="col-xs-12 m-t-xl">
+
+                                    <div>
+                                        <p class="pull-right"><span v-text='fydata.perCurso'></span>%</p>
+                                        <p>cursos ( <span v-text='fydata.currentCurso'></span> /   <span v-text='fydata.totalCurso'></span> )</p>
+                                    </div>
+
+                                    <div class="progress" style="height: 3px;">
+                                        <div class="progress-bar" role="progressbar" v-bind:style="{width : fydata.perCurso+'%'}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+
+                                    <div>
+                                        <p class="pull-right"> <span v-text='fydata.perSeccion'></span>%</p>
+                                        <p>secciones ( <span v-text='fydata.currentSeccion'></span> / <span v-text='fydata.totalSeccion'></span>  )</p>
+                                    </div>
+
+                                    <div class="progress" style="height: 3px;">
+                                        <div class="progress-bar" role="progressbar" v-bind:style="{width : fydata.perSeccion+'%'}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-xs-12 m-t-xl">
+
+                                    <div id="scroll-handler" class="panel panel-default" >
+
+                                        <a href="#" class="m-l-sm text-muted" v-on:click.prevent="topLog"> <i class="fa fa-angle-up fa-2x" aria-hidden="true"></i></a>
+
+                                        <ul class="list-unstyled">
+                                            <li  v-for="obs in observaciones" >
+                                                <p class="text-sm  text-danger m-t-sm m-l-lg m-b-sm" v-text="obs"></p>
+                                            </li>
+                                        </ul>
+
+                                        <a href="#"  class="m-l-sm text-muted" v-on:click.prevent="downLog"><i class="fa fa-angle-down fa-2x" aria-hidden="true"></i></a>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </section>
+
+                    </section>
+                </section>
+
+            </div>
+        </div>
+
+    </body>
+
+    <div layout:fragment="js">
+        <script  th:inline="javascript" >
+            /*<![CDATA[*/
+            var turno = /*[[${turnoAtencion.id}]]*/ '';
+            /*]]>*/
+        </script>
+        <script th:src="@{/vendor/wsockets/sockjs-0.3.4.min.js}" type="text/javascript" ></script>
+        <script th:src="@{/vendor/wsockets/stomp.min.js}" type="text/javascript" ></script>
+        <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/matricular/matricular.js}" charset="utf-8"></script>
+    </div>
+</html>

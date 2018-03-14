@@ -86,10 +86,9 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
             throw new PhobosException("Tiene que especificar el evento académico.");
         }
         EventoCicloAcademico eventoCicloAcademicoDB = eventoCicloAcademicoDAO.findEventoCicloAcademico(eventoCicloAcademico);
-        eventoCicloAcademicoDB.setEstado(EventoCicloAcademicoEstadoEnum.CRE.name());
-        eventoCicloAcademicoDB.setFechaRegistro(new Date());
-        eventoCicloAcademicoDB.setUserRegistro(usuario);
         eventoCicloAcademicoDB.setEventoAcademico(eventoCicloAcademico.getEventoAcademico());
+        eventoCicloAcademicoDB.setFechaFin(eventoCicloAcademico.getFechaFin());
+        eventoCicloAcademicoDB.setFechaInicio(eventoCicloAcademico.getFechaInicio());
         eventoCicloAcademicoDAO.update(eventoCicloAcademicoDB);
     }
 

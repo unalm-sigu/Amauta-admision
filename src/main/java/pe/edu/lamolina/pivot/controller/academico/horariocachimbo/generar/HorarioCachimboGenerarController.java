@@ -132,7 +132,7 @@ public class HorarioCachimboGenerarController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
-            service.delete(horarioCachimbos, usuario);
+            service.delete(horarioCachimbos, ds.getCicloAcademico(), usuario);
             response.setMessage("Horario eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -150,7 +150,7 @@ public class HorarioCachimboGenerarController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
-            service.delete(form, usuario);
+            service.delete(form, ds.getCicloAcademico(), usuario);
             response.setMessage("Horarios eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -215,8 +215,8 @@ public class HorarioCachimboGenerarController {
                     if (shcHorario != null) {
                         for (SeccionHorarioCachimbos shc : shcHorario) {
                             ObjectNode horaSeccion = new ObjectNode(jsonFactory);
-                            horaSeccion.put("hora", service.getClave(shc));
-                            horaSeccion.put("seccion", ObjectUtil.getParentTree(shc, "seccion.codigo").toString());
+                            horaSeccion.put("hora", service.getHoraSeccion(shc));
+                            horaSeccion.put("seccion", ObjectUtil.getParentTree(shc, "seccion.codigo2").toString());
                             horaSeccion.put("grupo", ObjectUtil.getParentTree(shc, "seccion.grupoHoras.codigo").toString());
                             horarios.add(horaSeccion);
                         }
@@ -397,7 +397,7 @@ public class HorarioCachimboGenerarController {
 
                     for (HorarioSeccion horarioSeccion : seccionHorarioDia) {
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
-                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo2());
                         seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
                         seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
                         seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
@@ -602,7 +602,7 @@ public class HorarioCachimboGenerarController {
                     ArrayNode arraySeccion = new ArrayNode(jsonFactory);
                     for (HorarioSeccion horarioSeccion : horariosSeccionesDia) {
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
-                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
+                        seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo2());
                         seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
                         seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
                         seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));

@@ -20,4 +20,6 @@ public interface VacanteAlumnoDAO extends EasyDAO<VacanteAlumno> {
 
     void updateEstadoFechaModUsuarioMod(VacanteAlumno vacanteAlumno);
 
+    public List<VacanteAlumno> allActivoBySeccion(List<Seccion> secciones);
+
 }

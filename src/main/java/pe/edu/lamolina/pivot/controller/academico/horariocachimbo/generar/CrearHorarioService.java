@@ -1,0 +1,37 @@
+package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar;
+
+import java.util.List;
+import java.util.Map;
+import pe.edu.lamolina.model.academico.AlumnoHorario;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+
+public interface CrearHorarioService {
+    
+    void saveHorario(
+            AlumnoHorario alumno,
+            List<Curso> cursos,
+            List<Seccion> horarioTempo,
+            Carrera carrera,
+            CicloAcademico ciclo,
+            Map<String, HorarioCachimbos> mapHorario,
+            Map<Long, CarreraCachimbos> mapCarreraCachimbos,
+            Map<Long, List<VacanteAlumno>> vacanteAlumnosMap,
+            Acumulador code, DataSessionPivot ds);
+
+//    HorarioCachimbos createHorario(
+//            List<Seccion> horarioTempo,
+//            Carrera carrera,
+//            CicloAcademico ciclo,
+//            int cursos,
+//            Map<String, HorarioCachimbos> mapHorario,
+//            Acumulador code, DataSessionPivot ds);
+
+}

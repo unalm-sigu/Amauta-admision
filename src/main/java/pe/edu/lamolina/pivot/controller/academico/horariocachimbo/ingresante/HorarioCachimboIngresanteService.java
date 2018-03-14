@@ -30,8 +30,10 @@ public interface HorarioCachimboIngresanteService {
 
     List<Alumno> allAlumnoIngresantePregradoByNameCiclo(String nombre, CicloAcademico cicloAcademico);
 
-    public void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user);
+    void eliminarHorarios(CicloAcademico cicloAcademico, Usuario user);
 
-    public List<IngresanteCantidad> allIngresanteCantidad(CicloAcademico cicloAcademico);
+    List<IngresanteCantidad> allIngresanteCantidad(CicloAcademico cicloAcademico);
+
+    void deleteIngresante(AlumnoHorario alumnoHorario, CicloAcademico cicloAcademico);
 
 }

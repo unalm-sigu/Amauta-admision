@@ -26,9 +26,9 @@ public interface HorarioCachimboGenerarService {
 
     List<HorarioCachimbos> allHorarioCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void delete(HorarioCachimbos horarioCachimbos, Usuario usuario);
+    void delete(HorarioCachimbos horarioCachimbos, CicloAcademico ciclo, Usuario usuario);
 
-    void delete(HorarioCachimboForm form, Usuario usuario);
+    void delete(HorarioCachimboForm form, CicloAcademico ciclo, Usuario usuario);
 
     List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Long horario);
 
@@ -50,7 +50,7 @@ public interface HorarioCachimboGenerarService {
 
     void generar(CicloAcademico cicloAcademico, ModalidadEstudio modalidad, DataSessionPivot ds);
 
-    String getClave(SeccionHorarioCachimbos shc);
+    String getHoraSeccion(SeccionHorarioCachimbos shc);
 
     void addAlumno(AlumnoHorario alumno);
 
@@ -58,27 +58,27 @@ public interface HorarioCachimboGenerarService {
 
     List<CursoCachimbos> allCursoCachimbosByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico);
 
-    List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos);
+    //List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos);
 
-    void reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones);
+    //String reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones);
 
     void permutarUnico(
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
             Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera);
 
-    public Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios);
+    //Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios);
 
-    public HorarioCachimbos createHorario(
-            List<Seccion> horarioTempo,
-            Carrera carrera,
-            CicloAcademico ciclo,
-            int cursos,
-            Map<String, HorarioCachimbos> mapHorario,
-            Acumulador code, DataSessionPivot ds);
+//    HorarioCachimbos createHorario(
+//            List<Seccion> horarioTempo,
+//            Carrera carrera,
+//            CicloAcademico ciclo,
+//            int cursos,
+//            Map<String, HorarioCachimbos> mapHorario,
+//            Acumulador code, DataSessionPivot ds);
 
-    public void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos);
+    void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos);
 
-    public List<GrupoSeccion> allGrupoSeccionByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico);
+    List<GrupoSeccion> allGrupoSeccionByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico);
 
 }

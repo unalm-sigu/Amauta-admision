@@ -7,7 +7,7 @@
                     <tr>
                         <th v-if="showTitle" class="headcollateral">Curso</th>
                         <th v-for="h in horarios"  class="text-center">
-                            <span class="pointer" v-on:click="openHorario(h.id)">{{ h.codigo }}</span>
+                            <span class="pointer text-nowrap" v-on:click="openHorario(h.id)">{{ h.codigo }}</span>
                         </th>
                     </tr>
                 </thead>

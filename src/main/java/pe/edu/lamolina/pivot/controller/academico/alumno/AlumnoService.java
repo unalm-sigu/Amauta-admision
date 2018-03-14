@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.alumno;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -12,6 +13,8 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface AlumnoService {
@@ -25,10 +28,6 @@ public interface AlumnoService {
     Alumno findAlumno(Alumno alumno);
 
     List<AlumnoCicloCurso> findAlumnoHistorial(Alumno alumno);
-
-    List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
-
-    List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno);
 
 //    List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
 //
@@ -61,6 +60,11 @@ public interface AlumnoService {
 
     String goMatricula(Long idAlumno);
 
-    Alumno allInfo(Alumno alumno);
+    List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(Alumno alumno, CicloAcademico academico);
 
+    ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios);
+
+    Hora getHoraByNroHora(Integer numero);
+
+    Alumno allInfo(Alumno alumno);
 }

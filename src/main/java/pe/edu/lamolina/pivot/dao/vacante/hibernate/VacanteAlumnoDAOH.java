@@ -74,4 +74,14 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
         octavia.set(vacanteAlumno, "fechaModificacion");
         this.update(vacanteAlumno);
     }
+
+    @Override
+    public List<VacanteAlumno> allActivoBySeccion(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(VacanteAlumno.class, "va")
+                .join("seccion se", "alumno alu")
+                .filter("activo", 1)
+                .in("se.id", secciones);
+        return sql.all(getCurrentSession());
+    }
 }

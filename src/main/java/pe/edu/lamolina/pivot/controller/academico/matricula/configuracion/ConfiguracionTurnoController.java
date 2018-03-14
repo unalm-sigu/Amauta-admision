@@ -41,7 +41,7 @@ public class ConfiguracionTurnoController {
 
     @Autowired
     ConfiguracionMatriculaService service;
-    
+
     @Autowired
     InterceptorService interceptorService;
 
@@ -139,18 +139,17 @@ public class ConfiguracionTurnoController {
 
     @ResponseBody
     @RequestMapping(value = "configuracion", method = RequestMethod.POST)
-    public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session,HttpServletRequest servlet) {
+    public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Long Id = service.saveConfiguracion(config);
-//            config.toJson().put("tipo", "creacion de turnos");
-//            config.toJson().put("ciclo", 473);
-//            interceptorService.saveInterceptor(servlet, config.toJson());
+
+   
             response.setSuccess(true);
             response.setData(Id);
             response.setMessage("Se guardó la configuración satisfactoriamente");
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
 

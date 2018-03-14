@@ -10,6 +10,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 
 @Repository
 public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implements PlanCurricularDAO {
@@ -17,6 +18,18 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
     public PlanCurricularDAOH() {
         super();
         setClazz(PlanCurricular.class);
+    }
+
+    @Override
+    public List<PlanCurricular> allActivoByCarrera(Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(PlanCurricular.class, "pc")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("carrera", carrera);
+
+        return all(sql);
     }
 
     @Override

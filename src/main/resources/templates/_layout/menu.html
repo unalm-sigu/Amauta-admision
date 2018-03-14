@@ -23,8 +23,8 @@
                 </a>
 
                 <ul class="menu">
-                    <li th:if="${session.SESSION_USUARIO.roles.size()>1}"><a th:href="@{/changerol}">Cambiar de Rol</a></li>
-                    <li><a th:href="@{/academico/cicloacademico/changeciclo}">Cambiar de Ciclo</a></li>
+                    <li th:if="${session.SESSION_USUARIO.roles.size()>1}"><a th:href="@{/changerol}">Cambiar Rol</a></li>
+                    <li><a th:href="@{/academico/cicloacademico/changeciclo}">Cambiar Ciclo</a></li>
                     <!--<li class="divider"> </li>-->
                     <li><a href="#" onclick="exitSession()">Salir</a></li>
                 </ul>
