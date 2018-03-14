@@ -1,0 +1,39 @@
+<tr rel="{{:index}}">
+
+    <td class="v-middle text-center"> {{:codigo}} </td>
+    <td class="v-middle"> {{:nombre}} </td>
+    <td class="v-middle text-center"> {{:preguntasVisibles}} </td>
+    <td class="v-middle text-center"> {{:preguntasDisponibles}} </td>
+    <td class="v-middle text-center"> {{:cicloInicio}} &nbsp; - &nbsp; {{:cicloFin}} </td>
+    <td class="v-middle text-center">
+        <span class="label label-{{:colorEstado}}">{{:estadoEnum}}</span>
+    </td>
+
+    <td class="v-middle">
+        <div class="actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
+            <ul class="dropdown-menu pull-right">
+                <li><a th:href="@{'/encuesta/editor/{{:id}}/update'}">Editar</a></li>
+                <li><a class="delete-encuesta" href="#">Eliminar</a></li>
+
+                {{if estado=="ACT"}}
+                    <li><a class="cambiar-estado" href="#">Desactivar</a></li>
+                {{/if}}
+
+                {{if estado=="INA"}}
+                    <li><a class="cambiar-estado" href="#">Activar</a></li>
+                {{/if}}
+
+                {{if estado=="CRE"}}
+                    <li><a class="cambiar-estado" href="#">Activar</a></li>
+                {{/if}}
+
+                <li class="divider"></li>
+                <li><a th:href="@{'/encuesta/editor/pregunta/{{:id}}'}">Preguntas</a></li>
+                <li><a th:href="@{'/encuesta/editor/{{:id}}/preview'}" target="encuesta">Previsualización</a></li>
+                <li><a class="duplicar-encuesta" href="#">Clonar encuesta</a></li>
+            </ul>
+        </div>
+    </td>
+
+</tr>

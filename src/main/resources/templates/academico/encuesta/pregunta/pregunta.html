@@ -1,0 +1,62 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Pregunta Encuesta</title>
+    
+</head>
+
+<body>
+
+    <div layout:fragment="MAIN">
+
+        <header class="page-header">
+
+            
+            <a class="btn btn-primary pull-right" th:href="@{/encuesta/editor}" >Regresar</a>
+
+            <h2 th:inline="text">Preguntas</h2>
+            <h4 th:inline="text"><b>[[${encuesta.codigo}]]</b>   [[${encuesta.nombre}]]</h4>
+            <input type="hidden" name="encuesta.id" th:value="${encuesta.id}" />
+
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <div th:if="${encuesta.estado=='CRE'}" class="hide" id="headDynatable">
+                    <a class="btn btn-primary" th:href="@{'/encuesta/editor/pregunta/'+${encuesta.id}+'/nuevo'}" >Nueva Pregunta</a>
+                </div>
+                <table  id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th></th>
+                            <th class="col-md-1 text-center v-middle">Número</th>
+                            <th class="col-md-7 v-middle">Contenido</th>
+                            <th class="col-md-1 text-center v-middle">Opciones</th>
+                            <th class="col-md-2 text-center v-middle">Depende de</th>
+                            <th class="col-md-1 text-center v-middle">Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </section>
+        </section>
+
+        <script id="templatePreview" type="text/x-jsrender" class="hide">
+            <div th:substituteby="encuesta/pregunta/preview"></div>
+        </script>
+
+        <script id="preguntaTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="encuesta/pregunta/preguntaTemplate"/>
+        </script>
+
+    </div>
+
+    <div layout:fragment="JS">
+        
+        <script th:src="@{/app/encuesta/pregunta/pregunta.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

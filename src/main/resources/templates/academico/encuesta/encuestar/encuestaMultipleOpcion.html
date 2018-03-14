@@ -1,0 +1,34 @@
+<label>
+
+    <div class="col-sm-12">
+        <div class="col-sm-1 v-middle">
+
+            <input type="checkbox"
+                   class="step-checkbox"
+                   th:name="${opcion.respuesta.id}" 
+                   th:rel='${opcion.respuesta.id}' 
+                   th:value="${opcion.id}"
+                   th:attr="ref=${opcion.itemsReferencias}" />
+            <i></i>
+        </div>
+
+        <div class="col-sm-8">
+            Nombre 
+            <input type="text" class="pull-left form-control input-sm preTexto" 
+                   th:rel='${opcion.respuesta.id}' disabled="yes" />
+        </div>
+
+
+        <div class="col-sm-3"> 
+            Cantidad 
+            <select class="form-control input-s-xs  preTextoMulti"  th:rel='${opcion.respuesta.id}' disabled="yes"> 
+                <option value=""></option> 
+                <option  th:each="i : ${#numbers.sequence(1, 6)}"  th:text="${i}"  th:value="${i}"></option> 
+            </select> 
+        </div>
+
+    </div>
+
+    <div th:substituteby="admision/inscripcion/encuesta/encuestaOpcionBtn"></div>
+
+</label>

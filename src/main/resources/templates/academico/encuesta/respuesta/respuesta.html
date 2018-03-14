@@ -1,0 +1,81 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Lista de Encuesta</title>
+    
+    <style>
+        .item-mov {
+            border-color: #000;
+            border-style: solid;
+            border-width: 1px;
+            background-color: #D9DDE1;
+            padding: 3px;
+            border-radius: 7px;
+        }
+        .ul-items-mov {
+            list-style-type: none;
+        }
+        .contenedor-dragg {
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div layout:fragment="MAIN">
+
+        <header class="page-header">
+            <h2>Resumen de respuestas OTROS <span th:text='${ciclo.cicloAcademico.descripcion}'/></h2>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <div class="hide" id="headDynatable">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <label class="col-md-2">Pregunta</label>
+                            <div class="col-ms-10">
+                                <select id="pregunta" class="form-control">
+                                    <option th:each="pgta : ${preguntas}"
+                                            th:text="|${pgta.numero}) ${pgta.texto}|"
+                                            th:value="${pgta.id}">Respondonas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row m-t">
+                            <label class="col-md-2">Opciones</label>
+                            <div class="col-ms-10">
+                                <input type="hidden" id="opcion" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table  id="dynaTable" class="table table-striped">
+                    <thead class="panel panel-heading">
+                        <tr>
+                            <th class="col-md-10 text-center v-middle">Contenido</th>
+                            <th class="col-md-2 text-center v-middle">Cantidad</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="contenedor-respuestas"></tbody>
+                </table>
+
+            </section>
+        </section>
+
+        <script id="respuestaTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="encuesta/respuesta/respuestaTemplate"/>
+        </script>
+
+    </div>
+
+    <div layout:fragment="JS" th:remove="tag">
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        
+        <script th:src="@{/app/encuesta/respuesta/respuesta.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

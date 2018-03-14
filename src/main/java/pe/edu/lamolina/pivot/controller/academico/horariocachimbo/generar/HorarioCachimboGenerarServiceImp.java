@@ -861,7 +861,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 //logger.debug("seccion cod suscritos \t {}", seccion.getSuscritos());
                 //logger.debug("seccion id  \t {}", seccion.getId());
             }
-            Collections.sort(seccionesCurso, new Seccion.CompareSuscritosAleatorio());
+            //Collections.sort(seccionesCurso, new Seccion.CompareSuscritosAleatorio());
 
             //logger.debug("Listado reordenado");
             for (Seccion seccion : seccionesCurso) {
