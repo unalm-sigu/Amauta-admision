@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -184,7 +186,7 @@ public class ActaController {
             //filter.filterFix("gp.estado", EstadoEnum.ACT.name());
             List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ciclo, dpto, filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (GrupoSeccion grupo : allGruposSeccion) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -193,6 +195,8 @@ public class ActaController {
 
                 node.put("idCurso", grupo.getCurso().getId());
                 node.put("nombreCurso", grupo.getCurso().getNombre());
+                node.put("codigo", grupo.getCurso().getCodigo());
+                node.put("estructura", grupo.getCurso().getTpc());
 
                 node.put("estado", grupo.getEstado());
                 node.put("estadoValue", "");

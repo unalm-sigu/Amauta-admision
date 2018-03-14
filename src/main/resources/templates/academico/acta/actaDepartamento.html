@@ -5,26 +5,59 @@
 </head>
 <body>
     <div layout:fragment="main">
-         <header class="header b-b padder-lg">        
+        <header class="header b-b padder-lg">        
             <h2>Acta de Notas - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
 
             <span class="block"><strong >Departamento Académico:</strong> <span th:text="${departamentoAcademico.nombre}">Matematicas</span></span>
             <input id="txtDepartamentoAcademico" type="hidden" th:value="${departamentoAcademico.id}"/>
         </header>
-
+        <section class="wrapper-lg">
+            <section class="panel m-b-md">
+                <section class="panel-body">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-danger pointer" rel="pregrado">
+                                    <span class="h1 block bold" >23</span>
+                                    <small class="block m-b-xs">Pregrado</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-black pointer" rel="postgrado">
+                                    <span class="h1 block bold" >23</span>
+                                    <small class="block m-b-xs">Posgrado</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-success pointer" rel="visitante">
+                                    <span class="h1 block bold" >23</span>
+                                    <small class="block m-b-xs">Visitantes</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-warning pointer" rel="especiales">
+                                    <span class="h1 block bold" >23</span>
+                                    <small class="block m-b-xs">Especiales</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </section>
         <section class="panel">
             <section class="panel-body">
                 <table class="table table-striped" id="dynaTable">
                     <thead> 
                         <tr class=""> 
-                            <th class="col-md-2 text-center">Curso</th>
-                            <th class="col-md-2 text-center">Grupo</th>
-                            <th class="col-md-2 text-center">Docente Principal</th>
-                            <th class="col-md-1 text-center">Versión Acta</th>
-                            <th class="col-md-2 text-center">Estado Sistema Calificación</th>
-                            <th class="col-md-1 text-center">Estado Acta</th>
-                            <th class="col-md-1 text-center">Estado</th>
-                            <th class="col-md-1 text-center"></th>
+                            <th class="col-md-2 text-center v-middle">Curso</th>
+                            <th class="col-md-2 text-center v-middle">Grupo</th>
+                            <th class="col-md-2 text-center v-middle">Docente Principal</th>
+                            <th class="col-md-1 text-center v-middle">Versión Acta</th>
+                            <th class="col-md-1 text-center v-middle">Estado Sistema Calificación</th>
+                            <th class="col-md-1 text-center v-middle">Estado Acta</th>
+                            <th class="col-md-1 text-center v-middle">Estado</th>
+                            <th class="col-md-1 text-center v-middle"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>

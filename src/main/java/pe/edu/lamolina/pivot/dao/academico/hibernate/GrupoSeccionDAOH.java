@@ -76,6 +76,14 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
     @Override
     public List<GrupoSeccion> allByFilter(CicloAcademico ciclo, DepartamentoAcademico dpto, DynatableFilter filter) {
+
+        Octavia sqlSub = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gssub", "docente doc")
+                .join("doc.persona per")
+                .filter("ds.principal", 1)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.PCUR);
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
                 .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da")
@@ -83,7 +91,11 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("ca.id", ciclo)
                 .filter("da.id", dpto)
                 .filter("gs.estado", EstadoEnum.ACT)
-                .searchFields("gs.codigo", "cu.nombre")
+                .searchFields("gs.codigo", "cu.nombre", "cu.codigo")
+                .searchSubquery(sqlSub)
+                .subqueryLinkedBy("gs.id", "gssub.id")
+                .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cu.nombre");
         return sql.all(getCurrentSession());
     }
