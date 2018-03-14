@@ -115,6 +115,10 @@
     </div>
 
     <div layout:fragment="js">
+        <script charset="utf-8">
+               var datepicker = $.fn.datepicker.noConflict();
+               $.fn.datepickerBoot = datepicker;
+        </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <div th:substituteby="_layout/includes :: svgjs"/>
         <script th:src="@{/app/academico/plancurricular/planCurricularForm.js}" charset="utf-8"></script>

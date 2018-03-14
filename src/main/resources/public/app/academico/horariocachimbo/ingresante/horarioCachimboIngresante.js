@@ -29,6 +29,9 @@ $(function () {
             verCurso(id) {
                 $global.$emit("verCurso", id);
             },
+            deleteAlumno(idAlumno) {
+                $global.$emit("deleteAlumno", idAlumno);
+            },
         }
     });
 
@@ -130,6 +133,9 @@ $(function () {
             });
             $global.$on("verCurso", function (id) {
                 vue.verCurso(id);
+            });
+            $global.$on("deleteAlumno", function (idAlumno) {
+                vue.deleteAlumno(idAlumno);
             });
             vue.callIngresanteCantidad();
         },
@@ -491,6 +497,35 @@ $(function () {
                     }
                 });
                 this.$refs.modalVerCurso.open();
+            },
+            deleteAlumno(id) {
+                var $vue = this;
+                
+                bootbox.confirm({
+                    message: '¿Seguro que desea eliminar el registro?',
+                    buttons: {
+                        confirm: {label: 'Si, eliminar', className: "btn-primary"},
+                        cancel: {label: 'Cancelar', className: "btn-link"}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                method: 'POST',
+                                url: APP.url('academico/horariocachimbo/ingresante/delete'),
+                                data: {id: id},
+                                success: function (response) {
+                                    if (response.success) {
+                                        notify(response.message, 'info');
+                                        $vue.reloadDinatable();
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
             },
         }
     });

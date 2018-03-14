@@ -55,4 +55,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     void updateFechaFin(DocenteSeccion docenteSeccion);
 
+    List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones);
+
 }
