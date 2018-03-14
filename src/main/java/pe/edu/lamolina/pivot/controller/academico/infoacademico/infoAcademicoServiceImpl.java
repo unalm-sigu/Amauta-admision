@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Transactional(readOnly = true)
 public class infoAcademicoServiceImpl implements infoAcademicoService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
@@ -73,7 +76,7 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     PlanCurricularDAO planCurricularDAO;
-    
+
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
 
@@ -83,39 +86,42 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         ArrayNode lstCursos = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode objNodeCursos = new ObjectNode(JsonNodeFactory.instance);
         alumno = alumnoDAO.findAllInfo(alumno.getId());
-        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularNroCiclo(alumno.getPlanCurricular(), numeroCiclo.intValue());
-        List<AlumnoCursoCurricula> lst = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursoCurriculas);
-        if (numeroCiclo == 1l) {
-            List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
 
-            Map<Integer, Long> counters = ciclosAlumno.stream()
-                    .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
-                            Collectors.counting()));
+        if (alumno.getPlanCurricular() != null) {
+            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularNroCiclo(alumno.getPlanCurricular(), numeroCiclo.intValue());
+            List<AlumnoCursoCurricula> lst = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursoCurriculas);
+            if (numeroCiclo == 1l) {
+                List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
 
-            for (Map.Entry<Integer, Long> entry : counters.entrySet()) {
-                ObjectNode objCiclo = new ObjectNode(JsonNodeFactory.instance);
-                objCiclo.put("numeroRoman", NumberFormat.roman(entry.getKey()));
-                objCiclo.put("cantidad", "(" + entry.getValue() + ")");
-                objCiclo.put("numero", entry.getKey());
-                lstCiclos.add(objCiclo);
+                Map<Integer, Long> counters = ciclosAlumno.stream()
+                        .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
+                                Collectors.counting()));
+
+                for (Map.Entry<Integer, Long> entry : counters.entrySet()) {
+                    ObjectNode objCiclo = new ObjectNode(JsonNodeFactory.instance);
+                    objCiclo.put("numeroRoman", NumberFormat.roman(entry.getKey()));
+                    objCiclo.put("cantidad", "(" + entry.getValue() + ")");
+                    objCiclo.put("numero", entry.getKey());
+                    lstCiclos.add(objCiclo);
+                }
+
+                objNodeCursos.put("ciclos", lstCiclos);
             }
 
-            objNodeCursos.put("ciclos", lstCiclos);
-        }
-
-        for (AlumnoCursoCurricula alumnoCursoCurricula : lst) {
-            ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-            objNode.put("numeroCiclo", alumnoCursoCurricula.getNumeroCiclo());
-            objNode.put("estado", CursoCurriculaEstadoEnum.getNombreAndName(alumnoCursoCurricula.getEstado()));
-            objNode.put("codigo", alumnoCursoCurricula.getCurso().getCodigo());
-            objNode.put("codigoAnterior", alumnoCursoCurricula.getCurso().getCodigoAnterior1());
-            objNode.put("tipoCurso", alumnoCursoCurricula.getCurso() == null ? "" : TipoCursoCurriculaEnum.getNombre(alumnoCursoCurricula.getCursoCurricula().getTipoCursoCurricula().getNombre()));
-            objNode.put("vecesCursado", alumnoCursoCurricula.getVecesCursado().toString().equals("0") ? "" : alumnoCursoCurricula.getVecesCursado().toString());
-            objNode.put("nombre", alumnoCursoCurricula.getCurso().getNombre());
-            objNode.put("nota", alumnoCursoCurricula.getNota());
-            objNode.put("creditos", alumnoCursoCurricula.getCreditos());
-            objNode.put("descripcion", alumnoCursoCurricula.getCicloAprobado() == null ? "" : alumnoCursoCurricula.getCicloAprobado().getDescripcion());
-            lstCursos.add(objNode);
+            for (AlumnoCursoCurricula alumnoCursoCurricula : lst) {
+                ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+                objNode.put("numeroCiclo", alumnoCursoCurricula.getNumeroCiclo());
+                objNode.put("estado", CursoCurriculaEstadoEnum.getNombreAndName(alumnoCursoCurricula.getEstado()));
+                objNode.put("codigo", alumnoCursoCurricula.getCurso().getCodigo());
+                objNode.put("codigoAnterior", alumnoCursoCurricula.getCurso().getCodigoAnterior1());
+                objNode.put("tipoCurso", alumnoCursoCurricula.getCurso() == null ? "" : TipoCursoCurriculaEnum.getNombre(alumnoCursoCurricula.getCursoCurricula().getTipoCursoCurricula().getNombre()));
+                objNode.put("vecesCursado", alumnoCursoCurricula.getVecesCursado().toString().equals("0") ? "" : alumnoCursoCurricula.getVecesCursado().toString());
+                objNode.put("nombre", alumnoCursoCurricula.getCurso().getNombre());
+                objNode.put("nota", alumnoCursoCurricula.getNota());
+                objNode.put("creditos", alumnoCursoCurricula.getCreditos());
+                objNode.put("descripcion", alumnoCursoCurricula.getCicloAprobado() == null ? "" : alumnoCursoCurricula.getCicloAprobado().getDescripcion());
+                lstCursos.add(objNode);
+            }
         }
         objNodeCursos.put("cursos", lstCursos);
 
