@@ -193,4 +193,11 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return find(sql);
     }
 
+    @Override
+    public void updateFechaMatriculables(CicloAcademico cicloAcademico) {
+        Octavia octavia = Octavia.update(CicloAcademico.class);
+        octavia.set(cicloAcademico, "fechaMatriculables");
+        this.update(octavia);
+    }
+
 }

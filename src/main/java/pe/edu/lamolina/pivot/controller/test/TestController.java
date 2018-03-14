@@ -262,14 +262,19 @@ public class TestController {
 
         List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
         List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
+        List<Alumno> unionList = new ArrayList();
+        unionList.addAll(pregrados);
+        unionList.addAll(posgrados);
 
-        for (Alumno alumno : pregrados) {
+        for (Alumno alumno : unionList) {
+            //  if (alumno.getCicloActivo().getCodigoInt() >= 198520 && alumno.getCicloActivo().getCodigoInt() <= 199420) {
+            //  if (alumno.getId().compareTo(43371L) == 0) {
+
+            //   }
             alumno = alumnoDAO.find(alumno);
             promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
-        }
-        for (Alumno alumno : posgrados) {
-            alumno = alumnoDAO.find(alumno);
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+
+            //  }
         }
 
         return "yeah";

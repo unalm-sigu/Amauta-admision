@@ -45,8 +45,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
+                .join("alu.cicloActivo aluca")
                 .filter("ca.id", ciclo);
-        
+
         return all(sql);
     }
 
@@ -117,7 +118,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .in("car.id", filtros)
-                        .orderBy("mr.id desc");
+                        .orderBy("mr.puntajePrioridad asc");
                 break;
             case TODO:
             default:
@@ -129,7 +130,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .searchFields("car.nombre", "fac.nombre", "al.estado", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                        .orderBy("mr.id desc");
+                        .orderBy("mr.puntajePrioridad asc");
                 break;
         }
 
@@ -162,6 +163,13 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             }
         }
 
+    }
+
+    @Override
+    public void updatePuntajePrioridad(MatriculaResumen matriculaResumen) {
+        Octavia octavia = Octavia.update(MatriculaResumen.class);
+        octavia.set(matriculaResumen, "puntajePrioridad");
+        this.update(octavia);
     }
 
 }

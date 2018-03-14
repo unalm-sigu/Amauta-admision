@@ -203,6 +203,45 @@ public class MatriculableController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("generarPrioridad")
+    public JsonResponse generarPrioridad(Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.generarPrioridad(ds.getCicloAcademico(), ds);
+            response.setMessage("Prioridad generadas correctamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignarTurno")
+    public JsonResponse asignarTurno(Model model, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+          //  service.generarPrioridad(ds.getCicloAcademico(), ds);
+          
+            response.setMessage("Prioridad generadas correctamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("estadoVisor")
     public String estadoVisor(Model model, HttpSession session) {
 

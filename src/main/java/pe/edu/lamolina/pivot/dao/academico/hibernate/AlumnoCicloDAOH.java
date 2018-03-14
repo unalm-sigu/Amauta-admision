@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import org.springframework.stereotype.Repository;
@@ -11,8 +12,10 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -175,8 +178,8 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu")
-                //   .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                //    .leftJoin("userModificacion um")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um", "alumnoCicloCurso acc")
                 .filter("alu.id", alumno);
         return all(sql);
     }
@@ -205,6 +208,25 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
         return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public void updateSituacionInicioFinal(AlumnoCiclo alumnoCiclo) {
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        octavia.set(alumnoCiclo, "situacionInicio");
+        octavia.set(alumnoCiclo, "situacionFinal");
+        octavia.set(alumnoCiclo, "fechaModificacion");
+        octavia.set(alumnoCiclo, "userModificacion");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionFinal(AlumnoCiclo alumnoCiclo) {
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        octavia.set(alumnoCiclo, "situacionFinal");
+        octavia.set(alumnoCiclo, "fechaModificacion");
+        octavia.set(alumnoCiclo, "userModificacion");
+        this.update(octavia);
     }
 
 }

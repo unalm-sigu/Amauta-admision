@@ -4,6 +4,8 @@ import pe.albatross.zelpers.miscelanea.OSValidator;
 
 public interface Constantine {
 
+    Integer YEAR_ALL_APPROVE = 1987;
+
     String SESSION_USUARIO = "SESSION_USUARIO";
 
     String DOCENTE_INDETERMINADO = "N.N.";

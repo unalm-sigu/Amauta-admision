@@ -373,7 +373,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allBySituaciones(ModalidadEstudio modalidad, List<SituacionAcademica> situaciones) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("modalidadEstudio me", "situacionAcademica sa")
+                .join("modalidadEstudio me", "situacionAcademica sa", "cicloActivo ca")
                 .filter("me.id", modalidad)
                 .in("sa.id", situaciones);
         return all(sql);

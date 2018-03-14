@@ -68,6 +68,51 @@ $(function () {
                 }
             });
         },
+        generarMatriculables: function (e, $this) {
+            e.preventDefault();
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/generar'),
+                success: function (response) {
+                    MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        generarPrioridad: function (e, $this) {
+            e.preventDefault();
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/generarPrioridad'),
+                success: function (response) {
+                    MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        asignarTurno: function (e, $this) {
+            e.preventDefault();
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/generarPrioridad'),
+                success: function (response) {
+                    MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
         verCursos: function ($this) {
             var rel = $this.attr("rel");
             $.ajax({
@@ -92,6 +137,17 @@ $(function () {
     });
     $("body").delegate("#agregarMatriculable", "click", function (e) {
         Matriculable.nuevoModal(e, $(this));
+    });
+    $("body").delegate("#generarMatriculables", "click", function (e) {
+        Matriculable.generarMatriculables(e, $(this));
+    });
+
+    $("body").delegate("#generarPrioridad", "click", function (e) {
+        Matriculable.generarPrioridad(e, $(this));
+    });
+
+    $("body").delegate("#asignarTurnos", "click", function (e) {
+        Matriculable.asignarTurno(e, $(this));
     });
 
 });

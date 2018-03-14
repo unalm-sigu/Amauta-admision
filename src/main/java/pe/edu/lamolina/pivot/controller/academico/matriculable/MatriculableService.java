@@ -21,4 +21,6 @@ public interface MatriculableService {
 
     AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
+    void generarPrioridad(CicloAcademico ciclo, DataSessionPivot ds);
+
 }

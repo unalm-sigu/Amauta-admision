@@ -1,8 +1,11 @@
 package pe.edu.lamolina.pivot.controller.academico.matriculable;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -31,7 +36,9 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
@@ -51,6 +58,10 @@ public class MatriculableServiceImp implements MatriculableService {
     ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -74,13 +85,14 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public void generar(CicloAcademico ciclo, DataSessionPivot ds) {
-
+        DateTime today = new DateTime();
         ModalidadEstudio pre = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         ModalidadEstudio epg = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
 
         List<SituacionAcademica> situacionesPregrado = situacionAcademicaDAO.allByCodes(
-                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_EM, S_3U, S_2U, S_4U, S_6U, S_TU));
+                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM));
         List<SituacionAcademica> situacionesPosgrado = situacionAcademicaDAO.allByCodes(
                 Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_EM));
 
@@ -135,7 +147,41 @@ public class MatriculableServiceImp implements MatriculableService {
             matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumenDAO.save(matri);
         }
+        CicloAcademico cicloAcademicoUpd = new CicloAcademico();
+        cicloAcademicoUpd.setId(ciclo.getId());
+        cicloAcademicoUpd.setFechaMatriculables(today.toDate());
+        cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
+    }
 
+    @Override
+    @Transactional(readOnly = false)
+    public void generarPrioridad(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+        int cont = 0;
+        for (MatriculaResumen matriculable : matriculables) {
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(matriculable.getAlumno(), matriculable.getAlumno().getCicloActivo());
+
+            if (alumnoCiclo != null) {
+                cont++;
+                logger.debug("registro {}", cont);
+                BigDecimal capa = new BigDecimal(matriculable.getAlumno().getCreditosAprobados());
+                BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
+
+                BigDecimal caps = new BigDecimal(alumnoCiclo.getCreditosAprobadosCiclo());
+                BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
+
+                BigDecimal factor1 = capa.divide(cca, 12, RoundingMode.HALF_UP);
+                BigDecimal factor2 = caps.divide(ccs, 12, RoundingMode.HALF_UP);
+
+                MatriculaResumen matriculaResumenUpd = new MatriculaResumen();
+                BigDecimal resultFactor = factor1.multiply(factor2);
+                resultFactor = resultFactor.multiply(alumnoCiclo.getPromedioCiclo());
+                matriculaResumenUpd.setId(matriculable.getId());
+                matriculaResumenUpd.setPuntajePrioridad(resultFactor);
+
+                matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
+            }
+        }
     }
 
 }
