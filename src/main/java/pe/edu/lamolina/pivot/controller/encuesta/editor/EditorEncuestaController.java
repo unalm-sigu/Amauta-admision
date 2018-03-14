@@ -122,7 +122,7 @@ public class EditorEncuestaController {
             ExceptionHandler.handleException(e, redirectAttr);
         }
 
-        return "redirect:/encuesta/editor";
+        return "redirect:/academico/encuesta/editor";
     }
 
     @ResponseBody

@@ -1,19 +1,19 @@
-$(function () {
+$(function() {
 
     var Pregunta = {
-        init: function () {
+        init: function() {
 
             $('#tipo').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
-            }).on('change', function (e) {
+            }).on('change', function(e) {
                 Pregunta.loadTipoPregunta(e);
             });
 
             $('#placePregunta').find('[name="likertInicio"]').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
-            }).on('change', function (e) {
+            }).on('change', function(e) {
 
                 $('#placePregunta').find('input[type="hidden"]').remove();
                 var self = $(e.currentTarget);
@@ -32,7 +32,7 @@ $(function () {
             $('#placePregunta').find('[name="multiple"]').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
-            }).on('change', function (e) {
+            }).on('change', function(e) {
 
                 $('#placePregunta').find('input[type="hidden"]').remove();
                 var self = $(e.currentTarget);
@@ -54,32 +54,32 @@ $(function () {
                 allowClear: true,
                 minimumInputLength: 1,
                 ajax: {
-                    url: APP.url("encuesta/editor/pregunta/allOpcionReferencia"),
+                    url: APP.url("academico/encuesta/editor/pregunta/allOpcionReferencia"),
                     dataType: 'json',
                     type: 'post',
-                    data: function (term, page) {
+                    data: function(term, page) {
                         return {
                             nombre: term,
                             page: page,
-                            encuesta: $('[name="evaluacionVirtual.id"]').val()
+                            encuesta: $('[name="examenVirtual.id"]').val()
                         };
                     },
-                    results: function (response, page) {
+                    results: function(response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function (element, callback) {
+                initSelection: function(element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("rev"), referenciaNumero: element.attr('data-pre')});
                     }
                 },
-                formatResult: function (info) {
+                formatResult: function(info) {
                     return '<b>Pgta. ' + info.referenciaNumero + '</b> - ' + '<b>Opción ' + info.codigo + '</b>  - ' + info.nombre;
                 },
-                formatSelection: function (info) {
+                formatSelection: function(info) {
                     return '<b>Pgta. ' + info.referenciaNumero + '</b> - ' + '<b>Opción ' + info.codigo + '</b>  - ' + info.nombre;
                 },
-                escapeMarkup: function (m) {
+                escapeMarkup: function(m) {
                     return m;
                 }
             });
@@ -89,7 +89,7 @@ $(function () {
         idReferenciaPregunta: null,
         nameReferenciaPregunta: null,
         numeroReferenciaPregunta: null,
-        loadTipoPregunta: function (e) {
+        loadTipoPregunta: function(e) {
 
             var self = $(e.currentTarget);
             var tipo = self.val();
@@ -106,7 +106,7 @@ $(function () {
                 Pregunta.totalItemOpcion = 5;
                 return;
             }
-            
+
             if (tipo == 'RPTA_MULTIPLE') {
                 var html = $.templates("#plantillaRespuestaMultiple").render({});
                 $('#placePregunta').html(html);
@@ -122,7 +122,7 @@ $(function () {
                 $('#placePregunta').find('[name="multiple"]').select2({
                     minimumResultsForSearch: -1,
                     allowClear: true
-                }).on('change', function (e) {
+                }).on('change', function(e) {
 
                     $('#placePregunta').find('input[type="hidden"]').remove();
                     var self = $(e.currentTarget);
@@ -162,7 +162,7 @@ $(function () {
                 $('#placePregunta').find('[name="likertInicio"]').select2({
                     minimumResultsForSearch: -1,
                     allowClear: true
-                }).on('change', function (e) {
+                }).on('change', function(e) {
 
                     $('#placePregunta').find('input[type="hidden"]').remove();
                     var self = $(e.currentTarget);
@@ -188,7 +188,7 @@ $(function () {
             }
 
         },
-        preview: function (e) {
+        preview: function(e) {
             var mimodal = bootbox.alert({
                 size: "large",
                 title: "Pregunta",
@@ -196,7 +196,7 @@ $(function () {
                 buttons: {
                     ok: {label: "Aceptar", className: "btn-link"}
                 }
-            }).on('shown.bs.modal', function () {
+            }).on('shown.bs.modal', function() {
                 mimodal.find('.modal-body').css({
                     'overflow-y': 'scroll',
                     'max-height': '600px'});
@@ -208,7 +208,7 @@ $(function () {
                 var indice = 0;
                 var char = 'abcdefghijklmnopqrstuvwxyz';
 
-                $.each(parmForm, function (i, v) {
+                $.each(parmForm, function(i, v) {
                     console.log(i)
                     console.log(v)
                     var names = v.name.split('.');
@@ -232,7 +232,7 @@ $(function () {
                 mimodal.find('.modal-body').find("select.select2single").select2({minimumResultsForSearch: -1});
             });
         },
-        removerOpcion: function (e) {
+        removerOpcion: function(e) {
             var self = $(e.currentTarget);
             var tr = self.closest('tr');
             var cantidadOpciones = $('#placePregunta').find('table>tbody>tr');
@@ -243,7 +243,7 @@ $(function () {
             tr.remove();
             Pregunta.reindexOpcion();
         },
-        addOpcion: function (e) {
+        addOpcion: function(e) {
             var cantidadOpciones = $('#placePregunta').find('table>tbody>tr');
             if (cantidadOpciones.length > 25) {
                 return;
@@ -252,11 +252,11 @@ $(function () {
             $('#placePregunta').find('table>tbody').append(opcion);
             Pregunta.reindexOpcion();
         },
-        reindexOpcion: function () {
+        reindexOpcion: function() {
             var trs = $('#placePregunta').find('table>tbody>tr');
             $('#placePregunta').parsley('destroy');
             var char = 'abcdefghijklmnopqrstuvwxyz';
-            trs.each(function (i, v) {
+            trs.each(function(i, v) {
                 var numeracion = i + 1;
                 var self = $(v);
 
@@ -275,7 +275,7 @@ $(function () {
             });
             $('#placePregunta').parsley();
         },
-        addReferencia: function (e) {
+        addReferencia: function(e) {
             var self = $(e.currentTarget);
             var tdParent = self.closest('td');
             Pregunta.idReferenciaPregunta = null;
@@ -287,7 +287,7 @@ $(function () {
                     confirm: {label: "Agregar", className: "btn-primary"},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function (result) {
+                callback: function(result) {
                     if (result) {
                         var html = $.templates("#templateAddRef").render({
                             id: Pregunta.idReferenciaPregunta,
@@ -302,13 +302,13 @@ $(function () {
                     }
                     return false;
                 }
-            }).on('shown.bs.modal', function () {
+            }).on('shown.bs.modal', function() {
                 mimodal.find('.modal-body').css({
                     'overflow-y': 'scroll',
                     'max-height': '600px'});
                 Pregunta.allReferencia(mimodal, 0);
                 mimodal.find('table>tbody>tr>td>input[type=radio]').removeAttr('checked');
-                mimodal.find('table>tbody>tr').click(function (e) {
+                mimodal.find('table>tbody>tr').click(function(e) {
                     var el = $(e.currentTarget);
                     el.find('input[type=radio]').prop('checked', true);
                     Pregunta.idReferenciaPregunta = el.attr('rel');
@@ -317,26 +317,26 @@ $(function () {
                 });
             });
         },
-        allReferencia: function (mimodal, idNotInclude) {
+        allReferencia: function(mimodal, idNotInclude) {
             $.ajax({
-                url: APP.url('encuesta/editor/pregunta/allReferencia'),
+                url: APP.url('academico/encuesta/editor/pregunta/allReferencia'),
                 type: 'POST',
                 async: false,
                 data: {
                     id: idNotInclude,
-                    'evaluacionVirtual.id': $('[name="evaluacionVirtual.id"]').val(),
+                    'examenVirtual.id': $('[name="examenVirtual.id"]').val(),
                 },
-                success: function (response) {
+                success: function(response) {
                     if (response.success) {
                         mimodal.find('.bootbox-body').html(response.data);
                     }
                 },
-                error: function () {
+                error: function() {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        removerReferencia: function (e) {
+        removerReferencia: function(e) {
             var self = $(e.currentTarget);
             var tdParent = self.closest('td');
             var html = $.templates("#templateRemoveRef").render({});
@@ -344,23 +344,23 @@ $(function () {
         }
     };
 
-    Pregunta.body.delegate('#preview', 'click', function (e) {
+    Pregunta.body.delegate('#preview', 'click', function(e) {
         Pregunta.preview(e);
     });
 
-    Pregunta.body.delegate('.removerOpcion', 'click', function (e) {
+    Pregunta.body.delegate('.removerOpcion', 'click', function(e) {
         Pregunta.removerOpcion(e);
     });
 
-    Pregunta.body.delegate('.addOpcion', 'click', function (e) {
+    Pregunta.body.delegate('.addOpcion', 'click', function(e) {
         Pregunta.addOpcion(e);
     });
 
-    Pregunta.body.delegate('.addReferencia', 'click', function (e) {
+    Pregunta.body.delegate('.addReferencia', 'click', function(e) {
         Pregunta.addReferencia(e);
     });
 
-    Pregunta.body.delegate('.removerReferencia', 'click', function (e) {
+    Pregunta.body.delegate('.removerReferencia', 'click', function(e) {
         Pregunta.removerReferencia(e);
     });
 

@@ -88,7 +88,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         encuesta.setPreguntasVisibles(encuesta.getPreguntasVisibles() + 1);
         examenVirtualDAO.update(encuesta);
 
-        ObjectUtil.eliminarAttrSinId(pregunta, "opcionReferenciaTrans");
+        ObjectUtil.eliminarAttrSinId(pregunta, "opcionReferencia");
         List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
 
         for (OpcionPregunta opcion : opciones) {

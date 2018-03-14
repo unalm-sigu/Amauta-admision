@@ -21,7 +21,7 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}" 
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
                                type="text"/>
 
                         <p th:id="${'erroropcion'+i}"></p>
@@ -31,7 +31,7 @@
                     <td class="v-middle">
                         <input class=""
                                th:attr="data-parsley-errors-container=${'#errorotro'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}" 
+                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
                                type="checkbox" value="1"/>
 
                         <p th:id="${'errorotro'+i}"></p>
@@ -75,7 +75,7 @@
             <thead>
                 <tr>
                     <th class="col-md-1"></th>
-                    <th class="col-md-9">Opción 3</th>
+                    <th class="col-md-9">Opción</th>
                     <th class="col-md-2">Otro</th>
                     <!--th class="col-xs-1">Referencia</th-->
                     <th></th>
@@ -90,7 +90,7 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}" 
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
                                type="text"/>
 
                         <p th:id="${'erroropcion'+i}"></p>
@@ -100,7 +100,7 @@
                     <td class="v-middle">
                         <input class=""
                                th:attr="data-parsley-errors-container=${'#errorotro'+i}"
-                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}" 
+                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
                                type="checkbox" value="1"/>
 
                         <p th:id="${'errorotro'+i}"></p>
@@ -240,14 +240,14 @@
             <input class="form-control"
                    required="true"
                    data-parsley-errors-container="#erroropcion0"
-                   name="opcionPregunta[0].contenido" 
+                   name="opcionPregunta[0].contenido"
                    type="text"/>
             <p class="tagerror" id="erroropcion0"></p>
         </td>
 
         <td class="v-middle">
             <input data-parsley-errors-container="#errorotro0"
-                   name="opcionPregunta[0].esOtro" 
+                   name="opcionPregunta[0].esOtro"
                    type="checkbox" value="1"/>
             <p class="tagerror" id="errorotro0"></p>
         </td>
@@ -273,7 +273,7 @@
             <input class="form-control"
                    required="true"
                    data-parsley-errors-container="#erroropcion0"
-                   name="opcionPregunta[0].contenido" 
+                   name="opcionPregunta[0].contenido"
                    type="text"/>
 
             <p class="tagerror" id="erroropcion0"></p>
@@ -282,8 +282,8 @@
 
         <td class="v-middle">
 
-            <input name="opcionPregunta[0].esMulti" 
-                   type="hidden" 
+            <input name="opcionPregunta[0].esMulti"
+                   type="hidden"
                    value="1"/>
 
             <a class="btn btn-link btn-xs text-danger removerOpcionMultiple"  title="Remover Opción" href="#">

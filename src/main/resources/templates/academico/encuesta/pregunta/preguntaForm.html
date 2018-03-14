@@ -2,140 +2,156 @@
     <head>
         <title>Pregunta</title>
     </head>
+
     <body>
-        <div layout:fragment="MAIN">
 
-            <header class="page-header">
-                <h2 th:inline="text">
-                    [[${pregunta.id!=null?'Pregunta '+pregunta.numero:'Nueva Pregunta'}]]
-                </h2>
+        <div layout:fragment="main">
 
-                <h4 th:inline="text"><b>[[${pregunta.examenVirtual.codigo}]]</b>   [[${pregunta.examenVirtual.nombre}]]</h4>
+            <div  id="main">
 
-            </header>
+                <header class="header b-b padder-lg">
 
-            <section class="panel">
-                <section class="panel-body">
+                    <h2 th:inline="text">
+                        [[${pregunta.id!=null?'Pregunta '+pregunta.numero:'Nueva Pregunta'}]]
+                    </h2>
+                    <h4 th:inline="text"><b>[[${pregunta.examenVirtual.codigo}]]</b>   [[${pregunta.examenVirtual.nombre}]]</h4>
+                </header>
 
-                    <form  data-parsley-validate="true" 
-                           th:action="@{/encuesta/editor/pregunta/save}" 
-                           method="POST"
-                           class="form-horizontal">
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
 
-                        <input  type="hidden" name="id" th:value="${pregunta.id}"/>
-                        <input  type="hidden" name="examenVirtual.id" th:value="${pregunta.examenVirtual.id}"/>
 
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Habilitado por</label>
-                            <div class="col-sm-4">
-                                <input type="text" 
-                                       id="opcionReferencia" 
-                                       th:value="${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.id:''}"
-                                       th:rev="${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.letra:''}"
-                                       th:rel="${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.contenido:''}"
-                                       th:attr="data-pre=${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.pregunta.numero:''}"
-                                       name="opcionReferencia.id" 
-                                       class="form-control"/>
-                            </div>
-                        </div>
+                            <form  data-parsley-validate="true"
+                                   th:action="@{/academico/encuesta/editor/pregunta/save}"
+                                   method="POST"
+                                   class="form-horizontal">
 
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Tipo</label>
-                            <div class="col-sm-4">
-                                <select class="form-control" 
-                                        id="tipo"
-                                        required="true"
-                                        name="tipo">
-                                    <option text=""></option>
-                                    <option th:each="item : ${tipos}" 
-                                            th:selected="${pregunta.tipo==item.name()}"
-                                            th:text="${item.value}" th:value="${item.name()}"></option>
-                                </select>
-                            </div>
-                        </div>
+                                <input  type="hidden" name="id" th:value="${pregunta.id}"/>
+                                <input  type="hidden" name="examenVirtual.id" th:value="${pregunta.examenVirtual.id}"/>
 
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">Contenido</label>
-                            <div class="col-sm-10">
-                                <textarea class="col-sm-4 form-control"
-                                          required="true"
-                                          th:text="${pregunta.texto}" 
-                                          name="texto"></textarea>
-                            </div>
-                        </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Habilitado por</label>
+                                    <div class="col-sm-4">
+                                        <input type="text"
+                                               id="opcionReferencia"
+                                               th:value="${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.id:''}"
+                                               th:rev="${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.letra:''}"
+                                               th:rel="${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.contenido:''}"
+                                               th:attr="data-pre=${pregunta.opcionReferencia!=null?pregunta.opcionReferencia.pregunta.numero:''}"
+                                               name="opcionReferencia.id"
+                                               class="form-control"/>
+                                    </div>
+                                </div>
 
-                        <div id="placePregunta">
-                            <div th:substituteby="encuesta/pregunta/plantillaPreguntaEditar"></div>
-                        </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Tipo</label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control"
+                                                id="tipo"
+                                                required="true"
+                                                name="tipo">
+                                            <option text=""></option>
+                                            <option th:each="item : ${tipos}"
+                                                    th:selected="${pregunta.tipo==item.name()}"
+                                                    th:text="${item.value}" th:value="${item.name()}"></option>
+                                        </select>
+                                    </div>
+                                </div>
 
-                        <div class="text-center m-t-lg">
-                            <a type="button" class="btn btn-link" th:href="@{'/encuesta/editor/pregunta/'+${pregunta.examenVirtual.id}}" >Cancelar</a>
-                            <button type="button" class="btn btn-default" id='preview' >Vista previa</button>
-                            <button type="submit" class="btn btn-primary" >Guardar</button>
-                        </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Contenido</label>
+                                    <div class="col-sm-10">
+                                        <textarea class="col-sm-4 form-control"
+                                                  required="true"
+                                                  th:text="${pregunta.texto}"
+                                                  name="texto"></textarea>
+                                    </div>
+                                </div>
 
-                    </form>
+                                <div id="placePregunta">
+                                    <div th:substituteby="academico/encuesta/pregunta/plantillaPreguntaEditar"></div>
+                                </div>
 
+                                <div class="text-center m-t-lg">
+                                    <a type="button" class="btn btn-link" th:href="@{'/academico/encuesta/editor/pregunta/'+${pregunta.examenVirtual.id}}" >Cancelar</a>
+                                    <button type="button" class="btn btn-default" id='preview' >Vista previa</button>
+                                    <button type="submit" class="btn btn-primary" >Guardar</button>
+                                </div>
+
+                            </form>
+
+
+                        </section>
+                    </section>
                 </section>
-            </section>
+
+
+
+            </div>
+
 
             <div id="previewPregunta" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/preview"></div>
+                <div th:substituteby="academico/encuesta/pregunta/preview"></div>
             </div>
 
             <div id="plantillaPreguntaSimple" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::simple"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::simple"></div>
             </div>
-            
+
             <div id="plantillaRespuestaMultiple" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::rpta_multiple"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::rpta_multiple"></div>
             </div>
 
             <div id="plantillaPreguntaMultiple" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::multiple"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::multiple"></div>
             </div>
 
             <div id="plantillaPreguntaSiNo" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::sino"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::sino"></div>
             </div>
 
             <div id="plantillaPreguntaVeFa" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::vefa"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::vefa"></div>
             </div>
 
             <div id="plantillaPreguntaLikert" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::likert"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::likert"></div>
             </div>
 
             <div id="plantillaPreguntaAbierta" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::abierta"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::abierta"></div>
             </div>
 
             <script id="plantillaAddOpcion" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::opcion"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::opcion"></div>
             </script>
 
             <script id="plantillaAddOpcionMultiple" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::opcionMultiple"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::opcionMultiple"></div>
             </script>
 
             <script id="templateAddRef" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::templateAddRef"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::templateAddRef"></div>
             </script>
 
             <script id="templateRemoveRef" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/plantillaPregunta::templateRemoveRef"></div>
+                <div th:substituteby="academico/encuesta/pregunta/plantillaPregunta::templateRemoveRef"></div>
             </script>
 
             <script id="templatePreview" type="text/x-jsrender" class="hide">
-                <div th:substituteby="encuesta/pregunta/preview"></div>
+                <div th:substituteby="academico/encuesta/pregunta/preview"></div>
             </script>
+
 
         </div>
 
-        <div layout:fragment="JS">
-            <script th:src="@{/app/encuesta/pregunta/preguntaForm.js}" charset="utf-8"></script>
+        <div layout:fragment="js">
+            <script th:src="@{/app/academico/encuesta/pregunta/preguntaForm.js}" charset="utf-8"></script>
         </div>
 
     </body>
 </html>
+
+
+

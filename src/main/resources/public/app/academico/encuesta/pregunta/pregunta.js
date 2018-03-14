@@ -1,8 +1,8 @@
-$(function () {
+$(function() {
 
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
-            ajaxUrl: APP.url('encuesta/editor/pregunta/list'),
+            ajaxUrl: APP.url('academico/encuesta/editor/pregunta/list'),
             ajaxData: {idEncuesta: $('[name="encuesta.id"]').val()},
             perPageDefault: 10
         },
@@ -14,7 +14,7 @@ $(function () {
         }
     }).data('dynatable');
 
-    $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
+    $('#dynaTable').bind('dynatable:afterUpdate', function(e, dynatable) {
         $("#opopop").prepend($("#headDynatable"));
         $('#headDynatable').removeClass('hide');
     });
@@ -37,10 +37,10 @@ $(function () {
     }
 
     var Pregunta = {
-        init: function () {
+        init: function() {
         },
         body: $('body'),
-        preview: function (e) {
+        preview: function(e) {
             var self = $(e.currentTarget);
             var tr = self.closest("tr");
             var idx = tr.attr("rel");
@@ -48,10 +48,10 @@ $(function () {
 
             var modalPregunta = bootbox.alert({
                 size: "large",
-                message: '<div class="text-center bg-alert-process"><i class="fa fa-spinner fa-spin"></i> Cargando pregunta...</div>',
+                message: APP.template.spincenter,
                 buttons: {ok: {label: "Cerrar", className: "btn-link"}}
-            }).on('shown.bs.modal', function () {
-                setTimeout(function () {
+            }).on('shown.bs.modal', function() {
+                setTimeout(function() {
                     modalPregunta.find('.modal-body').css({
                         'overflow-y': 'scroll',
                         'max-height': '600px'});
@@ -62,7 +62,7 @@ $(function () {
                 }, 200);
             });
         },
-        cambiarEstado: function (e) {
+        cambiarEstado: function(e) {
             var self = $(e.currentTarget);
             var tr = self.closest("tr");
             var idx = tr.attr("rel");
@@ -78,14 +78,14 @@ $(function () {
                     confirm: {label: "Si, " + action, className: btnClass},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function (result) {
+                callback: function(result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('encuesta/editor/pregunta/estado'),
+                            url: APP.url('academico/encuesta/editor/pregunta/estado'),
                             type: 'POST',
                             async: false,
                             data: {id: rec.id, estado: estado},
-                            success: function (response) {
+                            success: function(response) {
                                 modalEstado.modal('hide');
                                 if (response.success) {
                                     dynatable.process();
@@ -94,7 +94,7 @@ $(function () {
                                     notify(response.message, "error");
                                 }
                             },
-                            error: function () {
+                            error: function() {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 modalEstado.modal('hide');
                             }
@@ -106,7 +106,7 @@ $(function () {
                 }
             });
         },
-        eliminar: function (e) {
+        eliminar: function(e) {
             var self = $(e.currentTarget);
             var tr = self.closest("tr");
             var idx = tr.attr("rel");
@@ -118,14 +118,14 @@ $(function () {
                     confirm: {label: "Si, eliminar", className: "btn-danger"},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function (result) {
+                callback: function(result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('encuesta/editor/pregunta/delete'),
+                            url: APP.url('academico/encuesta/editor/pregunta/delete'),
                             type: 'POST',
                             async: false,
                             data: {id: rec.id},
-                            success: function (response) {
+                            success: function(response) {
                                 modalDelete.modal('hide');
                                 if (response.success) {
                                     dynatable.process();
@@ -134,7 +134,7 @@ $(function () {
                                     notify(response.message, "error");
                                 }
                             },
-                            error: function () {
+                            error: function() {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 modalDelete.modal('hide');
                             }
@@ -147,7 +147,7 @@ $(function () {
             });
 
         },
-        orderNumero: function (e) {
+        orderNumero: function(e) {
             var self = $(e.currentTarget);
             var tr = self.closest("tr");
             var idx = tr.attr("rel");
@@ -158,7 +158,7 @@ $(function () {
             var delta = isUp ? 1 : (isDown ? -1 : 0);
 
             $.ajax({
-                url: APP.url('encuesta/editor/pregunta/sort'),
+                url: APP.url('academico/encuesta/editor/pregunta/sort'),
                 type: 'POST',
                 async: true,
                 data: {
@@ -167,7 +167,7 @@ $(function () {
                     delta: delta,
                     'evaluacionVirtual.id': $('[name="encuesta.id"]').val()
                 },
-                success: function (response) {
+                success: function(response) {
                     if (response.success) {
                         notify(response.message, "info");
                         dynatable.process();
@@ -175,26 +175,26 @@ $(function () {
                         notify(response.message, "error");
                     }
                 },
-                error: function () {
+                error: function() {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         }
     };
 
-    Pregunta.body.delegate('.cambiarEstado', 'click', function (e) {
+    Pregunta.body.delegate('.cambiarEstado', 'click', function(e) {
         Pregunta.cambiarEstado(e);
     });
 
-    Pregunta.body.delegate('.eliminar', 'click', function (e) {
+    Pregunta.body.delegate('.eliminar', 'click', function(e) {
         Pregunta.eliminar(e);
     });
 
-    Pregunta.body.delegate(".sort-numero", "click", function (e) {
+    Pregunta.body.delegate(".sort-numero", "click", function(e) {
         Pregunta.orderNumero(e);
     });
 
-    Pregunta.body.delegate('.preview-pregunta', 'click', function (e) {
+    Pregunta.body.delegate('.preview-pregunta', 'click', function(e) {
         Pregunta.preview(e);
     });
 

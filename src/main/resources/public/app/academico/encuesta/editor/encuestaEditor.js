@@ -49,7 +49,7 @@ $(function() {
                 callback: function(result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('encuesta/editor/delete'),
+                            url: APP.url('academico/encuesta/editor/delete'),
                             type: 'POST',
                             async: false,
                             data: {id: rec.id},
@@ -85,7 +85,7 @@ $(function() {
                 callback: function(result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('encuesta/editor/duplicar'),
+                            url: APP.url('academico/encuesta/editor/duplicar'),
                             type: 'POST',
                             async: false,
                             data: {id: rec.id},
@@ -124,7 +124,7 @@ $(function() {
                 callback: function(result) {
                     if (result) {
                         $.ajax({
-                            url: APP.url('encuesta/editor/estado'),
+                            url: APP.url('academico/encuesta/editor/estado'),
                             type: 'POST',
                             async: true,
                             data: {id: rec.id},

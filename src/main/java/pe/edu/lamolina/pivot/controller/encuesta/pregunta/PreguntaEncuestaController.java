@@ -47,7 +47,7 @@ public class PreguntaEncuestaController {
     public String index(Model model, @PathVariable("encuesta") Long idEncuesta, HttpSession session) {
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
         model.addAttribute("encuesta", encuesta);
-        return "encuesta/pregunta/pregunta";
+        return "academico/encuesta/pregunta/pregunta";
     }
 
     @ResponseBody
@@ -114,7 +114,7 @@ public class PreguntaEncuestaController {
 
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
         model.addAttribute("pregunta", pregunta);
-        return "encuesta/pregunta/preguntaForm";
+        return "academico/encuesta/pregunta/preguntaForm";
     }
 
     @RequestMapping("{pregunta}/update")
@@ -123,7 +123,7 @@ public class PreguntaEncuestaController {
 
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
         model.addAttribute("pregunta", pregunta);
-        return "encuesta/pregunta/preguntaForm";
+        return "academico/encuesta/pregunta/preguntaForm";
     }
 
     @RequestMapping("save")
@@ -145,7 +145,7 @@ public class PreguntaEncuestaController {
             ExceptionHandler.handleException(e, redirectAttr);
         }
 
-        return "redirect:/encuesta/editor/pregunta/" + encuesta.getId();
+        return "redirect:/academico/encuesta/editor/pregunta/" + encuesta.getId();
     }
 
     @ResponseBody
