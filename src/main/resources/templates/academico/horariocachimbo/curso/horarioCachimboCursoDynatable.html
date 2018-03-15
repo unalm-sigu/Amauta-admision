@@ -63,8 +63,10 @@
         </td>
 
         <td class="v-middle  text-center">
-            <span class="label label-danger">{{curso.oferta}} para {{curso.demanda}}</span>
-            <span class="label label-primary">{{curso.ofertaTotal}} para {{curso.demandaTotal}}</span>
+            <small class="v-middle text-center text-muted">Depanda de carrera</small>
+            <span v-bind:class="styleCursoCarrera(curso)">{{curso.oferta}} para {{curso.demanda}}</span>
+            <small  class="v-middle text-center text-muted">Depanda total</small>
+            <span v-bind:class="styleCursoCarreraTotal(curso)">{{curso.ofertaTotal}} para {{curso.demandaTotal}}</span>
         </td>
 
         <td class="v-middle">
