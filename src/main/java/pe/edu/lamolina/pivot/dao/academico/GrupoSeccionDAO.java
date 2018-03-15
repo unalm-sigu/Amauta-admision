@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 
@@ -31,7 +32,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
-    //GpoSeccionResumen resumen();
     GrupoSeccion findLast();
 
     void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion);
@@ -42,4 +42,5 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico);
 
+    ActaResumen resumen(CicloAcademico ciclo, DepartamentoAcademico dpto);
 }

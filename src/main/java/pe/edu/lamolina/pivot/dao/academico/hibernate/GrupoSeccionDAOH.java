@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
@@ -254,6 +255,25 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("ca.id", cicloAcademico);
 
         return all(sql);
+    }
+
+    @Override
+    public ActaResumen resumen(CicloAcademico ciclo, DepartamentoAcademico dpto) {
+        Octavia sql = Octavia.query()
+                .select(
+                        "sum(case gs.estadoGrupo when 'ABI' then 1 else 0 end)",
+                        "sum(case gs.estadoGrupo when 'CER' then 1 else 0 end)",
+                        "sum(case when cu.nivel <= 6 then 1 else 0 end)",
+                        "sum(case when cu.nivel >= 7 then 1 else 0 end)")
+                .into(ActaResumen.class)
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da")
+                .filter("ca.id", ciclo)
+                .filter("da.id", dpto)
+                .filter("gs.estado", EstadoEnum.ACT)
+                .orderBy("cu.nombre");
+
+        return (ActaResumen) sql.find(getCurrentSession());
     }
 
 }
