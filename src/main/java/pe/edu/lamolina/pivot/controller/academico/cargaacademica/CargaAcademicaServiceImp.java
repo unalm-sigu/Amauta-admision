@@ -896,9 +896,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, estadoPlanCalificaEnum);
         /*
-        List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
+        List<Seccion> secciones = seccionDAO.allByDynatableCicloDpto(grupoSeccion.getId());
         logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
-        List<EvaluacionExpandida> planEvaluacionesExpandidas = evaluacionExpandidaDAO.allByFilter(evaluacionSeccion.getId(), null);
+        List<EvaluacionExpandida> planEvaluacionesExpandidas = evaluacionExpandidaDAO.allByDynatableCicloDpto(evaluacionSeccion.getId(), null);
         logger.debug("Plan Calificacion {}, Cantidad de Evaluaciones {}", planCalificacion.getId(), planEvaluacionesExpandidas.size());
         for (Seccion seccionEach : secciones) {
             logger.debug("aceptarPropuestaSolicitud #############################");
