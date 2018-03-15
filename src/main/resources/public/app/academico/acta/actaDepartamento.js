@@ -76,8 +76,19 @@ $(function () {
             if (ActaDepartamento.divElegido != null) {
                 var valueAnt = ActaDepartamento.divElegido.context.attributes[1].value;
                 var estadoAnt = ActaDepartamento.divElegido.context.rel;
-                ActaDepartamento.listActasSelec.push(valueAnt);
-                ActaDepartamento.listActasSelec = ActaDepartamento.listActasSelec.filter(unique);
+                
+                ActaDepartamento.listActasSelec.forEach(function (elem, index) {
+                    if (elem == value) {
+                        dynatable.queries.remove('filter'+index)
+                        ActaDepartamento.lstDivElegido[index].removeClass(classColor);
+                        ActaDepartamento.lstDivElegido.splice(index, 1);
+                        ActaDepartamento.listActasSelec.splice(index, 1);
+                        if (ActaDepartamento.listActasSelec.length == 0) {
+                            ActaDepartamento.divElegido = null;
+                        }
+                    }
+                })
+
                 ActaDepartamento.listActasSelec.forEach(function (elem, index) {
 
                     if ((value == 1 && elem == 2) || (value == 2 && elem == 1) || (value == 3 && elem == 4) || (value == 4 && elem == 3)) {
@@ -93,11 +104,17 @@ $(function () {
                 div.addClass(classColor);
                 ActaDepartamento.divElegido = div;
                 ActaDepartamento.lstDivElegido.push(ActaDepartamento.divElegido);
+                ActaDepartamento.listActasSelec.push(value);
                 ActaDepartamento.lstDivElegido.forEach(function (elem, index) {
                     var valor = elem.context.rel;
-                    dynatable.queries.add("filter" + index + 1, valor);
+                    dynatable.queries.add("filter" + index, valor);
                 })
 
+            } else {
+                ActaDepartamento.lstDivElegido.forEach(function (elem, index) {
+                    var valor = elem.context.rel;                    
+                    dynatable.queries.add("filter" + index, valor);
+                })
             }
             dynatable.process();
 
