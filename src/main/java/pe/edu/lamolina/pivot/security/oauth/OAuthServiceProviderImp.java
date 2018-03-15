@@ -174,10 +174,10 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     @Async
     @Override
     public void createLogJson(DataSessionPivot ds, HttpSession session) {
-        ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
         ObjectNode objData = new ObjectNode(JsonNodeFactory.instance);
-        obj.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
-        objData.put("data", obj);
+        data.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
+        objData.set("data", data);
         objData.put("tipo", "Inicio Sesión");
         interceptorService.saveInterceptor(objData, session);
     }
