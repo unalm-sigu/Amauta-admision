@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -157,12 +158,16 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
 
     @Override
     public List<CarreraCursoCachimbo> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+       
         List<CursoCachimbos> cursosCchimbos = cursoCachimbosDAO.allByCiclo(cicloAcademico);
         List<CarreraCursoCachimbo> cursos = new ArrayList();
         Map<Long, List<CursoCachimbos>> cursosCachimbosMap = TypesUtil.convertListToMapList("carrera.id", cursosCchimbos);
         List<Carrera> carreras = carreraDAO.allCarreraByModalidadEstudio(modalidadEstudio);
+        List<CarreraCachimbos> carreraCachimbos = carreraCachimbosDAO.allCarreraCachimbosByCarreras(carreras, cicloAcademico);
+        Map<Long, CarreraCachimbos> carreraCachimbosMap = TypesUtil.convertListToMap("carrera.id", carreraCachimbos);
         for (Carrera carrera : carreras) {
             List<CursoCachimbos> cursosCachimboMap = cursosCachimbosMap.get(carrera.getId());
+            CarreraCachimbos carreraCachimboMap = carreraCachimbosMap.get(carrera.getId());
             CarreraCursoCachimbo carreraCursoCachimbo = new CarreraCursoCachimbo();
             carreraCursoCachimbo.setCarrera(carrera);
             if (cursosCachimboMap == null) {
@@ -170,8 +175,13 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
             } else {
                 carreraCursoCachimbo.setCantidad(cursosCachimboMap.size());
             }
+            if (carreraCachimboMap == null) {
+            } else {
+                carreraCursoCachimbo.setCarreraCachimbos(carreraCachimboMap);
+            }
             cursos.add(carreraCursoCachimbo);
         }
+     
         return cursos;
     }
 

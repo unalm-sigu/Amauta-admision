@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -13,6 +14,16 @@ public class CarreraCursoCachimbo {
     //para fines de agregar  SeccionCursoCachimbo
     private CursoCachimbos curso;
     private List<Seccion> secciones;
+
+    private CarreraCachimbos carreraCachimbos;
+
+    public CarreraCachimbos getCarreraCachimbos() {
+        return carreraCachimbos;
+    }
+
+    public void setCarreraCachimbos(CarreraCachimbos carreraCachimbos) {
+        this.carreraCachimbos = carreraCachimbos;
+    }
 
     public CarreraCursoCachimbo() {
     }
