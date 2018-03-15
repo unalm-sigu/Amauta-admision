@@ -17,7 +17,6 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface HorarioCachimboGenerarService {
@@ -58,24 +57,10 @@ public interface HorarioCachimboGenerarService {
 
     List<CursoCachimbos> allCursoCachimbosByHorario(HorarioCachimbos horario, CicloAcademico cicloAcademico);
 
-    //List<Curso> allCursosCarrera(List<CursoCachimbos> cursosCachimbos);
-
-    //String reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones);
-
     void permutarUnico(
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
             Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera);
-
-    //Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios);
-
-//    HorarioCachimbos createHorario(
-//            List<Seccion> horarioTempo,
-//            Carrera carrera,
-//            CicloAcademico ciclo,
-//            int cursos,
-//            Map<String, HorarioCachimbos> mapHorario,
-//            Acumulador code, DataSessionPivot ds);
 
     void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos);
 
