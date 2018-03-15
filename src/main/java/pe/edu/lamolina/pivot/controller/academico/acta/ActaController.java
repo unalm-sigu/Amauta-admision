@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -160,7 +162,13 @@ public class ActaController {
         logger.debug("ciclo academico id {}", ds.getCicloAcademico().getId());
         List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
         logger.debug("cantidad de grupos secciones {}", allGruposSeccion.size());
-
+        DepartamentoAcademico objDep = new DepartamentoAcademico();
+        objDep.setId(idDepartamento);
+        ActaResumen obj = actaService.allCount(ds.getCicloAcademico(), objDep);
+        model.addAttribute("abierto", obj.getAbierto());
+        model.addAttribute("cerrado", obj.getCerrado());
+        model.addAttribute("pregrado", obj.getPregrado());
+        model.addAttribute("posgrado", obj.getPosgrado());
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
@@ -177,6 +185,7 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             DepartamentoAcademico dpto = new DepartamentoAcademico(idDepartamento);
             CicloAcademico ciclo = ds.getCicloAcademico();
@@ -193,6 +202,8 @@ public class ActaController {
 
                 node.put("idCurso", grupo.getCurso().getId());
                 node.put("nombreCurso", grupo.getCurso().getNombre());
+                node.put("codigo", grupo.getCurso().getCodigo());
+                node.put("estructura", grupo.getCurso().getTpc());
 
                 node.put("estado", grupo.getEstado());
                 node.put("estadoValue", "");
@@ -270,8 +281,8 @@ public class ActaController {
                     //    node.put("idDocente", docentePrincipal.getId());
                 }
                 array.add(node);
-            }
 
+            }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());

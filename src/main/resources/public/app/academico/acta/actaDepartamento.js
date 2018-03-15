@@ -15,6 +15,8 @@ $(function () {
     }).data('dynatable');
     function ulWriter(rowIndex, record, columns, cellWriter) {
         // var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
+
+
         var colorEstadoPlan = {
             ACT: "success", APR: "success", EXPR: "success", EXP: "success", ACEP: "success",
             PEND: "warning", CRE: "warning", OBS: "warning", SOL: "warning", REE: "warning", PRO: "warning",
@@ -54,10 +56,53 @@ $(function () {
         record.secciones = seccionesResult;
 
         var html = $.templates("#templateGrupos").render(record);
+
         return html;
     }
 
     ActaDepartamento = {
+        listActasSelec: [],
+        lstDivElegido: [],
+        verModalidades: function ($this, e) {
+            function unique(value, index, self) {
+                return self.indexOf(value) === index;
+            }
+
+            var div = $this.closest("div");
+            var classColor = 'bg-light';
+            var tieneBgColor = div.hasClass(classColor);
+            var value = $this.attr("value");
+
+            if (ActaDepartamento.divElegido != null) {
+                var valueAnt = ActaDepartamento.divElegido.context.attributes[1].value;
+                var estadoAnt = ActaDepartamento.divElegido.context.rel;
+                ActaDepartamento.listActasSelec.push(valueAnt);
+                ActaDepartamento.listActasSelec = ActaDepartamento.listActasSelec.filter(unique);
+                ActaDepartamento.listActasSelec.forEach(function (elem, index) {
+
+                    if ((value == 1 && elem == 2) || (value == 2 && elem == 1) || (value == 3 && elem == 4) || (value == 4 && elem == 3)) {
+                        ActaDepartamento.lstDivElegido[index].removeClass(classColor);
+                        ActaDepartamento.lstDivElegido.splice(index, 1);
+                        ActaDepartamento.divElegido = null;
+                        ActaDepartamento.listActasSelec.splice(index, 1);
+                    }
+                })
+            }
+
+            if (!tieneBgColor) {
+                div.addClass(classColor);
+                ActaDepartamento.divElegido = div;
+                ActaDepartamento.lstDivElegido.push(ActaDepartamento.divElegido);
+                ActaDepartamento.lstDivElegido.forEach(function (elem, index) {
+                    var valor = elem.context.rel;
+                    dynatable.queries.add("filter" + index + 1, valor);
+                })
+
+            }
+            dynatable.process();
+
+
+        },
         grupoInicio: $("#grupoInicio"),
         elegirGrupo: function (item, e) {
             var grupo = item.attr("rel");
@@ -125,6 +170,9 @@ $(function () {
 
     $("body").delegate(".reporteActa", "click", function () {
         ActaDepartamento.reporteActa($(this));
+    });
+    $("body").delegate(".ver-modalidades", "click", function () {
+        ActaDepartamento.verModalidades($(this));
     });
 
 

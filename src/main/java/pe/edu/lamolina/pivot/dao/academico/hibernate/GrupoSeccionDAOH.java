@@ -18,8 +18,11 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
+import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.pivot.controller.academico.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
@@ -76,6 +79,14 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
     @Override
     public List<GrupoSeccion> allByFilter(CicloAcademico ciclo, DepartamentoAcademico dpto, DynatableFilter filter) {
+
+        Octavia sqlSub = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gssub", "docente doc")
+                .join("doc.persona per")
+                .filter("ds.principal", 1)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.PCUR);
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
                 .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da")
@@ -83,9 +94,35 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("ca.id", ciclo)
                 .filter("da.id", dpto)
                 .filter("gs.estado", EstadoEnum.ACT)
-                .searchFields("gs.codigo", "cu.nombre")
+                .searchFields("gs.codigo", "cu.nombre", "cu.codigo")
+                .searchSubquery(sqlSub)
+                .subqueryLinkedBy("gs.id", "gssub.id")
+                .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cu.nombre");
-        return sql.all(getCurrentSession());
+        sql.beginRelativeFilters();
+        setCondicionEstado(filter, sql);
+        return all(sql);
+    }
+
+    public void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            String values = (String) queries.get(key);
+            if (values.equals("ABI")) {
+                sql.filter("gs.estadoGrupo", ABI.name());
+            } else if (values.equals("CER")) {
+                sql.filter("gs.estadoGrupo", CER.name());
+            }
+            if (values.equals("pregrado")) {
+                sql.filter("cu.nivel", "<=", 6);
+            } else if (values.equals("posgrado")) {
+                sql.filter("cu.nivel", ">=", 7);
+            }
+        }
     }
 
     @Override
@@ -256,4 +293,22 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         return all(sql);
     }
 
+    @Override
+    public ActaResumen resumen(CicloAcademico ciclo, DepartamentoAcademico dpto) {
+        Octavia sql = Octavia.query()
+                .select(
+                        "sum(case gs.estadoGrupo when 'ABI' then 1 else 0 end)",
+                        "sum(case gs.estadoGrupo when 'CER' then 1 else 0 end)",
+                        "sum(case when cu.nivel <= 6 then 1 else 0 end)",
+                        "sum(case when cu.nivel >= 7 then 1 else 0 end)")
+                .into(ActaResumen.class)
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da")
+                .filter("ca.id", ciclo)
+                .filter("da.id", dpto)
+                .filter("gs.estado", EstadoEnum.ACT)
+                .orderBy("cu.nombre");
+
+        return (ActaResumen) sql.find(getCurrentSession());
+    }
 }
