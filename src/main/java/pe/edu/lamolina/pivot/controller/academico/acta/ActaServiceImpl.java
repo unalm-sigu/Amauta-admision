@@ -71,6 +71,11 @@ public class ActaServiceImpl implements ActaService {
     }
 
     @Override
+    public ActaResumen allCount(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
+        return grupoSeccionDAO.resumen(cicloAcademico, departamentoAcademico);
+    }
+
+    @Override
     public DocenteSeccion findDocenteSeccionByFilter(Docente docente, Seccion seccion) {
         return docenteSeccionDAO.findByFilter(docente, seccion);
     }

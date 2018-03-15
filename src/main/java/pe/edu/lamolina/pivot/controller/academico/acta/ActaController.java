@@ -162,7 +162,13 @@ public class ActaController {
         logger.debug("ciclo academico id {}", ds.getCicloAcademico().getId());
         List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
         logger.debug("cantidad de grupos secciones {}", allGruposSeccion.size());
-
+        DepartamentoAcademico objDep = new DepartamentoAcademico();
+        objDep.setId(idDepartamento);
+        ActaResumen obj = actaService.allCount(ds.getCicloAcademico(), objDep);
+        model.addAttribute("abierto", obj.getAbierto());
+        model.addAttribute("cerrado", obj.getCerrado());
+        model.addAttribute("pregrado", obj.getPregrado());
+        model.addAttribute("posgrado", obj.getPosgrado());
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
@@ -179,6 +185,7 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             DepartamentoAcademico dpto = new DepartamentoAcademico(idDepartamento);
             CicloAcademico ciclo = ds.getCicloAcademico();
@@ -186,7 +193,7 @@ public class ActaController {
             //filter.filterFix("gp.estado", EstadoEnum.ACT.name());
             List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ciclo, dpto, filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
+
             for (GrupoSeccion grupo : allGruposSeccion) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -274,8 +281,8 @@ public class ActaController {
                     //    node.put("idDocente", docentePrincipal.getId());
                 }
                 array.add(node);
-            }
 
+            }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());

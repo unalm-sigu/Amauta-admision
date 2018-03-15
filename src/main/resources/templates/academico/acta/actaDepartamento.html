@@ -14,30 +14,30 @@
         <section class="wrapper-lg">
             <section class="panel m-b-md">
                 <section class="panel-body">
-                    <div class="col-md-12">
+                    <div class="col-md-12" >
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                <a class="ver-modalidades text-danger pointer" rel="pregrado">
-                                    <span class="h1 block bold" >23</span>
+                                <a class="ver-modalidades text-danger pointer" value="1" rel="ABI" >
+                                    <span class="h1 block bold" th:text="${abierto}"></span>
+                                    <small class="block m-b-xs">Abiertos</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-black pointer" value="2" rel="CER" >
+                                    <span class="h1 block bold" th:text="${cerrado}"></span>
+                                    <small class="block m-b-xs">Cerrados</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-success pointer" value="3" rel="pregrado" >
+                                    <span class="h1 block bold" th:text="${pregrado}"></span>
                                     <small class="block m-b-xs">Pregrado</small>
                                 </a>
                             </div>
                             <div class="col-md-3 text-center">
-                                <a class="ver-modalidades text-black pointer" rel="postgrado">
-                                    <span class="h1 block bold" >23</span>
+                                <a class="ver-modalidades text-warning pointer" value="4" rel="posgrado">
+                                    <span class="h1 block bold" th:text="${posgrado}" ></span>
                                     <small class="block m-b-xs">Posgrado</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a class="ver-modalidades text-success pointer" rel="visitante">
-                                    <span class="h1 block bold" >23</span>
-                                    <small class="block m-b-xs">Visitantes</small>
-                                </a>
-                            </div>
-                            <div class="col-md-3 text-center">
-                                <a class="ver-modalidades text-warning pointer" rel="especiales">
-                                    <span class="h1 block bold" >23</span>
-                                    <small class="block m-b-xs">Especiales</small>
                                 </a>
                             </div>
                         </div>
@@ -66,18 +66,18 @@
         </section>
 
 
-        <!-- 
-               <div class="tabbable-line m-b-lg" id="subBar">
-                   <ul class="nav nav-tabs">
-       
-                       <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
-                       <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
-                           <a href="#"
-                              th:text="${grupo.codigo}">grupo</a>
-                       </li>
-       
-                   </ul>
-               </div>
+        <!--         
+                       <div class="tabbable-line m-b-lg" id="subBar">
+                           <ul class="nav nav-tabs">
+               
+                               <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
+                               <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
+                                   <a href="#"
+                                      th:text="${grupo.codigo}">grupo</a>
+                               </li>
+               
+                           </ul>
+                       </div>
         -->
 
         <div th:substituteby="templates/modal"/> 
