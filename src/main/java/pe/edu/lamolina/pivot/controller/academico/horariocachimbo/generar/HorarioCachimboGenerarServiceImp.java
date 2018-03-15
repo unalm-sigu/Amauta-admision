@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.generar;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
@@ -268,14 +265,12 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
     }
 
     @Override
-//    @Transactional
     public void generar(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds) {
         List<AlumnoHorario> alumnos = alumnoHorarioDAO.allByCicloAcademico(ciclo);
         this.generarHorario(ciclo, modalidad, ds, alumnos);
     }
 
     @Override
-//    @Transactional
     public void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos) {
         logger.debug("ciclo {}", ciclo.getId());
         logger.debug("modalidad {}", modalidad.getId());
@@ -392,8 +387,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 }
 
                 AlumnoHorario alumno = alumnoCarr.get(0);
-//                logger.debug("AlumnoHorario {}", alumno.getId());
-
                 if (alumno.getHorarioCachimbos() != null) {
                     alumnoCarr.remove(alumno);
                     continue;
@@ -445,7 +438,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                         Curso curso = seccion.getGrupoSeccion().getCurso();
                         mapCursos.put(curso.getId(), curso);
                     }
-//                    logger.debug("cursos.size() {} mapCursos.size() {}", cursos.size(), mapCursos.size());
                     if (cursos.size() == mapCursos.size()) {
                         conHorario = true;
                         break;
@@ -462,21 +454,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
                 if (conHorario && !horarioTempo.isEmpty()) {
                     crearHorarioService.saveHorario(alumno, cursos, horarioTempo, carrera, ciclo, mapHorario, mapCarreraCachimbos, vacanteAlumnosMap, code, ds);
-//                    HorarioCachimbos horario = crearHorarioService.createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
-//                    //HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
-//                    horario.setSuscritos(horario.getSuscritos() + 1);
-//                    alumno.setHorarioCachimbos(horario);
-//                    alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR);
-//                    CarreraCachimbos cc = mapCarreraCachimbos.get(carrera.getId());
-//                    cc.setConHorario(cc.getConHorario() + 1);
-//                    cc.setSinHorario(cc.getSinHorario() - 1);
-//
-//                    List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
-//                    for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
-//                        Seccion secc = seccHorCachimbo.getSeccion();
-////                        secc.setReservados(secc.getReservados() + 1);
-//                        this.updateSeccionReserva(secc, alumno, vacanteAlumnosMap, ds);
-//                    }
                 }
 
                 alumnoCarr.remove(alumno);
@@ -485,60 +462,8 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 break;
             }
         }
-
-//        for (AlumnoHorario alumno : alumnos) {
-//            alumnoHorarioDAO.update(alumno);
-//        }
-//        for (CarreraCachimbos value : mapCarreraCachimbos.values()) {
-//            carreraCachimbosDAO.update(value);
-//        }
     }
 
-//    private void updateSeccionReserva(Seccion seccion, AlumnoHorario alumnoHorario, Map<Long, List<VacanteAlumno>> vacanteAlumnosMap, DataSessionPivot ds) {
-//
-//        Alumno alumno = alumnoHorario.getAlumno();
-//
-//        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnosMap.get(seccion.getId());
-//
-//        if (vacanteAlumnos == null) {
-//            vacanteAlumnos = new ArrayList();
-//        }
-//
-//        if (vacanteAlumnos.isEmpty()) {
-//            for (int i = 0; i < seccion.getVacantes(); i++) {
-//                int conteo = (i + 1);
-//                VacanteAlumno vacanteAlumno = new VacanteAlumno();
-//                vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
-//                vacanteAlumno.setNumero(conteo);
-//                vacanteAlumno.setSeccion(seccion);
-//                vacanteAlumno.setUserRegistro(ds.getUsuario());
-//                vacanteAlumno.setFechaRegistro(new Date());
-//                if (conteo == 1) {
-//                    vacanteAlumno.setAlumno(alumno);
-//                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-//                }
-//                vacanteAlumnoDAO.save(vacanteAlumno);
-//                vacanteAlumnos.add(vacanteAlumno);
-//            }
-//        } else {
-//            Collections.sort(vacanteAlumnos, new VacanteAlumno.CompareOrden());
-//            Iterator<VacanteAlumno> vacanteIterator = vacanteAlumnos.iterator();
-//            while (vacanteIterator.hasNext()) {
-//                VacanteAlumno vacanteAlumno = vacanteIterator.next();
-//                if (AlumnoVacanteEstadoEnum.LIBE.name().equals(vacanteAlumno.getEstado())) {
-//                    vacanteAlumno.setAlumno(alumno);
-//                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-//                    vacanteAlumnoDAO.update(vacanteAlumno);
-//                    break;
-//                }
-//            }
-//        }
-//
-//        vacanteAlumnosMap.put(seccion.getId(), vacanteAlumnos);
-//        seccion.setReservados(seccion.getReservados() + 1);
-//        logger.debug("Aumentando la cantidad de reservados {} de la seccion {}", seccion.getReservados(), seccion.getId());
-//        seccionDAO.update(seccion);
-//    }
     private Map<Long, List<Seccion>> createMapSeccionesCarrera(
             Map<Long, Seccion> mapSeccionesMain,
             Map<Long, List<SeccionCursoCachimbos>> mapSeccionesCachimbos,
@@ -561,110 +486,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         return mapSecciones;
     }
 
-//    @Override
-//    @Transactional
-//    public HorarioCachimbos createHorario(
-//            List<Seccion> horarioTempo,
-//            Carrera carrera,
-//            CicloAcademico ciclo,
-//            int cursos,
-//            Map<String, HorarioCachimbos> mapHorario,
-//            Acumulador code, DataSessionPivot ds) {
-//
-//        Collections.sort(horarioTempo, new Seccion.CompareCodigo());
-//        String huella = getHorarioString(horarioTempo);
-//        HorarioCachimbos horarioAnt = mapHorario.get(huella);
-//        if (horarioAnt != null) {
-//            return horarioAnt;
-//        }
-//
-//        Map<Long, Curso> mapCursos = new LinkedHashMap();
-//        for (Seccion seccion : horarioTempo) {
-//            Curso curso = seccion.getGrupoSeccion().getCurso();
-//            mapCursos.put(curso.getId(), curso);
-//        }
-//
-//        Integer vac = getVacanteMinima(horarioTempo);
-//        HorarioCachimbos horario = new HorarioCachimbos();
-//        horario.setCapacidad(vac);
-//        horario.setCarrera(carrera);
-//        horario.setCicloAcademico(ciclo);
-//        horario.setCursos(mapCursos.size());
-//        horario.setMatriculados(0);
-//        horario.setSuscritos(0);
-//        horario.setSeccionHorarioCachimbos(new ArrayList());
-//        horario.setCodigo("H-" + NumberFormat.codigo(code.getValor(), 3));
-//        horarioCachimbosDAO.save(horario);
-//        code.incrementar();
-//
-//        for (Seccion seccion : horarioTempo) {
-//            SeccionHorarioCachimbos sh = new SeccionHorarioCachimbos();
-//            sh.setHorarioCachimbos(horario);
-//            sh.setSeccion(seccion);
-//            sh.setUserCreacion(ds.getUsuario());
-//            sh.setFechaCreacion(new Date());
-//            seccionHorarioCachimbosDAO.save(sh);
-//            horario.getSeccionHorarioCachimbos().add(sh);
-//        }
-//        mapHorario.put(huella, horario);
-//        return horario;
-//    }
-//    private void permutarVarios(
-//            int ordenCurso, int ordenSeccion,
-//            List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
-//            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera) {
-//
-//        Curso curso = getCursoOrden(cursos, ordenCurso);
-//        List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
-//        int maxSecciones = cantPermutaSeccion(seccionesCurso);
-//
-//        //////logger.debug("===call permutar {}");
-////        //logger.debug("ordenCurso {} ordenSeccion {} cursos {} secciones {}", ordenCurso, ordenSeccion, cursos.size(), maxSecciones);
-////        //logger.debug("Pre-Horario: {}", getHorarioString(horarioTempo));
-////        ////logger.debug("== maxSecciones {}", maxSecciones);
-//        List<Seccion> seccionesOrden = allSeccionByOrden(seccionesCurso, ordenSeccion);
-//        if (seccionesOrden.isEmpty()) {
-//            return;
-//        }
-//
-//        boolean hayCruceHorario = hayCruceHorario(mapHorasDias, seccionesOrden);
-////        //logger.debug("\thayCruceHorario={} con {}", hayCruceHorario, getHorarioString(seccionesOrden));
-//
-//        if (!hayCruceHorario) {
-//            List<Seccion> horarioTempo2 = clonarLista(horarioTempo);
-//            Map<String, String> mapHorasDia2 = clonarMap(mapHorasDias);
-//            addHoraDiaSecciones(mapHorasDia2, seccionesOrden);
-//            for (Seccion seccion : seccionesOrden) {
-//                horarioTempo2.add(seccion);
-//            }
-//            ////logger.debug("== mapHorasDia2 {}", mapHorasDia2.size());
-//            if (ordenCurso < cursos.size()) {
-////                //logger.debug("\tpermuta otro curso");
-//                permutarVarios(ordenCurso + 1, 1, cursos, mapSecciones, clonarMap(mapHorasDia2), clonarLista(horarioTempo2), horariosCarrera);
-//            } else {
-//                ////logger.debug("== nunca lega aqui ");
-//                Integer vac = getVacanteMinima(horarioTempo2);
-//                if (vac > 0) {
-//                    horariosCarrera.add(horarioTempo2);
-//                    //logger.debug("\tHorario Final {} vacantes: {}", vac, getHorarioString(horarioTempo2));
-//                    return;
-//                }
-//            }
-//        }
-//
-////        for (;;) {
-//        ordenSeccion++;
-////        //logger.debug("\tbuscar la seccion {} de {}", ordenSeccion, maxSecciones);
-//        if (ordenSeccion <= maxSecciones) {
-////            //logger.debug("\tpermuta otra seccion");
-//            permutarVarios(ordenCurso, ordenSeccion, cursos, mapSecciones, clonarMap(mapHorasDias), clonarLista(horarioTempo), horariosCarrera);
-//        } else {
-////            //logger.debug("\tFin de permutaciones");
-////            break;
-//        }
-////        }
-////        //logger.debug("\t******* FIN +++++++++++");
-//    }
     @Override
     @Transactional
     public void permutarUnico(
@@ -709,13 +530,9 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 horarioTempo.remove(seccion);
             }
             removeHoraDiaSecciones(mapHorasDias, seccionesOrden);
-        } else {
-//            logger.debug("busqueda fallida por cruce de horario  {} por vacantes {} ", hayCruceHorario, hayVacantes);
         }
+
         ordenSeccion++;
-//        logger.debug("ordenSeccion {} ", ordenSeccion);
-//        logger.debug("maxSecciones {} ", maxSecciones);
-//        logger.debug("ordenSeccion <= maxSecciones {} ", (ordenSeccion <= maxSecciones));
         if (ordenSeccion <= maxSecciones) {
             permutarUnico(ordenCurso, ordenSeccion, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera);
         }
@@ -862,16 +679,13 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     private boolean hayVacantes(List<Seccion> seccionesOrden) {
         for (Seccion seccion : seccionesOrden) {
-//            logger.debug("seccion disponiblecachimbo {}", seccion.getDisponiblesCachimbos());
             if (seccion.getDisponiblesCachimbos() <= 0) {
-//                logger.debug("seccion disponibles < 1 {}", seccion.getId());
                 return false;
             }
         }
         return true;
     }
 
-    //@Override
     private Map<String, HorarioCachimbos> mappingHorarios(List<HorarioCachimbos> horarios) {
         Map<String, HorarioCachimbos> map = new LinkedHashMap();
         for (HorarioCachimbos horario : horarios) {
@@ -886,28 +700,19 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         return map;
     }
 
-    //@Override
     private String reordernarSeccion(List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones) {
         String key = "";
         for (Curso curso : cursos) {
             key += key.equals("") ? "" : "|";
             key += curso.getCodigo() + ":";
-            //logger.debug("Listado inicial");
             List<Seccion> seccionesCurso = mapSecciones.get(curso.getId());
-            //logger.debug("Cantidad curso secciones *** {} ", seccionesCurso.size());
             for (Seccion seccion : seccionesCurso) {
-                //logger.debug("\t" + seccion.getCodigo());
                 seccion.setAleatorio(RandomStringUtils.randomAlphabetic(20));
-                //logger.debug("seccion cod random \t {}", seccion.getAleatorio());
-                //logger.debug("seccion cod suscritos \t {}", seccion.getSuscritos());
-                //logger.debug("seccion id  \t {}", seccion.getId());
             }
             Collections.sort(seccionesCurso, new Seccion.CompareReservadosAleatorio());
 
-            //logger.debug("Listado reordenado");
             for (Seccion seccion : seccionesCurso) {
                 key += "[" + seccion.getCodigo() + "]";
-                //logger.debug("\t" + seccion.getCodigo());
             }
         }
         return key;
@@ -954,7 +759,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         if (cursos.isEmpty()) {
             return new ArrayList();
         }
-        return cursoCachimbosDAO.allByCursoCiclo(cursos, cicloAcademico, carrera);
+        return cursoCachimbosDAO.allByCursosCicloCarrera(cursos, cicloAcademico, carrera);
     }
 
     private int getSuscritos(Seccion secc, Map<Long, List<SeccionHorarioCachimbos>> seccionHorarioCachimbosMap) {

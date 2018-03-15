@@ -11,7 +11,10 @@
                             <span class="block">Carrera</span>
                             <span class="block">Facultad</span>
                         </th>
-                        <th class="col-xs-1 text-center v-middle">Horarios</th>
+                        <th class="col-xs-1 text-center v-middle">
+                            <span class="block">Demanda</span>
+                            <span class="block">Oferta</span>
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
@@ -46,8 +49,8 @@
                     <div v-for="seccion in gpoSeccion.secciones"
                          class="col-xs-1"
                          v-bind:class="seccion.classTipo">
-                        <span class="block text-center"> {{seccion.codigo}}</span>
-                        <span class="block text-center m-b"> {{seccion.suscritos}}</span>
+                        <span class="block text-center"> {{seccion.codigo2}}</span>
+                        <small class="block text-center m-b"> {{seccion.suscritos}}/{{seccion.vacantes}}</small>
                     </div>
                 </div>
             </div>
@@ -60,7 +63,8 @@
         </td>
 
         <td class="v-middle  text-center">
-            <span class="badge">{{curso.horarios}}</span>
+            <span class="label label-danger">{{curso.oferta}} para {{curso.demanda}}</span>
+            <span class="label label-primary">{{curso.ofertaTotal}} para {{curso.demandaTotal}}</span>
         </td>
 
         <td class="v-middle">

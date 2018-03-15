@@ -125,6 +125,11 @@ public class HorarioCachimboCursoController {
                 node.put("departamentoAcademico", departamento.getNombre());
                 node.put("curso", curso.getNombre());
                 node.put("tpc", curso.getTpc());
+                node.put("oferta", cursoCachimbo.getOferta());
+                node.put("demanda", cursoCachimbo.getDemanda());
+                node.put("ofertaTotal", cursoCachimbo.getOfertaTotal());
+                node.put("demandaTotal", cursoCachimbo.getDemandaTotal());
+//                node.put("errorDemanda", cursoCachimbo.getDemanda() > cursoCachimbo.getOferta());
 
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
 
@@ -153,9 +158,11 @@ public class HorarioCachimboCursoController {
                         }
                         ObjectNode seccionNode = new ObjectNode(jsonFactory);
                         seccionNode.put("id", seccion.getId());
-                        seccionNode.put("codigo", seccion.getCodigo2());
+                        seccionNode.put("codigo2", seccion.getCodigo2());
+                        seccionNode.put("codigo", seccion.getCodigo());
                         seccionNode.put("tipo", seccion.getTipoSeccion());
                         seccionNode.put("suscritos", seccion.getReservados());
+                        seccionNode.put("vacantes", seccion.getVacantes());
                         seccionNode.put("seleccionado", scc != null);
                         seccionNode.put("anexo", grupoSeccion.getAnexoBoletin().getNombre());
                         seccionesArray.add(seccionNode);

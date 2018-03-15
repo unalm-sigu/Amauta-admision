@@ -23,7 +23,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
     }
 
     @Override
-    public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<CursoCachimbos> allByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CursoCachimbos.class, "cuca")
                 .join("curso cur", "carrera car", "car.facultad fac", "cur.departamentoAcademico dep", "cicloAcademico ciclo")
@@ -58,15 +58,14 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
         return (CursoCachimbos) sql.find(getCurrentSession());
     }
 
-    @Override
-    public List<CursoCachimbos> allCursoCachimbos(CicloAcademico cicloAcademico) {
-        Octavia sql = Octavia.query()
-                .from(CursoCachimbos.class, "cc")
-                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
-                .filter("ciclo.id", cicloAcademico);
-        return sql.all(getCurrentSession());
-    }
-
+    //@Override
+//    public List<CursoCachimbos> allCursoCachimbos(CicloAcademico cicloAcademico) {
+//        Octavia sql = Octavia.query()
+//                .from(CursoCachimbos.class, "cc")
+//                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ciclo")
+//                .filter("ciclo.id", cicloAcademico);
+//        return sql.all(getCurrentSession());
+//    }
     @Override
     public List<CursoCachimbos> allByCarreraCiclo(CicloAcademico cicloAcademico, Carrera carrera) {
         Octavia sql = Octavia.query()
@@ -91,7 +90,7 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
     }
 
     @Override
-    public List<CursoCachimbos> allByCursoCiclo(List<Curso> cursos, CicloAcademico cicloAcademico, Carrera carrera) {
+    public List<CursoCachimbos> allByCursosCicloCarrera(List<Curso> cursos, CicloAcademico cicloAcademico, Carrera carrera) {
         Octavia sql = Octavia.query()
                 .from(CursoCachimbos.class, "cc")
                 .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ca")
@@ -113,6 +112,17 @@ public class CursoCachimbosDAOH extends AbstractEasyDAO<CursoCachimbos> implemen
 
         return all(sql);
 
+    }
+
+    @Override
+    public List<CursoCachimbos> allByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(CursoCachimbos.class, "cc")
+                .join("curso cur", "carrera car", "car.facultad fac", "cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .in("cur.id", cursos);
+
+        return sql.all(getCurrentSession());
     }
 
 }
