@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;

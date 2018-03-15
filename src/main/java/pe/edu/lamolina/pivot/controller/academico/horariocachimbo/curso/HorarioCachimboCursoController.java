@@ -83,9 +83,9 @@ public class HorarioCachimboCursoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
-        List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio, cicloAcademico);
+        List<CarreraCursoCachimbo> carrera = service.allCarrera(modalidadEstudio, cicloAcademico);
         model.addAttribute("cicloAcademico", cicloAcademico);
-        model.addAttribute("carreras", carreras);
+        model.addAttribute("carreras", carrera);
         return "academico/horariocachimbo/curso/horarioCachimboCurso";
     }
 
