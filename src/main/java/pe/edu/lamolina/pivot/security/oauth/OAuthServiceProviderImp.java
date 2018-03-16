@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.enums.TipoSesionEnum;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -189,7 +190,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ObjectNode objData = new ObjectNode(JsonNodeFactory.instance);
         obj.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
         objData.put("data", obj);
-        objData.put("tipo", "Logout");
+        objData.put("tipo", TipoSesionEnum.LOGIN.name());
         interceptorService.saveInterceptor(objData, session);
     }
  public String getClientOS(HttpServletRequest request) {
