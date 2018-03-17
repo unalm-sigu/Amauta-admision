@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.encuesta.encuestar;
+package pe.edu.lamolina.pivot.controller.academico.encuesta.encuestar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

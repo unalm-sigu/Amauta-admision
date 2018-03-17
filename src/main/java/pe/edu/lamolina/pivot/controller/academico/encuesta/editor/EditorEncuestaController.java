@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.encuesta.editor;
+package pe.edu.lamolina.pivot.controller.academico.encuesta.editor;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

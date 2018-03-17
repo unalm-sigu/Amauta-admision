@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.encuesta.pregunta;
+package pe.edu.lamolina.pivot.controller.academico.encuesta.pregunta;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;

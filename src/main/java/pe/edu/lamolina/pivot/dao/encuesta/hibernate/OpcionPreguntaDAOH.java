@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.OpcionPreguntaDAO;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
@@ -38,6 +39,7 @@ public class OpcionPreguntaDAOH extends AbstractEasyDAO<OpcionPregunta> implemen
                 .from(OpcionPregunta.class, "op")
                 .join("pregunta pre", "pre.examenVirtual enc")
                 .filter("enc.id", encuesta)
+                .filter("pre.tipo", TipoPreguntaEncuestaEnum.SIMPLE)
                 .orderBy("op.letra")
                 .limit(10);
 
