@@ -56,7 +56,6 @@ import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -174,6 +173,30 @@ public class GpoSeccionController {
                         nodeDoc.put("docente", "");
                         arrayDoc.add(nodeDoc);
                     }
+
+                    nodeSecc.set("docentes", arrayDoc);
+                    arraySecc.add(nodeSecc);
+                }
+
+                if (gpoSeccion.getSecciones().isEmpty()) {
+                    ObjectNode nodeSecc = new ObjectNode(JsonNodeFactory.instance);
+                    nodeSecc.put("tipo", "");
+                    nodeSecc.put("tipoValue", "");
+                    nodeSecc.put("codigo", "");
+                    nodeSecc.put("codigo2", "");
+                    nodeSecc.put("vacantes", "");
+                    nodeSecc.put("matriculados", "");
+                    nodeSecc.put("aula", "");
+                    nodeSecc.put("grupo", "");
+                    nodeSecc.put("estadoSec", "");
+                    nodeSecc.put("estadoValueSec", "");
+
+                    ArrayNode arrayDoc = new ArrayNode(JsonNodeFactory.instance);
+                    ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
+                    nodeDoc.put("principal", 0);
+                    nodeDoc.put("codigo", "");
+                    nodeDoc.put("docente", "");
+                    arrayDoc.add(nodeDoc);
 
                     nodeSecc.set("docentes", arrayDoc);
                     arraySecc.add(nodeSecc);

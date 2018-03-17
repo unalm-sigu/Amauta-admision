@@ -67,7 +67,12 @@ public class ActaServiceImpl implements ActaService {
 
     @Override
     public List<GrupoSeccion> allGrupoSeccionByFilterDyna(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico, DynatableFilter dynatableFilter) {
-        return grupoSeccionDAO.allByFilter(cicloAcademico, departamentoAcademico, dynatableFilter);
+        return grupoSeccionDAO.allByDynatableCicloDpto(cicloAcademico, departamentoAcademico, dynatableFilter);
+    }
+
+    @Override
+    public ActaResumen findResumenByDepartamento(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico) {
+        return grupoSeccionDAO.findResumenByDepartamento(cicloAcademico, departamentoAcademico);
     }
 
     @Override

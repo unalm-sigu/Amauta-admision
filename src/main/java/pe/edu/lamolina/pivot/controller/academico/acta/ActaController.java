@@ -49,7 +49,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class ActaController {
 
     @Autowired
-    ActaService actaService;
+    ActaService service;
 
     @Autowired
     RecordDeActasExcelView recordDeActasExcelView;
@@ -97,9 +97,9 @@ public class ActaController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico periodo = ds.getCicloAcademico();
+            CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<DepartamentoAcademico> departamentosAcaActivos = actaService.allActiveDepartamentosAcademicos(filter, ds.getCicloAcademico());
+            List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, ciclo);
 
             List<Long> departamentos = new ArrayList<>();
             if (!departamentosAcaActivos.isEmpty()) {
@@ -111,7 +111,7 @@ public class ActaController {
             if (!departamentos.isEmpty()) {
                 logger.debug("Departamentos {}", StringUtils.join(departamentos, ","));
                 logger.debug("Ciclo Academico {}", ds.getCicloAcademico().getId());
-                counts = actaService.countGroupsByFilter(departamentos, ds.getCicloAcademico(), null);
+                counts = service.countGroupsByFilter(departamentos, ds.getCicloAcademico(), null);
                 logger.debug("Cantidad de resumen de cantidades {}", counts.size());
             }
 
@@ -155,13 +155,11 @@ public class ActaController {
     public String departamento(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session, RedirectAttributes redirect) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        DepartamentoAcademico depAcademico = actaService.findDepartamento(idDepartamento);
-        logger.debug("departamento academico id {}", depAcademico.getId());
-        logger.debug("ciclo academico id {}", ds.getCicloAcademico().getId());
-        List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
-        logger.debug("cantidad de grupos secciones {}", allGruposSeccion.size());
+        DepartamentoAcademico depAcademico = service.findDepartamento(idDepartamento);
+        List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
+        ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
 
-        model.addAttribute("docente", ds.getDocente());
+        model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
         model.addAttribute("gruposSecciones", allGruposSeccion);
@@ -177,12 +175,12 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             DepartamentoAcademico dpto = new DepartamentoAcademico(idDepartamento);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            //filter.filterFix("gp.estado", EstadoEnum.ACT.name());
-            List<GrupoSeccion> allGruposSeccion = actaService.allGrupoSeccionByFilterDyna(ciclo, dpto, filter);
+            List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilterDyna(ciclo, dpto, filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (GrupoSeccion grupo : allGruposSeccion) {
@@ -193,6 +191,8 @@ public class ActaController {
 
                 node.put("idCurso", grupo.getCurso().getId());
                 node.put("nombreCurso", grupo.getCurso().getNombre());
+                node.put("codigo", grupo.getCurso().getCodigo());
+                node.put("estructura", grupo.getCurso().getTpc());
 
                 node.put("estado", grupo.getEstado());
                 node.put("estadoValue", "");
@@ -233,7 +233,7 @@ public class ActaController {
                             grupoHoras += sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo() + ",";
                         }
 
-                        docentesSeccion = actaService.allDocenteSeccionByFilter(null, sec);
+                        docentesSeccion = service.allDocenteSeccionByFilter(null, sec);
                         for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
                             if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
                                 if (docentesSeccionEach.esDocentePrincipal()) {
@@ -270,8 +270,8 @@ public class ActaController {
                     //    node.put("idDocente", docentePrincipal.getId());
                 }
                 array.add(node);
-            }
 
+            }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
@@ -291,7 +291,7 @@ public class ActaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("El grupo seleccionado es {}", idGrupo);
 
-            actaService.reabrirGrupo(new GrupoSeccion(idGrupo), ds.getUsuario());
+            service.reabrirGrupo(new GrupoSeccion(idGrupo), ds.getUsuario());
 
             response.setMessage("Registro reabierto");
             response.setSuccess(true);
