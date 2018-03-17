@@ -41,4 +41,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     void updateSituacionInicioFinal(AlumnoCiclo alumnoCiclo);
 
     void updateSituacionFinal(AlumnoCiclo alumnoCiclo);
+
+    AlumnoCiclo findLastActiveRegByAlumno(Alumno alumno);
 }

@@ -34,4 +34,10 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     void updateFechaMatriculables(CicloAcademico cicloAcademico);
 
+    void updateFechaPrioridades(CicloAcademico cicloAcademico);
+
+    void updateFechaTurnosAsignados(CicloAcademico cicloAcademico);
+
+    void updateFechasTurnosAignadosDisponibles(CicloAcademico cicloAcademico);
+
 }

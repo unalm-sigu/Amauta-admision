@@ -24,4 +24,6 @@ public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
     TurnoAtencion findById(Long Id);
 
+    TurnoAtencion findLastByConfiguracion(ConfiguracionTurnosAtencion config);
+
 }

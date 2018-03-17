@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -21,6 +22,10 @@ public interface MatriculableService {
 
     AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
-    void generarPrioridad(CicloAcademico ciclo, DataSessionPivot ds);
+    void generarPrioridad(CicloAcademico ciclo);
+
+    List<ConfiguracionTurnosAtencion> allConfiguracionTurnoByCiclo(CicloAcademico cicloAcademico);
+
+    void procesarTurnoMatricula(CicloAcademico cicloAcademico, Long configuracionTurnoAtencion);
 
 }

@@ -304,4 +304,15 @@ public class TestController {
         return "yeah";
     }
 
+    @ResponseBody
+    @RequestMapping("calcularAllPromediosByAlumno/{alumno}")
+    public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
+        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+
+        return "yeah";
+    }
+
 }

@@ -200,4 +200,26 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         this.update(octavia);
     }
 
+    @Override
+    public void updateFechaPrioridades(CicloAcademico cicloAcademico) {
+        Octavia octavia = Octavia.update(CicloAcademico.class);
+        octavia.set(cicloAcademico, "fechaPrioridades");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateFechaTurnosAsignados(CicloAcademico cicloAcademico) {
+        Octavia octavia = Octavia.update(CicloAcademico.class);
+        octavia.set(cicloAcademico, "fechaTurnosAsignados");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateFechasTurnosAignadosDisponibles(CicloAcademico cicloAcademico) {
+        Octavia octavia = Octavia.update(CicloAcademico.class);
+        octavia.set(cicloAcademico, "fechaTurnosAsignados");
+        octavia.set(cicloAcademico, "fechaTurnosDisponibles");
+        this.update(octavia);
+    }
+
 }

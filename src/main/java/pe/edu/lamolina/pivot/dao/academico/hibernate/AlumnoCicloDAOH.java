@@ -1,8 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import org.springframework.stereotype.Repository;
@@ -12,10 +10,8 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.PlanCurricular;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
-import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -95,6 +91,21 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .leftJoin("userModificacion um")
                 .filter("alu.id", alumno)
                 .orderBy("ac.fechaRegistro desc")
+                .limit(BigDecimal.ONE.intValue());
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoCiclo findLastActiveRegByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .left("situacionInicio si", "situacionFinal sf", "userRegistro ur", "orientacionCarrera oc")
+                .leftJoin("userModificacion um")
+                .filter("ca.tipo", TipoCicloEnum.REG.name())
+                .filter("alu.id", alumno)
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .orderBy("ca.codigo desc")
                 .limit(BigDecimal.ONE.intValue());
         return find(sql);
     }

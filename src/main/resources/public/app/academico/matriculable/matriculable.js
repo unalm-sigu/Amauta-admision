@@ -98,18 +98,35 @@ $(function () {
                 }
             });
         },
-        asignarTurno: function (e, $this) {
-            e.preventDefault();
-            MODAL.showWait("Espere un momento por favor");
+        modalAsignarTurno: function (e, $this) {
+            //  e.preventDefault();
+            MODAL.init("sm");
+            MODAL.title("Tipo de Matricula");
+            MODAL.show();
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/generarPrioridad'),
+                url: APP.url('academico/matriculable/modalAsignarTurno'),
                 success: function (response) {
-                    MODAL.hideWait();
+                    MODAL.body(response);
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hideWait();
+                }
+            });
+        },
+        procesarTipoMatricula: function (e, $this) {
+            e.preventDefault();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/procesarTipoMatricula'),
+                data: {
+                    confTurnoAtencion: $this.attr("alt")
+                },
+                success: function (response) {
+                    MODAL.hide();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
@@ -147,7 +164,11 @@ $(function () {
     });
 
     $("body").delegate("#asignarTurnos", "click", function (e) {
-        Matriculable.asignarTurno(e, $(this));
+        Matriculable.modalAsignarTurno(e, $(this));
+    });
+
+    $("body").delegate(".procesar-tipo-matricula", "click", function (e) {
+        Matriculable.procesarTipoMatricula(e, $(this));
     });
 
 });

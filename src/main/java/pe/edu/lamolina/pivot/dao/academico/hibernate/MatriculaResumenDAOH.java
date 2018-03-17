@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
@@ -12,6 +13,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
@@ -44,7 +46,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
-                .join("alu.cicloActivo aluca")
+                .join("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .filter("ca.id", ciclo);
 
         return all(sql);
@@ -171,6 +173,13 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         this.update(octavia);
     }
 
+    @Override
+    public void updatePrioridad(MatriculaResumen matriculaResumen) {
+        Octavia octavia = Octavia.update(MatriculaResumen.class);
+        octavia.set(matriculaResumen, "prioridad");
+        this.update(octavia);
+    }
+
     public List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
@@ -179,6 +188,20 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .filter("mr.estado", EstadoMatriculaEnum.NMAT)
                 .orderBy("mr.prioridad");
         return all(sql);
+    }
+
+    @Override
+    public void updateTurnoAtencion(CicloAcademico cicloAcademico, TurnoAtencion turnoAtencion) {
+            StringBuilder strb = new StringBuilder("update MatriculaResumen mr set mr.turnoAtencion.id=:prm_turno ");
+        strb.append(" where mr.prioridad>=:prm_prioridad_ini and mr.prioridad<=:prm_prioridad_fin ");
+        strb.append(" and  mr.cicloAcademico.id=:prm_ciclo");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_turno", turnoAtencion.getId());
+        query.setParameter("prm_prioridad_ini", BigDecimal.valueOf(turnoAtencion.getPrioridadInicio()));
+        query.setParameter("prm_prioridad_fin", BigDecimal.valueOf(turnoAtencion.getPrioridadFin()));
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+        query.executeUpdate();
     }
 
 }

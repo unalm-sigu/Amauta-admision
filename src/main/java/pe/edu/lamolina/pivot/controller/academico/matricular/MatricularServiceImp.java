@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
 import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
@@ -67,6 +68,9 @@ public class MatricularServiceImp implements MatricularService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public TurnoAtencion findTurnoAtencion(Long turnoAtencion) {
@@ -346,6 +350,14 @@ public class MatricularServiceImp implements MatricularService {
             }
             notify.setState(true);
             this.notify(notify, usuario);
+        }
+
+        TurnoAtencion lastTurnoAtencionByConfig = turnoAtencionDAO.findLastByConfiguracion(turnoAtencion.getConfiguracionTurnosAtencion());
+        if (lastTurnoAtencionByConfig.getId().compareTo(turnoAtencion.getId()) == 0) {
+            logger.debug("Este turno es el ultimo de su configuracion");
+            cicloAcademico.setFechaTurnosAsignados(null);
+            cicloAcademico.setFechaTurnosDisponibles(null);
+            cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
         }
     }
 

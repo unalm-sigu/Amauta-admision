@@ -327,7 +327,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .filter("moe.id", modalidad)
-//                .filter("ci.id", cicloAcademico)
+                //                .filter("ci.id", cicloAcademico)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -413,6 +413,13 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         octavia.set(alumno, "situacionAcademica");
         octavia.set(alumno, "creditosAprobados");
         octavia.set(alumno, "cicloActivo");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateCicloActivoRegular(Alumno alumno) {
+        Octavia octavia = Octavia.update(Alumno.class);
+        octavia.set(alumno, "cicloActivoRegular");
         this.update(octavia);
     }
 

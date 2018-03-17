@@ -1878,7 +1878,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             Curso curso = matriculaCurso.getCurso();
             // promedioService.promedio(matriculaCurso, usuario, true);
-            promedioService.generarHistorialNotas(alumno, curso, matriculaCurso, grupoSeccion.getCicloAcademico(), usuario, today);
+            try {
+                promedioService.generarHistorialNotas(alumno, curso, matriculaCurso, grupoSeccion.getCicloAcademico(), usuario, today);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
     }
