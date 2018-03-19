@@ -214,10 +214,6 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            if (ds.getCicloAcademico().getFechaMatriculables() == null) {
-                throw new PhobosException("Primero debe generar los Alumnos matriculables");
-            }
-
             service.generarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);
@@ -239,10 +235,6 @@ public class MatriculableController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            if (ds.getCicloAcademico().getFechaPrioridades() == null) {
-                throw new PhobosException("Primero debe procesar las prioridades de los Alumnos");
-            }
 
             logger.debug("confTurnoAtencion {}", confTurnoAtencion);
             String message = "Rechazado correctamente.";

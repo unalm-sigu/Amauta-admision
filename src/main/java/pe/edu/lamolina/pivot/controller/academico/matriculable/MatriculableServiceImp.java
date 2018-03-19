@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -170,6 +171,10 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generarPrioridad(CicloAcademico ciclo) {
         DateTime today = new DateTime();
 
+        if (ciclo.getFechaMatriculables() == null) {
+            throw new PhobosException("Primero debe generar los Alumnos matriculables");
+        }
+
         ciclo.setFechaPrioridades(today.toDate());
         cicloAcademicoDAO.updateFechaPrioridades(ciclo);
 
@@ -214,6 +219,10 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void procesarTurnoMatricula(CicloAcademico cicloAcademico, Long configuracionTurnoAtencion) {
         DateTime today = new DateTime();
+
+        if (cicloAcademico.getFechaPrioridades() == null) {
+            throw new PhobosException("Primero debe procesar las prioridades de los Alumnos");
+        }
 
         cicloAcademico.setFechaTurnosAsignados(today.toDate());
         cicloAcademicoDAO.updateFechaPrioridades(cicloAcademico);
