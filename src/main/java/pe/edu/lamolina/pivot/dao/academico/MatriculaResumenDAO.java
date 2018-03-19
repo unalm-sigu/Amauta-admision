@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 
@@ -22,6 +23,11 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     AlumnoResumen findResumenByCicloRolDynateable(CicloAcademico ciclo, String codigo, List<Long> filtros);
 
+    void updatePuntajePrioridad(MatriculaResumen matriculaResumen);
+
     public List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico);
 
+    void updatePrioridad(MatriculaResumen matriculaResumen);
+
+    void updateTurnoAtencion(CicloAcademico cicloAcademico, TurnoAtencion turnoAtencion);
 }

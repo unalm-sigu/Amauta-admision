@@ -30,5 +30,7 @@ public interface ActaService {
     void reabrirGrupo(GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<DepartamentoAcademico> countGroupsByFilter(List<Long> departamentos, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
+    
+    ActaResumen findResumenByDepartamento(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
 
 }

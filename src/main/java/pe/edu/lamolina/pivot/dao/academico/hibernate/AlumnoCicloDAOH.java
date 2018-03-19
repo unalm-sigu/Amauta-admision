@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import org.springframework.stereotype.Repository;
@@ -97,6 +96,21 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public AlumnoCiclo findLastActiveRegByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .left("situacionInicio si", "situacionFinal sf", "userRegistro ur", "orientacionCarrera oc")
+                .leftJoin("userModificacion um")
+                .filter("ca.tipo", TipoCicloEnum.REG.name())
+                .filter("alu.id", alumno)
+                .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .orderBy("ca.codigo desc")
+                .limit(BigDecimal.ONE.intValue());
+        return find(sql);
+    }
+
+    @Override
     public AlumnoCiclo findActiveAnteriorByAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
@@ -175,8 +189,8 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu")
-                //   .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                //    .leftJoin("userModificacion um")
+                .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
+                .leftJoin("userModificacion um", "alumnoCicloCurso acc")
                 .filter("alu.id", alumno);
         return all(sql);
     }
@@ -205,6 +219,25 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
         return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public void updateSituacionInicioFinal(AlumnoCiclo alumnoCiclo) {
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        octavia.set(alumnoCiclo, "situacionInicio");
+        octavia.set(alumnoCiclo, "situacionFinal");
+        octavia.set(alumnoCiclo, "fechaModificacion");
+        octavia.set(alumnoCiclo, "userModificacion");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateSituacionFinal(AlumnoCiclo alumnoCiclo) {
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        octavia.set(alumnoCiclo, "situacionFinal");
+        octavia.set(alumnoCiclo, "fechaModificacion");
+        octavia.set(alumnoCiclo, "userModificacion");
+        this.update(octavia);
     }
 
 }

@@ -1,0 +1,12 @@
+<form id="frmAsignarTurno">
+
+
+    <a  class="btn btn-success m-b-md block procesar-tipo-matricula" 
+        th:each="confTurnosAten : ${configuracionesTurnoAtencion}"
+        th:alt="${confTurnosAten.id}"
+        th:text="${confTurnosAten.tipoEnum.value}">
+        Aceptar rechazo
+    </a>
+
+
+</form>

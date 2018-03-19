@@ -67,4 +67,13 @@ public class CarreraCachimbosDAOH extends AbstractEasyDAO<CarreraCachimbos> impl
         query.executeUpdate();
     }
 
+    @Override
+    public List<CarreraCachimbos> allCarreraCachimbosByCarreras(List<Carrera> carrera, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(CarreraCachimbos.class, "cc")
+                .join("carrera car", "cicloAcademico ciclo")
+                .in("car.id", carrera)
+                .filter("ciclo.id", cicloAcademico);
+        return  sql.all(getCurrentSession());
+    }
 }

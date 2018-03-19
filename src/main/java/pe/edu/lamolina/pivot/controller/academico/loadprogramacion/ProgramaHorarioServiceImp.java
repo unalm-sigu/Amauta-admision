@@ -557,6 +557,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String diaNum = getCellStringValue(4, row);
                 String horaNum = getCellStringValue(5, row);
 
+                if (StringUtils.isEmpty(cicloCod)) {
+                    break;
+                }
+
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
                 Hora hora = mapHoras.get(Integer.parseInt(horaNum));
                 GrupoHoras grupo = mapGrupos.get(gpo);
@@ -571,11 +575,15 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
             }
 
+            List<DiaHoraGrupo> hdiaGpoTodosBD = diaHoraGrupoDAO.allByCiclo(ciclo);
+            Map<Long, List<DiaHoraGrupo>> mapHorarioGpos = TypesUtil.convertListToMapList("grupoHorario.id", hdiaGpoTodosBD);
             for (Map.Entry<String, List<DiaHoraGrupo>> entry : mapGpoHorarios.entrySet()) {
                 String gpo = entry.getKey();
                 GrupoHoras grupo = mapGrupos.get(gpo);
                 List<DiaHoraGrupo> hdiaGpo = entry.getValue();
-                List<DiaHoraGrupo> hdiaGpoBD = diaHoraGrupoDAO.allByGrupo(grupo, ciclo);
+                //List<DiaHoraGrupo> hdiaGpoBD = diaHoraGrupoDAO.allByGrupo(grupo, ciclo);
+                List<DiaHoraGrupo> hdiaGpoBD = mapHorarioGpos.get(grupo.getId());
+                hdiaGpoBD = (hdiaGpoBD == null) ? new ArrayList() : hdiaGpoBD;
                 ListsInspector inspector = TypesUtil.analizeLists(hdiaGpoBD, hdiaGpo, "key");
 
                 List<DiaHoraGrupo> nuevos = inspector.getNewList();
@@ -584,7 +592,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 logger.debug("\tNuevos grupos por agregar {}", nuevos.size());
                 int cont = 0;
                 for (DiaHoraGrupo nuevo : nuevos) {
-                    logger.debug("\t({}, {}) {} {} {}",cont++, nuevos.size(), nuevo.getGrupoHorario().getCodigo(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero());
+                    logger.debug("\t({}, {}) {} {} {}", cont++, nuevos.size(), nuevo.getGrupoHorario().getCodigo(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero());
                     diaHoraGrupoDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
@@ -632,7 +640,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String horaNum = getCellStringValue(5, row);
                 String aulaCod = getCellStringValue(6, row);
 
-                CicloAcademico ciclo = cicloAcademico;
+                if (StringUtils.isEmpty(clave)) {
+                    break;
+                }
 
                 Seccion seccion = mapSecciones.get(clave);
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
@@ -649,13 +659,21 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 horarioSecc.add(horario);
 
             }
-            
+
             logger.debug("{} horarioSeccion leídos", mapSeccHorarios.size());
+            List<HorarioSeccion> horarioSeccCicloBD = horarioSeccionDAO.allByCiclo(cicloAcademico);
+            Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
+                logger.debug("clave {} de horarioSeccion", clave);
                 Seccion seccion = mapSecciones.get(clave);
+                if (seccion == null) {
+                    logger.debug("\tNo existe PTM!!!!");
+                }
                 List<HorarioSeccion> horarioSecc = entry.getValue();
-                List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
+                //List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
+                List<HorarioSeccion> horarioSeccBD = mapHorarios.get(seccion.getId());
+                horarioSeccBD = (horarioSeccBD == null) ? new ArrayList() : horarioSeccBD;
                 ListsInspector inspector = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
 
                 List<HorarioSeccion> nuevos = inspector.getNewList();

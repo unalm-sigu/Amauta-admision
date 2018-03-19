@@ -262,14 +262,19 @@ public class TestController {
 
         List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
         List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
+        List<Alumno> unionList = new ArrayList();
+        unionList.addAll(pregrados);
+        unionList.addAll(posgrados);
 
-        for (Alumno alumno : pregrados) {
+        for (Alumno alumno : unionList) {
+            //  if (alumno.getCicloActivo().getCodigoInt() >= 198520 && alumno.getCicloActivo().getCodigoInt() <= 199420) {
+            //  if (alumno.getId().compareTo(43371L) == 0) {
+
+            //   }
             alumno = alumnoDAO.find(alumno);
             promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
-        }
-        for (Alumno alumno : posgrados) {
-            alumno = alumnoDAO.find(alumno);
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+
+            //  }
         }
 
         return "yeah";
@@ -296,6 +301,17 @@ public class TestController {
             Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
             promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
         }
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularAllPromediosByAlumno/{alumno}")
+    public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
+        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+
         return "yeah";
     }
 

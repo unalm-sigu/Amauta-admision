@@ -31,6 +31,24 @@ var DynatableRowTemplate = Vue.component("dynatableRow", {
         },
         seleccionarSecciones(id) {
             $global.$emit("seleccionarSecciones", id);
+        },
+        styleCursoCarrera(curso) {
+            if ((curso.oferta > curso.demanda)&& curso.demanda != 0) {
+                return 'label label-success'
+            } else if ((curso.oferta < curso.demanda)) {
+                return 'label label-danger'
+            } else {
+                return 'label label-primary'
+            }
+        },
+        styleCursoCarreraTotal(curso) {
+            if ((curso.ofertaTotal > curso.demandaTotal)&& curso.demandaTotal != 0) {
+                return 'label label-success'
+            } else if ((curso.ofertaTotal < curso.demandaTotal) ) {
+                return 'label label-danger'
+            } else {
+                return 'label label-primary'
+            }
         }
     }
 });
@@ -131,6 +149,12 @@ new Vue({
         });
     },
     methods: {
+        styleMain(sinHorario){
+            console.log(sinHorario)
+            if (sinHorario>0) {
+                return 'text-danger'
+            }
+        },
         filtrarCurso(e) {
             var vue = this;
             var self = $(e.currentTarget);

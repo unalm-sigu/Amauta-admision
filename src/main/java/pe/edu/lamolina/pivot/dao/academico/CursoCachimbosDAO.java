@@ -10,18 +10,20 @@ import pe.edu.lamolina.model.academico.CursoCachimbos;
 
 public interface CursoCachimbosDAO extends EasyDAO<CursoCachimbos> {
 
-    List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<CursoCachimbos> allByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     CursoCachimbos findByCursoCiclo(CursoCachimbos cursoCachimbos);
 
-    List<CursoCachimbos> allCursoCachimbos(CicloAcademico cicloAcademico);
+    //List<CursoCachimbos> allCursoCachimbos(CicloAcademico cicloAcademico);
 
     List<CursoCachimbos> allByCarreraCiclo(CicloAcademico cicloAcademico, Carrera carrera);
 
     List<CursoCachimbos> allByCiclo(CicloAcademico cicloAcademico);
 
-    List<CursoCachimbos> allByCursoCiclo(List<Curso> cursos, CicloAcademico cicloAcademico, Carrera carrera);
+    List<CursoCachimbos> allByCursosCicloCarrera(List<Curso> cursos, CicloAcademico cicloAcademico, Carrera carrera);
 
     List<CursoCachimbos> allByCicloFromSeccionCursoCachimbo(CicloAcademico ciclo);
+
+    List<CursoCachimbos> allByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico);
 
 }

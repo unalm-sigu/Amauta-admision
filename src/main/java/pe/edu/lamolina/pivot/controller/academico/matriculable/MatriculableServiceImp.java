@@ -1,8 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.matriculable;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +17,11 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
@@ -31,10 +38,14 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.ConfiguracionTurnosAtencionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -51,6 +62,18 @@ public class MatriculableServiceImp implements MatriculableService {
     ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+    @Autowired
+    TurnoAtencionDAO turnoAtencionDAO;
+
+    @Autowired
+    ConfiguracionTurnosAtencionDAO configuracionTurnosAtencionDAO;
+
+    @Autowired
+    MatriculableConnector matriculableConector;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -74,15 +97,16 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public void generar(CicloAcademico ciclo, DataSessionPivot ds) {
-
+        DateTime today = new DateTime();
         ModalidadEstudio pre = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         ModalidadEstudio epg = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
 
         List<SituacionAcademica> situacionesPregrado = situacionAcademicaDAO.allByCodes(
-                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_EM, S_3U, S_2U, S_4U, S_6U, S_TU));
+                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU));
         List<SituacionAcademica> situacionesPosgrado = situacionAcademicaDAO.allByCodes(
-                Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_EM));
+                Arrays.asList(S_N, S_1, S_2, S_3, S_5));
 
         List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
         List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
@@ -134,6 +158,71 @@ public class MatriculableServiceImp implements MatriculableService {
             matri.setNotaFinal("0");
             matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumenDAO.save(matri);
+        }
+        CicloAcademico cicloAcademicoUpd = new CicloAcademico();
+        cicloAcademicoUpd.setId(ciclo.getId());
+        cicloAcademicoUpd.setFechaMatriculables(today.toDate());
+        cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void generarPrioridad(CicloAcademico ciclo) {
+        DateTime today = new DateTime();
+
+        ciclo.setFechaPrioridades(today.toDate());
+        cicloAcademicoDAO.updateFechaPrioridades(ciclo);
+
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+        for (MatriculaResumen matriculable : matriculables) {
+            matriculableConector.procesarPrioridadAlumno(matriculable);
+        }
+
+        matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+
+        List<MatriculaResumen> matriculablesConPuntajePrioridad = matriculables.stream().filter(x -> (x.getPuntajePrioridad() != null && x.getPuntajePrioridad().compareTo(BigDecimal.ZERO) != 0)).collect(Collectors.toList());
+        Collections.sort(matriculablesConPuntajePrioridad, (p1, p2) -> p2.getPuntajePrioridad().compareTo(p1.getPuntajePrioridad()));
+        List<MatriculaResumen> matriculablesConPuntajeUltimosCiclos = matriculablesConPuntajePrioridad.stream().filter(x -> x.getAlumno().getCreditosAprobados() > 180).collect(Collectors.toList());
+
+        int indice = 0;
+        for (MatriculaResumen matriculaResumenEach : matriculablesConPuntajeUltimosCiclos) {
+            indice++;
+            matriculaResumenEach.setPrioridad(BigDecimal.valueOf(indice));
+            matriculaResumenDAO.updatePrioridad(matriculaResumenEach);
+        }
+
+        for (MatriculaResumen matriculaResumenEach : matriculablesConPuntajePrioridad) {
+            if (!matriculablesConPuntajeUltimosCiclos.contains(matriculaResumenEach)) {
+                indice++;
+                matriculaResumenEach.setPrioridad(BigDecimal.valueOf(indice));
+                matriculaResumenDAO.updatePrioridad(matriculaResumenEach);
+            }
+        }
+
+    }
+
+    public void asignarTurno(CicloAcademico ciclo) {
+
+    }
+
+    @Override
+    public List<ConfiguracionTurnosAtencion> allConfiguracionTurnoByCiclo(CicloAcademico cicloAcademico) {
+        return configuracionTurnosAtencionDAO.allByCiclo(cicloAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void procesarTurnoMatricula(CicloAcademico cicloAcademico, Long configuracionTurnoAtencion) {
+        DateTime today = new DateTime();
+
+        cicloAcademico.setFechaTurnosAsignados(today.toDate());
+        cicloAcademicoDAO.updateFechaPrioridades(cicloAcademico);
+
+        ConfiguracionTurnosAtencion configuracionTurnosAtencion = configuracionTurnosAtencionDAO.find(configuracionTurnoAtencion);
+        List<TurnoAtencion> turnosAtencion = turnoAtencionDAO.allByConfiguracion(configuracionTurnosAtencion);
+
+        for (TurnoAtencion turnoAtencionEach : turnosAtencion) {
+            matriculaResumenDAO.updateTurnoAtencion(cicloAcademico, turnoAtencionEach);
         }
 
     }

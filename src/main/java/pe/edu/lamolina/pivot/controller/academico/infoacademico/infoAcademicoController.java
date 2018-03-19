@@ -220,14 +220,17 @@ public class infoAcademicoController {
 
             ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
             ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-            objNode.put("alumnoCodigo", alumnoCicloCurso.get(0).getAlumnoCiclo().getAlumno().getCodigo());
-            for (AlumnoCicloCurso curso : alumnoCicloCurso) {
-                ObjectNode objCurso = new ObjectNode(JsonNodeFactory.instance);
-                objCurso.put("curso", curso.getCurso().getNombre());
-                objCurso.put("codigo", curso.getCurso().getCodigo());
-                objCurso.put("creditos", curso.getCreditos());
-                objCurso.put("nota", curso.getNota());
-                lstCurso.add(objCurso);
+
+            if (alumnoCicloCurso.size() > 0) {
+                objNode.put("alumnoCodigo", alumnoCicloCurso.get(0).getAlumnoCiclo().getAlumno().getCodigo());
+                for (AlumnoCicloCurso curso : alumnoCicloCurso) {
+                    ObjectNode objCurso = new ObjectNode(JsonNodeFactory.instance);
+                    objCurso.put("curso", curso.getCurso().getNombre());
+                    objCurso.put("codigo", curso.getCurso().getCodigo());
+                    objCurso.put("creditos", curso.getCreditos());
+                    objCurso.put("nota", curso.getNota());
+                    lstCurso.add(objCurso);
+                }
             }
             objNode.set("cursos", lstCurso);
             response.setData(objNode);

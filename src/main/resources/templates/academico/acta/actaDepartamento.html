@@ -5,47 +5,65 @@
 </head>
 <body>
     <div layout:fragment="main">
-         <header class="header b-b padder-lg">        
+        <header class="header b-b padder-lg">        
             <h2>Acta de Notas - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
 
             <span class="block"><strong >Departamento Académico:</strong> <span th:text="${departamentoAcademico.nombre}">Matematicas</span></span>
             <input id="txtDepartamentoAcademico" type="hidden" th:value="${departamentoAcademico.id}"/>
         </header>
-
+        <section class="wrapper-lg">
+            <section class="panel m-b-md">
+                <section class="panel-body">
+                    <div class="col-md-12" >
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-danger pointer" value="1" rel="ABI" >
+                                    <span class="h1 block bold" th:text="${resumen.abierto}"></span>
+                                    <small class="block m-b-xs">Abiertos</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-black pointer" value="2" rel="CER" >
+                                    <span class="h1 block bold" th:text="${resumen.cerrado}"></span>
+                                    <small class="block m-b-xs">Cerrados</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-success pointer" value="3" rel="pregrado" >
+                                    <span class="h1 block bold" th:text="${resumen.pregrado}"></span>
+                                    <small class="block m-b-xs">Pregrado</small>
+                                </a>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <a class="ver-modalidades text-warning pointer" value="4" rel="posgrado">
+                                    <span class="h1 block bold" th:text="${resumen.posgrado}" ></span>
+                                    <small class="block m-b-xs">Posgrado</small>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </section>
         <section class="panel">
             <section class="panel-body">
                 <table class="table table-striped" id="dynaTable">
                     <thead> 
                         <tr class=""> 
-                            <th class="col-md-2 text-center">Curso</th>
-                            <th class="col-md-2 text-center">Grupo</th>
-                            <th class="col-md-2 text-center">Docente Principal</th>
-                            <th class="col-md-1 text-center">Versión Acta</th>
-                            <th class="col-md-2 text-center">Estado Sistema Calificación</th>
-                            <th class="col-md-1 text-center">Estado Acta</th>
-                            <th class="col-md-1 text-center">Estado</th>
-                            <th class="col-md-1 text-center"></th>
+                            <th class="col-md-2 text-center v-middle">Curso</th>
+                            <th class="col-md-2 text-center v-middle">Grupo</th>
+                            <th class="col-md-2 text-center v-middle">Docente Principal</th>
+                            <th class="col-md-1 text-center v-middle">Versión Acta</th>
+                            <th class="col-md-1 text-center v-middle">Estado Sistema Calificación</th>
+                            <th class="col-md-1 text-center v-middle">Estado Acta</th>
+                            <th class="col-md-1 text-center v-middle">Estado</th>
+                            <th class="col-md-1 text-center v-middle"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </section>
         </section>
-
-
-        <!-- 
-               <div class="tabbable-line m-b-lg" id="subBar">
-                   <ul class="nav nav-tabs">
-       
-                       <li class="active ver-grupo" id="grupoInicio" rel="0"><a href="#">Grupos Secciones</a></li>
-                       <li class="ver-grupo" th:each="grupo : ${gruposSecciones}" th:rel="${grupo.id}">
-                           <a href="#"
-                              th:text="${grupo.codigo}">grupo</a>
-                       </li>
-       
-                   </ul>
-               </div>
-        -->
 
         <div th:substituteby="templates/modal"/> 
         <div th:substituteby="academico/systemcalifica/sistema/modalSistema"/>

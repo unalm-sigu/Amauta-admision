@@ -577,14 +577,14 @@ public class PlanCurricularController {
             service.saveGrupoEquivalente(grupoCursoEquivalente, ds);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (CursoEquivalente curso : grupoCursoEquivalente.getCursoEquivalente()){
+            for (CursoEquivalente curso : grupoCursoEquivalente.getCursoEquivalente()) {
                 ObjectNode arrnode = new ObjectNode(JsonNodeFactory.instance);
                 arrnode.put("codigo", curso.getCursoEquivalente().getCodigo());
                 arrnode.put("nombre", curso.getCursoEquivalente().getNombre());
                 arrnode.put("tpc", curso.getCursoEquivalente().getTpc());
                 array.add(arrnode);
             }
-            if(grupoCursoEquivalente.getCursoEquivalente().size() > 0){
+            if (grupoCursoEquivalente.getCursoEquivalente().size() > 0) {
                 node.put("cursoCurricula", grupoCursoEquivalente.getCursoEquivalente().get(0).getCursoCurricula().getId());
                 node.put("grupo", grupoCursoEquivalente.getCursoEquivalente().get(0).getGrupo());
                 node.set("array", array);
@@ -1227,53 +1227,55 @@ public class PlanCurricularController {
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            PlanCurricular planBD = service.findPlanCurricularById(plan);
+            
+            if (plan.getId() != null) {
+                PlanCurricular planBD = service.findPlanCurricularById(plan);
 
-            List<CursoCurricula> cursosCurr = planBD.getCursoCurricula();
-            Map<Integer, List<CursoCurricula>> mapCursosCurr = TypesUtil.convertListToMapList("numeroCiclo", cursosCurr);
+                List<CursoCurricula> cursosCurr = planBD.getCursoCurricula();
+                Map<Integer, List<CursoCurricula>> mapCursosCurr = TypesUtil.convertListToMapList("numeroCiclo", cursosCurr);
 
-            for (Map.Entry<Integer, List<CursoCurricula>> entry : mapCursosCurr.entrySet()) {
-                Integer nroCiclo = entry.getKey();
-                if (nroCiclo == 0) {
-                    continue;
-                }
-
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("numeroCiclo", nroCiclo);
-                node.put("numeroRomano", NumberFormat.roman(nroCiclo));
-
-                ArrayNode arrayCursos = new ArrayNode(JsonNodeFactory.instance);
-                List<CursoCurricula> cursosCiclo = entry.getValue();
-                for (CursoCurricula cursoCurr : cursosCiclo) {
-                    Curso curso = cursoCurr.getCurso();
-                    ObjectNode nodeCurso = new ObjectNode(JsonNodeFactory.instance);
-                    nodeCurso.put("id", cursoCurr.getId());
-                    nodeCurso.put("tipo", cursoCurr.getTipoCursoCurricula().getCodigo());
-                    nodeCurso.put("curso", curso.getNombre());
-                    nodeCurso.put("codigo", curso.getCodigo());
-                    nodeCurso.put("creditos", cursoCurr.getCreditos());
-                    nodeCurso.put("numeroCurso", cursoCurr.getNumeroCurso());
-                    nodeCurso.put("creditosRequisito", cursoCurr.getCreditosRequisito());
-
-                    ArrayNode arrayRequisitos = new ArrayNode(JsonNodeFactory.instance);
-                    List<RequisitoCursoCurricula> requisitos = cursoCurr.getRequisitosCursoCurricula();
-                    for (RequisitoCursoCurricula requisito : requisitos) {
-                        CursoCurricula cursoReq = requisito.getCursoRequisito();
-                        ObjectNode nodeReq = new ObjectNode(JsonNodeFactory.instance);
-                        nodeReq.put("idReq", cursoReq.getId());
-                        nodeReq.put("simultaneo", requisito.getSimultaneo());
-                        arrayRequisitos.add(nodeReq);
+                for (Map.Entry<Integer, List<CursoCurricula>> entry : mapCursosCurr.entrySet()) {
+                    Integer nroCiclo = entry.getKey();
+                    if (nroCiclo == 0) {
+                        continue;
                     }
 
-                    nodeCurso.set("requisitos", arrayRequisitos);
-                    arrayCursos.add(nodeCurso);
+                    ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                    node.put("numeroCiclo", nroCiclo);
+                    node.put("numeroRomano", NumberFormat.roman(nroCiclo));
+
+                    ArrayNode arrayCursos = new ArrayNode(JsonNodeFactory.instance);
+                    List<CursoCurricula> cursosCiclo = entry.getValue();
+                    for (CursoCurricula cursoCurr : cursosCiclo) {
+                        Curso curso = cursoCurr.getCurso();
+                        ObjectNode nodeCurso = new ObjectNode(JsonNodeFactory.instance);
+                        nodeCurso.put("id", cursoCurr.getId());
+                        nodeCurso.put("tipo", cursoCurr.getTipoCursoCurricula().getCodigo());
+                        nodeCurso.put("curso", curso.getNombre());
+                        nodeCurso.put("codigo", curso.getCodigo());
+                        nodeCurso.put("creditos", cursoCurr.getCreditos());
+                        nodeCurso.put("numeroCurso", cursoCurr.getNumeroCurso());
+                        nodeCurso.put("creditosRequisito", cursoCurr.getCreditosRequisito());
+
+                        ArrayNode arrayRequisitos = new ArrayNode(JsonNodeFactory.instance);
+                        List<RequisitoCursoCurricula> requisitos = cursoCurr.getRequisitosCursoCurricula();
+                        for (RequisitoCursoCurricula requisito : requisitos) {
+                            CursoCurricula cursoReq = requisito.getCursoRequisito();
+                            ObjectNode nodeReq = new ObjectNode(JsonNodeFactory.instance);
+                            nodeReq.put("idReq", cursoReq.getId());
+                            nodeReq.put("simultaneo", requisito.getSimultaneo());
+                            arrayRequisitos.add(nodeReq);
+                        }
+
+                        nodeCurso.set("requisitos", arrayRequisitos);
+                        arrayCursos.add(nodeCurso);
+                    }
+
+                    node.set("cursos", arrayCursos);
+                    array.add(node);
                 }
-
-                node.set("cursos", arrayCursos);
-                array.add(node);
             }
-
             response.setData(array);
             response.setSuccess(true);
 

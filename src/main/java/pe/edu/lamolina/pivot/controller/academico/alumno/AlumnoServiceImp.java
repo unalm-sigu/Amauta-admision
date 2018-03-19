@@ -491,10 +491,6 @@ public class AlumnoServiceImp implements AlumnoService {
         Persona personaForm = alumno.getPersona();
         this.clearAlumnoPersonaForm(alumno, personaForm);
 
-        if (alumno.getCicloIngreso() == null) {
-            throw new PhobosException("Debe especificar el ciclo de ingreso");
-        }
-
         this.verificarPersona(personaForm);
         this.validarDNI(personaForm);
 
@@ -504,13 +500,6 @@ public class AlumnoServiceImp implements AlumnoService {
         }
 
         this.updatePersona(personaBD, personaForm);
-
-        Alumno alumnoDB = alumnoDAO.find(alumno);
-        if (alumnoDB == null) {
-            throw new PhobosException("No existe el registro del alumno a actualizar.");
-        }
-        alumnoDB.setCicloIngreso(alumno.getCicloIngreso());
-        alumnoDAO.update(alumnoDB);
     }
 
     @Transactional

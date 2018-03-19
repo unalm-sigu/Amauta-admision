@@ -32,7 +32,7 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
+import pe.edu.lamolina.model.enums.TipoSesionEnum;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -174,10 +174,10 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     @Async
     @Override
     public void createLogJson(DataSessionPivot ds, HttpSession session) {
-        ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+        ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
         ObjectNode objData = new ObjectNode(JsonNodeFactory.instance);
-        obj.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
-        objData.put("data", obj);
+        data.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
+        objData.set("data", data);
         objData.put("tipo", "Inicio Sesión");
         interceptorService.saveInterceptor(objData, session);
     }
@@ -189,10 +189,11 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ObjectNode objData = new ObjectNode(JsonNodeFactory.instance);
         obj.put("usuario", ds.getUsuario().getPersona().getNombreCompleto());
         objData.put("data", obj);
-        objData.put("tipo", "Logout");
+        objData.put("tipo", TipoSesionEnum.LOGIN.name());
         interceptorService.saveInterceptor(objData, session);
     }
- public String getClientOS(HttpServletRequest request) {
+
+    public String getClientOS(HttpServletRequest request) {
         final String browserDetails = request.getHeader("User-Agent");
 
         //=================OS=======================
