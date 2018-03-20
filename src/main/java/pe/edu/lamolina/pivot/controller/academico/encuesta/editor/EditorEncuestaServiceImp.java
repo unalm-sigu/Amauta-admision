@@ -25,7 +25,6 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PreguntaEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
@@ -84,9 +83,8 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     @Transactional
     public void saveEncuesta(ExamenVirtual encuesta, DataSessionPivot ds) {
-        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC);
+
         encuesta.setEstado(ExamenVirtualEstadoEnum.CRE);
-        encuesta.setTipoExamen(tipoEncuesta);
         encuesta.setPreguntasDisponibles(0);
         encuesta.setPreguntasVisibles(0);
         encuesta.setUserCreacion(ds.getUsuario());
@@ -108,6 +106,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     public void updateEncuesta(ExamenVirtual encuestaForm) {
         ExamenVirtual encuestaBD = examenVirtualDAO.find(encuestaForm.getId());
         encuestaBD.setNombre(encuestaForm.getNombre());
+        encuestaBD.setTipoExamen(encuestaForm.getTipoExamen());
         examenVirtualDAO.update(encuestaBD);
     }
 
@@ -139,7 +138,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
 
         ExamenVirtual encuestaNew = new ExamenVirtual();
         encuestaNew.setNombre("Encuesta nueva copia del " + encuestaBD.getCodigo());
-        saveEncuesta(encuestaNew, ds);
+        this.saveEncuesta(encuestaNew, ds);
 
         Map<Integer, PreguntaExamen> mapPreguntasNew = new LinkedHashMap();
         Map<String, OpcionPregunta> mapOpcionesNew = new LinkedHashMap();
@@ -284,6 +283,11 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         Collections.sort(preguntas, new PreguntaExamen.CompareOrden());
         return preguntas;
 
+    }
+
+    @Override
+    public List<TipoExamenVirtual> allTipoEncuesta() {
+        return tipoExamenVirtualDAO.allEncuestaEstudiantil();
     }
 
 }

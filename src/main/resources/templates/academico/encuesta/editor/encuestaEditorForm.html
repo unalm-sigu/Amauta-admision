@@ -33,6 +33,23 @@
                                     </div>
                                 </div>
 
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Tipo</label>
+                                    <div class="col-sm-4">
+
+                                        <select class="form-control select2single"
+                                                name="tipoExamen.id"
+                                                data-trigger="change">
+                                            <option></option>
+                                            <option th:each="item : ${tipos}"
+                                                    th:value="${item.id}"
+                                                    th:text="${item.nombre}"
+                                                    th:selected="${encuesta.tipoExamen!=null ? item.id == encuesta.tipoExamen.id : ''}"/>
+                                        </select>
+
+                                    </div>
+                                </div>
+
                                 <div class="text-center m-t-lg">
                                     <a type="button" class="btn btn-link" th:href="@{/academico/encuesta/editor}" >Cancelar</a>
                                     <button type="submit" class="btn btn-primary" >Guardar</button>

@@ -24,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -64,6 +65,7 @@ public class EditorEncuestaController {
                 node.put("preguntasVisibles", encuesta.getPreguntasVisibles());
                 node.put("cicloInicio", (String) ObjectUtil.getParentTree(encuesta, "cicloInicio.cicloAcademico.descripcion"));
                 node.put("cicloFin", (String) ObjectUtil.getParentTree(encuesta, "cicloFin.cicloAcademico.descripcion"));
+                node.put("tipoName", (String) ObjectUtil.getParentTree(encuesta, "tipoExamen.nombre"));
                 array.add(node);
             }
 
@@ -80,14 +82,19 @@ public class EditorEncuestaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
+
+        List<TipoExamenVirtual> tipos = service.allTipoEncuesta();
         model.addAttribute("encuesta", new ExamenVirtual());
+        model.addAttribute("tipos", tipos);
         return "academico/encuesta/editor/encuestaEditorForm";
     }
 
     @RequestMapping("{encuesta}/update")
     public String update(@PathVariable("encuesta") Long idEncuesta, Model model, HttpSession session) {
         ExamenVirtual evaluacionVirtual = service.findEncuesta(idEncuesta);
+        List<TipoExamenVirtual> tipos = service.allTipoEncuesta();
         model.addAttribute("encuesta", evaluacionVirtual);
+        model.addAttribute("tipos", tipos);
         return "academico/encuesta/editor/encuestaEditorForm";
     }
 

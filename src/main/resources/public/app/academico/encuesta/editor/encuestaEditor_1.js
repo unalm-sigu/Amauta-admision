@@ -1,48 +1,46 @@
-new Vue({
-    el: '#main',
-    data: {
-        carrera: {},
-    },
-    created() {
-        let vue = this;
-    },
-    mounted: function() {
-        let vue = this;
-        $global.$on("update", function(encuesta) {
-            vue.update(encuesta);
-        });
-        $global.$on("preguntas", function(encuesta) {
-            vue.preguntas(encuesta);
-        });
-        $global.$on("preview", function(encuesta) {
-            vue.preview(encuesta);
-        });
-        $global.$on("eliminar", function(encuesta) {
-            vue.eliminar(encuesta);
-        });
-        $global.$on("duplicar", function(encuesta) {
-            vue.duplicar(encuesta);
-        });
-        $global.$on("estado", function(encuesta) {
-            vue.estado(encuesta);
-        });
-    },
-    methods: {
-        update: function(encuesta) {
-            var urll = APP.url('academico/encuesta/editor/' + encuesta.id + '/update');
-            $(location).attr('href', urll);
+$(function() {
+
+    var dynatable = $('#dynaTable').dynatable({
+        dataset: {
+            ajaxUrl: APP.url('academico/encuesta/editor/list'),
+            perPageDefault: 10
         },
-        preguntas: function(encuesta) {
-            var urll = APP.url('academico/encuesta/editor/pregunta/' + encuesta.id);
-            $(location).attr('href', urll);
+        writers: {
+            _rowWriter: ulWriter
         },
-        preview: function(encuesta) {
-            var urll = APP.url('academico/encuesta/editor/' + encuesta.id + '/preview');
-            $(location).attr('href', urll).attr('target', '_blank');
+        table: {
+            bodyRowSelector: 'tbody tr'
+        }
+    }).data('dynatable');
+
+    $('#dynaTable').bind('dynatable:afterUpdate', function(e, dynatable) {
+        $("#opopop").prepend($("#headDynatable"));
+        $('#headDynatable').removeClass('hide');
+    });
+
+    function ulWriter(rowIndex, record, columns, cellWriter) {
+
+        var colorEstado = {ACT: 'success', INA: 'default', CRE: 'default'};
+        record.colorEstado = colorEstado[record.estado];
+        record.index = rowIndex;
+
+        var html = $.templates("#encuestaTemplate").render(record);
+        return $(html).prop('outerHTML');
+    }
+
+    var Encuesta = {
+        body: $('body'),
+        init: function() {
         },
-        eliminar: function(encuesta) {
+        delete: function(e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var tr = self.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+
             bootbox.confirm({
-                message: "¿Seguro que desea eliminar la encuesta " + encuesta.codigo + "?",
+                message: "¿Seguro que desea eliminar la encuesta " + rec.codigo + "?",
                 size: "medium",
                 buttons: {
                     confirm: {label: "Si, eliminar", className: "btn-danger"},
@@ -54,7 +52,7 @@ new Vue({
                             url: APP.url('academico/encuesta/editor/delete'),
                             type: 'POST',
                             async: false,
-                            data: {id: encuesta.id},
+                            data: {id: rec.id},
                             success: function(response) {
                                 if (response.success) {
                                     dynatable.process();
@@ -70,9 +68,15 @@ new Vue({
                 }
             });
         },
-        duplicar: function(encuesta) {
+        duplicar: function(e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var tr = self.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
+
             bootbox.confirm({
-                message: "¿Seguro que desea crear una nueva encuesta en base al " + encuesta.codigo + "?",
+                message: "¿Seguro que desea crear una nueva encuesta en base al " + rec.codigo + "?",
                 size: "medium",
                 buttons: {
                     confirm: {label: "Si, duplicar", className: "btn-success"},
@@ -84,7 +88,7 @@ new Vue({
                             url: APP.url('academico/encuesta/editor/duplicar'),
                             type: 'POST',
                             async: false,
-                            data: {id: encuesta.id},
+                            data: {id: rec.id},
                             success: function(response) {
                                 if (response.success) {
                                     dynatable.process();
@@ -100,13 +104,19 @@ new Vue({
                 }
             });
         },
-        estado: function(encuesta) {
+        estado: function(e) {
+            e.preventDefault();
+            var self = $(e.currentTarget);
+            var tr = self.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatable.settings.dataset.records[idx];
 
-            var action = (encuesta.estado == "ACT") ? "desactivar" : "activar";
-            var btnClass = (encuesta.estado == "ACT") ? "danger" : "primary";
+            var action = (rec.estado == "ACT") ? "desactivar" : "activar";
+            var btnClass = (rec.estado == "ACT") ? "danger" : "primary";
+
             var mymodal = bootbox.confirm({
                 size: "medium",
-                message: "¿Está seguro que desea <strong>" + action + "</strong> la encuesta " + encuesta.codigo + "?",
+                message: "¿Está seguro que desea <strong>" + action + "</strong> la encuesta " + rec.codigo + "?",
                 buttons: {
                     confirm: {label: "Si, " + action, className: "btn-" + btnClass},
                     cancel: {label: "Cancelar", className: "btn-link"}
@@ -117,7 +127,7 @@ new Vue({
                             url: APP.url('academico/encuesta/editor/estado'),
                             type: 'POST',
                             async: true,
-                            data: {id: encuesta.id},
+                            data: {id: rec.id},
                             success: function(response) {
                                 if (response.success) {
                                     dynatable.process();
@@ -132,6 +142,22 @@ new Vue({
                     }
                 }
             });
+
+
         }
-    }
+    };
+
+    Encuesta.body.delegate('.delete-encuesta', 'click', function(e) {
+        Encuesta.delete(e);
+    });
+
+    Encuesta.body.delegate('.cambiar-estado', 'click', function(e) {
+        Encuesta.estado(e);
+    });
+
+    Encuesta.body.delegate('.duplicar-encuesta', 'click', function(e) {
+        Encuesta.duplicar(e);
+    });
+
+    Encuesta.init();
 });

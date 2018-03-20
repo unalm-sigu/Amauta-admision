@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -26,5 +27,7 @@ public interface EditorEncuestaService {
     void duplicar(ExamenVirtual encuesta, DataSessionPivot ds);
 
     List<PreguntaExamen> allPreguntasByEncuesta(ExamenVirtual encuesta);
+
+    List<TipoExamenVirtual> allTipoEncuesta();
 
 }

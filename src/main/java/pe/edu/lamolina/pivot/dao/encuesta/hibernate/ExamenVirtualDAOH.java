@@ -65,8 +65,8 @@ public class ExamenVirtualDAOH extends AbstractEasyDAO<ExamenVirtual> implements
         Octavia sql = Octavia.query()
                 .from(ExamenVirtual.class, "ev")
                 .join("tipoExamen tipo")
-                .filter("tipo.codigo", TipoExamenVirtualEnum.ENC)
-                .orderBy("ev.codigo DESC")
+                .in("tipo.codigo", Arrays.asList(ENC_CUR, ENC_DOC, ENC))
+                .orderBy("CONVERT( SUBSTRING(ev.codigo, 3) ,  UNSIGNED )   desc")
                 .limit(1);
         return find(sql);
     }

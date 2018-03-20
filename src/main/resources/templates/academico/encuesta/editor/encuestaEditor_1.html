@@ -1,0 +1,69 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Encuesta Editar</title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+
+            <div  id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <h2>Lista de Encuestas de Postulantes</h2>
+
+                    <a class="btn btn-primary nuevo-agrupador pull-right"
+                       th:href="@{/academico/encuesta/editor/nuevo}" >Nueva Encuesta</a>
+
+                    <h4 class="block"><strong>Ciclo Académico </strong> <span th:text='${ciclo.cicloAcademico.descripcion}'/></h4>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+
+                            <div class="hide" id="headDynatable"></div>
+                            <table  id="dynaTable" class="table table-striped">
+                                <thead class="panel panel-heading">
+                                    <tr>
+                                        <th class="col-md-1 text-center v-middle">Código</th>
+                                        <th class="col-md-5 text-center v-middle">Descripción</th>
+                                        <th class="col-md-1 text-center v-middle">Tipo</th>
+                                        <th class="col-md-1 text-center v-middle">Preguntas visibles</th>
+                                        <th class="col-md-1 text-center v-middle">Total preguntas</th>
+                                        <th class="col-md-2 text-center v-middle">Periodos de vigencia</th>
+                                        <th class="col-md-1 text-center v-middle">Estado</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+
+
+            </div>
+
+
+            <script id="encuestaTemplate" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuesta/editor/encuestaEditorTemplate"/>
+            </script>
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <script th:src="@{/app/academico/encuesta/editor/encuestaEditor.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
+
