@@ -13,47 +13,47 @@ new Vue({
             cancelbtn: 'Cerrar'
         }
     },
-    mounted: function() {
+    mounted: function () {
         let vue = this;
-        $global.$on("update", function(encuesta) {
+        $global.$on("update", function (encuesta) {
             vue.update(encuesta);
         });
-        $global.$on("preguntas", function(encuesta) {
+        $global.$on("preguntas", function (encuesta) {
             vue.preguntas(encuesta);
         });
-        $global.$on("preview", function(encuesta) {
+        $global.$on("preview", function (encuesta) {
             vue.preview(encuesta);
         });
-        $global.$on("eliminar", function(encuesta) {
+        $global.$on("eliminar", function (encuesta) {
             vue.eliminar(encuesta);
         });
-        $global.$on("duplicar", function(encuesta) {
+        $global.$on("duplicar", function (encuesta) {
             vue.duplicar(encuesta);
         });
-        $global.$on("estado", function(encuesta) {
+        $global.$on("estado", function (encuesta) {
             vue.estado(encuesta);
         });
-        $global.$on("sinEncuesta", function(encuesta) {
+        $global.$on("sinEncuesta", function (encuesta) {
             vue.sinEncuesta(encuesta);
         });
-        $global.$on("configuracion", function(encuesta) {
+        $global.$on("configuracion", function (encuesta) {
             vue.configuracion(encuesta);
         });
     },
     methods: {
-        update: function(encuesta) {
+        update: function (encuesta) {
             var urll = APP.url('academico/encuesta/editor/' + encuesta.id + '/update');
             $(location).attr('href', urll);
         },
-        preguntas: function(encuesta) {
+        preguntas: function (encuesta) {
             var urll = APP.url('academico/encuesta/editor/pregunta/' + encuesta.id);
             $(location).attr('href', urll);
         },
-        preview: function(encuesta) {
+        preview: function (encuesta) {
             var urll = APP.url('academico/encuesta/editor/' + encuesta.id + '/preview');
             $(location).attr('target', '_blank').attr('href', urll);
         },
-        eliminar: function(encuesta) {
+        eliminar: function (encuesta) {
             bootbox.confirm({
                 message: "¿Seguro que desea eliminar la encuesta " + encuesta.codigo + "?",
                 size: "medium",
@@ -61,21 +61,21 @@ new Vue({
                     confirm: {label: "Si, eliminar", className: "btn-danger"},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             url: APP.url('academico/encuesta/editor/delete'),
                             type: 'POST',
                             async: false,
                             data: {id: encuesta.id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     dynatable.process();
                                 } else {
                                     notify(response.message, "error");
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -83,7 +83,7 @@ new Vue({
                 }
             });
         },
-        duplicar: function(encuesta) {
+        duplicar: function (encuesta) {
             bootbox.confirm({
                 message: "¿Seguro que desea crear una nueva encuesta en base al " + encuesta.codigo + "?",
                 size: "medium",
@@ -91,21 +91,21 @@ new Vue({
                     confirm: {label: "Si, duplicar", className: "btn-success"},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             url: APP.url('academico/encuesta/editor/duplicar'),
                             type: 'POST',
                             async: false,
                             data: {id: encuesta.id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     dynatable.process();
                                 } else {
                                     notify(response.message, "error");
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -113,7 +113,7 @@ new Vue({
                 }
             });
         },
-        estado: function(encuesta) {
+        estado: function (encuesta) {
 
             var action = (encuesta.estado == "ACT") ? "desactivar" : "activar";
             var btnClass = (encuesta.estado == "ACT") ? "danger" : "primary";
@@ -124,21 +124,21 @@ new Vue({
                     confirm: {label: "Si, " + action, className: "btn-" + btnClass},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             url: APP.url('academico/encuesta/editor/estado'),
                             type: 'POST',
                             async: true,
                             data: {id: encuesta.id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     dynatable.process();
                                 } else {
                                     notify(response.message, "error");
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -146,7 +146,7 @@ new Vue({
                 }
             });
         },
-        sinEncuesta: function(encuesta) {
+        sinEncuesta: function (encuesta) {
 
             var vue = this;
             vue.encuestaSelected = encuesta;
@@ -158,13 +158,13 @@ new Vue({
                     'id': vue.encuestaSelected.id,
                 },
                 async: false,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         vue.cursos = response.data;
                     } else {
                         notify(response.message, 'error');
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
@@ -174,7 +174,7 @@ new Vue({
 
             $('[name="curso.id"]').
                     select2(vue.selectCurso(vue)).
-                    on("change.select2", function(e) {
+                    on("change.select2", function (e) {
 
                         if (e && e.removed) {
                             if (e.val == '') {
@@ -186,7 +186,7 @@ new Vue({
 
             $('[name="curso.id"]').select2('val', '');
         },
-        configuracion: function(encuesta) {
+        configuracion: function (encuesta) {
             var urll = APP.url('academico/encuesta/editor/' + encuesta.id + '/configuracion');
             $(location).attr('target', '_blank').attr('href', urll);
         },
@@ -200,26 +200,36 @@ new Vue({
                     url: APP.url("academico/encuesta/editor/searchcurso"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                formatResult: function(info) {
-                    return $.templates("#divBuscarCurso").render(info);
+                formatResult: function (info) {
+
+                    var BuscarCurso = Vue.component("buscarCurso", {
+                        template: "#divBuscarCurso",
+                        data() {
+                            return {info: {}};
+                        },
+                    });
+                    var buscarCurso = new BuscarCurso();
+                    buscarCurso.info = info;
+                    return  buscarCurso.$mount().$el;
+                    
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     vue.curso = info;
                     return info.codigo + " - " + info.curso;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        agregarCurso: function() {
+        agregarCurso: function () {
             var vue = this;
             vue.btnAgregar = true;
             if (vue.curso.id == null) {
@@ -235,14 +245,14 @@ new Vue({
                     'encuestaEstudiantil.encuesta.id': vue.encuestaSelected.id
                 },
                 async: false,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         vue.cursos.push(vue.curso);
                     } else {
                         notify(response.message, 'error');
                     }
                     vue.btnAgregar = false;
-                }, error: function() {
+                }, error: function () {
                     vue.btnAgregar = false;
                     notify(MESSAGES.errorComunicacion, "error");
                 }
@@ -263,20 +273,20 @@ new Vue({
                         'encuestaEstudiantil.encuesta.id': vue.encuestaSelected.id
                     },
                     async: false,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             notify(response.message, 'info');
                             vue.cursos.splice(idx, 1);
                         } else {
                             notify(response.message, 'error');
                         }
-                    }, error: function() {
+                    }, error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
             }
         },
-        removeCurso: function(curso) {
+        removeCurso: function (curso) {
             var vue = this;
 
             swal({
