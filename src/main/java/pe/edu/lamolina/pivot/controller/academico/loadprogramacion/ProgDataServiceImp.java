@@ -411,6 +411,7 @@ public class ProgDataServiceImp implements ProgDataService {
             alumno.setCursosCarreraAprobados(0);
             alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
             alumno.setPromedioAcumulado(BigDecimal.ZERO);
+            alumno.setCiclosEstudiados(0);
             alumnoDAO.save(alumno);
 
             mapAlumnos.put(alumno.getCodigo(), alumno);
