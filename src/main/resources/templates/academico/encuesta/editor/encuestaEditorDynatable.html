@@ -65,3 +65,24 @@
     </tr>
 </template>
 
+
+<template id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+    <div >
+        <span class="block bold h5 m-b-xs m-t-xs">{{info.curso}}</span>
+
+        <small v-if="info.numeroCiclo==='' " class="block">
+            {{info.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{info.tpc}} &nbsp;
+            / &nbsp; Nº Ciclo {{info.numeroRomano}} &nbsp;
+            / &nbsp; Dpto. Académico {{info.departamento}}
+        </small>
+
+        <small v-if="info.numeroCiclo!=='' "  class="block">
+            {{info.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{info.tpc}} &nbsp;
+            / &nbsp; Dpto. Académico {{info.departamento}}
+        </small>
+
+        <small v-if="info.especialidad" class="block"><strong>Especialidad</strong> {{info.tipoEspecialidad}} {{info.especialidad}}</small>
+        <small v-if="info.tipoCursoCurricula" class="block bold text-danger">Tipo {{info.tipoCursoCurricula}}</small>
+    </div>
+</template>
+
