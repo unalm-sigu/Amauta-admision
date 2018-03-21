@@ -255,6 +255,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriculaCursoDAO.save(matriCursoBD);
 
             System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
+
+        } else {
+            System.out.print("\t" + rr + " actualizando mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo() + " :::: ");
         }
 
         matriCursoBD.setCreditos(matriSecc.getCreditos());
