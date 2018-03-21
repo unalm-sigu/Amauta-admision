@@ -2,6 +2,8 @@ package pe.edu.lamolina.pivot.controller.academico.encuesta.editor;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.encuesta.CursoSinEncuesta;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
@@ -29,5 +31,13 @@ public interface EditorEncuestaService {
     List<PreguntaExamen> allPreguntasByEncuesta(ExamenVirtual encuesta);
 
     List<TipoExamenVirtual> allTipoEncuesta();
+
+    List<Curso> allCursoByName(String nombre);
+
+    void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
+
+    List<Curso> allCursoSinEncuesta(ExamenVirtual encuesta, DataSessionPivot ds);
+
+    void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
 
 }

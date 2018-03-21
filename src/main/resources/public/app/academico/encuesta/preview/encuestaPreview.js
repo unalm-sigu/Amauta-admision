@@ -1,13 +1,24 @@
-$(function () {
+$(function() {
 
     var Encuesta = {
-        init: function () {
+        init: function() {
             Encuesta.makeProgress();
             $('.f1 fieldset:first').fadeIn('slow');
             $('select.form-control').select2({minimumInputLength: -1});
         },
         body: $('body'),
-        saveRespuesta: function (opcion) {
+        barProgress: function(progressLineObject, direction) {
+            var numberOfSteps = progressLineObject.data('number-of-steps');
+            var nowValue = progressLineObject.data('now-value');
+            var newValue = 0;
+            if (direction == 'right') {
+                newValue = nowValue + (100 / numberOfSteps);
+            } else if (direction == 'left') {
+                newValue = nowValue - (100 / numberOfSteps);
+            }
+            progressLineObject.attr('style', 'width: ' + newValue + '%;').data('now-value', newValue);
+        },
+        saveRespuesta: function(opcion) {
             var pEncuesta = opcion.attr('name');
             var padre = opcion.parents('.radio:first');
             var padreGroup = opcion.parents('.form-group:first').parents('div:first');
@@ -20,13 +31,13 @@ $(function () {
             var start = new Date().getTime();
 
             var lapso = 1000;
-            setTimeout(function () {
+            setTimeout(function() {
                 padre.find('.fa-check-circle').removeClass('hidden');
                 padre.find('.fa-spinner').addClass('hidden');
             }, lapso);
 
         },
-        marcarRespuesta: function (checkbox) {
+        marcarRespuesta: function(checkbox) {
             var pEncuesta = checkbox.attr('name');
             var data = {id: pEncuesta, 'opcion.id': checkbox.val()};
 
@@ -35,20 +46,20 @@ $(function () {
             }
 
         },
-        reenviarRespuesta: function (opcion) {
+        reenviarRespuesta: function(opcion) {
             var padre = opcion.parents('.radio:first');
             Encuesta.saveRespuesta(padre.find('input[type=radio]:first'));
         },
-        saveOtro: function (self) {
+        saveOtro: function(self) {
         },
-        saveMultiSelect: function (self) {
+        saveMultiSelect: function(self) {
 
         },
-        makeProgress: function () {
+        makeProgress: function() {
             var progressLine = $('.f1-progress-line');
             var stepLine = $('.f1-step');
             var cant = 0;
-            $(".f1-step").each(function (i, item) {
+            $(".f1-step").each(function(i, item) {
                 if (!$(item).hasClass("hide")) {
                     cant++;
                 }
@@ -67,19 +78,19 @@ $(function () {
 
 
         },
-        findStep: function (numStep) {
+        findStep: function(numStep) {
             var step = null;
-            $(".f1-step").each(function (i, item) {
+            $(".f1-step").each(function(i, item) {
                 if ($(item).attr("ref") == numStep) {
                     step = $(item);
                 }
             });
             return step;
         },
-        findNextStep: function (numStep) {
+        findNextStep: function(numStep) {
             var step = null;
             var buscar = false;
-            $(".f1-step").each(function (i, item) {
+            $(".f1-step").each(function(i, item) {
                 if (buscar && !$(item).hasClass("hide")) {
                     step = $(item);
                     buscar = false;
@@ -90,10 +101,10 @@ $(function () {
             });
             return step;
         },
-        findPreviousStep: function (numStep) {
+        findPreviousStep: function(numStep) {
             var step = null;
             var buscar = false;
-            $($(".f1-step").get().reverse()).each(function (i, item) {
+            $($(".f1-step").get().reverse()).each(function(i, item) {
                 if (buscar && !$(item).hasClass("hide")) {
                     step = $(item);
                     buscar = false;
@@ -104,9 +115,9 @@ $(function () {
             });
             return step;
         },
-        findDivStep: function (numStep) {
+        findDivStep: function(numStep) {
             var div = null;
-            $("fieldset").each(function (i, item) {
+            $("fieldset").each(function(i, item) {
                 var item = $(item);
                 if (item.attr("ref") == numStep) {
                     div = $(item);
@@ -114,10 +125,10 @@ $(function () {
             });
             return div;
         },
-        recountStep: function () {
+        recountStep: function() {
             var number = 1;
             var numStep = 0;
-            $(".f1-step").each(function (i, item) {
+            $(".f1-step").each(function(i, item) {
                 if (!$(item).hasClass("hide")) {
                     var stepIcon = $(item).find(".f1-step-icon");
                     numStep = $(item).attr("ref");
@@ -136,7 +147,7 @@ $(function () {
             btnSubmit.removeClass("hide");
             btnNext.addClass("hide");
         },
-        validateStep: function (parentFieldset) {
+        validateStep: function(parentFieldset) {
             var nextStep = true;
             var rel = parentFieldset.attr("rel");
             var inp = $("input[name='" + rel + "']");
@@ -155,7 +166,7 @@ $(function () {
             }
 
             if (nextStep) {
-                parentFieldset.find('input[type="text"], select').each(function (i, item) {
+                parentFieldset.find('input[type="text"], select').each(function(i, item) {
                     var $this = $(item);
                     var validar = false;
                     validar = (!validar) ? $this.hasClass("preTexto") : validar;
@@ -180,7 +191,7 @@ $(function () {
 
             return nextStep;
         },
-        goNextStep: function (btn) {
+        goNextStep: function(btn) {
             var parentFieldset = btn.parents('fieldset');
             var numStep = parentFieldset.attr("ref");
             var currentActiveStep = btn.parents('.f1').find('.f1-step.active');
@@ -188,11 +199,11 @@ $(function () {
             var nextStep = Encuesta.validateStep(parentFieldset);
 
             if (nextStep) {
-                parentFieldset.fadeOut(400, function () {
+                parentFieldset.fadeOut(400, function() {
                     currentActiveStep.removeClass('active').addClass('activated');
                     var stepNext = Encuesta.findNextStep(numStep);
                     stepNext.addClass('active');
-                    barProgress(progressLine, 'right');
+                    Encuesta.barProgress(progressLine, 'right');
 
                     var nroDivItem = stepNext.attr("ref");
                     var divNextStep = Encuesta.findDivStep(nroDivItem);
@@ -201,55 +212,61 @@ $(function () {
                 });
             }
         },
-        goPreviousStep: function (btn) {
+        goPreviousStep: function(btn) {
             var currentActiveStep = btn.parents('.f1').find('.f1-step.active');
             var progressLine = btn.parents('.f1').find('.f1-progress-line');
             var nroItem = currentActiveStep.attr("ref");
 
-            btn.parents('fieldset').fadeOut(400, function () {
+            btn.parents('fieldset').fadeOut(400, function() {
                 currentActiveStep.removeClass('active');
                 var stepPrev = Encuesta.findPreviousStep(nroItem);
                 stepPrev.removeClass('activated').addClass('active');
-                barProgress(progressLine, 'left');
+                Encuesta.barProgress(progressLine, 'left');
                 var nroDivItem = stepPrev.attr("ref");
                 var divNextStep = Encuesta.findDivStep(nroDivItem);
                 divNextStep.fadeIn();
                 scrollToClass($('.f1'), 20);
             });
         },
-        closeProcess: function (btn) {
+        closeProcess: function(btn) {
             var parentFieldset = btn.parents('fieldset');
             var endStep = Encuesta.validateStep(parentFieldset);
 
             if (endStep) {
+
                 swal({
-                    title: "¿Está seguro que desea finalizar la encuesta?",
-                    text: "",
+                    text: "¿Está seguro que desea finalizar la encuesta?",
+                    icon: "warning",
                     type: "warning",
+                    dangerMode: true,
                     showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Si, estoy seguro",
-                    cancelButtonText: "No",
-                    closeOnConfirm: false
-                }, function () {
-                    Encuesta.sendForm();
+                    closeOnConfirm: false,
+                    buttons: {
+                        cancel: "No",
+                        confirm: "Si, estoy seguro"
+                    }
+                }).then((willDelete) => {
+                    if (willDelete) {
+                        swal("Encuesta finalizada", "Gracias por tu tiempo", "success", {buttons: {ok: "Aceptar"}});
+                    }
                 });
+
             }
         },
-        sendForm: function () {
+        sendForm: function() {
             swal("Encuesta finalizada", "Gracias por tu tiempo", "success");
         },
-        changeOption: function ($this) {
+        changeOption: function($this) {
             var fieldset = $this.parents('fieldset');
 
-            fieldset.find(".step-option").each(function () {
+            fieldset.find(".step-option").each(function() {
                 if ($(this).attr("ref")) {
                     var ref = $(this).attr("ref").split(",");
                     for (var i = 0; i < ref.length; i++) {
                         var step = Encuesta.findStep(ref[i]);
                         step.addClass("hide");
                         var div = Encuesta.findDivStep(ref[i]);
-                        div.find("input[type=radio]").each(function (i, item) {
+                        div.find("input[type=radio]").each(function(i, item) {
                             $(item).prop('checked', false);
                         });
                     }
@@ -257,14 +274,14 @@ $(function () {
                 }
             });
 
-            fieldset.find("input[type=text]").each(function () {
+            fieldset.find("input[type=text]").each(function() {
                 $(this).val("");
                 $(this).prop('disabled', true);
                 $(this).prop('required', false);
             });
 
             var divItem = $this.closest('div');
-            divItem.find("input[type=text]").each(function () {
+            divItem.find("input[type=text]").each(function() {
                 $(this).prop('disabled', false);
                 $(this).prop('required', true);
             });
@@ -278,19 +295,19 @@ $(function () {
             }
             Encuesta.makeProgress();
         },
-        changeCheckbox: function ($this) {
+        changeCheckbox: function($this) {
             var fieldset = $this.parents('fieldset');
             var numStep = fieldset.attr("ref");
             var divItem = $this.closest('label');
 
             if ($this.is(":checked")) {
-                divItem.find("input[type=text], select").each(function () {
+                divItem.find("input[type=text], select").each(function() {
                     var type = $(this).attr("type");
                     $(this).prop('disabled', false);
                     $(this).prop('required', true);
                 });
             } else {
-                divItem.find("input[type=text], select").each(function () {
+                divItem.find("input[type=text], select").each(function() {
                     var type = $(this).attr("type");
                     if (type == "text") {
                         $(this).val("");
@@ -306,47 +323,47 @@ $(function () {
 
 
 
-    Encuesta.body.delegate("#wizardform  input:radio", 'change', function (e) {
+    Encuesta.body.delegate("#wizardform  input:radio", 'change', function(e) {
         Encuesta.saveRespuesta($(this));
     });
 
-    Encuesta.body.delegate("#wizardform  input:checkbox", 'change', function (e) {
+    Encuesta.body.delegate("#wizardform  input:checkbox", 'change', function(e) {
         Encuesta.marcarRespuesta($(this));
     });
 
-    Encuesta.body.delegate(".fa-close", 'click', function (e) {
+    Encuesta.body.delegate(".fa-close", 'click', function(e) {
         Encuesta.reenviarRespuesta($(this));
     });
 
-    Encuesta.body.delegate(".preOtro", 'change', function (e) {
+    Encuesta.body.delegate(".preOtro", 'change', function(e) {
         Encuesta.saveOtro($(this));
     });
 
-    Encuesta.body.delegate(".preTexto", 'change', function (e) {
+    Encuesta.body.delegate(".preTexto", 'change', function(e) {
         Encuesta.saveOtro($(this));
     });
 
-    Encuesta.body.delegate(".preTextoMulti", 'change', function (e) {
+    Encuesta.body.delegate(".preTextoMulti", 'change', function(e) {
         Encuesta.saveMultiSelect($(this));
     });
 
-    $('.f1 .btn-next').on('click', function () {
+    $('.f1 .btn-next').on('click', function() {
         Encuesta.goNextStep($(this));
     });
 
-    $('.f1 .btn-previous').on('click', function () {
+    $('.f1 .btn-previous').on('click', function() {
         Encuesta.goPreviousStep($(this));
     });
 
-    $('.f1 .btn-submit').on('click', function () {
+    $('.f1 .btn-submit').on('click', function() {
         Encuesta.closeProcess($(this));
     });
 
-    $(".step-option").change(function () {
+    $(".step-option").change(function() {
         Encuesta.changeOption($(this));
     });
 
-    $(".step-checkbox").change(function () {
+    $(".step-checkbox").change(function() {
         Encuesta.changeCheckbox($(this));
     });
 

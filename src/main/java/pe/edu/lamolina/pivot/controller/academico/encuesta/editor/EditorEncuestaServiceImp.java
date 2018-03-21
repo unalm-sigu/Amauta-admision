@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,10 @@ import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PreguntaExamenDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.encuesta.CursoSinEncuesta;
+import pe.edu.lamolina.model.encuesta.EncuestaEstudiantil;
 import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PreguntaEstadoEnum;
@@ -31,8 +35,11 @@ import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.model.inscripcion.EncuestaCiclo;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CicloPostulaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -53,6 +60,12 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
     TipoExamenVirtualDAO tipoExamenVirtualDAO;
+    @Autowired
+    CursoDAO cursoDAO;
+    @Autowired
+    EncuestaEstudiantilDAO encuestaEstudiantilDAO;
+    @Autowired
+    CursoSinEncuestaDAO cursoSinEncuestaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -190,6 +203,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     @Transactional
     public void cambiarEstadoEncuesta(ExamenVirtual encuesta, DataSessionPivot ds) {
+
         ExamenVirtual encuestaBD = examenVirtualDAO.find(encuesta.getId());
         if (encuestaBD.getEstado() == null) {
             encuestaBD.setEstado(ExamenVirtualEstadoEnum.INA);
@@ -288,6 +302,73 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     public List<TipoExamenVirtual> allTipoEncuesta() {
         return tipoExamenVirtualDAO.allEncuestaEstudiantil();
+    }
+
+    @Override
+    public List<Curso> allCursoByName(String nombre) {
+        return cursoDAO.allCursoByName(nombre);
+    }
+
+    @Override
+    @Transactional
+    public void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
+
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Curso curso = cursoSinEncuestaForm.getCurso();
+        ExamenVirtual encuesta = cursoSinEncuestaForm.getEncuestaEstudiantil().getEncuesta();
+        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
+
+        if (encuestaEstudiantil == null) {
+            encuestaEstudiantil = new EncuestaEstudiantil();
+            encuestaEstudiantil.setCicloAcademico(ciclo);
+            encuestaEstudiantil.setEncuesta(encuesta);
+            encuestaEstudiantil.setFechaCreacion(new Date());
+            encuestaEstudiantil.setUserCreacion(ds.getUsuario());
+            encuestaEstudiantilDAO.save(encuestaEstudiantil);
+        }
+
+        CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(encuestaEstudiantil, curso);
+
+        if (cursoSinEncuesta != null) {
+            throw new PhobosException("Curso ya registrado");
+        }
+
+        cursoSinEncuesta = new CursoSinEncuesta();
+        cursoSinEncuesta.setCurso(curso);
+        cursoSinEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
+        cursoSinEncuesta.setFechaCreacion(new Date());
+        cursoSinEncuesta.setUserCreacion(ds.getUsuario());
+        cursoSinEncuestaDAO.save(cursoSinEncuesta);
+
+    }
+
+    @Override
+    public List<Curso> allCursoSinEncuesta(ExamenVirtual encuestaForm, DataSessionPivot ds) {
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaForm);
+        if (encuestaEstudiantil == null) {
+            return new ArrayList();
+        }
+        List<CursoSinEncuesta> cursoSinEncuestas = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
+        if (cursoSinEncuestas.isEmpty()) {
+            return new ArrayList();
+        }
+        Map<Long, Curso> cursosMap = TypesUtil.convertListToMap("curso.id", "curso", cursoSinEncuestas);
+        return cursosMap.values().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        Curso curso = cursoSinEncuestaForm.getCurso();
+        ExamenVirtual encuesta = cursoSinEncuestaForm.getEncuestaEstudiantil().getEncuesta();
+        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
+        CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(encuestaEstudiantil, curso);
+        if (cursoSinEncuesta == null) {
+            throw new PhobosException("Curso no existe en el registro");
+        }
+        cursoSinEncuestaDAO.delete(cursoSinEncuesta);
     }
 
 }

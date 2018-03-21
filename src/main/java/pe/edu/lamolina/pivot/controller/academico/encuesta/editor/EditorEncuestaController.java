@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -22,6 +23,9 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.encuesta.CursoSinEncuesta;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
@@ -40,7 +44,8 @@ public class EditorEncuestaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        CicloPostula ciclo = service.findCicloActivo();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
         return "academico/encuesta/editor/encuestaEditor";
     }
@@ -194,4 +199,107 @@ public class EditorEncuestaController {
             return response;
         }
     }
+
+    @ResponseBody
+    @RequestMapping("searchcurso")
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            List<Curso> cursos = service.allCursoByName(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            for (Curso curso : cursos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", curso.getId());
+                json.put("curso", curso.getNombre());
+                json.put("codigo", curso.getCodigo());
+                json.put("tpc", curso.getTpc());
+                json.put("creditos", curso.getCreditos());
+                json.put("departamento", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.nombre"));
+                json.put("facultad", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.facultad.nombre"));
+                json.put("especialidad", (String) ObjectUtil.getParentTree(curso, "carrera.nombre"));
+                json.put("tipoEspecialidad", (String) ObjectUtil.getParentTree(curso, "carrera.tipoEnum.value"));
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allcursosinencuesta")
+    public JsonResponse allCursoSinEncuesta(ExamenVirtual encuesta, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Curso> cursos = service.allCursoSinEncuesta(encuesta, ds);
+
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            for (Curso curso : cursos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", curso.getId());
+                json.put("curso", curso.getNombre());
+                json.put("codigo", curso.getCodigo());
+                json.put("tpc", curso.getTpc());
+                json.put("creditos", curso.getCreditos());
+                json.put("departamento", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.nombre"));
+                json.put("facultad", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.facultad.nombre"));
+                json.put("especialidad", (String) ObjectUtil.getParentTree(curso, "carrera.nombre"));
+                json.put("tipoEspecialidad", (String) ObjectUtil.getParentTree(curso, "carrera.tipoEnum.value"));
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addcursosinencuesta")
+    public JsonResponse addcursosinencuesta(CursoSinEncuesta cursoSinEncuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.addCursoSinEncuesta(cursoSinEncuesta, ds);
+            response.setMessage("Registro eliminado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("removecursosinencuesta")
+    public JsonResponse removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.removeCursoSinEncuesta(cursoSinEncuesta, ds);
+            response.setMessage("Registro removido");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }
