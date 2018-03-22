@@ -9,8 +9,7 @@
             <div  id="main">
 
                 <header class="header b-b padder-lg">
-                    <h2>Lista de docentes a encuestar</h2>
-                    <h4 class="block"><strong>Ciclo Académico </strong> <span th:text='${ciclo.descripcion}'/></h4>
+                    <h2 th:inline="text">Encuestas de Docente  [[${cicloAcademico.descripcion}]] </h2>
                 </header>
 
                 <section class="wrapper-lg">

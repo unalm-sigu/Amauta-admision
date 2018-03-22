@@ -19,4 +19,6 @@ public interface TemaExamenVirtualDAO extends EasyDAO<TemaExamenVirtual> {
 
     public TemaExamenVirtual findLastActivo(ExamenVirtual evaluacionVirtual);
 
+    public TemaExamenVirtual findTemaExamenVirtual(TemaExamenVirtual temaExamenVirtual);
+
 }

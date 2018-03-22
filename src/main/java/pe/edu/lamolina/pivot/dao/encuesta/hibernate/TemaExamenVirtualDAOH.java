@@ -90,4 +90,14 @@ public class TemaExamenVirtualDAOH extends AbstractEasyDAO<TemaExamenVirtual> im
 
     }
 
+    @Override
+    public TemaExamenVirtual findTemaExamenVirtual(TemaExamenVirtual temaExamenVirtual) {
+
+        Octavia sql = Octavia.query()
+                .from(TemaExamenVirtual.class, "tema")
+                .join("examenVirtual ev")
+                .filter("tema.id", temaExamenVirtual);
+        return find(sql);
+    }
+
 }

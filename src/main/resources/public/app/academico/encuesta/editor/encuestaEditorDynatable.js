@@ -10,6 +10,9 @@ var DynatableRow = Vue.component("dynatableRow", {
         preguntas: function(encuesta) {
             $global.$emit("preguntas", encuesta);
         },
+        temas: function(encuesta) {
+            $global.$emit("temas", encuesta);
+        },
         preview: function(encuesta) {
             $global.$emit("preview", encuesta);
         },

@@ -24,10 +24,12 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.examen.TemaExamenVirtual;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -45,6 +47,9 @@ public class PreguntaEncuestaController {
 
     @RequestMapping(method = RequestMethod.GET, path = "{encuesta}")
     public String index(Model model, @PathVariable("encuesta") Long idEncuesta, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        model.addAttribute("cicloAcademico", cicloAcademico);
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
         model.addAttribute("encuesta", encuesta);
         return "academico/encuesta/pregunta/pregunta";
@@ -108,10 +113,17 @@ public class PreguntaEncuestaController {
 
     @RequestMapping("{encuesta}/nuevo")
     public String nuevo(@PathVariable("encuesta") Long idEncuesta, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
         PreguntaExamen pregunta = new PreguntaExamen();
         pregunta.setExamenVirtual(encuesta);
+        List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(encuesta);
 
+        model.addAttribute("categorias", categorias);
+        model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
         model.addAttribute("pregunta", pregunta);
         return "academico/encuesta/pregunta/preguntaForm";
@@ -119,8 +131,14 @@ public class PreguntaEncuestaController {
 
     @RequestMapping("{pregunta}/update")
     public String update(@PathVariable("pregunta") Long idPregunta, Model model, HttpSession session) {
-        PreguntaExamen pregunta = service.findPregunta(idPregunta);
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        PreguntaExamen pregunta = service.findPregunta(idPregunta);
+        List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(pregunta.getExamenVirtual());
+
+        model.addAttribute("categorias", categorias);
+        model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
         model.addAttribute("pregunta", pregunta);
         return "academico/encuesta/pregunta/preguntaForm";

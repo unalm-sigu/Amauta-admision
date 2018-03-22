@@ -46,8 +46,8 @@ public class EditorEncuestaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        model.addAttribute("ciclo", ciclo);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        model.addAttribute("cicloAcademico", cicloAcademico);
         return "academico/encuesta/editor/encuestaEditor";
     }
 
@@ -88,8 +88,10 @@ public class EditorEncuestaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
         List<TipoExamenVirtual> tipos = service.allTipoEncuesta();
+        model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("encuesta", new ExamenVirtual());
         model.addAttribute("tipos", tipos);
         return "academico/encuesta/editor/encuestaEditorForm";
@@ -99,6 +101,9 @@ public class EditorEncuestaController {
     public String update(@PathVariable("encuesta") Long idEncuesta, Model model, HttpSession session) {
         ExamenVirtual evaluacionVirtual = service.findEncuesta(idEncuesta);
         List<TipoExamenVirtual> tipos = service.allTipoEncuesta();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("encuesta", evaluacionVirtual);
         model.addAttribute("tipos", tipos);
         return "academico/encuesta/editor/encuestaEditorForm";

@@ -34,8 +34,8 @@ public class EncuestaDocenteController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        model.addAttribute("ciclo", ciclo);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        model.addAttribute("cicloAcademico", cicloAcademico);
         return "academico/encuesta/docente/encuestaDocente";
     }
 

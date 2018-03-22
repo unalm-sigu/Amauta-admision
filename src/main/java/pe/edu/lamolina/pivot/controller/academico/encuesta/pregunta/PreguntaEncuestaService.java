@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.examen.TemaExamenVirtual;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PreguntaEncuestaService {
@@ -34,5 +35,7 @@ public interface PreguntaEncuestaService {
     ExamenVirtual findEncuesta(Long idEncuesta);
 
     void upateNumeroPregunta(PreguntaExamen pregunta);
+
+    List<TemaExamenVirtual> allTemaExamenVirtualByExamenVirtual(ExamenVirtual encuesta);
 
 }
