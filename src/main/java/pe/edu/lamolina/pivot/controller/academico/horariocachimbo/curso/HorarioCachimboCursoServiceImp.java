@@ -158,9 +158,9 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
 
     @Override
     public List<CarreraCursoCachimbo> allCarrera(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
-       
+
         List<CursoCachimbos> cursosCchimbos = cursoCachimbosDAO.allByCiclo(cicloAcademico);
-        List<CarreraCursoCachimbo> cursos = new ArrayList();
+        List<CarreraCursoCachimbo> carrerasCachimbos = new ArrayList();
         Map<Long, List<CursoCachimbos>> cursosCachimbosMap = TypesUtil.convertListToMapList("carrera.id", cursosCchimbos);
         List<Carrera> carreras = carreraDAO.allCarreraByModalidadEstudio(modalidadEstudio);
         List<CarreraCachimbos> carreraCachimbos = carreraCachimbosDAO.allCarreraCachimbosByCarreras(carreras, cicloAcademico);
@@ -176,13 +176,14 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
                 carreraCursoCachimbo.setCantidad(cursosCachimboMap.size());
             }
             if (carreraCachimboMap == null) {
+                continue;
             } else {
                 carreraCursoCachimbo.setCarreraCachimbos(carreraCachimboMap);
             }
-            cursos.add(carreraCursoCachimbo);
+            carrerasCachimbos.add(carreraCursoCachimbo);
         }
-     
-        return cursos;
+
+        return carrerasCachimbos;
     }
 
     @Override

@@ -502,10 +502,10 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             return;
         }
 
-        boolean hayCruceHorario = hayCruceHorario(mapHorasDias, seccionesOrden);
+        boolean sinCruceHorario = sinCruceHorario(mapHorasDias, seccionesOrden);
         boolean hayVacantes = hayVacantes(seccionesOrden);
 
-        if (!hayCruceHorario && hayVacantes) {
+        if (sinCruceHorario && hayVacantes) {
             addHoraDiaSecciones(mapHorasDias, seccionesOrden);
             for (Seccion seccion : seccionesOrden) {
                 horarioTempo.add(seccion);
@@ -564,23 +564,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         return horario;
     }
 
-    private Map clonarMap(Map<String, String> mapHorasDias) {
-        Map<String, String> clonado = new LinkedHashMap();
-        List<String> values = new ArrayList(mapHorasDias.values());
-        for (String value : values) {
-            clonado.put(value, value);
-        }
-        return clonado;
-    }
-
-    private List clonarLista(List<Seccion> tempo) {
-        List<Seccion> clonado = new ArrayList();
-        for (Seccion seccion : tempo) {
-            clonado.add(seccion);
-        }
-        return clonado;
-    }
-
     private Curso getCursoOrden(List<Curso> cursos, int orden) {
         int loop = 1;
         for (Curso curso : cursos) {
@@ -610,17 +593,17 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         }
     }
 
-    private boolean hayCruceHorario(Map<String, String> mapHorasDias, List<Seccion> secciones) {
+    private boolean sinCruceHorario(Map<String, String> mapHorasDias, List<Seccion> secciones) {
         for (Seccion seccion : secciones) {
             List<HorarioSeccion> horasDias = seccion.getHorarioSeccion();
             for (HorarioSeccion horaDia : horasDias) {
                 String horaDiaMapeada = mapHorasDias.get(horaDia.getHoraDia());
                 if (horaDiaMapeada != null) {
-                    return true;
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     private Integer cantPermutaSeccion(List<Seccion> secciones) {
