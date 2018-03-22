@@ -179,13 +179,14 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico) {
+    public List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur", "gs.anexoBoletin")
                 .leftJoin("seccionSuperior")
                 .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
-                .filter("ca.id", cicloAcademico)
+                .filter("ca.id", ciclo)
+                .filter("sec.estado", EstadoEnum.ACT)
                 .in("cur.id", cursos)
                 .orderBy("sec.codigo2");
 

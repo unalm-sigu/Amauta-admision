@@ -229,6 +229,7 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
                 vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
                 vacanteAlumno.setNumero(conteo);
                 vacanteAlumno.setSeccion(seccion);
+                vacanteAlumno.setActivo(1);
                 vacanteAlumno.setUserRegistro(ds.getUsuario());
                 vacanteAlumno.setFechaRegistro(new Date());
                 if (conteo == 1) {
