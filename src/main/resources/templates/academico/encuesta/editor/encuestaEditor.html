@@ -10,12 +10,10 @@
 
                 <header class="header b-b padder-lg">
 
-                    <h2>Lista de Encuestas de Docentes</h2>
-
                     <a class="btn btn-primary nuevo-agrupador pull-right"
                        th:href="@{/academico/encuesta/editor/nuevo}" >Nueva Encuesta</a>
 
-                    <h4 class="block"><strong>Ciclo Académico </strong> <span th:text='${ciclo.descripcion}'/></h4>
+                    <h2 th:inline="text">Encuestas de Docente  [[${cicloAcademico.descripcion}]] </h2>
 
                 </header>
 

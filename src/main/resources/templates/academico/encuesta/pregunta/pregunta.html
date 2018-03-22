@@ -12,8 +12,8 @@
 
                     <a class="btn btn-default pull-right" th:href="@{/academico/encuesta/editor}" >Regresar</a>
 
-                    <h2 th:inline="text">Preguntas</h2>
-                    <h4 th:inline="text"><b>[[${encuesta.codigo}]]</b>   [[${encuesta.nombre}]]</h4>
+                    <h2 th:inline="text"> [[${encuesta.nombre}]]   <b>[[${encuesta.codigo}]]</b>   [[${cicloAcademico.descripcion}]] </h2>
+
                     <input type="hidden" name="encuesta.id" th:value="${encuesta.id}" />
 
 

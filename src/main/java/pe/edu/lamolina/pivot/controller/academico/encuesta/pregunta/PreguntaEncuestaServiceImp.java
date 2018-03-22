@@ -24,6 +24,8 @@ import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
+import pe.edu.lamolina.model.examen.TemaExamenVirtual;
+import pe.edu.lamolina.pivot.dao.encuesta.TemaExamenVirtualDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -38,6 +40,8 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
     ExamenVirtualDAO evaluacionVirtualDAO;
     @Autowired
     ExamenVirtualDAO examenVirtualDAO;
+    @Autowired
+    TemaExamenVirtualDAO temaExamenVirtualDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -63,7 +67,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         if (encuesta.getEstadoEnum() != ExamenVirtualEstadoEnum.CRE) {
             throw new PhobosException("No puede modificar el contenido de una encuesta Activa o Inactiva");
         }
-
+        ObjectUtil.eliminarAttrSinId(pregunta, "tema");
         pregunta.setEstado(PreguntaEstadoEnum.ACT);
 
         PreguntaExamen preguntaTopNumero = preguntaExamenDAO.findMayorNumero(pregunta.getExamenVirtual());
@@ -118,10 +122,11 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         if (encuesta.getEstadoEnum() != ExamenVirtualEstadoEnum.CRE) {
             throw new PhobosException("No puede modificar el contenido de una encuesta Activa o Inactiva");
         }
-
+        ObjectUtil.eliminarAttrSinId(pregunta, "tema");
         PreguntaExamen preguntaBD = preguntaExamenDAO.find(pregunta.getId());
         preguntaBD.setTexto(pregunta.getTexto());
         preguntaBD.setTipo(pregunta.getTipo());
+        preguntaBD.setTema(pregunta.getTema());
         preguntaBD.setOpcionReferencia(pregunta.getOpcionReferencia());
         ObjectUtil.eliminarAttrSinId(preguntaBD, "opcionReferencia");
 
@@ -310,6 +315,11 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             preguntaReemplazo.setNumero(preguntaForm.getNumero());
             preguntaExamenDAO.update(preguntaReemplazo);
         }
+    }
+
+    @Override
+    public List<TemaExamenVirtual> allTemaExamenVirtualByExamenVirtual(ExamenVirtual encuesta) {
+        return temaExamenVirtualDAO.allByEvaluacion(encuesta);
     }
 
 }

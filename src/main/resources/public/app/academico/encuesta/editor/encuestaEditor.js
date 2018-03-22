@@ -30,6 +30,9 @@ new Vue({
         $global.$on("preguntas", function(encuesta) {
             vue.preguntas(encuesta);
         });
+        $global.$on("temas", function(encuesta) {
+            vue.temas(encuesta);
+        });
         $global.$on("preview", function(encuesta) {
             vue.preview(encuesta);
         });
@@ -56,6 +59,10 @@ new Vue({
         },
         preguntas: function(encuesta) {
             var urll = APP.url('academico/encuesta/editor/pregunta/' + encuesta.id);
+            $(location).attr('href', urll);
+        },
+        temas: function(encuesta) {
+            var urll = APP.url('academico/encuesta/editor/tema/' + encuesta.id);
             $(location).attr('href', urll);
         },
         preview: function(encuesta) {
