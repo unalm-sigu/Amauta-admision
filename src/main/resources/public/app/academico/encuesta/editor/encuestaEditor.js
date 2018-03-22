@@ -5,6 +5,7 @@ new Vue({
         cursos: [],
         btnAgregar: false,
         encuestaSelected: {},
+        configuraEncuesta: {encuestaTeoriaPractica: false},
         addCursoModal: {
             id: 'modalAddCurso',
             header: true,
@@ -17,7 +18,8 @@ new Vue({
             header: true,
             title: 'Configuración encuesta',
             showaccept: true,
-            cancelbtn: 'Cerrar'
+            cancelbtn: 'Cancelar',
+            okbtn: 'Guardar'
         }
     },
     mounted: function() {
@@ -194,8 +196,32 @@ new Vue({
             $('[name="curso.id"]').select2('val', '');
         },
         configuracion: function(encuesta) {
-            var urll = APP.url('academico/encuesta/editor/' + encuesta.id + '/configuracion');
-            $(location).attr('target', '_blank').attr('href', urll);
+
+            var vue = this;
+            vue.encuestaSelected = encuesta;
+            vue.configuraEncuesta = {encuestaTeoriaPractica: false};
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/encuesta/editor/getconfiguracion'),
+                data: {
+                    'id': vue.encuestaSelected.id,
+                },
+                async: false,
+                success: function(response) {
+                    if (response.success) {
+                        console.log('hola');
+                        console.log(response.data);
+                        vue.configuraEncuesta = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+            vue.$refs.modalEncuestaConfig.open();
         },
         selectCurso() {
             var vue = this;
@@ -304,6 +330,32 @@ new Vue({
                     vue.deleteCursoSinEncuesta(curso);
                 }
             });
+
+        },
+        saveConfiguracion: function() {
+            var vue = this;
+            var form = $("#formConfiguraEncuesta");
+            if (!(form.parsley().validate() === true)) {
+                return;
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/encuesta/editor/addconfigencuesta'),
+                data: form.serialize(),
+                async: false,
+                success: function(response) {
+                    if (response.success) {
+                        notify(response.message, 'info');
+                        vue.$refs.modalEncuestaConfig.close();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
 
         }
     }

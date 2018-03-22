@@ -10,7 +10,7 @@
 
                 <header class="header b-b padder-lg">
 
-                    <h2>Lista de Encuestas de Postulantes</h2>
+                    <h2>Lista de Encuestas de Docentes</h2>
 
                     <a class="btn btn-primary nuevo-agrupador pull-right"
                        th:href="@{/academico/encuesta/editor/nuevo}" >Nueva Encuesta</a>
@@ -30,6 +30,7 @@
                 </section>
 
                 <th:block th:replace="academico/encuesta/editor/encuestaEditorModal"/>
+                <th:block th:replace="academico/encuesta/editor/encuestaEditorConfigModal"/>
 
             </div>
 

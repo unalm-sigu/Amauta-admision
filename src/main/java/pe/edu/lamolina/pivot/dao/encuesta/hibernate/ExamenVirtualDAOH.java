@@ -8,14 +8,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC_CUR;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC_DOC;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
+import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
-import pe.edu.lamolina.model.inscripcion.EncuestaCiclo;
 import pe.edu.lamolina.model.inscripcion.EncuestaPostulante;
 
 @Repository
@@ -31,33 +30,10 @@ public class ExamenVirtualDAOH extends AbstractEasyDAO<ExamenVirtual> implements
         DynatableSql sql = new DynatableSql(filter)
                 .from(ExamenVirtual.class, "ev")
                 .join("tipoExamen tipo")
-                .in("tipo.codigo", Arrays.asList(ENC_CUR, ENC_DOC, ENC))
+                .in("tipo.codigo", Arrays.asList(ENC_CUR, ENC_DOC))
                 .searchFields("ev.nombre", "ev.estado", "ev.codigo")
                 .orderBy("ev.id desc");
         return sql.all(getCurrentSession());
-    }
-
-    @Override
-    public ExamenVirtual findEncuestaActiva() {
-        Octavia sql = Octavia.query()
-                .selectDistinct("exv")
-                .from(EncuestaCiclo.class, "ec")
-                .join("examenVirtual exv")
-                .join("tipoExamen tipo")
-                .filter("tipo.codigo", TipoExamenVirtualEnum.ENC)
-                .filter("exv.estado", ExamenVirtualEstadoEnum.ACT);
-        return find(sql);
-    }
-
-    @Override
-    public ExamenVirtual findEncuestaActivaByCiclo(CicloPostula ciclo) {
-        Octavia sql = Octavia.query()
-                .select("exv")
-                .from(EncuestaCiclo.class, "ec")
-                .join("cicloPostula cp", "examenVirtual exv")
-                .filter("cp.id", ciclo);
-
-        return find(sql);
     }
 
     @Override
@@ -92,6 +68,26 @@ public class ExamenVirtualDAOH extends AbstractEasyDAO<ExamenVirtual> implements
                 .filter("cp.id", ciclo);
 
         return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public ExamenVirtual findEncuestaActivaByTipo(TipoExamenVirtual tipoExamen) {
+        Octavia sql = Octavia.query()
+                .from(ExamenVirtual.class, "exv")
+                .join("tipoExamen tipo")
+                .filter("tipo.id", tipoExamen)
+                .filter("exv.estado", ExamenVirtualEstadoEnum.ACT);
+        return find(sql);
+    }
+
+    @Override
+    public ExamenVirtual findExamenVirtual(ExamenVirtual examenVirtual) {
+        Octavia sql = Octavia.query()
+                .from(ExamenVirtual.class, "ev")
+                .join("tipoExamen tipo")
+                .in("tipo.codigo", Arrays.asList(ENC_CUR, ENC_DOC))
+                .filter("ev.id", examenVirtual);
+        return find(sql);
     }
 
 }

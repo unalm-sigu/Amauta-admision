@@ -1,49 +1,65 @@
 <modal-vik
     ref="modalEncuestaConfig"
-    v-bind="encuestaConfigModal">
+    v-bind="encuestaConfigModal"
+    v-bind:okaction="saveConfiguracion">
 
     <div slot="body">
 
-        <div class="col-sm-10">
+        <form id='formConfiguraEncuesta' class="form-horizontal" data-parsley-validate="true">
+
+            <input type="hidden"
+                   name="id"
+                   v-bind:value="configuraEncuesta.id"
+                   v-model="configuraEncuesta.id"
+                   required="true"/>
+
+            <input type="hidden"
+                   name="encuestaEstudiantil.encuesta.id"
+                   v-bind:value="encuestaSelected.id"
+                   v-model="encuestaSelected.id"
+                   required="true"/>
+
+
+
             <div class="form-group">
-                <label class="control-label">Curso</label>
-                <input type="text"
-                       class="form-control input-sm"
-                       name="curso.id"
-                       v-model="curso"
-                       required="true"/>
+                <label  class="col-sm-5 control-label">Cantidad mínima de alumnos</label>
+                <div class="col-sm-5">
+                    <input type="text"
+                           class="form-control input-sm"
+                           name="cantidadMinimaAlumnos"
+                           v-model="configuraEncuesta.cantidadMinimaAlumnos"
+                           v-bind:value="configuraEncuesta.cantidadMinimaAlumnos"
+                           required="true"/>
+                </div>
             </div>
-        </div>
 
-        <div class="col-sm-2 m-t-md">
-            <button
-                class="btn btn-success btn-sm pull-right"
-                v-bind:disabled="btnAgregar"
-                v-on:click.prevent="agregarCurso()">Agregar</button>
-        </div>
+            <div class="form-group">
+                <label  class="col-sm-5 control-label">Cantidad máxima de docentes</label>
+                <div class="col-sm-5">
+                    <input type="text"
+                           class="form-control input-sm"
+                           name="cantidadMaximaDocentes"
+                           v-model="configuraEncuesta.cantidadMaximaDocentes"
+                           v-bind:value="configuraEncuesta.cantidadMaximaDocentes"
+                           required="true"/>
+                </div>
+            </div>
 
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th class="col-sm-2">Código</th>
-                    <th class="col-sm-2">T-P-C</th>
-                    <th class="col-sm-8">Nombre</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="cursoSinEncuesta in  cursos">
-                    <td class="v-middle">{{cursoSinEncuesta.codigo}}</td>
-                    <td class="v-middle">{{cursoSinEncuesta.tpc}}</td>
-                    <td class="v-middle">{{cursoSinEncuesta.curso}}</td>
-                    <td class="v-middle">
-                        <a v-on:click.prevent="removeCurso(cursoSinEncuesta)"  class="btn btn-link text-danger" href="#">
-                            <i class="fa fa-times" aria-hidden="true"></i>
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <div class="form-group">
+                <div class="col-sm-offset-5 col-sm-10">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox"
+                                   name="encuestaTeoriaPractica"
+                                   v-model="configuraEncuesta.encuestaTeoriaPractica"
+                                   v-bind:value="configuraEncuesta.encuestaTeoriaPractica==true?1:0"
+                                   /> Curso teórico practico.
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </form>
 
     </div>
 </modal-vik>
