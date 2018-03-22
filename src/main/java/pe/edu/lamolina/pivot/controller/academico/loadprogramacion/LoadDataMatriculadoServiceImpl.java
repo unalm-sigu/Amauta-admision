@@ -85,6 +85,8 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
     SituacionAcademicaDAO situacionAcademicaDAO;
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
+    @Autowired
+    VisorLoadProgramacion visor;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -255,9 +257,11 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriculaCursoDAO.save(matriCursoBD);
 
             System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
+            visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " creado", true, "info");
 
         } else {
             System.out.print("\t" + rr + " actualizando mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo() + " :::: ");
+            visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " ya existe", true, "info");
         }
 
         matriCursoBD.setCreditos(matriSecc.getCreditos());
@@ -281,6 +285,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         matriSecc.setFechaFinProceso(new Date());
 
         System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
+        visor.agregarLog("aluSecc", "saveAluSecc", "Registro de alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " finalizado", false, "info");
     }
 
 }

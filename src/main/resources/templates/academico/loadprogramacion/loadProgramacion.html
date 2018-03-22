@@ -26,13 +26,13 @@
 
                                         <div class="form-group">
                                             <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                                <input type="file" name="file" autocomplete="off" required="true" multiple="yes" />
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row m-b-md">
+                                <!--div class="row m-b-md">
                                     <div class="col-md-3 bold">Secciones:</div>
                                     <div class="col-md-9"> 
                                         <span class="block underline">(queryClaves.xls) </span>
@@ -147,7 +147,7 @@
                                             </span>
                                         </div>
                                     </div>
-                                </div>
+                                </div-->
                                 
                                 <div class="progress" id="progress">
                                     <div class="progress-bar progress-bar-success"></div>
@@ -157,6 +157,13 @@
                                     <a class="btn btn-info" id="btnLoadHorario">Cargar Horarios</a>
                                 </span>
                             </form>
+                        </div>
+                        
+                        <div class="panel-body hide" id="divLog">
+                            <table class="table table-bordered">
+                                <thead><tr><td></td><td>Comentario</td></tr></thead>
+                                <tbody id="bodyLog"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

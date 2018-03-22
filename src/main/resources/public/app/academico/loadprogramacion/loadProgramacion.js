@@ -11,30 +11,16 @@ $(function () {
             $('#progress .progress-bar').css('width', 100 + '%');
         },
         complete: function (response) {
-            $("#btnLoadHorario").html('Registrar Horario');
-            $("#btnCancel").removeAttr("disabled");
-            $("#btnLoadHorario").removeAttr("disabled");
+            //$("#btnLoadHorario").html('Registrar Horario');
+            //$("#btnCancel").removeAttr("disabled");
+            //$("#btnLoadHorario").removeAttr("disabled");
 
             var json = response.responseJSON;
-            var sede = $("#sede").val();
             if (json.success) {
-                notify('Carga Finalizada', 'info');
-
+                notify('Carga Inicializada', 'info');
+                LoadHorario.stop = false;
+                LoadHorario.revisarLog();
             } else {
-                $("#divForm").hide();
-                $("#divLogCarga").show();
-                LoadHorario.log = json.data;
-                $("#titleErrores").text(json.data.length + " errores de carga de horarios");
-                $.each(json.data, function (index, value) {
-                    var conte = '<tr>';
-                    conte += '<td class="col-md-2"><span class="label label-' + (value.tipo == "Error" ? "danger" : "warning") + '">' + value.tipo + '</span></td>';
-                    conte += '<td class="col-md-1">' + value.fila + '</td>';
-                    conte += '<td class="col-md-2">' + value.nivel + '</td>';
-                    conte += '<td class="col-md-7">' + value.mensaje + '</td>';
-                    conte += '</tr>';
-                    $('#tablaLogCarga tbody').append(conte);
-                });
-
                 notify(json.message, 'error');
             }
         },
@@ -45,6 +31,7 @@ $(function () {
 
     LoadHorario = {
         log: null,
+        stop: false,
         validarFiles: function () {
             var ok = $("#formLoadFiles").parsley().isValid();
             if (!ok) {
@@ -65,55 +52,52 @@ $(function () {
             $('#progress .progress-bar').css('width', 0 + '%');
         },
         exportarJson2Csv: function (JSONData, titulo, showTitulos) {
-            var arrData = JSONData; //typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
-            var CSV = '';
-
-            CSV += titulo + '\r\n\n';
-            if (showTitulos) {
-                var row = "";
-                for (var index in arrData[0]) {
-                    row += LoadHorario.capitalize(index) + ',';
-                }
-
-                row = row.slice(0, -1);
-                CSV += row + '\r\n';
-            }
-
-            for (var i = 0; i < arrData.length; i++) {
-                var row = "";
-
-                for (var index in arrData[i]) {
-                    row += '"' + arrData[i][index] + '",';
-                }
-
-                row.slice(0, row.length - 1);
-                CSV += row + '\r\n';
-            }
-
-            if (CSV == '') {
-                alert("Invalid data");
-                return;
-            }
-
-            var fileName = "Errores_";
-            fileName += titulo.replace(/ /g, "_");
-
-            var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
-            var link = document.createElement("a");
-            link.href = uri;
-
-            link.style = "visibility:hidden";
-            link.download = fileName + ".csv";
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         },
         capitalize: function (str) {
             str = str.toLowerCase().replace(/\b[a-z]/g, function (letter) {
                 return letter.toUpperCase();
             });
             return str;
+        },
+        revisarLog: function () {
+            $.ajax({
+                url: APP.url('academico/loadprogramacion/logVisor'),
+                type: 'POST',
+                async: true,
+                success: function (response) {
+                    if (response.success) {
+                        LoadHorario.crearLog(response.data);
+                    } else {
+                        notify(response.message, "error");
+                    }
+
+                    if (LoadHorario.stop) {
+                        $("#btnLoadHorario").html('Registrar Horario');
+                        $("#btnCancel").removeAttr("disabled");
+                        $("#btnLoadHorario").removeAttr("disabled");
+                        return;
+                    }
+
+                    setTimeout(function () {
+                        LoadHorario.revisarLog();
+                    }, 1000);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        crearLog(data) {
+            $("#divLog").removeClass("hide");
+            var body = $("#bodyLog");
+            var html = "";
+            $.each(data, function (k, v) {
+                html += '<tr><td>' + (k + 1) + '</td><td>' + v.info + '</td></tr>';
+                if (v.tipo == "error") {
+                    LoadHorario.stop = true;
+                }
+            });
+            body.html(html);
         }
     };
 
