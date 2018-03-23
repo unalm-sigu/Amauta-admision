@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,51 +137,64 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Override
+    public Map<String, String> loadArchivosHorario(MultipartFile[] files) {
+
+        Map<String, String> mapRutaFiles = new HashMap();
+        for (MultipartFile file : files) {
+            String nombre = file.getOriginalFilename();
+            String ruta = saveFile(file);
+            mapRutaFiles.put(nombre, ruta);
+        }
+        return mapRutaFiles;
+    }
+
     @Async
     @Override
     @Transactional
-    public void loadArchivosHorario(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void procesarArchivos(Map<String, String> rutasFiles, CicloAcademico ciclo, DataSessionPivot ds) {
         try {
-            loadArchivosHorario222(files, ciclo, ds);
+            loadArchivosHorario222(rutasFiles, ciclo, ds);
         } catch (Exception e) {
             e.printStackTrace();
             visor.agregarLog("error", "error", "error: " + e.getLocalizedMessage(), false, "error");
         }
     }
 
-    private void loadArchivosHorario222(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
+    private void loadArchivosHorario222(Map<String, String> mapRutaFiles, CicloAcademico ciclo, DataSessionPivot ds) {
+
         visor.iniciar();
         logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
         visor.agregarLog("ciclo", "inicio", "Ciclo " + ciclo.getId() + " " + ciclo.getYear() + " " + ciclo.getNumeroCiclo(), false, "info");
 
-        String rutaFileGpoSecciones = saveFile(files, "GruposSecciones.xls");
+        String rutaFileGpoSecciones = mapRutaFiles.get("GruposSecciones.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileGpoSecciones: " + rutaFileGpoSecciones, false, "info");
 
-        String rutaFileSecciones = saveFile(files, "Secciones.xls");
+        String rutaFileSecciones = mapRutaFiles.get("Secciones.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileSecciones: " + rutaFileSecciones, false, "info");
 
-        String rutaFilePersonas = saveFile(files, "Personas.xls");
+        String rutaFilePersonas = mapRutaFiles.get("Personas.xls");
         visor.agregarLog("inicio", "inicio", "rutaFilePersonas: " + rutaFilePersonas, false, "info");
 
-        String rutaFileProfes = saveFile(files, "Docentes.xls");
+        String rutaFileProfes = mapRutaFiles.get("Docentes.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileProfes: " + rutaFileProfes, false, "info");
 
-        String rutaFileProfeSecciones = saveFile(files, "DocentesSecciones.xls");
+        String rutaFileProfeSecciones = mapRutaFiles.get("DocentesSecciones.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileProfeSecciones: " + rutaFileProfeSecciones, false, "info");
 
-        String rutaFileAlumno = saveFile(files, "Alumnos.xls");
+        String rutaFileAlumno = mapRutaFiles.get("Alumnos.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileAlumno: " + rutaFileAlumno, false, "info");
 
-        String rutaFileAlumnoSecciones = saveFile(files, "Matricula.xls");
+        String rutaFileAlumnoSecciones = mapRutaFiles.get("Matricula.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileAlumnoSecciones: " + rutaFileAlumnoSecciones, false, "info");
 
-        String rutaFileHorarioGrupos = saveFile(files, "HorarioGrupos.xls");
+        String rutaFileHorarioGrupos = mapRutaFiles.get("HorarioGrupos.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileHorarioGrupos: " + rutaFileHorarioGrupos, false, "info");
 
-        String rutaFileHorarioSecciones = saveFile(files, "HorarioSecciones.xls");
+        String rutaFileHorarioSecciones = mapRutaFiles.get("HorarioSecciones.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileHorarioSecciones: " + rutaFileHorarioSecciones, false, "info");
 
-        String rutaFileCursos = saveFile(files, "Cursos.xls");
+        String rutaFileCursos = mapRutaFiles.get("Cursos.xls");
         visor.agregarLog("inicio", "inicio", "rutaFileCursos: " + rutaFileCursos, false, "info");
 
         List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
@@ -321,6 +335,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<DiaHoraGrupo> horariosGrupo = crearHorarioGrupos(rutaFileHorarioGrupos, mapDias, mapHoras, mapGrupos, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosGrupo ejecutado en {} mseg", (t2 - t1));
+        visor.agregarLog("fin", "fin", "Carga finalizada", false, "fin");
 
     }
 
@@ -624,6 +639,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
             }
 
+            visor.inicializar("horGpo", mapGpoHorarios.size());
+
             List<DiaHoraGrupo> hdiaGpoTodosBD = diaHoraGrupoDAO.allByCiclo(ciclo);
             Map<Long, List<DiaHoraGrupo>> mapHorarioGpos = TypesUtil.convertListToMapList("grupoHorario.id", hdiaGpoTodosBD);
             for (Map.Entry<String, List<DiaHoraGrupo>> entry : mapGpoHorarios.entrySet()) {
@@ -647,6 +664,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 diaHoraGrupoDAO.deleteAllInList(muertos);
+                visor.agregarLog("horGpo", "saveHorGpo", "Guardando horario de " + gpo, true, "info");
 
             }
 
@@ -1220,6 +1238,24 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             FileHelper.createDirectory(Constantine.TMP_DIR);
             String absoluteName = Constantine.TMP_DIR + fileName;
 
+            System.out.println("file size: " + file.getSize());
+            FileHelper.saveToDisk(file, absoluteName);
+            FileInputStream fis = new FileInputStream(absoluteName);
+            return absoluteName;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new PhobosException("Archivo no puede ser guardado en el servidor");
+        }
+    }
+
+    private String saveFile(MultipartFile file) {
+        try {
+            String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(file.getOriginalFilename());
+            FileHelper.createDirectory(Constantine.TMP_DIR);
+            String absoluteName = Constantine.TMP_DIR + fileName;
+
+            System.out.println("file size: " + file.getSize());
+            System.out.println("file name: " + file.getOriginalFilename());
             FileHelper.saveToDisk(file, absoluteName);
             FileInputStream fis = new FileInputStream(absoluteName);
             return absoluteName;

@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,8 +84,10 @@ public class ProgramaHorarioController {
         JsonResponse json = new JsonResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.loadArchivosHorario(files, ds.getCicloAcademico(), ds);
+            Map<String, String> rutas = service.loadArchivosHorario(files);
+            service.procesarArchivos(rutas, ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
             json.setMessage("Archivos enviados satisfactoriamente");

@@ -51,7 +51,7 @@ public class VisorLoadProgramacion {
                 procesos.put(proceso, proxexo);
             }
         }
-        if (contar) {
+        if (contar && proxexo != null) {
             proxexo.incrementer();
         }
 

@@ -93,7 +93,7 @@ $(function () {
             var html = "";
             $.each(data, function (k, v) {
                 html += '<tr><td>' + (k + 1) + '</td><td>' + v.info + '</td></tr>';
-                if (v.tipo == "error") {
+                if (v.tipo == "error" || v.tipo == "fin") {
                     LoadHorario.stop = true;
                 }
             });
