@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.encuesta.TipoLikert;
 import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
@@ -136,7 +137,9 @@ public class PreguntaEncuestaController {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         PreguntaExamen pregunta = service.findPregunta(idPregunta);
         List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(pregunta.getExamenVirtual());
+        List<TipoLikert> tiposLikert = service.allTipoLikert();
 
+        model.addAttribute("tiposLikert", tiposLikert);
         model.addAttribute("categorias", categorias);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
