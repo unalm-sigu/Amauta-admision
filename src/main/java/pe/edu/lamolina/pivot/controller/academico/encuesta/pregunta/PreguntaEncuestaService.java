@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.encuesta.pregunta;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.encuesta.TipoLikert;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
@@ -37,5 +38,7 @@ public interface PreguntaEncuestaService {
     void upateNumeroPregunta(PreguntaExamen pregunta);
 
     List<TemaExamenVirtual> allTemaExamenVirtualByExamenVirtual(ExamenVirtual encuesta);
+
+    List<TipoLikert> allTipoLikert();
 
 }

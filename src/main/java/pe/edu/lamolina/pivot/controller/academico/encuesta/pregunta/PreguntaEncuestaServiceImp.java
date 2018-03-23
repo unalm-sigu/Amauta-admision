@@ -14,6 +14,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.encuesta.OpcionLikert;
+import pe.edu.lamolina.model.encuesta.TipoLikert;
 import pe.edu.lamolina.pivot.dao.encuesta.OpcionPreguntaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PreguntaExamenDAO;
@@ -25,7 +27,9 @@ import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
+import pe.edu.lamolina.pivot.dao.encuesta.OpcionLikertDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TemaExamenVirtualDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.TipoLikertDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -42,6 +46,10 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
     ExamenVirtualDAO examenVirtualDAO;
     @Autowired
     TemaExamenVirtualDAO temaExamenVirtualDAO;
+    @Autowired
+    TipoLikertDAO tipoLikertDAO;
+    @Autowired
+    OpcionLikertDAO opcionLikertDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -320,6 +328,20 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
     @Override
     public List<TemaExamenVirtual> allTemaExamenVirtualByExamenVirtual(ExamenVirtual encuesta) {
         return temaExamenVirtualDAO.allByEvaluacion(encuesta);
+    }
+
+    @Override
+    public List<TipoLikert> allTipoLikert() {
+        List<OpcionLikert> opciones = opcionLikertDAO.allOpcionLikert();
+        Map<Long, List<OpcionLikert>> opcionesMap = TypesUtil.convertListToMapList("tipoLikert.id", opciones);
+        Map<Long, TipoLikert> tiposMap = TypesUtil.convertListToMap("tipoLikert.id", "tipoLikert", opciones);
+        List<TipoLikert> tipos = new ArrayList();
+        for (TipoLikert tipo : tiposMap.values()) {
+            List<OpcionLikert> misOpciones = opcionesMap.get(tipo.getId());
+            tipo.setOpcionLikert(misOpciones);
+            tipos.add(tipo);
+        }
+        return tipos;
     }
 
 }
