@@ -802,6 +802,23 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String curCodigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(curCodigo)) {
+                    break;
+                }
+            }
+            visor.inicializar("cur", loop);
+
+            loop = 0;
+            rowIterator = mySheet.iterator();
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                String curCodigo = getCellStringValue(1, row);
                 String curNuevo = getCellStringValue(2, row);
                 String nombre = getCellStringValue(3, row);
                 String depCodigo = getCellStringValue(4, row);
