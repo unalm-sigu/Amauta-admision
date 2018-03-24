@@ -31,6 +31,7 @@ public class PreguntaExamenDAOH extends AbstractEasyDAO<PreguntaExamen> implemen
                 .join("examenVirtual exv")
                 .leftJoin("bloquePreguntas blo", "subtitulo subti", "tema tema")
                 .leftJoin("opcionReferencia opr", "opr.pregunta")
+                .leftJoin("tipoLikert tip")
                 .filter("pre.id", id);
 
         return (PreguntaExamen) sql.find(getCurrentSession());

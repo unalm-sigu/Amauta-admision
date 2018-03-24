@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,10 @@ import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.encuesta.OpcionLikert;
 import pe.edu.lamolina.model.encuesta.TipoLikert;
 import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
@@ -137,9 +140,9 @@ public class PreguntaEncuestaController {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         PreguntaExamen pregunta = service.findPregunta(idPregunta);
         List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(pregunta.getExamenVirtual());
-        List<TipoLikert> tiposLikert = service.allTipoLikert();
+        List<TipoLikert> tipos = service.allTipoLikert(pregunta.getTipoLikert());
 
-        model.addAttribute("tiposLikert", tiposLikert);
+        model.addAttribute("tiposLikert", tipos);
         model.addAttribute("categorias", categorias);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("tipos", TipoPreguntaEncuestaEnum.values());
@@ -285,6 +288,50 @@ public class PreguntaEncuestaController {
             response.setMessage("Se modificó el número de pregunta satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("alltipolikert")
+    public JsonResponse allTipoLikert(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            List<TipoLikert> tiposLikert = service.allTipoLikert();
+            Map<Integer, List<TipoLikert>> tiposLikertMap = TypesUtil.convertListToMapList("opciones", tiposLikert);
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode arrayTipos = new ArrayNode(jsonFactory);
+            for (Map.Entry<Integer, List<TipoLikert>> entry : tiposLikertMap.entrySet()) {
+                ObjectNode nodeTipo = new ObjectNode(jsonFactory);
+                nodeTipo.put("cant", entry.getKey());
+                ArrayNode arraySubTipo = new ArrayNode(jsonFactory);
+                List<TipoLikert> tipos = entry.getValue();
+                for (TipoLikert tipo : tipos) {
+                    ObjectNode subtipo = new ObjectNode(jsonFactory);
+                    subtipo.put("id", tipo.getId());
+                    subtipo.put("grupo", tipo.getGrupo());
+                    ArrayNode arrayOpciones = new ArrayNode(jsonFactory);
+                    for (OpcionLikert opcionLikert : tipo.getOpcionLikert()) {
+                        ObjectNode nodeOpcion = new ObjectNode(jsonFactory);
+                        nodeOpcion.put("opcion", opcionLikert.getOpcion());
+                        nodeOpcion.put("peso", opcionLikert.getPeso());
+                        arrayOpciones.add(nodeOpcion);
+                    }
+                    subtipo.put("opciones", arrayOpciones);
+                    arraySubTipo.add(subtipo);
+                }
+                nodeTipo.put("tipos", arraySubTipo);
+                arrayTipos.add(nodeTipo);
+            }
+            response.setData(arrayTipos);
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

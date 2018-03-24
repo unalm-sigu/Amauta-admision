@@ -41,4 +41,6 @@ public interface PreguntaEncuestaService {
 
     List<TipoLikert> allTipoLikert();
 
+    List<TipoLikert> allTipoLikert(TipoLikert tipoLikert);
+
 }
