@@ -11,9 +11,6 @@ $(function () {
             $('#progress .progress-bar').css('width', 100 + '%');
         },
         complete: function (response) {
-            //$("#btnLoadHorario").html('Registrar Horario');
-            //$("#btnCancel").removeAttr("disabled");
-            //$("#btnLoadHorario").removeAttr("disabled");
 
             var json = response.responseJSON;
             if (json.success) {
@@ -32,7 +29,7 @@ $(function () {
     LoadHorario = {
         log: null,
         stop: false,
-        validarFiles: function () {
+        cargarArchivos: function () {
             var ok = $("#formLoadFiles").parsley().isValid();
             if (!ok) {
                 notify("Debe seleccionar todos los archivos", "error");
@@ -40,7 +37,7 @@ $(function () {
             }
 
             $("#btnLoadHorario").html('<i class="fa fa-spinner fa-spin fa-lg"></i> Procesando');
-            $("#btnCancel").attr("disabled", "disabled");
+            $("#btnStopLoadHorario").removeAttr("disabled");
             $("#btnLoadHorario").attr("disabled", "disabled");
             $('#formLoadFiles').submit();
         },
@@ -72,9 +69,9 @@ $(function () {
                     }
 
                     if (LoadHorario.stop) {
-                        $("#btnLoadHorario").html('Registrar Horario');
-                        $("#btnCancel").removeAttr("disabled");
                         $("#btnLoadHorario").removeAttr("disabled");
+                        $("#btnLoadHorario").html('Cargar Horarios');
+                        $("#btnStopLoadHorario").attr("disabled");
                         return;
                     }
 
@@ -98,11 +95,46 @@ $(function () {
                 }
             });
             body.html(html);
+        },
+        inicio() {
+            var visor = $("#visor");
+            console.log(visor.val())
+            if (visor.val() == "true") {
+                $("#btnLoadHorario").html('<i class="fa fa-spinner fa-spin fa-lg"></i> Procesando');
+                $("#btnLoadHorario").attr("disabled", "disabled");
+                $("#btnStopLoadHorario").removeAttr("disabled");
+                LoadHorario.revisarLog();
+
+            } else {
+                $("#btnStopLoadHorario").attr("disabled", "disabled");
+                $("#btnLoadHorario").removeAttr("disabled");
+                $("#btnLoadHorario").html('Cargar Horarios');
+            }
+        },
+        detenerCarga() {
+            $.ajax({
+                url: APP.url('academico/loadprogramacion/detenerCarga'),
+                type: 'POST',
+                async: true,
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     };
 
     $("#btnLoadHorario").click(function () {
-        LoadHorario.validarFiles();
+        LoadHorario.cargarArchivos();
+    });
+    $("#btnStopLoadHorario").click(function () {
+        LoadHorario.detenerCarga();
     });
 
     $(".activar-envio").click(function () {
@@ -112,6 +144,8 @@ $(function () {
         var nom = $("#nombreSede").val();
         LoadHorario.exportarJson2Csv(LoadHorario.log, nom, true);
     });
+
+    LoadHorario.inicio();
 
 
 });

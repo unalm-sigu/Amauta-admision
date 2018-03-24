@@ -29,7 +29,7 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     DocenteSeccion findByFilter(Docente docente, Seccion seccion);
 
-    DocenteSeccion findByDocenteSeccion(Docente profe, Seccion seccion);
+    DocenteSeccion findWithPersonaByDocenteSeccion(Docente profe, Seccion seccion);
 
     List<DocenteSeccion> allByCiclo(CicloAcademico ciclo);
 

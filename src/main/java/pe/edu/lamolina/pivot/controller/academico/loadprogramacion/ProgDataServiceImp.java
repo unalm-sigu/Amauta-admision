@@ -124,35 +124,24 @@ public class ProgDataServiceImp implements ProgDataService {
     AnexoBoletinDAO anexoBoletinDAO;
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     @Autowired
     LoadDataMatriculadoService loadDataMatriculadoService;
 
-    @Autowired
-    DiaHoraGrupoDAO diaHoraGrupoDAO;
-
-    @Autowired
-    HorarioSeccionDAO horarioSeccionDAO;
     @Autowired
     VisorLoadProgramacion visor;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static boolean revisar = true;
 
-    private Integer random;
-
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteHorarioSeccionNoUsados(List<HorarioSeccion> horarios, CicloAcademico cicloAcademico) {
         horarioSeccionDAO.deleteAllByNotInList(horarios);
-    }
-
-    private synchronized Integer getRandom() {
-        if (random == null) {
-            random = 0;
-        }
-        random++;
-        return random;
     }
 
     @Override
@@ -911,7 +900,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
-            
+
             GrupoSeccion gpoSeccBD = mapGpoSeccionBD.get(gpoSecc.getCodigo());
             Curso curso = mapCursoBD.get(gpoSecc.getCodigoCurso());
             AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
@@ -975,7 +964,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
-            
+
             seccion.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                 seccion.setVacantes(0);
@@ -1007,7 +996,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
-            
+
             String gpoSeccCode = entry.getKey();
             Seccion seccionTCUR = entry.getValue();
             List<Seccion> seccionesPCUR = mapSeccionesPCUR.get(gpoSeccCode);
@@ -1162,7 +1151,11 @@ public class ProgDataServiceImp implements ProgDataService {
     public Map<String, DocenteSeccion> loadDataDocentesSecciones(
             List<DocenteSeccion> docentesSecciones,
             Map<String, Seccion> mapSecciones,
-            Map<String, Docente> mapDocentes) {
+            Map<String, Docente> mapDocentes,
+            CicloAcademico ciclo) {
+
+        List<DocenteSeccion> docentesSeccionesBD = docenteSeccionDAO.allByCiclo(ciclo);
+        Map<String, DocenteSeccion> mapDocenteSeccionBD = TypesUtil.convertListToMap("key", docentesSeccionesBD);
 
         int loop = 0;
         Map<String, DocenteSeccion> mapDocenteSecciones = new LinkedHashMap();
@@ -1170,7 +1163,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
-            
+
             //logger.debug("\tprocesando el profe-seccion {}-{}", profeSecc.getCodigoDocente(), profeSecc.getCodigoSeccion());
             Seccion seccion = mapSecciones.get(profeSecc.getCodigoSeccion());
             Docente profe = mapDocentes.get(profeSecc.getCodigoDocente());
@@ -1185,7 +1178,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 throw new PhobosException(msg);
             }
 
-            DocenteSeccion profeSeccBD = docenteSeccionDAO.findByDocenteSeccion(profe, seccion);
+//            DocenteSeccion profeSeccBD = docenteSeccionDAO.findWithPersonaByDocenteSeccion(profe, seccion);
+            DocenteSeccion profeSeccBD = mapDocenteSeccionBD.get(profeSecc.getCodigoDocente() + "-" + profeSecc.getCodigoSeccion());
 
             if (profeSeccBD == null) {
                 profeSeccBD = new DocenteSeccion();
@@ -1265,17 +1259,6 @@ public class ProgDataServiceImp implements ProgDataService {
 
     }
 
-    private MatriculaCurso findMatriculaCurso(List<MatriculaCurso> alumnoCursos, Curso curso, int rr) {
-        for (MatriculaCurso alumnoCurso : alumnoCursos) {
-            Curso cur = alumnoCurso.getCurso();
-            if (cur.getId().longValue() == curso.getId()) {
-                System.out.println("\t" + rr + " entregando " + alumnoCurso.getId() + " mat-curso");
-                return alumnoCurso;
-            }
-        }
-        return null;
-    }
-
     private boolean existeCurso(List<MatriculaCurso> alumnoCursos, Curso curso) {
         for (MatriculaCurso alumnoCurso : alumnoCursos) {
             Curso cur = alumnoCurso.getCurso();
@@ -1284,16 +1267,6 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
         return false;
-    }
-
-    private MatriculaSeccion findMatriculaSeccion(List<MatriculaSeccion> alumnoSecciones, Seccion seccion) {
-        for (MatriculaSeccion alumnoSeccion : alumnoSecciones) {
-            Seccion secc = alumnoSeccion.getSeccion();
-            if (secc.getId().longValue() == seccion.getId()) {
-                return alumnoSeccion;
-            }
-        }
-        return null;
     }
 
     private boolean existeSeccion(List<MatriculaSeccion> alumnoSecciones, Seccion seccion) {
@@ -1311,6 +1284,8 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueadox) {
         try {
+            
+
             aluResumen.setFechaInicioProceso(new Date());
             Alumno alumno = aluResumen.getAlumno();
 

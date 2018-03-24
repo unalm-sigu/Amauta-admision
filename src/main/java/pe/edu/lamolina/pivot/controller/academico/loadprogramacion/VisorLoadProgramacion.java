@@ -1,7 +1,8 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -14,6 +15,8 @@ public class VisorLoadProgramacion {
 
     private String ciclo;
     private boolean stop;
+    private boolean ejecutando;
+    private Date ultimaEjecucion;
 
     private List<String> acciones;
     private List<String> errores;
@@ -25,10 +28,12 @@ public class VisorLoadProgramacion {
     public void iniciar() {
         this.acciones = new ArrayList();
         this.errores = new ArrayList();
-        this.procesos = new HashMap();
-        this.grupos = new HashMap();
+        this.procesos = new LinkedHashMap();
+        this.grupos = new LinkedHashMap();
         this.ciclo = null;
         this.stop = false;
+        this.ejecutando = true;
+        this.ultimaEjecucion = null;
     }
 
     public void setCiclo(String ciclo) {
@@ -66,7 +71,21 @@ public class VisorLoadProgramacion {
                 this.acciones.remove(0);
             }
         }
+        this.ultimaEjecucion = new Date();
+    }
 
+    private void revisarEjecucion() {
+        if (this.ultimaEjecucion == null) {
+            return;
+        }
+        if (!this.ejecutando) {
+            return;
+        }
+
+        Date hoy = new Date();
+        if (hoy.getTime() - this.ultimaEjecucion.getTime() > 60 * 1500) {
+            this.ejecutando = false;
+        }
     }
 
     public List<String> reporte() {
@@ -85,6 +104,10 @@ public class VisorLoadProgramacion {
             log += " " + proxexo.getAvance() + " de " + proxexo.getCantidad();
             info.add(log);
         }
+        if (!this.ejecutando) {
+            info.add("fin::::Proceso de carga ha finalizado");
+        }
+
         info.add("");
 
         for (String rev : this.acciones) {
@@ -99,6 +122,8 @@ public class VisorLoadProgramacion {
             }
         }
 
+        this.revisarEjecucion();
+
         return info;
     }
 
@@ -108,6 +133,10 @@ public class VisorLoadProgramacion {
 
     public void setStop(boolean stop) {
         this.stop = stop;
+    }
+
+    public boolean isEjecutando() {
+        return ejecutando;
     }
 
 }

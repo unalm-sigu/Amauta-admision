@@ -41,7 +41,7 @@ public class ProgramaHorarioController {
     @Autowired
     PlanCalificaCursoService planCalificaCursoService;
     @Autowired
-    VisorLoadProgramacion visorLoadProgramacion;
+    VisorLoadProgramacion visor;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -75,6 +75,7 @@ public class ProgramaHorarioController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("visor", visor);
         return "academico/loadprogramacion/loadProgramacion";
     }
 
@@ -87,7 +88,7 @@ public class ProgramaHorarioController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Map<String, String> rutas = service.loadArchivosHorario(files);
-            service.procesarArchivos(rutas, ds.getCicloAcademico(), ds);
+            service.inicioProcesarArchivos(rutas, ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
             json.setMessage("Archivos enviados satisfactoriamente");
@@ -181,7 +182,7 @@ public class ProgramaHorarioController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            List<String> logs = visorLoadProgramacion.reporte();
+            List<String> logs = visor.reporte();
             for (String log : logs) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 String[] data = log.split("::::");
@@ -200,6 +201,27 @@ public class ProgramaHorarioController {
             json.setData(array);
             json.setSuccess(true);
             json.setMessage("carga satisfactoria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+
+        } finally {
+            return json;
+        }
+
+    }
+
+    @ResponseBody
+    @RequestMapping("detenerCarga")
+    public JsonResponse detenerCarga(Model model, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            visor.setStop(true);
+            json.setSuccess(true);
+            json.setMessage("Orden de interrupción fue ejecutada");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);

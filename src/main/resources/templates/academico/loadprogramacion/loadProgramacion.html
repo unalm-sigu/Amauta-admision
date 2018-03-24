@@ -15,6 +15,7 @@
 
                         <div class="panel-heading">
                             <h3 class="panel-title" th:inline="text">Carga de programación de horarios - [[${ciclo.descripcion2}]]</h3>
+                            <input type="hidden" id="visor" th:value="${visor.ejecutando}"/>
                         </div>
 
                         <div class="panel-body" id="divForm">
@@ -37,6 +38,7 @@
                                 </div>
 
                                 <span class="col-md-12 text-center">
+                                    <a class="btn btn-danger" id="btnStopLoadHorario">Detener Carga</a>
                                     <a class="btn btn-info" id="btnLoadHorario">Cargar Horarios</a>
                                 </span>
                             </form>

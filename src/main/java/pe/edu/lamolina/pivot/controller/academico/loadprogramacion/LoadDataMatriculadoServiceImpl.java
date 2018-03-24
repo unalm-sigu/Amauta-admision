@@ -149,6 +149,16 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             Map<String, Seccion> mapSecciones,
             CicloAcademico ciclo, DataSessionPivot ds) {
 
+        if (matriSecc.getFechaFinProceso() != null) {
+            for (;;) {
+                long t1 = System.currentTimeMillis();
+                long t2 = matriSecc.getFechaFinProceso().getTime();
+                if (t1 - t2 > 5000) {
+                    break;
+                }
+            }
+        }
+
         int rr = getRandom();
         matriSecc.setFechaInicioProceso(new Date());
 

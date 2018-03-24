@@ -152,16 +152,16 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     @Async
     @Override
     @Transactional
-    public void procesarArchivos(Map<String, String> rutasFiles, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void inicioProcesarArchivos(Map<String, String> rutasFiles, CicloAcademico ciclo, DataSessionPivot ds) {
         try {
-            loadArchivosHorario222(rutasFiles, ciclo, ds);
+            procesarArchivos(rutasFiles, ciclo, ds);
         } catch (Exception e) {
             e.printStackTrace();
             visor.agregarLog("error", "error", "error: " + e.getLocalizedMessage(), false, "error");
         }
     }
 
-    private void loadArchivosHorario222(Map<String, String> mapRutaFiles, CicloAcademico ciclo, DataSessionPivot ds) {
+    private void procesarArchivos(Map<String, String> mapRutaFiles, CicloAcademico ciclo, DataSessionPivot ds) {
 
         visor.iniciar();
         logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
@@ -295,7 +295,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentesSecciones");
-        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
+        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -1286,42 +1286,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         return gpoSecciones;
     }
 
-    private String saveFile(MultipartFile[] files, String nombre) {
-        try {
-            System.out.println("buscando <<" + nombre + ">>");
-            MultipartFile file = null;
-            for (MultipartFile filex : files) {
-                String filename = filex.getOriginalFilename();
-                System.out.println("\tFilename: <<" + filename + ">>");
-                if (filename.equalsIgnoreCase(nombre)) {
-                    file = filex;
-                    break;
-                }
-            }
-            String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(file.getOriginalFilename());
-            FileHelper.createDirectory(Constantine.TMP_DIR);
-            String absoluteName = Constantine.TMP_DIR + fileName;
-
-            System.out.println("file size: " + file.getSize());
-            FileHelper.saveToDisk(file, absoluteName);
-            FileInputStream fis = new FileInputStream(absoluteName);
-            return absoluteName;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            throw new PhobosException("Archivo no puede ser guardado en el servidor");
-        }
-    }
-
     private String saveFile(MultipartFile file) {
         try {
             String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(file.getOriginalFilename());
             FileHelper.createDirectory(Constantine.TMP_DIR);
             String absoluteName = Constantine.TMP_DIR + fileName;
-
-            System.out.println("file size: " + file.getSize());
-            System.out.println("file name: " + file.getOriginalFilename());
             FileHelper.saveToDisk(file, absoluteName);
-            FileInputStream fis = new FileInputStream(absoluteName);
             return absoluteName;
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -1359,45 +1329,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         }
 
         return dato;
-    }
-
-    private BigDecimal getCellNumericValue(int pos, Row row) {
-        Cell cell = row.getCell(pos);
-        if (cell == null) {
-            return null;
-        }
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-            return new BigDecimal(cell.getNumericCellValue());
-        }
-
-        cell.setCellType(Cell.CELL_TYPE_STRING);
-        String dato = cell.getStringCellValue();
-        if (dato == null) {
-            return null;
-        }
-
-        dato = StringUtils.replaceChars(dato, '\t', ' ');
-        dato = StringUtils.replaceChars(dato, '\r', ' ');
-        dato = StringUtils.replaceChars(dato, '\n', ' ');
-        dato = StringUtils.replaceChars(dato, ',', ' ');
-        dato = StringUtils.replaceChars(dato, '|', ' ');
-        dato = StringUtils.replaceChars(dato, '´', '\'');
-        dato = dato.replaceAll("\\s{2,}", " ").trim();
-
-        if (dato.equals(".")) {
-            return BigDecimal.ZERO;
-        }
-        if (dato.equals("-")) {
-            throw new PhobosException("Valor de integer desconocido");
-        }
-        if (dato.equals(",")) {
-            return BigDecimal.ZERO;
-        }
-        if (StringUtils.isEmpty(dato)) {
-            return null;
-        }
-
-        return new BigDecimal(dato);
     }
 
     private Integer getCellIntegerValue(int pos, Row row) {
