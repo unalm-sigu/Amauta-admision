@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class VisorLoadProgramacion {
 
     private String ciclo;
-    private String proceso;
+    private boolean stop;
 
     private List<String> acciones;
     private List<String> errores;
@@ -28,14 +28,11 @@ public class VisorLoadProgramacion {
         this.procesos = new HashMap();
         this.grupos = new HashMap();
         this.ciclo = null;
+        this.stop = false;
     }
 
     public void setCiclo(String ciclo) {
         this.ciclo = ciclo;
-    }
-
-    public synchronized void setProceso(String proceso) {
-        this.proceso = proceso;
     }
 
     public synchronized void inicializar(String grupo, int cantidad) {
@@ -104,4 +101,13 @@ public class VisorLoadProgramacion {
 
         return info;
     }
+
+    public boolean isStop() {
+        return stop;
+    }
+
+    public void setStop(boolean stop) {
+        this.stop = stop;
+    }
+
 }

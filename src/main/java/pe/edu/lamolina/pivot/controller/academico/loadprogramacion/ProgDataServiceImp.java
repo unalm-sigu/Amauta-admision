@@ -897,17 +897,29 @@ public class ProgDataServiceImp implements ProgDataService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, GrupoSeccion> loadDataGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
         int loop = 0;
+        List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
+        Map<String, GrupoSeccion> mapGpoSeccionBD = TypesUtil.convertListToMap("codigo", gpoSeccionesBD);
+
         List<AnexoBoletin> anexosBD = anexoBoletinDAO.all();
         Map<String, GrupoSeccion> mapGpoSecciones = new LinkedHashMap();
         Map<String, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("codigo", anexosBD);
+
+        List<Curso> cursosBD = cursoDAO.all();
+        Map<String, Curso> mapCursoBD = TypesUtil.convertListToMap("codigo", cursosBD);
+
         for (GrupoSeccion gpoSecc : gruposSecciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+            
+            GrupoSeccion gpoSeccBD = mapGpoSeccionBD.get(gpoSecc.getCodigo());
+            Curso curso = mapCursoBD.get(gpoSecc.getCodigoCurso());
+            AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
 
             logger.debug("\tprocesando el gpoSecc {}", gpoSecc.getCodigo());
-            GrupoSeccion gpoSeccBD = grupoSeccionDAO.findByCodeCiclo(gpoSecc.getCodigo(), ciclo);
-            Curso curso = cursoDAO.findByCode(gpoSecc.getCodigoCurso());
-            AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
             logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
             logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
+
             if (gpoSeccBD == null) {
 
                 gpoSeccBD = new GrupoSeccion();
@@ -936,10 +948,10 @@ public class ProgDataServiceImp implements ProgDataService {
                 Curso cursoBD = gpoSeccBD.getCurso();
                 if (curso.getId() != cursoBD.getId().longValue()) {
                     visor.agregarLog("gpoSecc", "saveGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo()
-                            + " está relacionado al curso " + cursoBD.getCodigo() + " pero en la base de datos es " + curso.getCodigo(),
-                            true, "error-proceso");
+                            + " está relacionado al curso " + curso.getCodigo() + " pero en la base de datos es " + cursoBD.getCodigo(),
+                            false, "error-proceso");
                     String msg = String.format("El curso del grupo-seccion %s está relacionado al curso %s pero en la base de datos es %s",
-                            gpoSecc.getCodigo(), cursoBD.getCodigo(), curso.getCodigo());
+                            gpoSecc.getCodigo(), curso.getCodigo(), cursoBD.getCodigo());
                     throw new PhobosException(msg);
                 }
             }
@@ -960,6 +972,10 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, List<Seccion>> mapSeccionesPCUR = new LinkedHashMap();
         Map<String, Seccion> mapSeccionesTCUR = new LinkedHashMap();
         for (Seccion seccion : secciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+            
             seccion.setTipoSeccionEnum(TipoSeccionEnum.valueOf(seccion.getCodigoTipoSeccion()));
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
                 seccion.setVacantes(0);
@@ -988,6 +1004,10 @@ public class ProgDataServiceImp implements ProgDataService {
         }
 
         for (Map.Entry<String, Seccion> entry : mapSeccionesTCUR.entrySet()) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+            
             String gpoSeccCode = entry.getKey();
             Seccion seccionTCUR = entry.getValue();
             List<Seccion> seccionesPCUR = mapSeccionesPCUR.get(gpoSeccCode);
@@ -1147,6 +1167,10 @@ public class ProgDataServiceImp implements ProgDataService {
         int loop = 0;
         Map<String, DocenteSeccion> mapDocenteSecciones = new LinkedHashMap();
         for (DocenteSeccion profeSecc : docentesSecciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+            
             //logger.debug("\tprocesando el profe-seccion {}-{}", profeSecc.getCodigoDocente(), profeSecc.getCodigoSeccion());
             Seccion seccion = mapSecciones.get(profeSecc.getCodigoSeccion());
             Docente profe = mapDocentes.get(profeSecc.getCodigoDocente());
@@ -1226,11 +1250,19 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, Seccion> mapSecciones,
             CicloAcademico ciclo, DataSessionPivot ds) {
 
-        loadDataMatriculadoService.load(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
+        try {
+            loadDataMatriculadoService.load(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
 
-        Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
-        alumnoDAO.update(alumno);
-        System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
+            Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
+            alumnoDAO.update(alumno);
+            System.out.println("\talumno 222 " + alumno.getCodigo() + " desbloqueado en XYZ-loadDataMatriculados");
+
+        } catch (Exception e) {
+            visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + matriSecc.getCodigoAlumno() + "-" + matriSecc.getCodigoSeccion()
+                    + " produjo error: " + e.getLocalizedMessage(),
+                    false, "error-proceso");
+        }
+
     }
 
     private MatriculaCurso findMatriculaCurso(List<MatriculaCurso> alumnoCursos, Curso curso, int rr) {
@@ -1349,6 +1381,7 @@ public class ProgDataServiceImp implements ProgDataService {
             visor.agregarLog("aluRes", "revisarAluRes", "alumno " + alumno.getCodigo() + " queda como " + resumen.getEstado(), true, "info");
 
         } catch (Exception e) {
+            visor.agregarLog("aluRes", "revisarAluRes", "resumen " + aluResumen.getId() + " produjo el error: " + e.getLocalizedMessage(), false, "error-proceso");
             e.printStackTrace();
         }
     }
@@ -1358,6 +1391,10 @@ public class ProgDataServiceImp implements ProgDataService {
     public void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo) {
         Map<Long, Seccion> mapSecciones = new LinkedHashMap();
         for (Seccion seccion : secciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("\tprocesando la seccion {}", seccion.getCodigo());
             seccion.setMatriculados(seccion.getMatriculaSeccion().size());
             seccionDAO.update(seccion);
@@ -1367,6 +1404,10 @@ public class ProgDataServiceImp implements ProgDataService {
         List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
         visor.inicializar("seccBD", seccionesBD.size());
         for (Seccion secc : seccionesBD) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             Seccion seccion = mapSecciones.get(secc.getId());
             logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             visor.agregarLog("seccBD", "revisarSecc", "revisando seccion " + secc.getCodigo(), false, "info");

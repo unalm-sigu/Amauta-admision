@@ -223,6 +223,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
         Map<String, Persona> mapDNIPersonas = new LinkedHashMap();
         for (Persona persona : personasDB) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             if (persona.getTipoDocumento() != null && persona.getNumeroDocIdentidad() != null) {
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
             }
@@ -238,6 +242,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
         for (Persona persona : personas) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             if (mapIdPersonas.get(persona.getId()) == null) {
                 mapIdPersonas.put(persona.getId(), persona);
             }
@@ -361,6 +369,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long loop = 1;
         for (Docente docente : docentes) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("Guardando docente {} de {}", loop, docentes.size());
             Docente profe = mapDocentes.get(docente.getCodigo());
             if (profe != null) {
@@ -405,6 +417,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long loop = 1;
         for (Alumno alumno : alumnos) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
             Persona persona = alumno.getPersona();
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
@@ -438,6 +454,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long loop = 1;
         for (Persona persona : personas) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("Guardando persona {} de {}", loop, personas.size());
             visor.agregarLog("per", "savePersonas", "Guardando persona " + persona.getKey(), true, "info");
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
@@ -463,6 +483,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         visor.inicializar("aluRes", alumnosResumen.size());
         for (MatriculaResumen aluResumen : alumnosResumen) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
             progDataService.revisarAlumnoMatriculado(aluResumen, mapResumenes, mapBloqueados);
         }
 
@@ -473,6 +496,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         boolean verError = true;
         boolean iniciarTimer = false;
         for (;;) {
+
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             boolean salir = true;
             boolean ver = false;
             boolean errorVisto = false;
@@ -542,12 +570,19 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
         Map<String, MatriculaResumen> mapResumenes = new LinkedHashMap();
         for (MatriculaSeccion matriSecc : matriculasSecciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
             progDataService.loadDataMatriculados(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
         }
 
         long t1 = System.currentTimeMillis();
         int procesadosAntes = -1;
         for (;;) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             long t2 = System.currentTimeMillis();
             boolean salir = true;
             boolean ver = false;
@@ -623,6 +658,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 if (StringUtils.isEmpty(cicloCod)) {
                     break;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
                 }
 
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
@@ -710,6 +749,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 if (StringUtils.isEmpty(clave)) {
                     break;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
                 }
 
                 Seccion seccion = mapSecciones.get(clave);
@@ -816,6 +859,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 if (loop < 1) {
                     continue;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
                 }
 
                 String curCodigo = getCellStringValue(1, row);
