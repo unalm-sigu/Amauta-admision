@@ -20,8 +20,8 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+iter.count}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}" 
-                               th:value="${item.contenido}" 
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:value="${item.contenido}"
                                type="text"/>
 
                         <p th:id="${'erroropcion'+iter.count}"></p>
@@ -40,14 +40,14 @@
                     </td>
 
                     <!--<td class="v-middle">-->
-                        <!--a th:unless="${item.referencia}" class="addReferencia" href="#">Agregar</a>
-                        <a th:if="${item.referencia}"  class="addReferencia" href="#" th:title="${item.referencia.texto}"  th:inline="text">Preg. N° [[${item.referencia.numero}]]</a>
-                        <a th:if="${item.referencia}"  title="Remover Referencia" class="removerReferencia" href="#"><i class="fa fa-times" aria-hidden="true"></i></a>
-                        <input th:if="${item.referencia}"  class="itemReferencia" th:name="${'opcionPregunta['+iter.index+'].referencia.id'}" type="hidden" th:value="${item.referencia.id}" /-->
+                    <!--a th:unless="${item.referencia}" class="addReferencia" href="#">Agregar</a>
+                    <a th:if="${item.referencia}"  class="addReferencia" href="#" th:title="${item.referencia.texto}"  th:inline="text">Preg. N° [[${item.referencia.numero}]]</a>
+                    <a th:if="${item.referencia}"  title="Remover Referencia" class="removerReferencia" href="#"><i class="fa fa-times" aria-hidden="true"></i></a>
+                    <input th:if="${item.referencia}"  class="itemReferencia" th:name="${'opcionPregunta['+iter.index+'].referencia.id'}" type="hidden" th:value="${item.referencia.id}" /-->
                     <!--</td>-->
 
                     <td class="v-middle">
-                        <a class="btn btn-default btn-xs text-danger removerOpcion"  
+                        <a class="btn btn-default btn-xs text-danger removerOpcion"
                            title="Remover Opción" href="#">
                             <i class="fa fa-times text-danger" aria-hidden="true"></i>
                         </a>
@@ -61,7 +61,7 @@
                 <tr>
                     <th></th>
                     <th>
-                        <a class="btn btn-link btn-xs text-primary addOpcion"  
+                        <a class="btn btn-link btn-xs text-primary addOpcion"
                            title="Remover Opción" href="#">
                             Agregar Opción.
                         </a>
@@ -100,8 +100,8 @@
                         <input class="form-control"
                                required="true"
                                th:attr="data-parsley-errors-container=${'#erroropcion'+iter.count}"
-                               th:name="${'opcionPregunta['+iter.index+'].contenido'}" 
-                               th:value="${item.contenido}" 
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:value="${item.contenido}"
                                type="text"/>
 
                         <p th:id="${'erroropcion'+iter.count}"></p>
@@ -120,7 +120,7 @@
                     </td>
 
                     <td class="v-middle">
-                        <a class="btn btn-default btn-xs text-danger removerOpcion"  
+                        <a class="btn btn-default btn-xs text-danger removerOpcion"
                            title="Remover Opción" href="#">
                             <i class="fa fa-times text-danger" aria-hidden="true"></i>
                         </a>
@@ -134,7 +134,7 @@
                 <tr>
                     <th></th>
                     <th>
-                        <a class="btn btn-link btn-xs text-primary addOpcion"  
+                        <a class="btn btn-link btn-xs text-primary addOpcion"
                            title="Remover Opción" href="#">
                             Agregar Opción.
                         </a>
@@ -166,13 +166,13 @@
             </select>
         </div>
 
-        <input th:each="item,iter : ${pregunta.opcionPregunta}" 
+        <input th:each="item,iter : ${pregunta.opcionPregunta}"
                th:name="${'opcionPregunta['+iter.index+'].esMulti'}"
                value="1"
                type="hidden"/>
 
-        <input th:each="item,iter : ${pregunta.opcionPregunta}" 
-               th:name="${'opcionPregunta['+iter.index+'].contenido'}" 
+        <input th:each="item,iter : ${pregunta.opcionPregunta}"
+               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
                value="Nombre"
                type="hidden"/>
 
@@ -236,11 +236,24 @@
             </select>
         </div>
 
-        <input th:each="item,iter : ${pregunta.opcionPregunta}" 
-               th:name="${'opcionPregunta['+iter.index+'].contenido'}" 
+        <input th:each="item,iter : ${pregunta.opcionPregunta}"
+               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
                th:value="${iter.count}"
                type="hidden"/>
 
+    </div>
+
+    <div  id="grupoTipoLikert" class="form-group">
+        <label class="control-label col-sm-2" >Tipo Likert</label>
+        <div class="col-sm-2" >
+            <select name="tipoLikert.id"  id="grupoTipoLikertForm" class="form-control" >
+                <option></option>
+                <option th:each="item : ${tiposLikert}"
+                        th:value="${item.id}"
+                        th:selected="${pregunta.tipoLikert.id==item.id}"
+                        th:text="${item.grupo}"></option>
+            </select>
+        </div>
     </div>
 
 </div>

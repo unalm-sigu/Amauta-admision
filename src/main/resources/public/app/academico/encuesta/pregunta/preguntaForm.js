@@ -3,6 +3,8 @@ $(function() {
     var Pregunta = {
         init: function() {
 
+            Pregunta.allTiposLikert();
+
             $('#tipo').select2({
                 minimumResultsForSearch: -1,
                 allowClear: true
@@ -27,6 +29,8 @@ $(function() {
                     opciones = opciones + item3;
                 }
                 $('#placePregunta').append($(opciones));
+                console.log("cahnge likert inicioi");
+                Pregunta.showTiposByNum(limite);
             });
 
             $('#placePregunta').find('[name="multiple"]').select2({
@@ -83,6 +87,10 @@ $(function() {
                     return m;
                 }
             });
+
+            if (preguntaid) {
+                $("#grupoTipoLikertForm").select2({minimumResultsForSearch: -1, allowClear: true});
+            }
 
         },
         body: $('body'),
@@ -176,8 +184,11 @@ $(function() {
                         opciones = opciones + item3;
                     }
                     $('#placePregunta').append($(opciones));
-                });
 
+                    Pregunta.showTiposByNum(limite);
+                });
+                Pregunta.showTiposByNum(0);
+                console.log('tipo likert change');
                 return;
             }
 
@@ -209,8 +220,8 @@ $(function() {
                 var char = 'abcdefghijklmnopqrstuvwxyz';
 
                 $.each(parmForm, function(i, v) {
-                    console.log(i)
-                    console.log(v)
+                    //console.log(i)
+                    //console.log(v)
                     var names = v.name.split('.');
                     if (names.length > 1) {
                         var index = names[0].replace(/[\[\]']+/g, '');
@@ -227,6 +238,26 @@ $(function() {
                 });
 
                 parametros['opcionPregunta'] = opciones;
+
+                if (parametros.tipo) {
+                    if (parametros.tipo == 'LIKERT') {
+                        var lik = $('#placePregunta').find('[name="likertInicio"]').select2('val');
+                        if (lik != '') {
+                            var tipoLik = $("#grupoTipoLikertForm").val();
+                            if (tipoLik != '') {
+                                var tpo = Pregunta.tiposLikert.find(el => el.cant == lik);
+                                var opt = tpo.tipos.find(el => el.id == tipoLik);
+                                $.each(parametros['opcionPregunta'], function(i, v) {
+                                    var ooo = opt.opciones.find(el => el.peso == v.contenido);
+                                    v.contenido = ooo.opcion;
+                                    v.letra = ooo.peso;
+                                    console.log(v);
+                                });
+                            }
+                        }
+                    }
+                }
+
                 var html = $.templates("#templatePreview").render(parametros);
                 mimodal.find('.modal-body').html(html);
                 mimodal.find('.modal-body').find("select.select2single").select2({minimumResultsForSearch: -1});
@@ -341,6 +372,51 @@ $(function() {
             var tdParent = self.closest('td');
             var html = $.templates("#templateRemoveRef").render({});
             tdParent.html(html);
+        },
+        allTiposLikert: function() {
+            $.ajax({
+                url: APP.url('academico/encuesta/editor/pregunta/alltipolikert'),
+                type: 'POST',
+                async: false,
+                success: function(response) {
+                    if (response.success) {
+                        Pregunta.tiposLikert = response.data;
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                },
+                error: function() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        showTiposByNum: function(limite) {
+
+            $("#grupoTipoLikertForm").html($("<option/>"));
+            $("#grupoTipoLikertForm").select2('val', "");
+            $("#grupoTipoLikertForm").select2('destroy');
+            $("#grupoTipoLikertForm").select2({minimumResultsForSearch: -1, allowClear: true});
+
+            var opciones = '<option/>';
+
+            var cantidad = Pregunta.tiposLikert.length;
+            if (cantidad < 1) {
+                return;
+            }
+            var opt = Pregunta.tiposLikert.find(el => el.cant == limite);
+            if (!opt) {
+                return;
+            }
+
+            for (var i = 0; i < opt.tipos.length; i++) {
+                var item3 = '<option value="' + opt.tipos[i].id + '"   >' + opt.tipos[i].grupo + '</option>';
+                opciones = opciones + item3;
+            }
+
+            $("#grupoTipoLikertForm").html($(opciones));
+            $("#grupoTipoLikertForm").select2('destroy');
+            $("#grupoTipoLikertForm").select2({minimumResultsForSearch: -1, allowClear: true});
+
         }
     };
 

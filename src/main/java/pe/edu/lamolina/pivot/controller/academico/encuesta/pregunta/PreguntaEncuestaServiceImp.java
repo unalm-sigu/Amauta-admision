@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.codehaus.groovy.util.ListHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,7 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             throw new PhobosException("No puede modificar el contenido de una encuesta Activa o Inactiva");
         }
         ObjectUtil.eliminarAttrSinId(pregunta, "tema");
+        ObjectUtil.eliminarAttrSinId(pregunta, "tipoLikert");
         pregunta.setEstado(PreguntaEstadoEnum.ACT);
 
         PreguntaExamen preguntaTopNumero = preguntaExamenDAO.findMayorNumero(pregunta.getExamenVirtual());
@@ -103,19 +105,48 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
         ObjectUtil.eliminarAttrSinId(pregunta, "opcionReferencia");
         List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
 
+        List<OpcionLikert> opcionesLikert = opcionLikertDAO.allOpcionLikert();
+        Map<Long, List<OpcionLikert>> opcionesLikertMap = TypesUtil.convertListToMapList("tipoLikert.id", opcionesLikert);
+        List<OpcionLikert> opcionesOnlyLikert = null;
+        Map<Integer, OpcionLikert> opcionesOnlyLikertMap = null;
+        if (pregunta.getTipoEnum() == TipoPreguntaEncuestaEnum.LIKERT && pregunta.getTipoLikert() != null) {
+            opcionesOnlyLikert = opcionesLikertMap.get(pregunta.getTipoLikert().getId());
+            if (opcionesOnlyLikert != null) {
+                opcionesOnlyLikertMap = TypesUtil.convertListToMap("peso", opcionesOnlyLikert);
+            }
+        }
+
         for (OpcionPregunta opcion : opciones) {
             Integer indice = opciones.indexOf(opcion);
+            Integer idPeso = indice + 1;
+
             if (indice > 25) {
                 continue;
             }
             String letra = this.getChartFromInt(indice);
             opcion.setLetra(letra);
+            opcion.setContenido(this.updateContenido(opcion, pregunta, opcionesOnlyLikertMap, idPeso));
             opcion.setNumero(++indice);
             opcion.setPregunta(pregunta);
             opcion.setEstado(EstadoOpcionPreguntaEnum.ACT.name());
+            opcion.setPeso(idPeso);
             opcionPreguntaDAO.save(opcion);
         }
+    }
 
+    private String updateContenido(OpcionPregunta opcion, PreguntaExamen pregunta, Map<Integer, OpcionLikert> opcionesOnlyLikertMap, Integer idPeso) {
+        logger.debug("orden {}", idPeso);
+        logger.debug("pregunta {} {}", pregunta.getId(), pregunta.getTexto());
+        logger.debug("opcion {} {}", opcion.getId(), opcion.getContenido());
+        logger.debug("tipo  {}", pregunta.getTipoEnum());
+        if (pregunta.getTipoEnum() == TipoPreguntaEncuestaEnum.LIKERT && pregunta.getTipoLikert() != null && opcionesOnlyLikertMap != null) {
+            OpcionLikert opcionLikert = opcionesOnlyLikertMap.get(idPeso);
+            if (opcionLikert != null) {
+                logger.debug("cambiando valores a {}  {}", opcionLikert.getOpcion(), opcionLikert.getPeso());
+                opcion.setContenido(opcionLikert.getOpcion());
+            }
+        }
+        return opcion.getContenido();
     }
 
     private String getChartFromInt(int indice) {
@@ -131,11 +162,13 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             throw new PhobosException("No puede modificar el contenido de una encuesta Activa o Inactiva");
         }
         ObjectUtil.eliminarAttrSinId(pregunta, "tema");
+        ObjectUtil.eliminarAttrSinId(pregunta, "tipoLikert");
         PreguntaExamen preguntaBD = preguntaExamenDAO.find(pregunta.getId());
         preguntaBD.setTexto(pregunta.getTexto());
         preguntaBD.setTipo(pregunta.getTipo());
         preguntaBD.setTema(pregunta.getTema());
         preguntaBD.setOpcionReferencia(pregunta.getOpcionReferencia());
+        preguntaBD.setTipoLikert(pregunta.getTipoLikert());
         ObjectUtil.eliminarAttrSinId(preguntaBD, "opcionReferencia");
 
         preguntaExamenDAO.update(preguntaBD);
@@ -147,9 +180,21 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             preguntaBD.setRespuestaMultiple(1);
         }
 
+        List<OpcionLikert> opcionesLikert = opcionLikertDAO.allOpcionLikert();
+        Map<Long, List<OpcionLikert>> opcionesLikertMap = TypesUtil.convertListToMapList("tipoLikert.id", opcionesLikert);
+        List<OpcionLikert> opcionesOnlyLikert = null;
+        Map<Integer, OpcionLikert> opcionesOnlyLikertMap = null;
+        if (pregunta.getTipoEnum() == TipoPreguntaEncuestaEnum.LIKERT && pregunta.getTipoLikert() != null) {
+            opcionesOnlyLikert = opcionesLikertMap.get(pregunta.getTipoLikert().getId());
+            if (opcionesOnlyLikert != null) {
+                opcionesOnlyLikertMap = TypesUtil.convertListToMap("peso", opcionesOnlyLikert);
+            }
+        }
+
         List<OpcionPregunta> opciones = pregunta.getOpcionPregunta();
         for (OpcionPregunta opcion : opciones) {
             Integer indice = opciones.indexOf(opcion);
+            Integer idPeso = indice + 1;
             if (indice > 25) {
                 continue;
             }
@@ -157,19 +202,23 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             OpcionPregunta opcionBD = mapOpciones.get(letra);
 
             if (opcionBD == null) {
+                opcion.setContenido(this.updateContenido(opcion, pregunta, opcionesOnlyLikertMap, idPeso));
                 opcion.setLetra(letra);
                 opcion.setNumero(++indice);
                 opcion.setPregunta(preguntaBD);
                 opcion.setEstado(EstadoOpcionPreguntaEnum.ACT.name());
+                opcion.setPeso(idPeso);
                 opcionPreguntaDAO.save(opcion);
 
             } else {
+                opcion.setContenido(this.updateContenido(opcion, pregunta, opcionesOnlyLikertMap, idPeso));
                 opcionBD.setContenido(opcion.getContenido());
                 opcionBD.setEsCorrecta(opcion.getEsCorrecta());
                 opcionBD.setEsMulti(opcion.getEsMulti());
                 opcionBD.setEsOtro(opcion.getEsOtro());
                 opcionBD.setEsTexto(opcion.getEsTexto());
                 opcionBD.setRutaImagen(opcion.getRutaImagen());
+                opcionBD.setPeso(idPeso);
                 opcionPreguntaDAO.update(opcionBD);
 
                 opcionesBD.remove(opcionBD);
@@ -342,6 +391,14 @@ public class PreguntaEncuestaServiceImp implements PreguntaEncuestaService {
             tipos.add(tipo);
         }
         return tipos;
+    }
+
+    @Override
+    public List<TipoLikert> allTipoLikert(TipoLikert tipoLikert) {
+        if (tipoLikert == null) {
+            return new ArrayList();
+        }
+        return tipoLikertDAO.allByOpciones(tipoLikert.getOpciones());
     }
 
 }
