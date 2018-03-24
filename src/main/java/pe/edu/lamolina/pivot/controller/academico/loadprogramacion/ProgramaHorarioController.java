@@ -1,10 +1,15 @@
 package pe.edu.lamolina.pivot.controller.academico.loadprogramacion;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +40,8 @@ public class ProgramaHorarioController {
     EvaluacionExpandidaService evaluacionExpandidaService;
     @Autowired
     PlanCalificaCursoService planCalificaCursoService;
+    @Autowired
+    VisorLoadProgramacion visorLoadProgramacion;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -77,11 +84,13 @@ public class ProgramaHorarioController {
         JsonResponse json = new JsonResponse();
 
         try {
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.loadArchivosHorario(files, ds.getCicloAcademico(), ds);
+            Map<String, String> rutas = service.loadArchivosHorario(files);
+            service.procesarArchivos(rutas, ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
-            json.setMessage("carga satisfactoria");
+            json.setMessage("Archivos enviados satisfactoriamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);
@@ -162,5 +171,45 @@ public class ProgramaHorarioController {
         }
 
     }
-    
+
+    @ResponseBody
+    @RequestMapping("logVisor")
+    public JsonResponse logVisor(Model model, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            List<String> logs = visorLoadProgramacion.reporte();
+            for (String log : logs) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                String[] data = log.split("::::");
+
+                if (data.length > 1) {
+                    node.put("tipo", data[0]);
+                    node.put("info", data[1]);
+                } else {
+                    node.put("tipo", "info");
+                    node.put("info", log);
+                }
+                array.add(node);
+
+            }
+
+            json.setData(array);
+            json.setSuccess(true);
+            json.setMessage("carga satisfactoria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+
+        } finally {
+            return json;
+        }
+
+    }
+
 }

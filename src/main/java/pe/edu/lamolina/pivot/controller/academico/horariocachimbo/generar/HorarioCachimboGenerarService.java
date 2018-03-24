@@ -60,7 +60,8 @@ public interface HorarioCachimboGenerarService {
     void permutarUnico(
             int ordenCurso, int ordenSeccion,
             List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
-            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera);
+            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera,
+            Map<Long, Seccion> mapSeccionesAlumno, Map<Long, Curso> mapCursosAlumno);
 
     void generarHorario(CicloAcademico ciclo, ModalidadEstudio modalidad, DataSessionPivot ds, List<AlumnoHorario> alumnos);
 

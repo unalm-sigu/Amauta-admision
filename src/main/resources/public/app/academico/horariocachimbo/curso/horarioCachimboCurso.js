@@ -67,7 +67,7 @@ Vue.component("dynatable", {
             dynatable = $('#dynaTable').dynatable({
                 dataset: {
                     ajaxUrl: APP.url('academico/horariocachimbo/curso/list'),
-                    perPageDefault: 8,
+                    perPageDefault: 10,
                     ajaxData: {id: $vue.curso},
                 },
                 writers: {_rowWriter: $vue.writter},
