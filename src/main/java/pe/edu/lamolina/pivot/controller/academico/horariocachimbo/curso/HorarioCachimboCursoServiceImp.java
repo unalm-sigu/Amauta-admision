@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.horariocachimbo.curso;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -19,6 +18,7 @@ import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
@@ -26,8 +26,10 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
@@ -38,6 +40,7 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionCursoCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
@@ -70,6 +73,8 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
     SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
     @Autowired
     CarreraCachimbosDAO carreraCachimbosDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
 
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -79,6 +84,9 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
 
         List<CarreraCachimbos> carrerasCachimbos = carreraCachimbosDAO.allByCicloAcademico(cicloAcademico);
         List<SeccionCursoCachimbos> seccionesCachimbos = seccionCursoCachimbosDAO.allByCursoCachimbos(cursosCachimbosVer);
+        List<AlumnoHorario> alumnosHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+        List<Alumno> alumnos = alumnosHorarios.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculadosCurso = matriculaCursoDAO.allByAlumnosCursosCiclo(alumnos, cursos, cicloAcademico);
 
         Map<Long, CarreraCachimbos> mapCarrerasCachimbos = TypesUtil.convertListToMap("carrera.id", carrerasCachimbos);
         Map<Long, List<SeccionCursoCachimbos>> mapSeccionesCachimbos = TypesUtil.convertListToMapList("cursoCachimbos.id", seccionesCachimbos);
@@ -87,14 +95,15 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
 
         for (CursoCachimbos cursoCachimbo : cursosCachimbos) {
             CarreraCachimbos carreraChm = mapCarrerasCachimbos.get(cursoCachimbo.getCarrera().getId());
-            cursoCachimbo.setDemanda(carreraChm.getSinHorario());
+            Integer matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carreraChm.getCarrera());
+            cursoCachimbo.setDemanda(carreraChm.getSinHorario() - matriculadosCarrera);
 
             Integer oferta = 0;
             List<SeccionCursoCachimbos> seccionesChm = mapSeccionesCachimbos.get(cursoCachimbo.getId());
             seccionesChm = (seccionesChm == null) ? new ArrayList() : seccionesChm;
             for (SeccionCursoCachimbos seccionChm : seccionesChm) {
                 if (seccionChm.getSeccion().getTipoSeccionEnum() != TipoSeccionEnum.TCUR) {
-                    oferta += seccionChm.getSeccion().getDisponiblesCachimbos();
+                    oferta += seccionChm.getSeccion().getVacantesDisponibles();
                 }
             }
             cursoCachimbo.setOferta(oferta);
@@ -104,7 +113,8 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
             List<Carrera> carreras = mapCarreras.get(curso.getId());
             for (Carrera carrera : carreras) {
                 CarreraCachimbos carreraChmx = mapCarrerasCachimbos.get(carrera.getId());
-                demandaTotal += carreraChmx.getSinHorario();
+                matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carrera);
+                demandaTotal += carreraChmx.getSinHorario() - matriculadosCarrera;
             }
             cursoCachimbo.setDemandaTotal(demandaTotal);
 
@@ -119,7 +129,7 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
                     continue;
                 }
                 if (seccion.getTipoSeccionEnum() != TipoSeccionEnum.TCUR) {
-                    ofertaTotal += seccion.getDisponiblesCachimbos();
+                    ofertaTotal += seccion.getVacantesDisponibles();
                 }
                 mapSecciones.put(seccion.getId(), seccion.getId());
             }
@@ -127,6 +137,20 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
         }
 
         return cursosCachimbos;
+    }
+
+    private Integer countMatriculados(List<MatriculaCurso> matriculadosCurso, Curso curso, Carrera carrera) {
+        Integer conteo = 0;
+        for (MatriculaCurso matriculaCurso : matriculadosCurso) {
+            Carrera carr = matriculaCurso.getMatriculaResumen().getAlumno().getCarrera();
+            Curso cur = matriculaCurso.getCurso();
+            if (curso.getId() == cur.getId().longValue()
+                    && carrera.getId() == carr.getId().longValue()
+                    && matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                conteo++;
+            }
+        }
+        return conteo;
     }
 
     @Override

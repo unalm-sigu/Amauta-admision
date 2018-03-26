@@ -28,7 +28,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
     public List<AlumnoHorario> allByCicloAcademico(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AlumnoHorario.class, "ah")
-                .join("cicloAcademico ciclo ", "alumno alu")
+                .join("cicloAcademico ciclo ", "alumno alu", "alu.carrera")
                 .leftJoin("horarioCachimbos hoca")
                 .filter("ciclo.id", cicloAcademico);
         return sql.all(getCurrentSession());
