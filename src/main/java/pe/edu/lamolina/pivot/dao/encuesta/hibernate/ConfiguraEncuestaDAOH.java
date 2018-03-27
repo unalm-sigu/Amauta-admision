@@ -1,8 +1,5 @@
 package pe.edu.lamolina.pivot.dao.encuesta.hibernate;
 
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -45,6 +42,15 @@ public class ConfiguraEncuestaDAOH extends AbstractEasyDAO<ConfiguraEncuesta> im
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ca")
                 .filter("en.id", encuesta)
                 .filter("ca.id", ciclo);
+        return find(sql);
+    }
+
+    @Override
+    public ConfiguraEncuesta findConfiguraEncuestaByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil) {
+        Octavia sql = Octavia.query()
+                .from(ConfiguraEncuesta.class, "ce")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ca")
+                .filter("ee.id", encuestaEstudiantil);
         return find(sql);
     }
 
