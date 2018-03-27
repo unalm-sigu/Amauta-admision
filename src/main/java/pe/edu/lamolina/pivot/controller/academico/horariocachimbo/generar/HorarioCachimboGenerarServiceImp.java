@@ -486,7 +486,8 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                             mapCursos.put(curso.getId(), curso);
                         }
                     }
-                    if (cursos.size() == mapCursos.size()) {
+                    //if (cursos.size() == mapCursos.size()) {
+                    if (cursosExisten(cursos, mapCursos)) {
                         conHorario = true;
                         break;
                     }
@@ -519,6 +520,16 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 break;
             }
         }
+    }
+
+    private boolean cursosExisten(List<Curso> cursos, Map<Long, Curso> mapCursos) {
+        for (Curso curso : cursos) {
+            Curso cur = mapCursos.get(curso.getId());
+            if (cur == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private Map<Long, List<Seccion>> createMapSeccionesCarrera(

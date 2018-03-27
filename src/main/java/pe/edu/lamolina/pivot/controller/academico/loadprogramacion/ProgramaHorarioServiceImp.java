@@ -883,6 +883,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 Curso curso = new Curso();
                 curso.setCodigo(curNuevo);
+                curso.setNombre(nombre);
                 curso.setCreditos(Integer.parseInt(curCredit));
                 curso.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
                 curso.setCodigoAnterior1(curCodigo);
@@ -900,7 +901,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 cursoDAO.save(curso);
                 mapCursos.put(curso.getCodigo(), curso);
-                visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " guardado", true, "info");
+                visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " nuevo guardado", true, "info");
             }
 
         } catch (FileNotFoundException ex) {
@@ -930,6 +931,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String codigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(codigo)) {
+                    break;
+                }
+
                 String codigoEspecialidad = getCellStringValue(2, row);
                 String codigoPostgrado = getCellStringValue(3, row);
                 String situacion = getCellStringValue(4, row);
@@ -951,10 +956,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String telefono = getCellStringValue(22, row);
                 String ubigeoDomicilio = getCellStringValue(24, row);
                 String domicilio = getCellStringValue(25, row);
-
-                if (StringUtils.isEmpty(codigo)) {
-                    break;
-                }
 
                 if (StringUtils.isEmpty(tipoDocumento)) {
                     tipoDocumento = "DNI";
@@ -1013,13 +1014,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String ciclo = getCellStringValue(1, row);
-                String codigoAlumno = getCellStringValue(2, row);
-                String codigoSeccion = getCellStringValue(3, row);
-                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
-
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
+
+                String codigoAlumno = getCellStringValue(2, row);
+                String codigoSeccion = getCellStringValue(3, row);
+                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
 
                 MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion, creditos);
                 matriculasSecciones.add(alumnoSecc);
@@ -1146,6 +1147,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String paterno = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(paterno)) {
+                    break;
+                }
+
                 String materno = getCellStringValue(2, row);
                 String nombres = getCellStringValue(3, row);
                 String tipoDoc = getCellStringValue(4, row);
@@ -1161,10 +1166,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String telefono = getCellStringValue(14, row);
                 String ubigeoDomicilio = getCellStringValue(16, row);
                 String domicilio = getCellStringValue(17, row);
-
-                if (StringUtils.isEmpty(paterno)) {
-                    break;
-                }
 
                 if (StringUtils.isEmpty(tipoDoc)) {
                     tipoDoc = "DNI";
@@ -1229,6 +1230,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Integer matriculados = getCellIntegerValue(11, row);
 
                 Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
+                System.out.println(seccion.getCodigo() + " vacantes: " + seccion.getVacantes());
+                System.out.println("\t" + " matriculados: " + seccion.getMatriculados());
                 secciones.add(seccion);
             }
             logger.debug("Se han leido un total de {} secciones", loop);
