@@ -9,7 +9,17 @@
             <div  id="main">
 
                 <header class="header b-b padder-lg">
+
+                    <button
+                        v-bind:disabled="generando"
+                        class="btn btn-primary pull-right"
+                        v-on:click="generarEncuesta"   >
+                        <i class="fa fa-spinner fa-spin" v-if="generando" aria-hidden="true"></i>
+                        Generar Encuesta
+                    </button>
+
                     <h2 th:inline="text">Encuestas de Docente  [[${cicloAcademico.descripcion}]] </h2>
+
                 </header>
 
                 <section class="wrapper-lg">
