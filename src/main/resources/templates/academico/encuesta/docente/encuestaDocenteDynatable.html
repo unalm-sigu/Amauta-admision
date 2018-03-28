@@ -11,6 +11,7 @@
                     <th class="col-md-2 text-center v-middle">Alumnos</th>
                     <th class="col-md-1 text-center v-middle">Encuesta</th>
                     <th class="col-md-1 text-center v-middle">Estado</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="dynaTbody"></tbody>
@@ -26,10 +27,13 @@
         <td class="v-middle">
             <div class="v-middle">
                 <a href="#"><span class="block text-primary bold detallePostulante" >{{encuestaDocente.nombre}}</span></a>
-                <span class="block">
+                <small class="block  text-muted">
                     Código: {{encuestaDocente.codigo}}
-                </span>
-                <small v-if="nroDocumento" class="block bold">{{encuestaDocente.tipoDoc}} {{encuestaDocente.nroDocumento}}</small>
+                </small>
+                <small v-if="encuestaDocente.nroDocumento!=='' " class="block text-muted">{{encuestaDocente.tipoDoc}} {{encuestaDocente.nroDocumento}}</small>
+                <small class="block  text-muted">
+                    {{encuestaDocente.cursoCodigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{encuestaDocente.tpc}} &nbsp;
+                </small>
             </div>
         </td>
 
@@ -58,6 +62,20 @@
             <span  v-if="encuestaDocente.estado=='ACT' " class="label label-success">{{encuestaDocente.estadoEnum}}</span>
             <span  v-if="encuestaDocente.estado=='INA' " class="label label-default">{{encuestaDocente.estadoEnum}}</span>
             <span  v-if="encuestaDocente.estado=='TEO' " class="label label-default">{{encuestaDocente.estadoEnum}}</span>
+        </td>
+
+
+        <td class="v-middle">
+            <div class="actions">
+                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
+                <ul class="dropdown-menu pull-right">
+
+                    <li   v-if="encuestaDocente.estado=='ACT' "><a   v-on:click.prevent="estado(encuestaDocente)" href="#">Desactivar</a></li>
+                    <li   v-if="encuestaDocente.estado=='INA' "><a   v-on:click.prevent="estado(encuestaDocente)" href="#">Activar</a></li>
+                    <li   v-if="encuestaDocente.estado=='TEO' "><a  v-on:click.prevent="estado(encuestaDocente)" href="#">Activar</a></li>
+
+                </ul>
+            </div>
         </td>
 
     </tr>

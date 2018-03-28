@@ -75,6 +75,7 @@ public class EncuestaDocenteController {
                 node.put("seccion", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.codigo"));
                 node.put("grupoSeccion", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.codigo"));
                 node.put("curso", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.curso.nombre"));
+                node.put("cursoCodigo", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.curso.codigo"));
                 node.put("tpc", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.curso.tpc"));
 
                 node.put("examen", (String) ObjectUtil.getParentTree(enDocente, "encuestaEstudiantil.encuesta.nombre"));
@@ -114,6 +115,26 @@ public class EncuestaDocenteController {
         }
         return response;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("estado")
+    public JsonResponse estado(EncuestaDocente encuesta, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cambiarEstadoEncuesta(encuesta, ds);
+            response.setMessage("Registro actualizado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

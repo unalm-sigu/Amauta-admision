@@ -13,4 +13,6 @@ public interface EncuestaDocenteDAO extends EasyDAO<EncuestaDocente> {
 
     public List<EncuestaDocente> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil);
 
+    public EncuestaDocente findEncuestaDocente(EncuestaDocente encuestaForm);
+
 }

@@ -4,6 +4,9 @@ var DynatableRow = Vue.component("dynatableRow", {
         return {encuestaDocente: {}};
     },
     methods: {
+        estado: function(encuestaDocente) {
+            $global.$emit("estado", encuestaDocente);
+        }
     }
 });
 
