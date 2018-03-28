@@ -1,6 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.encuesta.docente;
 
-import java.util.ArrayList;
+import com.google.common.base.Strings;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,7 +20,6 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -84,13 +83,14 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByCiclo(cicloAcademico);
-
+        Map<Long, List<MatriculaSeccion>> matriculaSeccionPorSeccion = TypesUtil.convertListToMapList("seccion.id", matriculaSeccions);
         logger.debug("matriculaSeccions {}", matriculaSeccions.size());
-        Map<Long, List<MatriculaSeccion>> matriculaSeccionMap = TypesUtil.convertListToMapList("seccion.id", matriculaSeccions);
 
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allDocenteSeccionByModalidad(cicloAcademico, modalidad);
+        Map<Long, List<DocenteSeccion>> docenteSeccionPorSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccions);
+        Map<Long, List<DocenteSeccion>> docenteSeccionPorGrupo = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", docenteSeccions);
+        logger.debug("docenteSeccions {}", docenteSeccions.size());
 
-        Map<Long, List<DocenteSeccion>> docenteSeccionMap = TypesUtil.convertListToMapList("seccion.id", docenteSeccions);
         EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.allByCicloTipo(cicloAcademico, modalidad, TipoExamenVirtualEnum.ENC_DOC);
         if (encuestaEstudiantil == null) {
             throw new PhobosException("No existe ninguna encuesta activa");
@@ -100,31 +100,31 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             throw new PhobosException("No esta configurada la encuesta activa");
         }
 
-        Long cantidadMaximaDocentes = configuraEncuesta.getCantidadMaximaDocentes();
-        Long cantidadMinimaAlumnos = configuraEncuesta.getCantidadMinimaAlumnos();
-        logger.debug("cantidadMaximaDocentes {} cantidadMinimaAlumnos {}", cantidadMaximaDocentes, cantidadMinimaAlumnos);
+        Long maximoDocentes = configuraEncuesta.getCantidadMaximaDocentes();
+        Long minimoAlumnos = configuraEncuesta.getCantidadMinimaAlumnos();
+        logger.debug("cantidadMaximaDocentes {} cantidadMinimaAlumnos {}", maximoDocentes, minimoAlumnos);
 
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
         Map<Long, Curso> cursoSinEncuestaMap = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
 
         List<EncuestaDocente> encuestaDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
-        Map<Long, EncuestaDocente> encuestaDocenteSeccionMap = TypesUtil.convertListToMap("docenteSeccion.id", encuestaDocentes);
-        Map<Long, Map<Long, Seccion>> grupoSeccionMap = new LinkedHashMap();
+        Map<Long, EncuestaDocente> encuestaDocenteSeccionPorDocenteSeccion = TypesUtil.convertListToMap("docenteSeccion.id", encuestaDocentes);
+        Map<Long, Map<Long, Seccion>> grupoSeccionPorGrupo = new LinkedHashMap();
 
         for (DocenteSeccion docenteSeccion : docenteSeccions) {
             Seccion seccion = docenteSeccion.getSeccion();
             GrupoSeccion grupo = seccion.getGrupoSeccion();
-            Map<Long, Seccion> seccionMap = grupoSeccionMap.get(grupo.getId());
+            Map<Long, Seccion> seccionMap = grupoSeccionPorGrupo.get(grupo.getId());
             if (seccionMap == null) {
                 seccionMap = new ListHashMap<>();
             }
-            seccionMap.put(grupo.getId(), seccion);
-            grupoSeccionMap.put(grupo.getId(), seccionMap);
+            seccionMap.put(seccion.getId(), seccion);
+            grupoSeccionPorGrupo.put(grupo.getId(), seccionMap);
         }
 
         for (DocenteSeccion docenteSeccion : docenteSeccions) {
 
-            EncuestaDocente sd = encuestaDocenteSeccionMap.get(docenteSeccion.getId());
+            EncuestaDocente sd = encuestaDocenteSeccionPorDocenteSeccion.get(docenteSeccion.getId());
             if (sd != null) {
                 continue;
             }
@@ -142,14 +142,20 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             EncuestaDocente encuestaDocente = new EncuestaDocente();
             encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.ACT);
 
-            Map<Long, Seccion> seccionMap = grupoSeccionMap.get(grupo.getId());
+            Map<Long, Seccion> seccionMap = grupoSeccionPorGrupo.get(grupo.getId());
             if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                Docente docenteTeoria = this.getDocenteTeoria(seccionMap, docenteSeccionMap);
+                Docente docenteTeoria = this.getDocenteTeoria(seccionMap, docenteSeccionPorSeccion);
                 //logger.debug("grupo {} TipoSeccion {} docente {} docente teoria {} ", grupo.getId(), seccion.getTipoSeccion(), docente.getId(), docenteTeoria.getId());
                 if (docenteTeoria.getId() == docente.getId().longValue()) {
                     encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.TEO);
                 }
             }
+            boolean cumpleCantMaxDocs = this.validarCantidadMaximaDocentes(grupo, maximoDocentes, docenteSeccionPorGrupo);
+            if (cumpleCantMaxDocs) {
+                //logger.debug("no cumple requisito de maximo docentes");
+                encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
+            }
+
             Date fechaFinSeccion = docenteSeccion.getFechaFin();
             if (fechaFinSeccion != null) {
                 Date fechaInicio = new Date(fechaFinSeccion.getTime() - 14 * DAYSINMS);
@@ -167,15 +173,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             encuestaDocente.setFechaEncuesta(new Date());
             encuestaDocenteDAO.save(encuestaDocente);
 
-            encuestaDocenteSeccionMap.put(docenteSeccion.getId(), encuestaDocente);
-            List<EncuestaAlumno> encuestados = new ArrayList();
-            if (encuestaDocente.getEstadoEnum() != EncuestaDocenteEstadoEnum.TEO) {
-                this.makeEncuestaAlumno(matriculaSeccionMap, encuestaDocente, seccion, ds, encuestados);
-                if (encuestados.size() < cantidadMinimaAlumnos) {
-                    logger.debug(" encuestados {} cantidadMinimaAlumnos {} ", encuestados.size(), cantidadMinimaAlumnos);
-                    encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
-                    encuestaDocenteDAO.update(encuestaDocente);
-                }
+            if (encuestaDocente.getEstadoEnum() == EncuestaDocenteEstadoEnum.ACT) {
+                this.makeEncuestaAlumno(matriculaSeccionPorSeccion, encuestaDocente, seccion, ds, minimoAlumnos);
             }
         }
     }
@@ -206,25 +205,94 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         return new Docente(0);
     }
 
-    private void makeEncuestaAlumno(Map<Long, List<MatriculaSeccion>> matriculaSeccionMap, EncuestaDocente encuestaDocente, Seccion seccion, DataSessionPivot ds, List<EncuestaAlumno> encuestados) {
+    private void makeEncuestaAlumno(Map<Long, List<MatriculaSeccion>> matriculaSeccionMap, EncuestaDocente encuestaDocente, Seccion seccion, DataSessionPivot ds, Long minimoAlumnos) {
 
         List<MatriculaSeccion> matriculaSeccion = matriculaSeccionMap.get(seccion.getId());
-
         if (matriculaSeccion == null) {
+            logger.debug("no cumple requisito de minimo alumnos");
+            encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
+            encuestaDocenteDAO.update(encuestaDocente);
             return;
         }
-
-        for (MatriculaSeccion ms : matriculaSeccion) {
+        Map<Long, Alumno> alumnos = TypesUtil.convertListToMap("matriculaResumen.alumno.id", "matriculaResumen.alumno", matriculaSeccion);
+        if (alumnos == null || alumnos.isEmpty()) {
+            logger.debug("no cumple requisito de minimo alumnos");
+            encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
+            encuestaDocenteDAO.update(encuestaDocente);
+            return;
+        }
+        if (alumnos.size() < minimoAlumnos) {
+            logger.debug("no cumple requisito de minimo alumnos");
+            encuestaDocente.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
+            encuestaDocenteDAO.update(encuestaDocente);
+            return;
+        }
+        for (Alumno alumno : alumnos.values()) {
             EncuestaAlumno encuesta = new EncuestaAlumno();
-            MatriculaResumen mr = ms.getMatriculaResumen();
-            Alumno alumno = mr.getAlumno();
             encuesta.setAlumno(alumno);
             encuesta.setEncuestaDocente(encuestaDocente);
             encuesta.setEstadoEnum(EncuestaAlumnoEstadoEnum.ACT);
             encuesta.setUserRegistro(ds.getUsuario());
             encuesta.setFechaRegistro(new Date());
             encuestaAlumnoDAO.save(encuesta);
-            encuestados.add(encuesta);
+        }
+
+        encuestaDocente.setAlumnosInicio(new Long(alumnos.size()));
+        encuestaDocente.setAlumnosEncuestados(new Long(alumnos.size()));
+        encuestaDocenteDAO.update(encuestaDocente);
+    }
+
+    private boolean validarCantidadMaximaDocentes(GrupoSeccion grupo,
+            Long maximoDocentes, Map<Long, List<DocenteSeccion>> docenteSeccionPorGrupo) {
+        List<DocenteSeccion> docentesSeccion = docenteSeccionPorGrupo.get(grupo.getId());
+        if (docentesSeccion == null || docentesSeccion.isEmpty()) {
+            logger.debug("??? debe existir un docente en este grupo {} ", grupo.getId());
+            return true;
+        }
+        Map<Long, Docente> docentes = new LinkedHashMap();
+        for (DocenteSeccion docenteSeccion : docentesSeccion) {
+            Docente docente = docenteSeccion.getDocente();
+            docentes.put(docente.getId(), docente);
+        }
+        //logger.debug("grupo {} docenetes en el grupo {} ", grupo.getId(), docentes.size());
+        if (docentes.size() > maximoDocentes) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm, DataSessionPivot ds) {
+
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        EncuestaDocente encuesta = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
+
+        if (Strings.isNullOrEmpty(encuesta.getEstado())) {
+            encuesta.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
+        }
+
+        if (encuesta.getEstadoEnum() == EncuestaDocenteEstadoEnum.ACT
+                || encuesta.getEstadoEnum() == EncuestaDocenteEstadoEnum.TEO) {
+
+            encuesta.setEstadoEnum(EncuestaDocenteEstadoEnum.INA);
+
+            List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuesta);
+            for (EncuestaAlumno encuestaAlumno : encuestas) {
+                encuestaAlumno.setEstadoEnum(EncuestaAlumnoEstadoEnum.INA);
+                encuestaAlumnoDAO.update(encuestaAlumno);
+            }
+            return;
+        }
+
+        encuesta.setEstadoEnum(EncuestaDocenteEstadoEnum.ACT);
+        List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuesta);
+        if (encuestas.size() < 1) {
+            throw new PhobosException("No existe encuestas para el docente ");
+        }
+        for (EncuestaAlumno encuestaAlumno : encuestas) {
+            encuestaAlumno.setEstadoEnum(EncuestaAlumnoEstadoEnum.ACT);
+            encuestaAlumnoDAO.update(encuestaAlumno);
         }
 
     }
