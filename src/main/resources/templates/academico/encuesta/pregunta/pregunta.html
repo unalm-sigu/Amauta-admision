@@ -1,0 +1,76 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Encuesta Pregunta</title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+
+            <div  id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <a class="btn btn-default pull-right" th:href="@{/academico/encuesta/editor}" >Regresar</a>
+
+                    <h2 th:inline="text"> [[${encuesta.nombre}]]   <b>[[${encuesta.codigo}]]</b>   [[${cicloAcademico.descripcion}]] </h2>
+
+                    <input type="hidden" name="encuesta.id" th:value="${encuesta.id}" />
+
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <div th:if="${encuesta.estado=='CRE'}" class="m-b-xl"  id="headDynatable">
+                                <a class="btn btn-info btn-sm" th:href="@{'/academico/encuesta/editor/pregunta/'+${encuesta.id}+'/nuevo'}" >Nueva Pregunta</a>
+                            </div>
+
+                            <table  id="dynaTable" class="table table-striped">
+                                <thead class="panel panel-heading">
+                                    <tr>
+                                        <th></th>
+                                        <th class="col-md-1 text-center v-middle">Número</th>
+                                        <th class="col-md-7 v-middle">Contenido</th>
+                                        <th class="col-md-1 text-center v-middle">Opciones</th>
+                                        <th class="col-md-2 text-center v-middle">Depende de</th>
+                                        <th class="col-md-1 text-center v-middle">Estado</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+
+
+            </div>
+
+
+            <script id="templatePreview" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuesta/pregunta/preview"></div>
+            </script>
+
+            <script id="preguntaTemplate" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuesta/pregunta/preguntaTemplate"/>
+            </script>
+
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <script th:src="@{/app/academico/encuesta/pregunta/pregunta.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
+
+

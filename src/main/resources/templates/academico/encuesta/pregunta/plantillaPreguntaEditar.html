@@ -1,0 +1,274 @@
+<div  th:if="${pregunta.tipo=='SIMPLE'}">
+    <div class="col-xs-10 col-sm-offset-2 m-t-md m-b-md">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-md-1"></th>
+                    <th class="col-md-9">Opción</th>
+                    <th class="col-md-2">Otro</th>
+                    <!--<th class="col-md-1">Referencia</th>-->
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item,iter : ${pregunta.opcionPregunta}">
+
+                    <td class="v-middle bold" th:text="|${'abcdefghijklmnopqrstuvwxyz'.charAt(iter.index)} )|"></td>
+
+                    <td class="v-middle">
+                        <input class="form-control"
+                               required="true"
+                               th:attr="data-parsley-errors-container=${'#erroropcion'+iter.count}"
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:value="${item.contenido}"
+                               type="text"/>
+
+                        <p th:id="${'erroropcion'+iter.count}"></p>
+
+                    </td>
+
+                    <td class="v-middle">
+
+                        <input th:attr="data-parsley-errors-container=${'#errorotro'+iter.count}"
+                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               th:checked="${item.esOtro}"
+                               type="checkbox" value="1"/>
+
+                        <p th:id="${'errorotro'+iter.count}"></p>
+
+                    </td>
+
+                    <!--<td class="v-middle">-->
+                    <!--a th:unless="${item.referencia}" class="addReferencia" href="#">Agregar</a>
+                    <a th:if="${item.referencia}"  class="addReferencia" href="#" th:title="${item.referencia.texto}"  th:inline="text">Preg. N° [[${item.referencia.numero}]]</a>
+                    <a th:if="${item.referencia}"  title="Remover Referencia" class="removerReferencia" href="#"><i class="fa fa-times" aria-hidden="true"></i></a>
+                    <input th:if="${item.referencia}"  class="itemReferencia" th:name="${'opcionPregunta['+iter.index+'].referencia.id'}" type="hidden" th:value="${item.referencia.id}" /-->
+                    <!--</td>-->
+
+                    <td class="v-middle">
+                        <a class="btn btn-default btn-xs text-danger removerOpcion"
+                           title="Remover Opción" href="#">
+                            <i class="fa fa-times text-danger" aria-hidden="true"></i>
+                        </a>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th>
+                        <a class="btn btn-link btn-xs text-primary addOpcion"
+                           title="Remover Opción" href="#">
+                            Agregar Opción.
+                        </a>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div  th:if="${pregunta.tipo=='RPTA_MULTIPLE'}">
+    <div class="col-xs-10 col-sm-offset-2 m-t-md m-b-md">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-md-1"></th>
+                    <th class="col-md-9">Opción</th>
+                    <th class="col-md-2">Otro</th>
+                    <!--<th class="col-md-1">Referencia</th>-->
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item,iter : ${pregunta.opcionPregunta}">
+
+                    <td class="v-middle bold" th:text="|${'abcdefghijklmnopqrstuvwxyz'.charAt(iter.index)} )|"></td>
+
+                    <td class="v-middle">
+                        <input class="form-control"
+                               required="true"
+                               th:attr="data-parsley-errors-container=${'#erroropcion'+iter.count}"
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               th:value="${item.contenido}"
+                               type="text"/>
+
+                        <p th:id="${'erroropcion'+iter.count}"></p>
+
+                    </td>
+
+                    <td class="v-middle">
+
+                        <input th:attr="data-parsley-errors-container=${'#errorotro'+iter.count}"
+                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               th:checked="${item.esOtro}"
+                               type="checkbox" value="1"/>
+
+                        <p th:id="${'errorotro'+iter.count}"></p>
+
+                    </td>
+
+                    <td class="v-middle">
+                        <a class="btn btn-default btn-xs text-danger removerOpcion"
+                           title="Remover Opción" href="#">
+                            <i class="fa fa-times text-danger" aria-hidden="true"></i>
+                        </a>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th>
+                        <a class="btn btn-link btn-xs text-primary addOpcion"
+                           title="Remover Opción" href="#">
+                            Agregar Opción.
+                        </a>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div  th:if="${pregunta.tipo=='MULTIPLE'}">
+
+    <div  class="form-group">
+
+        <label class="control-label col-sm-2" for="multiple">Número de opciones</label>
+
+        <div class="col-sm-2" >
+            <select class="form-control" required="true" name="multiple">
+                <option th:each="i : ${#numbers.sequence(1,15)}"
+                        th:value="${i}"
+                        th:selected="${pregunta.opcionPregunta.size()==i}"
+                        th:text="${i}">15</option>
+            </select>
+        </div>
+
+        <input th:each="item,iter : ${pregunta.opcionPregunta}"
+               th:name="${'opcionPregunta['+iter.index+'].esMulti'}"
+               value="1"
+               type="hidden"/>
+
+        <input th:each="item,iter : ${pregunta.opcionPregunta}"
+               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+               value="Nombre"
+               type="hidden"/>
+
+    </div>
+
+</div>
+
+<div  th:if="${pregunta.tipo=='SINO'}">
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">a)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">Sí</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">b)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">No</p>
+        </div>
+    </div>
+
+    <input name="opcionPregunta[0].contenido" value="Sí" type="hidden"/>
+    <input name="opcionPregunta[1].contenido" value="No" type="hidden"/>
+
+</div>
+
+<div  th:if="${pregunta.tipo=='VEFA'}">
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">a)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">Verdadero</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">b)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">Falso</p>
+        </div>
+    </div>
+
+    <input name="opcionPregunta[0].contenido" value="Verdadero" type="hidden"/>
+    <input name="opcionPregunta[1].contenido" value="Falso" type="hidden"/>
+
+</div>
+
+<div  th:if="${pregunta.tipo=='LIKERT'}">
+    <div  class="form-group">
+
+        <label class="control-label col-sm-2" for="periodo">De 1 hasta</label>
+
+        <div class="col-sm-2" >
+            <select class="form-control" required="true" name="likertInicio">
+                <option th:each="i : ${#numbers.sequence(2,15)}"
+                        th:value="${i}"
+                        th:selected="${pregunta.opcionPregunta.size()==i}"
+                        th:text="${i}">15</option>
+            </select>
+        </div>
+
+        <input th:each="item,iter : ${pregunta.opcionPregunta}"
+               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+               th:value="${iter.count}"
+               type="hidden"/>
+
+    </div>
+
+    <div  id="grupoTipoLikert" class="form-group">
+        <label class="control-label col-sm-2" >Tipo Likert</label>
+        <div class="col-sm-2" >
+            <select name="tipoLikert.id"  id="grupoTipoLikertForm" class="form-control" >
+                <option></option>
+                <option th:each="item : ${tiposLikert}"
+                        th:value="${item.id}"
+                        th:selected="${pregunta.tipoLikert.id==item.id}"
+                        th:text="${item.grupo}"></option>
+            </select>
+        </div>
+    </div>
+
+</div>
+
+<div  th:if="${pregunta.tipo=='ABIERTA'}">
+    <div  class="form-group">
+
+        <div class="col-sm-4 col-sm-offset-2 ">
+            <textarea class="form-control" readonly="true" name=""></textarea>
+            <input name="opcionPregunta[0].esTexto" value="1" type="hidden"/>
+        </div>
+
+    </div>
+</div>
+
+
+
+

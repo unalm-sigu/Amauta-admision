@@ -1,0 +1,89 @@
+<template id="dynatableTemplate">
+    <transition name="fade">
+
+
+        <table  id="dynaTable" class="table table-striped">
+            <thead class="panel panel-heading">
+                <tr>
+                    <th class="col-md-1 text-center v-middle">Código</th>
+                    <th class="col-md-5 text-center v-middle">Descripción</th>
+                    <th class="col-md-1 text-center v-middle">Tipo</th>
+                    <th class="col-md-1 text-center v-middle">Preguntas visibles</th>
+                    <th class="col-md-1 text-center v-middle">Total preguntas</th>
+                    <th class="col-md-2 text-center v-middle">Periodos de vigencia</th>
+                    <th class="col-md-1 text-center v-middle">Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="dynaTbody"></tbody>
+        </table>
+
+
+    </transition>
+</template>
+
+<template  type="text/x-template" id="dynatableRowTemplate">
+    <tr>
+
+        <td class="v-middle text-center"> {{encuesta.codigo}} </td>
+        <td class="v-middle"> {{encuesta.nombre}} </td>
+        <td class="v-middle"> {{encuesta.tipoName}} </td>
+        <td class="v-middle text-center"> {{encuesta.preguntasVisibles}} </td>
+        <td class="v-middle text-center"> {{encuesta.preguntasDisponibles}} </td>
+        <td class="v-middle text-center"> {{encuesta.cicloInicio}} &nbsp; - &nbsp; {{encuesta.cicloFin}} </td>
+        <td class="v-middle text-center">
+            <span  v-if="encuesta.estado=='ACT' " class="label label-success">{{encuesta.estadoEnum}}</span>
+            <span  v-if="encuesta.estado=='INA' " class="label label-default">{{encuesta.estadoEnum}}</span>
+            <span  v-if="encuesta.estado=='CRE' " class="label label-default">{{encuesta.estadoEnum}}</span>
+        </td>
+
+        <td class="v-middle">
+            <div class="actions">
+                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
+                <ul class="dropdown-menu pull-right">
+
+                    <li><a  href="#"  v-on:click.prevent="update(encuesta)">Editar</a></li>
+                    <li><a class="delete-encuesta"  v-on:click.prevent="eliminar(encuesta)" href="#">Eliminar</a></li>
+
+                    <li   v-if="encuesta.estado=='ACT' "><a class="cambiar-estado" v-on:click.prevent="estado(encuesta)" href="#">Desactivar</a></li>
+                    <li   v-if="encuesta.estado=='INA' "><a class="cambiar-estado" v-on:click.prevent="estado(encuesta)" href="#">Activar</a></li>
+                    <li   v-if="encuesta.estado=='CRE' "><a class="cambiar-estado" v-on:click.prevent="estado(encuesta)" href="#">Activar</a></li>
+
+                    <li class="divider"></li>
+
+                    <li><a  href="#"  v-on:click.prevent="preguntas(encuesta)">Preguntas</a></li>
+                    <li><a  href="#"  v-on:click.prevent="temas(encuesta)">Temas</a></li>
+                    <li><a  href="#"  v-on:click.prevent="preview(encuesta)" target="encuesta">Previsualización</a></li>
+                    <li><a  class="duplicar-encuesta" href="#"  v-on:click.prevent="duplicar(encuesta)">Clonar encuesta</a></li>
+
+                    <li class="divider"></li>
+                    <li><a  href="#"  v-on:click.prevent="configuracion(encuesta)">Configuración Encuesta</a></li>
+                    <li><a  href="#"  v-on:click.prevent="sinEncuesta(encuesta)">Curso sin encuesta</a></li>
+                </ul>
+            </div>
+        </td>
+
+    </tr>
+</template>
+
+
+<template id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+    <div >
+        <span class="block bold h5 m-b-xs m-t-xs">{{info.curso}}</span>
+
+        <small v-if="info.numeroCiclo==='' " class="block">
+            {{info.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{info.tpc}} &nbsp;
+            / &nbsp; Nº Ciclo {{info.numeroRomano}} &nbsp;
+            / &nbsp; Dpto. Académico {{info.departamento}}
+        </small>
+
+        <small v-if="info.numeroCiclo!=='' "  class="block">
+            {{info.codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{info.tpc}} &nbsp;
+            / &nbsp; Dpto. Académico {{info.departamento}}
+        </small>
+
+        <small v-if="info.especialidad" class="block"><strong>Especialidad</strong> {{info.tipoEspecialidad}} {{info.especialidad}}</small>
+        <small v-if="info.tipoCursoCurricula" class="block bold text-danger">Tipo {{info.tipoCursoCurricula}}</small>
+    </div>
+</template>
+

@@ -1,0 +1,49 @@
+<modal-vik
+    ref="modalAddCurso"
+    v-bind="addCursoModal">
+
+    <div slot="body">
+
+        <div class="col-sm-10">
+            <div class="form-group">
+                <label class="control-label">Curso</label>
+                <input type="text"
+                       class="form-control input-sm"
+                       name="curso.id"
+                       v-model="curso"
+                       required="true"/>
+            </div>
+        </div>
+
+        <div class="col-sm-2 m-t-md">
+            <button
+                class="btn btn-success btn-sm pull-right"
+                v-bind:disabled="btnAgregar"
+                v-on:click.prevent="agregarCurso()">Agregar</button>
+        </div>
+
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">Código</th>
+                    <th class="col-sm-2">T-P-C</th>
+                    <th class="col-sm-8">Nombre</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="cursoSinEncuesta in  cursos">
+                    <td class="v-middle">{{cursoSinEncuesta.codigo}}</td>
+                    <td class="v-middle">{{cursoSinEncuesta.tpc}}</td>
+                    <td class="v-middle">{{cursoSinEncuesta.curso}}</td>
+                    <td class="v-middle">
+                        <a v-on:click.prevent="removeCurso(cursoSinEncuesta)"  class="btn btn-link text-danger" href="#">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</modal-vik>

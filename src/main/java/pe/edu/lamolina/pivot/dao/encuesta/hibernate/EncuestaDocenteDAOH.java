@@ -1,0 +1,67 @@
+package pe.edu.lamolina.pivot.dao.encuesta.hibernate;
+
+import java.util.List;
+import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.encuesta.EncuestaDocente;
+import pe.edu.lamolina.model.encuesta.EncuestaEstudiantil;
+import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
+
+@Repository
+public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implements EncuestaDocenteDAO {
+
+    public EncuestaDocenteDAOH() {
+        super();
+        setClazz(EncuestaDocente.class);
+    }
+
+    @Override
+    public List<EncuestaDocente> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
+                .filter("ciclo.id", cicloAcademico)
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .searchFields("da.nombre", "cur.nombre", "en.nombre")
+                .orderBy("ed.id");
+        sql.beginRelativeFilters();
+        return sql.all(getCurrentSession());
+
+    }
+
+    @Override
+    public List<EncuestaDocente> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("ee.id", encuestaEstudiantil);
+        return all(sql);
+    }
+
+    @Override
+    public EncuestaDocente findEncuestaDocente(EncuestaDocente encuestaForm) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("ed.id", encuestaForm);
+        return find(sql);
+    }
+
+}

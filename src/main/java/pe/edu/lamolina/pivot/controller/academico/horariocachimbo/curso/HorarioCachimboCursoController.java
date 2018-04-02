@@ -83,9 +83,9 @@ public class HorarioCachimboCursoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
-        List<CarreraCursoCachimbo> carrera = service.allCarrera(modalidadEstudio, cicloAcademico);
+        List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio, cicloAcademico);
         model.addAttribute("cicloAcademico", cicloAcademico);
-        model.addAttribute("carreras", carrera);
+        model.addAttribute("carreras", carreras);
         return "academico/horariocachimbo/curso/horarioCachimboCurso";
     }
 
@@ -162,7 +162,7 @@ public class HorarioCachimboCursoController {
                         seccionNode.put("codigo", seccion.getCodigo());
                         seccionNode.put("tipo", seccion.getTipoSeccion());
                         seccionNode.put("suscritos", seccion.getReservados());
-                        seccionNode.put("vacantes", seccion.getVacantes());
+                        seccionNode.put("vacantes", seccion.getVacantesDisponibles());
                         seccionNode.put("seleccionado", scc != null);
                         seccionNode.put("anexo", grupoSeccion.getAnexoBoletin().getNombre());
                         seccionesArray.add(seccionNode);
@@ -191,7 +191,9 @@ public class HorarioCachimboCursoController {
 
     @ResponseBody
     @RequestMapping("addcurso")
-    public JsonResponse addCurso(@RequestParam("curso.id") ArrayList<Long> cursos, @RequestParam("carrera.id") Long carrera, HttpSession session) {
+    public JsonResponse addCurso(
+            @RequestParam("curso.id") ArrayList<Long> cursos,
+            @RequestParam("carrera.id") Long carrera, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

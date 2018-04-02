@@ -1,0 +1,115 @@
+<div>
+
+    <h5 style="font-size: 18px; font-weight: bold;">
+        {{:texto}}
+    </h5>
+
+    <div class="m-b-lg m-t-lg" >
+
+        {{if tipo=='SIMPLE' }}
+        <table class="table table-preview">
+            <tbody>
+                {{for opcionPregunta }}
+                <tr >
+                    <td> {{:letra}}) </td>
+                    <td class="text-left col-xs-12">  
+                        {{:contenido}} 
+                        {{if esOtro}}
+                        <input class="form-control input-s" autocomplete="off" type="text" />
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/for}}
+            </tbody>
+        </table>
+        {{/if}}
+        
+        {{if tipo=='RPTA_MULTIPLE' }}
+        <table class="table table-preview">
+            <tbody>
+                {{for opcionPregunta }}
+                <tr >
+                    <td> {{:letra}}) </td>
+                    <td class="text-left col-xs-12">  
+                        {{:contenido}} 
+                        {{if esOtro}}
+                        <input class="form-control input-s" autocomplete="off" type="text" />
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/for}}
+            </tbody>
+        </table>
+        {{/if}}
+
+        {{if tipo=='SINO' }}
+        <table class="table table-preview">
+            <tbody>
+                {{for opcionPregunta }}
+                <tr>
+                    <td> {{:letra}}) </td>
+                    <td class="text-left col-xs-12">  {{:contenido}} </td>
+                </tr>
+                {{/for}}
+            </tbody>
+        </table>
+        {{/if}}
+
+        {{if tipo=='VEFA' }}
+        <table class="table table-preview">
+            <tbody>
+                {{for opcionPregunta }}
+                <tr >
+                    <td> {{:letra}}) </td>
+                    <td class="text-left col-xs-12">{{:contenido}} </td>
+                </tr>
+                {{/for}}
+            </tbody>
+        </table>
+        {{/if}}
+
+        {{if tipo=='LIKERT' }}
+        <table class="table table-preview">
+            <tbody>
+                {{for opcionPregunta }}
+                <tr>
+                    <td> {{:letra}}) </td>
+                    <td class="text-left col-xs-12"> {{:contenido}} </td>
+                </tr>
+                {{/for}}
+            </tbody>
+        </table>
+        {{/if}}
+
+        {{if tipo=='MULTIPLE' }}
+        <table class="table table-preview">
+            <tbody>
+                {{for opcionPregunta }}
+                <tr>
+                    <td class="v-middle"> 
+                        <input type="checkbox" />
+                    </td>
+                    <td>
+                        <label for="text">Nombre</label>
+                        <input type="text"  class="form-control"/>
+                    </td>
+                    <td>
+                        <label for="text">Cantidad</label>
+                        <select class="form-control select2single" required="true" >
+                            <option th:each="i : ${#numbers.sequence(1,10)}"
+                                    th:value="${i}"
+                                    th:text="${i}">15</option>
+                        </select>
+                    </td>
+                </tr>
+                {{/for}}
+            </tbody>
+        </table>
+        {{/if}}
+
+        {{if tipo=='ABIERTA' }}
+        <textarea class="form-control" readonly="true" name=""></textarea>
+        {{/if}}
+
+    </div>
+</div>

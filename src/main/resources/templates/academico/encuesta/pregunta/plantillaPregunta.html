@@ -1,0 +1,315 @@
+<div  th:fragment="simple">
+
+    <div class="col-xs-10 col-sm-offset-2 m-t-md m-b-md">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-md-1"></th>
+                    <th class="col-md-9">Opción</th>
+                    <th class="col-md-2">Otro</th>
+                    <!--th class="col-xs-1">Referencia</th-->
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="i,iter : ${#numbers.sequence(1, 5)}">
+
+                    <td class="v-middle" th:text="${'abcdefghijklmnopqrstuvwxyz'.charAt(iter.index)}"></td>
+
+                    <td class="v-middle">
+                        <input class="form-control"
+                               required="true"
+                               th:attr="data-parsley-errors-container=${'#erroropcion'+i}"
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               type="text"/>
+
+                        <p th:id="${'erroropcion'+i}"></p>
+
+                    </td>
+
+                    <td class="v-middle">
+                        <input class=""
+                               th:attr="data-parsley-errors-container=${'#errorotro'+i}"
+                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               type="checkbox" value="1"/>
+
+                        <p th:id="${'errorotro'+i}"></p>
+                    </td>
+
+                    <td class="v-middle">
+                        <a class="btn btn-default btn-xs text-danger removerOpcion"  title="Remover Opción" href="#">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th>
+                        <a class="btn btn-link btn-xs text-primary addOpcion"  title="Remover Opción" href="#">
+                            Agregar Opción.
+                        </a>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div  th:fragment="rpta_multiple">
+
+    <div class="col-xs-10 col-sm-offset-2 m-t-md m-b-md">
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="col-md-1"></th>
+                    <th class="col-md-9">Opción</th>
+                    <th class="col-md-2">Otro</th>
+                    <!--th class="col-xs-1">Referencia</th-->
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="i,iter : ${#numbers.sequence(1, 5)}">
+
+                    <td class="v-middle" th:text="${'abcdefghijklmnopqrstuvwxyz'.charAt(iter.index)}"></td>
+
+                    <td class="v-middle">
+                        <input class="form-control"
+                               required="true"
+                               th:attr="data-parsley-errors-container=${'#erroropcion'+i}"
+                               th:name="${'opcionPregunta['+iter.index+'].contenido'}"
+                               type="text"/>
+
+                        <p th:id="${'erroropcion'+i}"></p>
+
+                    </td>
+
+                    <td class="v-middle">
+                        <input class=""
+                               th:attr="data-parsley-errors-container=${'#errorotro'+i}"
+                               th:name="${'opcionPregunta['+iter.index+'].esOtro'}"
+                               type="checkbox" value="1"/>
+
+                        <p th:id="${'errorotro'+i}"></p>
+                    </td>
+
+                    <td class="v-middle">
+                        <a class="btn btn-default btn-xs text-danger removerOpcion"  title="Remover Opción" href="#">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th>
+                        <a class="btn btn-link btn-xs text-primary addOpcion"  title="Remover Opción" href="#">
+                            Agregar Opción.
+                        </a>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </tfoot>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div  th:fragment="multiple">
+
+    <div  class="form-group">
+
+        <label class="control-label col-sm-2" for="multiple">Número de opciones</label>
+
+        <div class="col-sm-2" >
+            <select class="form-control" required="true" name="multiple">
+                <option th:each="i : ${#numbers.sequence(1,15)}"
+                        th:value="${i}"
+                        th:text="${i}">15</option>
+            </select>
+        </div>
+
+        <input name="opcionPregunta[0].esMulti" value="1" type="hidden"/>
+        <input name="opcionPregunta[0].contenido" value="Nombre" type="hidden"/>
+
+    </div>
+
+</div>
+
+<div  th:fragment="sino">
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">a)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">Sí</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">b)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">No</p>
+        </div>
+    </div>
+
+    <input name="opcionPregunta[0].contenido" value="Sí" type="hidden"/>
+    <input name="opcionPregunta[1].contenido" value="No" type="hidden"/>
+
+</div>
+
+<div  th:fragment="vefa">
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">a)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">Verdadero</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">b)</label>
+        <div class="col-sm-5">
+            <p class="form-control-static">Falso</p>
+        </div>
+    </div>
+
+    <input name="opcionPregunta[0].contenido" value="Verdadero" type="hidden"/>
+    <input name="opcionPregunta[1].contenido" value="Falso" type="hidden"/>
+
+</div>
+
+<div  th:fragment="likert">
+
+    <div  class="form-group">
+
+        <label class="control-label col-sm-2" for="periodo">De 1 hasta</label>
+
+        <div class="col-sm-2" >
+            <select class="form-control" required="true" name="likertInicio">
+                <option th:each="i : ${#numbers.sequence(2,15)}"
+                        th:value="${i}"
+                        th:text="${i}">15</option>
+            </select>
+        </div>
+
+
+        <input name="opcionPregunta[0].contenido" value="1" type="hidden"/>
+        <input name="opcionPregunta[1].contenido" value="2" type="hidden"/>
+
+    </div>
+
+    <div  id="grupoTipoLikert" class="form-group">
+        <label class="control-label col-sm-2" >Tipo Likert</label>
+        <div class="col-sm-2" >
+            <select   name="tipoLikert.id"  id="grupoTipoLikertForm" class="form-control" >
+                <option></option>
+            </select>
+        </div>
+    </div>
+
+</div>
+
+<div  th:fragment="abierta">
+    <div  class="form-group">
+
+        <div class="col-sm-4 col-sm-offset-2 ">
+            <textarea class="form-control" readonly="true" name=""></textarea>
+            <input name="opcionPregunta[0].esTexto" value="1" type="hidden"/>
+        </div>
+
+    </div>
+</div>
+
+<div th:remove="tag" th:fragment="opcion">
+    <tr>
+        <td class="v-middle"></td>
+
+        <td class="v-middle">
+            <input class="form-control"
+                   required="true"
+                   data-parsley-errors-container="#erroropcion0"
+                   name="opcionPregunta[0].contenido"
+                   type="text"/>
+            <p class="tagerror" id="erroropcion0"></p>
+        </td>
+
+        <td class="v-middle">
+            <input data-parsley-errors-container="#errorotro0"
+                   name="opcionPregunta[0].esOtro"
+                   type="checkbox" value="1"/>
+            <p class="tagerror" id="errorotro0"></p>
+        </td>
+
+        <!--        <td class="v-middle">
+                    <a class="addReferencia" href="#">Agregar</a>
+                </td>-->
+
+        <td class="v-middle">
+            <a class="btn btn-default btn-xs text-danger removerOpcion"  title="Remover Opción" href="#">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </a>
+        </td>
+
+    </tr>
+</div>
+
+<div th:remove="tag" th:fragment="opcionMultiple">
+    <tr>
+        <td class="v-middle"></td>
+
+        <td class="v-middle">
+            <input class="form-control"
+                   required="true"
+                   data-parsley-errors-container="#erroropcion0"
+                   name="opcionPregunta[0].contenido"
+                   type="text"/>
+
+            <p class="tagerror" id="erroropcion0"></p>
+
+        </td>
+
+        <td class="v-middle">
+
+            <input name="opcionPregunta[0].esMulti"
+                   type="hidden"
+                   value="1"/>
+
+            <a class="btn btn-link btn-xs text-danger removerOpcionMultiple"  title="Remover Opción" href="#">
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </a>
+        </td>
+
+    </tr>
+</div>
+
+<div th:remove="tag" th:fragment="templateAddRef">
+    <a class="addReferencia" href="#" title="{{:nombre}}">Preg. N° {{:numero}}</a>
+    <a title="Remover Referencia" class="removerReferencia" href="#"><i class="fa fa-times" aria-hidden="true"></i></a>
+    <input class="itemReferencia" name="opcionReferencia.id" type="hidden" value="{{:id}}" />
+</div>
+
+<div th:remove="tag" th:fragment="templateRemoveRef">
+    <a class="addReferencia" href="#">Agregar</a>
+</div>
+
