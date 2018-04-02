@@ -238,6 +238,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         }
 
         encuestaDocente.setAlumnosInicio(new Long(alumnos.size()));
+        encuestaDocente.setAlumnoFin(new Long(alumnos.size()));
         encuestaDocente.setAlumnosEncuestados(new Long(alumnos.size()));
         encuestaDocenteDAO.update(encuestaDocente);
     }

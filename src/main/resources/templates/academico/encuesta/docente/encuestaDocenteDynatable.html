@@ -6,7 +6,7 @@
             <thead class="panel panel-heading">
                 <tr>
                     <th class="col-md-3 text-center v-middle">Docente</th>
-                    <th class="col-md-3 text-center v-middle">Departamento Académico</th>
+                    <th class="col-md-3 text-center v-middle">Curso</th>
                     <th class="col-md-2 text-center v-middle">Fecha</th>
                     <th class="col-md-2 text-center v-middle">Alumnos</th>
                     <th class="col-md-1 text-center v-middle">Encuesta</th>
@@ -27,19 +27,22 @@
         <td class="v-middle">
             <div class="v-middle">
                 <a href="#"><span class="block text-primary bold detallePostulante" >{{encuestaDocente.nombre}}</span></a>
+                <small class="block text-muted">{{encuestaDocente.departamentoAcademico}}</small>
                 <small class="block  text-muted">
                     Código: {{encuestaDocente.codigo}}
                 </small>
                 <small v-if="encuestaDocente.nroDocumento!=='' " class="block text-muted">{{encuestaDocente.tipoDoc}} {{encuestaDocente.nroDocumento}}</small>
-                <small class="block  text-muted">
-                    {{encuestaDocente.cursoCodigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{encuestaDocente.tpc}} &nbsp;
-                </small>
             </div>
         </td>
 
-        <td class="v-middle  text-center">
-            <span class="block text-primary">{{encuestaDocente.departamentoAcademico}}</span>
-            <small class="block">Facultad de {{encuestaDocente.facultad}}</small>
+        <td class="v-middle">
+            <span class="block text-primary">{{encuestaDocente.curso}}</span>
+            <small class="block  text-muted">
+                {{encuestaDocente.cursoCodigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{encuestaDocente.tpc}} &nbsp;
+            </small>
+            <small class="block  text-muted">
+                {{encuestaDocente.seccionCodigo2}} &nbsp; {{encuestaDocente.grupoHoras}} &nbsp;
+            </small>
         </td>
 
         <td class="v-middle">

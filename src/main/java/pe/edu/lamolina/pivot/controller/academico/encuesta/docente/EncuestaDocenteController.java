@@ -73,7 +73,9 @@ public class EncuestaDocenteController {
                 node.put("nroDocumento", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.docente.persona.numeroDocIdentidad"));
                 node.put("codigo", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.docente.codigo"));
                 node.put("seccion", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.codigo"));
+                node.put("seccionCodigo2", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.codigo2"));
                 node.put("grupoSeccion", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.codigo"));
+                node.put("grupoHoras", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoHoras.codigo"));
                 node.put("curso", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.curso.nombre"));
                 node.put("cursoCodigo", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.curso.codigo"));
                 node.put("tpc", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.seccion.grupoSeccion.curso.tpc"));
