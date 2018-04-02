@@ -1,0 +1,28 @@
+<form id="frmSubirEgresados" 
+      enctype="multipart/form-data" 
+      method="POST" 
+      th:action="@{/academico/matriculable/subirEgresados}">
+
+
+    <div class="row m-b-md">
+        <div class="col-md-9"> 
+            <span class="block underline">Cargar Egresados (archivo .xlsx) </span>
+            <span class="block">Seleccionar el archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
+
+            <div class="form-group">
+                <span class="btn bg-gradient">
+                    <input type="file" name="file" accept=".xlsx" id="fileText" class="archivo" autocomplete="off" required="true" />
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress" id="progress">
+        <div class="progress-bar progress-bar-success"></div>
+    </div>
+    <div class="panel-body m-b-md" id="mensajeRespuesta"></div>
+
+
+
+
+</form>

@@ -1,12 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -70,5 +64,14 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
                 .limit(10);
 
         return all(sql);
+    }
+
+    @Override
+    public Facultad findByCodigo(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(Facultad.class, "fa")
+                .filter("fa.codigo", codigo);
+
+        return find(sql);
     }
 }

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.matriculable;
 
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
@@ -27,5 +28,7 @@ public interface MatriculableService {
     List<ConfiguracionTurnosAtencion> allConfiguracionTurnoByCiclo(CicloAcademico cicloAcademico);
 
     void procesarTurnoMatricula(CicloAcademico cicloAcademico, Long configuracionTurnoAtencion);
+
+    void loadEgresados(MultipartFile file);
 
 }

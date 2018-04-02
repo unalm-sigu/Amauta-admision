@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -35,4 +36,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
     Long countByCursoAlumnoAnterioresCiclo(Curso curso, Alumno alumno, CicloAcademico cicloAcademico);
 
     AlumnoCicloCurso findByAlumnoCicloCursoEstados(Alumno alumno, CicloAcademico cicloAcademico, Curso curso, List<EstadoMatriculaEnum> estados);
+
+    List<AlumnoCicloCurso> allActivoByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
 }

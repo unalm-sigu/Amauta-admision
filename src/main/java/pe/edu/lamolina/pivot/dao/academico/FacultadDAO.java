@@ -16,4 +16,6 @@ public interface FacultadDAO extends EasyDAO<Facultad> {
 
     List<Facultad> allFacultad(String nombre, Compania compania);
 
+    Facultad findByCodigo(String codigo);
+
 }

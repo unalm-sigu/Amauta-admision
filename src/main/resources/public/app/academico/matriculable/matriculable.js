@@ -1,5 +1,39 @@
 $(function () {
 
+    $('#frmSubirEgresados').ajaxForm({
+        beforeSend: function () {
+            $('#progress .progress-bar').css('width', 0 + '%');
+        },
+        uploadProgress: function (e, position, total, percent) {
+            $('#progress .progress-bar').css('width', percent + '%');
+        },
+        success: function () {
+            $('#progress .progress-bar').css('width', 100 + '%');
+        },
+        complete: function (response) {
+            var json = response.responseJSON;
+            if (json.success) {
+                $("#cmbSubirEgresados").html('Carga finalizada');
+
+                alert("subio bien");
+            } else {
+                alert("subio mal");
+                $("#cmbSubirEgresados").html('Iniciar Carga');
+                $('#mensajeRespuesta').text(json.message).addClass("alert-danger").removeClass("alert-success").removeClass("hide");
+                $("#footerLoadAbonos").find("a").each(function (i, item) {
+                    $(item).removeAttr("disabled");
+                });
+            }
+        },
+        error: function (error) {
+            alert("error");
+            /*  $('#mensajeRespuesta').text("Error de comunicacion con el servidor").addClass("alert-danger");
+             $("#footerLoadAbonos").find("a").each(function (i, item) {
+             $(item).removeAttr("disabled");
+             });*/
+        }
+    });
+
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/matriculable/list'),
@@ -114,6 +148,39 @@ $(function () {
                 }
             });
         },
+        modalAsignarTurno: function (e, $this) {
+            //  e.preventDefault();
+            MODAL.init("sm");
+            MODAL.title("Tipo de Matricula");
+            MODAL.show();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/modalAsignarTurno'),
+                success: function (response) {
+                    MODAL.body(response);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        modalSubirEgresado: function (e, $this) {
+            //  e.preventDefault();
+            MODAL.init("lg");
+            MODAL.title("Subir Egresados");
+            MODAL.show();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/modalSubirEgresados'),
+                success: function (response) {
+                    MODAL.buttons('<a class="btn btn-success" id="cmbSubirEgresados">Iniciar Carga</a>');
+                    MODAL.body(response);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         procesarTipoMatricula: function (e, $this) {
             e.preventDefault();
             $.ajax({
@@ -143,6 +210,20 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        initLoadEgresados() {
+            if (!$('#frmSubirEgresados').parsley().validate()) {
+                return;
+            }
+
+            $("#footerLoadAbonos").find("a").each(function (i, item) {
+                $(item).attr("disabled", "disabled");
+            });
+
+            $('#mensajeRespuesta').addClass("hide");
+
+            $("#cmbSubirEgresados").html('<i class="fa fa-spinner fa-spin fa-lg"></i> Cargando datos');
+            $('#frmSubirEgresados').submit();
         }
     };
 
@@ -167,8 +248,20 @@ $(function () {
         Matriculable.modalAsignarTurno(e, $(this));
     });
 
+    $("body").delegate("#subirEgresado", "click", function (e) {
+        Matriculable.modalSubirEgresado(e, $(this));
+    });
+
     $("body").delegate(".procesar-tipo-matricula", "click", function (e) {
         Matriculable.procesarTipoMatricula(e, $(this));
+    });
+
+    $("body").delegate(".procesar-tipo-matricula", "click", function (e) {
+        Matriculable.procesarTipoMatricula(e, $(this));
+    });
+
+    $("body").delegate("#cmbSubirEgresados", "click", function () {
+        Matriculable.initLoadEgresados();
     });
 
 });

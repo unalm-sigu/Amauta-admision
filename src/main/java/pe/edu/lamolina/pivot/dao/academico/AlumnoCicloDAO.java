@@ -14,6 +14,8 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     Long countByCicloAcademicoPlanCurricular(CicloAcademico cicloAcademico, PlanCurricular planCurricular);
 
+    AlumnoCiclo findLock(Long id);
+
     AlumnoCiclo findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
     List<AlumnoCiclo> allByAlumno(Alumno alumno);
@@ -25,6 +27,8 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     AlumnoCiclo findActiveSiguienteByAlumno(Alumno alumno, CicloAcademico cicloAcademico);
 
     List<AlumnoCiclo> allActivesByAlumnoAsc(Alumno alumno);
+
+    List<AlumnoCiclo> allByAlumnoAsc(Alumno alumno);
 
     AlumnoCiclo findActiveByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 

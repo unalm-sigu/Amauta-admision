@@ -2,18 +2,26 @@ package pe.edu.lamolina.pivot.controller.academico.matriculable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 
 @Service
@@ -30,6 +38,18 @@ public class MatriculableConmectorImp implements MatriculableConnector {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
+    @Autowired
+    FacultadDAO facultadDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    EgresadoDAO egresadoDAO;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
@@ -70,6 +90,34 @@ public class MatriculableConmectorImp implements MatriculableConnector {
 
             matriculaResumenDAO.updatePuntajePrioridad(matriculaResumenUpd);
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    public void procesarEgresado(String codigoAlumno, String codigoCarrera, String codigoFacultad, String codigoCiclo, Egresado egresado) {
+
+        Alumno alumno = alumnoDAO.findByCodigo(codigoAlumno);
+        if (alumno == null) {
+            logger.debug(" alumno ");
+        }
+        Carrera carrera = null;
+        if (StringUtils.isNotBlank(codigoCarrera)) {
+            carrera = carreraDAO.findByCodigo(codigoCarrera);
+        }
+        Facultad facultad = null;
+        if (StringUtils.isNotBlank(codigoFacultad)) {
+            facultad = facultadDAO.findByCodigo(codigoFacultad);
+        }
+        CicloAcademico cicloAcademico = null;
+        if (StringUtils.isNotBlank(codigoCiclo)) {
+            cicloAcademico = cicloAcademicoDAO.findByCodigo(codigoCiclo + "0");
+        }
+
+        egresado.setAlumno(alumno);
+        egresado.setCarrera(carrera);
+        egresado.setCicloAcademico(cicloAcademico);
+        egresado.setFacultad(facultad);
+        egresadoDAO.save(egresado);
     }
 
 }
