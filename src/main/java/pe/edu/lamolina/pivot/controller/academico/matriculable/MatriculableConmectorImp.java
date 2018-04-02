@@ -98,7 +98,12 @@ public class MatriculableConmectorImp implements MatriculableConnector {
 
         Alumno alumno = alumnoDAO.findByCodigo(codigoAlumno);
         if (alumno == null) {
-            logger.debug(" alumno ");
+            logger.error(" alumno no encontrado, codigo {} ", codigoAlumno);
+            return;
+        }
+        Egresado egresadoDB = egresadoDAO.findByAlumno(alumno);
+        if (egresadoDB != null) {
+            return;
         }
         Carrera carrera = null;
         if (StringUtils.isNotBlank(codigoCarrera)) {
