@@ -12,6 +12,6 @@ public interface EncuestaDocenteService {
 
     void generarEncuesta(DataSessionPivot ds);
 
-    void cambiarEstadoEncuesta(EncuestaDocente encuesta, DataSessionPivot ds);
+    void cambiarEstadoEncuesta(EncuestaDocente encuesta);
 
 }

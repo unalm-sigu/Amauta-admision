@@ -67,6 +67,7 @@ public class EncuestaDocenteController {
                 node.put("alumnosInicio", enDocente.getAlumnosInicio());
                 node.put("alumnoFin", enDocente.getAlumnoFin());
                 node.put("alumnosEncuestados", enDocente.getAlumnosEncuestados());
+                node.put("descripcion", enDocente.getDescripcion());
 
                 node.put("nombre", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.docente.persona.apellidosNombres"));
                 node.put("tipoDoc", (String) ObjectUtil.getParentTree(enDocente, "docenteSeccion.docente.persona.tipoDocumento.simbolo"));
@@ -126,8 +127,8 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.cambiarEstadoEncuesta(encuesta, ds);
+
+            service.cambiarEstadoEncuesta(encuesta);
             response.setMessage("Registro actualizado satisfactoriamente.");
             response.setSuccess(true);
 
