@@ -159,7 +159,6 @@
                                         <span>Colaboradores</span>
                                     </a>
                                 </li>
-
                                 <li th:if='${ T(java.util.Arrays).asList("IOREA").contains(session.SESSION_USUARIO.rolActivo.codigo) }'>
                                     <a th:href="@{/general/persona}">
                                         <span>Personas</span>
@@ -265,7 +264,7 @@
                                         <span>Configuración</span>
                                     </a>
                                 </li>
-                                
+
                             </ul>
                         </li>
                     </ul>

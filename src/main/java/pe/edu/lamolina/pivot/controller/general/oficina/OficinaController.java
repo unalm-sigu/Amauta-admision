@@ -37,6 +37,7 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.CitaConsultorioEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -44,6 +45,8 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.medico.CitaConsultorio;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -85,6 +88,36 @@ public class OficinaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         return "general/oficina/oficina";
+    }
+
+    @RequestMapping("{oficina}/colaboradores")
+    public String colaborador(@PathVariable("oficina") Long idOficina, Model model) {
+        List<Oficina> oficina = service.allOficina();
+        Colaboradores colaboradors = service.countColaborador(new Oficina(idOficina));
+        model.addAttribute("oficinas", oficina);
+        model.addAttribute("oficina", idOficina);
+        model.addAttribute("resumen", colaboradors);
+        return "general/oficina/colaborador/colaborador";
+    }
+
+    @ResponseBody
+    @RequestMapping("list/{idOficina}")
+    public DynatableResponse list( @PathVariable("idOficina") Long idOficina,DynatableFilter filter, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse response = new DynatableResponse();
+        try {
+
+            ArrayNode list = service.getData(filter,idOficina);
+
+            response.setData(list);
+
+            response.setTotal(filter.getTotal());
+            response.setFiltered(filter.getFiltered());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setTotal(0);
+        }
+        return response;
     }
 
     @ResponseBody

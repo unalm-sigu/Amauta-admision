@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
@@ -101,4 +102,12 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         return all(sql);
     }
 
+    @Override
+    public List<Oficina> allTipoOfi() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("idtipoOficina to")
+                .filter("to.nivel", TipoOficinaEnum.OFI.name());
+        return all(sql);
+    }
 }

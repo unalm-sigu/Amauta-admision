@@ -33,13 +33,13 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -74,7 +74,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
     @Autowired
     PostulanteDAO postulanteDAO;
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
+    PersonaCargoDAO personaCargoDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
     @Autowired

@@ -1560,3 +1560,15 @@ div.notas {
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
+.alert-special{
+        display: inline-block!important;;
+    position: relative!important;;
+    clear: both!important;;
+    margin-top: 15px!important;;
+    padding: 5px 10px!important;;
+    background: #a94442!important;
+    border: none!important;;
+    box-shadow: none!important;;
+    color: #fff!important;;
+}

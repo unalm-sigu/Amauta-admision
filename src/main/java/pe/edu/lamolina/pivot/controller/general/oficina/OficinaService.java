@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -52,5 +53,11 @@ public interface OficinaService {
     void asignarEncargado(Oficina oficina, DataSessionPivot ds);
 
     void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
+
+    List<Oficina> allOficina();
+
+    Colaboradores countColaborador(Oficina oficina);
+
+    public ArrayNode getData(DynatableFilter filter,Long idOficina);
 
 }

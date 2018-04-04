@@ -6,14 +6,14 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 
-public interface PersonaPerfilDAO extends EasyDAO<PersonaPerfil> {
+public interface PersonaCargoDAO extends EasyDAO<PersonaCargo> {
 
-    List<PersonaPerfil> allByFiltersDynaTable(DynatableFilter filter);
+    List<PersonaCargo> allByFiltersDynaTable(DynatableFilter filter);
 
-    List<PersonaPerfil> allByPersona(Persona persona);
+    List<PersonaCargo> allByPersona(Persona persona);
 
-    PersonaPerfil findSinCerrar(Oficina oficina, Compania cia);
+    PersonaCargo findSinCerrar(Oficina oficina, Compania cia);
 
 }

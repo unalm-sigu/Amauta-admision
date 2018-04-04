@@ -1,5 +1,8 @@
 package pe.edu.lamolina.pivot.controller.general.oficina;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +19,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -24,10 +28,11 @@ import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.FuncionColaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -37,14 +42,15 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.general.AusenciaJefeDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.pivot.dao.general.FuncionColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -75,7 +81,7 @@ public class OficinaServiceImp implements OficinaService {
     AusenciaJefeDAO ausenciaJefeDAO;
 
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
+    PersonaCargoDAO personaPerfilDAO;
 
     @Autowired
     DocenteDAO docenteDAO;
@@ -88,6 +94,8 @@ public class OficinaServiceImp implements OficinaService {
 
     @Autowired
     UsuarioRolDAO usuarioRolDAO;
+    @Autowired
+    FuncionColaboradorDAO funcionColaboradorDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -247,7 +255,7 @@ public class OficinaServiceImp implements OficinaService {
             personaDAO.update(jefeBD);
         }
 
-        PersonaPerfil perfil = new PersonaPerfil();
+        PersonaCargo perfil = new PersonaCargo();
         perfil.setCompania(ds.getCompania());
         perfil.setPersona(oficinaBD.getPersonaJefe());
         perfil.setPerfilCompania(oficinaBD.getCargoJefe());
@@ -258,7 +266,16 @@ public class OficinaServiceImp implements OficinaService {
         perfil.setUserRegistro(ds.getUsuario());
         personaPerfilDAO.save(perfil);
 
-        this.asignarRol(oficina.getPersonaJefe(), RolEnum.JEFE_DPTO_ACA, ds);
+        Colaborador colaborador = new Colaborador();
+        colaborador.setEstado(ColaboradorEstadoEnum.ACT);
+        colaborador.setFechaInicio(new Date());
+        colaborador.setOficina(oficinaBD);
+        colaborador.setPersona(oficinaBD.getPersonaJefe());
+        colaborador.setUserRegistro(ds.getUsuario());
+        colaborador.setCargo(oficinaBD.getCargoJefe());
+        colaboradorDAO.save(colaborador);
+
+        this.asignarRol(oficinaBD.getPersonaJefe(), RolEnum.JEFE_DPTO_ACA, ds);
 
     }
 
@@ -284,9 +301,9 @@ public class OficinaServiceImp implements OficinaService {
             throw new PhobosException("La fecha final no puede ser antes de la fecha de inicio");
         }
 
-        PersonaPerfil perfil = personaPerfilDAO.findSinCerrar(oficinaBD, ds.getCompania());
+        PersonaCargo perfil = personaPerfilDAO.findSinCerrar(oficinaBD, ds.getCompania());
         if (perfil == null) {
-            perfil = new PersonaPerfil();
+            perfil = new PersonaCargo();
             perfil.setCompania(ds.getCompania());
             perfil.setPersona(oficinaBD.getPersonaJefe());
             perfil.setPerfilCompania(oficinaBD.getCargoJefe());
@@ -412,5 +429,37 @@ public class OficinaServiceImp implements OficinaService {
                 usuarioRolDAO.save(userRol);
             }
         }
+    }
+
+    @Override
+    public List<Oficina> allOficina() {
+        List<Oficina> oficinas = oficinaDAO.allTipoOfi();
+        return oficinas;
+    }
+
+    @Override
+    public Colaboradores countColaborador(Oficina oficina) {
+        Colaboradores colaboradors = colaboradorDAO.countColaboradores(oficina);
+        return colaboradors;
+    }
+
+    @Override
+    public ArrayNode getData(DynatableFilter filter, Long idOficina) {
+        List<Colaborador> colaboradors = colaboradorDAO.allByOficina(filter, idOficina);
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        for (Colaborador colaborador : colaboradors) {
+            node = new ObjectNode(JsonNodeFactory.instance);
+            List<FuncionColaborador> funcion = funcionColaboradorDAO.findFuncionByColaborador(colaborador);
+            node.put("id", colaborador.getId());
+            node.put("area", colaborador.getOficina().getNombre());
+            node.put("cargo", colaborador.getCargo().getNombre());
+            node.put("estado", ColaboradorEstadoEnum.getNombre(colaborador.getEstado()));
+            node.put("persona", colaborador.getPersona() == null ? "" : colaborador.getPersona().getNombreCompleto());
+            node.put("dni", colaborador.getPersona() == null ? "" : colaborador.getPersona().getNumeroDocIdentidad());
+            arrayNode.add(node);
+        }
+
+        return arrayNode;
     }
 }

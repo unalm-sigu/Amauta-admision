@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -54,6 +55,16 @@ public class DataSessionPivot implements Serializable {
     private String direccionIp;
 
     private String sistemaOperativo;
+
+    private List<Colaborador> colaborador;
+
+    public List<Colaborador> getColaborador() {
+        return colaborador;
+    }
+
+    public void setColaborador(List<Colaborador> colaborador) {
+        this.colaborador = colaborador;
+    }
 
     public String getBrowser() {
         return browser;

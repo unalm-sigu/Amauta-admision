@@ -44,7 +44,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
@@ -68,7 +68,6 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -77,6 +76,7 @@ import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -111,7 +111,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Autowired
     PostulanteDAO postulanteDAO;
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
+    PersonaCargoDAO personaCargoDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
     @Autowired
@@ -738,11 +738,11 @@ public class ProgDataServiceImp implements ProgDataService {
                 docenteDAO.update(docente);
             }
 
-            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
             //logger.debug("se hallo {} perfiles", persoPerfiles.size());
-            for (PersonaPerfil pp : persoPerfiles) {
+            for (PersonaCargo pp : persoPerfiles) {
                 pp.setPersona(main);
-                personaPerfilDAO.update(pp);
+                personaCargoDAO.update(pp);
             }
 
         }
@@ -853,7 +853,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
         for (Persona persona : personas) {
-            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
             if (!persoPerfiles.isEmpty()) {
                 //logger.debug("se escoge por perfiles");
                 return persona;
