@@ -1,0 +1,47 @@
+<tr rel="{{:index}}">
+    <td  class="v-middle text-center">
+        <span class="block">
+            {{if mostrarOrdenSuperior}}
+            <i class="fa fa-arrow-up sort-numero sort-up pointer" aria-hidden="true"></i>
+            {{/if}}
+            {{if mostrarOrdenInferior}}
+            <i class="fa fa-arrow-down sort-numero sort-down pointer" aria-hidden="true"></i>
+            {{/if}}
+        </span>
+    </td>
+    <td class="v-middle text-center">
+        <span class="badge {{:bgestado}}">{{:numero}}</span>
+    </td>
+    <td class="v-middle text-sm">
+        {{:texto}}
+        <i class="fa fa-file-code-o fa-lg pointer preview-pregunta text-success"></i>
+    </td>
+    <td class="v-middle text-center">
+        <span class="badge pointer preview-pregunta">{{:opciones}}</span>
+    </td>
+    <td class="v-middle text-center">
+        {{:referencias}}
+    </td>
+    <td class="v-middle text-center">
+        <span class="label label-{{:colorEstado}}">{{:estadoEnum}}</span>
+    </td>
+    <td class="v-middle">
+        {{if estadoEncuesta=="CRE"}}
+        <div class="actions">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
+            <ul class="dropdown-menu pull-right">
+                <li><a class="editar" rel="{{:id}}" th:href="@{'/academico/encuestaestudiantil/editor/pregunta/{{:id}}/update'}">Editar</a></li>
+                <li><a class="eliminar" rel="{{:id}}" href="#">Eliminar</a></li>
+
+                {{if estado=="ACT"}}
+                <li><a class="cambiarEstado" rel="{{:id}}" href="#">Desactivar</a></li>
+                {{/if}}
+
+                {{if estado=="INA"}}
+                <li><a class="cambiarEstado" rel="{{:id}}" href="#">Activar</a></li>
+                {{/if}}
+            </ul>
+        </div>
+        {{/if}}
+    </td>
+</tr>

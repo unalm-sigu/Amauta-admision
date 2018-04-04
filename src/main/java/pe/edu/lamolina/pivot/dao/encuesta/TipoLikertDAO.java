@@ -2,7 +2,7 @@ package pe.edu.lamolina.pivot.dao.encuesta;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.model.encuesta.TipoLikert;
+import pe.edu.lamolina.model.encuestaestudiantil.TipoLikert;
 
 public interface TipoLikertDAO extends EasyDAO<TipoLikert> {
 
