@@ -62,9 +62,9 @@
         </td>
 
         <td class="v-middle text-center">
-            <span  v-if="encuestaDocente.estado=='ACT' " class="label label-success">{{encuestaDocente.estadoEnum}}</span>
-            <span  v-if="encuestaDocente.estado=='INA' " class="label label-default">{{encuestaDocente.estadoEnum}}</span>
-            <span  v-if="encuestaDocente.estado=='TEO' " class="label label-default">{{encuestaDocente.estadoEnum}}</span>
+            <span v-bind:title="encuestaDocente.descripcion"  v-if="encuestaDocente.estado=='ACT' " class="label label-success pointer">{{encuestaDocente.estadoEnum}}</span>
+            <span v-bind:title="encuestaDocente.descripcion"  v-if="encuestaDocente.estado=='INA' " class="label label-default pointer">{{encuestaDocente.estadoEnum}}</span>
+            <span v-bind:title="encuestaDocente.descripcion"  v-if="encuestaDocente.estado=='TEO' " class="label label-default pointer">{{encuestaDocente.estadoEnum}}</span>
         </td>
 
 
@@ -73,7 +73,7 @@
                 <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
                 <ul class="dropdown-menu pull-right">
 
-                    <li   v-if="encuestaDocente.estado=='ACT' "><a   v-on:click.prevent="estado(encuestaDocente)" href="#">Desactivar</a></li>
+                    <li   v-if="encuestaDocente.estado=='ACT' "><a    v-on:click.prevent="estado(encuestaDocente)" href="#">Desactivar</a></li>
                     <li   v-if="encuestaDocente.estado=='INA' "><a   v-on:click.prevent="estado(encuestaDocente)" href="#">Activar</a></li>
                     <li   v-if="encuestaDocente.estado=='TEO' "><a  v-on:click.prevent="estado(encuestaDocente)" href="#">Activar</a></li>
 
