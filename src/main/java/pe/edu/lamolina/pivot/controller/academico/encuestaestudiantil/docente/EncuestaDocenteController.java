@@ -63,8 +63,8 @@ public class EncuestaDocenteController {
                 node.put("estadoEnum", enDocente.getEstadoEnum().getValue());
                 node.put("fechaInicio", enDocente.getFechaInicio() != null ? new DateTime(enDocente.getFechaInicio()).toString("dd/MM/yyyy hh:mm") : "");
                 node.put("fechaFin", enDocente.getFechaFin() != null ? new DateTime(enDocente.getFechaFin()).toString("dd/MM/yyyy hh:mm") : "");
-                node.put("fechaEncuestaInicio", enDocente.getFechaEncuestaInicio() != null ? new DateTime(enDocente.getFechaEncuestaInicio()).toString("dd/MM/yyyy hh:mm") : "");
-                node.put("fechaEncuestaFin", enDocente.getFechaEncuestaFin() != null ? new DateTime(enDocente.getFechaEncuestaFin()).toString("dd/MM/yyyy hh:mm") : "");
+                node.put("fechaEncuestaInicio", enDocente.getFechaEncuestaInicio() != null ? new DateTime(enDocente.getFechaEncuestaInicio()).toString("dd/MM/yyyy") : "");
+                node.put("fechaEncuestaFin", enDocente.getFechaEncuestaFin() != null ? new DateTime(enDocente.getFechaEncuestaFin()).toString("dd/MM/yyyy") : "");
                 node.put("alumnosInicio", enDocente.getAlumnosInicio());
                 node.put("alumnoFin", enDocente.getAlumnoFin());
                 node.put("alumnosEncuestados", enDocente.getAlumnosEncuestados());

@@ -5,9 +5,8 @@
         <table  id="dynaTable" class="table table-striped">
             <thead class="panel panel-heading">
                 <tr>
-                    <th class="col-md-4 text-center v-middle">Docente</th>
-                    <th class="col-md-3 text-center v-middle">Curso</th>
-                    <th class="col-md-2 text-center v-middle">Fecha</th>
+                    <th class="col-md-5 text-center v-middle">Curso</th>
+                    <th class="col-md-3 text-center v-middle">Fecha</th>
                     <th class="col-md-2 text-center v-middle">Alumnos</th>
                     <th class="col-md-1 text-center v-middle">Estado</th>
                     <th></th>
@@ -24,18 +23,8 @@
     <tr>
 
         <td class="v-middle">
-            <div class="v-middle">
-                <a href="#"><span class="block text-primary bold detallePostulante" >{{encuestaDocente.nombre}}</span></a>
-                <small class="block text-muted">{{encuestaDocente.departamentoAcademico}}</small>
-                <small class="block  text-muted">
-                    Código: {{encuestaDocente.codigo}}
-                </small>
-                <small v-if="encuestaDocente.nroDocumento!=='' " class="block text-muted">{{encuestaDocente.tipoDoc}} {{encuestaDocente.nroDocumento}}</small>
-            </div>
-        </td>
-
-        <td class="v-middle">
             <span class="block text-primary">{{encuestaDocente.curso}}</span>
+            <small class="block text-muted">{{encuestaDocente.grupoSeccion}} &nbsp;   {{encuestaDocente.departamentoAcademico}}</small>
             <small class="block  text-muted">
                 {{encuestaDocente.cursoCodigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{encuestaDocente.tpc}} &nbsp;
             </small>

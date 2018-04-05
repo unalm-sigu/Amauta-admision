@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
@@ -160,4 +161,20 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("ms.estado", EstadoMatriculaEnum.PMAT);
         return all(sql);
     }
+
+    @Override
+    public List<MatriculaSeccion> allByModalidadEstudioCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "cur.modalidadEstudio me", "gs.cicloAcademico ci")
+                .join("matriculaResumen mr", "mr.alumno alu", "alu.modalidadEstudio mo", "alu.persona per", "mr.cicloAcademico ca")
+                .filter("ms.estado", EstadoMatriculaEnum.MAT)
+                .filter("ca.id", cicloAcademico)
+                .filter("ci.id", cicloAcademico)
+                .filter("mo.id", modalidad)
+                .filter("me.id", modalidad)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+        return all(sql);
+    }
+
 }

@@ -291,8 +291,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             encuestaDocente.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
         }
 
-        encuestaDocente.setFechaInicio(fechaInicio);
-        encuestaDocente.setFechaFin(fechaFin);
+        encuestaDocente.setFechaEncuestaInicio(fechaInicio);
+        encuestaDocente.setFechaEncuestaFin(fechaFin);
         encuestaDocente.setDocenteSeccion(docenteSeccion);
         encuestaDocente.setEncuestaEstudiantil(encuestaEstudiantil);
         encuestaDocente.setAlumnoFin(0L);
