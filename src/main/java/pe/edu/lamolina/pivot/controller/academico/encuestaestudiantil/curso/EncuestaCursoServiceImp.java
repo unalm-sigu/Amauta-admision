@@ -22,6 +22,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -96,6 +97,9 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         List<EventoCicloAcademico> eventosCicloAcademico = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
         logger.debug("eventosCicloAcademico {}", eventosCicloAcademico.size());
 
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
+        Map<Long, Curso> cursosSinEncuestaMap = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+
         Map<Long, GrupoSeccion> gruposSeccion = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", matriculaSeccions);
         logger.debug("grupoSeccionMap {}", gruposSeccion.size());
 
@@ -114,6 +118,11 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         for (GrupoSeccion grupoSeccion : gruposSeccion.values()) {
             Curso curso = grupoSeccion.getCurso();
             logger.debug("grupoSeccion {} curso {} {} ", grupoSeccion.getId(), curso.getId(), curso.getNombre());
+            Curso cursoSinEncuesta = cursosSinEncuestaMap.get(curso.getId());
+            if (cursoSinEncuesta != null) {
+                logger.debug("cursoSinEncuesta {} ", cursoSinEncuesta.getId());
+                continue;
+            }
             List<Alumno> alumnos = alumnoPorGrupoSeccion.get(grupoSeccion.getId());
             if (alumnos == null) {
                 alumnos = new ArrayList();
