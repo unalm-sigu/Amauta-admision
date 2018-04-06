@@ -462,7 +462,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         user = new Usuario();
         user.setPersona(persona);
-        user.setUsuario(persona.getEmailCompania().toLowerCase());
+        user.setGoogle(persona.getEmailCompania().toLowerCase());
         user.setEstado(UserEstadoEnum.ACT);
         user.setFechaRegistro(new Date());
         user.setUserRegistro(ds.getUsuario());
