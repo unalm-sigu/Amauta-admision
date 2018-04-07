@@ -225,7 +225,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             resumen.setCreditosRetirados(0);
             resumen.setCursosMatriculados(0);
             resumen.setCursosRetirados(0);
-            resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            resumen.setEstado(EstadoMatriculaEnum.MAT);
             resumen.setNotaAcumulada("0");
             resumen.setNotaAvance("0");
             resumen.setNotaFinal("0");
@@ -240,7 +240,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
 
         if (resumen.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
             System.out.println("\t" + rr + " guardando mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
-            resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            resumen.setEstado(EstadoMatriculaEnum.MAT);
             matriculaResumenDAO.update(resumen);
         }
 

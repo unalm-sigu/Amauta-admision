@@ -1316,7 +1316,7 @@ public class ProgDataServiceImp implements ProgDataService {
             MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
 
             if (resumen == null) {
-                aluResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
+                aluResumen.setEstado(EstadoMatriculaEnum.RCI);
                 aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
                 aluResumen.setCreditosMatriculados(0);
                 aluResumen.setCursosRetirados(aluResumen.getCursosRetirados() + aluResumen.getCursosMatriculados());
