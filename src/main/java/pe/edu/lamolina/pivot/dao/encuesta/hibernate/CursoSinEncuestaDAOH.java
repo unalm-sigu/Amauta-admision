@@ -5,8 +5,8 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.encuesta.CursoSinEncuesta;
-import pe.edu.lamolina.model.encuesta.EncuestaEstudiantil;
+import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
 
 @Repository

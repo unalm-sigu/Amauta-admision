@@ -15,6 +15,9 @@
     {{else}}
         <td  class="v-middle"> 
             <span class="block">{{:curso}}</span>
+            {{if tpc != null}}
+                <small class="block bold text-primary"> <i class="fa fa-bookmark-o"></i> &nbsp;{{:tpc}} &nbsp;&nbsp; {{:tipoDictadoCurso}}</small>
+            {{/if}}
         </td>
     {{/if}}
     

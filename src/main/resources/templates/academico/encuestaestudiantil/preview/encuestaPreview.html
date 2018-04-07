@@ -1,0 +1,133 @@
+<html layout:decorator="_layout/layout2">
+    <head>
+        <title> Encuesta </title>
+        <link rel="stylesheet" type="text/css" th:href="@{/vendor/bootzard-wizard/style.css}" />
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+
+            <div  id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <h1 class="text-center">Diego de la Vega</h1>
+
+                    <a class="btn btn-default pull-right"
+                       th:href="@{/academico/encuestaestudiantil/editor}" >Regresar</a>
+
+                    <h3 class="block">Previsualización de la Encuesta <span th:text="${encuesta.codigo}">001</span></h3>
+
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+                            <div class="col-sm-12 form-box">
+                                <form role="form" action="" method="post" class="f1" id="wizardform">
+
+                                    <h3>Encuesta</h3>
+                                    <p class="text-center">Respondiendo esta encuesta nos ayudarás a mejorar nuestro servicio</p>
+                                    <div class="f1-steps">
+                                        <div class="f1-progress">
+                                            <div class="f1-progress-line" data-now-value="0" data-number-of-steps="0" style=""></div>
+                                        </div>
+
+                                        <div th:each="pregunta, conteo : ${preguntas}"
+                                             th:class="|f1-step ${conteo.index==0? 'active':''} ${pregunta.opcionReferencia != null? 'hide':''}|"
+                                             th:rel="${pregunta.id}"
+                                             th:attr="ref=${pregunta.id}">
+                                            <div class="f1-step-icon"
+                                                 th:inline="text">[[${conteo.count}]]</div><p></p>
+                                        </div>
+                                    </div>
+
+                                    <fieldset th:each="pregunta, conteo : ${preguntas}"
+                                              th:attr="ref=${pregunta.id}"
+                                              th:rel="${pregunta.id}">
+
+                                        <div class="form-group m-t-xl m-l-lg m-r-lg"  style="min-height: 250px;" >
+
+                                            <div class="m-b-xl" >
+                                                <p class="bold" th:text="${pregunta.texto}"></p>
+                                            </div>
+
+                                            <div class="itemOpcion"
+                                                 th:each="opcion, iterador : ${pregunta.opcionPregunta}">
+
+                                                <div th:if="${opcion.esTexto==1}" >
+                                                    <label>
+                                                        <input type="text" class="form-control preTexto" required="yes" th:rel='${pregunta.id}' />
+                                                        <div th:substituteby="academico/encuestaestudiantil/preview/encuestaOpcionBtn"></div>
+                                                    </label>
+                                                </div>
+
+
+                                                <div th:if="${opcion.esMulti==1}" >
+                                                    <div th:substituteby="academico/encuestaestudiantil/preview/encuestaMultipleOpcion"></div>
+                                                </div>
+
+                                                <div class="radio i-checks" th:if="${opcion.esTexto==null and opcion.esMulti==null}" >
+
+                                                    <label>
+                                                        <input type="radio"
+                                                               class="step-option"
+                                                               th:name="${pregunta.id}"
+                                                               th:rel='${pregunta.id}'
+                                                               th:value="${opcion.id}"
+                                                               th:attr="ref=${opcion.itemsReferencias}" />
+                                                        <i></i>
+
+                                                        <span th:text="|${opcion.letra} ) ${opcion.contenido}|"></span>
+
+                                                        <input th:if="${opcion.esTexto}"
+                                                               type="text" class="form-control preOtro"
+                                                               th:rel='${pregunta.id}'
+                                                               maxlength="299"
+                                                               th:attr="ref=${opcion.itemsReferencias}" />
+
+                                                        <input th:if="${opcion.esOtro}"
+                                                               type="text" disabled="true"
+                                                               class="form-control preOtro"
+                                                               maxlength="299"
+                                                               th:rel='${pregunta.id}'
+                                                               th:attr="ref=${opcion.itemsReferencias}" />
+
+                                                        <div th:substituteby="academico/encuestaestudiantil/preview/encuestaOpcionBtn"></div>
+
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="f1-buttons pull-left">
+                                            <button type="button" class="btn btn-previous"
+                                                    th:if="${conteo.index>0}">Anterior</button>
+                                            <button type="button" class="btn btn-next">Siguiente</button>
+                                            <button type="button" class="btn btn-submit hide">Finalizar</button>
+                                        </div>
+
+                                    </fieldset>
+                                </form>
+                            </div>
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/encuestaestudiantil/preview/encuestaPreview.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
+

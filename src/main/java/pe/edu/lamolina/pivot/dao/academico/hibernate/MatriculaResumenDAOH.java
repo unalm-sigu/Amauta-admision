@@ -46,7 +46,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
-                .join("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
                 .filter("ca.id", ciclo);
 
         return all(sql);
@@ -192,7 +192,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
     @Override
     public void updateTurnoAtencion(CicloAcademico cicloAcademico, TurnoAtencion turnoAtencion) {
-            StringBuilder strb = new StringBuilder("update MatriculaResumen mr set mr.turnoAtencion.id=:prm_turno ");
+        StringBuilder strb = new StringBuilder("update MatriculaResumen mr set mr.turnoAtencion.id=:prm_turno ");
         strb.append(" where mr.prioridad>=:prm_prioridad_ini and mr.prioridad<=:prm_prioridad_fin ");
         strb.append(" and  mr.cicloAcademico.id=:prm_ciclo");
 

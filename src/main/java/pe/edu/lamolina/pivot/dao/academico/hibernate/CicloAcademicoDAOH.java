@@ -36,6 +36,14 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
+    public CicloAcademico findByCodigo(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("codigo", codigo);
+        return find(sql);
+    }
+
+    @Override
     public CicloAcademico findActivo() {
 
         Octavia sql = Octavia.query()
@@ -98,6 +106,19 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .filter("tipo", "REG")
+                .filter("codigo", ">", ciclo.getCodigo())
+                .filter("estado", "!=", CicloEstadoEnum.DES.name())
+                .orderBy("ca.year asc", "ca.numeroCiclo asc")
+                .limit(1);
+
+        return find(sql);
+    }
+
+    @Override
+    public CicloAcademico findSiguienteNivelacionActivo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .filter("tipo", "NIV")
                 .filter("codigo", ">", ciclo.getCodigo())
                 .filter("estado", "!=", CicloEstadoEnum.DES.name())
                 .orderBy("ca.year asc", "ca.numeroCiclo asc")
