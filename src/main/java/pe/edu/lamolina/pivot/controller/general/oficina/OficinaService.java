@@ -12,6 +12,9 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OficinaService {
@@ -54,10 +57,30 @@ public interface OficinaService {
 
     void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
 
-    List<Oficina> allOficina();
+    List<Oficina> allOficina(Persona persona);
 
     Colaboradores countColaborador(Oficina oficina);
 
-    public ArrayNode getData(DynatableFilter filter,Long idOficina);
+    ArrayNode getData(DynatableFilter filter, Oficina oficinaMain);
+
+    void updateEstado(Colaborador colaborador, Usuario usuario);
+
+    List<TipoOficina> allTipoOficina();
+
+    public TipoOficina findTipoById(String id);
+
+    public Colaborador findColarador(Colaborador colaborador);
+
+    List<TipoDocIdentidad> findTipoDoc();
+
+    public List<Oficina> findOficinas(Oficina oficina);
+
+    public List<PerfilCompania> allCargos();
+
+    public void saveColaborador(Colaborador colaborador, Usuario usuario);
+
+    void updateColaborador(Colaborador colaborador, Usuario usuario);
+
+    public List<PerfilCompania> allFunciones();
 
 }

@@ -19,6 +19,8 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     List<Oficina> allByOficinaWithAulas(List<Oficina> oficinas);
 
-    List<Oficina> allTipoOfi();
+    List<Oficina> allByUser(Persona persona);
+
+    List<Oficina> allAndSuperiorOfi();
 
 }

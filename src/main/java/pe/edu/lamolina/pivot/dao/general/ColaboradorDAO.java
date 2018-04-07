@@ -18,5 +18,9 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     Colaboradores countColaboradores(Oficina oficina);
 
-    List<Colaborador> allByOficina(DynatableFilter filter, Long idOficina);
+    List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas);
+
+    public Colaborador findCodigo();
+
+    public Colaborador find(Colaborador colaborador);
 }

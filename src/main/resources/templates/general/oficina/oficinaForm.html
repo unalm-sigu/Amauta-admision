@@ -5,7 +5,7 @@
     <body>
         <section layout:fragment="main">
 
-             <header class="header b-b padder-lg">                
+            <header class="header b-b padder-lg">                
                 <a th:href="@{/general/oficina}" class="btn btn-default btn-sm pull-right">Regresar</a>
                 <h2  id="nombreDocente" th:text="${ oficina.id!=null ? oficina.nombre : 'Nueva Oficina' }" >Nuevo Oficina</h2> 
             </header>
@@ -58,17 +58,17 @@
                             <label for="docIdentidad" class="col-sm-3 control-label">Tipo</label>
 
                             <div class="col-sm-4">
-                                <select name="tipoOficina" 
+                                <select name="tipoOficina.id" 
                                         required="true" 
                                         class="form-control" >
                                     <option></option>
                                     <option th:each="item : ${tipos}"  
-                                            th:text="${item.value}"
-                                            th:selected="${oficina.tipoOficina == item.name()}"
-                                            th:value="${item.name()}" ></option>
+                                            th:text="${item.nombre}"
+                                            th:selected="${oficina.TipoOficina != null ? oficina.TipoOficina.id : -1 == item.id}"
+                                            th:value="${item.id}" ></option>
                                 </select>
                             </div>
-                            
+
                             <input id="tipoOficina" type="hidden" th:value="${oficina.tipoOficina}"/>
 
                         </div>

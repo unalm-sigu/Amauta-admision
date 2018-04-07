@@ -7,7 +7,9 @@ import pe.edu.lamolina.model.general.FuncionColaborador;
 
 public interface FuncionColaboradorDAO extends EasyDAO<FuncionColaborador> {
 
-    List<FuncionColaborador> findFuncionByColaborador(Colaborador colaborador);
+    List<FuncionColaborador> findFuncionByColaborador();
+
+    public List<FuncionColaborador> findFuncionByColaborador(Colaborador colaborador);
 
    
 }

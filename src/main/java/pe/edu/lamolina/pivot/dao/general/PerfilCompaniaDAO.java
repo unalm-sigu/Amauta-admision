@@ -8,4 +8,8 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
 
     List<PerfilCompania> allByNombre(String nombre);
 
+    public List<PerfilCompania> allTipoCargo();
+
+    public List<PerfilCompania> allTipoFuncion();
+
 }

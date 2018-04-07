@@ -27,4 +27,22 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
 
         return all(sql);
     }
+
+    @Override
+    public List<PerfilCompania> allTipoCargo() {
+           Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .filter("tipo", TipoPerfilCompaniaEnum.CARGO.name());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PerfilCompania> allTipoFuncion() {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name());
+
+        return all(sql);
+    }
 }

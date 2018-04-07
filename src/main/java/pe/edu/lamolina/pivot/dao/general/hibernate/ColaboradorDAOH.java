@@ -69,16 +69,34 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public List<Colaborador> allByOficina(DynatableFilter filter, Long idOficina) {
-        DynatableSql sql = new DynatableSql(filter);
-        sql.from(Colaborador.class, "co")
+    public List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Colaborador.class, "co")
                 .join("persona per", "oficina ofi")
-                .filter("ofi.id",idOficina)
-                .searchFields("ofi.nombre")
-                .searchFields("co.estado")
+                .in("ofi.id", oficinas)
+                .searchFields("ofi.nombre", "co.estado")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
-
         return all(sql);
+    }
+
+    @Override
+    public Colaborador findCodigo() {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .limit(1)
+                .orderBy("co.codigo desc");
+
+        return (Colaborador) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public Colaborador find(Colaborador colaborador) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("persona per", "per.tipoDocumento")
+                .filter("co.id", colaborador);
+
+        return find(sql);
     }
 }

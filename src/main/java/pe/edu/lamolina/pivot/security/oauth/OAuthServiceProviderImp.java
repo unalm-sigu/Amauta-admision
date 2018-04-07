@@ -155,7 +155,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         List<Oficina> oficinasByJefe = oficinaDAO.allByJefe(usuario.getPersona());
         for (Oficina oficina : oficinasByJefe) {
-            if (oficina.getTipoOficina().equals("DPTO")) {
+            if (oficina.getTipoOficina().getCodigo().equals("DPTO")) {
                 DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
                 dataSession.setDepartamentoAcademico(dpto);
             }

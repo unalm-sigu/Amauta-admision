@@ -1,0 +1,178 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Administración de Oficinas</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="colaboradorFormVue">
+
+            <header class="header b-b padder-lg">
+
+                <div class="btn-group pull-right">
+                    <a href="#" v-on:click="regresar" class="btn btn-default btn-sm pull-right">Regresar</a>
+                </div>
+
+                <h2>Nuevo Colaboradores</h2>
+
+            </header>
+         
+            <section class="wrapper-lg m-b-xs ">
+                <section class="panel">     
+                    <section class="panel-body">
+                        <div class="pull-left m-r">
+                            <img class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/male.png" />
+                        </div>
+                        <div>
+                            <h4 class="block text-primary bold " v-text="persona.nombreCompleto"></h4>
+                            <spam class="block" v-text="persona.numeroDocIdentidad"></spam>
+                            <spam v-text="colaborador.codigo"></spam>
+                        </div>
+                    </section>
+                    <form data-parsley-validate="true" id="formConfig"  method="post">
+                        <section class="panel-body">
+                            <div class="row" v-if="!newCola" >
+                                <div class="col-sm-6">
+                                    <label>Tipo de Documento</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="persona.tipoDocumento" 
+                                                     required="true"
+                                                     v-bind:options='tipoDoc'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     placeholder="Seleccione un tipo de documento"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">
+                                    <label>Número de Documento</label>
+                                    <div class="form-group">                                
+                                        <input type="text"   required="true" class="inline numeric form-control"  maxlength="200" v-model="persona.numeroDocIdentidad"/>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="row" v-if="!newCola">
+                                <div class="col-sm-6">
+                                    <label>Paterno</label>
+                                    <div class="form-group">                                
+                                        <input type="text"   required="true" class="inline form-control"  maxlength="200" v-model="persona.paterno"/>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">
+                                    <label>Materno</label>
+                                    <div class="form-group">                                
+                                        <input type="text"   required="true" class="inline form-control"  maxlength="200" v-model="persona.materno"/>
+                                    </div>
+                                </div>      
+                            </div>
+                            <div class="row" v-if="!newCola">
+                                <div class="col-sm-6">
+                                    <label>Nombres</label>
+                                    <div class="form-group">                                
+                                        <input type="text"   required="true" class="inline form-control"  maxlength="200" v-model="persona.nombres"/>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">
+                                    <label>Email</label>
+                                    <div class="form-group">                                
+                                        <input type="text"   required="true" class="inline form-control"  maxlength="200" v-model="persona.emailCompania"/>
+                                    </div>
+                                </div>      
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Área</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="colaborador.oficina" 
+                                                     v-bind:options='area'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     required="true"
+                                                     placeholder="Seleccione un tipo de documento"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">
+                                    <label>Cargo</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="colaborador.cargo" 
+                                                     v-bind:options='compania'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     required="true"
+                                                     placeholder="Seleccione un cargo"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Funciones</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="colaborador.funcionColaborador" 
+                                                     v-bind:options='funciones'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     v-bind:multiple="true" 
+                                                     required="true"
+                                                     placeholder="Seleccione una funcion"
+                                                     v-bind:taggable="true"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6" v-if="!newCola">
+                                    <label class="block">sexo</label>
+                                    <div class="form-group"> 
+
+                                        <label  for="Femenino">Femenino</label>
+                                        <input  type="radio" id ="Femenino" value="Femenino" v-model="persona.sexo"/>
+                                        <label for="Masculino">Masculino</label>
+                                        <input  type="radio"  id ="Masculino" value="Masculino" v-model="persona.sexo"/>
+
+                                    </div>
+                                </div> 
+
+                                <div class="form-group m-t-xxlg">
+                                    <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
+                                        <button class="btn btn-primary" 
+                                                type="submit"
+                                                v-on:click.prevent="save"     
+                                                v-if="!newCola"
+                                                >Guardar</button>            
+                                        <button class="btn btn-primary" 
+                                                type="submit"
+                                                v-on:click.prevent="update"      
+                                                v-if="newCola"
+                                                >Actualizar</button>    
+                                        <a v-on:click="regresar" class="btn btn-link" >Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </form>
+                </section>
+            </section>
+        </div>
+    </div>
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var oficinaId = /*[[${oficina}]]*/ 'json';
+            var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
+            var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
+            var sexoJson = /*[[${sexo}]]*/ 'json';
+            var areaJson = /*[[${area.toString()}]]*/ 'json';
+            var companiaJson = /*[[${compania.toString()}]]*/ 'json';
+            var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
+            /*]]>*/
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/general/oficina/colaborador/colaboradorForm.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>
