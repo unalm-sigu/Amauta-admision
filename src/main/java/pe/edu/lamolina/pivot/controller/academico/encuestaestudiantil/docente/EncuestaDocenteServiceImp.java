@@ -374,7 +374,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             encuesta.setAlumno(alumno);
             encuesta.setEncuestaDocente(encuestaDocente);
             if (encuestaDocente.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
-                encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+                encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
             } else {
                 encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
             }
