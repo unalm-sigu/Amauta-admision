@@ -153,7 +153,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
                 EncuestaAlumno encuesta = new EncuestaAlumno();
                 encuesta.setAlumno(alumno);
                 encuesta.setEncuestaCurso(encuestaCurso);
-                if (encuestaCurso.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.PEND) {
+                if (encuestaCurso.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
                     encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
                 } else {
                     encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
