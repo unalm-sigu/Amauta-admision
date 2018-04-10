@@ -21,11 +21,11 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
     }
 
     @Override
-    public Usuario findByEmail(String email) {
+    public Usuario findByGoogleEmail(String email) {
         Octavia sql = Octavia.query()
                 .from(Usuario.class, "u")
                 .join("persona per")
-                .filter("u.usuario", email);
+                .filter("u.google", email);
 
         return find(sql);
     }

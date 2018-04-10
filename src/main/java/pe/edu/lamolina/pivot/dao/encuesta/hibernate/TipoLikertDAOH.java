@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.encuesta.TipoLikert;
+import pe.edu.lamolina.model.encuestaestudiantil.TipoLikert;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoLikertDAO;
 
 @Repository

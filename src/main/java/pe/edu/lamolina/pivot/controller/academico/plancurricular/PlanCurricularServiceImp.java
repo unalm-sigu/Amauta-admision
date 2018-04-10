@@ -36,9 +36,11 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import static pe.edu.lamolina.model.enums.PostulanteApoyoEstadoEnum.ELE;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
 import static pe.edu.lamolina.model.enums.TipoGrupoHorariosEnum.OBL;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -111,7 +113,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     CursoEquivalenteDAO cursoEquivalenteDAO;
-    
+
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
         return carreraDAO.allRegularesByCarreras(carreras);
@@ -145,13 +147,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void saveGrupoEquivalente(GrupoCursoEquivalente grupo, DataSessionPivot ds) {
-        if(grupo.getCursoEquivalente() == null){
+        if (grupo.getCursoEquivalente() == null) {
             logger.debug("Curso equivalente es null");
             return;
         }
-        
-        Integer maxNumeroGrupo = cursoEquivalenteDAO.findMaxGrupoByCursoCurricula(grupo.getCursoCurricula())+1 ;
-        for(CursoEquivalente curso : grupo.getCursoEquivalente()){
+
+        Integer maxNumeroGrupo = cursoEquivalenteDAO.findMaxGrupoByCursoCurricula(grupo.getCursoCurricula()) + 1;
+        for (CursoEquivalente curso : grupo.getCursoEquivalente()) {
             curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId()));
             curso.setCursoCurricula(grupo.getCursoCurricula());
             curso.setGrupo(maxNumeroGrupo);
@@ -189,6 +191,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds) {
         verificarExistenciaCurso(cursoCurricula.getCurso(), cursoCurricula.getPlanCurricular());
 
+        Integer nroCurso = 1;
+        Integer nroCiclo = cursoCurricula.getNumeroCiclo();
+        PlanCurricular plan = cursoCurricula.getPlanCurricular();
+        List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
+        for (CursoCurricula cursoCurr : cursosCurr) {
+            if (cursoCurr.getNumeroCurso() != null) {
+                nroCurso = cursoCurr.getNumeroCurso() > nroCurso ? cursoCurr.getNumeroCurso() + 1 : nroCurso;
+            }
+        }
+
         List<RequisitoCursoCurricula> requisitos = cursoCurricula.getCursosCurricula();
         requisitos = (requisitos == null) ? new ArrayList() : requisitos;
 
@@ -199,6 +211,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             requisito.setFechaRegistro(new Date());
         }
 
+        cursoCurricula.setNumeroCurso(nroCurso);
         cursoCurricula.setUserRegistro(ds.getUsuario());
         cursoCurricula.setFechaRegistro(new Date());
         cursoCurriculaDAO.save(cursoCurricula);
@@ -298,8 +311,18 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Assert.isTrue(plan.getId().longValue() == cursoCurricula.getPlanCurricular().getId(), "El Plan de Estudios no es el correcto");
         Assert.isFalse(cursoCurricula.getNumeroCiclo() < 1, "El numero de ciclo no es el correcto");
         Assert.isFalse(cursoCurricula.getNumeroCiclo() > plan.getCiclos(), "El numero de ciclo no corresponde al plan");
+        
+        Integer nroCurso = 1;
+        Integer nroCiclo = cursoCurricula.getNumeroCiclo();
+        List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
+        for (CursoCurricula cursoCurr : cursosCurr) {
+            if (cursoCurr.getNumeroCurso() != null) {
+                nroCurso = cursoCurr.getNumeroCurso() > nroCurso ? cursoCurr.getNumeroCurso() + 1 : nroCurso;
+            }
+        }
 
         cursoCurriculaBD.setNumeroCiclo(cursoCurricula.getNumeroCiclo());
+        cursoCurriculaBD.setNumeroCurso(nroCurso);
         cursoCurriculaDAO.update(cursoCurriculaBD);
     }
 
@@ -363,6 +386,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Assert.isTrue(postRequisitos.isEmpty(), "Este curso es pre-requisito de otros cursos. No puede ser trasladado");
 
         PlanCurricular plan = cursoOpcionalBD.getPlanCurricular();
+        
+        Integer nroCurso = 1;
+        Integer nroCiclo = cursoCurriculaForm.getNumeroCiclo();
+        List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
+        for (CursoCurricula cursoCurr : cursosCurr) {
+            if (cursoCurr.getNumeroCurso() != null) {
+                nroCurso = cursoCurr.getNumeroCurso() > nroCurso ? cursoCurr.getNumeroCurso() + 1 : nroCurso;
+            }
+        }
 
         CursoCurricula cursoCurricula = new CursoCurricula();
         cursoCurricula.setCreditos(cursoOpcionalBD.getCreditos());
@@ -371,6 +403,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setPlanCurricular(cursoOpcionalBD.getPlanCurricular());
         cursoCurricula.setTipoCursoCurricula(cursoCurriculaForm.getTipoCursoCurricula());
         cursoCurricula.setNumeroCiclo(cursoCurriculaForm.getNumeroCiclo());
+        cursoCurricula.setNumeroCurso(nroCurso);
         cursoCurricula.setFechaRegistro(new Date());
         cursoCurricula.setUserRegistro(ds.getUsuario());
 
@@ -606,20 +639,48 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
-    public List<TipoCursoCurricula> allTiposCursoCurricula() {
-        return tipoCursoCurriculaDAO.all();
+    public List<TipoCursoCurricula> allTiposCursoCurriculaByPlan(PlanCurricular plan) {
+        Carrera carrera = plan.getCarrera();
+        List<TipoCursoCurricula> tipos = tipoCursoCurriculaDAO.all();
+        List<TipoCursoCurricula> tiposEnvio = new ArrayList();
+
+        for (TipoCursoCurricula tipo : tipos) {
+            if (tipo.getCodigoEnum() == CULT) {
+                if (carrera.getCodigo().equals("010")) { // Solo agronomia
+                    tiposEnvio.add(tipo);
+                }
+            } else if (tipo.getCodigoEnum() == PROD) {
+                if (carrera.getCodigo().equals("060")) { // Solo zootecnia
+                    tiposEnvio.add(tipo);
+                }
+            } else {
+                tiposEnvio.add(tipo);
+            }
+        }
+        return tiposEnvio;
     }
 
     @Override
-    public List<TipoCursoCurricula> allTiposCursoCurriculasElectivos() {
-        List<TipoCursoCurricula> total = tipoCursoCurriculaDAO.all();
-        List<TipoCursoCurricula> lista = new ArrayList();
-        for (TipoCursoCurricula tipo : total) {
+    public List<TipoCursoCurricula> allTiposCursoCurriculasElectivosByPlan(PlanCurricular plan) {
+        Carrera carrera = plan.getCarrera();
+        List<TipoCursoCurricula> tiposEnvio = new ArrayList();
+        List<TipoCursoCurricula> tiposTodos = tipoCursoCurriculaDAO.all();
+
+        for (TipoCursoCurricula tipo : tiposTodos) {
             if (Arrays.asList(ELE, ELF, ELC).contains(tipo.getCodigoEnum())) {
-                lista.add(tipo);
+                tiposEnvio.add(tipo);
+            }
+            if (tipo.getCodigoEnum() == CULT) {
+                if (carrera.getCodigo().equals("010")) { // Solo agronomia
+                    tiposEnvio.add(tipo);
+                }
+            } else if (tipo.getCodigoEnum() == PROD) {
+                if (carrera.getCodigo().equals("060")) { // Solo zootecnia
+                    tiposEnvio.add(tipo);
+                }
             }
         }
-        return lista;
+        return tiposEnvio;
     }
 
     @Override
@@ -733,7 +794,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular) {
         CursoCurricula cursoCurricula = findCursoCurriculaByCursoPlan(curso, planCurricular);
-        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
+        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, CULT).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
         } else {
             Assert.isNull(cursoCurricula, "Este curso ya existe en el grupo de obligatorios o generales");
         }
