@@ -84,8 +84,6 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         logger.debug("cicloAcademico {}", cicloAcademico.getId());
 
-        List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE1, EventoAcademicoEnum.CLASES_PRE2);
-
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         logger.debug("modalidad {}", modalidad.getId());
         EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.allByCicloTipo(cicloAcademico, modalidad, TipoExamenVirtualEnum.ENC_CUR);
@@ -94,8 +92,11 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         }
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByModalidadEstudioCiclo(modalidad, cicloAcademico);
         logger.debug("matriculaSeccions {}", matriculaSeccions.size());
-        List<EventoCicloAcademico> eventosCicloAcademico = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
-        logger.debug("eventosCicloAcademico {}", eventosCicloAcademico.size());
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE2);
+        if (eventoCicloAcademico == null) {
+            throw new PhobosException("No esta configurado el evento académico");
+        }
+        logger.debug("eventosCicloAcademico {}", eventoCicloAcademico.getId());
 
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
         Map<Long, Curso> cursosSinEncuestaMap = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
@@ -129,40 +130,37 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             }
             logger.debug("cantidad alumnos {} ", alumnos.size());
 
-            for (EventoCicloAcademico eventoCicloAcademico : eventosCicloAcademico) {
-                Date fechaFinEvento = eventoCicloAcademico.getFechaFin();
-                Date fechaInicio = new Date(fechaFinEvento.getTime() - 15 * DAYSINMS);
-                Date fechaFin = new Date(fechaFinEvento.getTime() - 7 * DAYSINMS);
+            Date fechaFinEvento = eventoCicloAcademico.getFechaFin();
+            Date fechaInicio = new Date(fechaFinEvento.getTime() - 15 * DAYSINMS);
+            Date fechaFin = new Date(fechaFinEvento.getTime() - 7 * DAYSINMS);
 
-                EncuestaCurso encuestaCurso = new EncuestaCurso();
-                encuestaCurso.setAlumnoFin(0L);
-                encuestaCurso.setAlumnosEncuestados((long) alumnos.size());
-                encuestaCurso.setAlumnosInicio((long) alumnos.size());
-                encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-                if (minimoAlumnos > alumnos.size()) {
-                    encuestaCurso.setDescripcion(Constantine.REQ_MIN_ALUMNO);
-                    encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+            EncuestaCurso encuestaCurso = new EncuestaCurso();
+            encuestaCurso.setAlumnoFin(0L);
+            encuestaCurso.setAlumnosEncuestados((long) alumnos.size());
+            encuestaCurso.setAlumnosInicio((long) alumnos.size());
+            encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+            if (minimoAlumnos > alumnos.size()) {
+                encuestaCurso.setDescripcion(Constantine.REQ_MIN_ALUMNO);
+                encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+            }
+            encuestaCurso.setEncuestaEstudiantil(encuestaEstudiantil);
+            encuestaCurso.setFechaEncuestaInicio(fechaInicio);
+            encuestaCurso.setFechaEncuestaFin(fechaFin);
+            encuestaCurso.setGrupoSeccion(grupoSeccion);
+            encuestaCursoDAO.save(encuestaCurso);
+
+            for (Alumno alumno : alumnos) {
+                EncuestaAlumno encuesta = new EncuestaAlumno();
+                encuesta.setAlumno(alumno);
+                encuesta.setEncuestaCurso(encuestaCurso);
+                if (encuestaCurso.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
+                    encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
+                } else {
+                    encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
                 }
-                encuestaCurso.setEncuestaEstudiantil(encuestaEstudiantil);
-                encuestaCurso.setFechaEncuestaInicio(fechaInicio);
-                encuestaCurso.setFechaEncuestaFin(fechaFin);
-                encuestaCurso.setGrupoSeccion(grupoSeccion);
-                encuestaCursoDAO.save(encuestaCurso);
-
-                for (Alumno alumno : alumnos) {
-                    EncuestaAlumno encuesta = new EncuestaAlumno();
-                    encuesta.setAlumno(alumno);
-                    encuesta.setEncuestaCurso(encuestaCurso);
-                    if (encuestaCurso.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
-                        encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-                    } else {
-                        encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
-                    }
-                    encuesta.setUserRegistro(ds.getUsuario());
-                    encuesta.setFechaRegistro(new Date());
-                    encuestaAlumnoDAO.save(encuesta);
-                }
-
+                encuesta.setUserRegistro(ds.getUsuario());
+                encuesta.setFechaRegistro(new Date());
+                encuestaAlumnoDAO.save(encuesta);
             }
 
         }
