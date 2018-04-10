@@ -187,7 +187,9 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     public List<Curso> allForProgramacion(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cur");
+        sql.join("departamentoAcademico da");
         sql.like("cur.nombre", nombre);
+        sql.complexFilter("concat(cur.nombre,' ',cur.codigo,' ',da.nombre,' ',da.nombreLargo)", "like", "%" + nombre + "%");
         sql.orderBy("cur.nombre");
         sql.limit(10);
 

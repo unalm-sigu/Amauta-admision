@@ -164,6 +164,13 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public void updateRestriccionCapa(Seccion seccion) {
+        Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "restriccionCapa");
+        this.update(octavia);
+    }
+
+    @Override
     public void updateSeccionVacantes(Seccion seccion) {
 
         StringBuilder strb = new StringBuilder();

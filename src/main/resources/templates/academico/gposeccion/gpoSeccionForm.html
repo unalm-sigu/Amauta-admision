@@ -68,10 +68,11 @@
                                 <thead> 
                                     <tr class=""> 
                                         <th class="col-md-1 text-center">Clave </th>
-                                        <th class="col-md-2 text-center">Aula</th>
+                                        <th class="col-md-1 text-center">Aula</th>
                                         <th class="col-md-1 text-center">Grupo</th>
                                         <th class="col-md-2 text-center">Restricion</th>
                                         <th class="col-md-1 text-center">Tipo Repitencia</th>
+                                        <th class="col-md-1 text-center">Restriccion CAPA</th>
                                         <th class="col-md-1 text-center">Vac</th>
                                         <th class="col-md-1 text-center">Mat</th>
                                         <th class="col-md-1 text-center">Docentes</th>
@@ -160,7 +161,7 @@
                                             <a v-on:click="showModalRestriccion(seccion)" 
                                                v-if="!seccion.tieneRestriccion &amp;&amp; !seccion.esTipoSeccionTcur"
                                                style="cursor:pointer;">
-                                                S/R
+                                                {{SIN_RESTRICCION_TEXT}}
                                             </a>
                                             <div class="col-md-12"
                                                  v-if="seccion.tieneRestriccion &amp;&amp; !seccion.esTipoSeccionTcur">
@@ -219,7 +220,7 @@
                                             <a v-on:click="showModalTipoRepitencia(seccion)" 
                                                v-if="!seccion.tieneRestriccionRepitencia  &amp;&amp; !seccion.esTipoSeccionTcur"
                                                style="cursor:pointer;">
-                                                S/R
+                                                {{SIN_RESTRICCION_TEXT}}
                                             </a>
 
                                             <div class="col-md-12">
@@ -235,6 +236,27 @@
                                             </div>
 
 
+                                        </td>
+                                        <td class="text-center">
+                                            <div v-if="seccion.esTipoSeccionTcur" >
+                                                {{ seccion.restriccionCapa }}
+                                            </div>
+
+                                            <div v-if="!seccion.esTipoSeccionTcur" 
+                                                 v-show="!seccion.editRestriccionCapa &amp;&amp; !directEditSecciones">
+                                                <a v-on:click="seccion.editRestriccionCapa=true" class="pointer"> 
+                                                    {{ seccion.restriccionCapa }} 
+                                                </a>
+                                            </div>
+
+                                            <input v-if="!seccion.esTipoSeccionTcur" 
+                                                   v-show="seccion.editRestriccionCapa || directEditSecciones" 
+                                                   size="5"
+                                                   class="form-control"
+                                                   v-model="seccion.restriccionCapa"
+                                                   v-on:blur="changeRestriccionCapa(seccion,$event)"
+                                                   v-on:keyup.enter="changeRestriccionCapa(seccion,$event)">
+                                            </input>   
                                         </td>
                                         <td class="text-center">
                                             <div v-if="seccion.esTipoSeccionTcur" >

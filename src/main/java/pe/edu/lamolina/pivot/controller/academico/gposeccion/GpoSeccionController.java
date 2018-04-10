@@ -316,7 +316,7 @@ public class GpoSeccionController {
             }
             node.put("porcentajeAvance", porcentajeAvance);
             node.put("editVacantes", Boolean.FALSE);
-
+            node.put("editRestriccionCapa", Boolean.FALSE);
             array.add(node);
         }
         jsonResponse.setSuccess(true);
@@ -408,8 +408,8 @@ public class GpoSeccionController {
             for (Curso cur : cursos) {
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", cur.getId());
-                json.put("cursoNombre", cur.getCodigo());
-                json.put("cursoCodigo", cur.getNombre());
+                json.put("cursoNombre", cur.getNombre());
+                json.put("cursoCodigo", cur.getCodigo());
                 json.put("cursoTpc", cur.getTpc());
                 json.put("cursoCreditos", cur.getCreditos());
                 json.put("departamentoNombre", ObjectUtil.getParentTree(cur, "departamentoAcademico.nombre") != null ? cur.getDepartamentoAcademico().getNombre() : "");
@@ -838,6 +838,34 @@ public class GpoSeccionController {
 
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Vacantes actualizadas");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarRestriccionCapa")
+    public JsonResponse cambiarRestriccionCapa(
+            @RequestParam("seccion") Long seccionId,
+            @RequestParam("capa") Integer capa,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            logger.debug("seccion {}, capa {}", seccionId, capa);
+
+            Seccion seccion = new Seccion(seccionId);
+            seccion.setRestriccionCapa(capa);
+            service.actualizarSeccionResctriccionCapa(seccion, ds.getUsuario());
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Restricción CAPA actualizada.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {

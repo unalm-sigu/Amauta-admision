@@ -169,4 +169,6 @@ public interface GpoSeccionService {
 
     GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion);
 
+    void actualizarSeccionResctriccionCapa(Seccion seccionForm, Usuario usuario);
+
 }

@@ -98,6 +98,7 @@ Vue.component("seccion-det-component", {
 var app = new Vue({
     el: '#pageGpoSeccion',
     data: {
+        SIN_RESTRICCION_TEXT: "Todos",
         grupoSeccion: {},
         secciones: null,
         directEditSecciones: false,
@@ -557,6 +558,51 @@ var app = new Vue({
                     data: {
                         seccion: seccion.id,
                         vacantes: seccion.vacantes
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            notify(response.message, "info");
+                            $vue.loadSecciones();
+                        } else {
+                            $vue.loadSecciones();
+                            notify(response.message, "error");
+                        }
+                    },
+                    error: function () {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                });
+            }
+        }, changeRestriccionCapa(seccion, event) {
+
+            seccion.editRestriccionCapa = false;
+            let $vue = this;
+            if (event != null) {
+                let form = $(event.target);
+
+                form.attr("data-parsley-type", "digits");
+                if (seccion.aula != null) {
+                    form.attr("data-parsley-max", 300);
+                    form.attr("data-parsley-min", 1);
+                } else {
+                    form.removeAttr("data-parsley-max");
+                    form.removeAttr("data-parsley-min");
+                }
+
+                form.parsley().destroy();
+                form.parsley();
+
+                if (form.parsley().validate() !== true) {
+                    return;
+                }
+
+                $.ajax({
+                    url: APP.url('academico/gposeccion/cambiarRestriccionCapa'),
+                    type: 'POST',
+                    async: false,
+                    data: {
+                        seccion: seccion.id,
+                        capa: seccion.restriccionCapa
                     },
                     success: function (response) {
                         if (response.success) {
