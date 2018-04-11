@@ -13,9 +13,12 @@
                     <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="/academico/matriculable/generar">Generar</a></li>
+                    <li><a id="generarMatriculables" >Generar</a></li>
                     <li><a href="/academico/matriculable/nuevo">Agregar Matriculable</a></li>
                     <li><a id="agregarMatriculable">Modal Matriculable</a></li>
+                    <li><a id="generarPrioridad">Procesar Prioridad</a></li>
+                    <li><a id="asignarTurnos">Asignar Turnos</a></li>
+                    <li><a id="subirEgresado">Subir Egresados</a></li>
                 </ul>
             </div>
             <h2>Alumnos Matriculables <span th:text="${ciclo.descripcion}">2016-II</span></h2>
@@ -74,12 +77,14 @@
             </section>
         </section>
 
+        <div th:substituteby="templates/modal"/>
         <script id="matriculableTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/matriculable/matriculableTemplate"/></script>
         <div id="matriculableModal"></div>
         <div id="cursosModal"></div>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <div th:substituteby="_layout/includes :: javascript-upload"></div>
         <script th:src="@{/app/academico/matriculable/matriculable.js}" charset="utf-8"></script>
     </div>
 </body>

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -130,38 +132,101 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     @Autowired
     CursoDAO cursoDAO;
+    @Autowired
+    VisorLoadProgramacion visor;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Transactional
-    public void loadArchivosHorario(MultipartFile[] files, CicloAcademico ciclo, DataSessionPivot ds) {
-        logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
+    public Map<String, String> loadArchivosHorario(MultipartFile[] files) {
 
-        String rutaFileGpoSecciones = saveFile(files[0]);
-        String rutaFileSecciones = saveFile(files[1]);
-        String rutaFilePersonas = saveFile(files[2]);
-        String rutaFileProfes = saveFile(files[3]);
-        String rutaFileProfeSecciones = saveFile(files[4]);
-        String rutaFileAlumno = saveFile(files[5]);
-        String rutaFileAlumnoSecciones = saveFile(files[6]);
-        String rutaFileHorarioGrupos = saveFile(files[7]);
-        String rutaFileHorarioSecciones = saveFile(files[8]);
-        String rutaFileCursos = saveFile(files[9]);
+        Map<String, String> mapRutaFiles = new HashMap();
+        for (MultipartFile file : files) {
+            String nombre = file.getOriginalFilename();
+            String ruta = saveFile(file);
+            mapRutaFiles.put(nombre, ruta);
+        }
+        return mapRutaFiles;
+    }
+
+    @Async
+    @Override
+    @Transactional
+    public void inicioProcesarArchivos(Map<String, String> rutasFiles, CicloAcademico ciclo, DataSessionPivot ds) {
+        try {
+            procesarArchivos(rutasFiles, ciclo, ds);
+        } catch (Exception e) {
+            e.printStackTrace();
+            visor.agregarLog("error", "error", "error: " + e.getLocalizedMessage(), false, "error");
+        }
+    }
+
+    private void procesarArchivos(Map<String, String> mapRutaFiles, CicloAcademico ciclo, DataSessionPivot ds) {
+
+        visor.iniciar();
+        logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
+        visor.agregarLog("ciclo", "inicio", "Ciclo " + ciclo.getId() + " " + ciclo.getYear() + " " + ciclo.getNumeroCiclo(), false, "info");
+
+        String rutaFileGpoSecciones = mapRutaFiles.get("GruposSecciones.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileGpoSecciones: " + rutaFileGpoSecciones, false, "info");
+
+        String rutaFileSecciones = mapRutaFiles.get("Secciones.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileSecciones: " + rutaFileSecciones, false, "info");
+
+        String rutaFilePersonas = mapRutaFiles.get("Personas.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFilePersonas: " + rutaFilePersonas, false, "info");
+
+        String rutaFileProfes = mapRutaFiles.get("Docentes.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileProfes: " + rutaFileProfes, false, "info");
+
+        String rutaFileProfeSecciones = mapRutaFiles.get("DocentesSecciones.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileProfeSecciones: " + rutaFileProfeSecciones, false, "info");
+
+        String rutaFileAlumno = mapRutaFiles.get("Alumnos.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileAlumno: " + rutaFileAlumno, false, "info");
+
+        String rutaFileAlumnoSecciones = mapRutaFiles.get("Matricula.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileAlumnoSecciones: " + rutaFileAlumnoSecciones, false, "info");
+
+        String rutaFileHorarioGrupos = mapRutaFiles.get("HorarioGrupos.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileHorarioGrupos: " + rutaFileHorarioGrupos, false, "info");
+
+        String rutaFileHorarioSecciones = mapRutaFiles.get("HorarioSecciones.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileHorarioSecciones: " + rutaFileHorarioSecciones, false, "info");
+
+        String rutaFileCursos = mapRutaFiles.get("Cursos.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileCursos: " + rutaFileCursos, false, "info");
 
         List<GrupoSeccion> gruposSecciones = crearGruposSecciones(rutaFileGpoSecciones);
+        visor.inicializar("gpoSecc", gruposSecciones.size());
+
         List<Seccion> secciones = crearSecciones(rutaFileSecciones);
+        visor.inicializar("secc", secciones.size());
+
         List<Persona> personas = crearPersonas(rutaFilePersonas);
+        visor.inicializar("per", personas.size());
+
         List<Docente> docentes = crearDocentes(rutaFileProfes);
+        visor.inicializar("doc", docentes.size());
+
         List<DocenteSeccion> docentesSecciones = crearDocenteSecciones(rutaFileProfeSecciones);
+        visor.inicializar("docSecc", docentesSecciones.size());
+
         List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
+        visor.inicializar("alu", alumnos.size());
+
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
+        visor.inicializar("aluSecc", matriculaSecciones.size());
 
         List<Persona> personasDB = personaDAO.all();
         Map<String, List<Persona>> mapKeyPersonas = TypesUtil.convertListToMapList("key", personasDB);
         Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
         Map<String, Persona> mapDNIPersonas = new LinkedHashMap();
         for (Persona persona : personasDB) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             if (persona.getTipoDocumento() != null && persona.getNumeroDocIdentidad() != null) {
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
             }
@@ -177,6 +242,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
         for (Persona persona : personas) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             if (mapIdPersonas.get(persona.getId()) == null) {
                 mapIdPersonas.put(persona.getId(), persona);
             }
@@ -226,7 +295,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentesSecciones");
-        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes);
+        Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
 
@@ -274,6 +343,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         List<DiaHoraGrupo> horariosGrupo = crearHorarioGrupos(rutaFileHorarioGrupos, mapDias, mapHoras, mapGrupos, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosGrupo ejecutado en {} mseg", (t2 - t1));
+        visor.agregarLog("fin", "fin", "Carga finalizada", false, "fin");
 
     }
 
@@ -299,6 +369,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long loop = 1;
         for (Docente docente : docentes) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("Guardando docente {} de {}", loop, docentes.size());
             Docente profe = mapDocentes.get(docente.getCodigo());
             if (profe != null) {
@@ -343,6 +417,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long loop = 1;
         for (Alumno alumno : alumnos) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("Guardando alumno {} de {}", loop, alumnos.size());
             Persona persona = alumno.getPersona();
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
@@ -376,7 +454,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         long loop = 1;
         for (Persona persona : personas) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             logger.debug("Guardando persona {} de {}", loop, personas.size());
+            visor.agregarLog("per", "savePersonas", "Guardando persona " + persona.getKey(), true, "info");
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
             List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
             progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
@@ -398,7 +481,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             loop++;
         }
 
+        visor.inicializar("aluRes", alumnosResumen.size());
         for (MatriculaResumen aluResumen : alumnosResumen) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
             progDataService.revisarAlumnoMatriculado(aluResumen, mapResumenes, mapBloqueados);
         }
 
@@ -409,6 +496,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         boolean verError = true;
         boolean iniciarTimer = false;
         for (;;) {
+
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             boolean salir = true;
             boolean ver = false;
             boolean errorVisto = false;
@@ -478,12 +570,19 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
         Map<String, MatriculaResumen> mapResumenes = new LinkedHashMap();
         for (MatriculaSeccion matriSecc : matriculasSecciones) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
             progDataService.loadDataMatriculados(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
         }
 
         long t1 = System.currentTimeMillis();
         int procesadosAntes = -1;
         for (;;) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
             long t2 = System.currentTimeMillis();
             boolean salir = true;
             boolean ver = false;
@@ -557,6 +656,14 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String diaNum = getCellStringValue(4, row);
                 String horaNum = getCellStringValue(5, row);
 
+                if (StringUtils.isEmpty(cicloCod)) {
+                    break;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
+                }
+
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
                 Hora hora = mapHoras.get(Integer.parseInt(horaNum));
                 GrupoHoras grupo = mapGrupos.get(gpo);
@@ -571,11 +678,17 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
             }
 
+            visor.inicializar("horGpo", mapGpoHorarios.size());
+
+            List<DiaHoraGrupo> hdiaGpoTodosBD = diaHoraGrupoDAO.allByCiclo(ciclo);
+            Map<Long, List<DiaHoraGrupo>> mapHorarioGpos = TypesUtil.convertListToMapList("grupoHorario.id", hdiaGpoTodosBD);
             for (Map.Entry<String, List<DiaHoraGrupo>> entry : mapGpoHorarios.entrySet()) {
                 String gpo = entry.getKey();
                 GrupoHoras grupo = mapGrupos.get(gpo);
                 List<DiaHoraGrupo> hdiaGpo = entry.getValue();
-                List<DiaHoraGrupo> hdiaGpoBD = diaHoraGrupoDAO.allByGrupo(grupo, ciclo);
+                //List<DiaHoraGrupo> hdiaGpoBD = diaHoraGrupoDAO.allByGrupo(grupo, ciclo);
+                List<DiaHoraGrupo> hdiaGpoBD = mapHorarioGpos.get(grupo.getId());
+                hdiaGpoBD = (hdiaGpoBD == null) ? new ArrayList() : hdiaGpoBD;
                 ListsInspector inspector = TypesUtil.analizeLists(hdiaGpoBD, hdiaGpo, "key");
 
                 List<DiaHoraGrupo> nuevos = inspector.getNewList();
@@ -584,17 +697,19 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 logger.debug("\tNuevos grupos por agregar {}", nuevos.size());
                 int cont = 0;
                 for (DiaHoraGrupo nuevo : nuevos) {
-                    logger.debug("\t({}, {}) {} {} {}",cont++, nuevos.size(), nuevo.getGrupoHorario().getCodigo(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero());
+                    logger.debug("\t({}, {}) {} {} {}", cont++, nuevos.size(), nuevo.getGrupoHorario().getCodigo(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero());
                     diaHoraGrupoDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
 
                 diaHoraGrupoDAO.deleteAllInList(muertos);
+                visor.agregarLog("horGpo", "saveHorGpo", "Guardando horario de " + gpo, true, "info");
 
             }
 
             return horarios;
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -632,7 +747,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String horaNum = getCellStringValue(5, row);
                 String aulaCod = getCellStringValue(6, row);
 
-                CicloAcademico ciclo = cicloAcademico;
+                if (StringUtils.isEmpty(clave)) {
+                    break;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
+                }
 
                 Seccion seccion = mapSecciones.get(clave);
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
@@ -649,13 +770,24 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 horarioSecc.add(horario);
 
             }
-            
+
+            visor.inicializar("horSecc", mapSeccHorarios.size());
+
             logger.debug("{} horarioSeccion leídos", mapSeccHorarios.size());
+            List<HorarioSeccion> horarioSeccCicloBD = horarioSeccionDAO.allByCiclo(cicloAcademico);
+            Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
+                logger.debug("clave {} de horarioSeccion", clave);
                 Seccion seccion = mapSecciones.get(clave);
+                if (seccion == null) {
+                    visor.agregarLog("horSecc", "saveHorSecc", "Horario-seccion no se puede grabar para seccion " + clave + " no existente", false, "error");
+                    logger.debug("\tNo existe PTM!!!!");
+                }
                 List<HorarioSeccion> horarioSecc = entry.getValue();
-                List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
+                //List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
+                List<HorarioSeccion> horarioSeccBD = mapHorarios.get(seccion.getId());
+                horarioSeccBD = (horarioSeccBD == null) ? new ArrayList() : horarioSeccBD;
                 ListsInspector inspector = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
 
                 List<HorarioSeccion> nuevos = inspector.getNewList();
@@ -683,10 +815,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     horarioSeccionDAO.update(hsBD);
                     horarios.add(hsBD);
                 }
+                visor.agregarLog("horSecc", "saveHorSecc", "horarios-seccion actualizados para " + seccion.getCodigo(), true, "info");
             }
 
             return horarios;
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -711,6 +845,27 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String curCodigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(curCodigo)) {
+                    break;
+                }
+            }
+            visor.inicializar("cur", loop);
+
+            loop = 0;
+            rowIterator = mySheet.iterator();
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                loop = row.getRowNum();
+
+                if (loop < 1) {
+                    continue;
+                }
+
+                if (visor.isStop()) {
+                    throw new PhobosException("Carga detenida intespestivamente");
+                }
+
+                String curCodigo = getCellStringValue(1, row);
                 String curNuevo = getCellStringValue(2, row);
                 String nombre = getCellStringValue(3, row);
                 String depCodigo = getCellStringValue(4, row);
@@ -722,11 +877,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String tipo = getCellStringValue(10, row);
 
                 if (mapCursos.get(curNuevo) != null) {
+                    visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " ya existe", true, "info");
                     continue;
                 }
 
                 Curso curso = new Curso();
                 curso.setCodigo(curNuevo);
+                curso.setNombre(nombre);
                 curso.setCreditos(Integer.parseInt(curCredit));
                 curso.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
                 curso.setCodigoAnterior1(curCodigo);
@@ -744,9 +901,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 cursoDAO.save(curso);
                 mapCursos.put(curso.getCodigo(), curso);
+                visor.agregarLog("cur", "saveCursos", "Curso " + curNuevo + " nuevo guardado", true, "info");
             }
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -772,6 +931,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String codigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(codigo)) {
+                    break;
+                }
+
                 String codigoEspecialidad = getCellStringValue(2, row);
                 String codigoPostgrado = getCellStringValue(3, row);
                 String situacion = getCellStringValue(4, row);
@@ -793,10 +956,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String telefono = getCellStringValue(22, row);
                 String ubigeoDomicilio = getCellStringValue(24, row);
                 String domicilio = getCellStringValue(25, row);
-
-                if (StringUtils.isEmpty(codigo)) {
-                    break;
-                }
 
                 if (StringUtils.isEmpty(tipoDocumento)) {
                     tipoDocumento = "DNI";
@@ -827,6 +986,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             logger.debug("Se han leido un total de {} alumnos", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -854,13 +1014,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String ciclo = getCellStringValue(1, row);
-                String codigoAlumno = getCellStringValue(2, row);
-                String codigoSeccion = getCellStringValue(3, row);
-                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
-
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
+
+                String codigoAlumno = getCellStringValue(2, row);
+                String codigoSeccion = getCellStringValue(3, row);
+                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
 
                 MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion, creditos);
                 matriculasSecciones.add(alumnoSecc);
@@ -868,6 +1028,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             logger.debug("Se han leido un total de {} alumnos-secciones", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -910,6 +1071,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             logger.debug("Se han leido un total de {} profesores-secciones", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -957,6 +1119,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             logger.debug("Se han leido un total de {} personas", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -984,6 +1147,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 String paterno = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(paterno)) {
+                    break;
+                }
+
                 String materno = getCellStringValue(2, row);
                 String nombres = getCellStringValue(3, row);
                 String tipoDoc = getCellStringValue(4, row);
@@ -999,10 +1166,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String telefono = getCellStringValue(14, row);
                 String ubigeoDomicilio = getCellStringValue(16, row);
                 String domicilio = getCellStringValue(17, row);
-
-                if (StringUtils.isEmpty(paterno)) {
-                    break;
-                }
 
                 if (StringUtils.isEmpty(tipoDoc)) {
                     tipoDoc = "DNI";
@@ -1025,6 +1188,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             logger.debug("Se han leido un total de {} personas", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -1066,11 +1230,14 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Integer matriculados = getCellIntegerValue(11, row);
 
                 Seccion seccion = new Seccion(clave, clave2, gpo, aula, gclave, tclave, vacantes, matriculados);
+                System.out.println(seccion.getCodigo() + " vacantes: " + seccion.getVacantes());
+                System.out.println("\t" + " matriculados: " + seccion.getMatriculados());
                 secciones.add(seccion);
             }
             logger.debug("Se han leido un total de {} secciones", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
@@ -1112,8 +1279,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             logger.debug("Se han leido un total de {} grupos-secciones", loop);
 
         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
+            ex.printStackTrace();
             throw new PhobosException("El archivo no puede ser leido");
         }
 
@@ -1125,11 +1294,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(file.getOriginalFilename());
             FileHelper.createDirectory(Constantine.TMP_DIR);
             String absoluteName = Constantine.TMP_DIR + fileName;
-
             FileHelper.saveToDisk(file, absoluteName);
             return absoluteName;
         } catch (IOException ex) {
-            throw new PhobosException("Archivo no puede ser ubicado en el servidor");
+            ex.printStackTrace();
+            throw new PhobosException("Archivo no puede ser guardado en el servidor");
         }
     }
 
@@ -1163,45 +1332,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         }
 
         return dato;
-    }
-
-    private BigDecimal getCellNumericValue(int pos, Row row) {
-        Cell cell = row.getCell(pos);
-        if (cell == null) {
-            return null;
-        }
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-            return new BigDecimal(cell.getNumericCellValue());
-        }
-
-        cell.setCellType(Cell.CELL_TYPE_STRING);
-        String dato = cell.getStringCellValue();
-        if (dato == null) {
-            return null;
-        }
-
-        dato = StringUtils.replaceChars(dato, '\t', ' ');
-        dato = StringUtils.replaceChars(dato, '\r', ' ');
-        dato = StringUtils.replaceChars(dato, '\n', ' ');
-        dato = StringUtils.replaceChars(dato, ',', ' ');
-        dato = StringUtils.replaceChars(dato, '|', ' ');
-        dato = StringUtils.replaceChars(dato, '´', '\'');
-        dato = dato.replaceAll("\\s{2,}", " ").trim();
-
-        if (dato.equals(".")) {
-            return BigDecimal.ZERO;
-        }
-        if (dato.equals("-")) {
-            throw new PhobosException("Valor de integer desconocido");
-        }
-        if (dato.equals(",")) {
-            return BigDecimal.ZERO;
-        }
-        if (StringUtils.isEmpty(dato)) {
-            return null;
-        }
-
-        return new BigDecimal(dato);
     }
 
     private Integer getCellIntegerValue(int pos, Row row) {

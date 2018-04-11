@@ -394,7 +394,8 @@ public class CargaAcademicaController {
 
                 ObjectNode nodeDoc = new ObjectNode(JsonNodeFactory.instance);
                 nodeDoc.put("seccion", seccion.getCodigo2());
-                nodeDoc.put("docente", profe == null ? "" : (profe.getPersona().getApellidosNombres()));
+
+                nodeDoc.put("docente", profe == null ? "" : profe.getPersona() != null ? profe.getPersona().getApellidosNombres() : profe.getCodigo());
 
                 evaluadores.add(nodeDoc);
             }

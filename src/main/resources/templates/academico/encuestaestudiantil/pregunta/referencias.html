@@ -1,0 +1,23 @@
+<table class="table table-hover">
+
+    <thead>
+        <tr>
+            <th></th>
+            <th class="col-xs-1">Orden</th>
+            <th class="col-xs-11">Contenido</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="item : ${preguntas}" 
+            class="pointer" 
+            th:rel="${item.id}" 
+            th:rev="${item.numero}"
+            th:attr="data-cont-title=${#strings.abbreviate(item.texto,70)}"
+            >
+            <td class="v-middle"><input type="radio" name="opcionReferencia"/></td>
+            <td class="v-middle" th:text="${item.numero}"></td>
+            <td class="v-middle" th:text="${#strings.abbreviate(item.texto,70)}"></td>
+        </tr>
+    </tbody>
+
+</table>

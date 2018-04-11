@@ -1,0 +1,46 @@
+<div class="row">
+
+    <h3>Nuevo Bloque</h3>
+
+    <div class="col-sm-12 m-t-lg">
+
+        <form  data-parsley-validate="true">
+
+            <input  type="hidden" name="id" />
+            <input  type="hidden" name="subTituloExamen.id" />
+
+            <div class="form-group col-sm-12">
+                <label>Nombre</label>
+                <input  type="text" class="form-control input-sm"
+                        required="true"
+                        data-trigger="change"
+                        maxlength="100"
+                        name="nombre" />
+            </div>
+
+            <div class="form-group col-sm-12">
+                <label>Contenido</label>
+                <textarea  type="text" class="form-control input-sm"
+                           data-trigger="change"
+                           name="contenido" ></textarea>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label>Preguntas</label>
+                <input  type="number" class="form-control input-sm"
+                        required="true"
+                        min="1"
+                        data-trigger="change"
+                        name="preguntasVisibles" />
+            </div>
+
+        </form>
+
+
+        <div class="col-sm-12 text-center m-t-lg">
+            <button class="btn btn-link cancelar">Cancelar</button>
+            <button class="btn btn-primary guardar">Guardar</button>
+        </div>
+
+    </div>
+</div>

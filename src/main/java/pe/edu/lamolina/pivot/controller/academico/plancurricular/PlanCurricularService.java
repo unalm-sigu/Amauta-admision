@@ -41,9 +41,9 @@ public interface PlanCurricularService {
 
     List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 
-    List<TipoCursoCurricula> allTiposCursoCurricula();
+    List<TipoCursoCurricula> allTiposCursoCurriculaByPlan(PlanCurricular plan);
 
-    List<TipoCursoCurricula> allTiposCursoCurriculasElectivos();
+    List<TipoCursoCurricula> allTiposCursoCurriculasElectivosByPlan(PlanCurricular plan);
 
     List<TipoCursoCurricula> allTiposCursoCurriculasObligatorios();
 

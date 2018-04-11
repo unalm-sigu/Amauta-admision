@@ -1,0 +1,82 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Encuesta Editar</title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+
+            <div  id="main">
+
+                <header class="header b-b padder-lg">
+                    <a class="btn btn-default pull-right" th:href="@{/academico/encuestaestudiantil/editor}" >Regresar</a>
+                    <h2 th:inline="text"> [[${encuesta.nombre}]]   [[${cicloAcademico.descripcion}]] </h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+
+
+                            <div class="row">
+                                <div class="col-sm-7">
+                                    <div class="division1">
+                                        <div class="division2">
+                                            <a class="btn btn-primary" id="nuevoTema"  href="#" >Nuevo Tema</a>
+                                            <div id="tree"  class="tree"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-5" id="formulario"></div>
+
+                            </div>
+
+
+
+
+
+
+                        </section>
+                    </section>
+                </section>
+
+
+
+            </div>
+
+            <script id="divisionTemplate" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuestaestudiantil/tema/divisionTemplate"></div>
+            </script>
+
+            <script id="temaForm" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuestaestudiantil/tema/temaForm"></div>
+            </script>
+
+            <script id="subTituloForm" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuestaestudiantil/tema/subTituloForm"></div>
+            </script>
+
+            <script id="bloqueForm" type="text/x-jsrender" class="hide">
+                <div th:substituteby="academico/encuestaestudiantil/tema/bloqueForm"></div>
+            </script>
+
+        </div>
+
+        <div layout:fragment="js">
+
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var encuesta = /*[[${encuesta.id}]]*/ '';
+                /*]]>*/
+            </script>
+            <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
+            <script th:src="@{/vendor/tinymce/tinymce.min.js}" charset="utf-8"></script>
+            <script th:src="@{/vendor/iconpicker/js/fontawesome-iconpicker.min.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/encuestaestudiantil/tema/temaEncuesta.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
+

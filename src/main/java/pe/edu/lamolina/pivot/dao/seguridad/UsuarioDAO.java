@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface UsuarioDAO extends EasyDAO<Usuario> {
 
-    Usuario findByEmail(String email);
+    Usuario findByGoogleEmail(String email);
 
     Usuario findByPersona(Persona persona);
 

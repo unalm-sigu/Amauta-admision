@@ -1,0 +1,82 @@
+<p class="h5 m-b-lg">
+    {{if tipoRequisitos=="pre"}}
+    Los pre-requisitos del curso <b class="text-primary">{{:curso}}</b> son:
+    {{else tipoRequisitos=="post"}}
+    El curso <b class="text-primary">{{:curso}}</b> es pre-requisito de los siguientes cursos:
+    {{/if}}
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="col-md-1 text-center v-middle">Código</th>
+            <th class="col-md-7 text-center v-middle">Nombre</th>
+            <th class="col-md-1 text-center v-middle">Simultáneo</th>
+            <th class="col-md-1 text-center v-middle">Nª Ciclo</th>
+            <th class="col-md-2 text-center v-middle">Tipo curso</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{if tipoRequisitos=="pre"}}
+        {{for prerrequisitos}}
+        <tr>
+            <td class="text-center v-middle">
+                <span class="block">{{:codigo}}</span>
+                {{if codigo2}}
+                <small class="block text-primary">{{:codigo2}}</small>
+                {{/if}}
+            </td>
+            <td class="v-middle">
+                <span class="block">{{:curso}}</span>
+                {{if tpc != null}}
+                    <small class="block text-primary"> <i class="fa fa-bookmark-o"></i> &nbsp;{{:tpc}} &nbsp;&nbsp; {{:tipoDictadoCurso}}</small>
+                {{/if}}
+            </td>
+            <td class="text-center v-middle">
+                {{if simultaneo==1}}
+                <i class="fa fa-check-square-o fa-2x text-success"></i>
+                {{/if}}
+            </td>
+            <td class="text-center v-middle">{{:numeroRomano}}</td>
+            <td class="text-center v-middle">{{:tipoCurso}}</td>
+        </tr>
+        {{/for}}
+        {{else tipoRequisitos=="post"}}
+        {{for postrrequisitos}}
+        <tr>
+            <td class="text-center v-middle">
+                <span class="block">{{:codigo}}</span>
+                {{if codigo2}}
+                <small class="block text-primary">{{:codigo2}}</small>
+                {{/if}}
+            </td>
+            <td class="v-middle">{{:curso}}</td>
+            <td class="text-center v-middle">
+                {{if simultaneo==1}}
+                <i class="fa fa-check-square-o fa-2x text-success"></i>
+                {{/if}}
+            </td>
+            <td class="text-center v-middle">{{:numeroRomano}}</td>
+            <td class="text-center v-middle">{{:tipoCurso}}</td>
+        </tr>
+        {{/for}}
+        {{for postrrequisitosOpc}}
+        <tr>
+            <td class="text-center v-middle">
+                <span class="block">{{:codigo}}</span>
+                {{if codigo2}}
+                <small class="block text-primary">{{:codigo2}}</small>
+                {{/if}}
+            </td>
+            <td class="v-middle">{{:curso}}</td>
+            <td class="text-center v-middle">
+                {{if simultaneo==1}}
+                <i class="fa fa-check-square-o fa-2x text-success"></i>
+                {{/if}}
+            </td>
+            <td></td>
+            <td class="text-center v-middle">{{:tipoCurso}}</td>
+        </tr>
+        {{/for}}
+        {{/if}}
+    </tbody>
+</table>

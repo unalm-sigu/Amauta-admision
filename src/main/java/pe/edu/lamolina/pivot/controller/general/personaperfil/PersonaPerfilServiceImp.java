@@ -168,7 +168,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
         if (user == null) {
             user = new Usuario();
             user.setPersona(persona);
-            user.setUsuario(persona.getEmail());
+            user.setGoogle(persona.getEmailCompania());
             user.setEstado(UserEstadoEnum.ACT);
 
             usuarioDAO.save(user);

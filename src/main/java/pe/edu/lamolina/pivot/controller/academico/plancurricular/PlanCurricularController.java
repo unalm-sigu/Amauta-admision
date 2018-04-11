@@ -163,11 +163,14 @@ public class PlanCurricularController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (CursoCurricula cursoCurricula : cursosCurricula) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+                System.out.println("idCurso :::: " + cursoCurricula.getCurso().getId());
                 Integer esRequisitoDe = cursoCurricula.getRequisitosCursoCurricula().size()
                         + cursoCurricula.getRequisitosCursoOpcional().size();
                 node.put("id", cursoCurricula.getId());
                 node.put("tipoCurso", cursoCurricula.getTipoCursoCurricula().getNombre());
                 node.put("curso", cursoCurricula.getCurso().getNombre());
+                node.put("tpc", cursoCurricula.getCurso().getTpc());
+                node.put("tipoDictadoCurso", cursoCurricula.getCurso().getTipoCursoEnum().getValue());
                 node.put("numeroCiclo", cursoCurricula.getNumeroCiclo());
                 node.put("numeroRomano", NumberFormat.roman(cursoCurricula.getNumeroCiclo()));
                 node.put("codigo", cursoCurricula.getCurso().getCodigo());
@@ -187,6 +190,8 @@ public class PlanCurricularController {
                     nodeRequisito.put("simultaneo", requisito.getSimultaneo());
                     nodeRequisito.put("tipoCurso", requisito.getCursoRequisito().getTipoCursoCurricula().getNombre());
                     nodeRequisito.put("numeroRomano", NumberFormat.roman(requisito.getCursoRequisito().getNumeroCiclo()));
+                    nodeRequisito.put("tpc", requisito.getCursoRequisito().getCurso().getTpc());
+                    nodeRequisito.put("tipoDictadoCurso", requisito.getCursoRequisito().getCurso().getTipoCursoEnum().getValue());
 
                     arrayPreRequisitos.add(nodeRequisito);
                 }
@@ -202,6 +207,8 @@ public class PlanCurricularController {
                     nodePostRequisito.put("simultaneo", postrequisito.getSimultaneo());
                     nodePostRequisito.put("tipoCurso", postrequisito.getCursoCurricula().getTipoCursoCurricula().getNombre());
                     nodePostRequisito.put("numeroRomano", NumberFormat.roman(postrequisito.getCursoCurricula().getNumeroCiclo()));
+                    nodePostRequisito.put("tpc", postrequisito.getCursoCurricula().getCurso().getTpc());
+                    nodePostRequisito.put("tipoDictadoCurso", postrequisito.getCursoCurricula().getCurso().getTipoCursoEnum().getValue());
 
                     arrayPostRequisitos.add(nodePostRequisito);
                 }
@@ -216,6 +223,8 @@ public class PlanCurricularController {
                     nodePostRequisito.put("codigo2", postrequisito.getCursoOpcional().getCurso().getCodigoAnterior1());
                     nodePostRequisito.put("simultaneo", postrequisito.getSimultaneo());
                     nodePostRequisito.put("tipoCurso", postrequisito.getCursoOpcional().getTipoCursoCurricula().getNombre());
+                    nodePostRequisito.put("tpc", postrequisito.getCursoOpcional().getCurso().getTpc());
+                    nodePostRequisito.put("tipoDictadoCurso", postrequisito.getCursoOpcional().getCurso().getTipoCursoEnum().getValue());
 
                     arrayPostRequisitosOpc.add(nodePostRequisito);
                 }
@@ -232,6 +241,7 @@ public class PlanCurricularController {
                     nodeEquivalente.put("curso", cursoEquivalente.getCursoEquivalente().getNombre());
                     nodeEquivalente.put("codigo", cursoEquivalente.getCursoEquivalente().getCodigo());
                     nodeEquivalente.put("tpc", cursoEquivalente.getCursoEquivalente().getTpc());
+                    nodeEquivalente.put("tipoDictadoCurso", cursoEquivalente.getCursoEquivalente().getTipoCursoEnum().getValue());
                     if (!grupos.containsKey(grupo)) {
                         grupos.put(cursoEquivalente.getGrupo(), new ArrayNode(JsonNodeFactory.instance));
                     }
@@ -265,6 +275,7 @@ public class PlanCurricularController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
@@ -360,7 +371,10 @@ public class PlanCurricularController {
                 node.put("codigo2", cursoOpcional.getCurso().getCodigoAnterior1());
                 node.put("curso", cursoOpcional.getCurso().getNombre());
                 node.put("creditos", cursoOpcional.getCurso().getCreditos());
+                node.put("tpc", cursoOpcional.getCurso().getTpc());
+                node.put("tipoDictadoCurso", cursoOpcional.getCurso().getTipoCursoEnum().getValue());
                 node.put("tipoCurso", cursoOpcional.getTipoCursoCurricula().getNombre());
+                node.put("tipoCursoCodigo", cursoOpcional.getTipoCursoCurricula().getCodigo());
                 node.put("creditosRequisito", cursoOpcional.getCreditosRequisito());
                 node.put("cursosRequisito", cursoOpcional.getCursosOpcionales().size());
                 node.put("esRequisitoDe", cursoOpcional.getRequisitosCursoOpcionales().size());
@@ -375,6 +389,8 @@ public class PlanCurricularController {
                     nodeRequisito.put("simultaneo", requisito.getSimultaneo());
                     nodeRequisito.put("tipoCurso", requisito.getTipoCursoCurricula().getNombre());
                     nodeRequisito.put("numeroRomano", requisito.getNumeroRomano());
+                    nodeRequisito.put("tpc", requisito.getCursoRequisito().getTpc());
+                    nodeRequisito.put("tipoDictadoCurso", requisito.getCursoRequisito().getTipoCursoEnum().getValue());
 
                     arrayPreRequisitos.add(nodeRequisito);
                 }
@@ -389,6 +405,8 @@ public class PlanCurricularController {
                     nodePostRequisito.put("codigo2", postrequisito.getCursoOpcional().getCurso().getCodigoAnterior1());
                     nodePostRequisito.put("simultaneo", postrequisito.getSimultaneo());
                     nodePostRequisito.put("tipoCurso", postrequisito.getCursoOpcional().getTipoCursoCurricula().getNombre());
+                    nodePostRequisito.put("tpc", postrequisito.getCursoOpcional().getCurso().getTpc());
+                    nodePostRequisito.put("tipoDictadoCurso", postrequisito.getCursoOpcional().getCurso().getTipoCursoEnum().getValue());
 
                     arrayPostRequisitos.add(nodePostRequisito);
                 }
@@ -405,6 +423,7 @@ public class PlanCurricularController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
@@ -430,8 +449,8 @@ public class PlanCurricularController {
     @RequestMapping("{plancurricular}/addCursoObligatorio")
     public String addCursoObligatorio(@PathVariable("plancurricular") Long plancurricularId, Model model, HttpSession session) {
 
-        List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurricula();
         PlanCurricular planCurricular = service.findPlanCurricularById(new PlanCurricular(plancurricularId));
+        List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculaByPlan(planCurricular);
         CursoCurricula cursoCurricula = new CursoCurricula();
         cursoCurricula.setTipoCursoCurricula(new TipoCursoCurricula());
         cursoCurricula.setCursosCurricula(new ArrayList());
@@ -481,8 +500,8 @@ public class PlanCurricularController {
 
     @RequestMapping("{plancurricular}/agregarCursoElectivo")
     public String agregarCursoElectivo(@PathVariable("plancurricular") Long plancurricularId, Model model, HttpSession session) {
-        List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivos();
         PlanCurricular planCurricular = service.findPlanCurricularById(new PlanCurricular(plancurricularId));
+        List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivosByPlan(planCurricular);
 
         CursoOpcionalCurricula cursoOpcional = new CursoOpcionalCurricula();
         cursoOpcional.setCreditosRequisito(0);
@@ -848,15 +867,15 @@ public class PlanCurricularController {
         Carrera carrera = planCurricular.getCarrera();
         List<CicloAcademico> ciclos = service.allUltimosCiclos(40);
         List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(carrera, EstadoEnum.ACT);
-        List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivos();
-        List<TipoCursoCurricula> tiposCursoCurriculasObli = service.allTiposCursoCurriculasObligatorios();
+        //List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivosByPlan();
+        //List<TipoCursoCurricula> tiposCursoCurriculasObli = service.allTiposCursoCurriculasObligatorios();
         Integer cantAlumnos = service.countAlumnosByPlanCurricular(planCurricular).intValue();
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("planCurricular", planCurricular);
         model.addAttribute("orientaciones", orientaciones);
         model.addAttribute("format", new NumberFormat());
-        model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
-        model.addAttribute("tiposCursoCurriculasObli", tiposCursoCurriculasObli);
+        // model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
+        //model.addAttribute("tiposCursoCurriculasObli", tiposCursoCurriculasObli);
         model.addAttribute("cantAlumnos", cantAlumnos);
         return "academico/plancurricular/planCurricularForm";
     }
@@ -932,6 +951,8 @@ public class PlanCurricularController {
                 json.put("codigo", curso.getCodigo());
                 json.put("tpc", curso.getTpc());
                 json.put("creditos", curso.getCreditos());
+                json.put("creditosVariables", curso.getCreditosVariables());
+                json.put("tipoCredito", curso.getTipoCredito());
                 json.put("departamento", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.nombre"));
                 json.put("facultad", (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.facultad.nombre"));
                 json.put("especialidad", (String) ObjectUtil.getParentTree(curso, "carrera.nombre"));
@@ -1227,7 +1248,7 @@ public class PlanCurricularController {
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             if (plan.getId() != null) {
                 PlanCurricular planBD = service.findPlanCurricularById(plan);
 

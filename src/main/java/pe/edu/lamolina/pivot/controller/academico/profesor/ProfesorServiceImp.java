@@ -158,12 +158,12 @@ public class ProfesorServiceImp implements ProfesorService {
             usuarioDb.setFechaRegistro(new Date());
             usuarioDb.setUserRegistro(user);
             usuarioDb.setPersona(docente.getPersona());
-            usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
+            usuarioDb.setGoogle(docente.getPersona().getEmailCompania());
             usuarioDAO.save(usuarioDb);
         } else {
             logger.debug("actualizando usuario");
             usuarioDb.setFechaRegistro(new Date());
-            usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
+            usuarioDb.setGoogle(docente.getPersona().getEmailCompania());
             usuarioDAO.update(usuarioDb);
         }
 
@@ -234,7 +234,7 @@ public class ProfesorServiceImp implements ProfesorService {
         if (usuarioDb != null) {
             logger.debug("-> Actualizando usuario");
             usuarioDb.setUserModifica(ds.getUsuario());
-            usuarioDb.setUsuario(docente.getPersona().getEmailCompania());
+            usuarioDb.setGoogle(docente.getPersona().getEmailCompania());
             usuarioDb.setFechaModifica(new Date());
             usuarioDAO.update(usuarioDb);
         } else {
@@ -244,7 +244,7 @@ public class ProfesorServiceImp implements ProfesorService {
             usuarioDb.setFechaRegistro(new Date());
             usuarioDb.setPersona(persona);
             usuarioDb.setUserRegistro(user);
-            usuarioDb.setUsuario(persona.getEmailCompania());
+            usuarioDb.setGoogle(persona.getEmailCompania());
             usuarioDAO.save(usuarioDb);
         }
         logger.debug("***Resolviendo en Tabla Usuario_Rol***");

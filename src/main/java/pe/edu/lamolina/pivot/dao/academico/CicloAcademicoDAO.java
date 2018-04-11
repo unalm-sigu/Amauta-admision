@@ -10,6 +10,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivo();
 
+    CicloAcademico findByCodigo(String codigo);
+
     List<CicloAcademico> allForChanges(Integer maxResultado);
 
     CicloAcademico findAnteriorRegular(CicloAcademico ciclo);
@@ -24,6 +26,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend);
 
+    CicloAcademico findSiguienteNivelacionActivo(CicloAcademico ciclo);
+
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
     public List<CicloAcademico> allByDynatable(DynatableFilter filter);
@@ -31,5 +35,13 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
     public CicloAcademico findCicloAcademicoActivo();
 
     public CicloAcademico findCicloAcademicoActivoByModalidad(ModalidadEstudio modalidadEstudio);
+
+    void updateFechaMatriculables(CicloAcademico cicloAcademico);
+
+    void updateFechaPrioridades(CicloAcademico cicloAcademico);
+
+    void updateFechaTurnosAsignados(CicloAcademico cicloAcademico);
+
+    void updateFechasTurnosAignadosDisponibles(CicloAcademico cicloAcademico);
 
 }

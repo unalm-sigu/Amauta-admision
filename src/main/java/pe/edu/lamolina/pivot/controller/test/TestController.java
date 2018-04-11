@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
@@ -50,6 +51,7 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -107,6 +109,9 @@ public class TestController {
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -262,40 +267,66 @@ public class TestController {
 
         List<Alumno> pregrados = alumnoDAO.allBySituaciones(pre, situacionesPregrado);
         List<Alumno> posgrados = alumnoDAO.allBySituaciones(epg, situacionesPosgrado);
+        List<Alumno> unionList = new ArrayList();
+        unionList.addAll(pregrados);
+        unionList.addAll(posgrados);
 
-        for (Alumno alumno : pregrados) {
-            alumno = alumnoDAO.find(alumno);
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
-        }
-        for (Alumno alumno : posgrados) {
-            alumno = alumnoDAO.find(alumno);
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+        visorCalculoNotas.iniciar();
+        for (Alumno alumno : unionList) {
+            if (alumno.getCicloActivo().getCodigoInt() >= 200510 && alumno.getCicloActivo().getCodigoInt() <= 201800) { //
+
+                alumno = alumnoDAO.find(alumno);
+
+                promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+
+            }
         }
 
         return "yeah";
     }
 
     @ResponseBody
-    @RequestMapping("calcularAllPromediosByCiclo/{alumno}/{ciclo}")
-    public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId,
-            @PathVariable("ciclo") Long ciclo) {
+    @RequestMapping("promediarAll/{alumno}")
+    public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ciclo);
-        if (TypesUtil.getInt(cicloAcademico.getCodigo()) >= 201700) {
-            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(cicloAcademico);
-            for (MatriculaCurso matriculaCurso : matriculasCurso) {
-                if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(alumnoId) == 0) {
-                    matriculaCurso.getMatriculaResumen().getAlumno();
-                    matriculaCurso.getMatriculaResumen().getCicloAcademico();
-                    matriculaCurso.getCurso();
-                    promedioService.trasladoPromediosSource(matriculaCurso, ds.getUsuario());
-                }
-            }
-        } else {
-            Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
-            promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
+
+        visorCalculoNotas.iniciar();
+        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladarMatriculaCursoForPromedios")
+    public String trasladarMatriculaCursoForPromedios(HttpSession session) {
+        //201700
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ds.getCicloAcademico().getId());
+
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(cicloAcademico);
+        List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
+
+        visorCalculoNotas.iniciar();
+        for (MatriculaResumen matriculaResumen : matriculasResumen) {
+            promedioService.procesarMatriculaResumen(matriculaResumen, ds.getUsuario());
         }
+
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladarMatriculaCursoForPromedios/{alumno}")
+    public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
+        //201700
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.find(ds.getCicloAcademico().getId());
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademico);
+
+        visorCalculoNotas.iniciar();
+        promedioService.procesarMatriculaResumen(matriculaResumen, ds.getUsuario());
+
         return "yeah";
     }
 

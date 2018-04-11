@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 
 public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
@@ -29,7 +30,7 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     DocenteSeccion findByFilter(Docente docente, Seccion seccion);
 
-    DocenteSeccion findByDocenteSeccion(Docente profe, Seccion seccion);
+    DocenteSeccion findWithPersonaByDocenteSeccion(Docente profe, Seccion seccion);
 
     List<DocenteSeccion> allByCiclo(CicloAcademico ciclo);
 
@@ -56,5 +57,7 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
     void updateFechaFin(DocenteSeccion docenteSeccion);
 
     List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones);
+
+    List<DocenteSeccion> allDocenteSeccionByModalidad(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio);
 
 }

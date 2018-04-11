@@ -1843,7 +1843,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                     continue;
                 }
                 if (!evaluacion.isDesagregado()) {
-                    DocenteSeccion docenteSeccion = docenteSeccionDAO.findByDocenteSeccion(evaluacion.getDocenteEvaluador(), evaluacion.getSeccionResponsable());
+                    DocenteSeccion docenteSeccion = docenteSeccionDAO.findWithPersonaByDocenteSeccion(evaluacion.getDocenteEvaluador(), evaluacion.getSeccionResponsable());
                     if (docenteSeccion != null) {
                         if (docenteSeccion.isEstadoActivado()) {
                             if (evaluacion.getFechaIngresoNota() == null) {
