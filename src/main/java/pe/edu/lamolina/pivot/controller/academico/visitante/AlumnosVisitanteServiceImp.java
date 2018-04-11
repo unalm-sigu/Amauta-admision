@@ -106,7 +106,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     public void save(AlumnoVisitante alumnoVisitante, DataSessionPivot dataSessionPivot) {
 
         Usuario usuario = dataSessionPivot.getUsuario();
-        logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario());
+        logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario2());
         Persona personaForm = alumnoVisitante.getPersona();
         this.verificarPersona(personaForm);
         logger.debug("buscar persona  doc {} num  {} ...", personaForm.getTipoDocumento().getId(), personaForm.getNumeroDocIdentidad());
@@ -117,7 +117,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         if (personaDB == null) {
             personaDB = this.savePersona(personaForm, usuario, ciclo);
         } else {
-            logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario());
+            logger.debug("**guardando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario2());
             AlumnoVisitante alumnoVisitanteDB = alumnoVisitanteDAO.findByPersona(personaDB);
             if (alumnoVisitanteDB != null) {
                 throw new PhobosException("El documento ya pertenece a otro alumno visitante");
@@ -145,7 +145,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         if (usuario == null) {
 
             Usuario usuarioVisitante = new Usuario();
-            usuarioVisitante.setUsuario(emailCompania);
+            usuarioVisitante.setUsuario2(emailCompania);
             usuarioVisitante.setEstado(UserEstadoEnum.ACT);
             usuarioVisitante.setFechaRegistro(new Date());
             usuarioVisitante.setPersona(personaDB);
@@ -211,7 +211,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         personaDAO.save(persona);
 
         Usuario usuarioVisitante = new Usuario();
-        usuarioVisitante.setUsuario(emailCompania);
+        usuarioVisitante.setUsuario2(emailCompania);
         usuarioVisitante.setEstado(UserEstadoEnum.ACT);
         usuarioVisitante.setFechaRegistro(new Date());
         usuarioVisitante.setPersona(persona);
@@ -468,7 +468,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Transactional
     public void update(AlumnoVisitante alumnoVisitante, DataSessionPivot ds) {
         Usuario usuario = ds.getUsuario();
-        logger.debug("**actualizando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario());
+        logger.debug("**actualizando alumno visitante by usr {} {} **", usuario.getId(), usuario.getUsuario2());
         Persona personaForm = alumnoVisitante.getPersona();
         this.verificarPersona(personaForm);
         this.validarDNI(personaForm);

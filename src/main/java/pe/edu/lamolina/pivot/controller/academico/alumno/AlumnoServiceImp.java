@@ -263,7 +263,7 @@ public class AlumnoServiceImp implements AlumnoService {
     @Transactional
     public void crearUsuario(String emailCompania, Persona persona, Usuario usuarioRegistra) {
         Usuario usuarioAlumno = new Usuario();
-        usuarioAlumno.setUsuario(emailCompania);
+        usuarioAlumno.setUsuario2(emailCompania);
         usuarioAlumno.setEstado(UserEstadoEnum.ACT);
         usuarioAlumno.setFechaRegistro(new Date());
         usuarioAlumno.setPersona(persona);

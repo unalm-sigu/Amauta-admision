@@ -420,7 +420,7 @@ public class MatricularServiceImp implements MatricularService {
     }
 
     private void notify(Notificacion notify, Usuario usuario) {
-        messagingTemplate.convertAndSendToUser(usuario.getUsuario(), "/monitoreo/notify", notify);
+        messagingTemplate.convertAndSendToUser(usuario.getUsuario2(), "/monitoreo/notify", notify);
     }
 
 }

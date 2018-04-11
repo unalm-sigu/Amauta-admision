@@ -1,0 +1,94 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Administración de Oficinas</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="colaboradorVue">
+
+            <header class="header b-b padder-lg">
+
+                <div class="btn-group pull-right">
+                    <a type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click="nuevo">
+                        &nbsp; Nuevo &nbsp; 
+                    </a>
+                </div>
+
+                <h2>Plantilla Constancia</h2>
+
+            </header>
+            <section class="wrapper-lg m-b-xs">
+                <section class="panel  ">           
+                    <section class="panel-body ">
+                        <dynatable/>
+                    </section>
+                </section>
+            </section>
+            <!--MODAL INICIO-->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <form data-parsley-validate="true" id="formConfig"  method="post">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="myModalLabel"> Tipo Constancia </h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="col-md-offset-1 ">
+                                    <div class='form-group row'>
+                                        <label class="col-sm-3 control-label">Tipo constancia</label>
+                                        <div class="col-sm-8">
+                                            <div class="form-group">                                
+                                                <multiselect v-model="plantilla.tipoDocumentoAcademico" 
+                                                             v-bind:options='tipoConstancia'
+                                                             label='nombre'
+                                                             track-by='id'
+                                                             placeholder="Seleccione un tipo de constancia"
+                                                             >
+                                                </multiselect>
+                                            </div>
+                                        </div>  
+                                    </div>          
+                                    <div class='form-group row'>
+                                        <label class="col-sm-3 control-label">Idioma</label>
+                                        <div class="col-sm-8">
+                                            <div class="form-group">                                
+                                                <multiselect v-model="plantilla.idioma" 
+                                                             v-bind:options='idiomas'
+                                                             label='nombre'
+                                                             track-by='id'
+                                                             placeholder="Seleccione un tipo de constancia"
+                                                             >
+                                                </multiselect>
+                                            </div>
+                                        </div>  
+                                    </div>     
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-success" v-on:click.prevent="save" v-if="isNew">Guardar</button>
+                                        <button type="button" class="btn btn-success" v-on:click.prevent="update" v-if="!isNew">Actualizar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!--MODAL FIN -->
+        </div>
+        <th:block th:replace="tramite/plantillaDynatable"/>
+    </div>
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
+            var idiomasJson = /*[[${idiomas.toString()}]]*/ 'json';
+            /*]]>*/
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/tramite/plantillaConstancia.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

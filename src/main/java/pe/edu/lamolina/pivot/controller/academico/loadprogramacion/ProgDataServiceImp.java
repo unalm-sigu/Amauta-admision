@@ -466,7 +466,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         user = new Usuario();
         user.setPersona(persona);
-        user.setUsuario(persona.getEmailCompania().toLowerCase());
+        user.setUsuario2(persona.getEmailCompania().toLowerCase());
         user.setEstado(UserEstadoEnum.ACT);
         user.setFechaRegistro(new Date());
         user.setUserRegistro(ds.getUsuario());
@@ -1262,7 +1262,7 @@ public class ProgDataServiceImp implements ProgDataService {
             MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
 
             if (resumen == null) {
-                aluResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
+                aluResumen.setEstado(EstadoMatriculaEnum.RCI);
                 aluResumen.setCreditosRetirados(aluResumen.getCreditosRetirados() + aluResumen.getCreditosMatriculados());
                 aluResumen.setCreditosMatriculados(0);
                 aluResumen.setCursosRetirados(aluResumen.getCursosRetirados() + aluResumen.getCursosMatriculados());

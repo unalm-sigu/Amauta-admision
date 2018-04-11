@@ -152,7 +152,7 @@ public class UsuarioServiceImp implements UsuarioService {
         if (usuario.getId() == null) {
             usuarioBD = new Usuario();
             usuarioBD.setEstado(UserEstadoEnum.ACT);
-            usuarioBD.setUsuario(personaForm.getEmailCompania());
+            usuarioBD.setUsuario2(personaForm.getEmailCompania());
             usuarioBD.setPersona(personaForm);
             usuarioBD.setUserRegistro(ds.getUsuario());
             usuarioBD.setFechaRegistro(new Date());
@@ -160,8 +160,8 @@ public class UsuarioServiceImp implements UsuarioService {
 
         } else {
             usuarioBD = usuarioDAO.findByPersona(personaForm);
-            if (!usuarioBD.getUsuario().equals(personaForm.getEmailCompania())) {
-                usuarioBD.setUsuario(personaForm.getEmailCompania());
+            if (!usuarioBD.getUsuario2().equals(personaForm.getEmailCompania())) {
+                usuarioBD.setUsuario2(personaForm.getEmailCompania());
                 usuarioBD.setUserModifica(ds.getUsuario());
                 usuarioBD.setFechaModifica(new Date());
                 usuarioDAO.update(usuarioBD);
@@ -171,7 +171,7 @@ public class UsuarioServiceImp implements UsuarioService {
         usuario.setId(usuarioBD.getId());
         usuario.setEstado(usuarioBD.getEstadoEnum());
         usuario.setPersona(usuarioBD.getPersona());
-        usuario.setUsuario(usuarioBD.getUsuario());
+        usuario.setUsuario2(usuarioBD.getUsuario2());
 
         logger.debug("id :::: {}", usuario.getId());
     }

@@ -99,7 +99,7 @@ public class OficinaController {
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
         List<PerfilCompania> companias = service.allCargos();
         List<PerfilCompania> funciones = service.allFunciones();
-        
+
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
         model.addAttribute("colaborador", colaborador == null ? new Colaborador() : colaborador.toJson());
         model.addAttribute("oficina", idOficina);
@@ -152,9 +152,14 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.saveColaborador(colaborador, ds.getUsuario());
-            response.setMessage("Se agregó el colaborador satisfactoriamente");
-            response.setSuccess(Boolean.TRUE);
+//            Persona persona = service.verifiDocumento(colaborador.getPersona().getNumeroDocIdentidad(), colaborador.getPersona().getTipoDocumento());
+//            if (persona != null) {
+                service.saveColaborador(colaborador, ds.getUsuario());
+                response.setMessage("Se agregó el colaborador satisfactoriamente");
+                response.setSuccess(Boolean.TRUE);
+//            } else {
+//                response.setSuccess(Boolean.FALSE);
+//            }
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

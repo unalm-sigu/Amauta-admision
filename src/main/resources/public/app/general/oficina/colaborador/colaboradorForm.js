@@ -31,7 +31,7 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-
+        $('.numeric').numeric({negative: false});
     },
     methods: {
         regresar: function () {
