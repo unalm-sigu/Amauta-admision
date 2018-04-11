@@ -1560,3 +1560,113 @@ div.notas {
     padding-top: 5px;
     padding-bottom: 5px;
 }
+
+
+/* tabla inscripción de cursos */
+
+.special-table{
+    margin-top: 10px;
+    border: 1px solid rgba(0,0,0,0.15);
+    margin-left: 15px;
+    width: calc(100% - 30px);
+}
+
+.special-table th{
+    border-bottom: none!important;
+    text-align: center!important;
+    color: #fff!important;
+    background: #1a2c47!important;
+    border-right: 1px solid #cfcfcf!important;
+    height: 42px!important;
+}
+
+
+.special-table th, .special-table td{
+    border-right: 1px solid #cfcfcf!important;
+    padding-left: 15px!important;
+    padding-right: 15px!important;
+}
+
+.special-table th:last-child, .special-table td:last-child{
+    border-right: none!important;
+}
+
+
+.special-table .circular{
+    display: inline-block;
+    background: #9b9b9b;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 10px!important;
+}
+
+
+.special-table  .editer-icon{
+    margin-bottom: 12px;
+    margin-top: 10px;
+    background: #98d6f1;
+    cursor: pointer;
+}
+
+.special-table  .editer-icon:hover{
+    background: #f19898;
+}
+
+.special-table span.block{
+    margin-top: 12px;
+}
+
+.special-table span.block a{
+    display: block;
+    text-align: center;
+    border-bottom: none;
+    width: 100%;
+    font-size: 24px;
+}
+
+.special-table .editable-container.editable-inline{
+    width: 100%;
+}
+
+.special-tabs li{
+    margin-right: 10px;
+    height: 45px;
+    background: rgba(0,0,0,0.05);
+}
+
+.special-tabs li span{
+        display: block;
+    height: 18px;
+    top: 0;
+    line-height: 18px;
+    width: 18px;
+    margin-right: 0;
+    text-align: center;
+    background: #e86161;
+    float: right;
+    color: #fff;
+    margin-right: 7px;
+    border-radius: 100%;
+    margin-top:15px;
+    font-size: 9px;
+    cursor: pointer;
+}
+
+
+
+.tabbable-line > .special-tabs > li.active > a,
+.tabbable-line > .special-tabs > li:hover > a{
+    border-bottom: none!important;
+}
+
+.padder-right{
+    margin-right: 7px;
+}
+
+.tabbable-line{
+    margin-top: 30px;
+}
