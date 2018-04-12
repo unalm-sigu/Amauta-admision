@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite;
+package pe.edu.lamolina.pivot.controller.tramite.costoDocumento;
 
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
@@ -26,6 +26,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -72,7 +73,7 @@ public class CostoDocumentoController {
 
         model.addAttribute("tipoDocumento", list.size() == 0 ? new ArrayList<TipoDocumentoAcademico>() : new TipoDocumentoAcademico().toArrayJson(list));
         model.addAttribute("idiomas", listIdioma.size() == 0 ? new ArrayList<Idioma>() : new Idioma().toArrayJson(listIdioma));
-        return "tramite/costoDocumento";
+        return "tramite/costoDocumento/costoDocumento";
     }
 
     @ResponseBody
