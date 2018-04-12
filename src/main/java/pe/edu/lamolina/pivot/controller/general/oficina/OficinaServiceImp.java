@@ -683,4 +683,10 @@ public class OficinaServiceImp implements OficinaService {
     public List<PerfilCompania> allFunciones() {
         return perfilCompaniaDAO.allTipoFuncion();
     }
+
+    @Override
+    public Persona verifiDocumento(String dni, TipoDocIdentidad docIdentidad) {
+        Persona persona = personaDAO.findByDoc(dni,docIdentidad);
+        return persona;
+    }
 }

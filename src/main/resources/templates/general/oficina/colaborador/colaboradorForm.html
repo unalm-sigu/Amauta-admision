@@ -20,10 +20,10 @@
             <section class="wrapper-lg m-b-xs ">
                 <section class="panel">     
                     <section class="panel-body">
-                        <div class="pull-left m-r">
+                        <div class="pull-left m-r" v-if="newCola">
                             <img class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/male.png" />
                         </div>
-                        <div>
+                        <div v-if="newCola">
                             <h4 class="block text-primary bold " v-text="persona.nombreCompleto"></h4>
                             <spam class="block" v-text="persona.numeroDocIdentidad"></spam>
                             <spam v-text="colaborador.codigo"></spam>
@@ -48,7 +48,7 @@
                                 <div class="col-sm-6">
                                     <label>Número de Documento</label>
                                     <div class="form-group">                                
-                                        <input type="text"   required="true" class="inline numeric form-control"  maxlength="200" v-model="persona.numeroDocIdentidad"/>
+                                        <input type="text" required="true" class="inline numeric form-control"  maxlength="15" v-model="persona.numeroDocIdentidad"/>
                                     </div>
                                 </div>  
                             </div>

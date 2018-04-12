@@ -83,4 +83,6 @@ public interface OficinaService {
 
     public List<PerfilCompania> allFunciones();
 
+    public Persona verifiDocumento(String dni, TipoDocIdentidad docIdentidad);
+
 }
