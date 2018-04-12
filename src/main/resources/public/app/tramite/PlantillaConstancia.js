@@ -92,7 +92,7 @@ new Vue({
             })
             $vue.isNew = false;
             $vue.isOld = true;
-            console.log($vue.isNew);
+            console.log($vue.plantilla);
             $("#myModal").modal('show');
         },
         nuevo: function () {
@@ -116,7 +116,8 @@ new Vue({
             self.btnEnable();
             let $vue = this;
             console.log($vue.plantilla);
-
+            $vue.plantilla.tipoDocumentoAcademico.tipo = $vue.plantilla.tipoDocumentoAcademico.tipo.name;
+            $vue.plantilla.tipoDocumentoAcademico.costoCiclo = $vue.plantilla.tipoDocumentoAcademico.costoCiclo == true ? 1 : 0;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/plantillaconstancia/update'),
@@ -144,6 +145,8 @@ new Vue({
             self.btnEnable();
             let $vue = this;
             console.log($vue.plantilla);
+            $vue.plantilla.tipoDocumentoAcademico.tipo = $vue.plantilla.tipoDocumentoAcademico.tipo.name;
+            $vue.plantilla.tipoDocumentoAcademico.costoCiclo = $vue.plantilla.tipoDocumentoAcademico.costoCiclo == true ? 1 : 0;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/plantillaconstancia/save'),

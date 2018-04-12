@@ -94,6 +94,7 @@ new Vue({
                 }
             })
             $("#myModal").modal('show');
+            console.log($vue.tipoConstancia)
             $vue.isNew = false;
         },
         nuevo: function () {
@@ -113,8 +114,10 @@ new Vue({
             self.btnEnable();
             let $vue = this;
             $vue.temp ={};
+            $vue.temp.id=$vue.tipoConstancia.id;
             $vue.temp.nombre =  $vue.tipoConstancia.nombre;
-            $vue.temp.tipo = $vue.tipoConstancia.tipo.id;
+            $vue.temp.costoCiclo = $vue.tipoConstancia.costoCiclo == true ? 1 : 0;
+            $vue.temp.tipo = $vue.tipoConstancia.tipo.name;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/tipoconstancia/update'),
@@ -143,7 +146,7 @@ new Vue({
             $vue.temp ={};
             $vue.temp.nombre =  $vue.tipoConstancia.nombre;
             $vue.temp.costoCiclo = $vue.tipoConstancia.costoCiclo == true ? 1 : 0;
-            $vue.temp.tipo = $vue.tipoConstancia.tipo.id;
+            $vue.temp.tipo = $vue.tipoConstancia.tipo.name;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/tipoconstancia/save'),
