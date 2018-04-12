@@ -6,6 +6,8 @@
                     <tr>
                         <th class="text-center v-middle">Item</th>
                         <th class="text-center">Nombre</th>
+                        <th class="text-center">Costo por ciclo</th>
+                        <th class="text-center">Tipo</th>
                         <th class="text-center">Editar</th>
                     </tr> 
                 </thead>
@@ -24,6 +26,21 @@
         </td>
         <td class="v-middle ">
             <span >{{:nombre}}</span> 
+        </td>
+        <td>
+
+            <label class="switch">     
+                {{if costo}}
+                <input type="checkbox" class="checking1" checked="" ></input>    
+                {{else}}
+                <input type="checkbox" class="checking" ></input>    
+                {{/if}}
+                <span></span>
+            </label>
+
+        </td>
+         <td class="v-middle ">
+             <span >{{:tipo.value}}</span> 
         </td>
         <td class="v-middle"> 
 

@@ -1,13 +1,17 @@
 Vue.component("multiselect", window.VueMultiselect.default)
+let $dynatable = null;
+$('#dynaTable').dynatable({});
+
+
 Vue.component("dynatable", {
     template: "#dynatableTemplate",
     props: ["project", "dynatable"],
     mounted: function () {
         let $vue = this;
-        $vue.listPlantillas = [];
+        $vue.listCostoDocumento = [];
         $vue.createDynatable();
         $global.$on("reloadDyntable", function () {
-            $vue.listPlantillas = [];
+            $vue.listCostoDocumento = [];
             $dynatable.process();
         });
 
@@ -16,11 +20,7 @@ Vue.component("dynatable", {
                 .addClass('form-control input-sm')
                 .attr('placeholder', 'Buscar');
 
-        $('multiselect').select2({
-            placeholder: {
-                id: $vue.oficina, // the value of the option
-            }
-        });
+     
     },
     methods: {
         createDynatable: function () {
@@ -29,22 +29,21 @@ Vue.component("dynatable", {
             $dynatable = $('#dynaTable').dynatable({
                 dataset: {
                     type: 'GET',
-                    ajaxUrl: APP.url("tramite/plantillaconstancia/list"),
+                    ajaxUrl: APP.url("tramite/costodocuemento/list"),
                     perPageDefault: 10
                 },
                 writers: {_rowWriter: $vue.writter},
                 table: {bodyRowSelector: "tbody tr"}
             }).data('dynatable');
             $("body").delegate(".modalUpdate", "click", function () {
-                $global.$emit("modalUpdate", $(this).attr("rel"), $vue.listPlantillas);
+                $global.$emit("modalUpdate", $(this).attr("rel"), $vue.listCostoDocumento);
             });
-            $("body").delegate(".contenido", "click", function () {
-                $global.$emit("contenido", $(this).attr("rel"));
-            });
+          
+
         },
         writter: function (rowIndex, record, columns, cellWriter) {
             let $vue = this;
-            $vue.listPlantillas.push(record);
+            $vue.listCostoDocumento.push(record);
             record.index = rowIndex;
             var html = $.templates("#dynatableRowTemplate").render(record);
             return $(html).prop('outerHTML');
@@ -52,57 +51,49 @@ Vue.component("dynatable", {
     }
 });
 new Vue({
-    el: '#colaboradorVue',
+    el: '#tipoConstanciaVue',
     data: {
         tipoConstancia: JSON.parse(tipoDocumentoJson),
         idiomas: JSON.parse(idiomasJson),
-        plantilla: {},
         isNew: true,
-        isOld: false
+        isOld: false,
+        costoDocumento: {}
     },
     computed: {
 
     },
     created() {
         let $vue = this;
-        console.log($vue.tipoConstancia);
-        console.log($vue.idiomas);
+
     },
     mounted: function () {
         let $vue = this;
         $global.$on("modalUpdate", function (id, lista) {
             $vue.modalUpdate(id, lista);
         });
-        $global.$on("contenido", function (id) {
-            $vue.contenido(id);
+        $global.$on("checking", function (valor) {
+            $vue.checking(valor);
         });
+
     },
     methods: {
-        contenido: function (id) {
-
-            location.href = APP.url('tramite/plantillaconstancia/' + id)
-
+        checking: function(valor) {
+            console.log(valor)
         },
         modalUpdate: function (id, lista) {
             let $vue = this;
             lista.forEach(function (elem) {
                 if (id == elem.id) {
-                    $vue.plantilla = elem;
+                    $vue.costoDocumento = elem;
                 }
             })
-            $vue.isNew = false;
-            $vue.isOld = true;
-            console.log($vue.isNew);
             $("#myModal").modal('show');
+            $vue.isNew = false;
         },
         nuevo: function () {
             let $vue = this;
-            $vue.isNew = true;
-            console.log($vue.isNew);
-            $vue.plantilla = {};
-
-            $vue.isNew = true;
-            $vue.isOld = false;
+             $vue.isNew = true;
+            $vue.costoDocumento = {};
             $("#myModal").modal('show');
         },
         update: function (e) {
@@ -115,19 +106,17 @@ new Vue({
             }
             self.btnEnable();
             let $vue = this;
-            console.log($vue.plantilla);
-
+            console.log($vue.costoDocumento);
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/plantillaconstancia/update'),
+                url: APP.url('tramite/costodocuemento/update'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.plantilla),
+                data: JSON.stringify($vue.costoDocumento),
                 success: function (response) {
                     if (response.success) {
                         $global.$emit("reloadDyntable");
                         notify(response.message, 'info');
-                        $vue.plantilla = {};
-                        console.log($vue.isNew);
+                        $vue.costoDocumento = {}
                     }
                 }
             });
@@ -143,17 +132,17 @@ new Vue({
             }
             self.btnEnable();
             let $vue = this;
-            console.log($vue.plantilla);
+            console.log($vue.costoDocumento);
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/plantillaconstancia/save'),
+                url: APP.url('tramite/costodocuemento/save'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.plantilla),
+                data: JSON.stringify($vue.costoDocumento),
                 success: function (response) {
                     if (response.success) {
                         $global.$emit("reloadDyntable");
                         notify(response.message, 'info');
-
+                        $vue.costoDocumento = {}
                     }
                 }
             });

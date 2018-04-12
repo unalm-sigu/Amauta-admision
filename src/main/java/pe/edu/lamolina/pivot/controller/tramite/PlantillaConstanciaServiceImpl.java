@@ -18,14 +18,23 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Autowired
     PlantillaConstanciaDAO plantillaConstanciaDAO;
-    
+
     @Autowired
-    IdiomaDAO idiomaDAO ;
+    IdiomaDAO idiomaDAO;
 
     @Override
     @Transactional
     public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+
         plantillaConstanciaDAO.update(plantillaDocumentoAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+        PlantillaDocumentoAcademico academico = plantillaConstanciaDAO.find(plantillaDocumentoAcademico.getId());
+        academico.setContenido(plantillaDocumentoAcademico.getContenido());
+        plantillaConstanciaDAO.update(academico);
     }
 
     @Override
@@ -39,14 +48,14 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     public PlantillaDocumentoAcademico findById(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
-        return plantillaConstanciaDAO.find(plantillaDocumentoAcademico.getId());
+        return plantillaConstanciaDAO.findById(plantillaDocumentoAcademico.getId());
     }
 
     @Override
     public List<PlantillaDocumentoAcademico> all(DynatableFilter filter) {
         return plantillaConstanciaDAO.allDynatable(filter);
     }
-    
+
     @Override
     public List<Idioma> allIdioma() {
         return idiomaDAO.all();

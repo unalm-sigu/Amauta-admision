@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -25,17 +24,17 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.general.Idioma;
-import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("tramite/plantillaconstancia")
-public class PlantillaConstanciaController {
+@RequestMapping("tramite/costodocuemento")
+public class CostoDocumentoController {
 
     @Autowired
-    PlantillaConstanciaService service;
+    CostoDocumentoService service;
 
     @Autowired
     TipoConstanciaService tipoConstanciaService;
@@ -66,17 +65,6 @@ public class PlantillaConstanciaController {
         });
     }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.GET)
-    public String editarContenido(@PathVariable("id") Long idPlantilla, Model model) {
-        PlantillaDocumentoAcademico documentoAcademico = service.findById(new PlantillaDocumentoAcademico(idPlantilla));
-        model.addAttribute("id", documentoAcademico.getId());
-        model.addAttribute("contenido", documentoAcademico.getContenido());
-        model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico().getNombre());
-        model.addAttribute("idioma", documentoAcademico.getIdioma().getNombre());
-
-        return "tramite/editarContenido/contenido";
-    }
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         List<TipoDocumentoAcademico> list = tipoConstanciaService.all();
@@ -84,46 +72,21 @@ public class PlantillaConstanciaController {
 
         model.addAttribute("tipoDocumento", list.size() == 0 ? new ArrayList<TipoDocumentoAcademico>() : new TipoDocumentoAcademico().toArrayJson(list));
         model.addAttribute("idiomas", listIdioma.size() == 0 ? new ArrayList<Idioma>() : new Idioma().toArrayJson(listIdioma));
-        return "tramite/plantillaConstancia";
-    }
-
-    @ResponseBody
-    @RequestMapping("updateContenido")
-    public JsonResponse updateContenido(@RequestParam("id") Long id,
-            @RequestParam("contenido") String contenido, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            PlantillaDocumentoAcademico documentoAcademico = new PlantillaDocumentoAcademico();
-            documentoAcademico.setId(id);
-            documentoAcademico.setContenido(contenido);
-            service.updateContenido(documentoAcademico, ds.getUsuario());
-            response.setMessage("Se actualizó");
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
+        return "tramite/costoDocumento";
     }
 
     @ResponseBody
     @RequestMapping("update")
-    public JsonResponse update(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
+    public JsonResponse update(@RequestBody PrecioDocumento precioDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        response.setSuccess(false);
         try {
-            System.out.println("ENTRE...... -->");
-            service.update(plantillaDocumentoAcademico, ds.getUsuario());
+            service.update(precioDocumento, ds.getUsuario());
             response.setMessage("Se actualizó");
-            response.setSuccess(true);
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            e.printStackTrace();
             ExceptionHandler.handleException(e, response);
         }
         return response;
@@ -131,11 +94,11 @@ public class PlantillaConstanciaController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
+    public JsonResponse save(@RequestBody PrecioDocumento precioDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.save(plantillaDocumentoAcademico, ds.getUsuario());
+            service.save(precioDocumento, ds.getUsuario());
             response.setMessage("Se guardó");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -152,8 +115,8 @@ public class PlantillaConstanciaController {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            List<PlantillaDocumentoAcademico> list = service.all(filter);
-            json.setData(new PlantillaDocumentoAcademico().toArrayJson(list));
+            List<PrecioDocumento> list = service.all(filter);
+            json.setData(new PrecioDocumento().toJsonArray(list));
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
         } catch (Exception e) {
@@ -169,8 +132,8 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            PlantillaDocumentoAcademico documentoAcademico = service.findById(new PlantillaDocumentoAcademico(id));
-            response.setData(documentoAcademico);
+            PrecioDocumento precioDocumento = service.findById(new PrecioDocumento(id));
+            response.setData(precioDocumento);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -42,7 +42,12 @@ Vue.component("dynatable", {
             $("body").delegate(".modalUpdate", "click", function () {
                 $global.$emit("modalUpdate", $(this).attr("rel"), $vue.listTipoDocumento);
             });
-
+            $("body").delegate(".checking1", "click", function () {
+                $global.$emit("checking", false);
+            });
+            $("body").delegate(".checking", "click", function () {
+                $global.$emit("checking", true);
+            });
         },
         writter: function (rowIndex, record, columns, cellWriter) {
             let $vue = this;
@@ -56,6 +61,7 @@ Vue.component("dynatable", {
 new Vue({
     el: '#tipoConstanciaVue',
     data: {
+        tipos: JSON.parse(tiposJson),
         tipoConstancia: {},
         listTipoDocumento: [],
         isNew: true
@@ -65,16 +71,21 @@ new Vue({
     },
     created() {
         let $vue = this;
-
+        console.log($vue.tipos)
     },
     mounted: function () {
         let $vue = this;
         $global.$on("modalUpdate", function (id, lista) {
             $vue.modalUpdate(id, lista);
         });
-
+        $global.$on("checking", function (valor) {
+            $vue.checking(valor);
+        });
     },
     methods: {
+        checking: function (valor) {
+            console.log(valor)
+        },
         modalUpdate: function (id, lista) {
             let $vue = this;
             lista.forEach(function (elem) {
@@ -86,6 +97,9 @@ new Vue({
             $vue.isNew = false;
         },
         nuevo: function () {
+            let $vue = this;
+            $vue.tipoConstancia={};
+            $vue.isNew = true;
             $("#myModal").modal('show');
         },
         update: function (e) {
@@ -98,12 +112,14 @@ new Vue({
             }
             self.btnEnable();
             let $vue = this;
-            console.log($vue.tipoConstancia);
+            $vue.temp ={};
+            $vue.temp.nombre =  $vue.tipoConstancia.nombre;
+            $vue.temp.tipo = $vue.tipoConstancia.tipo.id;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/tipoconstancia/update'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.tipoConstancia),
+                data: JSON.stringify($vue.temp),
                 success: function (response) {
                     if (response.success) {
                         $global.$emit("reloadDyntable");
@@ -124,12 +140,15 @@ new Vue({
             }
             self.btnEnable();
             let $vue = this;
-            console.log($vue.tipoConstancia);
+            $vue.temp ={};
+            $vue.temp.nombre =  $vue.tipoConstancia.nombre;
+            $vue.temp.costoCiclo = $vue.tipoConstancia.costoCiclo == true ? 1 : 0;
+            $vue.temp.tipo = $vue.tipoConstancia.tipo.id;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/tipoconstancia/save'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.tipoConstancia),
+                data: JSON.stringify($vue.temp),
                 success: function (response) {
                     if (response.success) {
                         $global.$emit("reloadDyntable");

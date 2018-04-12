@@ -17,4 +17,6 @@ public interface PlantillaConstanciaService {
     PlantillaDocumentoAcademico findById(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 
     List<Idioma> allIdioma();
+    
+    void updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 }

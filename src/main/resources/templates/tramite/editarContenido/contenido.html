@@ -1,0 +1,46 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title th:text="${tipoDocumentoNombre}">Título</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="plantillaContenido">
+                <header class="header b-b padder-lg">
+                    <h2 class="block" th:text=" ${tipoDocumentoNombre}">Titulo</h2>
+                    <h3 th:text="${idioma}">Idioma</h3>
+                </header>
+
+                <section class="wrapper-lg">
+
+                    <section  class="panel">
+                       <!-- <section v-if="${plantilla.variables != null}" class="panel-body">
+                            <p>
+                                <i class="fa fa-asterisk"></i> Las siguientes variables pueden ser usadas en distintos casos según lo requerido, de no encontrar el valor este se enviará en blanco o vacío.
+                            </p>
+                            <ul>
+                                <li th:each="variable : ${variables}"><span class="bold" th:text="${variable.codigo}"></span> : <span th:text="${variable.descripcion}"></span></li>
+                            </ul>
+                        </section>-->
+                        <section class="panel-body">
+                            <input id="idCont" type="hidden" th:value="${id}"/>
+                            
+                            <textarea class="form-control vresize" id="contenido" name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
+                        </section>
+                        <section class="panel-body text-center v-middle">
+                            <a href="/tramite/plantillaconstancia" class="btn btn-link btn-lg">Regresar</a>
+                            <button class="btn btn-primary btn-lg" id="updateContenido">Guardar</button>
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <div layout:fragment="js" th:remove='tag'>
+       
+            <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
+            <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
+            <script th:src="@{/app/tramite/editorcontenido/contenido.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

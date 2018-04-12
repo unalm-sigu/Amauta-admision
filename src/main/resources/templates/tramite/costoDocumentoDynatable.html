@@ -4,9 +4,10 @@
             <table id="dynaTable" class="table table-striped table-hover ">
                 <thead> 
                     <tr>
-                        <th class="text-center v-middle">Item</th>
-                        <th class="text-center">Tipo Documento</th>
+                        <th class="text-center v-middle">Documento</th>
                         <th class="text-center">Idioma</th>
+                        <th class="text-center">Costo por Ciclo</th>
+                        <th class="text-center">Precio</th>
                         <th class="text-center">Editar</th>
                     </tr> 
                 </thead>
@@ -21,13 +22,25 @@
 
     <tr>
         <td class="v-middle text-center">
-            <span class="block">{{:index + 1}}</span> 
-        </td>
-        <td class="v-middle ">
-            <span >{{:tipoDocumentoAcademico.nombre}}</span> 
+            <span class="block">{{:tipoDocumento.nombre}}</span> 
         </td>
         <td class="v-middle ">
             <span >{{:idioma.nombre}}</span> 
+        </td>
+        <td>
+
+            <label class="switch">     
+                {{if tipoDocumento.costo}}
+                <input type="checkbox"  checked="" disabled=""></input>    
+                {{else}}
+                <input type="checkbox"  disabled=""></input>    
+                {{/if}}
+                <span></span>
+            </label>
+
+        </td>
+        <td class="v-middle ">
+            <span >{{:precio}}</span> 
         </td>
         <td class="v-middle"> 
 
@@ -37,7 +50,6 @@
                 </a> 
                 <ul class="dropdown-menu pull-right" >                
                     <li><a  rel="{{:id}}" class="modalUpdate">Actualizar</a></li>
-                    <li><a  rel="{{:id}}" class="contenido">Contenido</a></li>
                 </ul>
             </div>
 

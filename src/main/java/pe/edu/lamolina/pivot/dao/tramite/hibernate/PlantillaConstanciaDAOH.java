@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
 import java.util.List;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -24,5 +25,14 @@ public class PlantillaConstanciaDAOH extends AbstractEasyDAO<PlantillaDocumentoA
                 .searchFields("tda.nombre")
                 .orderBy("tda.nombre");
         return all(sql);
+    }
+
+    @Override
+    public PlantillaDocumentoAcademico findById(Long id) {
+        Octavia  sql  =  new Octavia()
+                .from(PlantillaDocumentoAcademico.class,"pda")
+                .join("tipoDocumentoAcademico tda","idioma")
+                .filter("id", id);
+        return find(sql);
     }
 }

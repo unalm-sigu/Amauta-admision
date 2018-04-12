@@ -22,6 +22,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -61,7 +62,7 @@ public class TipoConstanciaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-
+        model.addAttribute("tipos",TipoConstanciaEnum.getJsonValues());
         return "tramite/tipoConstancia";
     }
 

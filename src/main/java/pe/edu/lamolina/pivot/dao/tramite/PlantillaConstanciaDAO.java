@@ -9,4 +9,6 @@ public interface PlantillaConstanciaDAO extends EasyDAO<PlantillaDocumentoAcadem
 
     public List<PlantillaDocumentoAcademico> allDynatable(DynatableFilter filter);
 
+    public PlantillaDocumentoAcademico findById(Long id);
+
 }
