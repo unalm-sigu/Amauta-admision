@@ -51,7 +51,7 @@ public class CostoDocumentoServiceImpl implements CostoDocumentoService {
 
     @Override
     public List<Idioma> allIdioma() {
-        return idiomaDAO.all();
+        return idiomaDAO.allInglesAndEspañol();
     }
 
 }

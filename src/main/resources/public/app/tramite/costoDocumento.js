@@ -20,7 +20,7 @@ Vue.component("dynatable", {
                 .addClass('form-control input-sm')
                 .attr('placeholder', 'Buscar');
 
-     
+
     },
     methods: {
         createDynatable: function () {
@@ -38,7 +38,7 @@ Vue.component("dynatable", {
             $("body").delegate(".modalUpdate", "click", function () {
                 $global.$emit("modalUpdate", $(this).attr("rel"), $vue.listCostoDocumento);
             });
-          
+
 
         },
         writter: function (rowIndex, record, columns, cellWriter) {
@@ -77,7 +77,7 @@ new Vue({
 
     },
     methods: {
-        checking: function(valor) {
+        checking: function (valor) {
             console.log(valor)
         },
         modalUpdate: function (id, lista) {
@@ -92,7 +92,7 @@ new Vue({
         },
         nuevo: function () {
             let $vue = this;
-             $vue.isNew = true;
+            $vue.isNew = true;
             $vue.costoDocumento = {};
             $("#myModal").modal('show');
         },
@@ -107,6 +107,8 @@ new Vue({
             self.btnEnable();
             let $vue = this;
             console.log($vue.costoDocumento);
+            $vue.costoDocumento.tipoDocumento.tipo = $vue.costoDocumento.tipoDocumento.tipo.name;
+            $vue.costoDocumento.tipoDocumento.costoCiclo = $vue.costoDocumento.tipoDocumento.costoCiclo == true ? 1 : 0;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/costodocuemento/update'),
@@ -125,14 +127,17 @@ new Vue({
         save: function (e) {
             var self = $(e.currentTarget);
             self.btnDisabled();
+            $(".tipoDocumento").find('.multiselect__input').attr("required", true);
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate() == true) {
+            if (!$("#formConfig").parsley().validate()) {
                 self.btnEnable();
                 return;
             }
             self.btnEnable();
             let $vue = this;
             console.log($vue.costoDocumento);
+            $vue.costoDocumento.tipoDocumento.tipo = $vue.costoDocumento.tipoDocumento.tipo.name;
+            $vue.costoDocumento.tipoDocumento.costoCiclo = $vue.costoDocumento.tipoDocumento.costoCiclo == true ? 1 : 0;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/costodocuemento/save'),
@@ -147,6 +152,9 @@ new Vue({
                 }
             });
             $("#myModal").modal('hide');
+        },
+        nameWithCodeEspecial(tipo){
+            return tipo.tipo.value + " " + tipo.nombre;
         }
     }
 });

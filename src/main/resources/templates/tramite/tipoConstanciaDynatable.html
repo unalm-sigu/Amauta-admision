@@ -5,10 +5,10 @@
                 <thead> 
                     <tr>
                         <th class="text-center v-middle">Item</th>
-                        <th class="text-center">Nombre</th>
-                        <th class="text-center">Costo por ciclo</th>
-                        <th class="text-center">Tipo</th>
-                        <th class="text-center">Editar</th>
+                        <th class="v-middle">Nombre</th>
+                        <th class="text-center v-middle">Costo por ciclo</th>
+                        <th class="v-middle">Tipo</th>
+                        <th class="v-middle">Editar</th>
                     </tr> 
                 </thead>
                 <tbody></tbody>
@@ -27,20 +27,15 @@
         <td class="v-middle ">
             <span >{{:nombre}}</span> 
         </td>
-        <td>
-
-            <label class="switch">     
-                {{if costo}}
-                <input type="checkbox" class="checking1" checked="" ></input>    
-                {{else}}
-                <input type="checkbox" class="checking" ></input>    
-                {{/if}}
-                <span></span>
-            </label>
-
+        <td class="v-middle text-center">
+            {{if costoCiclo}}
+            <i class="fa fa-check text-success"></i>
+            {{else}}
+            <i class="fa fa-times text-danger"></i>
+            {{/if}}       
         </td>
-         <td class="v-middle ">
-             <span >{{:tipo.value}}</span> 
+        <td class="v-middle ">
+            <span >{{:tipo.value}}</span> 
         </td>
         <td class="v-middle"> 
 

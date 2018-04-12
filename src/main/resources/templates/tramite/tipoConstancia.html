@@ -52,7 +52,7 @@
                                                 <multiselect v-model="tipoConstancia.tipo" 
                                                              v-bind:options='tipos'
                                                              label='value'
-                                                             track-by='id'
+                                                             track-by='name'
                                                              placeholder="Seleccione un tipo de constancia"
                                                              >
                                                 </multiselect>
@@ -60,7 +60,7 @@
                                             </div>
                                         </div>  
                                     </div>   
-                                    <div class='form-group row' v-if="isNew">
+                                    <div class='form-group row' >
                                         <label class="col-sm-3 control-label">Costo ciclo:</label>
                                         <div class="col-sm-8">
                                             <div class="form-group" >  
