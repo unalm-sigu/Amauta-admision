@@ -146,7 +146,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
             Usuario usuarioVisitante = new Usuario();
             usuarioVisitante.setGoogle(emailCompania);
-            usuarioVisitante.setEstado(UserEstadoEnum.ACT);
+            usuarioVisitante.setEstadoEnum(UserEstadoEnum.ACT);
             usuarioVisitante.setFechaRegistro(new Date());
             usuarioVisitante.setPersona(personaDB);
             usuarioVisitante.setUserRegistro(usuarioRegistra);
@@ -204,7 +204,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         this.validarEmailsinPersona(persona.getEmail());
         this.validarEmailEmpresaSinPersona(persona.getEmailCompania());
 
-        persona.setEstado(PersonaEstadoEnum.ACT);
+        persona.setEstadoEnum(PersonaEstadoEnum.ACT);
         persona.setUserRegistro(usuario);
         persona.setFechaRegistro(new Date());
 
@@ -212,7 +212,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
         Usuario usuarioVisitante = new Usuario();
         usuarioVisitante.setGoogle(emailCompania);
-        usuarioVisitante.setEstado(UserEstadoEnum.ACT);
+        usuarioVisitante.setEstadoEnum(UserEstadoEnum.ACT);
         usuarioVisitante.setFechaRegistro(new Date());
         usuarioVisitante.setPersona(persona);
         usuarioVisitante.setUserRegistro(usuario);

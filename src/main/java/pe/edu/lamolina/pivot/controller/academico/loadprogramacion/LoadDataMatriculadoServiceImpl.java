@@ -74,7 +74,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
     @Autowired
     PostulanteDAO postulanteDAO;
     @Autowired
-    PersonaCargoDAO personaCargoDAO;
+    PersonaCargoDAO personaPerfilDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
     @Autowired

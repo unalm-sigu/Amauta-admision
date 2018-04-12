@@ -293,7 +293,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (tempo == null) {
                 persona.setUserRegistro(ds.getUsuario());
                 persona.setFechaRegistro(new Date());
-                persona.setEstado(PersonaEstadoEnum.ACT);
+                persona.setEstadoEnum(PersonaEstadoEnum.ACT);
                 personaDAO.save(persona);
 
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
@@ -388,7 +388,7 @@ public class ProgDataServiceImp implements ProgDataService {
             alumno.setSituacionAcademica(situacion);
             alumno.setCicloActivo(cicloActivo);
             alumno.setCicloIngreso(cicloInicio);
-            alumno.setEstado(AlumnoEstadoEnum.ACT);
+            alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
             alumno.setModalidadEstudio(modalidad);
 
             alumno.setRetirosCursos(0);
@@ -463,7 +463,7 @@ public class ProgDataServiceImp implements ProgDataService {
         user = new Usuario();
         user.setPersona(persona);
         user.setGoogle(persona.getEmailCompania().toLowerCase());
-        user.setEstado(UserEstadoEnum.ACT);
+        user.setEstadoEnum(UserEstadoEnum.ACT);
         user.setFechaRegistro(new Date());
         user.setUserRegistro(ds.getUsuario());
         usuarioDAO.save(user);
@@ -564,7 +564,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personas.isEmpty()) {
             persona.setUserRegistro(ds.getUsuario());
             persona.setFechaRegistro(new Date());
-            persona.setEstado(PersonaEstadoEnum.ACT);
+            persona.setEstadoEnum(PersonaEstadoEnum.ACT);
             persona.setNumeroDocIdentidad(null);
             personaDAO.save(persona);
 
@@ -600,7 +600,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Persona pp = new Persona(persona);
             pp.setUserRegistro(ds.getUsuario());
             pp.setFechaRegistro(new Date());
-            pp.setEstado(PersonaEstadoEnum.ACT);
+            pp.setEstadoEnum(PersonaEstadoEnum.ACT);
             personaDAO.save(pp);
             logger.debug("finalizo revision EMPTY de persona {}", pp.getApellidosNombres());
             personasVinculadas.add(pp);
@@ -609,7 +609,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         if (personasVinculadas.size() == 1) {
             Persona pp = personasVinculadas.get(0);
-            pp.setEstado(PersonaEstadoEnum.ACT);
+            pp.setEstadoEnum(PersonaEstadoEnum.ACT);
             personaDAO.update(pp);
             logger.debug("finalizo revision SIZE1 de persona {}", pp.getApellidosNombres());
             //personasVinculadas.add(pp);
@@ -641,7 +641,7 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Persona persona : personas) {
             if (persona.getId() == main.getId().longValue()) {
                 //logger.debug("Activando persona {}", persona.getId());
-                persona.setEstado(PersonaEstadoEnum.ACT);
+                persona.setEstadoEnum(PersonaEstadoEnum.ACT);
                 persona.setFechaTraslado(null);
                 persona.setUserTraslado(null);
                 persona.setPersonaTraslado(null);
@@ -649,7 +649,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             //logger.debug("desactivando persona {}", persona.getId());
-            persona.setEstado(PersonaEstadoEnum.INA);
+            persona.setEstadoEnum(PersonaEstadoEnum.INA);
             persona.setFechaTraslado(new Date());
             persona.setUserTraslado(ds.getUsuario());
             persona.setPersonaTraslado(main);
@@ -773,7 +773,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstado(UserEstadoEnum.INA);
+                    user.setEstadoEnum(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -804,7 +804,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstado(UserEstadoEnum.INA);
+                    user.setEstadoEnum(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -820,7 +820,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstado(UserEstadoEnum.INA);
+                    user.setEstadoEnum(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }

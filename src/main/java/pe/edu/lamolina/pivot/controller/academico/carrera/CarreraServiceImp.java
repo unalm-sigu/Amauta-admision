@@ -62,11 +62,11 @@ public class CarreraServiceImp implements CarreraService {
     public void cambiarEstadoCarrera(Carrera carrera) {
         Carrera carrreraBD = carreraDAO.find(carrera.getId());
         if (carrera.getEstado().equals(EstadoCarreraEnum.ACT.name())) {
-            carrreraBD.setEstado(EstadoCarreraEnum.INA);
+            carrreraBD.setEstadoEnum(EstadoCarreraEnum.INA);
             carrreraBD.setMotivoAnulacion(carrera.getMotivoAnulacion());
             carrreraBD.setFechaAnulacion(new Date());
         } else {
-            carrreraBD.setEstado(EstadoCarreraEnum.ACT);
+            carrreraBD.setEstadoEnum(EstadoCarreraEnum.ACT);
         }
         carreraDAO.update(carrreraBD);
     }
@@ -80,7 +80,7 @@ public class CarreraServiceImp implements CarreraService {
     @Transactional
     public void save(Carrera carrera, Usuario usuario) {
         if (carrera.getId() == null) {
-            carrera.setEstado(EstadoCarreraEnum.CRE);
+            carrera.setEstadoEnum(EstadoCarreraEnum.CRE);
             carrera.setUserRegistro(usuario);
             carrera.setFechaRegistro(new Date());
             carreraDAO.save(carrera);

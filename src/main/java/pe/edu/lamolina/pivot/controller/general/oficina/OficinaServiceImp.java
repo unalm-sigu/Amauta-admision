@@ -615,7 +615,7 @@ public class OficinaServiceImp implements OficinaService {
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
         persona.setUserRegistro(usuario);
-        persona.setEstado(PersonaEstadoEnum.ACT);
+        persona.setEstadoEnum(PersonaEstadoEnum.ACT);
         persona.setSexo(SexoEnum.getNombre(colaborador.getPersona().getSexo()));
         personaDAO.save(persona);
 

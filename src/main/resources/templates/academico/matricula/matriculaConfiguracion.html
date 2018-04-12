@@ -16,18 +16,19 @@
             <h2 >Turnos de atención <span v-text="ciclo.descripcion"></span></h2>
 
             <div  class="tabbable-line">
-                <ul class="nav nav-tabs" >
+                <ul class="nav nav-tabs special-tabs" >
                     <li v-for="(tab, index) in lstTabs" v-on:click="carga(tab)" v-bind:class="active(index)">
                         <a href="#" data-toggle="tab"  v-text="tab.tipo" >
                         </a>
-                        <button class="btn-danger btn-xs" v-on:click="eliminar" href="#"  >x</button>
+                        <span class="fa fa-times padder-right" v-on:click="eliminar"></span>
                     </li>
                 </ul>
             </div>
         </header>
-        <section class="panel-body">
+        <section class="panel">
 
-            <table class="table table-bordered col-md-12 " v-if="!flag">
+            <section class="panel-body">
+                <table class="table table-striped col-md-12 special-table" v-if="!flag">
                 <thead>
                     <tr>
                         <th>Dias/Horas</th>
@@ -41,18 +42,20 @@
                         <td v-for="turno in hora.turnos" class="col-md-2 ">
                             <div class="m-t m-b">
                                 <span class="block">
-                                    <small v-text="turno.prioridadInicio" ></small>
-                                    <small v-text="turno.prioridadFin" class="pull-right"></small>
+                                    <small v-text="turno.prioridadInicio" class="circular" ></small>
+                                    <small v-text="turno.prioridadFin" class="pull-right circular"></small>
                                 </span>
                                 <span class="block text-center" >
-                                    <a href="#" v-bind:id="turno.id" v-on:click="matricular(turno)"  v-text="turno.alumnos" >
+                                    <a href="#" v-bind:id="turno.id" v-text="turno.alumnos" >
                                     </a>
+                                    <i class="fa fa-industry circular editer-icon pull-right" v-on:click="matricular(turno)"  ></i>
                                 </span>
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            </section>
         </section>
 
 
