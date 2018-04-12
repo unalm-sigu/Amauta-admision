@@ -1,0 +1,59 @@
+<ul>
+    <li>
+        <div class="segnal" style="width:100%;">
+
+            {{if nodes}}
+            <span style="background-color: #363e45; color: #C1D0DF;"> <i class="fa fa-folder-open-o" aria-hidden="true"></i>   {{:nombre}}</span>
+            {{else}}
+            <span> <i class="fa {{:icono}}" aria-hidden="true"></i>   {{:nombre}}</span>
+            {{/if}}
+
+            {{if isSortable}}
+            <a class="m-l-sm btnSort" href="#" rel="{{:id}}" rev="-1" data-tipo="{{:tipo}}" style="display: none;"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+            <a class="m-l-sm btnSort" href="#" rel="{{:id}}" rev="1" data-tipo="{{:tipo}}" style="display: none;"><i class="fa fa-arrow-down" aria-hidden="true"></i></a>
+            {{/if}}
+
+
+
+            <div class="pull-right btn-group btn-group-sm">
+
+                {{if menusHijos}}
+                {{else}}
+                <button rel="{{:id}}" class="btn btn-link {{:delete}}"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                {{/if}}
+                <button rel="{{:id}}" class="btn btn-link {{:edit}}"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+                {{if crearMenuHijo}}
+                <!--<button rel="{{:id}}" class="btn btn-link {{:add}}"><i class="fa fa-plus" aria-hidden="true"></i></button>-->
+                {{/if}}
+
+                {{if activado}}
+                <button rel="{{:id}}" data-tipo="{{:tipo}}" class="btn btn-link estado text-dark"><i class="fa fa-square-o" aria-hidden="true"></i></button>
+                {{/if}}
+                {{if desactivado}}
+                <button rel="{{:id}}" data-tipo="{{:tipo}}" class="btn btn-link estado text-primary"><i class="fa fa-check-square-o" aria-hidden="true"></i></button>
+                {{/if}}
+
+                <!--<button rel="{{:id}}" class="btn btn-sm btn-warning text-primary bold">{{:preguntasVisibles}}</button>-->
+
+
+            </div>
+
+            <div class="pull-right">
+                {{if subtitulosVisibles>0}}
+                <span class="estado-green">{{:subtitulosVisibles}}</span>
+                {{/if}}
+                {{if bloquesVisibles>0}}
+                <span class="estado-red">{{:bloquesVisibles}}</span>
+                {{/if}}
+                {{if preguntasVisibles>0}}
+                <span class="estado-gray">{{:preguntasVisibles}}</span>
+                {{/if}}
+            </div>
+
+
+        </div>
+
+        {{:menusHijos}}
+
+    </li>
+</ul>

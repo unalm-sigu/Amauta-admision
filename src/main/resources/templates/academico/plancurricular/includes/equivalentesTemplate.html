@@ -1,0 +1,30 @@
+<p class="h5 m-b-lg">
+    El curso <b class="text-primary">{{:curso}}</b> {{:codigo}} es equivalente a el/los siguientes grupos de cursos:
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="col-md-1 text-center v-middle">Grupo</th>
+            <th class="col-md-2 text-center v-middle">Código</th>
+            <th class="col-md-9 text-center v-middle">Curso Equivalente</th>
+        </tr>
+    </thead>
+    {{for arrayGruposEquivalentes}}
+    <tbody>
+        {{for arrCursosEquivalantes ~nroGrupo=numeroGrupo}}
+        <tr>
+            {{if #index == 0}}
+            <td rowspan='{{:#get("array").data.length}}' class="v-middle text-center" > {{:~nroGrupo}} </td>
+            {{/if}}
+            <td class="v-middle">{{:codigo}}</td>
+            <td class="v-middle">
+                <span class="block">{{:curso}}</span>
+                {{if tpc != null}}
+                    <small class="block bold text-primary"> <i class="fa fa-bookmark-o"></i> &nbsp;{{:tpc}} &nbsp;&nbsp; {{:tipoDictadoCurso}}</small>
+                {{/if}}
+            </td>
+        </tr>
+        {{/for}}
+    </tbody>
+    {{/for}}
+</table>

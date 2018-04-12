@@ -12,9 +12,12 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -186,7 +189,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
-    public DocenteSeccion findByDocenteSeccion(Docente docente, Seccion seccion) {
+    public DocenteSeccion findWithPersonaByDocenteSeccion(Docente docente, Seccion seccion) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
@@ -337,6 +340,26 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .filter("ds.principal", 1)
                 .in("sec.id", secciones);
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<DocenteSeccion> allDocenteSeccionByModalidad(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
+
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .join("doc.modalidadEstudio me")
+                .leftJoin("doc.departamentoAcademico")
+                .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
+                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .filter("ca.id", cicloAcademico)
+                .filter("doc.estado", DocenteEstadoEnum.ACT)
+                .filter("doc.codigo", "<>", Constantine.DOCENTE_INDETERMINADO)
+                .filter("me.id", modalidadEstudio)
+                .filter("ds.estado", EstadoEnum.ACT);
+
+        return all(sql);
     }
 
 }

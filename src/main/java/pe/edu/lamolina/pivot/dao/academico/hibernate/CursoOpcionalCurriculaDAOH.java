@@ -29,7 +29,7 @@ public class CursoOpcionalCurriculaDAOH extends AbstractEasyDAO<CursoOpcionalCur
                 .join("curso cur", "planCurricular pc", "tipoCursoCurricula tcc")
                 .searchFields("cur.nombre", "cur.codigo", "cur.codigoAnterior1")
                 .filter("pc.id", filter.getQueries().get("planc"))
-                .orderBy("tcc.orden", "cur.nombre");
+                .orderBy("tcc.orden desc", "cur.nombre");
         return all(sql);
     }
 

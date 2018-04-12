@@ -4,6 +4,8 @@ import pe.albatross.zelpers.miscelanea.OSValidator;
 
 public interface Constantine {
 
+    Integer YEAR_ALL_APPROVE = 1987;
+
     String SESSION_USUARIO = "SESSION_USUARIO";
 
     String DOCENTE_INDETERMINADO = "N.N.";
@@ -38,5 +40,10 @@ public interface Constantine {
     String APP_ERROR_MESSAGE = "Error Desconocido: por favor reporte el problema.";
 
     String S3_DIR_CONVENIO = "convenio/";
+    //restriccion encuesta docente
+    String REQ_MAX_DOCENTE = "No cumple requisito de máximo docentes";
+    String REQ_MIN_ALUMNO = "No cumple requisito de mínimo alumnos";
+    String REQ_CUR_TEORIA = "Encuestado en el curso de  teoría";
+    String REQ_EVENTO = "Evento académico no configurado";
 
 }

@@ -68,11 +68,11 @@ public interface ProgDataService {
 
     Map<String, Seccion> loadDataSecciones(List<Seccion> secciones, CicloAcademico ciclo, Map<String, GrupoSeccion> mapGpoSecciones);
 
-    //Map<String, Docente> loadDataDocentes(List<Docente> docentes, CicloAcademico ciclo, DataSessionPivot ds);
     Map<String, DocenteSeccion> loadDataDocentesSecciones(
             List<DocenteSeccion> docentesSecciones,
             Map<String, Seccion> mapSecciones,
-            Map<String, Docente> mapDocentes);
+            Map<String, Docente> mapDocentes,
+            CicloAcademico ciclo);
 
     void revisarDocenteSecciones(Map<String, DocenteSeccion> mapDocenteSecciones, CicloAcademico ciclo, DataSessionPivot ds);
 
@@ -91,13 +91,12 @@ public interface ProgDataService {
     void revisarBloqueados(Map<String, AlumnoBlocked> mapBloqueados);
 
 //    void revisarHorarioSecciones(List<HorarioSeccion> horariosSeccion, CicloAcademico ciclo);
-
     void revisarHorarioGrupos(List<DiaHoraGrupo> horariosGrupo, CicloAcademico ciclo);
 
     void detenerRevisionBloqueado();
 
     void deleteHorarioSeccionNoUsados(List<HorarioSeccion> horarios, CicloAcademico cicloAcademico);
-    
+
     List<Persona> allPersonasByPer(
             Persona persona,
             Map<String, List<Persona>> mapKeyPersonas,

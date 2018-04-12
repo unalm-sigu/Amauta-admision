@@ -86,6 +86,11 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
 
+    @Autowired
+    VisorLoadProgramacion visor;
+    @Autowired
+    VerificadorProgramacioService verificadorProgramacioService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Integer random;
@@ -147,18 +152,49 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             Map<String, Seccion> mapSecciones,
             CicloAcademico ciclo, DataSessionPivot ds) {
 
+        if (visor.isStop()) {
+            throw new PhobosException("Carga detenida intespestivamente");
+        }
+
+        for (;;) {
+            if (matriSecc.getPerdirPermiso()) {
+                break;
+            }
+        }
+
+        if (matriSecc.getFechaInicioProceso() != null) {
+            for (;;) {
+                long t1 = System.currentTimeMillis();
+                long t2 = matriSecc.getFechaInicioProceso().getTime();
+                if (t1 - t2 > 5000) {
+                    break;
+                }
+            }
+        }
+        if (matriSecc.getFechaFinProceso() != null) {
+            for (;;) {
+                long t1 = System.currentTimeMillis();
+                long t2 = matriSecc.getFechaFinProceso().getTime();
+                if (t1 - t2 > 5000) {
+                    break;
+                }
+            }
+        }
+
         int rr = getRandom();
         matriSecc.setFechaInicioProceso(new Date());
 
         Seccion seccion = mapSecciones.get(matriSecc.getCodigoSeccion());
         if (seccion == null) {
             String msg = String.format("La seccion %s no existe para se incluida en matricula-seccion", matriSecc.getCodigoSeccion());
+            matriSecc.setLiberarPermiso();
             throw new PhobosException(msg);
         }
 
         Alumno alumno = alumnoDAO.findFlatByCodigo(matriSecc.getCodigoAlumno());
         if (alumno == null) {
             String msg = String.format("El alumno %s no existe para se incluida en matricula-seccion", matriSecc.getCodigoAlumno());
+            matriSecc.setLiberarPermiso();
             throw new PhobosException(msg);
         }
 
@@ -255,6 +291,11 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriculaCursoDAO.save(matriCursoBD);
 
             System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
+            visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " creado", true, "info");
+
+        } else {
+            System.out.print("\t" + rr + " actualizando mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo() + " :::: ");
+            visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " ya existe", true, "info");
         }
 
         matriCursoBD.setCreditos(matriSecc.getCreditos());
@@ -274,10 +315,13 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriCursoBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaCursoDAO.update(matriCursoBD);
         }
+
         matriSecc.setProcesado(1);
         matriSecc.setFechaFinProceso(new Date());
+        matriSecc.setLiberarPermiso();
 
         System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
+        visor.agregarLog("aluSecc", "saveAluSecc", "Registro de alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " finalizado", false, "info");
     }
 
 }

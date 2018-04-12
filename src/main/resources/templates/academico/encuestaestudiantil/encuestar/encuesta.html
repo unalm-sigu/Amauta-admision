@@ -1,0 +1,125 @@
+<html layout:decorator="admision/_layout/layoutAgraria1">
+    <head>
+        <title> Encuesta </title>
+        <link rel="stylesheet" type="text/css" th:href="@{/vendor/bootzard-wizard/style.css}" />
+        <style>
+            .f1-buttons { text-align: left; }
+        </style>
+    </head>
+
+    <body>
+
+        <div layout:fragment="banner">
+            <h1> 
+                <span  th:text="${interesado !=null? interesado.nombreCompleto:''}" /> 
+                <div class="line"></div>
+            </h1>
+
+        </div>
+
+        <div layout:fragment="main">
+
+            <div class="col-sm-12 form-box">
+                <form role="form" action="" method="post" class="f1" id="wizardform">
+
+                    <h3>Encuesta para postulantes</h3>
+                    <p class="text-center m-t-lg bold text-warningw h4">
+                        <span class="alert alert-warning" th:inline="text">
+                            [[${estimado}]] postulante, para mejorar nuestro servicio
+                            ayúdanos respondiendo esta encuesta
+                        </span>
+                        <br/><br/>
+                    </p>
+                    <div class="f1-steps">
+                        <div class="f1-progress">
+                            <div class="f1-progress-line" data-now-value="0" data-number-of-steps="0" style=""></div>
+                        </div>
+
+                        <div th:each="pregunta, conteo : ${preguntas}"
+                             th:class="|f1-step ${conteo.index==0? 'active':''} ${pregunta.opcionReferencia != null? 'hide':''}|"
+                             th:rel="${pregunta.encuesta}? ${pregunta.encuesta.id}"
+                             th:attr="ref=${pregunta.id}">
+                            <div class="f1-step-icon" 
+                                 th:inline="text">[[${conteo.count}]]</div><p></p>
+                        </div>
+                    </div>
+
+                    <fieldset th:each="pregunta, conteo : ${preguntas}"
+                              th:attr="ref=${pregunta.id}"
+                              th:rel="${pregunta.encuesta}? ${pregunta.encuesta.id}">
+
+                        <div class="form-group m-t-xl m-l-lg m-r-lg"  style="min-height: 250px;" >
+
+                            <div class="m-b-xl" >
+                                <p class="bold" th:text="${pregunta.texto}"></p>
+                            </div>
+
+                            <div class="itemOpcion" 
+                                 th:each="opcion, iterador : ${pregunta.opcionPregunta}">
+
+                                <div th:if="${opcion.esTexto==1}" >
+                                    <label>
+                                        <input type="text" class="form-control preTexto" required="yes" th:rel='${pregunta.encuesta.id}' />
+                                        <div th:substituteby="admision/inscripcion/encuesta/encuestaOpcionBtn"></div>
+                                    </label>
+                                </div>
+
+
+                                <div th:if="${opcion.esMulti==1}" >
+                                    <div th:substituteby="admision/inscripcion/encuesta/encuestaMultipleOpcion"></div>
+                                </div>
+
+                                <div class="radio i-checks" 
+                                     th:if="${opcion.esTexto==null and opcion.esMulti==null}" >
+
+                                    <label>
+                                        <input type="radio"
+                                               class="step-option"
+                                               th:name="${pregunta.encuesta.id}" 
+                                               th:rel='${pregunta.encuesta.id}' 
+                                               th:value="${opcion.id}"
+                                               th:attr="ref=${opcion.itemsReferencias}" />
+                                        <i></i>
+
+                                        <span th:text="|${opcion.letra} ) ${opcion.contenido}|"></span>
+
+                                        <input th:if="${opcion.esTexto}" 
+                                               type="text" class="form-control preOtro" 
+                                               th:rel='${pregunta.encuesta.id}'
+                                               maxlength="299"
+                                               th:attr="ref=${opcion.itemsReferencias}" />
+
+                                        <input th:if="${opcion.esOtro}" 
+                                               type="text" disabled="true" 
+                                               class="form-control preOtro" 
+                                               maxlength="299"
+                                               th:rel='${pregunta.encuesta.id}'  
+                                               th:attr="ref=${opcion.itemsReferencias}" />
+
+                                        <div th:substituteby="admision/inscripcion/encuesta/encuestaOpcionBtn"></div>
+
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="f1-buttons">
+                            <button type="button" class="btn btn-previous"
+                                    th:if="${conteo.index>0}">Anterior</button>
+                            <button type="button" class="btn btn-next">Siguiente</button>
+                            <button type="button" class="btn btn-submit hide">Finalizar</button>
+                        </div>
+
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+            <script type="text/javascript" th:src="@{/vendor/jquery.countdown/dist/jquery.countdown.min.js}" />
+            <script type="text/javascript" th:src="@{/vendor/bootzard-wizard/scripts.js}" />
+            <script th:src="@{/app/encuesta/encuesta.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

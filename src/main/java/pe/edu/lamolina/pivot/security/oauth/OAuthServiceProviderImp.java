@@ -109,7 +109,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {
 
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
-        Usuario usuario = usuarioDAO.findByEmail(email);
+        Usuario usuario = usuarioDAO.findByGoogleEmail(email);
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
         }

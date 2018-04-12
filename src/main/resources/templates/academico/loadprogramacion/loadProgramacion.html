@@ -15,6 +15,7 @@
 
                         <div class="panel-heading">
                             <h3 class="panel-title" th:inline="text">Carga de programación de horarios - [[${ciclo.descripcion2}]]</h3>
+                            <input type="hidden" id="visor" th:value="${visor.ejecutando}"/>
                         </div>
 
                         <div class="panel-body" id="divForm">
@@ -26,137 +27,28 @@
 
                                         <div class="form-group">
                                             <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
+                                                <input type="file" name="file" autocomplete="off" required="true" multiple="yes" />
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Secciones:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryClaves.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Personas:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryPersonas.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Docentes:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryProfesor.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Docentes Secciones:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryProClaves.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Alumnos:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryAlumnos.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Alumnos Secciones:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryDefinitivo.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Horario Grupos:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryHorGrupos.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold">Horario Secciones:</div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryHorSecciones.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row m-b-md">
-                                    <div class="col-md-3 bold"> Cursos: </div>
-                                    <div class="col-md-9"> 
-                                        <span class="block underline">(queryCursos.xls) </span>
-
-                                        <div class="form-group">
-                                            <span class="btn bg-gradient">
-                                                <input type="file" name="file" autocomplete="off" required="true" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
                                 <div class="progress" id="progress">
                                     <div class="progress-bar progress-bar-success"></div>
                                 </div>
 
                                 <span class="col-md-12 text-center">
+                                    <a class="btn btn-danger" id="btnStopLoadHorario">Detener Carga</a>
                                     <a class="btn btn-info" id="btnLoadHorario">Cargar Horarios</a>
                                 </span>
                             </form>
+                        </div>
+
+                        <div class="panel-body hide" id="divLog">
+                            <table class="table table-bordered">
+                                <thead><tr><td></td><td>Comentario</td></tr></thead>
+                                <tbody id="bodyLog"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

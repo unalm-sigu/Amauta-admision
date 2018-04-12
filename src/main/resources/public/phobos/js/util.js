@@ -299,6 +299,7 @@ APP = {
     },
     select2: function() {
         $(".select2single").select2({minimumResultsForSearch: -1});
+        $(".select2singleclear").select2({minimumResultsForSearch: -1, allowClear: true});
         $(".select2").select2();
     },
     url: function(relative) {

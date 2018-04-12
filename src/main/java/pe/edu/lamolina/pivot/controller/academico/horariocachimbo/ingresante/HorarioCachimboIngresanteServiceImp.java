@@ -244,6 +244,9 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
             Carrera carrera = ingresante.getCarrera();
             Integer cant = mapIngresantes.get(carrera.getId());
+            if (cant == null) {
+                logger.debug("Carrera ubicada: {}", carrera.getNombre());
+            }
             cant = (cant == null) ? 1 : cant + 1;
             mapCarreras.put(carrera.getId(), carrera);
             mapIngresantes.put(carrera.getId(), cant);
@@ -251,10 +254,18 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
         logger.debug("Existe {} carreras en el map", mapCarreras.values().size());
         logger.debug("Hay {} carreras preexistentes en el map", mapCarreraCachimbos.values().size());
+
+        for (Map.Entry<Long, CarreraCachimbos> entry : mapCarreraCachimbos.entrySet()) {
+            logger.debug("id:{} carrera:{}", entry.getKey(), entry.getValue().getCarrera().getNombre());
+            System.out.println(entry.getKey() + "/" + entry.getValue());
+        }
+
         for (Carrera carrera : mapCarreras.values()) {
+            logger.debug("Creando {} carrera-cachimbo {}", carrera.getId(), carrera.getNombre());
             Integer ingresantes = mapIngresantes.get(carrera.getId());
 
             CarreraCachimbos ch = mapCarreraCachimbos.get(carrera.getId());
+            logger.debug("\tCarrera-cachimno {}", ch);
 
             if (ch == null) {
                 ch = new CarreraCachimbos();
@@ -267,12 +278,14 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 ch.setSinHorario(ingresantes);
                 ch.setSuspendidos(0);
                 carreraCachimbosDAO.save(ch);
-                mapCarreraCachimbos.put(ch.getId(), ch);
+                mapCarreraCachimbos.put(carrera.getId(), ch);
+                logger.debug("\tCarrera-cachimno nuevo {}", ch.getId());
 
             } else {
                 ch.setIngresantes(ingresantes + ch.getIngresantes());
                 ch.setSinHorario(ingresantes + ch.getSinHorario());
                 carreraCachimbosDAO.update(ch);
+                logger.debug("\tCarrera-cachimno editado {}", ch.getId());
             }
         }
     }

@@ -442,7 +442,7 @@ $(function () {
 
             MODAL.init("md");
             MODAL.title("");
-            MODAL.body($.templates("#templatePreRequisitos").render(rec));
+            MODAL.body($.templates("#preRequisitosTemplate").render(rec));
             MODAL.show();
 
         },
@@ -456,7 +456,7 @@ $(function () {
             }
             MODAL.init("md");
             MODAL.title("");
-            MODAL.body($.templates("#templateEquivalentes").render(rec));
+            MODAL.body($.templates("#equivalentesTemplate").render(rec));
             MODAL.show();
 
         },
@@ -484,6 +484,8 @@ $(function () {
                         notify(response.message, "info");
                         dynatableCursosObl.process();
                         dynatableCursosRes.process();
+                        NuevaCurricula.verMalla();
+                        
                     } else {
                         MODAL.activateButtons();
                         $("#" + record.idSelect).select2("readonly", false);
@@ -570,6 +572,7 @@ $(function () {
                         dynatableCursosObl.process();
                         dynatableCursosRes.process();
                         dynatableCursosElec.process();
+                        NuevaCurricula.verMalla();
 
                     } else {
                         MODAL.activateButtons();
@@ -609,6 +612,7 @@ $(function () {
                         dynatableCursosElec.process();
                         dynatableCursosObl.process();
                         dynatableCursosRes.process();
+                        NuevaCurricula.verMalla();
 
                     } else {
                         MODAL.activateButtons();
@@ -799,6 +803,12 @@ $(function () {
                                 } else {
                                     $("#txtCreditos").val(e.object.creditos);
                                 }
+
+                                $('#txtCreditos').prop("readonly", true);
+                                if (e.object.tipoCredito == "VAR") {
+                                    $("#txtCreditos").val("");
+                                    $('#txtCreditos').prop("readonly", false);
+                                }
                             }
                         }
                     });
@@ -807,9 +817,12 @@ $(function () {
                         $('#txtCreditoReq').prop("readonly", false);
                         //$("#txtCreditoReq").attr("required", true)
                         $("#cmbAdd").removeAttr("disabled")
-
                         $("#cboCursosReq").select2(NuevaCurricula.select2RequisitoCursoCurricula);
+                    } else {
+                        $("#cboCursosReq").select2("destroy");
+                        $("#cboCursosReq").val("");
                     }
+
                     if (response.data.tieneCreditoManual) {
                         $('#txtCreditos').prop("readonly", false);
                         $("#txtCreditos").val("");
@@ -1010,6 +1023,7 @@ $(function () {
                                     dynatableCursosObl.queries.add("numCic", NuevaCurricula.numeroCicloElegido.attr("rel"));
                                     dynatableCursosObl.process();
                                     dynatableCursosRes.process();
+                                    NuevaCurricula.verMalla();
 
                                 } else {
                                     MODAL.hideWait();
@@ -1371,8 +1385,8 @@ $(function () {
             var wwLine = 2;
             var wwBoldLine = 6;
 
-            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8"};
-            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff"};
+            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4"};
+            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff"};
             var colorLine = "#E74C3C";
             var colorDot = "#34495E";
             var colorArrow = "#D7DBDD";
