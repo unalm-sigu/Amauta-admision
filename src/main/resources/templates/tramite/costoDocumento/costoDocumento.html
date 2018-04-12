@@ -1,11 +1,11 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Administración de Oficinas</title>
+        <title>Costo Documento</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
 </head>
 <body>
     <div layout:fragment="main">
-        <div id="colaboradorVue">
+        <div id="tipoConstanciaVue">
 
             <header class="header b-b padder-lg">
 
@@ -13,9 +13,10 @@
                     <a type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click="nuevo">
                         &nbsp; Nuevo &nbsp; 
                     </a>
+
                 </div>
 
-                <h2>Plantilla Constancia</h2>
+                <h2>Costo Documento</h2>
 
             </header>
             <section class="wrapper-lg m-b-xs">
@@ -25,6 +26,7 @@
                     </section>
                 </section>
             </section>
+
             <!--MODAL INICIO-->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
@@ -39,35 +41,69 @@
                                     <div class='form-group row'>
                                         <label class="col-sm-3 control-label">Tipo constancia</label>
                                         <div class="col-sm-8">
-                                            <div class="form-group">                                
-                                                <multiselect v-model="plantilla.tipoDocumentoAcademico" 
+                                            <div class="form-group" v-if="isNew">                                
+                                                <multiselect v-model="costoDocumento.tipoDocumento" 
                                                              v-bind:options='tipoConstancia'
                                                              label='nombre'
                                                              track-by='id'
+                                                             v-bind:searchable="false" v-bind:allow-empty="false"
                                                              placeholder="Seleccione un tipo de constancia"
+                                                             v-bind:close-on-select="false"
+                                                             v-bind:preserve-search="true"
+                                                             v-bind:custom-label="nameWithCodeEspecial" 
+                                                             class="tipoDocumento"
+                                                             required="true"
                                                              >
+                                                    <template slot="option" slot-scope="props">    
+                                                        <div class="option__desc">
+                                                            <div >
+                                                                <span class="bold option__title">
+                                                                    {{ props.option.tipo.value }}
+                                                                </span>
+                                                                <span class="bold  option__small">
+                                                                    {{ props.option.nombre }}
+                                                                </span>
+                                                            </div>                                                       
+                                                        </div>
+                                                    </template>
                                                 </multiselect>
+                                            </div>
+                                            <div class="form-group" v-if="!isNew">   
+                                                <span class="form-control ">
+                                                    {{costoDocumento.tipoDocumento.tipo.value}}
+                                                    {{costoDocumento.tipoDocumento != undefined ? costoDocumento.tipoDocumento.nombre : ''}}
+                                                </span>
                                             </div>
                                         </div>  
                                     </div>          
                                     <div class='form-group row'>
                                         <label class="col-sm-3 control-label">Idioma</label>
                                         <div class="col-sm-8">
-                                            <div class="form-group">                                
-                                                <multiselect v-model="plantilla.idioma" 
+                                            <div class="form-group" v-if="isNew">                                
+                                                <multiselect v-model="costoDocumento.idioma" 
                                                              v-bind:options='idiomas'
                                                              label='nombre'
                                                              track-by='id'
                                                              placeholder="Seleccione un tipo de constancia"
                                                              >
                                                 </multiselect>
+
+                                            </div>
+                                            <div class="form-group" v-if="!isNew">   
+                                                <span v-text="costoDocumento.idioma != undefined ? costoDocumento.idioma.nombre : ''" class="form-control "></span>
                                             </div>
                                         </div>  
-                                    </div>     
+                                    </div>              
+                                    <div class='form-group row'>
+                                        <label class="col-sm-3 control-label">Precio</label>
+                                        <div class="col-sm-8">
+                                            <input  required="true" v-model="costoDocumento.precio" type="text" class="form-control " placeholder="Ingrese un precio"/>
+                                        </div>
+                                    </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-success " v-on:click.prevent="save" v-if="isNew" v-text="'Guardar'"></button>
-                                        <button type="button" class="btn btn-success " v-on:click.prevent="update" v-if="isOld" v-text="'Actualizar'"></button>
+                                        <button type="button" class="btn btn-success" v-on:click.prevent="save" v-if="isNew" v-text="'Guardar'"></button>
+                                        <button type="button" class="btn btn-success" v-on:click.prevent="update" v-if="!isNew" v-text="'Actualizar'">></button>
                                     </div>
                                 </div>
                             </div>
@@ -76,9 +112,11 @@
                 </div>
             </div>
             <!--MODAL FIN -->
+
         </div>
-        <th:block th:replace="tramite/plantillaDynatable"/>
+        <th:block th:replace="tramite/costoDocumento/costoDocumentoDynatable"/>
     </div>
+
     <div layout:fragment="js">
         <script th:inline="javascript">
             /*<![CDATA[*/
@@ -87,7 +125,7 @@
             /*]]>*/
         </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/tramite/plantillaConstancia.js}" charset="utf-8"></script>
+        <script th:src="@{/app/tramite/costoDocumento/costoDocumento.js}" charset="utf-8"></script>
     </div>
 
 </body>

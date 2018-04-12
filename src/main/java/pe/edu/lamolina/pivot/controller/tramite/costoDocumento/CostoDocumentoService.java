@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite;
+package pe.edu.lamolina.pivot.controller.tramite.costoDocumento;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;

@@ -84,7 +84,7 @@
             </div>
             <!--MODAL FIN -->
         </div>
-        <th:block th:replace="tramite/tipoConstanciaDynatable"/>
+        <th:block th:replace="tramite/tipoConstancia/tipoConstanciaDynatable"/>
     </div>
 
     <div layout:fragment="js">
@@ -94,7 +94,7 @@
             /*]]>*/
         </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/tramite/tipoConstancia.js}" charset="utf-8"></script>
+        <script th:src="@{/app/tramite/tipoConstancia/tipoConstancia.js}" charset="utf-8"></script>
     </div>
 
 </body>

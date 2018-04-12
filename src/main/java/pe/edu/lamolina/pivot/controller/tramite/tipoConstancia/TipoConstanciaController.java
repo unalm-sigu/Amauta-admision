@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite;
+package pe.edu.lamolina.pivot.controller.tramite.tipoConstancia;
 
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
@@ -63,7 +63,7 @@ public class TipoConstanciaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         model.addAttribute("tipos",TipoConstanciaEnum.getJsonValues());
-        return "tramite/tipoConstancia";
+        return "tramite/tipoConstancia/tipoConstancia";
     }
 
     @ResponseBody
