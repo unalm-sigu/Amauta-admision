@@ -113,7 +113,7 @@ public class AulaServiceImp implements AulaService {
         }
 
         revisarNombre(aula);
-        aula.setEstado(EstadoEnum.CRE);
+        aula.setEstadoEnum(EstadoEnum.CRE);
         aula.setUserRegistro(usuario);
         aula.setFechaRegistro(new Date());
         aulaDAO.save(aula);
@@ -195,11 +195,11 @@ public class AulaServiceImp implements AulaService {
 
         if (aula.getEstadoEnum() == EstadoEnum.ACT) {
             Assert.isFalse(aulaBD.getEstadoEnum() == EstadoEnum.ACT, "Este ambiente ya se encuentra activo");
-            aulaBD.setEstado(EstadoEnum.ACT);
+            aulaBD.setEstadoEnum(EstadoEnum.ACT);
 
         } else if (aula.getEstadoEnum() == EstadoEnum.INA) {
             Assert.isFalse(aulaBD.getEstadoEnum() == EstadoEnum.INA, "Este ambiente ya se encuentra desactivado");
-            aulaBD.setEstado(EstadoEnum.INA);
+            aulaBD.setEstadoEnum(EstadoEnum.INA);
             aulaBD.setMotivoAnulacion(aula.getMotivoAnulacion());
             aulaBD.setFechaAnulacion(new Date());
             aulaBD.setUserAnulacion(ds.getUsuario());

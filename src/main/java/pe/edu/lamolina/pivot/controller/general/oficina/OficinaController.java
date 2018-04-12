@@ -114,7 +114,7 @@ public class OficinaController {
                 node.put("id", oficina.getId());
                 node.put("nombre", oficina.getNombre());
                 node.put("codigo", oficina.getCodigo());
-                node.put("tipo", oficina.getTipoOficinaEnum().getValue());
+                node.put("tipo", oficina.getNombre());
                 node.put("estado", oficina.getEstado());
                 node.put("estadoEnum", oficina.getEstadoEnum().getValue());
                 node.put("dependencia", (String) ObjectUtil.getParentTree(oficina, "oficinaSuperior.nombre"));

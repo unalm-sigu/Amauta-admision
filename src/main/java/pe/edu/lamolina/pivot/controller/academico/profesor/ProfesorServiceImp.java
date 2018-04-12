@@ -97,7 +97,7 @@ public class ProfesorServiceImp implements ProfesorService {
             if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
                 this.validarEmailsinPersona(personaForm.getEmail());
             }
-            personaForm.setEstado(PersonaEstadoEnum.ACT);
+            personaForm.setEstadoEnum(PersonaEstadoEnum.ACT);
             if (Strings.isNullOrEmpty(personaForm.getFoto())) {
                 personaForm.setFoto(null);
             } else {
@@ -154,7 +154,7 @@ public class ProfesorServiceImp implements ProfesorService {
         logger.debug("existe usuario en db {}", (usuarioDb != null));
         if (usuarioDb == null) {
             usuarioDb = new Usuario();
-            usuarioDb.setEstado(UserEstadoEnum.ACT);
+            usuarioDb.setEstadoEnum(UserEstadoEnum.ACT);
             usuarioDb.setFechaRegistro(new Date());
             usuarioDb.setUserRegistro(user);
             usuarioDb.setPersona(docente.getPersona());
@@ -240,7 +240,7 @@ public class ProfesorServiceImp implements ProfesorService {
         } else {
             logger.debug("-> Creando usuario");
             usuarioDb = new Usuario();
-            usuarioDb.setEstado(UserEstadoEnum.ACT);
+            usuarioDb.setEstadoEnum(UserEstadoEnum.ACT);
             usuarioDb.setFechaRegistro(new Date());
             usuarioDb.setPersona(persona);
             usuarioDb.setUserRegistro(user);

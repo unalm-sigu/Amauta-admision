@@ -16,7 +16,7 @@ import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.seguridad.PerfilRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -24,10 +24,10 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.PerfilRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,7 +39,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     PerfilCompaniaDAO perfilCompaniaDAO;
 
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
+    PersonaCargoDAO personaPerfilDAO;
 
     @Autowired
     PerfilRolDAO perfilRolDAO;
@@ -67,7 +67,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     }
 
     @Override
-    public List<PersonaPerfil> allPersonasPefiles(DynatableFilter filter) {
+    public List<PersonaCargo> allPersonasPefiles(DynatableFilter filter) {
         return personaPerfilDAO.allByFiltersDynaTable(filter);
     }
 
@@ -77,13 +77,13 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     }
 
     @Override
-    public PersonaPerfil findPersonaPerfil(PersonaPerfil personaPerfil) {
+    public PersonaCargo findPersonaPerfil(PersonaCargo personaPerfil) {
         return personaPerfilDAO.find(personaPerfil.getId());
     }
 
     @Override
     @Transactional
-    public void save(PersonaPerfil personaPerfil, Usuario usuario) {
+    public void save(PersonaCargo personaPerfil, Usuario usuario) {
 
         if (personaPerfil.getOficina().getId() == null) {
             personaPerfil.setOficina(null);
@@ -99,7 +99,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
 
     @Override
     @Transactional
-    public void update(PersonaPerfil personaPerfil) {
+    public void update(PersonaCargo personaPerfil) {
         if (personaPerfil.getOficina().getId() == null) {
             personaPerfil.setOficina(null);
         }
@@ -112,7 +112,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     @Transactional
     public void activate(Long idPersonaPerfil) {
 
-        PersonaPerfil personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
+        PersonaCargo personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
         personaPerfil.setEstado(EstadoEnum.ACT);
         personaPerfilDAO.update(personaPerfil);
 
@@ -140,7 +140,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     @Transactional
     public void desactivar(Long idPersonaPerfil) {
 
-        PersonaPerfil personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
+        PersonaCargo personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
         personaPerfil.setEstado(EstadoEnum.INA);
         personaPerfilDAO.update(personaPerfil);
 
@@ -169,7 +169,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
             user = new Usuario();
             user.setPersona(persona);
             user.setGoogle(persona.getEmailCompania());
-            user.setEstado(UserEstadoEnum.ACT);
+            user.setEstadoEnum(UserEstadoEnum.ACT);
 
             usuarioDAO.save(user);
         }

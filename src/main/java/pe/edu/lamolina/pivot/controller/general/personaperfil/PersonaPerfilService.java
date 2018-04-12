@@ -5,7 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface PersonaPerfilService {
@@ -14,15 +14,15 @@ public interface PersonaPerfilService {
 
     List<Compania> allCompania();
 
-    List<PersonaPerfil> allPersonasPefiles(DynatableFilter filter);
+    List<PersonaCargo> allPersonasPefiles(DynatableFilter filter);
 
-    PersonaPerfil findPersonaPerfil(PersonaPerfil personaPerfil);
+    PersonaCargo findPersonaPerfil(PersonaCargo personaPerfil);
 
     List<Persona> allPersonasByNombre(String nombre);
 
-    void save(PersonaPerfil personaPerfil, Usuario usuario);
+    void save(PersonaCargo personaPerfil, Usuario usuario);
 
-    void update(PersonaPerfil personaPerfil);
+    void update(PersonaCargo personaPerfil);
 
     void activate(Long idPersonaPerfil);
 

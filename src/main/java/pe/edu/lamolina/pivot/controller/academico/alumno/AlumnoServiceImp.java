@@ -228,7 +228,7 @@ public class AlumnoServiceImp implements AlumnoService {
             this.validarEmailsinPersona(personaForm.getEmail());
             this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
 
-            personaForm.setEstado(PersonaEstadoEnum.ACT);
+            personaForm.setEstadoEnum(PersonaEstadoEnum.ACT);
             personaForm.setUserRegistro(usuario);
             personaForm.setFechaRegistro(new Date());
             this.validarDNI(personaForm);
@@ -264,7 +264,7 @@ public class AlumnoServiceImp implements AlumnoService {
     public void crearUsuario(String emailCompania, Persona persona, Usuario usuarioRegistra) {
         Usuario usuarioAlumno = new Usuario();
         usuarioAlumno.setGoogle(emailCompania);
-        usuarioAlumno.setEstado(UserEstadoEnum.ACT);
+        usuarioAlumno.setEstadoEnum(UserEstadoEnum.ACT);
         usuarioAlumno.setFechaRegistro(new Date());
         usuarioAlumno.setPersona(persona);
         usuarioAlumno.setUserRegistro(usuarioRegistra);

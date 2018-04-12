@@ -49,7 +49,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
                 .join("compania cia")
-                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina tof")
                 .filter("cia.id", compania)
                 .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre")
                 .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")

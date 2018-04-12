@@ -27,7 +27,7 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -40,11 +40,11 @@ import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -75,7 +75,7 @@ public class OficinaServiceImp implements OficinaService {
     AusenciaJefeDAO ausenciaJefeDAO;
 
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
+    PersonaCargoDAO personaPerfilDAO;
 
     @Autowired
     DocenteDAO docenteDAO;
@@ -113,7 +113,7 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setOficinaSuperior(oficina.getOficinaSuperior());
         oficinaBD.setNombre(oficina.getNombre());
         oficinaBD.setCodigo(oficina.getCodigo());
-        oficinaBD.setTipoOficina(oficina.getTipoOficinaEnum());
+        oficinaBD.setTipoOficina(oficina.getTipoOficina());
         oficinaBD.setInstanciaOficina(oficina.getInstanciaOficina());
         oficinaBD.setCargoJefe(oficina.getCargoJefe());
         oficinaDAO.update(oficinaBD);
@@ -196,7 +196,7 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public void fillReferencia(Oficina oficina) {
-        String tipo = oficina.getTipoOficina();
+        String tipo = oficina.getTipoOficina().getCodigo();
         if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(tipo)) {
             DepartamentoAcademico departamento = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
             oficina.setInstanciaOficinaCodigo(departamento.getCodigo());
@@ -247,7 +247,7 @@ public class OficinaServiceImp implements OficinaService {
             personaDAO.update(jefeBD);
         }
 
-        PersonaPerfil perfil = new PersonaPerfil();
+        PersonaCargo perfil = new PersonaCargo();
         perfil.setCompania(ds.getCompania());
         perfil.setPersona(oficinaBD.getPersonaJefe());
         perfil.setPerfilCompania(oficinaBD.getCargoJefe());
@@ -284,9 +284,9 @@ public class OficinaServiceImp implements OficinaService {
             throw new PhobosException("La fecha final no puede ser antes de la fecha de inicio");
         }
 
-        PersonaPerfil perfil = personaPerfilDAO.findSinCerrar(oficinaBD, ds.getCompania());
+        PersonaCargo perfil = personaPerfilDAO.findSinCerrar(oficinaBD, ds.getCompania());
         if (perfil == null) {
-            perfil = new PersonaPerfil();
+            perfil = new PersonaCargo();
             perfil.setCompania(ds.getCompania());
             perfil.setPersona(oficinaBD.getPersonaJefe());
             perfil.setPerfilCompania(oficinaBD.getCargoJefe());
