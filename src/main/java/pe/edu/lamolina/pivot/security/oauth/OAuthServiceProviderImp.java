@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.enums.TipoSesionEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
@@ -84,6 +86,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     FacultadDAO facultadDAO;
 
     @Autowired
+    ColaboradorDAO colaboradorDAO;
+
+    @Autowired
     InterceptorService interceptorService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -126,6 +131,11 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
 
+        List<Colaborador> colaboradors = colaboradorDAO.allByPersona(usuario.getPersona());
+        if (colaboradors.isEmpty()) {
+            throw new PhobosException("Usted no está registrado como colaborador en la universidad");
+        }
+
         DataSessionPivot dataSession = new DataSessionPivot();
         dataSession.setEmail(email);
         dataSession.setUsuario(usuario);
@@ -135,6 +145,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         dataSession.setBrowser(servlet.getHeader("User-Agent"));
         dataSession.setDireccionIp(servlet.getRemoteAddr());
         dataSession.setSistemaOperativo(getClientOS(servlet));
+        dataSession.setColaborador(colaboradors);
 
         Docente docente = docenteDAO.findPersona(usuario.getPersona());
         if (docente != null) {
@@ -144,7 +155,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         List<Oficina> oficinasByJefe = oficinaDAO.allByJefe(usuario.getPersona());
         for (Oficina oficina : oficinasByJefe) {
-            if (oficina.getTipoOficina().equals("DPTO")) {
+            if (oficina.getTipoOficina().getCodigo().equals("DPTO")) {
                 DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
                 dataSession.setDepartamentoAcademico(dpto);
             }

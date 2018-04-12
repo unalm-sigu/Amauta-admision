@@ -111,7 +111,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Autowired
     PostulanteDAO postulanteDAO;
     @Autowired
-    PersonaCargoDAO personaPerfilDAO;
+    PersonaCargoDAO personaCargoDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
     @Autowired
@@ -738,11 +738,11 @@ public class ProgDataServiceImp implements ProgDataService {
                 docenteDAO.update(docente);
             }
 
-            List<PersonaCargo> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
             //logger.debug("se hallo {} perfiles", persoPerfiles.size());
             for (PersonaCargo pp : persoPerfiles) {
                 pp.setPersona(main);
-                personaPerfilDAO.update(pp);
+                personaCargoDAO.update(pp);
             }
 
         }
@@ -853,7 +853,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
         for (Persona persona : personas) {
-            List<PersonaCargo> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
             if (!persoPerfiles.isEmpty()) {
                 //logger.debug("se escoge por perfiles");
                 return persona;
@@ -1111,7 +1111,7 @@ public class ProgDataServiceImp implements ProgDataService {
             loop++;
             visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " procesada", true, "info");
             logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
-            
+
             System.out.println("SECCION_BD " + seccionBD.getCodigo() + " :::: vac:" + seccionBD.getMatriculados() + " mat:" + seccionBD.getMatriculados());
         }
 

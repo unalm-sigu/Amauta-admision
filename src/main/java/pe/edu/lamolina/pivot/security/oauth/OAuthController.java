@@ -69,7 +69,7 @@ public class OAuthController {
 
             JsonNode jsonNode = new ObjectMapper().readTree(oauthResponse.getBody());
 
-            serviceProvider.loginManually(jsonNode.get("email").asText(), session,servlet);
+            serviceProvider.loginManually(jsonNode.get("email").asText(), session, servlet);
 
         } catch (PhobosException e) {
             session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
@@ -81,11 +81,22 @@ public class OAuthController {
 
     @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            serviceProvider.loginManually(email, session, servlet);
+            serviceProvider.createLogJson(ds, session);
+            
+            return "redirect:/route66";
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            model.addAttribute("error", e.getLocalizedMessage());
+            return "security/login";
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        serviceProvider.loginManually(email, session, servlet);
-        serviceProvider.createLogJson(ds, session);
-        return "redirect:/route66";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Sus credenciales no tienen acceso al sistema.");
+            return "security/login";
+        }
     }
 
     @RequestMapping("route66")

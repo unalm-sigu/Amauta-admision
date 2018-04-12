@@ -5,7 +5,7 @@ $(function () {
         body: $("body"),
         init: function () {
 
-            $('[name="tipoOficina"]').select2({
+            $('[name="tipoOficina.id"]').select2({
                 allowClear: true,
                 minimumInputLength: -1
             }).on('change', function (e) {

@@ -32,4 +32,6 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     public Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad);
 
+    public Persona findByDoc(String dni, TipoDocIdentidad docIdentidad);
+
 }

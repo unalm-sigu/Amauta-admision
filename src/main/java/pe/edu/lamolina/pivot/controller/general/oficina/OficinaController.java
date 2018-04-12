@@ -21,6 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,6 +38,8 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.OficinaNivel;
+import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -44,6 +47,8 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -87,6 +92,132 @@ public class OficinaController {
         return "general/oficina/oficina";
     }
 
+    @RequestMapping("{idColaborador}/updateColaborador/{idOficina}")
+    public String updateColaborador(@PathVariable("idOficina") Long idOficina, @PathVariable("idColaborador") Long idColaborador, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<TipoDocIdentidad> tipoDoc = service.findTipoDoc();
+        List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
+        List<PerfilCompania> companias = service.allCargos();
+        List<PerfilCompania> funciones = service.allFunciones();
+
+        Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
+        model.addAttribute("colaborador", colaborador == null ? new Colaborador() : colaborador.toJson());
+        model.addAttribute("oficina", idOficina);
+        model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
+        model.addAttribute("sexo", SexoEnum.values());
+        model.addAttribute("area", new Oficina().toJsonArray(oficinas));
+        model.addAttribute("compania", new PerfilCompania().toJsonArray(companias));
+        model.addAttribute("funciones", new PerfilCompania().toJsonArray(funciones));
+
+        return "general/oficina/colaborador/colaboradorForm";
+    }
+
+    @ResponseBody
+    @RequestMapping("updateColaborador")
+    public JsonResponse saveUpdateColaborador(@RequestBody Colaborador colaborador, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.updateColaborador(colaborador, ds.getUsuario());
+            response.setMessage("Se actualizó el colaborador satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("{idOficina}/nuevo")
+    public String saveColaborador(@PathVariable("idOficina") Long idOficina, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<TipoDocIdentidad> tipoDoc = service.findTipoDoc();
+        List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
+        List<PerfilCompania> companias = service.allCargos();
+        List<PerfilCompania> funciones = service.allFunciones();
+        model.addAttribute("oficina", idOficina);
+        model.addAttribute("colaborador", new Colaborador().toJson());
+        model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
+        model.addAttribute("sexo", SexoEnum.values());
+        model.addAttribute("area", new Oficina().toJsonArray(oficinas));
+        model.addAttribute("compania", new PerfilCompania().toJsonArray(companias));
+        model.addAttribute("funciones", new PerfilCompania().toJsonArray(funciones));
+        return "general/oficina/colaborador/colaboradorForm";
+    }
+
+    @ResponseBody
+    @RequestMapping("saveColaborador")
+    public JsonResponse saveNuevoColaborador(@RequestBody Colaborador colaborador, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+//            Persona persona = service.verifiDocumento(colaborador.getPersona().getNumeroDocIdentidad(), colaborador.getPersona().getTipoDocumento());
+//            if (persona != null) {
+                service.saveColaborador(colaborador, ds.getUsuario());
+                response.setMessage("Se agregó el colaborador satisfactoriamente");
+                response.setSuccess(Boolean.TRUE);
+//            } else {
+//                response.setSuccess(Boolean.FALSE);
+//            }
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("{oficina}/colaboradores")
+    public String colaborador(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Oficina> oficinas = service.allOficina(ds.getPersona());
+        Colaboradores colaboradors = service.countColaborador(new Oficina(idOficina));
+
+        model.addAttribute("oficinas", new Oficina().toJsonArray(oficinas));
+        model.addAttribute("oficina", idOficina);
+        model.addAttribute("resumen", colaboradors);
+//        model.addAttribute("estados", ColaboradorEstadoEnum.values());
+        return "general/oficina/colaborador/colaborador";
+    }
+
+    @ResponseBody
+    @RequestMapping("updateEstado")
+    public JsonResponse update(@RequestBody Colaborador colaborador, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.updateEstado(colaborador, ds.getUsuario());
+            response.setMessage("Se cambio de estado al colaborador satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idOficina}/colaborador")
+    public DynatableResponse list(@PathVariable("idOficina") Long idOficina, DynatableFilter filter, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse response = new DynatableResponse();
+        try {
+
+            ArrayNode list = service.getData(filter, new Oficina(idOficina));
+
+            response.setData(list);
+
+            response.setTotal(filter.getTotal());
+            response.setFiltered(filter.getFiltered());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setTotal(0);
+        }
+        return response;
+    }
+
     @ResponseBody
     @RequestMapping("all")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
@@ -114,7 +245,8 @@ public class OficinaController {
                 node.put("id", oficina.getId());
                 node.put("nombre", oficina.getNombre());
                 node.put("codigo", oficina.getCodigo());
-                node.put("tipo", oficina.getNombre());
+                node.put("nivel", OficinaNivel.getNombre(oficina.getTipoOficina().getNivel()));
+                node.put("tipo", TipoOficinaEnum.getNombre(oficina.getTipoOficina().getCodigo()));
                 node.put("estado", oficina.getEstado());
                 node.put("estadoEnum", oficina.getEstadoEnum().getValue());
                 node.put("dependencia", (String) ObjectUtil.getParentTree(oficina, "oficinaSuperior.nombre"));
@@ -146,8 +278,9 @@ public class OficinaController {
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
+        List<TipoOficina> tipoOficina = service.allTipoOficina();
         model.addAttribute("oficina", new Oficina());
-        model.addAttribute("tipos", TipoOficinaEnum.values());
+        model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
     }
 
@@ -157,8 +290,9 @@ public class OficinaController {
         Compania compania = ds.getCompania();
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
+        List<TipoOficina> tipoOficina = service.allTipoOficina();
         model.addAttribute("oficina", oficina);
-        model.addAttribute("tipos", TipoOficinaEnum.values());
+        model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
     }
 
@@ -246,8 +380,8 @@ public class OficinaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
-
-            if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(tipo)) {
+            TipoOficina oficina = service.findTipoById(tipo);
+            if (TipoOficinaEnum.DPTO.name().equalsIgnoreCase(oficina.getCodigo())) {
                 List<DepartamentoAcademico> departamentos = service.allDepartamento(compania);
                 for (DepartamentoAcademico departamento : departamentos) {
                     ObjectNode a = new ObjectNode(jsonFactory);
@@ -257,7 +391,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.ESP.name().equalsIgnoreCase(tipo)) {
+            if (TipoOficinaEnum.ESP.name().equalsIgnoreCase(oficina.getCodigo())) {
                 List<Carrera> carreras = service.allCarrera(compania);
                 for (Carrera carrera : carreras) {
                     ObjectNode a = new ObjectNode(jsonFactory);
