@@ -44,7 +44,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
@@ -738,9 +738,9 @@ public class ProgDataServiceImp implements ProgDataService {
                 docenteDAO.update(docente);
             }
 
-            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaPerfilDAO.allByPersona(persona);
             //logger.debug("se hallo {} perfiles", persoPerfiles.size());
-            for (PersonaPerfil pp : persoPerfiles) {
+            for (PersonaCargo pp : persoPerfiles) {
                 pp.setPersona(main);
                 personaPerfilDAO.update(pp);
             }
@@ -853,7 +853,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
         for (Persona persona : personas) {
-            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaPerfilDAO.allByPersona(persona);
             if (!persoPerfiles.isEmpty()) {
                 //logger.debug("se escoge por perfiles");
                 return persona;
@@ -1111,7 +1111,7 @@ public class ProgDataServiceImp implements ProgDataService {
             loop++;
             visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " procesada", true, "info");
             logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
-            
+
             System.out.println("SECCION_BD " + seccionBD.getCodigo() + " :::: vac:" + seccionBD.getMatriculados() + " mat:" + seccionBD.getMatriculados());
         }
 

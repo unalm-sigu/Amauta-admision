@@ -21,6 +21,14 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
     }
 
     @Override
+    public List<Persona> all() {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td");
+        return all(sql);
+    }
+
+    @Override
     public List<Persona> allByNombre(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
 
