@@ -1004,8 +1004,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional
-    public void desvincularAlumnos(PlanCurricular plan, DataSessionPivot ds) {
-        avanceCurricularService.desvincularPlanCurricular(plan, ds);
+    public void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds) {
+        avanceCurricularService.desvincularCursoCurricula(plan, ds);
     }
 
 }

@@ -1351,12 +1351,12 @@ public class PlanCurricularController {
     }
 
     @ResponseBody
-    @RequestMapping("desvincularAlumnos")
-    public JsonResponse desvincularAlumnos(PlanCurricular planCurricular, HttpSession session) {
+    @RequestMapping("desvincularCursos")
+    public JsonResponse desvincularCursos(PlanCurricular planCurricular, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.desvincularAlumnos(planCurricular, ds);
+            service.desvincularCursoCurricula(planCurricular, ds);
             response.setSuccess(true);
             response.setMessage("Plan curricular desvinculado satisfactoriamente");
 

@@ -990,11 +990,11 @@ $(function () {
                 }
             });
         },
-        desvincularAlumnos: function () {
+        desvincularCursos: function () {
             MODAL.showWait();
             var form = $("[id='frmPlanCurricular']");
             $.ajax({
-                url: APP.url('academico/planCurricular/desvincularAlumnos'),
+                url: APP.url('academico/planCurricular/desvincularCursos'),
                 type: 'POST',
                 async: true,
                 data: form.serialize(),
@@ -1718,8 +1718,8 @@ $(function () {
         NuevaCurricula.procesarAlumnos();
     });
 
-    $("body").delegate("#desvincularAlumnos", "click", function (e) {
-        NuevaCurricula.desvincularAlumnos();
+    $("body").delegate("#desvincularCursos", "click", function (e) {
+        NuevaCurricula.desvincularCursos();
     });
 
     $("body").delegate("#cboTipoCursoCurricula", "change", function (e) {

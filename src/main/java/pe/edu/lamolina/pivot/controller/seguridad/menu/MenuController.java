@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 
 @Controller
 @RequestMapping("seguridad/menu")
@@ -42,6 +43,9 @@ public class MenuController {
 
     @Autowired
     SpringTemplateEngine springHtml;
+
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -84,7 +88,7 @@ public class MenuController {
 
         try {
 
-            List<Menu> menus = service.allMenuSystem(new Sistema(1L));
+            List<Menu> menus = service.allMenuSystem(new Sistema(despliegueConfig.getSistema()));
             ArrayNode array = createNodes(menus);
             response.setData(array);
             response.setSuccess(true);

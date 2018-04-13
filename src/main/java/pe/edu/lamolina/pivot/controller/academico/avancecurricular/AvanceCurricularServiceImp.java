@@ -143,15 +143,13 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
     @Override
     @Transactional
-    public void desvincularPlanCurricular(PlanCurricular plan, DataSessionPivot ds) {
+    public void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds) {
         PlanCurricular planBD = planCurricularDAO.find(plan.getId());
         List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(planBD);
 
         for (Alumno alumno : alumnos) {
             avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
             avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
-            alumno.setPlanCurricular(null);
-            alumnoDAO.update(alumno);
         }
     }
 

@@ -16,6 +16,7 @@ $(function () {
 
     $('#dynaTable').bind('dynatable:afterUpdate', function (e, dynatable) {
         Usuario.moveDivBusqueda();
+        console.log(window.location.href)
     });
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
@@ -36,6 +37,15 @@ $(function () {
     }
 
     Usuario = {
+        b64EncodeUnicode(str) {
+            // first we use encodeURIComponent to get percent-encoded UTF-8,
+            // then we convert the percent encodings into raw bytes which
+            // can be fed into btoa.
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                    function toSolidBytes(match, p1) {
+                        return String.fromCharCode('0x' + p1);
+                    }));
+        },
         verInfoUsuario: function ($this, e) {
 
             e.preventDefault();
@@ -98,11 +108,7 @@ $(function () {
         },
         nuevoUsuario: function ($this, e) {
             e.preventDefault();
-            var origen = location.pathname + location.search;
-            var form = $("#formUsuarioEdit");
-            form.find("input").val(origen);
-            form.attr("action", APP.url('seguridad/usuario/nuevo'));
-            form.submit();
+            APP.goUrlReturn('seguridad/usuario/nuevo');
         },
         buscaUsuario: function ($this) {
             var search = $this.val();
