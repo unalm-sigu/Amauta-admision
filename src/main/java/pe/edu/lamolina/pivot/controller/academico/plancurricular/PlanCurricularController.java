@@ -1337,9 +1337,28 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.generarAvanceCurricular(planCurricular, ds.getCicloAcademico(), ds);
+            service.generarAvanceCurricular(planCurricular, ds);
             response.setSuccess(true);
             response.setMessage("Avances curricular generados");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("desvincularAlumnos")
+    public JsonResponse desvincularAlumnos(PlanCurricular planCurricular, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.desvincularAlumnos(planCurricular, ds);
+            response.setSuccess(true);
+            response.setMessage("Plan curricular desvinculado satisfactoriamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

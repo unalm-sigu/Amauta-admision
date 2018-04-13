@@ -67,7 +67,8 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     @Override
     public void deleteAllByAlumno(Alumno alumno) {
         StringBuilder sql = new StringBuilder();
-        sql.append("delete AlumnoCursoCurricula acs where acs.alumno.id =:ALUMNO");
+        sql.append("delete AlumnoCursoCurricula acs where acs.alumno.id =:ALUMNO ");
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("ALUMNO", alumno.getId());
         query.executeUpdate();

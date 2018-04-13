@@ -74,12 +74,12 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
-        
+
         obtenerData(planBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
-        
+
         logger.debug("Cantidad de alumnos: {}", alumnos.size());
         logger.debug("Cantidad de Cursos: {}", mapCursoCurricula.size());
-        
+
         for (Alumno alumno : alumnos) {
             avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
         }
@@ -97,7 +97,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         List<CursoCurricula> cursos = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
         for (CursoCurricula curso : cursos) {
-            if(curso.getNumeroCiclo() == 0) continue;
+            if (curso.getNumeroCiclo() == 0) {
+                continue;
+            }
             mapCursoCurricula.put(curso.getId(), curso);
         }
 
@@ -133,10 +135,24 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
-                obtenerData(alumnoBD.getPlanCurricular(), mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
+        obtenerData(alumnoBD.getPlanCurricular(), mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes);
 
         alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
         avanceCurricularAsincronoService.procesarAlumnoSincrono(alumnoBD, mapCursoCurricula, mapRequisitoCursoCurricula, mapCursosEquivalentes, ds);
+    }
+
+    @Override
+    @Transactional
+    public void desvincularPlanCurricular(PlanCurricular plan, DataSessionPivot ds) {
+        PlanCurricular planBD = planCurricularDAO.find(plan.getId());
+        List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(planBD);
+
+        for (Alumno alumno : alumnos) {
+            avanceCurricularAsincronoService.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
+            avanceCurricularAsincronoService.deleteAllAlumnoCursoCurriculaByAlumno(alumno);
+            alumno.setPlanCurricular(null);
+            alumnoDAO.update(alumno);
+        }
     }
 
 }

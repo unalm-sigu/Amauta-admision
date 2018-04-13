@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -26,11 +25,9 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -71,7 +68,6 @@ import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
