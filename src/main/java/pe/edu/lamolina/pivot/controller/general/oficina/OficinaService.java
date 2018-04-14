@@ -83,6 +83,10 @@ public interface OficinaService {
 
     public List<PerfilCompania> allFunciones();
 
-    public Persona verifiDocumento(String dni, TipoDocIdentidad docIdentidad);
+    Persona verifiDocumento(Persona persona);
+
+    Usuario verifiEmail(Persona persona);
+
+    public void saveColaboradorExit(Colaborador colaborador, Usuario usuario);
 
 }

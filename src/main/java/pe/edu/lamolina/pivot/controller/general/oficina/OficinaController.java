@@ -49,6 +49,7 @@ import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -152,14 +153,59 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-//            Persona persona = service.verifiDocumento(colaborador.getPersona().getNumeroDocIdentidad(), colaborador.getPersona().getTipoDocumento());
-//            if (persona != null) {
+
+            if (colaborador.getPersona().getId() == null) {
                 service.saveColaborador(colaborador, ds.getUsuario());
                 response.setMessage("Se agregó el colaborador satisfactoriamente");
-                response.setSuccess(Boolean.TRUE);
-//            } else {
-//                response.setSuccess(Boolean.FALSE);
-//            }
+                response.setSuccess(true);
+            } else {
+                service.saveColaboradorExit(colaborador, ds.getUsuario());
+                response.setMessage("Se agregó el colaborador satisfactoriamente");
+                response.setSuccess(true);
+            }
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("validarEmail")
+    public JsonResponse validarEmail(@RequestBody Persona persona, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            Usuario usu = service.verifiEmail(persona);
+            if (usu == null) {
+                response.setSuccess(true);
+            } else {
+                response.setSuccess(false);
+            }
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("validarDoc")
+    public JsonResponse validarDoc(@RequestBody Persona persona, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+
+            Persona perso = service.verifiDocumento(persona);
+            if (perso == null) {
+                response.setSuccess(true);
+            } else {
+                response.setData(perso.toJson());
+                response.setSuccess(false);
+            }
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -60,6 +61,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoOficinaDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -112,6 +114,9 @@ public class OficinaServiceImp implements OficinaService {
 
     @Autowired
     TipoDocIdentidadDAO tipoDocIdentidadDAO;
+
+    @Autowired
+    FuncionRolDAO funcionRolDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -616,7 +621,7 @@ public class OficinaServiceImp implements OficinaService {
         persona.setFechaRegistro(new Date());
         persona.setUserRegistro(usuario);
         persona.setEstadoEnum(PersonaEstadoEnum.ACT);
-        persona.setSexo(SexoEnum.getNombre(colaborador.getPersona().getSexo()));
+        persona.setSexo(SexoEnum.get(colaborador.getPersona().getSexo()).name());
         personaDAO.save(persona);
 
         colaborador.setFechaRegistro(new Date());
@@ -627,9 +632,9 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setPersona(persona);
         colaboradorDAO.save(colaborador);
 
+        ArrayList<PerfilCompania> list = new ArrayList();
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
-            PerfilCompania perfil = new PerfilCompania();
-            perfil.setId(funcionColaborador.getId());
+            PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setId(null);
             funcionColaborador.setFechaRegistro(new Date());
             funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
@@ -638,8 +643,80 @@ public class OficinaServiceImp implements OficinaService {
             funcionColaborador.setFuncion(perfil);
             funcionColaborador.setFechaInico(new Date());
             funcionColaboradorDAO.save(funcionColaborador);
+            list.add(perfil);
+        }
+        Usuario usuario1 = new Usuario();
+
+        if (persona.getEmailCompania() != null) {
+            usuario1.setEstadoEnum(UserEstadoEnum.ACT);
+            usuario1.setGoogle(persona.getEmailCompania());
+            usuario1.setPersona(persona);
+            usuario1.setUserRegistro(usuario);
+            usuarioDAO.save(usuario1);
+            addUserRoll(list, colaborador, usuario, usuario1);
         }
 
+    }
+
+    @Override
+    public void saveColaboradorExit(Colaborador colaborador, Usuario usuario) {
+        Persona persona = colaborador.getPersona();
+        personaDAO.update(persona);
+
+        colaborador.setFechaRegistro(new Date());
+        colaborador.setUserRegistro(usuario);
+        colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
+        colaborador.setCodigo(codigo() + "");
+        colaborador.setFechaInicio(new Date());
+        colaborador.setPersona(persona);
+        colaboradorDAO.save(colaborador);
+
+        ArrayList<PerfilCompania> list = new ArrayList();
+        for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
+            PerfilCompania perfil = funcionColaborador.getFuncion();
+            funcionColaborador.setId(null);
+            funcionColaborador.setFechaRegistro(new Date());
+            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+            funcionColaborador.setEstado(EstadoEnum.ACT.name());
+            funcionColaborador.setFuncion(perfil);
+            funcionColaborador.setFechaInico(new Date());
+            funcionColaborador.setColaborador(colaborador);
+            funcionColaboradorDAO.save(funcionColaborador);
+            list.add(perfil);
+            funcionColaborador.setColaborador(colaborador);
+
+        }
+        Usuario usuario1 = new Usuario();
+        usuario1 = usuarioDAO.findByPersona(persona);
+        if (usuario1 == null) {
+            if (colaborador.getPersona().getEmailCompania() != null) {
+                usuario1.setEstadoEnum(UserEstadoEnum.ACT);
+                usuario1.setGoogle(persona.getEmailCompania());
+                usuario1.setPersona(persona);
+                usuario1.setUserRegistro(usuario);
+                usuarioDAO.save(usuario1);
+                addUserRoll(list, colaborador, usuario, usuario1);
+            }
+        }
+
+    }
+
+    public void addUserRoll(List<PerfilCompania> list, Colaborador colaborador, Usuario usuario, Usuario colabo) {
+        List<FuncionRol> funcionRol = funcionRolDAO.allByPerfilCompania(list);
+        Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
+        for (PerfilCompania compania : list) {
+            for (Rol rol : mapRol.get(compania.getId())) {
+                UsuarioRol usuarioRol = new UsuarioRol();
+                usuarioRol.setEstado(UserEstadoEnum.ACT);
+                usuarioRol.setFechaInicio(new Date());
+                usuarioRol.setFechaRegistro(new Date());
+                usuarioRol.setOficina(colaborador.getOficina());
+                usuarioRol.setRol(rol);
+                usuarioRol.setUserRegistro(usuario);
+                usuarioRol.setUsuario(colabo);
+                usuarioRolDAO.save(usuarioRol);
+            }
+        }
     }
 
     @Override
@@ -652,6 +729,7 @@ public class OficinaServiceImp implements OficinaService {
         cola.setCargo(colaborador.getCargo());
         cola.setOficina(colaborador.getOficina());
         colaboradorDAO.save(cola);
+
         List<FuncionColaborador> funcionColaboradors = funcionColaboradorDAO.findFuncionByColaborador(colaborador);
         Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("id", colaborador.getFuncionColaborador());
         Map<Long, FuncionColaborador> mapTengo = TypesUtil.convertListToMap("funcion.id", funcionColaboradors);
@@ -685,8 +763,13 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     @Override
-    public Persona verifiDocumento(String dni, TipoDocIdentidad docIdentidad) {
-        Persona persona = personaDAO.findByDoc(dni,docIdentidad);
-        return persona;
+    public Persona verifiDocumento(Persona persona) {
+        return personaDAO.findByDoc(persona);
+    }
+
+    @Override
+    public Usuario verifiEmail(Persona persona) {
+        Usuario u = usuarioDAO.findByGoogleEmail(persona.getEmailCompania());
+        return u;
     }
 }

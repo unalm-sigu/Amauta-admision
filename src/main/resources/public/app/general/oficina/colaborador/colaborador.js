@@ -107,6 +107,9 @@ new Vue({
 
     },
     methods: {
+        regresar: function () {
+            location.href = APP.url("general/oficina");
+        },
         updateColaborador: function (id) {
             let $vue = this;
             $vue.oficina

@@ -13,7 +13,9 @@ new Vue({
         colabo: JSON.parse(colaboradorJson),
         funcionColaborador: [],
         colaborador: {},
-        newCola: false
+        newCola: false,
+        valid: true,
+        funcion:[]
     },
     computed: {
 
@@ -26,17 +28,89 @@ new Vue({
             $vue.persona.tipoDocumento = $vue.colaborador.tipoDocumento;
             $vue.newCola = true;
         }
-        console.log($vue.colabo);
-        console.log($vue.funciones);
+
     },
     mounted: function () {
         let $vue = this;
         $('.numeric').numeric({negative: false});
     },
     methods: {
+        validacion: function (id, valor) {
+            let $vue = this;
+            $vue.valid = false;
+        },
+        validar(id, valor) {
+            let $vue = this;
+            console.log(id);
+            console.log(valor);
+
+            if ((id == undefined && valor == undefined) || (id != undefined && valor == null) || (id == undefined && valor != null)) {
+                return false;
+            }
+
+            return true;
+        },
+        verificarDoc: function () {
+            let $vue = this;
+            if ($vue.persona.numeroDocIdentidad == undefined || $vue.persona.tipoDocumento == undefined) {
+                return;
+            }
+            if ($vue.persona.id == null || $vue.persona.id == undefined) {
+                $vue.temp = $vue.persona;
+            }
+            $.ajax({
+                url: APP.url('general/oficina/validarDoc'),
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify($vue.persona),
+                success: function (response) {
+                    if (!response.success) {
+                        $vue.persona = response.data;
+                        $vue.removerError();
+                        console.log($vue.persona);
+                    } else {
+                        $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
+                        $vue.persona = {};
+                        $vue.persona = $vue.temp;
+                        $vue.personaConId = true;
+                    }
+                }
+            });
+        },
+        verificarEmail(e) {
+            let $vue = this;
+            if ($vue.persona.emailCompania == undefined) {
+                return;
+            }
+            $.ajax({
+                url: APP.url('general/oficina/validarEmail'),
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify($vue.persona),
+                success: function (response) {
+                    if (!response.success) {
+                        var self = $(e.currentTarget);
+                        self.btnDisabled();
+
+                        var response = [];
+                        response.item = 'emailCompania';
+                        response.message = 'El email ya existe';
+
+                        var FieldInstance = $('[name=' + response.item + ']').parsley(),
+                                errorName = response.item;
+                        window.ParsleyUI.removeError(FieldInstance, errorName);
+
+                        // now display the error
+                        window.ParsleyUI.addError(FieldInstance, errorName, response.message);
+                        self.btnEnable();
+                        return;
+
+                    }
+                }
+            });
+        },
         regresar: function () {
             let $vue = this;
-            $vue.oficina
             location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
         },
         updateColaborador: function (id) {
@@ -49,15 +123,17 @@ new Vue({
             });
         },
         update(e) {
+            let $vue = this;
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate() == true) {
+            if (!$("#formConfig").parsley().validate()) {
+                $vue.removerError();
                 self.btnEnable();
                 return;
             }
             self.btnEnable();
-            let $vue = this;
+
             console.log($vue.colaborador);
             $.ajax({
                 method: 'POST',
@@ -76,18 +152,25 @@ new Vue({
             });
         },
         save(e) {
+            let $vue = this;
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate() == true) {
+            if (!$("#formConfig").parsley().validate()) {
+                $vue.removerError();
                 self.btnEnable();
                 return;
             }
             self.btnEnable();
-            let $vue = this;
-            $vue.colaborador.persona = $vue.persona;
 
-            console.log($vue.colaborador);
+            $vue.colaborador.persona = $vue.persona;
+            $vue.funcion = [];
+            $vue.colaborador.funcionColaborador.forEach(function (elem) {
+                $vue.funcion.push($vue.funcion)
+            })
+            $vue.colaborador.funcionColaborador = {funcion: $vue.funcion};
+            $vue.colaborador.
+                    console.log($vue.colaborador);
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),
@@ -103,6 +186,16 @@ new Vue({
                     }
                 }
             });
+        },
+        removerError: function () {
+            var response = [];
+            response.item = 'emailCompania';
+            response.message = 'El email ya existe';
+
+            var FieldInstance = $('[name=' + response.item + ']').parsley(),
+                    errorName = response.item;
+            window.ParsleyUI.removeError(FieldInstance, errorName);
+
         }
     }
 });

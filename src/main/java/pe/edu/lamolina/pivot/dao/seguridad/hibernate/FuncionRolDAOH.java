@@ -4,25 +4,28 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.FuncionRolEstadoEnum;
 import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.PerfilRol;
-import pe.edu.lamolina.pivot.dao.seguridad.PerfilRolDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 
 @Repository
-public class PerfilRolDAOH extends AbstractEasyDAO<PerfilRol> implements PerfilRolDAO {
+public class FuncionRolDAOH extends AbstractEasyDAO<FuncionRol> implements FuncionRolDAO {
 
-    public PerfilRolDAOH() {
+    public FuncionRolDAOH() {
         super();
-        setClazz(PerfilRol.class);
+        setClazz(FuncionRol.class);
     }
 
     @Override
-    public List<PerfilRol> allByPerfilCompania(PerfilCompania perfilCompania) {
+    public List<FuncionRol> allByPerfilCompania(List<PerfilCompania> perfilCompania) {
 
         Octavia sql = Octavia.query()
-                .from(PerfilRol.class, "pr")
-                .join("rol r", "perfil p")
-                .filter("p.id", perfilCompania);
+                .from(FuncionRol.class, "fr")
+                .join("rol r", "perfilCompania p")
+                .filter("fr.estado", FuncionRolEstadoEnum.ACT)
+                .in("p.id", perfilCompania);
 
         return all(sql);
 

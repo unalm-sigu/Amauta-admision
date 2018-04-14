@@ -3,10 +3,9 @@ package pe.edu.lamolina.pivot.dao.seguridad;
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.general.PerfilCompania;
-import pe.edu.lamolina.model.seguridad.PerfilRol;
+import pe.edu.lamolina.model.seguridad.FuncionRol;
 
-public interface PerfilRolDAO extends EasyDAO<PerfilRol> {
+public interface FuncionRolDAO extends EasyDAO<FuncionRol> {
 
-    List<PerfilRol> allByPerfilCompania(PerfilCompania perfilCompania);
-
+     List<FuncionRol> allByPerfilCompania(List<PerfilCompania> perfilCompania);
 }
