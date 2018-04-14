@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
@@ -22,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -116,7 +119,34 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         Collection<GrantedAuthority> authorities = new ArrayList();
 
+        List<Rol> rolesMain = new ArrayList();
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
+        Map<Long, Rol> mapRoles = TypesUtil.convertListToMap("id", roles);
+        for (Rol role : roles) {
+            role.setRolesInferiores(new ArrayList());
+            Rol rolSuperior = role.getRolSuperior();
+            if (rolSuperior != null) {
+                Rol rolSuper = mapRoles.get(rolSuperior.getId());
+                if (rolSuper == null) {
+                    rolSuper = rolSuperior;
+                    rolSuper.setRolesInferiores(new ArrayList());
+                    mapRoles.put(rolSuper.getId(), rolSuper);
+                    roles.add(rolSuper);
+                }
+            }
+        }
+
+        for (Rol role : roles) {
+            Rol rolSuperior = role.getRolSuperior();
+            if (rolSuperior != null) {
+                rolSuperior = mapRoles.get(rolSuperior.getId());
+                rolSuperior.getRolesInferiores().add(role);
+                role.setRolSuperior(rolSuperior);
+            } else {
+                rolesMain.add(role);
+            }
+        }
+
         for (Rol rol : roles) {
             authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
         }
@@ -141,6 +171,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         dataSession.setUsuario(usuario);
         dataSession.setPersona(usuario.getPersona());
         dataSession.setRoles(roles);
+        dataSession.setRolesMain(rolesMain);
         dataSession.setCicloAcademico(cicloAcademico);
         dataSession.setBrowser(servlet.getHeader("User-Agent"));
         dataSession.setDireccionIp(servlet.getRemoteAddr());

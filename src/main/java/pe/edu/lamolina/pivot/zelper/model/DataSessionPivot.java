@@ -34,6 +34,8 @@ public class DataSessionPivot implements Serializable {
 
     private List<Rol> roles;
 
+    private List<Rol> rolesMain;
+
     private Rol rolActivo;
 
     private Compania compania;
@@ -214,6 +216,14 @@ public class DataSessionPivot implements Serializable {
 
     public void setOficinas(List<Oficina> oficinas) {
         this.oficinas = oficinas;
+    }
+
+    public List<Rol> getRolesMain() {
+        return rolesMain;
+    }
+
+    public void setRolesMain(List<Rol> rolesMain) {
+        this.rolesMain = rolesMain;
     }
 
 }
