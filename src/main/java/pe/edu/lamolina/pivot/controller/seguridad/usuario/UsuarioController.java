@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -139,9 +140,13 @@ public class UsuarioController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session, @RequestParam("origen") String origen) {
+        byte[] decoded = Base64.getDecoder().decode(origen);
+        String decodedString = new String(decoded);
+        System.out.println(decodedString);
+        
         model.addAttribute("documentos", service.allDocumentos());
         model.addAttribute("usuario", new Usuario());
-        model.addAttribute("origen", origen);
+        model.addAttribute("origen", decodedString);
         return "seguridad/usuario/usuarioForm";
 
     }

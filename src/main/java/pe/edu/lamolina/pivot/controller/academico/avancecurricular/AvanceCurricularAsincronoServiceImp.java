@@ -94,9 +94,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteAllAlumnoCursoCurriculaByAlumno(Alumno alumno) {
-
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        alumnoCursoCurriculaDAO.deleteAllByAlumno(alumno);
     }
 
     @Override
@@ -130,8 +130,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 .filter(x -> x.getTipoCursoCurricula() != null)
                 .collect(Collectors.toMap(x -> x.getTipoCursoCurricula().getCodigoEnum(), x -> x, (a, b) -> a));
 
-        Map<TipoCursoCurriculaEnum, Integer> creditos = new HashMap<>();
-        Map<TipoCursoCurriculaEnum, Integer> cursos = new HashMap<>();
+        Map<TipoCursoCurriculaEnum, Integer> creditos = new HashMap();
+        Map<TipoCursoCurriculaEnum, Integer> cursos = new HashMap();
 
         for (TipoCursoCurricula tipo : tipos.values()) {
             creditos.put(tipo.getCodigoEnum(), 0);
@@ -170,13 +170,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     @Override
+    @Transactional
     public void procesarAlumnoSincrono(Alumno alumno, Map<Long, CursoCurricula> cursosCurricula, Map<Long, List<RequisitoCursoCurricula>> mapRequisitos, Map<Long, List<CursoEquivalente>> mapEquivalentes, DataSessionPivot ds) {
         Alumno alumnoBD = alumnoDAO.find(alumno.getId());
 
-        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCurso = new HashMap<>();
-        Map<Long, AlumnoCursoCurricula> cursosAlumno = new HashMap<>();
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaByCurso = new HashMap();
+        Map<Long, AlumnoCursoCurricula> cursosAlumno = new HashMap();
         List<AlumnoCursoCurricula> alumnoCursoCurriculas;
-        List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList<>();
+        List<AlumnoCursoSimultaneo> cursosSimultaneos = new ArrayList();
 
         int creditosAproboados = alumnoBD.getCreditosAprobados();
         int creditosCurriculaAprobados = alumnoBD.getCreditosCarreraAprobados();
@@ -194,7 +195,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCreditosAprobados(cursosCurricula, cursosAlumno.values(), creditosAproboados, creditosCurriculaAprobados);
         validarEquivalencias(cursosAlumno, alumno, mapEquivalentes);
         validarHistorial(mapAlumnoCursoCurriculaByCurso, alumnoBD);
-        validarCursosComodin(alumno, cursosAlumno, ds, mapAlumnoCursoCurriculaByCurso);
+        validarCursosComodin(alumno, cursosAlumno, mapAlumnoCursoCurriculaByCurso, ds);
         validarCursosRequisito(cursosCurricula, cursosAlumno, mapRequisitos, ds);
         validarCursosSimultaneo(cursosCurricula, cursosAlumno, cursosSimultaneos, mapRequisitos, ds);
 
@@ -225,11 +226,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 continue;
             }
 
-            Map<Integer, List<CursoEquivalente>> grupos = new HashMap<>();
+            Map<Integer, List<CursoEquivalente>> grupos = new HashMap();
             for (CursoEquivalente cursoEquivalente : cursosEquivalentes) {
                 Integer grupo = cursoEquivalente.getGrupo();
                 if (!grupos.containsKey(grupo)) {
-                    grupos.put(grupo, new ArrayList<>());
+                    grupos.put(grupo, new ArrayList());
                 }
                 grupos.get(grupo).add(cursoEquivalente);
             }
@@ -289,7 +290,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void sincronizarCursosEliminados(Map<Long, CursoCurricula> cursosCurricula, Map<Long, AlumnoCursoCurricula> cursosAlumno) {
-        List<Long> toBeRemoved = new LinkedList<>();
+        List<Long> toBeRemoved = new LinkedList();
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : cursosAlumno.entrySet()) {
             if (!cursosCurricula.containsKey(entry.getKey())) {
                 toBeRemoved.add(entry.getKey());
@@ -350,21 +351,25 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     }
 
-    private void validarCursosComodin(Alumno alumno, Map<Long, AlumnoCursoCurricula> cursosAlumno, DataSessionPivot ds, Map<Long, AlumnoCursoCurricula> accByCurso) {
+    private void validarCursosComodin(
+            Alumno alumno,
+            Map<Long, AlumnoCursoCurricula> cursosAlumno,
+            Map<Long, AlumnoCursoCurricula> accByCurso,
+            DataSessionPivot ds) {
 
-        Map<String, List<AlumnoCicloCurso>> cursosAprobados = new HashMap<>();
+        Map<String, List<AlumnoCicloCurso>> cursosAprobados = new HashMap();
         List<AlumnoCicloCurso> aprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno);
         for (AlumnoCicloCurso aprobado : aprobados) {
             String key = aprobado.getCurso().getDepartamentoAcademico().getCodigo();
             List<AlumnoCicloCurso> lista = cursosAprobados.get(key);
             if (lista == null) {
-                lista = new ArrayList<>();
+                lista = new ArrayList();
                 cursosAprobados.put(key, lista);
             }
             lista.add(aprobado);
         }
 
-        Set<String> codsCursosComodines = new HashSet<>(Arrays.asList("EG1006"));
+        Set<String> codsCursosComodines = new HashSet(Arrays.asList("EG1006"));
         for (AlumnoCursoCurricula acc : cursosAlumno.values()) {
             if (codsCursosComodines.contains(acc.getCurso().getCodigo())) {
                 List<String> departamentos = null;
@@ -464,7 +469,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
             List<RequisitoCursoCurricula> requisitos = mapRequisitos.get(evaluado.getCursoCurricula().getId());
 
-            List<AlumnoCursoSimultaneo> requisitosSimultaneo = new ArrayList<>();
+            List<AlumnoCursoSimultaneo> requisitosSimultaneo = new ArrayList();
 
             if (requisitos == null || validarSimultaneos(requisitosSimultaneo, requisitos, cursosAlumno, evaluado, ds)) {
                 if (requisitosSimultaneo.size() > 0) {

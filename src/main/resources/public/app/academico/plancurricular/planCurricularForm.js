@@ -485,7 +485,7 @@ $(function () {
                         dynatableCursosObl.process();
                         dynatableCursosRes.process();
                         NuevaCurricula.verMalla();
-                        
+
                     } else {
                         MODAL.activateButtons();
                         $("#" + record.idSelect).select2("readonly", false);
@@ -973,6 +973,28 @@ $(function () {
             var form = $("[id='frmPlanCurricular']");
             $.ajax({
                 url: APP.url('academico/planCurricular/procesaralumnos'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        desvincularCursos: function () {
+            MODAL.showWait();
+            var form = $("[id='frmPlanCurricular']");
+            $.ajax({
+                url: APP.url('academico/planCurricular/desvincularCursos'),
                 type: 'POST',
                 async: true,
                 data: form.serialize(),
@@ -1694,6 +1716,10 @@ $(function () {
 
     $("body").delegate("#procesarAlumnos", "click", function (e) {
         NuevaCurricula.procesarAlumnos();
+    });
+
+    $("body").delegate("#desvincularCursos", "click", function (e) {
+        NuevaCurricula.desvincularCursos();
     });
 
     $("body").delegate("#cboTipoCursoCurricula", "change", function (e) {

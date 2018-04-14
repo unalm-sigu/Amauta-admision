@@ -84,6 +84,7 @@ public class OAuthController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             serviceProvider.loginManually(email, session, servlet);
+            ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             serviceProvider.createLogJson(ds, session);
             
             return "redirect:/route66";

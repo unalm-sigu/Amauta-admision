@@ -1,19 +1,21 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.net.URI;
+import java.net.URL;
 
 public class Laboratory {
 
     public static void main2(String[] args) {
-        DateTime dia = new DateTime();
-        DateTime dia1 = new DateTime();
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("HH:mm");
-        dia = formatter.parseDateTime("11:30");
-        if (dia.isAfter(dia1)) {
-              System.out.println("Siii");
+        URL url;
+        try {
+            url = new URL("http://www.google.com/caso/wer?oaso=2323&dfdf=2232"); //Some instantiated URL object
+            URI uri = url.toURI();
+            
+            System.out.println(url.getPath());
+            System.out.println(uri.getPath());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-      
+
     }
 }

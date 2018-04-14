@@ -311,7 +311,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Assert.isTrue(plan.getId().longValue() == cursoCurricula.getPlanCurricular().getId(), "El Plan de Estudios no es el correcto");
         Assert.isFalse(cursoCurricula.getNumeroCiclo() < 1, "El numero de ciclo no es el correcto");
         Assert.isFalse(cursoCurricula.getNumeroCiclo() > plan.getCiclos(), "El numero de ciclo no corresponde al plan");
-        
+
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurricula.getNumeroCiclo();
         List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
@@ -386,7 +386,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Assert.isTrue(postRequisitos.isEmpty(), "Este curso es pre-requisito de otros cursos. No puede ser trasladado");
 
         PlanCurricular plan = cursoOpcionalBD.getPlanCurricular();
-        
+
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurriculaForm.getNumeroCiclo();
         List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
@@ -998,8 +998,14 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional
-    public void generarAvanceCurricular(PlanCurricular plan, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public void generarAvanceCurricular(PlanCurricular plan, DataSessionPivot ds) {
         avanceCurricularService.generarAvanceCurricularByPlanCurricular(plan, ds);
+    }
+
+    @Override
+    @Transactional
+    public void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds) {
+        avanceCurricularService.desvincularCursoCurricula(plan, ds);
     }
 
 }
