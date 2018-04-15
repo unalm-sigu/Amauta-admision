@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.FuncionColaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
@@ -115,10 +116,19 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("updateColaborador")
-    public JsonResponse saveUpdateColaborador(@RequestBody Colaborador colaborador, HttpSession session) {
+    public JsonResponse saveUpdateColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
+            ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
+            Colaborador colaborador = colaboradorBean.getColaborador();
+            System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
+            for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
+                FuncionColaborador funcionColaborador = new  FuncionColaborador();
+                funcionColaborador.setFuncion(perfilCompania);
+                arrayList.add(funcionColaborador);
+            }
+            colaborador.setFuncionColaborador(arrayList);
             service.updateColaborador(colaborador, ds.getUsuario());
             response.setMessage("Se actualizó el colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -149,11 +159,19 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("saveColaborador")
-    public JsonResponse saveNuevoColaborador(@RequestBody Colaborador colaborador, HttpSession session) {
+    public JsonResponse saveNuevoColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-
+             ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
+            Colaborador colaborador = colaboradorBean.getColaborador();
+            System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
+            for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
+                FuncionColaborador funcionColaborador = new  FuncionColaborador();
+                funcionColaborador.setFuncion(perfilCompania);
+                arrayList.add(funcionColaborador);
+            }
+            colaborador.setFuncionColaborador(arrayList);
             if (colaborador.getPersona().getId() == null) {
                 service.saveColaborador(colaborador, ds.getUsuario());
                 response.setMessage("Se agregó el colaborador satisfactoriamente");

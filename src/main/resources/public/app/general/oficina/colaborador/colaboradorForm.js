@@ -13,12 +13,13 @@ new Vue({
         colabo: JSON.parse(colaboradorJson),
         funcionColaborador: [],
         colaborador: {},
+        personaValidTemp:{},
         newCola: false,
-        valid: true,
-        funcion:[]
+        colaboradorData:{},
+        sexos:[{id:'M',value:'Masculino'},{id:'F',value:'Femenino'}]
     },
     computed: {
-
+     
     },
     created() {
         let $vue = this;
@@ -35,22 +36,10 @@ new Vue({
         $('.numeric').numeric({negative: false});
     },
     methods: {
-        validacion: function (id, valor) {
-            let $vue = this;
-            $vue.valid = false;
-        },
-        validar(id, valor) {
-            let $vue = this;
-            console.log(id);
-            console.log(valor);
-
-            if ((id == undefined && valor == undefined) || (id != undefined && valor == null) || (id == undefined && valor != null)) {
-                return false;
-            }
-
-            return true;
-        },
-        verificarDoc: function () {
+            chacked:function (){
+            console.log("hola")
+            },
+            verificarDoc: function () {
             let $vue = this;
             if ($vue.persona.numeroDocIdentidad == undefined || $vue.persona.tipoDocumento == undefined) {
                 return;
@@ -66,20 +55,37 @@ new Vue({
                 success: function (response) {
                     if (!response.success) {
                         $vue.persona = response.data;
-                        $vue.removerError();
+                        $vue.personaValidTemp = {};
                         console.log($vue.persona);
+                     var map = new Map(Object.entries($vue.persona));
+                       Object.keys($vue.persona).forEach(function(elem){
+                             if(elem=='materno' && map.get(elem) !== null){
+                                 $vue.personaValidTemp.materno = true;
+                            }else if(elem=='paterno' && map.get(elem) !== null){
+                                 $vue.personaValidTemp.paterno = true;
+                            }else if(elem=='nombres' && map.get(elem) !== null){
+                                 $vue.personaValidTemp.nombres = true;
+                            }else if(elem=='emailCompania' && map.get(elem) !== null){
+                                 $vue.personaValidTemp.emailCompania = true;
+                            }else if(elem=='sexo' && map.get(elem) !== null){
+                                 $vue.personaValidTemp.sexo = true;
+                            }
+                                
+                        })
+                        $vue.removerError();
                     } else {
                         $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
                         $vue.persona = {};
+                         $vue.personaValidTemp = {};
                         $vue.persona = $vue.temp;
-                        $vue.personaConId = true;
                     }
                 }
             });
         },
         verificarEmail(e) {
             let $vue = this;
-            if ($vue.persona.emailCompania == undefined) {
+            console.log($vue.persona.emailCompania)
+            if ($vue.persona.emailCompania === undefined || $vue.persona.emailCompania == '') {
                 return;
             }
             $.ajax({
@@ -127,19 +133,19 @@ new Vue({
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate()) {
+            if (!$("#formConfig").parsley().validate() ) {
                 $vue.removerError();
                 self.btnEnable();
                 return;
             }
             self.btnEnable();
-
-            console.log($vue.colaborador);
+           $vue.colaboradorData.colaborador = $vue.colaborador;
+           $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.colaborador),
+                data: JSON.stringify($vue.colaboradorData),
                 success: function (response) {
                     if (response.success) {
                         $vue.colaborador = {}
@@ -156,7 +162,7 @@ new Vue({
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate()) {
+            if (!$("#formConfig").parsley().validate() || !$("#email").parsley().validate()) {
                 $vue.removerError();
                 self.btnEnable();
                 return;
@@ -164,18 +170,14 @@ new Vue({
             self.btnEnable();
 
             $vue.colaborador.persona = $vue.persona;
-            $vue.funcion = [];
-            $vue.colaborador.funcionColaborador.forEach(function (elem) {
-                $vue.funcion.push($vue.funcion)
-            })
-            $vue.colaborador.funcionColaborador = {funcion: $vue.funcion};
-            $vue.colaborador.
-                    console.log($vue.colaborador);
+            $vue.colaboradorData.colaborador = $vue.colaborador;
+            $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),
                 contentType: "application/json",
-                data: JSON.stringify($vue.colaborador),
+                data: JSON.stringify($vue.colaboradorData),
                 success: function (response) {
                     if (response.success) {
                         $vue.colaborador = {}
