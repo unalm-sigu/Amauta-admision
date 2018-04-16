@@ -73,6 +73,7 @@ public class VisorMenu {
         for (MenuRol menuRol : menusRoles) {
             addMenuRol(menuRol);
         }
+
     }
 
     public synchronized void addMenuRol(MenuRol menuRol) {
