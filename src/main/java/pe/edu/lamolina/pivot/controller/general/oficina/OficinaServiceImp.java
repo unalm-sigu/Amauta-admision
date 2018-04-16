@@ -247,7 +247,7 @@ public class OficinaServiceImp implements OficinaService {
     @Transactional
     public void asignarJefe(Oficina oficina, DataSessionPivot ds) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
-        Docente docenteDB = docenteDAO.findDocenteByPersona(oficina.getPersonaJefe());
+        List<Docente> docentesBD = docenteDAO.allByPersona(oficina.getPersonaJefe());
 
         if (oficinaBD.getPersonaJefe() != null) {
             throw new PhobosException("Esta Unidad ya tiene asignado un jefe");
@@ -262,7 +262,7 @@ public class OficinaServiceImp implements OficinaService {
             throw new PhobosException("Falta definir el Cargo de la jefatura de esta Unidad");
         }
 
-        if (docenteDB == null) {
+        if (docentesBD.isEmpty()) {
             throw new PhobosException("La persona seleccionada no es un docente. Elija un docente activo.");
         }
 
@@ -433,7 +433,6 @@ public class OficinaServiceImp implements OficinaService {
 
     private void asignarRol(Persona personaJefe, RolEnum rolEnum, DataSessionPivot ds) {
         Usuario usuarioDb = usuarioDAO.findByPersona(personaJefe);
-        Docente docenteDb = docenteDAO.findDocenteByPersona(personaJefe);
 
         if (usuarioDb == null) {
             throw new PhobosException("La persona asignada no está registrado como usuario.");

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import org.springframework.stereotype.Repository;
@@ -7,6 +8,10 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DSC;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.PER;
+import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.VAC;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -14,42 +19,43 @@ import pe.edu.lamolina.pivot.controller.general.oficina.Colaboradores;
 
 @Repository
 public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements ColaboradorDAO {
-
+    
     public ColaboradorDAOH() {
         super();
         setClazz(Colaborador.class);
     }
-
+    
     @Override
     public List<Colaborador> allColaborador(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("oficina ofi", "cargo car", "persona per")
                 .in("ofi.id", oficinas);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("oficina ofi", "cargo car", "persona per")
                 .filter("ofi.id", oficina);
-
+        
         return all(sql);
     }
-
+    
     @Override
-    public List<Colaborador> allByPersona(Persona persona) {
+    public List<Colaborador> allActivosByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("persona per")
-                .filter("per.id", persona);
-
+                .filter("per.id", persona)
+                .in("co.estado", Arrays.asList(ACT, VAC, DSC, PER));
+        
         return all(sql);
     }
-
+    
     @Override
     public Colaboradores countColaboradores(Oficina oficina) {
         Octavia sql = Octavia.query()
@@ -64,10 +70,10 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .from(Colaborador.class, "co")
                 .join("oficina ofi")
                 .filter("ofi.id", oficina);
-
+        
         return (Colaboradores) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas) {
         DynatableSql sql = new DynatableSql(filter)
@@ -79,24 +85,24 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
         return all(sql);
     }
-
+    
     @Override
     public Colaborador findCodigo() {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .limit(1)
                 .orderBy("co.codigo desc");
-
+        
         return (Colaborador) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public Colaborador find(Colaborador colaborador) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("persona per", "per.tipoDocumento")
                 .filter("co.id", colaborador);
-
+        
         return find(sql);
     }
 }

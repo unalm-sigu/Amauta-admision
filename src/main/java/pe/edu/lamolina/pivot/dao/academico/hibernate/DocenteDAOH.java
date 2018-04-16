@@ -21,22 +21,11 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public Docente find(Long idDocente) {
+    public Docente find(long id) {
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per")
-                .filter("doc.id", idDocente);
-
-        return find(sql);
-    }
-
-    @Override
-    public Docente findPersona(Persona persona) {
-        Octavia sql = Octavia.query()
-                .from(Docente.class, "doc")
-                .join("persona per")
-                .leftJoin("modalidadEstudio", "departamentoAcademico")
-                .filter("per.id", persona);
+                .filter("doc.id", id);
 
         return find(sql);
     }
@@ -90,23 +79,12 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
     }
 
     @Override
-    public Docente findDocente(Docente docente) {
+    public Docente findByDocente(Docente docente) {
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per")
                 .leftJoin("modalidadEstudio me", "departamentoAcademico")
                 .filter("doc.id", docente);
-
-        return find(sql);
-    }
-
-    @Override
-    public Docente findDocenteByPersona(Persona persona) {
-        Octavia sql = Octavia.query()
-                .from(Docente.class, "doc")
-                .join("persona per")
-                .leftJoin("modalidadEstudio me", "departamentoAcademico")
-                .filter("per.id", persona);
 
         return find(sql);
     }

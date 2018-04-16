@@ -32,22 +32,25 @@ public class MenuDAOH extends AbstractEasyDAO<Menu> implements MenuDAO {
     }
 
     @Override
-    public List<Menu> allMenuRolActivo(Rol rolAsignar) {
+    public List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema) {
 
         StringBuilder sql = new StringBuilder();
 
         sql.append(" select distinct me ");
         sql.append(" from ").append(MenuRol.class.getName()).append(" as mero ");
         sql.append(" inner join mero.menu me ");
+        sql.append(" inner join fetch me.sistema ss ");
         sql.append("  left join fetch me.menuSuperior mes ");
         sql.append("  left join fetch mes.menuSuperior mss ");
         sql.append("  left join fetch mss.menuSuperior  ");
         sql.append(" inner join mero.rol ro ");
         sql.append(" where ro.id = :ROLACTIVO ");
+        sql.append("   and ss.id = :SISTEMA ");
         sql.append(" order by me.orden ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("ROLACTIVO", rolAsignar.getId());
+        query.setLong("SISTEMA", sistema.getId());
 
         return query.list();
     }
