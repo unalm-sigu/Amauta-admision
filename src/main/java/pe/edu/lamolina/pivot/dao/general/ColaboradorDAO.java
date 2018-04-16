@@ -14,13 +14,13 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     List<Colaborador> allColaboradorByOficina(Oficina oficina);
 
-    List<Colaborador> allByPersona(Persona persona);
+    List<Colaborador> allActivosByPersona(Persona persona);
 
     Colaboradores countColaboradores(Oficina oficina);
 
     List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas);
 
-    public Colaborador findCodigo();
+    Colaborador findCodigo();
 
-    public Colaborador find(Colaborador colaborador);
+    Colaborador find(Colaborador colaborador);
 }

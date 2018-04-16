@@ -24,7 +24,7 @@
                         <section class="panel-body text-center">
 
                             <a class="rol btn btn-success m-b-md block" 
-                               th:each='perfil : ${session["SESSION_USUARIO"].roles}'  
+                               th:each='perfil : ${session["SESSION_USUARIO"].rolesMain}'  
                                th:rel="${perfil.id}" th:text="${perfil.nombre}">
                                 rol-acceso
                             </a>

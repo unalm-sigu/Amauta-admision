@@ -31,7 +31,28 @@
             </div>
 
             <div class="section-container">
+                
                 <div class="menu-section">
+                    <h3>Académico</h3>
+                    <ul>
+                        <li class="option" 
+                            th:each='menu : ${session.SESSION_USUARIO.menu}' >
+                            <a href="#" data-toggle="sidebar">
+                                <i class="fa fa-calendar"></i>
+                                <span th:text="${menu.nombre}">Call Center</span>
+                                <i class="fa fa-chevron-down"></i>
+                            </a>
+                            <ul class="submenu">
+                                <li th:each="opcion : ${menu.menus}">
+                                    <a th:href="@{${opcion.ruta}}"
+                                       th:text="${opcion.nombre}">Sedes</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!--div class="menu-section">
                     <h3>Académico</h3>
                     <ul>
 
@@ -331,7 +352,7 @@
 
                     </ul>
 
-                </div>
+                </div-->
             </div>
         </div>
 

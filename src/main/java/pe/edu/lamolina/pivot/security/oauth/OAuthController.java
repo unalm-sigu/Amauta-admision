@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.security.oauth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.scribe.model.OAuthRequest;
@@ -23,7 +24,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -32,6 +38,10 @@ public class OAuthController {
 
     @Autowired
     OAuthServiceProvider serviceProvider;
+    @Autowired
+    VisorMenu visorMenu;
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -86,7 +96,7 @@ public class OAuthController {
             serviceProvider.loginManually(email, session, servlet);
             ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             serviceProvider.createLogJson(ds, session);
-            
+
             return "redirect:/route66";
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -108,14 +118,16 @@ public class OAuthController {
             return "redirect:/login";
         }
 
-        logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRoles().size(), ds.getRolActivo());
+        logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRolesMain().size(), ds.getRolActivo());
 
-        if (ds.getRoles().size() > 1 && ds.getRolActivo() == null) {
+        if (ds.getRolesMain().size() > 1 && ds.getRolActivo() == null) {
             return "security/rolland";
 
-        } else if (ds.getRoles().size() == 1) {
-            Rol rolActivo = ds.getRoles().get(0);
+        } else if (ds.getRolesMain().size() == 1) {
+            Rol rolActivo = ds.getRolesMain().get(0);
             ds.setRolActivo(rolActivo);
+            ds.setMenu(serviceProvider.allMenuRolActivo(rolActivo, new Sistema(despliegueConfig.getSistema())));
+            System.out.println("Usuario tiene " + ds.getMenu().size() + " menus en su session");
 
             session.setAttribute(Constantine.SESSION_USUARIO, ds);
         }
@@ -131,6 +143,8 @@ public class OAuthController {
         Rol asignar = ds.getMapRoles().get(rol);
 
         ds.setRolActivo(asignar);
+        ds.setMenu(serviceProvider.allMenuRolActivo(asignar, new Sistema(despliegueConfig.getSistema())));
+        System.out.println("Usuario tiene " + ds.getMenu().size() + " menus en su session");
 
         session.setAttribute(Constantine.SESSION_USUARIO, ds);
     }
@@ -148,29 +162,33 @@ public class OAuthController {
 
     private String getRedirect(DataSessionPivot ds, HttpSession session) {
 
+        String ruta = findRuta(ds.getMenu());
         String redirect = "redirect:/logout";
         String urlServerExterno = "http://maipi.albatross.pe/login";
         //String urlServerExterno = "http://localhost:9800/lagunas/" + ds.getUsuario().getUsuario();
+        if (ruta.equals("")) {
+            return redirect;
+        }
 
         switch (ds.getRolActivo().getCodigo()) {
-            case "DPTO":
-                redirect = "redirect:/academico/systemcalifica/sistema";
-                break;
-
-            case "DOC":
-                Docente docente = ds.getDocente();
-                if (docente != null) {
-                    redirect = "redirect:/academico/docente/cargaacademica";
-                }
-                break;
-
-            case "IOREA":
-                redirect = "redirect:/general/personaperfil";
-                break;
-
-            case "OREA":
-                redirect = "redirect:/academico/acta";
-                break;
+//            case "DPTO":
+//                redirect = "redirect:/academico/systemcalifica/sistema";
+//                break;
+//
+//            case "DOC":
+//                Docente docente = ds.getDocente();
+//                if (docente != null) {
+//                    redirect = "redirect:/academico/docente/cargaacademica";
+//                }
+//                break;
+//
+//            case "IOREA":
+//                redirect = "redirect:/general/personaperfil";
+//                break;
+//
+//            case "OREA":
+//                redirect = "redirect:/academico/acta";
+//                break;
 
             case "ALU":
                 session.invalidate();
@@ -178,13 +196,34 @@ public class OAuthController {
                 break;
 
             default:
-                logger.debug("No se identifica acceso para el rol: {} ", ds.getRolActivo().getCodigo());
+                //logger.debug("No se identifica acceso para el rol: {} ", ds.getRolActivo().getCodigo());
+                //redirect = "redirect:/general/personaperfil";
+
+                redirect = ruta;
                 break;
 
         }
 
         return redirect;
 
+    }
+
+    private String findRuta(List<Menu> menus) {
+        for (Menu menu : menus) {
+            if (menu.getTipoEnum() == MenuTipoEnum.MENU) {
+                return "redirect:" + menu.getRuta();
+            }
+            if (menu.getTipoEnum() == MenuTipoEnum.SUB_MENU) {
+                return "redirect:" + menu.getRuta();
+            }
+        }
+        for (Menu menu : menus) {
+            String ruta = findRuta(menu.getMenus());
+            if (!ruta.equals("")) {
+                return ruta;
+            }
+        }
+        return "";
     }
 
 }

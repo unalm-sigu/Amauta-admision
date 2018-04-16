@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -31,13 +30,17 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import static pe.edu.lamolina.model.enums.RolEnum.ADM_UNALM;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.enums.TipoSesionEnum;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
+import pe.edu.lamolina.pivot.controller.seguridad.menu.MenuService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -47,6 +50,7 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -92,7 +96,12 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     ColaboradorDAO colaboradorDAO;
 
     @Autowired
+    MenuDAO menuDAO;
+
+    @Autowired
     InterceptorService interceptorService;
+    @Autowired
+    MenuService menuService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -119,27 +128,31 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         Collection<GrantedAuthority> authorities = new ArrayList();
 
+        List<Rol> rolesNuevos = new ArrayList();
         List<Rol> rolesMain = new ArrayList();
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
-        Map<Long, Rol> mapRoles = TypesUtil.convertListToMap("id", roles);
+        Map<Long, Rol> mapIdRoles = TypesUtil.convertListToMap("id", roles);
         for (Rol role : roles) {
             role.setRolesInferiores(new ArrayList());
             Rol rolSuperior = role.getRolSuperior();
             if (rolSuperior != null) {
-                Rol rolSuper = mapRoles.get(rolSuperior.getId());
+                Rol rolSuper = mapIdRoles.get(rolSuperior.getId());
                 if (rolSuper == null) {
                     rolSuper = rolSuperior;
                     rolSuper.setRolesInferiores(new ArrayList());
-                    mapRoles.put(rolSuper.getId(), rolSuper);
-                    roles.add(rolSuper);
+                    mapIdRoles.put(rolSuper.getId(), rolSuper);
+                    rolesNuevos.add(rolSuper);
                 }
             }
         }
 
+        roles.addAll(rolesNuevos);
+        Map<String, Rol> mapCodeRoles = TypesUtil.convertListToMap("codigo", roles);
+
         for (Rol role : roles) {
             Rol rolSuperior = role.getRolSuperior();
             if (rolSuperior != null) {
-                rolSuperior = mapRoles.get(rolSuperior.getId());
+                rolSuperior = mapIdRoles.get(rolSuperior.getId());
                 rolSuperior.getRolesInferiores().add(role);
                 role.setRolSuperior(rolSuperior);
             } else {
@@ -161,8 +174,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
 
-        List<Colaborador> colaboradors = colaboradorDAO.allByPersona(usuario.getPersona());
-        if (colaboradors.isEmpty()) {
+        List<Colaborador> colaboradors = colaboradorDAO.allActivosByPersona(usuario.getPersona());
+        Rol rolAdmUnalm = mapCodeRoles.get(ADM_UNALM.name());
+        if (rolAdmUnalm != null && colaboradors.isEmpty()) {
             throw new PhobosException("Usted no está registrado como colaborador en la universidad");
         }
 
@@ -178,10 +192,12 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         dataSession.setSistemaOperativo(getClientOS(servlet));
         dataSession.setColaborador(colaboradors);
 
-        Docente docente = docenteDAO.findPersona(usuario.getPersona());
-        if (docente != null) {
-            dataSession.setDocente(docente);
-            dataSession.setDepartamentoAcademico(docente.getDepartamentoAcademico());
+        List<Docente> docentes = docenteDAO.allByPersona(usuario.getPersona());
+        if (!docentes.isEmpty()) {
+            if (docentes.size() == 1) {
+                dataSession.setDocente(docentes.get(0));
+                dataSession.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
+            }
         }
 
         List<Oficina> oficinasByJefe = oficinaDAO.allByJefe(usuario.getPersona());
@@ -253,5 +269,11 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         } else {
             return "UnKnown, More-Info: " + browserDetails;
         }
+    }
+
+    @Override
+    public List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema) {
+        List<Menu> menusBD = menuDAO.allMenuRolActivo(rolAsignar, sistema);
+        return menuService.allMenuOrdered(menusBD);
     }
 }

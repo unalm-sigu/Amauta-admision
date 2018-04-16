@@ -71,7 +71,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Override
     public Docente find(Docente docente) {
-        return docenteDAO.findDocente(docente);
+        return docenteDAO.findByDocente(docente);
     }
 
     @Override
@@ -137,11 +137,12 @@ public class ProfesorServiceImp implements ProfesorService {
             }
         }
 
-        Docente docenteDb = docenteDAO.findPersona(docente.getPersona());
-        logger.debug("existe docente en db {}", (docenteDb != null));
-        if (docenteDb != null) {
+        List<Docente> docentesBD = docenteDAO.allByPersona(docente.getPersona());
+        logger.debug("existe docente en db {}", (docentesBD != null));
+        if (docentesBD.isEmpty()) {
             throw new PhobosException("Docente ya existe");
         }
+        
         logger.debug("guardando docente ...");
         docente.setEstado(DocenteEstadoEnum.ACT);
         docente.setCodigo(this.getCodigo());
@@ -221,13 +222,13 @@ public class ProfesorServiceImp implements ProfesorService {
         }
         personaDAO.update(persona);
         logger.debug("***Resolviendo en Tabla Docente***");
-        Docente docenteDb = docenteDAO.findPersona(persona);
-        docenteDb.setPersona(persona);
-        docenteDb.setFechaModifica(new Date());
-        docenteDb.setUserModifica(user);
-        docenteDb.setDepartamentoAcademico(docente.getDepartamentoAcademico());
-        docenteDb.setModalidadEstudio(docente.getModalidadEstudio());
-        docenteDAO.update(docenteDb);
+        Docente docenteBD = docenteDAO.findByDocente(docente);
+        docenteBD.setPersona(persona);
+        docenteBD.setFechaModifica(new Date());
+        docenteBD.setUserModifica(user);
+        docenteBD.setDepartamentoAcademico(docente.getDepartamentoAcademico());
+        docenteBD.setModalidadEstudio(docente.getModalidadEstudio());
+        docenteDAO.update(docenteBD);
         logger.debug("***Resolviendo en Tabla Usuario***");
         Usuario usuarioDb = usuarioDAO.findByPersona(docente.getPersona());
         logger.debug("Está como usuario? {}", (usuarioDb != null));
@@ -478,8 +479,8 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public Docente findDocenteByPersona(Persona persona) {
-        return docenteDAO.findDocenteByPersona(persona);
+    public Docente findDocenteByDocente(Docente docente) {
+        return docenteDAO.findByDocente(docente);
     }
 
     @Override

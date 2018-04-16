@@ -324,7 +324,7 @@ public class ProfesorController {
                 node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("numeroDoc", persona.getNumeroDocIdentidad());
 
-                docenteDb = service.findDocenteByPersona(persona);
+                docenteDb = service.findDocenteByDocente(docente);
             }
 
             node.put("existeDocente", (docenteDb != null));
