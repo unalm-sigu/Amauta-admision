@@ -1407,8 +1407,8 @@ $(function () {
             var wwLine = 2;
             var wwBoldLine = 6;
 
-            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4"};
-            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff"};
+            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4", TECIND: "#FF5733"};
+            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff", TECIND: "#fff"};
             var colorLine = "#E74C3C";
             var colorDot = "#34495E";
             var colorArrow = "#D7DBDD";

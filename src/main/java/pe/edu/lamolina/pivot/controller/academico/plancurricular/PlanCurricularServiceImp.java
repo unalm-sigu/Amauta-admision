@@ -41,6 +41,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
 import static pe.edu.lamolina.model.enums.TipoGrupoHorariosEnum.OBL;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -653,6 +654,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 if (carrera.getCodigo().equals("060")) { // Solo zootecnia
                     tiposEnvio.add(tipo);
                 }
+            } else if (tipo.getCodigoEnum() == TECIND) {
+                if (carrera.getCodigo().equals("060")) { // Solo zootecnia
+                    tiposEnvio.add(tipo);
+                }
             } else {
                 tiposEnvio.add(tipo);
             }
@@ -675,6 +680,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == PROD) {
+                if (carrera.getCodigo().equals("060")) { // Solo zootecnia
+                    tiposEnvio.add(tipo);
+                }
+            } else if (tipo.getCodigoEnum() == TECIND) {
                 if (carrera.getCodigo().equals("060")) { // Solo zootecnia
                     tiposEnvio.add(tipo);
                 }
@@ -794,7 +803,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular) {
         CursoCurricula cursoCurricula = findCursoCurriculaByCursoPlan(curso, planCurricular);
-        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, CULT).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
+        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
         } else {
             Assert.isNull(cursoCurricula, "Este curso ya existe en el grupo de obligatorios o generales");
         }
