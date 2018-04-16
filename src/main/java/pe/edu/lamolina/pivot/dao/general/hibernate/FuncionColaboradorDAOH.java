@@ -7,6 +7,8 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.FuncionColaborador;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.dao.general.FuncionColaboradorDAO;
 
 @Repository
@@ -32,12 +34,14 @@ public class FuncionColaboradorDAOH extends AbstractEasyDAO<FuncionColaborador> 
     public List<FuncionColaborador> findFuncionByColaborador(Colaborador colaborador) {
         Octavia sql = Octavia.query()
                 .from(FuncionColaborador.class, "fc")
-                .join("colaborador col","funcion fun")
+                .join("colaborador col", "funcion fun")
                 .filter("col.id", colaborador)
                 .filter("estado", EstadoEnum.ACT)
                 .orderBy("fc.id");
 
         return all(sql);
     }
+
+ 
 
 }

@@ -64,7 +64,7 @@
                                     <option></option>
                                     <option th:each="item : ${tipos}"  
                                             th:text="${item.nombre}"
-                                            th:selected="${oficina.TipoOficina != null ? oficina.TipoOficina.id : -1 == item.id}"
+                                            th:selected="(${oficina.tipoOficina != null ? oficina.tipoOficina.id : -1 == item.id} == *{item.id})"
                                             th:value="${item.id}" ></option>
                                 </select>
                             </div>

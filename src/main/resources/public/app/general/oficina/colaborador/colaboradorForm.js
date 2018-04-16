@@ -13,13 +13,13 @@ new Vue({
         colabo: JSON.parse(colaboradorJson),
         funcionColaborador: [],
         colaborador: {},
-        personaValidTemp:{},
+        personaValidTemp: {},
         newCola: false,
-        colaboradorData:{},
-        sexos:[{id:'M',value:'Masculino'},{id:'F',value:'Femenino'}]
+        colaboradorData: {},
+        sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}]
     },
     computed: {
-     
+
     },
     created() {
         let $vue = this;
@@ -36,10 +36,10 @@ new Vue({
         $('.numeric').numeric({negative: false});
     },
     methods: {
-            chacked:function (){
+        chacked: function () {
             console.log("hola")
-            },
-            verificarDoc: function () {
+        },
+        verificarDoc: function () {
             let $vue = this;
             if ($vue.persona.numeroDocIdentidad == undefined || $vue.persona.tipoDocumento == undefined) {
                 return;
@@ -57,27 +57,29 @@ new Vue({
                         $vue.persona = response.data;
                         $vue.personaValidTemp = {};
                         console.log($vue.persona);
-                     var map = new Map(Object.entries($vue.persona));
-                       Object.keys($vue.persona).forEach(function(elem){
-                             if(elem=='materno' && map.get(elem) !== null){
-                                 $vue.personaValidTemp.materno = true;
-                            }else if(elem=='paterno' && map.get(elem) !== null){
-                                 $vue.personaValidTemp.paterno = true;
-                            }else if(elem=='nombres' && map.get(elem) !== null){
-                                 $vue.personaValidTemp.nombres = true;
-                            }else if(elem=='emailCompania' && map.get(elem) !== null){
-                                 $vue.personaValidTemp.emailCompania = true;
-                            }else if(elem=='sexo' && map.get(elem) !== null){
-                                 $vue.personaValidTemp.sexo = true;
+                        var map = new Map(Object.entries($vue.persona));
+                        Object.keys($vue.persona).forEach(function (elem) {
+                            if (elem == 'materno' && map.get(elem) !== null) {
+                                $vue.personaValidTemp.materno = true;
+                            } else if (elem == 'paterno' && map.get(elem) !== null) {
+                                $vue.personaValidTemp.paterno = true;
+                            } else if (elem == 'nombres' && map.get(elem) !== null) {
+                                $vue.personaValidTemp.nombres = true;
+                            } else if (elem == 'emailCompania' && map.get(elem) !== null) {
+                                $vue.personaValidTemp.emailCompania = true;
+                            } else if (elem == 'sexo' && map.get(elem) !== null) {
+                                $vue.personaValidTemp.sexo = true;
                             }
-                                
+
                         })
                         $vue.removerError();
                     } else {
                         $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
+                        $vue.temp.tipoDocumento = $vue.persona.tipoDocumento;
                         $vue.persona = {};
-                         $vue.personaValidTemp = {};
-                        $vue.persona = $vue.temp;
+                        $vue.personaValidTemp = {};
+                        $vue.persona.numeroDocIdentidad = $vue.temp.numeroDocIdentidad;
+                        $vue.persona.tipoDocumento = $vue.temp.tipoDocumento;
                     }
                 }
             });
@@ -111,6 +113,8 @@ new Vue({
                         self.btnEnable();
                         return;
 
+                    } else {
+                        $vue.removerError();
                     }
                 }
             });
@@ -133,14 +137,14 @@ new Vue({
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate() ) {
-                $vue.removerError();
+            if (!$("#formConfig").parsley().validate()) {
+
                 self.btnEnable();
                 return;
             }
             self.btnEnable();
-           $vue.colaboradorData.colaborador = $vue.colaborador;
-           $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
+            $vue.colaboradorData.colaborador = $vue.colaborador;
+            $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),
@@ -153,6 +157,9 @@ new Vue({
                         location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
                         notify(response.message, 'info');
 
+                    } else {
+                        notify(response.message, 'error');
+
                     }
                 }
             });
@@ -162,13 +169,11 @@ new Vue({
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
-            if (!$("#formConfig").parsley().validate() || !$("#email").parsley().validate()) {
-                $vue.removerError();
+            if (!$("#formConfig").parsley().validate()) {
                 self.btnEnable();
                 return;
             }
             self.btnEnable();
-
             $vue.colaborador.persona = $vue.persona;
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
@@ -183,8 +188,10 @@ new Vue({
                         $vue.colaborador = {}
                         $vue.persona = {}
                         location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
-                        notify(response.message, 'info');
+                        notify("Se agregó exitosamente al colaborador", 'info');
 
+                    } else {
+                        notify("El colaborador existe en la oficina", 'error');
                     }
                 }
             });

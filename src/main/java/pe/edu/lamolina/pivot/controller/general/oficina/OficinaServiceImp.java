@@ -483,7 +483,8 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public Colaboradores countColaborador(Oficina oficina) {
-        Colaboradores colaboradors = colaboradorDAO.countColaboradores(oficina);
+        List<Oficina> oficinas = allOficinasByMain(oficina);
+        Colaboradores colaboradors = colaboradorDAO.countColaboradores(oficinas);
         return colaboradors;
     }
 
@@ -662,7 +663,7 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void saveColaboradorExit(Colaborador colaborador, Usuario usuario) {
+    public Boolean saveColaboradorExit(Colaborador colaborador, Usuario usuario) {
         Persona personaForm = colaborador.getPersona();
         Persona personaBD = personaDAO.find(personaForm.getId());
         personaBD.setPaterno(personaForm.getPaterno());
@@ -674,12 +675,10 @@ public class OficinaServiceImp implements OficinaService {
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
         personaDAO.update(personaBD);
 
-        List<Colaborador> colaboradors = colaboradorDAO.allActivosByPersona(personaBD);
-        if (colaboradors.size() > 0) {
-            Colaborador cola = colaboradorDAO.find(colaboradors.get(0).getId());
-            colaborador.setId(cola.getId());
-            updateColaborador(colaborador, usuario);
-            return;
+        Colaborador colaboradors = colaboradorDAO.allActivosByPersonaAndOficina(colaborador.getOficina(), personaBD);
+        if (colaboradors != null) {
+
+            return false;
 
         } else {
             colaborador.setFechaRegistro(new Date());
@@ -687,7 +686,6 @@ public class OficinaServiceImp implements OficinaService {
             colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
             colaborador.setCodigo(getCodigoColaborador() + "");
             colaborador.setFechaInicio(new Date());
-            colaborador.setPersona(personaForm);
             colaboradorDAO.save(colaborador);
         }
 
@@ -717,7 +715,7 @@ public class OficinaServiceImp implements OficinaService {
                 addUserRoll(perfiles, colaborador, usuario, usuario1);
             }
         }
-
+        return true;
     }
 
     public void addUserRoll(List<PerfilCompania> list, Colaborador colaborador, Usuario usuario, Usuario colabo) {
@@ -745,7 +743,6 @@ public class OficinaServiceImp implements OficinaService {
         emp.setFechaModificacion(new Date());
         emp.setUserModificacion(usuario);
         emp.setCargo(colaborador.getCargo());
-        emp.setOficina(colaborador.getOficina());
         colaboradorDAO.update(emp);
 
         List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaborador);

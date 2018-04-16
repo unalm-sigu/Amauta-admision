@@ -161,6 +161,7 @@ public class OficinaController {
     @RequestMapping("saveColaborador")
     public JsonResponse saveColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
@@ -180,9 +181,8 @@ public class OficinaController {
                 response.setMessage("Se agregó el colaborador satisfactoriamente");
                 response.setSuccess(true);
             } else {
-                service.saveColaboradorExit(colaborador, ds.getUsuario());
-                response.setMessage("Se agregó el colaborador satisfactoriamente");
-                response.setSuccess(true);
+                Boolean success = service.saveColaboradorExit(colaborador, ds.getUsuario());
+                response.setSuccess(success);
             }
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -236,7 +236,7 @@ public class OficinaController {
     }
 
     @RequestMapping("{oficina}/colaboradores")
-    public String colaborador(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
+    public String colaboradores(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<Oficina> oficinas = service.allOficina(ds.getPersona());
         Colaboradores colaboradors = service.countColaborador(new Oficina(idOficina));
@@ -250,7 +250,7 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("updateEstado")
-    public JsonResponse update(@RequestBody Colaborador colaborador, HttpSession session) {
+    public JsonResponse updateEstado(@RequestBody Colaborador colaborador, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
@@ -266,8 +266,8 @@ public class OficinaController {
     }
 
     @ResponseBody
-    @RequestMapping("{idOficina}/colaborador")
-    public DynatableResponse list(@PathVariable("idOficina") Long idOficina, DynatableFilter filter, HttpSession session) {
+    @RequestMapping("{idOficina}/listColaboradores")
+    public DynatableResponse listColaboradores(@PathVariable("idOficina") Long idOficina, DynatableFilter filter, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse response = new DynatableResponse();
         try {
@@ -358,6 +358,7 @@ public class OficinaController {
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
         List<TipoOficina> tipoOficina = service.allTipoOficina();
+        System.out.println("Oficina: -----> "+ oficina.getTipoOficina().getId());
         model.addAttribute("oficina", oficina);
         model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
@@ -468,7 +469,7 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-            if (TipoOficinaEnum.FAC.name().equalsIgnoreCase(tipo)) {
+            if (TipoOficinaEnum.FAC.name().equalsIgnoreCase(oficina.getCodigo())) {
                 List<Facultad> facultades = service.allFacultad(compania);
                 for (Facultad facultad : facultades) {
                     ObjectNode a = new ObjectNode(jsonFactory);
