@@ -97,7 +97,7 @@ public class OficinaController {
     @RequestMapping("{idColaborador}/updateColaborador/{idOficina}")
     public String updateColaborador(@PathVariable("idOficina") Long idOficina, @PathVariable("idColaborador") Long idColaborador, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<TipoDocIdentidad> tipoDoc = service.findTipoDoc();
+        List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
         List<PerfilCompania> companias = service.allCargos();
         List<PerfilCompania> funciones = service.allFunciones();
@@ -124,7 +124,7 @@ public class OficinaController {
             Colaborador colaborador = colaboradorBean.getColaborador();
             System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
             for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
-                FuncionColaborador funcionColaborador = new  FuncionColaborador();
+                FuncionColaborador funcionColaborador = new FuncionColaborador();
                 funcionColaborador.setFuncion(perfilCompania);
                 arrayList.add(funcionColaborador);
             }
@@ -140,10 +140,10 @@ public class OficinaController {
         return response;
     }
 
-    @RequestMapping("{idOficina}/nuevo")
-    public String saveColaborador(@PathVariable("idOficina") Long idOficina, Model model, HttpSession session) {
+    @RequestMapping("{idOficina}/nuevoColaborador")
+    public String nuevoColaborador(@PathVariable("idOficina") Long idOficina, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        List<TipoDocIdentidad> tipoDoc = service.findTipoDoc();
+        List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
         List<PerfilCompania> companias = service.allCargos();
         List<PerfilCompania> funciones = service.allFunciones();
@@ -159,17 +159,20 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("saveColaborador")
-    public JsonResponse saveNuevoColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
+    public JsonResponse saveColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-             ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
+            ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
             Colaborador colaborador = colaboradorBean.getColaborador();
-            System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
-            for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
-                FuncionColaborador funcionColaborador = new  FuncionColaborador();
-                funcionColaborador.setFuncion(perfilCompania);
-                arrayList.add(funcionColaborador);
+            ObjectUtil.printAttr(colaboradorBean);
+            if (colaboradorBean.getPerfilCompanias() != null) {
+                System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
+                for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
+                    FuncionColaborador funcionColaborador = new FuncionColaborador();
+                    funcionColaborador.setFuncion(perfilCompania);
+                    arrayList.add(funcionColaborador);
+                }
             }
             colaborador.setFuncionColaborador(arrayList);
             if (colaborador.getPersona().getId() == null) {
@@ -269,9 +272,9 @@ public class OficinaController {
         DynatableResponse response = new DynatableResponse();
         try {
 
-            ArrayNode list = service.getData(filter, new Oficina(idOficina));
+            ArrayNode colaboradores = service.getColaboradoresJson(filter, new Oficina(idOficina));
 
-            response.setData(list);
+            response.setData(colaboradores);
 
             response.setTotal(filter.getTotal());
             response.setFiltered(filter.getFiltered());

@@ -118,7 +118,7 @@ new Vue({
         nuevoColaborador: function () {
             let $vue = this;
             $vue.oficina
-            location.href = APP.url("general/oficina/" + $vue.oficina.id + "/nuevo")
+            location.href = APP.url("general/oficina/" + $vue.oficina.id + "/nuevoColaborador")
 
         },
         oficinaSeleccionada: function () {

@@ -20,7 +20,7 @@ public interface ColaboradorDAO extends EasyDAO<Colaborador> {
 
     List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas);
 
-    Colaborador findCodigo();
+    Colaborador findMaxCodigo();
 
     Colaborador find(Colaborador colaborador);
 }

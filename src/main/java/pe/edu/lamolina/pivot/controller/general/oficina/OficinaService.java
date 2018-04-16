@@ -61,7 +61,7 @@ public interface OficinaService {
 
     Colaboradores countColaborador(Oficina oficina);
 
-    ArrayNode getData(DynatableFilter filter, Oficina oficinaMain);
+    ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain);
 
     void updateEstado(Colaborador colaborador, Usuario usuario);
 
@@ -71,7 +71,7 @@ public interface OficinaService {
 
     public Colaborador findColarador(Colaborador colaborador);
 
-    List<TipoDocIdentidad> findTipoDoc();
+    List<TipoDocIdentidad> allDocumentosIdentidad();
 
     public List<Oficina> findOficinas(Oficina oficina);
 

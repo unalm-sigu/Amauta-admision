@@ -19,32 +19,32 @@ import pe.edu.lamolina.pivot.controller.general.oficina.Colaboradores;
 
 @Repository
 public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements ColaboradorDAO {
-    
+
     public ColaboradorDAOH() {
         super();
         setClazz(Colaborador.class);
     }
-    
+
     @Override
     public List<Colaborador> allColaborador(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("oficina ofi", "cargo car", "persona per")
                 .in("ofi.id", oficinas);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("oficina ofi", "cargo car", "persona per")
                 .filter("ofi.id", oficina);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Colaborador> allActivosByPersona(Persona persona) {
         Octavia sql = Octavia.query()
@@ -52,10 +52,10 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .join("persona per")
                 .filter("per.id", persona)
                 .in("co.estado", Arrays.asList(ACT, VAC, DSC, PER));
-        
+
         return all(sql);
     }
-    
+
     @Override
     public Colaboradores countColaboradores(Oficina oficina) {
         Octavia sql = Octavia.query()
@@ -70,10 +70,10 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .from(Colaborador.class, "co")
                 .join("oficina ofi")
                 .filter("ofi.id", oficina);
-        
+
         return (Colaboradores) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public List<Colaborador> allByOficina(DynatableFilter filter, List<Oficina> oficinas) {
         DynatableSql sql = new DynatableSql(filter)
@@ -85,24 +85,24 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
         return all(sql);
     }
-    
+
     @Override
-    public Colaborador findCodigo() {
+    public Colaborador findMaxCodigo() {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
-                .limit(1)
-                .orderBy("co.codigo desc");
-        
+                .orderBy("co.codigo desc")
+                .limit(1);
+
         return (Colaborador) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public Colaborador find(Colaborador colaborador) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")
                 .join("persona per", "per.tipoDocumento")
                 .filter("co.id", colaborador);
-        
+
         return find(sql);
     }
 }

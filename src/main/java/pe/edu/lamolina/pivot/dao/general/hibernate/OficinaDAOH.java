@@ -39,7 +39,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     public List<Oficina> allByJefe(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
-                .join("personaJefe pj","tipoOficina")
+                .join("personaJefe pj", "tipoOficina")
                 .filter("pj.id", persona);
 
         return all(sql);
@@ -51,7 +51,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
                 .join("compania cia")
-                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca","tipoOficina")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("cia.id", compania)
                 .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre")
                 .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")
