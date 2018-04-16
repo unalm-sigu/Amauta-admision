@@ -26,7 +26,7 @@
                                 <img class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/male.png" />
                             </div>
                             <div v-if="newCola">
-                                <h4 class="block text-primary bold " v-text="persona.tituloAcademico +' ' + persona.nombreCompleto"></h4>
+                                <h4 class="block text-primary bold " >{{persona.tituloAcademico}} {{persona.nombreCompleto}}</h4>
                                 <spam class="block bold" v-text="persona.tipoDocumento.simbolo + ': '+ persona.numeroDocIdentidad"></spam>
                                 <spam class="bold" v-text="'Código colaborador: '+ colaborador.codigo"></spam>
                             </div>
@@ -61,15 +61,13 @@
                                 <div class="col-sm-6">
                                     <label>Paterno</label>
                                     <div class="form-group">                                
-                                        <span  v-if="validar(persona.id ,persona.paterno)"  class="inline form-control"   v-text="persona.paterno" />
-                                        <input type="text"  v-else="validar(persona.id ,persona.paterno)"  required="true" class="inline form-control"  maxlength="200" v-model="persona.paterno" />
+                                        <input type="text"  v-bind:disabled="personaValidTemp.paterno"  required="true" class="inline form-control"  maxlength="200" v-model="persona.paterno" />
                                     </div>
                                 </div>      
                                 <div class="col-sm-6">
                                     <label>Materno</label>
                                     <div class="form-group">    
-                                        <span  v-if="validar(persona.id ,persona.materno)"  class="inline form-control"   v-text="persona.materno" />
-                                        <input type="text"  v-else="validar(persona.id ,persona.materno)"   required="true" class="inline form-control"  maxlength="200" v-model="persona.materno"/>
+                                        <input type="text"  v-bind:disabled="personaValidTemp.materno"     required="true" class="inline form-control"  maxlength="200" v-model="persona.materno"/>
                                     </div>
                                 </div>      
                             </div>
@@ -77,15 +75,13 @@
                                 <div class="col-sm-6">
                                     <label>Nombres</label>
                                     <div class="form-group">     
-                                        <span  v-if="validar(persona.id ,persona.nombres)"  class="inline form-control"   v-text="persona.nombres" />
-                                        <input type="text"  v-else="validar(persona.id ,persona.nombres)" required="true" class="inline form-control"  maxlength="200" v-model="persona.nombres"/>
+                                        <input type="text"  v-bind:disabled="personaValidTemp.nombres" required="true" class="inline form-control"  maxlength="200" v-model="persona.nombres"/>
                                     </div>
                                 </div>      
                                 <div class="col-sm-6">
                                     <label>Email</label>
                                     <div class="form-group">          
-                                        <span  v-if="validar(persona.id ,persona.emailCompania)"  class="inline form-control"   v-text="persona.emailCompania" />
-                                        <input type="text" v-else="validar(persona.id ,persona.emailCompania)"  id="email" data-parsley-required="true" class="inline form-control" name="emailCompania" maxlength="200" v-model="persona.emailCompania" v-on:change="verificarEmail"/>
+                                        <input type="text"  id="email" v-bind:disabled="personaValidTemp.emailCompania"  class="inline form-control" name="emailCompania" maxlength="200" v-model="persona.emailCompania" v-on:change="verificarEmail"/>
                                     </div>
                                 </div>      
                             </div>
@@ -121,7 +117,7 @@
                                 <div class="col-sm-6">
                                     <label>Funciones</label>
                                     <div class="form-group">                                
-                                        <multiselect v-model="colaborador.funcion" 
+                                        <multiselect v-model="colaborador.funcionColaborador" 
                                                      v-bind:options='funciones'
                                                      label='nombre'
                                                      track-by='id'
@@ -135,13 +131,16 @@
                                 </div>      
                                 <div class="col-sm-6" v-if="!newCola">
                                     <label class="block">sexo</label>
-                                    <div class="form-group"> 
+                                    <div class="form-group" v-if="!personaValidTemp.sexo" > 
 
-                                        <label  for="Femenino">Femenino</label>
-                                        <input  type="radio" id ="Femenino" value="Femenino" v-model="persona.sexo"/>
-                                        <label for="Masculino">Masculino</label>
-                                        <input  type="radio"  id ="Masculino" value="Masculino" v-model="persona.sexo"/>
+                                        <label >Femenino</label>
+                                        <input  type="radio" id ="F" value="F"  v-model="persona.sexo"  />
+                                        <label >Masculino</label>
+                                        <input  type="radio"   id ="M" value="M" v-model="persona.sexo"  />
 
+                                    </div>
+                                    <div class="form-group" v-if="personaValidTemp.sexo">
+                                        <span v-text="persona.sexo == 'M' ? 'Masculino' : 'Femenino'"></span>
                                     </div>
                                 </div> 
 
