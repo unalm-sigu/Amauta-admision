@@ -34,7 +34,7 @@ Vue.component("dynatable", {
 
             $dynatable = $('#dynaTable').dynatable({
                 dataset: {
-                    ajaxUrl: APP.url("general/oficina/" + $vue.oficina + '/colaborador'),
+                    ajaxUrl: APP.url("general/oficina/" + $vue.oficina + '/listColaboradores'),
                     perPageDefault: 10
                 },
                 writers: {_rowWriter: $vue.writter},

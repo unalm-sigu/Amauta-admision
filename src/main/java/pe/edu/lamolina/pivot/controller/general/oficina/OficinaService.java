@@ -87,6 +87,6 @@ public interface OficinaService {
 
     Usuario verifiEmail(Persona persona);
 
-    public void saveColaboradorExit(Colaborador colaborador, Usuario usuario);
+    public Boolean saveColaboradorExit(Colaborador colaborador, Usuario usuario);
 
 }

@@ -57,7 +57,19 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
-    public Colaboradores countColaboradores(Oficina oficina) {
+    public Colaborador allActivosByPersonaAndOficina(Oficina oficina, Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("persona per", "oficina ofi")
+                .filter("per.id", persona)
+                .filter("ofi.id", oficina)
+                .in("co.estado", Arrays.asList(ACT, VAC, DSC, PER));
+
+        return find(sql);
+    }
+
+    @Override
+    public Colaboradores countColaboradores(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .select("sum(case co.estado when 'ACT' then 1 else 0 end)",
                         "sum(case co.estado when 'VAC' then 1 else 0 end)",
@@ -69,7 +81,7 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .into(Colaboradores.class)
                 .from(Colaborador.class, "co")
                 .join("oficina ofi")
-                .filter("ofi.id", oficina);
+                .in("ofi.id", oficinas);
 
         return (Colaboradores) sql.find(getCurrentSession());
     }
