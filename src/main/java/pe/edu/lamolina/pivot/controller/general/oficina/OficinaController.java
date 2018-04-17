@@ -129,7 +129,7 @@ public class OficinaController {
                 arrayList.add(funcionColaborador);
             }
             colaborador.setFuncionColaborador(arrayList);
-            service.updateColaborador(colaborador, ds.getUsuario());
+            service.updateColaborador(colaborador, ds);
             response.setMessage("Se actualizó el colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -177,11 +177,11 @@ public class OficinaController {
             }
             colaborador.setFuncionColaborador(arrayList);
             if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, ds.getUsuario());
+                service.saveColaborador(colaborador, ds);
                 response.setMessage("Se agregó el colaborador satisfactoriamente");
                 response.setSuccess(true);
             } else {
-                Boolean success = service.saveColaboradorExit(colaborador, ds.getUsuario());
+                Boolean success = service.saveColaboradorExit(colaborador, ds);
                 response.setSuccess(success);
             }
         } catch (PhobosException e) {
@@ -254,7 +254,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.updateEstado(colaborador, ds.getUsuario());
+            service.updateEstado(colaborador, ds);
             response.setMessage("Se cambio de estado al colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

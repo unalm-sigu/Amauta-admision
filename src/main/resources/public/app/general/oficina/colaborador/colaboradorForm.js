@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default)
-
+Vue.component("date-picker", window.DatePicker.default);
 new Vue({
     el: '#colaboradorFormVue',
     data: {
@@ -191,7 +191,7 @@ new Vue({
                         notify("Se agregó exitosamente al colaborador", 'info');
 
                     } else {
-                        notify("El colaborador existe en la oficina", 'error');
+                        notify(response.message, 'error');
                     }
                 }
             });

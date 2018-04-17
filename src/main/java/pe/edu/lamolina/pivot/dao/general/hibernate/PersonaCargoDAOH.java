@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
@@ -70,6 +71,20 @@ public class PersonaCargoDAOH extends AbstractEasyDAO<PersonaCargo> implements P
                 .filter("cia.id", cia)
                 .filter("pp.estado", EstadoEnum.ACT)
                 .isNull("pp.fechaFin");
+
+        return find(sql);
+    }
+
+    @Override
+    public PersonaCargo findCargoByPersona(Oficina oficina, PerfilCompania cargo, Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(PersonaCargo.class, "pp")
+                .join("perfilCompania pc", "persona per")
+                .leftJoin("oficina ofi")
+                .filter("per.id", persona)
+                .filter("pc.id", cargo)
+                .filter("ofi.id", oficina)
+                .filter("estado", EstadoEnum.ACT);
 
         return find(sql);
     }
