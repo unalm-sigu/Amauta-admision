@@ -34,10 +34,10 @@
                     </section>
                     <form data-parsley-validate="true" id="formConfig"  method="post">
                         <section class="panel-body">
-                            <div > 
+                            <div v-if="!newCola" > 
                                 <h2>Información Personal</h2>
+                                <hr/>
                             </div>  
-                            <hr/>
                             <div class="row" v-if="!newCola" >
                                 <div class="col-sm-6">
                                     <label>Tipo de Documento</label>                                   
@@ -94,16 +94,16 @@
                                 <div class="col-sm-6" v-if="!newCola">
                                     <label class="block">Sexo</label>
 
-                                    <div class="form-group">
+                                    <div class="form-group" v-if="!personaValidTemp.sexo"> 
                                         <div class="col-sm-10">
                                             <div class="col-sm-5">
                                                 <label class="radio inline">
-                                                    <input  type="radio" required="true" name="persona.sexo" id="inlineCheckbox1" value="M" /> Masculino
+                                                    <input  type="radio" required="true" name="persona.sexo" v-model="persona.sexo" id="inlineCheckbox1" value="M" /> Masculino
                                                 </label>
                                             </div>
                                             <div class="col-sm-5">
                                                 <label class="radio inline">
-                                                    <input  type="radio" required="true" name="persona.sexo" id="inlineCheckbox2" value="F" /> Femenino
+                                                    <input  type="radio" required="true" name="persona.sexo" v-model="persona.sexo" id="inlineCheckbox2" value="F" /> Femenino
                                                 </label>
                                             </div>
                                         </div>
@@ -127,7 +127,6 @@
                             </div>  
                             <hr/>
                             <div class="row">
-
                                 <div class="col-sm-6">
                                     <label>Área</label>
                                     <div class="form-group">                                
@@ -140,7 +139,13 @@
                                                      >
                                         </multiselect>
                                     </div>
-                                </div>                                     
+                                </div>     
+                                <div class="col-sm-6">
+                                    <label >Fecha Inicio</label>
+                                    <div class="form-group">
+                                        <date-picker v-model="colaborador.fechaInicio" lang="es" format="dd/MM/yyyy" input-class="mx-input" ></date-picker>
+                                    </div>
+                                </div>                                
                             </div>
                             <div class="row">
                                 <div class="col-sm-6">
@@ -156,7 +161,7 @@
                                         </multiselect>
                                     </div>
                                 </div>      
-                                <div class="col-sm-6">
+                                <div class="col-sm-6">                                    
                                     <label>Funciones</label>
                                     <div class="form-group">                                
                                         <multiselect v-model="colaborador.funcionColaborador" 

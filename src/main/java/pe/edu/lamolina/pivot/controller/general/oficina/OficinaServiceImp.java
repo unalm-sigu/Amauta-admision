@@ -576,7 +576,8 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void updateEstado(Colaborador colaborador, Usuario usuario) {
+    public void updateEstado(Colaborador colaborador, DataSessionPivot dataSessionPivot) {
+        Usuario usuario = dataSessionPivot.getUsuario();
         Colaborador col = colaboradorDAO.find(colaborador.getId());
         col.setEstado(ColaboradorEstadoEnum.getName(colaborador.getEstado()));
         col.setFechaModificacion(new Date());
@@ -619,7 +620,8 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void saveColaborador(Colaborador colaborador, Usuario usuario) {
+    public void saveColaborador(Colaborador colaborador, DataSessionPivot dataSessionPivot) {
+        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
         persona.setUserRegistro(usuario);
@@ -631,9 +633,19 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setUserRegistro(usuario);
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaborador.setCodigo(getCodigoColaborador() + "");
-        colaborador.setFechaInicio(new Date());
         colaborador.setPersona(persona);
         colaboradorDAO.save(colaborador);
+
+        PersonaCargo personaCargo = new PersonaCargo();
+        personaCargo.setCompania(dataSessionPivot.getCompania());
+        personaCargo.setEstado(EstadoEnum.ACT);
+        personaCargo.setFechaInicio(colaborador.getFechaInicio());
+        personaCargo.setFechaRegistro(new Date());
+        personaCargo.setOficina(colaborador.getOficina());
+        personaCargo.setPerfilCompania(colaborador.getCargo());
+        personaCargo.setPersona(persona);
+        personaCargo.setUserRegistro(usuario);
+        personaPerfilDAO.save(personaCargo);
 
         ArrayList<PerfilCompania> list = new ArrayList();
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
@@ -663,7 +675,10 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public Boolean saveColaboradorExit(Colaborador colaborador, Usuario usuario) {
+    public Boolean saveColaboradorExit(Colaborador colaborador, DataSessionPivot dataSessionPivot) throws PhobosException {
+        Usuario usuario = dataSessionPivot.getUsuario();
+        Oficina oficina = colaborador.getOficina();
+        
         Persona personaForm = colaborador.getPersona();
         Persona personaBD = personaDAO.find(personaForm.getId());
         personaBD.setPaterno(personaForm.getPaterno());
@@ -675,18 +690,26 @@ public class OficinaServiceImp implements OficinaService {
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
         personaDAO.update(personaBD);
 
-        Colaborador colaboradors = colaboradorDAO.allActivosByPersonaAndOficina(colaborador.getOficina(), personaBD);
+        Colaborador colaboradors = colaboradorDAO.allActivosByPersonaAndOficina(oficina, personaBD);
         if (colaboradors != null) {
-
-            return false;
-
+            throw new PhobosException("El colaborador existe en la oficina");
         } else {
             colaborador.setFechaRegistro(new Date());
             colaborador.setUserRegistro(usuario);
             colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
             colaborador.setCodigo(getCodigoColaborador() + "");
-            colaborador.setFechaInicio(new Date());
             colaboradorDAO.save(colaborador);
+
+            PersonaCargo personaCargo = new PersonaCargo();
+            personaCargo.setCompania(dataSessionPivot.getCompania());
+            personaCargo.setEstado(EstadoEnum.ACT);
+            personaCargo.setFechaInicio(colaborador.getFechaInicio());
+            personaCargo.setFechaRegistro(new Date());
+            personaCargo.setOficina(colaborador.getOficina());
+            personaCargo.setPerfilCompania(colaborador.getCargo());
+            personaCargo.setPersona(personaBD);
+            personaCargo.setUserRegistro(usuario);
+            personaPerfilDAO.save(personaCargo);
         }
 
         ArrayList<PerfilCompania> perfiles = new ArrayList();
@@ -700,24 +723,37 @@ public class OficinaServiceImp implements OficinaService {
             funcionColaborador.setColaborador(colaborador);
             funcionColaboradorDAO.save(funcionColaborador);
             perfiles.add(perfil);
-            funcionColaborador.setColaborador(colaborador);
         }
 
         Usuario usuario1 = usuarioDAO.findByPersona(personaForm);
         if (usuario1 == null) {
             usuario1 = new Usuario();
             if (colaborador.getPersona().getEmailCompania() != null) {
-                usuario1.setEstadoEnum(UserEstadoEnum.ACT);
-                usuario1.setGoogle(personaForm.getEmailCompania());
-                usuario1.setPersona(personaForm);
-                usuario1.setUserRegistro(usuario);
-                usuarioDAO.save(usuario1);
+                usuario1 = addUser(personaForm, usuario);
+                addUserRoll(perfiles, colaborador, usuario, usuario1);
+            }
+        } else {
+            UsuarioRol ur = usuarioRolDAO.findUsuarioAndOficina(usuario1, oficina);
+            if (ur == null) {
                 addUserRoll(perfiles, colaborador, usuario, usuario1);
             }
         }
         return true;
     }
 
+    @Transactional
+    public Usuario addUser(Persona personaForm, Usuario usuario) {
+        Usuario usuario1 = new Usuario();
+        usuario1.setEstadoEnum(UserEstadoEnum.ACT);
+        usuario1.setGoogle(personaForm.getEmailCompania());
+        usuario1.setPersona(personaForm);
+        usuario1.setUserRegistro(usuario);
+        usuarioDAO.save(usuario1);
+
+        return usuario1;
+    }
+
+    @Transactional
     public void addUserRoll(List<PerfilCompania> list, Colaborador colaborador, Usuario usuario, Usuario colabo) {
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfilCompania(list);
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
@@ -738,12 +774,28 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void updateColaborador(Colaborador colaborador, Usuario usuario) {
+    public void updateColaborador(Colaborador colaborador, DataSessionPivot dataSessionPivot) {
+        Usuario usuario = dataSessionPivot.getUsuario();
         Colaborador emp = colaboradorDAO.find(colaborador.getId());
         emp.setFechaModificacion(new Date());
         emp.setUserModificacion(usuario);
         emp.setCargo(colaborador.getCargo());
         colaboradorDAO.update(emp);
+
+        PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(colaborador.getOficina(), colaborador.getCargo(), colaborador.getPersona());
+        personaCargo.setEstado(EstadoEnum.INA);
+        personaPerfilDAO.update(personaCargo);
+
+        personaCargo = new PersonaCargo();
+        personaCargo.setCompania(dataSessionPivot.getCompania());
+        personaCargo.setEstado(EstadoEnum.ACT);
+        personaCargo.setFechaInicio(colaborador.getFechaInicio());
+        personaCargo.setFechaRegistro(new Date());
+        personaCargo.setOficina(colaborador.getOficina());
+        personaCargo.setPerfilCompania(colaborador.getCargo());
+        personaCargo.setPersona(colaborador.getPersona());
+        personaCargo.setUserRegistro(usuario);
+        personaPerfilDAO.save(personaCargo);
 
         List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaborador);
         Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("funcion.id", colaborador.getFuncionColaborador());
