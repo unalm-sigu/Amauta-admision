@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
@@ -127,8 +126,6 @@ public class OAuthController {
             Rol rolActivo = ds.getRolesMain().get(0);
             ds.setRolActivo(rolActivo);
             ds.setMenu(serviceProvider.allMenuRolActivo(rolActivo, new Sistema(despliegueConfig.getSistema())));
-            System.out.println("Usuario tiene " + ds.getMenu().size() + " menus en su session");
-
             session.setAttribute(Constantine.SESSION_USUARIO, ds);
         }
 
@@ -144,8 +141,6 @@ public class OAuthController {
 
         ds.setRolActivo(asignar);
         ds.setMenu(serviceProvider.allMenuRolActivo(asignar, new Sistema(despliegueConfig.getSistema())));
-        System.out.println("Usuario tiene " + ds.getMenu().size() + " menus en su session");
-
         session.setAttribute(Constantine.SESSION_USUARIO, ds);
     }
 

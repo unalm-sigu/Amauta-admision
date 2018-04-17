@@ -29,11 +29,12 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     @Autowired
     ContenidoVariableDAO contenidoVariableDAO;
     @Autowired
+    SistemaDAO sistemaDAO;
+
+    @Autowired
     S3Service s3Service;
     @Autowired
     DespliegueConfig despliegueConfig;
-    @Autowired
-    SistemaDAO sistemaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -52,7 +53,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
 
     @Override
     public List<ContenidoCarta> allContenidoCartaByDynaTable(DynatableFilter filter) {
-        return contenidoCartaDAO.allByDynaTable(filter);
+        return contenidoCartaDAO.allByDynaTableBySistema(filter, new Sistema(despliegueConfig.getSistema()));
     }
 
     @Override
