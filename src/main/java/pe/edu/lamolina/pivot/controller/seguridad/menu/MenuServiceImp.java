@@ -66,18 +66,18 @@ public class MenuServiceImp implements MenuService {
     public void save(Menu menu) {
 
         menu.setSistema(new Sistema(despliegueConfig.getSistema()));
-        Integer mayororden = null;
+        Integer mayorOrden = null;
         if (MenuTipoEnum.TITULO.name().equals(menu.getTipo())) {
-            mayororden = menuDAO.getMayorOrdenTipo(new Sistema(despliegueConfig.getSistema()), MenuTipoEnum.TITULO);
+            mayorOrden = menuDAO.getMayorOrdenTipo(new Sistema(despliegueConfig.getSistema()), MenuTipoEnum.TITULO);
         } else {
-            mayororden = menuDAO.getMayorOrdenGrupo(new Sistema(despliegueConfig.getSistema()), menu.getMenuSuperior());
+            mayorOrden = menuDAO.getMayorOrdenGrupo(new Sistema(despliegueConfig.getSistema()), menu.getMenuSuperior());
         }
-        if (mayororden != null) {
-            mayororden++;
+        if (mayorOrden != null) {
+            mayorOrden++;
         } else {
-            mayororden = 1;
+            mayorOrden = 1;
         }
-        menu.setOrden(mayororden);
+        menu.setOrden(mayorOrden);
         menuDAO.save(menu);
     }
 
@@ -170,10 +170,7 @@ public class MenuServiceImp implements MenuService {
 
     private void ordenarItems(List<Menu> menus, String tab) {
         Collections.sort(menus, new Menu.CompareOrden());
-        menus.stream().map(menu -> {
-            //logger.debug("{}{} :::: {}", tab, menu.getOrden(), menu.getNombre());
-            return menu;
-        }).forEachOrdered(menu -> {
+        menus.stream().forEachOrdered(menu -> {
             ordenarItems(menu.getMenus(), tab + "    ");
         });
     }

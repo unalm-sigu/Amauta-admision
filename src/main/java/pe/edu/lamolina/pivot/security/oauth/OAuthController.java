@@ -111,22 +111,23 @@ public class OAuthController {
 
     @RequestMapping("route66")
     public String route66(HttpSession session, Model model) {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         if (ds == null) {
             return "redirect:/login";
         }
 
         logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRolesMain().size(), ds.getRolActivo());
-
         if (ds.getRolesMain().size() > 1 && ds.getRolActivo() == null) {
             return "security/rolland";
+        }
 
-        } else if (ds.getRolesMain().size() == 1) {
-            Rol rolActivo = ds.getRolesMain().get(0);
-            ds.setRolActivo(rolActivo);
-            ds.setMenu(serviceProvider.allMenuRolActivo(rolActivo, new Sistema(despliegueConfig.getSistema())));
-            session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        try {
+            if (ds.getRolesMain().size() == 1) {
+                Rol rolActivo = ds.getRolesMain().get(0);
+                serviceProvider.asignarRolActivo(rolActivo, ds, session);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();;
         }
 
         return this.getRedirect(ds, session);
@@ -135,17 +136,18 @@ public class OAuthController {
     @ResponseBody
     @RequestMapping(value = "rolland", method = RequestMethod.POST)
     public void rolesLanding(HttpSession session, @RequestParam("rol") Long rol) throws Exception {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Rol asignar = ds.getMapRoles().get(rol);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Rol asignar = ds.getMapRoles().get(rol);
-
-        ds.setRolActivo(asignar);
-        ds.setMenu(serviceProvider.allMenuRolActivo(asignar, new Sistema(despliegueConfig.getSistema())));
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+            serviceProvider.asignarRolActivo(asignar, ds, session);
+        } catch (Exception e) {
+            e.printStackTrace();;
+        }
     }
 
     @RequestMapping("changerol")
-    public String chnageRol(HttpSession session) {
+    public String changeRol(HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setRolActivo(null);
@@ -166,24 +168,6 @@ public class OAuthController {
         }
 
         switch (ds.getRolActivo().getCodigo()) {
-//            case "DPTO":
-//                redirect = "redirect:/academico/systemcalifica/sistema";
-//                break;
-//
-//            case "DOC":
-//                Docente docente = ds.getDocente();
-//                if (docente != null) {
-//                    redirect = "redirect:/academico/docente/cargaacademica";
-//                }
-//                break;
-//
-//            case "IOREA":
-//                redirect = "redirect:/general/personaperfil";
-//                break;
-//
-//            case "OREA":
-//                redirect = "redirect:/academico/acta";
-//                break;
 
             case "ALU":
                 session.invalidate();
@@ -191,12 +175,8 @@ public class OAuthController {
                 break;
 
             default:
-                //logger.debug("No se identifica acceso para el rol: {} ", ds.getRolActivo().getCodigo());
-                //redirect = "redirect:/general/personaperfil";
-
                 redirect = ruta;
                 break;
-
         }
 
         return redirect;

@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -32,10 +34,12 @@ public class MenuDAOH extends AbstractEasyDAO<Menu> implements MenuDAO {
     }
 
     @Override
-    public List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema) {
+    public List<Menu> allByRolSistema(List<Rol> roles, Sistema sistema) {
+        if (roles.isEmpty()) {
+            return new ArrayList();
+        }
 
         StringBuilder sql = new StringBuilder();
-
         sql.append(" select distinct me ");
         sql.append(" from ").append(MenuRol.class.getName()).append(" as mero ");
         sql.append(" inner join mero.menu me ");
@@ -44,12 +48,13 @@ public class MenuDAOH extends AbstractEasyDAO<Menu> implements MenuDAO {
         sql.append("  left join fetch mes.menuSuperior mss ");
         sql.append("  left join fetch mss.menuSuperior  ");
         sql.append(" inner join mero.rol ro ");
-        sql.append(" where ro.id = :ROLACTIVO ");
+        sql.append(" where ro.id in :ROLES ");
         sql.append("   and ss.id = :SISTEMA ");
         sql.append(" order by me.orden ");
 
+        List<Long> ids = new ArrayList(roles.stream().collect(Collectors.toMap(x -> x.getId(), x -> x.getId())).values());
         Query query = getCurrentSession().createQuery(sql.toString());
-        query.setLong("ROLACTIVO", rolAsignar.getId());
+        query.setParameterList("ROLES", ids);
         query.setLong("SISTEMA", sistema.getId());
 
         return query.list();

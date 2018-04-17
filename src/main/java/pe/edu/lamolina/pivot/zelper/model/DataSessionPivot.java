@@ -20,9 +20,11 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public class DataSessionPivot implements Serializable {
 
-    private String email;
+    private Compania compania;
 
     private CicloAcademico cicloAcademico;
+
+    private String email;
 
     private Persona persona;
 
@@ -38,9 +40,9 @@ public class DataSessionPivot implements Serializable {
 
     private Rol rolActivo;
 
-    private Compania compania;
+    private List<Menu> menu;
 
-    private List<Facultad> facultados;
+    private List<Facultad> facultades;
 
     private List<Carrera> carreras;
 
@@ -50,15 +52,15 @@ public class DataSessionPivot implements Serializable {
 
     private List<Oficina> oficinas;
 
-    private List<Menu> menu;
+    private List<Colaborador> colaborador;
+
+    private Oficina oficinaMain;
 
     private String browser;
 
     private String direccionIp;
 
     private String sistemaOperativo;
-
-    private List<Colaborador> colaborador;
 
     public List<Colaborador> getColaborador() {
         return colaborador;
@@ -170,12 +172,12 @@ public class DataSessionPivot implements Serializable {
         this.compania = compania;
     }
 
-    public List<Facultad> getFacultados() {
-        return facultados;
+    public List<Facultad> getFacultades() {
+        return facultades;
     }
 
-    public void setFacultados(List<Facultad> facultados) {
-        this.facultados = facultados;
+    public void setFacultades(List<Facultad> facultades) {
+        this.facultades = facultades;
     }
 
     public List<Carrera> getCarreras() {
@@ -224,6 +226,14 @@ public class DataSessionPivot implements Serializable {
 
     public void setRolesMain(List<Rol> rolesMain) {
         this.rolesMain = rolesMain;
+    }
+
+    public Oficina getOficinaMain() {
+        return oficinaMain;
+    }
+
+    public void setOficinaMain(Oficina oficinaMain) {
+        this.oficinaMain = oficinaMain;
     }
 
 }

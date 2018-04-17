@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Rol;
@@ -29,6 +31,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
@@ -61,6 +64,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     TipoDocIdentidadDAO tipoDocIdentidadDAO;
+
+    @Autowired
+    PaisDAO paisDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -142,7 +148,7 @@ public class ProfesorServiceImp implements ProfesorService {
         if (docentesBD.isEmpty()) {
             throw new PhobosException("Docente ya existe");
         }
-        
+
         logger.debug("guardando docente ...");
         docente.setEstado(DocenteEstadoEnum.ACT);
         docente.setCodigo(this.getCodigo());
@@ -249,7 +255,7 @@ public class ProfesorServiceImp implements ProfesorService {
             usuarioDAO.save(usuarioDb);
         }
         logger.debug("***Resolviendo en Tabla Usuario_Rol***");
-        Rol rol = rolDAO.findByCode(RolEnum.DOC);        
+        Rol rol = rolDAO.findByCode(RolEnum.DOC);
         UsuarioRol userRolDB = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
         logger.debug("Tiene Rol? {}", (userRolDB != null));
         if (userRolDB == null) {
@@ -262,7 +268,7 @@ public class ProfesorServiceImp implements ProfesorService {
             userRolDB.setUserRegistro(ds.getUsuario());
             userRolDB.setFechaRegistro(new Date());
             usuarioRolDAO.save(userRolDB);
-        } else{
+        } else {
             logger.debug("Rol Existente como docente.");
         }
     }
@@ -343,7 +349,7 @@ public class ProfesorServiceImp implements ProfesorService {
     @Transactional
     private Persona getPersonaBDbasic(Persona persona) {
 
-        Persona personaBD = personaDAO.findPersona(persona.getId());
+        Persona personaBD = personaDAO.find(persona.getId());
 
         boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("email", "emailCompania", "sexo", "fechaNacer", "direccion", "celular", "telefono"));
         boolean ubiDomCambio = persona.getUbicacionDomicilio() == null && personaBD.getUbicacionDomicilio() == null;
@@ -368,6 +374,9 @@ public class ProfesorServiceImp implements ProfesorService {
             return personaBD;
         }
 
+        List<Pais> paisesBD = paisDAO.all();
+        Map<Long, Pais> mapPaises = TypesUtil.convertListToMap("id", paisesBD);
+
         personaBD.setSexo(persona.getSexo());
         personaBD.setFechaNacer(persona.getFechaNacer());
         personaBD.setDireccion(persona.getDireccion());
@@ -377,11 +386,20 @@ public class ProfesorServiceImp implements ProfesorService {
         personaBD.setEmailCompania(persona.getEmailCompania());
         personaBD.setUbicacionDomicilio(persona.getUbicacionDomicilio());
         personaBD.setUbicacionNacer(persona.getUbicacionNacer());
-        personaBD.setPaisDomicilio(persona.getPaisDomicilio());
-        personaBD.setPaisNacer(persona.getPaisNacer());
-        personaBD.setNacionalidad(persona.getNacionalidad());
+
+        personaBD.setPaisDomicilio(findPais(persona.getPaisDomicilio(), mapPaises));
+        personaBD.setPaisNacer(findPais(persona.getPaisNacer(), mapPaises));
+        personaBD.setNacionalidad(findPais(persona.getNacionalidad(), mapPaises));
         personaDAO.update(personaBD);
         return personaBD;
+    }
+
+    private Pais findPais(Pais pais, Map<Long, Pais> mapPaisesBD) {
+        if (pais == null) {
+            return null;
+        }
+        Pais paisBD = mapPaisesBD.get(pais.getId());
+        return paisBD;
     }
 
     @Transactional

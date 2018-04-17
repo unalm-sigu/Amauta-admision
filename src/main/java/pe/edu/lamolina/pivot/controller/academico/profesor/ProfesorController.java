@@ -394,8 +394,7 @@ public class ProfesorController {
 
     @ResponseBody
     @RequestMapping("upload")
-    public JsonResponse upload(@RequestParam("file") MultipartFile archivo,
-            HttpSession session) {
+    public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 

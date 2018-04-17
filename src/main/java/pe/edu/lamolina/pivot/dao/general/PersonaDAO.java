@@ -28,7 +28,7 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     List<Persona> allByEmailCompaniaWithoutPersona(Persona persona);
 
-    Persona findPersona(Long id);
+//    Persona findPersona(Long id);
 
     Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad);
 

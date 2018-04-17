@@ -113,7 +113,7 @@ public class MatriculableController {
                 }
                 break;
             case FAC:
-                for (Facultad fac : ds.getFacultados()) {
+                for (Facultad fac : ds.getFacultades()) {
                     filtros.add(fac.getId());
                 }
                 break;

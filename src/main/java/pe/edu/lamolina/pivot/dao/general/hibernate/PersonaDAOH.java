@@ -19,6 +19,17 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         super();
         setClazz(Persona.class);
     }
+    
+    @Override
+    public Persona find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .leftJoin("ubicacionDomicilio ud")
+                .filter("per.id", id);
+
+        return find(sql);
+    }
 
     @Override
     public List<Persona> all() {
@@ -152,16 +163,7 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         return all(sql);
     }
 
-    @Override
-    public Persona findPersona(Long id) {
-        Octavia sql = Octavia.query()
-                .from(Persona.class, "per")
-                .leftJoin("tipoDocumento td")
-                .leftJoin("ubicacionDomicilio ud")
-                .filter("per.id", id);
-
-        return find(sql);
-    }
+    
 
     @Override
     public Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad) {

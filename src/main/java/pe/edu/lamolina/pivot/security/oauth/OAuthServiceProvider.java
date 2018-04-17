@@ -19,6 +19,8 @@ public interface OAuthServiceProvider {
 
     void createLogJsonLogout(DataSessionPivot ds, HttpSession session);
 
-    List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema);
+    //List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema);
+
+    void asignarRolActivo(Rol asignar, DataSessionPivot ds, HttpSession session);
 
 }

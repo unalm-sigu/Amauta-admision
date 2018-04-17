@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
@@ -30,15 +32,22 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.EntidadOficinaEnum;
+import pe.edu.lamolina.model.enums.NivelOficinaEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.RolEnum.ADM_UNALM;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.enums.TipoSesionEnum;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.InstanciaEntidad;
+import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.MenuService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -49,6 +58,7 @@ import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
+import pe.edu.lamolina.pivot.dao.general.InstanciaEntidadDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
@@ -58,9 +68,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 public class OAuthServiceProviderImp implements OAuthServiceProvider {
-
-    @Autowired
-    OAuthServiceConfig config;
 
     @Autowired
     UsuarioDAO usuarioDAO;
@@ -99,9 +106,16 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     MenuDAO menuDAO;
 
     @Autowired
+    InstanciaEntidadDAO instanciaEntidadDAO;
+
+    @Autowired
+    OAuthServiceConfig config;
+    @Autowired
     InterceptorService interceptorService;
     @Autowired
     MenuService menuService;
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -126,40 +140,17 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
             throw new PhobosException("Usuario no identificado.");
         }
 
-        Collection<GrantedAuthority> authorities = new ArrayList();
-
-        List<Rol> rolesNuevos = new ArrayList();
-        List<Rol> rolesMain = new ArrayList();
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);
-        Map<Long, Rol> mapIdRoles = TypesUtil.convertListToMap("id", roles);
-        for (Rol role : roles) {
-            role.setRolesInferiores(new ArrayList());
-            Rol rolSuperior = role.getRolSuperior();
-            if (rolSuperior != null) {
-                Rol rolSuper = mapIdRoles.get(rolSuperior.getId());
-                if (rolSuper == null) {
-                    rolSuper = rolSuperior;
-                    rolSuper.setRolesInferiores(new ArrayList());
-                    mapIdRoles.put(rolSuper.getId(), rolSuper);
-                    rolesNuevos.add(rolSuper);
-                }
-            }
-        }
-
-        roles.addAll(rolesNuevos);
+        List<Rol> rolesMain = generateRolesMain(roles);
         Map<String, Rol> mapCodeRoles = TypesUtil.convertListToMap("codigo", roles);
 
-        for (Rol role : roles) {
-            Rol rolSuperior = role.getRolSuperior();
-            if (rolSuperior != null) {
-                rolSuperior = mapIdRoles.get(rolSuperior.getId());
-                rolSuperior.getRolesInferiores().add(role);
-                role.setRolSuperior(rolSuperior);
-            } else {
-                rolesMain.add(role);
-            }
+        List<Colaborador> colaboradores = colaboradorDAO.allActivosByPersona(usuario.getPersona());
+        Rol rolAdmUnalm = mapCodeRoles.get(ADM_UNALM.name());
+        if (rolAdmUnalm != null && colaboradores.isEmpty()) {
+            throw new PhobosException("Usted no está registrado como colaborador en la universidad");
         }
 
+        Collection<GrantedAuthority> authorities = new ArrayList();
         for (Rol rol : roles) {
             authorities.add(new SimpleGrantedAuthority(rol.getCodigo().toUpperCase()));
         }
@@ -174,59 +165,39 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, cntx);
 
-        List<Colaborador> colaboradors = colaboradorDAO.allActivosByPersona(usuario.getPersona());
-        Rol rolAdmUnalm = mapCodeRoles.get(ADM_UNALM.name());
-        if (rolAdmUnalm != null && colaboradors.isEmpty()) {
-            throw new PhobosException("Usted no está registrado como colaborador en la universidad");
-        }
+        List<Oficina> oficinasUnalm = allEstructuraOficinas();
+        List<Oficina> oficinasMain = allOficinasMain(colaboradores, oficinasUnalm);
+        Oficina ofiMain = oficinasMain.isEmpty() ? null : oficinasMain.get(0);
 
-        DataSessionPivot dataSession = new DataSessionPivot();
-        dataSession.setEmail(email);
-        dataSession.setUsuario(usuario);
-        dataSession.setPersona(usuario.getPersona());
-        dataSession.setRoles(roles);
-        dataSession.setRolesMain(rolesMain);
-        dataSession.setCicloAcademico(cicloAcademico);
-        dataSession.setBrowser(servlet.getHeader("User-Agent"));
-        dataSession.setDireccionIp(servlet.getRemoteAddr());
-        dataSession.setSistemaOperativo(getClientOS(servlet));
-        dataSession.setColaborador(colaboradors);
+        DataSessionPivot ds = new DataSessionPivot();
+        ds.setEmail(email);
+        ds.setUsuario(usuario);
+        ds.setPersona(usuario.getPersona());
+        ds.setRoles(roles);
+        ds.setRolesMain(rolesMain);
+        ds.setCicloAcademico(cicloAcademico);
 
-        List<Docente> docentes = docenteDAO.allByPersona(usuario.getPersona());
-        if (!docentes.isEmpty()) {
-            if (docentes.size() == 1) {
-                dataSession.setDocente(docentes.get(0));
-                dataSession.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
-            }
-        }
+        ds.setColaborador(colaboradores);
+        ds.setOficinas(oficinasMain);
+        ds.setOficinaMain(ofiMain);
+        settingOficinaMain(ofiMain, ds);
 
-        List<Oficina> oficinasByJefe = oficinaDAO.allByJefe(usuario.getPersona());
-        for (Oficina oficina : oficinasByJefe) {
-            if (oficina.getTipoOficina().getCodigo().equals("DPTO")) {
-                DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficina.getInstanciaOficina());
-                dataSession.setDepartamentoAcademico(dpto);
-            }
-        }
-        List<Oficina> oficinas = oficinaDAO.all();
+        ds.setBrowser(servlet.getHeader("User-Agent"));
+        ds.setDireccionIp(servlet.getRemoteAddr());
+        ds.setSistemaOperativo(getClientOS(servlet));
 
-        dataSession.setOficinas(oficinas);
+        ds.setDocente(null);
+        ds.setDepartamentoAcademico(null);
+//        List<Docente> docentes = docenteDAO.allByPersona(usuario.getPersona());
+//        if (!docentes.isEmpty()) {
+//            ds.setDocente(docentes.get(0));
+//            ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
+//        }
 
         Compania compania = companiaDAO.find(1L);
-        dataSession.setCompania(compania);
+        ds.setCompania(compania);
 
-        List<Facultad> facultades = facultadDAO.allByCompania(compania);
-        dataSession.setFacultados(facultades);
-
-        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allByCompania(compania);
-        dataSession.setModalidades(modalidades);
-
-        List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.allByCompania(compania);
-        dataSession.setDepartamentos(departamentos);
-
-        List<Carrera> carreras = carreraDAO.allByCompania(compania);
-        dataSession.setCarreras(carreras);
-
-        session.setAttribute(Constantine.SESSION_USUARIO, dataSession);
+        session.setAttribute(Constantine.SESSION_USUARIO, ds);
     }
 
     @Async
@@ -251,7 +222,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         interceptorService.saveInterceptor(objData, session);
     }
 
-    public String getClientOS(HttpServletRequest request) {
+    private String getClientOS(HttpServletRequest request) {
         final String browserDetails = request.getHeader("User-Agent");
 
         //=================OS=======================
@@ -271,9 +242,224 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
     }
 
+    private List<Oficina> allEstructuraOficinas() {
+        List<Oficina> oficinas = oficinaDAO.all();
+        List<InstanciaEntidad> instancias = instanciaEntidadDAO.all();
+        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("id", oficinas);
+
+        for (Oficina oficina : oficinas) {
+            oficina.setOficinasDependientes(new ArrayList());
+            oficina.setInstanciaEntidades(new ArrayList());
+            if (oficina.getOficinaSuperior() != null) {
+                Oficina ofiSuperior = mapOficinas.get(oficina.getOficinaSuperior().getId());
+                oficina.setOficinaSuperior(ofiSuperior);
+            }
+        }
+
+        for (Oficina oficina : oficinas) {
+            Oficina ofiSuperior = oficina.getOficinaSuperior();
+            if (ofiSuperior != null) {
+                ofiSuperior.getOficinasDependientes().add(oficina);
+            }
+        }
+
+        for (InstanciaEntidad instancia : instancias) {
+            Oficina oficina = mapOficinas.get(instancia.getOficina().getId());
+            oficina.getInstanciaEntidades().add(instancia);
+        }
+
+        return oficinas;
+    }
+
+    private List<Oficina> allOficinasMain(List<Colaborador> colaboradores, List<Oficina> oficinasUnalm) {
+        Map<Long, Oficina> mapOficinasMain = new LinkedHashMap();
+        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("id", oficinasUnalm);
+        for (Colaborador colaborador : colaboradores) {
+            Oficina oficina = mapOficinas.get(colaborador.getOficina().getId());
+            colaborador.setOficina(oficina);
+            Oficina oficinaMain = findOficinaMain(oficina);
+            mapOficinasMain.put(oficinaMain.getId(), oficinaMain);
+        }
+        return new ArrayList(mapOficinasMain.values());
+    }
+
+    private Oficina findOficinaMain(Oficina oficina) {
+        TipoOficina tipoOficina = oficina.getTipoOficina();
+        if (tipoOficina.getNivelEnum() == NivelOficinaEnum.OFI) {
+            return oficina;
+        }
+        return findOficinaMain(oficina.getOficinaSuperior());
+
+    }
+
+    private void settingOficinaMain(Oficina oficinaMain, DataSessionPivot dataSession) {
+        dataSession.setDepartamentos(new ArrayList());
+        dataSession.setFacultades(new ArrayList());
+        dataSession.setCarreras(new ArrayList());
+        dataSession.setModalidades(new ArrayList());
+
+        if (oficinaMain == null) {
+            return;
+        }
+
+        TipoOficina tipoOfi = oficinaMain.getTipoOficina();
+        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.DPTO) {
+            DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficinaMain.getInstanciaOficina());
+            dataSession.getDepartamentos().add(dpto);
+        }
+        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.FAC) {
+            Facultad fac = facultadDAO.find(oficinaMain.getInstanciaOficina());
+            dataSession.getFacultades().add(fac);
+        }
+        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.ESP) {
+            Carrera carr = carreraDAO.find(oficinaMain.getInstanciaOficina());
+            dataSession.getCarreras().add(carr);
+        }
+
+        if (oficinaMain.getInstanciaEntidades().isEmpty()) {
+            return;
+        }
+
+        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.all();
+        List<Facultad> facultades = facultadDAO.all();
+        List<DepartamentoAcademico> dptos = departamentoAcademicoDAO.all();
+        List<Carrera> carreras = carreraDAO.all();
+
+        Map<Long, Facultad> mapFacultad = facultades.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
+        Map<Long, Carrera> mapCarrera = carreras.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
+        Map<Long, DepartamentoAcademico> mapDptos = dptos.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
+        Map<Long, ModalidadEstudio> mapModalidad = modalidades.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
+
+        for (InstanciaEntidad instanciaEnte : oficinaMain.getInstanciaEntidades()) {
+            if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.DPTO) {
+                if (instanciaEnte.getContieneTodos() == 1) {
+                    dataSession.getDepartamentos().addAll(dptos);
+                } else {
+                    DepartamentoAcademico dpto = mapDptos.get(instanciaEnte.getValorInstancia());
+                    if (dpto == null) {
+                        throw new PhobosException("Error en la configuración de instancias de los departamentos académicos para la oficina de nombre: " + oficinaMain.getNombre());
+                    }
+                    dataSession.getDepartamentos().add(dpto);
+                }
+            }
+            if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.ESP) {
+                if (instanciaEnte.getContieneTodos() == 1) {
+                    dataSession.getCarreras().addAll(carreras);
+                } else {
+                    Carrera carrera = mapCarrera.get(instanciaEnte.getValorInstancia());
+                    if (carrera == null) {
+                        throw new PhobosException("Error en la configuración de instancias de las especialidades para la oficina de nombre: " + oficinaMain.getNombre());
+                    }
+                    dataSession.getCarreras().add(carrera);
+                }
+            }
+            if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.FAC) {
+                if (instanciaEnte.getContieneTodos() == 1) {
+                    dataSession.getFacultades().addAll(facultades);
+                } else {
+                    Facultad facultad = mapFacultad.get(instanciaEnte.getValorInstancia());
+                    if (facultad == null) {
+                        throw new PhobosException("Error en la configuración de instancias de las facultades para la oficina de nombre: " + oficinaMain.getNombre());
+                    }
+                    dataSession.getFacultades().add(facultad);
+                }
+            }
+            if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.MOD) {
+                if (instanciaEnte.getContieneTodos() == 1) {
+                    dataSession.getModalidades().addAll(modalidades);
+                } else {
+                    ModalidadEstudio modalidad = mapModalidad.get(instanciaEnte.getValorInstancia());
+                    if (modalidad == null) {
+                        throw new PhobosException("Error en la configuración de instancias de las modalidades de estudio para la oficina de nombre: " + oficinaMain.getNombre());
+                    }
+                    dataSession.getModalidades().add(modalidad);
+                }
+            }
+        }
+
+    }
+
+    private List<Rol> generateRolesMain(List<Rol> roles) {
+        List<Rol> rolesNuevos = new ArrayList();
+        List<Rol> rolesMain = new ArrayList();
+        Map<Long, Rol> mapRoles = TypesUtil.convertListToMap("id", roles);
+        for (Rol role : roles) {
+            role.setRolesInferiores(new ArrayList());
+            Rol rolSuperior = role.getRolSuperior();
+            if (rolSuperior != null) {
+                Rol rolSuper = mapRoles.get(rolSuperior.getId());
+                if (rolSuper == null) {
+                    rolSuper = rolSuperior;
+                    rolSuper.setRolesInferiores(new ArrayList());
+                    mapRoles.put(rolSuper.getId(), rolSuper);
+                    rolesNuevos.add(rolSuper);
+                }
+            }
+        }
+        roles.addAll(rolesNuevos);
+
+        for (Rol role : roles) {
+            Rol rolSuperior = role.getRolSuperior();
+            if (rolSuperior != null) {
+                rolSuperior = mapRoles.get(rolSuperior.getId());
+                rolSuperior.getRolesInferiores().add(role);
+                role.setRolSuperior(rolSuperior);
+            } else {
+                rolesMain.add(role);
+            }
+        }
+        return rolesMain;
+    }
+
     @Override
-    public List<Menu> allMenuRolActivo(Rol rolAsignar, Sistema sistema) {
-        List<Menu> menusBD = menuDAO.allMenuRolActivo(rolAsignar, sistema);
+    public void asignarRolActivo(Rol rol, DataSessionPivot ds, HttpSession session) {
+        if (ds.getRolActivo() != null && rol.getId().longValue() == ds.getRolActivo().getId()) {
+            return;
+        }
+
+        ds.setDocente(null);
+        ds.setDepartamentoAcademico(null);
+        ds.setOficinaMain(null);
+        ds.setDepartamentos(new ArrayList());
+        ds.setFacultades(new ArrayList());
+        ds.setCarreras(new ArrayList());
+        ds.setModalidades(new ArrayList());
+
+        if (rol.getCodigoEnum() == RolEnum.ADM_UNALM) {
+
+            Oficina ofiMain = ds.getOficinas().isEmpty() ? null : ds.getOficinas().get(0);
+            ds.setOficinaMain(ofiMain);
+            settingOficinaMain(ofiMain, ds);
+        }
+
+        if (rol.getCodigoEnum() == RolEnum.DOC) {
+            List<Docente> docentes = docenteDAO.allByPersona(ds.getPersona());
+            if (!docentes.isEmpty()) {
+                ds.setDocente(docentes.get(0));
+                ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
+            }
+        }
+
+        if (rol.getCodigoEnum() == RolEnum.ALU) {
+
+        }
+
+        Sistema sistema = new Sistema(despliegueConfig.getSistema());
+        List<Menu> menus = allMenusByRolMain(rol, sistema, ds);
+        ds.setMenu(menus);
+        ds.setRolActivo(rol);
+
+        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+
+    }
+
+    //@Override
+    private List<Menu> allMenusByRolMain(Rol rol, Sistema sistema, DataSessionPivot ds) {
+        List<Rol> roles = new ArrayList(rol.getRolesInferiores());
+        roles.add(rol);
+
+        List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema);
         return menuService.allMenuOrdered(menusBD);
     }
+
 }
