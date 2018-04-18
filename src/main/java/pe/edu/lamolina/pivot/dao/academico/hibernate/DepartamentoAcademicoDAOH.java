@@ -46,7 +46,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
     }
 
     @Override
-    public List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico ciclo) {
         Octavia subquery = Octavia.query()
                 .from(Seccion.class, "se")
                 .join("se.grupoSeccion ggss")
@@ -57,6 +57,7 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
                 .from(GrupoSeccion.class, "gs")
                 .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da", "da.facultad fa")
                 .filter("ca.id", ciclo)
+                .in("da.id", dptos)
                 .filter("da.estado", EstadoEnum.ACT)
                 .exists(subquery)
                 .linkedBy("gs.id", "ggss.id")

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.profesor;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
@@ -11,7 +12,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ProfesorService {
 
-    List<Docente> allByDynatable(DynatableFilter filter);
+    List<Docente> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos);
 
     Docente find(Docente docente);
 

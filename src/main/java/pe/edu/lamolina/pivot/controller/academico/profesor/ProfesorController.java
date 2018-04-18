@@ -118,7 +118,7 @@ public class ProfesorController {
 
             FotoHelper helper = new FotoHelper();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Docente> docentes = service.allByDynatable(filter);
+            List<Docente> docentes = service.allByDynatable(filter, ds.getDepartamentos());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Docente docente : docentes) {

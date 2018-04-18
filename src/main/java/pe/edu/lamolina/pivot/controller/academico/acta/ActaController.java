@@ -99,14 +99,13 @@ public class ActaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, ciclo);
+            List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, ds.getDepartamentos(), ciclo);
 
             List<Long> departamentos = new ArrayList<>();
-            if (!departamentosAcaActivos.isEmpty()) {
-                for (DepartamentoAcademico departamento : departamentosAcaActivos) {
-                    departamentos.add(departamento.getId());
-                }
+            for (DepartamentoAcademico departamento : departamentosAcaActivos) {
+                departamentos.add(departamento.getId());
             }
+
             List<DepartamentoAcademico> counts = new ArrayList<>();
             if (!departamentos.isEmpty()) {
                 logger.debug("Departamentos {}", StringUtils.join(departamentos, ","));

@@ -115,8 +115,8 @@ public class AlumnoServiceImp implements AlumnoService {
     AvanceCurricularService avanceCurricularService;
 
     @Override
-    public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
-        return alumnoDAO.allByRolDynatable(filter, codigo, filtros);
+    public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
+        return alumnoDAO.allByRolDynatable(filter, carreras);
     }
 
     @Override
