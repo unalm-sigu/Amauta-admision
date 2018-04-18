@@ -1529,7 +1529,7 @@ div.notas {
     /*border: 1px solid green;*/
     background-color: green;
     color: white;
-    padding: 10px; 
+    padding: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
@@ -1538,7 +1538,7 @@ div.notas {
     /*border: 1px solid #f1c40f;*/
     background-color: #ff3333;
     color: white;
-    padding: 10px; 
+    padding: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
@@ -1547,7 +1547,7 @@ div.notas {
     /*border: 1px solid #f1c40f;*/
     background-color: gray;
     color: white;
-    padding: 10px; 
+    padding: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
@@ -1556,13 +1556,13 @@ div.notas {
     /*border: 1px solid #f1c40f;*/
     background-color: black;
     color: white;
-    padding: 10px; 
+    padding: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
 
 .alert-special{
-        display: inline-block!important;;
+    display: inline-block!important;;
     position: relative!important;;
     clear: both!important;;
     margin-top: 15px!important;;
@@ -1571,6 +1571,7 @@ div.notas {
     border: none!important;;
     box-shadow: none!important;;
     color: #fff!important;;
+}
 
 /* tabla inscripción de cursos */
 
@@ -1649,7 +1650,7 @@ div.notas {
 }
 
 .special-tabs li span{
-        display: block;
+    display: block;
     height: 18px;
     top: 0;
     line-height: 18px;
