@@ -292,31 +292,13 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     }
 
-    private void settingOficinaMain(Oficina oficinaMain, DataSessionPivot dataSession) {
-        dataSession.setDepartamentos(new ArrayList());
-        dataSession.setFacultades(new ArrayList());
-        dataSession.setCarreras(new ArrayList());
-        dataSession.setModalidades(new ArrayList());
+    private void settingOficinaMain(Oficina oficinaMain, DataSessionPivot ds) {
+        ds.setDepartamentos(new ArrayList());
+        ds.setFacultades(new ArrayList());
+        ds.setCarreras(new ArrayList());
+        ds.setModalidades(new ArrayList());
 
         if (oficinaMain == null) {
-            return;
-        }
-
-        TipoOficina tipoOfi = oficinaMain.getTipoOficina();
-        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.DPTO) {
-            DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficinaMain.getInstanciaOficina());
-            dataSession.getDepartamentos().add(dpto);
-        }
-        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.FAC) {
-            Facultad fac = facultadDAO.find(oficinaMain.getInstanciaOficina());
-            dataSession.getFacultades().add(fac);
-        }
-        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.ESP) {
-            Carrera carr = carreraDAO.find(oficinaMain.getInstanciaOficina());
-            dataSession.getCarreras().add(carr);
-        }
-
-        if (oficinaMain.getInstanciaEntidades().isEmpty()) {
             return;
         }
 
@@ -324,6 +306,34 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> dptos = departamentoAcademicoDAO.all();
         List<Carrera> carreras = carreraDAO.all();
+
+        TipoOficina tipoOfi = oficinaMain.getTipoOficina();
+        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.DPTO) {
+            DepartamentoAcademico dpto = departamentoAcademicoDAO.find(oficinaMain.getInstanciaOficina());
+            ds.getDepartamentos().add(dpto);
+        }
+        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.ESP) {
+            Carrera carr = carreraDAO.find(oficinaMain.getInstanciaOficina());
+            ds.getCarreras().add(carr);
+        }
+        if (tipoOfi.getCodigoEnum() == TipoOficinaEnum.FAC) {
+            Facultad fac = facultadDAO.find(oficinaMain.getInstanciaOficina());
+            ds.getFacultades().add(fac);
+            for (Carrera carrera : carreras) {
+                if (carrera.getFacultad().getId() == fac.getId().longValue()) {
+                    ds.getCarreras().add(carrera);
+                }
+            }
+            for (DepartamentoAcademico dpto : dptos) {
+                if (dpto.getFacultad().getId() == fac.getId().longValue()) {
+                    ds.getDepartamentos().add(dpto);
+                }
+            }
+        }
+
+        if (oficinaMain.getInstanciaEntidades().isEmpty()) {
+            return;
+        }
 
         Map<Long, Facultad> mapFacultad = facultades.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
         Map<Long, Carrera> mapCarrera = carreras.stream().collect(Collectors.toMap(x -> x.getId(), x -> x));
@@ -333,46 +343,61 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         for (InstanciaEntidad instanciaEnte : oficinaMain.getInstanciaEntidades()) {
             if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.DPTO) {
                 if (instanciaEnte.getContieneTodos() == 1) {
-                    dataSession.getDepartamentos().addAll(dptos);
+                    ds.getDepartamentos().addAll(dptos);
                 } else {
                     DepartamentoAcademico dpto = mapDptos.get(instanciaEnte.getValorInstancia());
                     if (dpto == null) {
                         throw new PhobosException("Error en la configuración de instancias de los departamentos académicos para la oficina de nombre: " + oficinaMain.getNombre());
                     }
-                    dataSession.getDepartamentos().add(dpto);
+                    ds.getDepartamentos().add(dpto);
                 }
             }
             if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.ESP) {
                 if (instanciaEnte.getContieneTodos() == 1) {
-                    dataSession.getCarreras().addAll(carreras);
+                    ds.getCarreras().addAll(carreras);
                 } else {
                     Carrera carrera = mapCarrera.get(instanciaEnte.getValorInstancia());
                     if (carrera == null) {
                         throw new PhobosException("Error en la configuración de instancias de las especialidades para la oficina de nombre: " + oficinaMain.getNombre());
                     }
-                    dataSession.getCarreras().add(carrera);
+                    ds.getCarreras().add(carrera);
                 }
             }
             if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.FAC) {
                 if (instanciaEnte.getContieneTodos() == 1) {
-                    dataSession.getFacultades().addAll(facultades);
+                    ds.getFacultades().addAll(facultades);
                 } else {
                     Facultad facultad = mapFacultad.get(instanciaEnte.getValorInstancia());
                     if (facultad == null) {
                         throw new PhobosException("Error en la configuración de instancias de las facultades para la oficina de nombre: " + oficinaMain.getNombre());
                     }
-                    dataSession.getFacultades().add(facultad);
+                    ds.getFacultades().add(facultad);
+                    for (Carrera carrera : carreras) {
+                        if (carrera.getFacultad().getId() == facultad.getId().longValue()) {
+                            ds.getCarreras().add(carrera);
+                        }
+                    }
+                    for (DepartamentoAcademico dpto : dptos) {
+                        if (dpto.getFacultad().getId() == facultad.getId().longValue()) {
+                            ds.getDepartamentos().add(dpto);
+                        }
+                    }
                 }
             }
             if (instanciaEnte.getEntidadEnum() == EntidadOficinaEnum.MOD) {
                 if (instanciaEnte.getContieneTodos() == 1) {
-                    dataSession.getModalidades().addAll(modalidades);
+                    ds.getModalidades().addAll(modalidades);
                 } else {
                     ModalidadEstudio modalidad = mapModalidad.get(instanciaEnte.getValorInstancia());
                     if (modalidad == null) {
                         throw new PhobosException("Error en la configuración de instancias de las modalidades de estudio para la oficina de nombre: " + oficinaMain.getNombre());
                     }
-                    dataSession.getModalidades().add(modalidad);
+                    ds.getModalidades().add(modalidad);
+                    for (Carrera carrera : carreras) {
+                        if (carrera.getModalidadEstudio().getId() == modalidad.getId().longValue()) {
+                            ds.getCarreras().add(carrera);
+                        }
+                    }
                 }
             }
         }

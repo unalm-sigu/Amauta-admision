@@ -12,7 +12,7 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     DepartamentoAcademico find(Long id);
 
-    List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<DepartamentoAcademico> allActiveByDyna(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico cicloAcademico);
 
     List<DepartamentoAcademico> countByFilter(List<Long> ids, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
 

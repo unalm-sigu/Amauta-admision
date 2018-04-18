@@ -13,6 +13,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -92,30 +93,17 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByRolDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
+    public List<Alumno> allByRolDynatable(DynatableFilter filter, List<Carrera> carreras) {
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Alumno.class, "al")
                 .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
                 .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .in("ca.id", carreras)
                 .searchFields("ca.nombre", "al.estado", "al.codigo")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("al.id desc");
-
-        switch (RolEnum.valueOf(codigo)) {
-            case MOD:
-                sql.in("moe.id", filtros);
-                break;
-            case FAC:
-                sql.in("fac.id", filtros);
-                break;
-            case ESP:
-                sql.in("ca.id", filtros);
-                break;
-            default:
-                break;
-        }
 
         sql.beginRelativeFilters();
         setCondicionModalidad(filter, sql);

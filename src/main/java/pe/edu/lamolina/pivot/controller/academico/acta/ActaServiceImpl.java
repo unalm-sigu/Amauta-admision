@@ -51,8 +51,8 @@ public class ActaServiceImpl implements ActaService {
     ControlDeActasDAO controlDeActasDAO;
 
     @Override
-    public List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        return departamentoAcademicoDAO.allActiveByDyna(filter, cicloAcademico);
+    public List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico cicloAcademico) {
+        return departamentoAcademicoDAO.allActiveByDyna(filter, dptos, cicloAcademico);
     }
 
     @Override

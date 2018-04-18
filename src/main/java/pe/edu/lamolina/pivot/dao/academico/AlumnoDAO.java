@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -24,7 +25,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByPlanCurricular(PlanCurricular planCurricular);
 
-    List<Alumno> allByRolDynatable(DynatableFilter filter, String codigo, List<Long> filtros);
+    List<Alumno> allByRolDynatable(DynatableFilter filter, List<Carrera> carreras);
 
     AlumnoResumen findResumen();
 
