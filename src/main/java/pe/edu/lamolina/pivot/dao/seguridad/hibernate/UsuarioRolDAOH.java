@@ -6,8 +6,9 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.dao.SqlUtil;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -103,4 +104,27 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
         return find(sql);
     }
 
+    @Override
+    public List<UsuarioRol> allUsuarioAndOficina(Usuario usuario1, Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "oficina ofi")
+                .filter("u.id", usuario1.getId())
+                .filter("ofi.id", oficina.getId())
+                .filter("ur.estado", ACT);
+
+        return all(sql);
+    }
+
+    @Override
+    public void update(Colaborador colaborador, Usuario usuario) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("update UsuarioRol  set estado=:estado where oficina.id=:oficinaId and usuario.id = :usuario ");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("oficinaId", colaborador.getOficina().getId());
+        query.setParameter("usuario", usuario.getId());
+        query.setParameter("estado", INA.toString());
+        query.executeUpdate();
+
+    }
 }

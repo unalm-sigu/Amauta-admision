@@ -99,7 +99,7 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
-        List<PerfilCompania> companias = service.allCargos();
+        List<PerfilCompania> companias = service.allCargos(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFunciones();
 
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
@@ -129,7 +129,7 @@ public class OficinaController {
                 arrayList.add(funcionColaborador);
             }
             colaborador.setFuncionColaborador(arrayList);
-            service.updateColaborador(colaborador, ds);
+            service.updateColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
             response.setMessage("Se actualizó el colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -145,7 +145,7 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
-        List<PerfilCompania> companias = service.allCargos();
+        List<PerfilCompania> companias = service.allCargos(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFunciones();
         model.addAttribute("oficina", idOficina);
         model.addAttribute("colaborador", new Colaborador().toJson());
@@ -168,7 +168,6 @@ public class OficinaController {
             Colaborador colaborador = colaboradorBean.getColaborador();
             ObjectUtil.printAttr(colaboradorBean);
             if (colaboradorBean.getPerfilCompanias() != null) {
-                System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
                 for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
                     FuncionColaborador funcionColaborador = new FuncionColaborador();
                     funcionColaborador.setFuncion(perfilCompania);
@@ -177,11 +176,11 @@ public class OficinaController {
             }
             colaborador.setFuncionColaborador(arrayList);
             if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, ds);
+                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
                 response.setMessage("Se agregó el colaborador satisfactoriamente");
                 response.setSuccess(true);
             } else {
-                Boolean success = service.saveColaboradorExit(colaborador, ds);
+                Boolean success = service.saveColaboradorExit(colaborador, colaboradorBean.getOficinaMean(), ds);
                 response.setSuccess(success);
             }
         } catch (PhobosException e) {
@@ -240,11 +239,11 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<Oficina> oficinas = service.allOficina(ds.getPersona());
         Colaboradores colaboradors = service.countColaborador(new Oficina(idOficina));
-
+        List<PerfilCompania> perfilCompania = service.allCargosByOficina(new Oficina(idOficina));
         model.addAttribute("oficinas", new Oficina().toJsonArray(oficinas));
         model.addAttribute("oficina", idOficina);
         model.addAttribute("resumen", colaboradors);
-//        model.addAttribute("estados", ColaboradorEstadoEnum.values());
+        model.addAttribute("cargos", new PerfilCompania().toJsonArray(perfilCompania));
         return "general/oficina/colaborador/colaborador";
     }
 
@@ -256,6 +255,23 @@ public class OficinaController {
         try {
             service.updateEstado(colaborador, ds);
             response.setMessage("Se cambio de estado al colaborador satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cargo")
+    public JsonResponse cargo(@RequestBody PerfilCompania perfilCompania, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.addCargo(perfilCompania, ds);
+            response.setMessage("Se agregó el cargo satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -358,7 +374,7 @@ public class OficinaController {
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        System.out.println("Oficina: -----> "+ oficina.getTipoOficina().getId());
+        System.out.println("Oficina: -----> " + oficina.getTipoOficina().getId());
         model.addAttribute("oficina", oficina);
         model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
@@ -676,6 +692,27 @@ public class OficinaController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchPersona")
+    public JsonResponse searchPersona(@RequestParam("nombre") String buscar) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        logger.debug("buscar {}", buscar);
+        try {
+
+            List<Persona> personas = service.allPersonasByNombre(buscar);
+            
+            response.setData(new Persona().toJsonArray(personas));
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 }
