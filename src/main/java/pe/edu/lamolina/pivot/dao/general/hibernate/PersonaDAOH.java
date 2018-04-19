@@ -19,6 +19,25 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         super();
         setClazz(Persona.class);
     }
+    
+    @Override
+    public Persona find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .leftJoin("ubicacionDomicilio ud")
+                .filter("per.id", id);
+
+        return find(sql);
+    }
+
+    @Override
+    public List<Persona> all() {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td");
+        return all(sql);
+    }
 
     @Override
     public List<Persona> allByNombre(String nombre) {
@@ -144,16 +163,7 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         return all(sql);
     }
 
-    @Override
-    public Persona findPersona(Long id) {
-        Octavia sql = Octavia.query()
-                .from(Persona.class, "per")
-                .leftJoin("tipoDocumento td")
-                .leftJoin("ubicacionDomicilio ud")
-                .filter("per.id", id);
-
-        return find(sql);
-    }
+    
 
     @Override
     public Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad) {
@@ -163,6 +173,25 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
                 .leftJoin("ubicacionDomicilio ud")
                 .filter("td.id", tipoDocumento)
                 .filter("per.numeroDocIdentidad", numeroDocIdentidad);
+        return find(sql);
+    }
+
+    @Override
+    public Persona findByDoc(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.numeroDocIdentidad", persona.getNumeroDocIdentidad())
+                .filter("td.id", persona.getTipoDocumento());
+        return find(sql);
+    }
+
+    @Override
+    public Persona findByEmailCompania(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .filter("estado", PersonaEstadoEnum.ACT)
+                .filter("per.emailCompania", persona.getEmailCompania());
         return find(sql);
     }
 

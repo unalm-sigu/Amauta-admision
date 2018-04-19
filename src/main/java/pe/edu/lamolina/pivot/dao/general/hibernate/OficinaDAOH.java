@@ -10,6 +10,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -17,39 +18,49 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {
-
+    
     public OficinaDAOH() {
         super();
         setClazz(Oficina.class);
     }
-
+    
     @Override
     public Oficina find(long id) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
+                .join("tipoOficina")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior")
                 .filter("ofi.id", id);
-
+        
         return find(sql);
     }
-
+    
+    @Override
+    public List<Oficina> all() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior");
+        
+        return all(sql);
+    }
+    
     @Override
     public List<Oficina> allByJefe(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
-                .join("personaJefe pj")
+                .join("personaJefe pj", "tipoOficina")
                 .filter("pj.id", persona);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Oficina> allByFilter(DynatableFilter filter, Compania compania) {
-
+        
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
                 .join("compania cia")
-                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("cia.id", compania)
                 .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre")
                 .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")
@@ -57,10 +68,10 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .searchComplexField("concat(coalesce(pje.paterno,''),' ',coalesce(pje.materno,''),' ',coalesce(pje.nombres,''))")
                 .searchComplexField("concat(coalesce(pje.nombres,''),' ',coalesce(pje.paterno,''),' ',coalesce(pje.materno,''))")
                 .orderBy("ofi.id DESC");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Oficina> allUnidadSuperior(String nombre, Compania compania) {
         Octavia sql = Octavia.query()
@@ -69,26 +80,26 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .filter("cia.id", compania)
                 .orderBy("ofi.nombre")
                 .limit(10);
-
+        
         if (!"".equalsIgnoreCase(nombre)) {
             sql.beginBlock()
                     .__().like("ofi.codigo", nombre)
                     .__().like("ofi.nombre", nombre)
                     .endBlock();
         }
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Oficina> allOficinasByName(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .filter("ofi.nombre", "like", nombre);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Oficina> allByOficinaWithAulas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
@@ -100,5 +111,23 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
         return all(sql);
     }
-
+    
+    @Override
+    public List<Oficina> allByUser(Persona persona) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("ofi")
+                .from(Colaborador.class, "co")
+                .join("oficina ofi")
+                .filter("co.persona", persona);
+        return all(sql);
+    }
+    
+    @Override
+    public List<Oficina> allAndSuperiorOfi() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .left("oficinaSuperior", "tipoOficina");
+        
+        return all(sql);
+    }
 }

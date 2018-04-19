@@ -1,0 +1,34 @@
+package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
+
+import java.util.List;
+import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.FuncionRolEstadoEnum;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.seguridad.FuncionRol;
+import pe.edu.lamolina.model.seguridad.PerfilRol;
+import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
+
+@Repository
+public class FuncionRolDAOH extends AbstractEasyDAO<FuncionRol> implements FuncionRolDAO {
+
+    public FuncionRolDAOH() {
+        super();
+        setClazz(FuncionRol.class);
+    }
+
+    @Override
+    public List<FuncionRol> allByPerfilCompania(List<PerfilCompania> perfilCompania) {
+
+        Octavia sql = Octavia.query()
+                .from(FuncionRol.class, "fr")
+                .join("rol r", "perfilCompania p")
+                .filter("fr.estado", FuncionRolEstadoEnum.ACT)
+                .in("p.id", perfilCompania);
+
+        return all(sql);
+
+    }
+
+}

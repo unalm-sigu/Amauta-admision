@@ -1,33 +1,24 @@
 package pe.edu.lamolina.pivot.controller.general.personaperfil;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
-import pe.edu.lamolina.model.seguridad.PerfilRol;
-import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.general.CompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
-import pe.edu.lamolina.pivot.dao.seguridad.PerfilRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,10 +30,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     PerfilCompaniaDAO perfilCompaniaDAO;
 
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
-
-    @Autowired
-    PerfilRolDAO perfilRolDAO;
+    PersonaCargoDAO personaPerfilDAO;
 
     @Autowired
     CompaniaDAO companiaDAO;
@@ -67,7 +55,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     }
 
     @Override
-    public List<PersonaPerfil> allPersonasPefiles(DynatableFilter filter) {
+    public List<PersonaCargo> allPersonasPefiles(DynatableFilter filter) {
         return personaPerfilDAO.allByFiltersDynaTable(filter);
     }
 
@@ -77,34 +65,34 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     }
 
     @Override
-    public PersonaPerfil findPersonaPerfil(PersonaPerfil personaPerfil) {
+    public PersonaCargo findPersonaPerfil(PersonaCargo personaPerfil) {
         return personaPerfilDAO.find(personaPerfil.getId());
     }
 
     @Override
     @Transactional
-    public void save(PersonaPerfil personaPerfil, Usuario usuario) {
+    public void save(PersonaCargo personaPerfil, Usuario usuario) {
 
-        if (personaPerfil.getOficina().getId() == null) {
-            personaPerfil.setOficina(null);
-        }
-
-        personaPerfil.setEstado(EstadoEnum.ACT);
-
-        personaPerfil.setUserRegistro(usuario);
-        personaPerfil.setFechaRegistro(new Date());
-        personaPerfilDAO.save(personaPerfil);
+//        if (personaPerfil.getOficina().getId() == null) {
+//            personaPerfil.setOficina(null);
+//        }
+//
+//        personaPerfil.setEstado(EstadoEnum.ACT);
+//
+//        personaPerfil.setUserRegistro(usuario);
+//        personaPerfil.setFechaRegistro(new Date());
+//        personaPerfilDAO.save(personaPerfil);
 
     }
 
     @Override
     @Transactional
-    public void update(PersonaPerfil personaPerfil) {
-        if (personaPerfil.getOficina().getId() == null) {
-            personaPerfil.setOficina(null);
-        }
-
-        personaPerfilDAO.update(personaPerfil);
+    public void update(PersonaCargo personaPerfil) {
+//        if (personaPerfil.getOficina().getId() == null) {
+//            personaPerfil.setOficina(null);
+//        }
+//
+//        personaPerfilDAO.update(personaPerfil);
 
     }
 
@@ -112,51 +100,51 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     @Transactional
     public void activate(Long idPersonaPerfil) {
 
-        PersonaPerfil personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
-        personaPerfil.setEstado(EstadoEnum.ACT);
-        personaPerfilDAO.update(personaPerfil);
-
-        List<PerfilRol> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
-
-        if (!allPerfilRol.isEmpty()) {
-            Usuario usuario = this.getExistorCreateUser(personaPerfil.getPersona());
-
-            UsuarioRol usuarioRol = null;
-            for (PerfilRol rolCargo : allPerfilRol) {
-
-                usuarioRol = usuarioRolDAO.findByUsuarioAndRol(usuario, rolCargo.getRol());
-
-                if (usuarioRol == null) {
-                    usuarioRol = new UsuarioRol();
-                    usuarioRol.setUsuario(usuario);
-                    usuarioRol.setRol(rolCargo.getRol());
-                    usuarioRolDAO.save(usuarioRol);
-                }
-            }
-        }
+//        PersonaCargo personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
+//        personaPerfil.setEstado(EstadoEnum.ACT);
+//        personaPerfilDAO.update(personaPerfil);
+//
+//        List<PersonaCargo> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
+//
+//        if (!allPerfilRol.isEmpty()) {
+//            Usuario usuario = this.getExistorCreateUser(personaPerfil.getPersona());
+//
+//            UsuarioRol usuarioRol = null;
+//            for (PersonaCargo rolCargo : allPerfilRol) {
+//
+//                usuarioRol = usuarioRolDAO.findByUsuarioAndRol(usuario, rolCargo.getRol());
+//
+//                if (usuarioRol == null) {
+//                    usuarioRol = new UsuarioRol();
+//                    usuarioRol.setUsuario(usuario);
+//                    usuarioRol.setRol(rolCargo.getRol());
+//                    usuarioRolDAO.save(usuarioRol);
+//                }
+//            }
+//        }
     }
 
     @Override
     @Transactional
     public void desactivar(Long idPersonaPerfil) {
 
-        PersonaPerfil personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
-        personaPerfil.setEstado(EstadoEnum.INA);
-        personaPerfilDAO.update(personaPerfil);
-
-        List<PerfilRol> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
-
-        if (!allPerfilRol.isEmpty()) {
-            Usuario usuario = this.getExistorCreateUser(personaPerfil.getPersona());
-
-            Set<Long> roles = allPerfilRol.stream()
-                    .map(PerfilRol::getRol)
-                    .map(Rol::getId)
-                    .collect(Collectors.toSet());
-
-            usuarioRolDAO.deleteByUsuarioRol(usuario, new ArrayList(roles));
-
-        }
+//        PersonaCargo personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
+//        personaPerfil.setEstado(EstadoEnum.INA);
+//        personaPerfilDAO.update(personaPerfil);
+//
+//        List<PerfilRol> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
+//
+//        if (!allPerfilRol.isEmpty()) {
+//            Usuario usuario = this.getExistorCreateUser(personaPerfil.getPersona());
+//
+//            Set<Long> roles = allPerfilRol.stream()
+//                    .map(PerfilRol::getRol)
+//                    .map(Rol::getId)
+//                    .collect(Collectors.toSet());
+//
+//            usuarioRolDAO.deleteByUsuarioRol(usuario, new ArrayList(roles));
+//
+//        }
 
     }
 
@@ -169,7 +157,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
             user = new Usuario();
             user.setPersona(persona);
             user.setGoogle(persona.getEmailCompania());
-            user.setEstado(UserEstadoEnum.ACT);
+            user.setEstadoEnum(UserEstadoEnum.ACT);
 
             usuarioDAO.save(user);
         }

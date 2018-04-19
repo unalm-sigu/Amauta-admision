@@ -44,7 +44,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
@@ -68,7 +68,6 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
@@ -77,6 +76,7 @@ import pe.edu.lamolina.pivot.dao.inscripcion.PostulanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -111,7 +111,7 @@ public class ProgDataServiceImp implements ProgDataService {
     @Autowired
     PostulanteDAO postulanteDAO;
     @Autowired
-    PersonaPerfilDAO personaPerfilDAO;
+    PersonaCargoDAO personaCargoDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
     @Autowired
@@ -293,7 +293,7 @@ public class ProgDataServiceImp implements ProgDataService {
             if (tempo == null) {
                 persona.setUserRegistro(ds.getUsuario());
                 persona.setFechaRegistro(new Date());
-                persona.setEstado(PersonaEstadoEnum.ACT);
+                persona.setEstadoEnum(PersonaEstadoEnum.ACT);
                 personaDAO.save(persona);
 
                 mapDNIPersonas.put(persona.getIdentificacion(), persona);
@@ -388,7 +388,7 @@ public class ProgDataServiceImp implements ProgDataService {
             alumno.setSituacionAcademica(situacion);
             alumno.setCicloActivo(cicloActivo);
             alumno.setCicloIngreso(cicloInicio);
-            alumno.setEstado(AlumnoEstadoEnum.ACT);
+            alumno.setEstadoEnum(AlumnoEstadoEnum.ACT);
             alumno.setModalidadEstudio(modalidad);
 
             alumno.setRetirosCursos(0);
@@ -463,7 +463,7 @@ public class ProgDataServiceImp implements ProgDataService {
         user = new Usuario();
         user.setPersona(persona);
         user.setGoogle(persona.getEmailCompania().toLowerCase());
-        user.setEstado(UserEstadoEnum.ACT);
+        user.setEstadoEnum(UserEstadoEnum.ACT);
         user.setFechaRegistro(new Date());
         user.setUserRegistro(ds.getUsuario());
         usuarioDAO.save(user);
@@ -564,7 +564,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personas.isEmpty()) {
             persona.setUserRegistro(ds.getUsuario());
             persona.setFechaRegistro(new Date());
-            persona.setEstado(PersonaEstadoEnum.ACT);
+            persona.setEstadoEnum(PersonaEstadoEnum.ACT);
             persona.setNumeroDocIdentidad(null);
             personaDAO.save(persona);
 
@@ -600,7 +600,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Persona pp = new Persona(persona);
             pp.setUserRegistro(ds.getUsuario());
             pp.setFechaRegistro(new Date());
-            pp.setEstado(PersonaEstadoEnum.ACT);
+            pp.setEstadoEnum(PersonaEstadoEnum.ACT);
             personaDAO.save(pp);
             logger.debug("finalizo revision EMPTY de persona {}", pp.getApellidosNombres());
             personasVinculadas.add(pp);
@@ -609,7 +609,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
         if (personasVinculadas.size() == 1) {
             Persona pp = personasVinculadas.get(0);
-            pp.setEstado(PersonaEstadoEnum.ACT);
+            pp.setEstadoEnum(PersonaEstadoEnum.ACT);
             personaDAO.update(pp);
             logger.debug("finalizo revision SIZE1 de persona {}", pp.getApellidosNombres());
             //personasVinculadas.add(pp);
@@ -641,7 +641,7 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Persona persona : personas) {
             if (persona.getId() == main.getId().longValue()) {
                 //logger.debug("Activando persona {}", persona.getId());
-                persona.setEstado(PersonaEstadoEnum.ACT);
+                persona.setEstadoEnum(PersonaEstadoEnum.ACT);
                 persona.setFechaTraslado(null);
                 persona.setUserTraslado(null);
                 persona.setPersonaTraslado(null);
@@ -649,7 +649,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             //logger.debug("desactivando persona {}", persona.getId());
-            persona.setEstado(PersonaEstadoEnum.INA);
+            persona.setEstadoEnum(PersonaEstadoEnum.INA);
             persona.setFechaTraslado(new Date());
             persona.setUserTraslado(ds.getUsuario());
             persona.setPersonaTraslado(main);
@@ -738,11 +738,11 @@ public class ProgDataServiceImp implements ProgDataService {
                 docenteDAO.update(docente);
             }
 
-            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
             //logger.debug("se hallo {} perfiles", persoPerfiles.size());
-            for (PersonaPerfil pp : persoPerfiles) {
+            for (PersonaCargo pp : persoPerfiles) {
                 pp.setPersona(main);
-                personaPerfilDAO.update(pp);
+                personaCargoDAO.update(pp);
             }
 
         }
@@ -773,7 +773,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstado(UserEstadoEnum.INA);
+                    user.setEstadoEnum(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -804,7 +804,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstado(UserEstadoEnum.INA);
+                    user.setEstadoEnum(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -820,7 +820,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     continue;
                 }
                 if (user.getEstadoEnum() == UserEstadoEnum.ACT) {
-                    user.setEstado(UserEstadoEnum.INA);
+                    user.setEstadoEnum(UserEstadoEnum.INA);
                     user.setFechaModifica(new Date());
                     user.setUserModifica(ds.getUsuario());
                 }
@@ -853,7 +853,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
         }
         for (Persona persona : personas) {
-            List<PersonaPerfil> persoPerfiles = personaPerfilDAO.allByPersona(persona);
+            List<PersonaCargo> persoPerfiles = personaCargoDAO.allByPersona(persona);
             if (!persoPerfiles.isEmpty()) {
                 //logger.debug("se escoge por perfiles");
                 return persona;
@@ -1111,7 +1111,7 @@ public class ProgDataServiceImp implements ProgDataService {
             loop++;
             visor.agregarLog("secc", "saveSecc", "Seccion " + seccionBD.getCodigo() + " procesada", true, "info");
             logger.debug("\t\tSeccion {} procesada {} de {}", seccionBD.getCodigo(), loop, secciones.size());
-            
+
             System.out.println("SECCION_BD " + seccionBD.getCodigo() + " :::: vac:" + seccionBD.getMatriculados() + " mat:" + seccionBD.getMatriculados());
         }
 

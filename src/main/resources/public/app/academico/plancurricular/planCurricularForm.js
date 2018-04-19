@@ -485,7 +485,7 @@ $(function () {
                         dynatableCursosObl.process();
                         dynatableCursosRes.process();
                         NuevaCurricula.verMalla();
-                        
+
                     } else {
                         MODAL.activateButtons();
                         $("#" + record.idSelect).select2("readonly", false);
@@ -990,6 +990,28 @@ $(function () {
                 }
             });
         },
+        desvincularCursos: function () {
+            MODAL.showWait();
+            var form = $("[id='frmPlanCurricular']");
+            $.ajax({
+                url: APP.url('academico/planCurricular/desvincularCursos'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    MODAL.hideWait();
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
         addCursoObl: function () {
             var form = $("[id='frmAgregarCurso']");
             form.parsley().destroy();
@@ -1385,8 +1407,8 @@ $(function () {
             var wwLine = 2;
             var wwBoldLine = 6;
 
-            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4"};
-            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff"};
+            var colorBG = {GEN: "#F39C12", OBL: "#1E8449", ELC: "#AAB7B8", ELF: "#AAB7B8", ELE: "#AAB7B8", PROD: "#C70039", CULT: "#267DD4", TECIND: "#FF5733"};
+            var colorLetra = {GEN: "#fff", OBL: "#fff", ELC: "#fff", ELF: "#fff", ELE: "#fff", PROD: "#fff", CULT: "#fff", TECIND: "#fff"};
             var colorLine = "#E74C3C";
             var colorDot = "#34495E";
             var colorArrow = "#D7DBDD";
@@ -1694,6 +1716,10 @@ $(function () {
 
     $("body").delegate("#procesarAlumnos", "click", function (e) {
         NuevaCurricula.procesarAlumnos();
+    });
+
+    $("body").delegate("#desvincularCursos", "click", function (e) {
+        NuevaCurricula.desvincularCursos();
     });
 
     $("body").delegate("#cboTipoCursoCurricula", "change", function (e) {

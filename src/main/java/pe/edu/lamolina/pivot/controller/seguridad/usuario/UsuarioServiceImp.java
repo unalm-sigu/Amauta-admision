@@ -82,7 +82,7 @@ public class UsuarioServiceImp implements UsuarioService {
     public void desactivaUsuario(Usuario usu, DataSessionPivot ds) {
 
         Usuario usuario = usuarioDAO.find(usu);
-        usuario.setEstado(UserEstadoEnum.INA);
+        usuario.setEstadoEnum(UserEstadoEnum.INA);
         usuarioDAO.update(usuario);
 
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUser(usuario);
@@ -102,7 +102,7 @@ public class UsuarioServiceImp implements UsuarioService {
     @Transactional
     public void activaUsuario(Usuario usu, DataSessionPivot ds) {
         Usuario usuario = usuarioDAO.find(usu);
-        usuario.setEstado(UserEstadoEnum.ACT);
+        usuario.setEstadoEnum(UserEstadoEnum.ACT);
         usuarioDAO.update(usuario);
     }
 
@@ -137,7 +137,7 @@ public class UsuarioServiceImp implements UsuarioService {
             validarEmailCompaniaSinPersona(personaForm.getEmailCompania());
             personaForm.setUserRegistro(ds.getUsuario());
             personaForm.setFechaRegistro(new Date());
-            personaForm.setEstado(PersonaEstadoEnum.ACT);
+            personaForm.setEstadoEnum(PersonaEstadoEnum.ACT);
             personaDAO.save(personaForm);
 
         } else {
@@ -151,7 +151,7 @@ public class UsuarioServiceImp implements UsuarioService {
         Usuario usuarioBD;
         if (usuario.getId() == null) {
             usuarioBD = new Usuario();
-            usuarioBD.setEstado(UserEstadoEnum.ACT);
+            usuarioBD.setEstadoEnum(UserEstadoEnum.ACT);
             usuarioBD.setGoogle(personaForm.getEmailCompania());
             usuarioBD.setPersona(personaForm);
             usuarioBD.setUserRegistro(ds.getUsuario());
@@ -169,7 +169,7 @@ public class UsuarioServiceImp implements UsuarioService {
         }
 
         usuario.setId(usuarioBD.getId());
-        usuario.setEstado(usuarioBD.getEstadoEnum());
+        usuario.setEstadoEnum(usuarioBD.getEstadoEnum());
         usuario.setPersona(usuarioBD.getPersona());
         usuario.setGoogle(usuarioBD.getGoogle());
 

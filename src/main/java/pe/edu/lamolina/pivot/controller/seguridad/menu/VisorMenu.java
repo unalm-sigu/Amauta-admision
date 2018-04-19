@@ -73,6 +73,7 @@ public class VisorMenu {
         for (MenuRol menuRol : menusRoles) {
             addMenuRol(menuRol);
         }
+
     }
 
     public synchronized void addMenuRol(MenuRol menuRol) {
@@ -90,6 +91,7 @@ public class VisorMenu {
             mapMenus.put(menu.getId(), menu);
             menuBD = menu;
             menuBD.setMenuRol(new ArrayList());
+            menuBD.setMenus(new ArrayList());
         }
 
         MenuRol menuRolBD = mapMenusRolesVisor.get(menu.getId() + "-" + rol.getId());

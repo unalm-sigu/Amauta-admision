@@ -143,13 +143,17 @@
     <div class="row" th:if="${planCurricular.id}">
         <div class="col-md-4">
             <div class="form-group">
-                <label > Alumnos Matriculados </label>
-                <span th:if="${planCurricular.id}" th:text="${cantAlumnos}" class="form-control"></span>
-            </div>
-        </div>
-        <div class="col-md-4 v-middle">
-            <div class="form-group v-middle m-t-md">
-                <a href="#" th:if="${planCurricular.id}" id="procesarAlumnos" class="btn btn-default btn-sm">Generar Avance Curricular</a>
+                <label>Alumnos Vinculados</label>
+                <div class="input-group">
+                    <input type="text" readonly="yes" th:value="${cantAlumnos}" class="form-control"/>
+                    <div class="input-group-btn">
+                        <a href="#" class="btn btn-primary btn-xs" data-toggle="dropdown">Acciones <span class="caret"></span></a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="#" id="procesarAlumnos">Procesar Alumnos</a></li>
+                            <li><a href="#" id="desvincularCursos">Desvincular Cursos</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

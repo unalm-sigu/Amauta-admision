@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.security.oauth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.scribe.model.OAuthRequest;
@@ -22,8 +23,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -32,6 +37,10 @@ public class OAuthController {
 
     @Autowired
     OAuthServiceProvider serviceProvider;
+    @Autowired
+    VisorMenu visorMenu;
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -69,7 +78,7 @@ public class OAuthController {
 
             JsonNode jsonNode = new ObjectMapper().readTree(oauthResponse.getBody());
 
-            serviceProvider.loginManually(jsonNode.get("email").asText(), session,servlet);
+            serviceProvider.loginManually(jsonNode.get("email").asText(), session, servlet);
 
         } catch (PhobosException e) {
             session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
@@ -81,31 +90,44 @@ public class OAuthController {
 
     @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            serviceProvider.loginManually(email, session, servlet);
+            ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            serviceProvider.createLogJson(ds, session);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        serviceProvider.loginManually(email, session, servlet);
-        serviceProvider.createLogJson(ds, session);
-        return "redirect:/route66";
+            return "redirect:/route66";
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            model.addAttribute("error", e.getLocalizedMessage());
+            return "security/login";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "Sus credenciales no tienen acceso al sistema.");
+            return "security/login";
+        }
     }
 
     @RequestMapping("route66")
     public String route66(HttpSession session, Model model) {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         if (ds == null) {
             return "redirect:/login";
         }
 
-        logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRoles().size(), ds.getRolActivo());
-
-        if (ds.getRoles().size() > 1 && ds.getRolActivo() == null) {
+        logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRolesMain().size(), ds.getRolActivo());
+        if (ds.getRolesMain().size() > 1 && ds.getRolActivo() == null) {
             return "security/rolland";
+        }
 
-        } else if (ds.getRoles().size() == 1) {
-            Rol rolActivo = ds.getRoles().get(0);
-            ds.setRolActivo(rolActivo);
-
-            session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        try {
+            if (ds.getRolesMain().size() == 1) {
+                Rol rolActivo = ds.getRolesMain().get(0);
+                serviceProvider.asignarRolActivo(rolActivo, ds, session);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();;
         }
 
         return this.getRedirect(ds, session);
@@ -114,17 +136,18 @@ public class OAuthController {
     @ResponseBody
     @RequestMapping(value = "rolland", method = RequestMethod.POST)
     public void rolesLanding(HttpSession session, @RequestParam("rol") Long rol) throws Exception {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Rol asignar = ds.getMapRoles().get(rol);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Rol asignar = ds.getMapRoles().get(rol);
-
-        ds.setRolActivo(asignar);
-
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+            serviceProvider.asignarRolActivo(asignar, ds, session);
+        } catch (Exception e) {
+            e.printStackTrace();;
+        }
     }
 
     @RequestMapping("changerol")
-    public String chnageRol(HttpSession session) {
+    public String changeRol(HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setRolActivo(null);
@@ -136,29 +159,15 @@ public class OAuthController {
 
     private String getRedirect(DataSessionPivot ds, HttpSession session) {
 
+        String ruta = findRuta(ds.getMenu());
         String redirect = "redirect:/logout";
         String urlServerExterno = "http://maipi.albatross.pe/login";
         //String urlServerExterno = "http://localhost:9800/lagunas/" + ds.getUsuario().getUsuario();
+        if (ruta.equals("")) {
+            return redirect;
+        }
 
         switch (ds.getRolActivo().getCodigo()) {
-            case "DPTO":
-                redirect = "redirect:/academico/systemcalifica/sistema";
-                break;
-
-            case "DOC":
-                Docente docente = ds.getDocente();
-                if (docente != null) {
-                    redirect = "redirect:/academico/docente/cargaacademica";
-                }
-                break;
-
-            case "IOREA":
-                redirect = "redirect:/general/personaperfil";
-                break;
-
-            case "OREA":
-                redirect = "redirect:/academico/acta";
-                break;
 
             case "ALU":
                 session.invalidate();
@@ -166,13 +175,30 @@ public class OAuthController {
                 break;
 
             default:
-                logger.debug("No se identifica acceso para el rol: {} ", ds.getRolActivo().getCodigo());
+                redirect = ruta;
                 break;
-
         }
 
         return redirect;
 
+    }
+
+    private String findRuta(List<Menu> menus) {
+        for (Menu menu : menus) {
+            if (menu.getTipoEnum() == MenuTipoEnum.MENU) {
+                return "redirect:" + menu.getRuta();
+            }
+            if (menu.getTipoEnum() == MenuTipoEnum.SUB_MENU) {
+                return "redirect:" + menu.getRuta();
+            }
+        }
+        for (Menu menu : menus) {
+            String ruta = findRuta(menu.getMenus());
+            if (!ruta.equals("")) {
+                return ruta;
+            }
+        }
+        return "";
     }
 
 }

@@ -135,6 +135,7 @@
         var contextPath = /*[[@{/}]]*/ '/app';
         /*]]>*/
     </script>
+    <script type="text/javascript" th:src="@{/vendor/axios/axios.min.js}" ></script>
     <script type="text/javascript" th:src="@{/vendor/vuejs/vue.min.js}" />
     <script type="text/javascript" th:src="@{/vendor/vue2-datepicker/build.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
@@ -260,13 +261,13 @@
 <div th:fragment="google-analytics">
     <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89883780-4"></script>
     <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
 
-            gtag('config', 'UA-89883780-4');
+        gtag('config', 'UA-89883780-4');
     </script>
 </div>
 

@@ -103,7 +103,7 @@ public class CursoServiceImp implements CursoService {
 
     private Curso saveCurso(Curso curso) {
         curso.setCodigo(this.getCodigo(curso));
-        curso.setEstado(EstadoEnum.CRE);
+        curso.setEstadoEnum(EstadoEnum.CRE);
         if (curso.getTipoCredito().equals(TipoCreditoEnum.FIJO.name())) {
             curso.setCreditos(curso.getCreditos());
             curso.setCreditosVariables(null);
@@ -186,12 +186,12 @@ public class CursoServiceImp implements CursoService {
     public void cambiarEstadoCurso(Curso curso) {
         Curso cursoBD = cursoDAO.find(curso.getId());
         if (cursoBD.getEstadoEnum() == EstadoEnum.ACT) {
-            cursoBD.setEstado(EstadoEnum.INA);
+            cursoBD.setEstadoEnum(EstadoEnum.INA);
             cursoBD.setFechaAnulacion(new Date());
             cursoBD.setMotivoAnulacion(curso.getMotivoAnulacion());
 
         } else {
-            cursoBD.setEstado(EstadoEnum.ACT);
+            cursoBD.setEstadoEnum(EstadoEnum.ACT);
         }
         cursoDAO.update(cursoBD);
     }

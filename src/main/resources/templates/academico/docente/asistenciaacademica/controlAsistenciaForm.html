@@ -1,0 +1,108 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Registro de Notas</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="header b-b padder-lg">     
+
+            <div class="pull-right panel-body" >
+                <a class="btn btn-default"   th:href="@{/academico/docente/asistenciaacademica}"  >Regresar</a>
+            </div>
+
+            <h2><span th:text='|${curso.nombre} - ${session["SESSION_USUARIO"].cicloAcademico.descripcion}: Control de Asistencia|'>2016-II</span></h2>
+
+
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 control-label bold"><strong>Tipo sección:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
+                    </div>
+
+                    <label for="cboCategoria" class="col-md-2 control-label bold"><strong>Clave:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${seccion.codigo2}">2130</span>
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label  class="col-md-2 control-label bold"><strong>Estado del Acta:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span>
+                    </div>
+
+
+                    <label  class="col-md-2 control-label bold"><strong>Creditos:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${curso.creditos}">2130</span>
+                    </div>
+                </div>
+            </div>
+
+        </header>
+
+        <section id="controlAsistenciaApp" class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+
+                    <raptor-table v-bind:url="URL_MATRICULAS_SECCION" 
+                                  v-bind:ajaxdata="{seccion:seccion.id}"
+                                  v-bind:searcher="false"
+                                  v-bind:paginate="false">
+
+                        <template scope="props">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-1">
+
+                                        </th>
+                                        <th class="col-md-11">
+
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>   
+                                    <tr v-for="(mSec, indice) in props.data"> 
+                                        <td  class="v-middle col-md-1">
+                                            <span class="small text-muted" >({{(indice+1)}})</span>
+                                        </td>
+                                        <td class="col-md-11">
+                                            <span class="text-primary">{{mSec.matriculaResumen.alumno.persona.apellidosNombres}}</span>
+                                            <span class="block small text-muted">
+                                                {{mSec.matriculaResumen.alumno.codigo}}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </template>
+                    </raptor-table>
+
+
+
+                </section>
+            </section>
+        </section>
+
+        <div th:substituteby="templates/modal"/>
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:inline="javascript">
+            var seccionJson = [[${seccionJson}]];
+        </script>
+        <script th:src="@{/app/academico/docente/asistenciaacademica/controlAsistenciaForm.js}" charset="utf-8"></script>
+    </div>
+
+
+</body>
+</html>

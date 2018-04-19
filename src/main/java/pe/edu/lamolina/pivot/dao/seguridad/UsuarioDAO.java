@@ -18,4 +18,6 @@ public interface UsuarioDAO extends EasyDAO<Usuario> {
 
     Usuario find(Usuario user);
 
+    Usuario findByPersonaId(Persona persona);
+
 }

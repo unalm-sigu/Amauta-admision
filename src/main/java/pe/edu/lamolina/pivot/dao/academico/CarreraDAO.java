@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraResumen;
 
@@ -38,12 +39,14 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     List<Carrera> allActivoByModalidad(ModalidadEstudio modalidadEstudio);
 
-    public List<Carrera> allCarreraByNameAndModalidad(String nombre, List<ModalidadEstudio> modalidadEstudio);
+    List<Carrera> allCarreraByNameAndModalidad(String nombre, List<ModalidadEstudio> modalidadEstudio);
 
-    public List<Carrera> allCarreraByName(String nombre, Compania cia);
+    List<Carrera> allCarreraByName(String nombre, Compania cia);
 
     List<Carrera> allActivos();
 
     List<Carrera> allActivasByModalidadesEstudio(List<String> modalidadesCodes);
+
+    List<Carrera> allByModalidadEstudio(ModalidadEstudioEnum modalidadEstudioEnum);
 
 }

@@ -1,0 +1,219 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Administración de Oficinas</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="colaboradorFormVue">
+
+            <header class="header b-b padder-lg">
+
+                <div class="btn-group pull-right">
+                    <a href="#" v-on:click="regresar" class="btn btn-default btn-sm pull-right">Regresar</a>
+                </div>
+
+                <h2 v-if="!newCola" v-text="'Nuevo Colaborador'"></h2>
+                <h2 v-if="newCola"  v-text="'Funciones y Cargos del colaborador'"></h2>
+
+            </header>
+
+            <section class="wrapper-lg m-b-xs ">
+                <section class="panel">     
+                    <section class="panel-body" v-if="newCola">
+                        <div>
+                            <div class="pull-left m-r" >
+                                <img class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/male.png" />
+                            </div>
+                            <div >
+                                <h4 class="block text-primary bold " >{{persona.tituloAcademico}} {{persona.nombreCompleto}}</h4>
+                                <spam class="block bold" v-text="persona.tipoDocumento.simbolo + ': '+ persona.numeroDocIdentidad"></spam>
+                                <spam class="bold" v-text="'Código colaborador: '+ colaborador.codigo"></spam>
+                            </div>
+                        </div>
+                    </section>
+                    <form data-parsley-validate="true" id="formConfig"  method="post">
+                        <section class="panel-body">
+                            <div v-if="!newCola" > 
+                                <h2>Información Personal</h2>
+                                <hr/>
+                            </div>  
+                            <div class="row" v-if="!newCola" >
+                                <div class="col-sm-6">
+                                    <label>Tipo de Documento</label>                                   
+                                    <div   class="form-group">  
+                                        <multiselect v-model="persona.tipoDocumento" 
+                                                     required="true"
+                                                     v-bind:options='tipoDoc'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     placeholder="Seleccione un tipo de documento"
+                                                     v-on:input="verificarDoc"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">
+                                    <label>Número de Documento</label>
+                                    <div class="form-group">              
+
+                                        <input type="text" required="true" class="inline numeric form-control"  maxlength="15" v-model="persona.numeroDocIdentidad" v-on:change="verificarDoc"/>
+                                    </div>
+                                </div>  
+                            </div>
+                            <div class="row" v-if="!newCola">
+                                <div class="col-sm-6">
+                                    <label>Paterno</label>
+                                    <div class="form-group">                                
+                                        <input type="text"  v-bind:disabled="personaValidTemp.paterno"  required="true" class="inline form-control"  maxlength="200" v-model="persona.paterno" />
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">
+                                    <label>Materno</label>
+                                    <div class="form-group">    
+                                        <input type="text"  v-bind:disabled="personaValidTemp.materno"     required="true" class="inline form-control"  maxlength="200" v-model="persona.materno"/>
+                                    </div>
+                                </div>      
+                            </div>
+                            <div class="row" v-if="!newCola">
+                                <div class="col-sm-6">
+                                    <label>Nombres</label>
+                                    <div class="form-group">     
+                                        <input type="text"  v-bind:disabled="personaValidTemp.nombres" required="true" class="inline form-control"  maxlength="200" v-model="persona.nombres"/>
+                                    </div>
+                                </div>  
+                                <div class="col-sm-6">
+                                    <label>Correo Institucional</label>
+                                    <div class="form-group">          
+                                        <input type="text"  id="email" v-bind:disabled="personaValidTemp.emailCompania"  class="inline form-control" name="emailCompania" maxlength="200" v-model="persona.emailCompania" v-on:change="verificarEmail"/>
+                                    </div>
+                                </div> 
+
+                            </div>
+                            <div  class="row" v-if="!newCola">
+                                <div class="col-sm-6" v-if="!newCola">
+                                    <label class="block">Sexo</label>
+
+                                    <div class="form-group" v-if="!personaValidTemp.sexo"> 
+                                        <div class="col-sm-10">
+                                            <div class="col-sm-5">
+                                                <label class="radio inline">
+                                                    <input  type="radio" required="true" name="persona.sexo" v-model="persona.sexo" id="inlineCheckbox1" value="M" /> Masculino
+                                                </label>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <label class="radio inline">
+                                                    <input  type="radio" required="true" name="persona.sexo" v-model="persona.sexo" id="inlineCheckbox2" value="F" /> Femenino
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!--div class="form-group" v-if="!personaValidTemp.sexo" > 
+
+                                        <label >Femenino</label>
+                                        <input  type="radio" id ="F" value="F"  v-model="persona.sexo"  />
+                                        <label >Masculino</label>
+                                        <input  type="radio"   id ="M" value="M" v-model="persona.sexo"  />
+
+                                    </div-->
+                                    <div class="form-group" v-if="personaValidTemp.sexo">
+                                        <span v-text="persona.sexo == 'M' ? 'Masculino' : 'Femenino'"></span>
+                                    </div>
+                                </div>                                
+                            </div>
+                            <div> 
+                                <h2>Información laboral</h2>
+                            </div>  
+                            <hr/>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Área</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="colaborador.oficina" 
+                                                     v-bind:options='area'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     required="true"
+                                                     placeholder="Seleccione un tipo de documento"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>     
+                                <div class="col-sm-6">
+                                    <label >Fecha Inicio</label>
+                                    <div class="form-group">
+                                        <date-picker v-model="colaborador.fechaInicio" lang="es" format="dd/MM/yyyy" input-class="mx-input" ></date-picker>
+                                    </div>
+                                </div>                                
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label>Cargo</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="colaborador.cargo" 
+                                                     v-bind:options='compania'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     required="true"
+                                                     placeholder="Seleccione un cargo"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+                                <div class="col-sm-6">                                    
+                                    <label>Funciones</label>
+                                    <div class="form-group">                                
+                                        <multiselect v-model="colaborador.funcionColaborador" 
+                                                     v-bind:options='funciones'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     v-bind:multiple="true" 
+                                                     required="true"
+                                                     placeholder="Seleccione una funcion"
+                                                     v-bind:taggable="true"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>      
+
+                                <div class="form-group m-t-xxlg">
+                                    <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
+                                        <button class="btn btn-primary" 
+                                                type="submit"
+                                                v-on:click.prevent="save"     
+                                                v-if="!newCola"
+                                                >Guardar</button>            
+                                        <button class="btn btn-primary" 
+                                                type="submit"
+                                                v-on:click.prevent="update"      
+                                                v-if="newCola"
+                                                >Actualizar</button>    
+                                        <a v-on:click="regresar" class="btn btn-link" >Cancelar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </form>
+                </section>
+            </section>
+        </div>
+    </div>
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var oficinaId = /*[[${oficina}]]*/ 'json';
+            var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
+            var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
+            var sexoJson = /*[[${sexo}]]*/ 'json';
+            var areaJson = /*[[${area.toString()}]]*/ 'json';
+            var companiaJson = /*[[${compania.toString()}]]*/ 'json';
+            var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
+            /*]]>*/
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/general/oficina/colaborador/colaboradorForm.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

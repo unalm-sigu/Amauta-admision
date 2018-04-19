@@ -34,8 +34,12 @@ public class AlumnoCursoSimultaneoDAOH extends AbstractEasyDAO<AlumnoCursoSimult
     public void deleteAllByAlumno(Alumno alumno) {
         StringBuilder sql = new StringBuilder();
         sql.append("delete AlumnoCursoSimultaneo acs ");
-        sql.append("    where exists (select 1 from AlumnoCursoCurricula acc");
-        sql.append("                      join acc.alumno a where acs.alumnoCursoCurricula.id = acc.id and a.id =:ALUMNO)");
+        sql.append(" where exists (select 1 ");
+        sql.append("                 from AlumnoCursoCurricula acc ");
+        sql.append("                 join acc.alumno a ");
+        sql.append("                where acs.alumnoCursoCurricula.id = acc.id ");
+        sql.append("                  and a.id =:ALUMNO ) ");
+        
         Query query =   getCurrentSession().createQuery(sql.toString());
         query.setParameter("ALUMNO", alumno.getId());
         query.executeUpdate();

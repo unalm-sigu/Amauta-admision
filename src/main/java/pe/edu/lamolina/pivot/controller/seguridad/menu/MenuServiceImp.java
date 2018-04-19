@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.seguridad.MenuRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 
 @Service
 @Transactional(readOnly = true)
@@ -48,6 +49,9 @@ public class MenuServiceImp implements MenuService {
 
     @Autowired
     VisorMenu visorMenu;
+    
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -61,19 +65,19 @@ public class MenuServiceImp implements MenuService {
     @Transactional
     public void save(Menu menu) {
 
-        menu.setSistema(new Sistema(1L));
-        Integer mayororden = null;
+        menu.setSistema(new Sistema(despliegueConfig.getSistema()));
+        Integer mayorOrden = null;
         if (MenuTipoEnum.TITULO.name().equals(menu.getTipo())) {
-            mayororden = menuDAO.getMayorOrdenTipo(new Sistema(1L), MenuTipoEnum.TITULO);
+            mayorOrden = menuDAO.getMayorOrdenTipo(new Sistema(despliegueConfig.getSistema()), MenuTipoEnum.TITULO);
         } else {
-            mayororden = menuDAO.getMayorOrdenGrupo(new Sistema(1L), menu.getMenuSuperior());
+            mayorOrden = menuDAO.getMayorOrdenGrupo(new Sistema(despliegueConfig.getSistema()), menu.getMenuSuperior());
         }
-        if (mayororden != null) {
-            mayororden++;
+        if (mayorOrden != null) {
+            mayorOrden++;
         } else {
-            mayororden = 1;
+            mayorOrden = 1;
         }
-        menu.setOrden(mayororden);
+        menu.setOrden(mayorOrden);
         menuDAO.save(menu);
     }
 
@@ -166,10 +170,7 @@ public class MenuServiceImp implements MenuService {
 
     private void ordenarItems(List<Menu> menus, String tab) {
         Collections.sort(menus, new Menu.CompareOrden());
-        menus.stream().map(menu -> {
-            //logger.debug("{}{} :::: {}", tab, menu.getOrden(), menu.getNombre());
-            return menu;
-        }).forEachOrdered(menu -> {
+        menus.stream().forEachOrdered(menu -> {
             ordenarItems(menu.getMenus(), tab + "    ");
         });
     }
@@ -330,9 +331,9 @@ public class MenuServiceImp implements MenuService {
         }
         List<Menu> menus = new ArrayList<>();
         if (menuDb.getTipo().equals(MenuTipoEnum.TITULO.name())) {
-            menus = menuDAO.allByTipo(MenuTipoEnum.TITULO, new Sistema(1L));
+            menus = menuDAO.allByTipo(MenuTipoEnum.TITULO, new Sistema(despliegueConfig.getSistema()));
         } else {
-            menus = menuDAO.allBySuperMenu(new Sistema(1L), menuDb.getMenuSuperior());
+            menus = menuDAO.allBySuperMenu(new Sistema(despliegueConfig.getSistema()), menuDb.getMenuSuperior());
         }
         Integer tamano = menus.size();
         //logger.debug("TAMANO CATEGORY {}", tamano);
@@ -351,9 +352,9 @@ public class MenuServiceImp implements MenuService {
         //logger.debug("ORDEN A SUBIR  {}", ordenup);
 
         if (menuDb.getTipo().equals(MenuTipoEnum.TITULO.name())) {
-            menuOrdenRequerido = menuDAO.findByTipoOrden(MenuTipoEnum.TITULO, new Sistema(1L), ordenup);
+            menuOrdenRequerido = menuDAO.findByTipoOrden(MenuTipoEnum.TITULO, new Sistema(despliegueConfig.getSistema()), ordenup);
         } else {
-            menuOrdenRequerido = menuDAO.findBySuperMenuOrden(new Sistema(1L), menuDb.getMenuSuperior(), ordenup);
+            menuOrdenRequerido = menuDAO.findBySuperMenuOrden(new Sistema(despliegueConfig.getSistema()), menuDb.getMenuSuperior(), ordenup);
         }
 
         if (menuOrdenRequerido != null) {
@@ -384,9 +385,9 @@ public class MenuServiceImp implements MenuService {
         }
         List<Menu> menus = new ArrayList<>();
         if (menuDb.getTipo().equals(MenuTipoEnum.TITULO.name())) {
-            menus = menuDAO.allByTipo(MenuTipoEnum.TITULO, new Sistema(1L));
+            menus = menuDAO.allByTipo(MenuTipoEnum.TITULO, new Sistema(despliegueConfig.getSistema()));
         } else {
-            menus = menuDAO.allBySuperMenu(new Sistema(1L), menuDb.getMenuSuperior());
+            menus = menuDAO.allBySuperMenu(new Sistema(despliegueConfig.getSistema()), menuDb.getMenuSuperior());
         }
         Integer tamano = menus.size();
         if (tamano < 1) {
@@ -401,9 +402,9 @@ public class MenuServiceImp implements MenuService {
         Integer ordendown = orden + 1;
 
         if (menuDb.getTipo().equals(MenuTipoEnum.TITULO.name())) {
-            menuOrdenRequerido = menuDAO.findByTipoOrden(MenuTipoEnum.TITULO, new Sistema(1L), ordendown);
+            menuOrdenRequerido = menuDAO.findByTipoOrden(MenuTipoEnum.TITULO, new Sistema(despliegueConfig.getSistema()), ordendown);
         } else {
-            menuOrdenRequerido = menuDAO.findBySuperMenuOrden(new Sistema(1L), menuDb.getMenuSuperior(), ordendown);
+            menuOrdenRequerido = menuDAO.findBySuperMenuOrden(new Sistema(despliegueConfig.getSistema()), menuDb.getMenuSuperior(), ordendown);
         }
 
         if (menuOrdenRequerido != null) {
@@ -419,7 +420,7 @@ public class MenuServiceImp implements MenuService {
 
     @Override
     public void inicializarMenus() {
-        List<MenuRol> menusRoles = menuRolDAO.allBySistema(new Sistema(1L));
+        List<MenuRol> menusRoles = menuRolDAO.allBySistema(new Sistema(despliegueConfig.getSistema()));
         visorMenu.setMenusRoles(menusRoles);
     }
 

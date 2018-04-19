@@ -37,7 +37,8 @@
                         <a class="btn btn-success login" th:href="@{/login}">
                             INGRESAR
                         </a>
-                        
+                        <br/>
+                        <span th:if="${error}" class="alert alert-special alert-danger" th:text="${error}"></span>
                     </div>
                 </section>
             </div>     

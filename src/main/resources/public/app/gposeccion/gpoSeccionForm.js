@@ -451,7 +451,7 @@ var app = new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/loadGpoSeccionForm'),
+                url: APP.url('academico/gposeccion/' + $vue.grupoSeccion.id + '/loadGpoSeccionForm'),
                 success: function (response) {
                     if (response.success) {
 

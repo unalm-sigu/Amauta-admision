@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.List;
-import pe.edu.lamolina.pivot.dao.general.PersonaPerfilDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -10,21 +9,23 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
+import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 
 @Repository
-public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements PersonaPerfilDAO {
+public class PersonaCargoDAOH extends AbstractEasyDAO<PersonaCargo> implements PersonaCargoDAO {
 
-    public PersonaPerfilDAOH() {
+    public PersonaCargoDAOH() {
         super();
-        setClazz(PersonaPerfil.class);
+        setClazz(PersonaCargo.class);
     }
 
     @Override
-    public PersonaPerfil find(long id) {
+    public PersonaCargo find(long id) {
         Octavia sql = Octavia.query()
-                .from(PersonaPerfil.class, "pp")
+                .from(PersonaCargo.class, "pp")
                 .join("perfilCompania", "persona")
                 .leftJoin("oficina")
                 .filter("pp.id", id);
@@ -34,10 +35,10 @@ public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements
     }
 
     @Override
-    public List<PersonaPerfil> allByFiltersDynaTable(DynatableFilter filter) {
+    public List<PersonaCargo> allByFiltersDynaTable(DynatableFilter filter) {
 
         DynatableSql sql = new DynatableSql(filter)
-                .from(PersonaPerfil.class, "pp")
+                .from(PersonaCargo.class, "pp")
                 .join("perfilCompania peco", "persona per")
                 .leftJoin("oficina ofi")
                 .searchFields("peco.nombre", "ofi.tipoOficina", "ofi.nombre")
@@ -49,9 +50,9 @@ public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements
     }
 
     @Override
-    public List<PersonaPerfil> allByPersona(Persona persona) {
+    public List<PersonaCargo> allByPersona(Persona persona) {
         Octavia sql = Octavia.query()
-                .from(PersonaPerfil.class, "pp")
+                .from(PersonaCargo.class, "pp")
                 .join("perfilCompania", "persona per")
                 .leftJoin("oficina")
                 .filter("per.id", persona);
@@ -60,9 +61,9 @@ public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements
     }
 
     @Override
-    public PersonaPerfil findSinCerrar(Oficina oficina, Compania cia) {
+    public PersonaCargo findSinCerrar(Oficina oficina, Compania cia) {
         Octavia sql = Octavia.query()
-                .from(PersonaPerfil.class, "pp")
+                .from(PersonaCargo.class, "pp")
                 .join("perfilCompania peco", "persona per", "compania cia", "oficina ofi")
                 .filter("ofi.id", oficina)
                 .filter("peco.id", oficina.getCargoJefe())
@@ -70,6 +71,20 @@ public class PersonaPerfilDAOH extends AbstractEasyDAO<PersonaPerfil> implements
                 .filter("cia.id", cia)
                 .filter("pp.estado", EstadoEnum.ACT)
                 .isNull("pp.fechaFin");
+
+        return find(sql);
+    }
+
+    @Override
+    public PersonaCargo findCargoByPersona(Oficina oficina, PerfilCompania cargo, Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(PersonaCargo.class, "pp")
+                .join("perfilCompania pc", "persona per")
+                .leftJoin("oficina ofi")
+                .filter("per.id", persona)
+                .filter("pc.id", cargo)
+                .filter("ofi.id", oficina)
+                .filter("estado", EstadoEnum.ACT);
 
         return find(sql);
     }

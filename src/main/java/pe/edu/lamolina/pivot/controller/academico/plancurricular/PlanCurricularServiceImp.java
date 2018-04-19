@@ -41,6 +41,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELF;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
 import static pe.edu.lamolina.model.enums.TipoGrupoHorariosEnum.OBL;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -311,7 +312,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Assert.isTrue(plan.getId().longValue() == cursoCurricula.getPlanCurricular().getId(), "El Plan de Estudios no es el correcto");
         Assert.isFalse(cursoCurricula.getNumeroCiclo() < 1, "El numero de ciclo no es el correcto");
         Assert.isFalse(cursoCurricula.getNumeroCiclo() > plan.getCiclos(), "El numero de ciclo no corresponde al plan");
-        
+
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurricula.getNumeroCiclo();
         List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
@@ -386,7 +387,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Assert.isTrue(postRequisitos.isEmpty(), "Este curso es pre-requisito de otros cursos. No puede ser trasladado");
 
         PlanCurricular plan = cursoOpcionalBD.getPlanCurricular();
-        
+
         Integer nroCurso = 1;
         Integer nroCiclo = cursoCurriculaForm.getNumeroCiclo();
         List<CursoCurricula> cursosCurr = cursoCurriculaDAO.allByPlanCurricularNroCiclo(plan, nroCiclo);
@@ -653,6 +654,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 if (carrera.getCodigo().equals("060")) { // Solo zootecnia
                     tiposEnvio.add(tipo);
                 }
+            } else if (tipo.getCodigoEnum() == TECIND) {
+                if (carrera.getCodigo().equals("060")) { // Solo zootecnia
+                    tiposEnvio.add(tipo);
+                }
             } else {
                 tiposEnvio.add(tipo);
             }
@@ -675,6 +680,10 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == PROD) {
+                if (carrera.getCodigo().equals("060")) { // Solo zootecnia
+                    tiposEnvio.add(tipo);
+                }
+            } else if (tipo.getCodigoEnum() == TECIND) {
                 if (carrera.getCodigo().equals("060")) { // Solo zootecnia
                     tiposEnvio.add(tipo);
                 }
@@ -794,7 +803,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     private void verificarExistenciaCurso(Curso curso, PlanCurricular planCurricular) {
         CursoCurricula cursoCurricula = findCursoCurriculaByCursoPlan(curso, planCurricular);
-        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, CULT).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
+        if (cursoCurricula != null && Arrays.asList(ELE, ELF, ELC, PROD, TECIND).contains(cursoCurricula.getTipoCursoCurricula().getCodigoEnum())) {
         } else {
             Assert.isNull(cursoCurricula, "Este curso ya existe en el grupo de obligatorios o generales");
         }
@@ -998,8 +1007,14 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional
-    public void generarAvanceCurricular(PlanCurricular plan, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public void generarAvanceCurricular(PlanCurricular plan, DataSessionPivot ds) {
         avanceCurricularService.generarAvanceCurricularByPlanCurricular(plan, ds);
+    }
+
+    @Override
+    @Transactional
+    public void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds) {
+        avanceCurricularService.desvincularCursoCurricula(plan, ds);
     }
 
 }

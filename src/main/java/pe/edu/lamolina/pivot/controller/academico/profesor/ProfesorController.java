@@ -56,7 +56,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -324,7 +324,7 @@ public class ProfesorController {
                 node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("numeroDoc", persona.getNumeroDocIdentidad());
 
-                docenteDb = service.findDocenteByPersona(persona);
+                docenteDb = service.findDocenteByDocente(docente);
             }
 
             node.put("existeDocente", (docenteDb != null));
@@ -394,8 +394,7 @@ public class ProfesorController {
 
     @ResponseBody
     @RequestMapping("upload")
-    public JsonResponse upload(@RequestParam("file") MultipartFile archivo,
-            HttpSession session) {
+    public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 

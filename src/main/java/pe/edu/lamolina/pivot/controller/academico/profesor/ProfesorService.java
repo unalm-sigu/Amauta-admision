@@ -27,7 +27,7 @@ public interface ProfesorService {
 
     Persona findPersonaByDocIdentidad(Persona personaTmp);
 
-    Docente findDocenteByPersona(Persona persona);
+    Docente findDocenteByDocente(Docente docente);
 
     List<ModalidadEstudio> allModalidadEstudio(Compania compania);
 

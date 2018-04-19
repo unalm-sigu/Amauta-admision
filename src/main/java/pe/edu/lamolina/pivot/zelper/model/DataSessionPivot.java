@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -19,9 +20,11 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public class DataSessionPivot implements Serializable {
 
-    private String email;
+    private Compania compania;
 
     private CicloAcademico cicloAcademico;
+
+    private String email;
 
     private Persona persona;
 
@@ -33,11 +36,13 @@ public class DataSessionPivot implements Serializable {
 
     private List<Rol> roles;
 
+    private List<Rol> rolesMain;
+
     private Rol rolActivo;
 
-    private Compania compania;
+    private List<Menu> menu;
 
-    private List<Facultad> facultados;
+    private List<Facultad> facultades;
 
     private List<Carrera> carreras;
 
@@ -47,13 +52,23 @@ public class DataSessionPivot implements Serializable {
 
     private List<Oficina> oficinas;
 
-    private List<Menu> menu;
+    private List<Colaborador> colaborador;
+
+    private Oficina oficinaMain;
 
     private String browser;
 
     private String direccionIp;
 
     private String sistemaOperativo;
+
+    public List<Colaborador> getColaborador() {
+        return colaborador;
+    }
+
+    public void setColaborador(List<Colaborador> colaborador) {
+        this.colaborador = colaborador;
+    }
 
     public String getBrowser() {
         return browser;
@@ -157,12 +172,12 @@ public class DataSessionPivot implements Serializable {
         this.compania = compania;
     }
 
-    public List<Facultad> getFacultados() {
-        return facultados;
+    public List<Facultad> getFacultades() {
+        return facultades;
     }
 
-    public void setFacultados(List<Facultad> facultados) {
-        this.facultados = facultados;
+    public void setFacultades(List<Facultad> facultades) {
+        this.facultades = facultades;
     }
 
     public List<Carrera> getCarreras() {
@@ -203,6 +218,22 @@ public class DataSessionPivot implements Serializable {
 
     public void setOficinas(List<Oficina> oficinas) {
         this.oficinas = oficinas;
+    }
+
+    public List<Rol> getRolesMain() {
+        return rolesMain;
+    }
+
+    public void setRolesMain(List<Rol> rolesMain) {
+        this.rolesMain = rolesMain;
+    }
+
+    public Oficina getOficinaMain() {
+        return oficinaMain;
+    }
+
+    public void setOficinaMain(Oficina oficinaMain) {
+        this.oficinaMain = oficinaMain;
     }
 
 }

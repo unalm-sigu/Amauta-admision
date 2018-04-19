@@ -116,7 +116,7 @@ public class AlumnoController {
                 }
                 break;
             case FAC:
-                for (Facultad fac : ds.getFacultados()) {
+                for (Facultad fac : ds.getFacultades()) {
                     filtros.add(fac.getId());
                 }
                 break;

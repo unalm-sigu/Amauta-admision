@@ -36,7 +36,7 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.general.PersonaPerfil;
+import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -85,11 +85,11 @@ public class PersonaPerfilController {
 
         try {
 
-            List<PersonaPerfil> personasPerfiles = perfilService.allPersonasPefiles(filter);
+            List<PersonaCargo> personasPerfiles = perfilService.allPersonasPefiles(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (PersonaPerfil pp : personasPerfiles) {
+            for (PersonaCargo pp : personasPerfiles) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -120,7 +120,7 @@ public class PersonaPerfilController {
     @RequestMapping("nuevo")
     public String nuevo(RedirectAttributes redirectAttr, Model model) {
 
-        PersonaPerfil personaPerfil = new PersonaPerfil();
+        PersonaCargo personaPerfil = new PersonaCargo();
         personaPerfil.setPersona(new Persona());
         personaPerfil.setPerfilCompania(new PerfilCompania());
         personaPerfil.setCompania(new Compania());
@@ -137,7 +137,7 @@ public class PersonaPerfilController {
     @RequestMapping("{perfil}/update")
     public String update(@PathVariable("perfil") Long perfil, RedirectAttributes redirectAttr, Model model, HttpSession session) {
 
-        PersonaPerfil personaPerfil = perfilService.findPersonaPerfil(new PersonaPerfil(perfil));
+        PersonaCargo personaPerfil = perfilService.findPersonaPerfil(new PersonaCargo(perfil));
 
         if (personaPerfil.getOficina() == null || personaPerfil.getOficina().getId() == null) {
             personaPerfil.setOficina(new Oficina());
@@ -152,7 +152,7 @@ public class PersonaPerfilController {
     }
 
     @RequestMapping("save")
-    public String save(@ModelAttribute("personaPerfil") PersonaPerfil personaPerfil, RedirectAttributes redirectAttr, HttpSession session) {
+    public String save(@ModelAttribute("personaPerfil") PersonaCargo personaPerfil, RedirectAttributes redirectAttr, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 

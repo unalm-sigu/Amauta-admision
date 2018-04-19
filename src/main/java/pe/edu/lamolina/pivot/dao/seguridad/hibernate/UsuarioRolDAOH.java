@@ -8,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.dao.SqlUtil;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -86,6 +87,18 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "rol r")
                 .filter("ur.id", userRol);
+
+        return find(sql);
+    }
+
+    @Override
+    public UsuarioRol findUsuarioAndOficina(Usuario usuario1, Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "oficina ofi")
+                .filter("u.id", usuario1.getId())
+                .filter("ofi.id", oficina.getId())
+                .filter("ur.estado", ACT);
 
         return find(sql);
     }
