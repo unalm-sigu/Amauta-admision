@@ -75,11 +75,11 @@ public interface OficinaService {
 
     public List<Oficina> findOficinas(Oficina oficina);
 
-    public List<PerfilCompania> allCargos();
+    public List<PerfilCompania> allCargos(Oficina oficina);
 
-    public void saveColaborador(Colaborador colaborador, DataSessionPivot dataSessionPivot);
+    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
-    void updateColaborador(Colaborador colaborador, DataSessionPivot dataSessionPivot);
+    void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
     public List<PerfilCompania> allFunciones();
 
@@ -87,6 +87,11 @@ public interface OficinaService {
 
     Usuario verifiEmail(Persona persona);
 
-    public Boolean saveColaboradorExit(Colaborador colaborador, DataSessionPivot dataSessionPivot);
+    public Boolean saveColaboradorExit(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
+    List<PerfilCompania> allCargosByOficina(Oficina oficina);
+
+    void addCargo(PerfilCompania perfilCompania, DataSessionPivot ds);
+
+    public List<Persona> allPersonasByNombre(String buscar);
 }
