@@ -30,6 +30,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 
 @Controller
 @RequestMapping("seguridad/rol")
@@ -42,6 +43,9 @@ public class RolController {
 
     @Autowired
     SpringTemplateEngine springHtml;
+
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -112,7 +116,7 @@ public class RolController {
 
         try {
 
-            List<Menu> menus = service.allMenuSystemByRol(new Sistema(1L), idRol);
+            List<Menu> menus = service.allMenuSystemByRol(new Sistema(despliegueConfig.getSistema()), idRol);
             logger.debug("SIZE OF MENU {}", menus.size());
             ArrayNode array = createNodes(menus);
             response.setData(array);

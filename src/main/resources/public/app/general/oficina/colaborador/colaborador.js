@@ -42,7 +42,7 @@ Vue.component("dynatable", {
             }).data('dynatable');
 
             $("body").delegate(".updateEstado", "click", function () {
-                $global.$emit("updateEstado", $(this).attr("rel"), $(this).text());
+                $global.$emit("updateEstado", $(this).attr("rel"), $(this).text(), $(this).attr("value"));
             });
             $("body").delegate(".updateColaborador", "click", function () {
                 $global.$emit("updateColaborador", $(this).attr("rel"));
@@ -82,14 +82,17 @@ new Vue({
     data: {
         oficinas: JSON.parse(oficinasJson),
         oficina: {id: JSON.parse(oficinaId)},
+        listaCargos: JSON.parse(cargosJson),
         persona: {},
-        colaborador: {}
+        colaborador: {},
+        perfilCompania: {}
     },
     computed: {
 
     },
     created() {
         let $vue = this;
+        console.log($vue.listaCargos);
         $vue.oficinas.forEach(function (elem) {
             if ($vue.oficina.id == elem.id) {
                 $vue.oficina = elem;
@@ -98,8 +101,8 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-        $global.$on("updateEstado", function (id, value) {
-            $vue.updateEstado(id, value);
+        $global.$on("updateEstado", function (id, value, estado) {
+            $vue.updateEstado(id, value, estado);
         });
         $global.$on("updateColaborador", function (id) {
             $vue.updateColaborador(id);
@@ -107,6 +110,37 @@ new Vue({
 
     },
     methods: {
+        addCargo: function () {
+            let $vue = this;
+            var flag = false;
+            $vue.listaCargos.forEach(function (elem) {
+                if (elem.nombre == $vue.perfilCompania.nombre) {
+                    notify('El cargo ingresado ya existe', "error");
+                    flag = true;
+                }
+            })
+            if (flag) {
+                return;
+            }
+            $vue.perfilCompania.oficinaContiene = $vue.oficina;
+            $.ajax({
+                url: APP.url('general/oficina/cargo'),
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify($vue.perfilCompania),
+                success: function (response) {
+                    notify(response.message, "info");
+                    $global.$emit("reloadDyntable");
+                    $("#myModal").modal('hide');
+                },
+                error: function (error) {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        nuevoCargos: function () {
+            $("#myModal").modal('show');
+        },
         regresar: function () {
             location.href = APP.url("general/oficina");
         },
@@ -126,9 +160,14 @@ new Vue({
             console.log($vue.oficina);
             $global.$emit("oficinaId", $vue.oficina);
         },
-        updateEstado: function (id, value) {
+        updateEstado: function (id, value, estado) {
             let $vue = this;
-            $vue.colaborador = {id: id, estado: value};
+            console.log(estado);
+            if (estado == "DESP") {
+                location.href = APP.url("general/oficina/" + id + "/updateColaborador/" + $vue.oficina.id);
+                return;
+            }
+            $vue.colaborador = {id: id, estado: value, oficina: $vue.oficina};
             bootbox.confirm({
                 message: "¿Seguro desea cambiar de estado al colaborador?",
                 buttons: {

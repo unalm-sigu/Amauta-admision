@@ -73,6 +73,7 @@ public class VisorMenu {
         for (MenuRol menuRol : menusRoles) {
             addMenuRol(menuRol);
         }
+        System.out.println("hay " + mapMenus.size() + " menus");
 
     }
 

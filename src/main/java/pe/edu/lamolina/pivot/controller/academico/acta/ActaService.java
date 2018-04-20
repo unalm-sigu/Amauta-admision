@@ -13,7 +13,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface ActaService {
 
-    List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<DepartamentoAcademico> allActiveDepartamentosAcademicos(DynatableFilter filter, List<DepartamentoAcademico> dptos, CicloAcademico cicloAcademico);
 
     DepartamentoAcademico findDepartamento(Long idDepartamentoAcad);
 
@@ -30,7 +30,7 @@ public interface ActaService {
     void reabrirGrupo(GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<DepartamentoAcademico> countGroupsByFilter(List<Long> departamentos, CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
-    
+
     ActaResumen findResumenByDepartamento(CicloAcademico cicloAcademico, DepartamentoAcademico departamentoAcademico);
 
 }
