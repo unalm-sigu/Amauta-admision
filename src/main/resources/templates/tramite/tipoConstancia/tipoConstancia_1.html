@@ -1,11 +1,11 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Administración de Oficinas</title>
-        <link h:substituteby="_layout/includes :: styles-dynatable"/>
+        <link th:substituteby="_layout/includes :: styles-dynatable"/>
     </head>
     <body>
         <div layout:fragment="main">
-            <div id="colaboradorVue">
+            <div id="main">
 
                 <header class="header b-b padder-lg">
 
@@ -13,11 +13,14 @@
                         <a type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click="nuevo">
                             &nbsp; Nuevo &nbsp;
                         </a>
+
                     </div>
 
-                    <h2>Plantilla Constancia</h2>
+                    <h2>Tipo Constancia</h2>
 
                 </header>
+
+
                 <section class="wrapper-lg m-b-xs">
                     <section class="panel  ">
                         <section class="panel-body ">
@@ -25,6 +28,7 @@
                         </section>
                     </section>
                 </section>
+
                 <!--MODAL INICIO-->
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                     <div class="modal-dialog" role="document">
@@ -36,38 +40,43 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="col-md-offset-1 ">
+
                                         <div class='form-group row'>
-                                            <label class="col-sm-3 control-label">Tipo constancia</label>
-                                            <div class="col-sm-8">
-                                                <div class="form-group">
-                                                    <multiselect v-model="plantilla.tipoDocumentoAcademico"
-                                                                 v-bind:options='tipoConstancia'
-                                                                 label='nombre'
-                                                                 track-by='id'
-                                                                 placeholder="Seleccione un tipo de constancia"
-                                                                 >
-                                                    </multiselect>
-                                                </div>
+                                            <label class="col-sm-3 control-label">Nombre:</label>
+                                            <div class="col-sm-6">
+                                                <input  required="true" v-model="tipoConstancia.nombre" type="text" class="form-control " placeholder="Ingrese un nombre"/>
                                             </div>
                                         </div>
                                         <div class='form-group row'>
-                                            <label class="col-sm-3 control-label">Idioma</label>
+                                            <label class="col-sm-3 control-label">Tipo:</label>
                                             <div class="col-sm-8">
-                                                <div class="form-group">
-                                                    <multiselect v-model="plantilla.idioma"
-                                                                 v-bind:options='idiomas'
-                                                                 label='nombre'
-                                                                 track-by='id'
+                                                <div class="form-group" >
+                                                    <multiselect v-model="tipoConstancia.tipo"
+                                                                 v-bind:options='tipos'
+                                                                 label='value'
+                                                                 track-by='name'
                                                                  placeholder="Seleccione un tipo de constancia"
                                                                  >
                                                     </multiselect>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='form-group row' >
+                                            <label class="col-sm-3 control-label">Costo ciclo:</label>
+                                            <div class="col-sm-8">
+                                                <div class="form-group" >
+                                                    <label class="switch">
+                                                        <input type="checkbox" v-model="tipoConstancia.costoCiclo" ></input>
+                                                        <span></span>
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-success " v-on:click.prevent="save" v-if="isNew" v-text="'Guardar'"></button>
-                                            <button type="button" class="btn btn-success " v-on:click.prevent="update" v-if="isOld" v-text="'Actualizar'"></button>
+                                            <button type="button" class="btn btn-success" v-on:click.prevent="save" v-if="isNew" v-text="'Guardar'"></button>
+                                            <button type="button" class="btn btn-success" v-on:click.prevent="update" v-if="!isNew" v-text="'Actualizar'"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -76,18 +85,28 @@
                     </div>
                 </div>
                 <!--MODAL FIN -->
+                <div th:substituteby="academico/horariocachimbo/curso/horarioCachimboCursoModal"></div>
+
             </div>
-            <th:block th:replace="tramite/plantillaConstancia/plantillaDynatable"/>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
+
+
+
+
+            <th:block th:replace="tramite/tipoConstancia/tipoConstanciaDynatable"/>
         </div>
+
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
-                var idiomasJson = /*[[${idiomas.toString()}]]*/ 'json';
+                var tiposJson = /*[[${tipos.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-            <script th:src="@{/app/tramite/plantillaConstancia/plantillaConstancia.js}" charset="utf-8"></script>
+            <script th:src="@{/app/tramite/tipoConstancia/tipoConstanciaDynatable.js}" charset="utf-8"></script>
+            <script th:src="@{/app/tramite/tipoConstancia/tipoConstancia.js}" charset="utf-8"></script>
         </div>
 
     </body>

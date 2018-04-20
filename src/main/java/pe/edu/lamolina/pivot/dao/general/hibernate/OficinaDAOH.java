@@ -18,12 +18,12 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {
-    
+
     public OficinaDAOH() {
         super();
         setClazz(Oficina.class);
     }
-    
+
     @Override
     public Oficina find(long id) {
         Octavia sql = Octavia.query()
@@ -31,32 +31,32 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .join("tipoOficina")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior")
                 .filter("ofi.id", id);
-        
+
         return find(sql);
     }
-    
+
     @Override
     public List<Oficina> all() {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe", "oficinaSuperior");
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allByJefe(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .join("personaJefe pj", "tipoOficina")
                 .filter("pj.id", persona);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allByFilter(DynatableFilter filter, Compania compania) {
-        
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
                 .join("compania cia")
@@ -68,10 +68,10 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .searchComplexField("concat(coalesce(pje.paterno,''),' ',coalesce(pje.materno,''),' ',coalesce(pje.nombres,''))")
                 .searchComplexField("concat(coalesce(pje.nombres,''),' ',coalesce(pje.paterno,''),' ',coalesce(pje.materno,''))")
                 .orderBy("ofi.id DESC");
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allUnidadSuperior(String nombre, Compania compania) {
         Octavia sql = Octavia.query()
@@ -80,26 +80,26 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .filter("cia.id", compania)
                 .orderBy("ofi.nombre")
                 .limit(10);
-        
+
         if (!"".equalsIgnoreCase(nombre)) {
             sql.beginBlock()
                     .__().like("ofi.codigo", nombre)
                     .__().like("ofi.nombre", nombre)
                     .endBlock();
         }
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allOficinasByName(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .filter("ofi.nombre", "like", nombre);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allByOficinaWithAulas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
@@ -111,7 +111,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allByUser(Persona persona) {
         Octavia sql = Octavia.query()
@@ -121,13 +121,24 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .filter("co.persona", persona);
         return all(sql);
     }
-    
+
     @Override
     public List<Oficina> allAndSuperiorOfi() {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .left("oficinaSuperior", "tipoOficina");
-        
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Oficina> allByName(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("compania cia")
+                .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
+                .filter("ofi.nombre", "like", nombre);
         return all(sql);
     }
 }
