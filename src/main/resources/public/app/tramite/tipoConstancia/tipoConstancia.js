@@ -9,7 +9,7 @@ new Vue({
         oficinas: [],
         tiposOficina: [],
         ordenFirma: 1,
-        firmasDocumento: [{id: null, orden: 1, tipoOficina: {id: null}, oficina: {id: null}}],
+        firmasDocumento: [{id: null, orden: 1, tipoOficina: {id: '', nombre: ''}, oficina: {id: '', nombre: ''}}],
         addTipoConstanciaModal: {
             id: 'modalAddTipoConstancia',
             header: true,
@@ -123,7 +123,7 @@ new Vue({
             let vue = this;
             let orden = vue.ordenFirma + 1;
             vue.ordenFirma++;
-            vue.firmasDocumento.push({orden: orden, tipoOficina: {}, oficina: {}});
+            vue.firmasDocumento.push({orden: orden, tipoOficina: {id: '', nombre: ''}, oficina: {id: '', nombre: ''}});
             setTimeout(function() {
 
                 $(".oficina").select2(vue.selectOficina()).on('change.select2', function(e) {
