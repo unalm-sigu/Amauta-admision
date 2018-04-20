@@ -1,0 +1,96 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Roles de Sistema</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <link rel="stylesheet" type="text/css" th:href="@{/nestable/nestable.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/iconpicker/css/fontawesome-iconpicker.min.css}" />
+    <style>
+        .m1 {
+            display: flex;
+            overflow: hidden;
+            height: calc(100vh - 175px);
+            padding-bottom: 40px;
+            position: relative;
+            width: 100%;
+            backface-visibility: hidden;
+            will-change: overflow;
+            border: #fff none thin;
+
+        }
+        .m2 {
+            overflow: auto;
+            height: auto;
+            padding: .5rem;
+            -webkit-overflow-scrolling: touch;
+            -ms-overflow-style: none;
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+         <header class="header b-b padder-lg">
+
+            <div class="btn-group pull-right pointer new-rol">
+                <a class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus"></i> Nuevo Rol
+                </a>
+            </div>
+
+            <h2>Roles del Sistema</h2>
+        </header>
+
+        <section class="panel">
+            <section class="panel-body">
+
+                <div class="row">
+                    <div class="col-sm-6">
+
+                        <table  id="dynaTable" class="table table-striped">
+                            <thead class="panel panel-heading">
+                                <tr>
+                                    <th class="col-md-6">Nombre</th>
+                                    <th class="col-md-4 text-center">Código</th>
+                                    <th class="col-md-2 text-center"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+
+                    <div class="col-sm-6" id="formMenu">
+
+                        <div class="m1">
+                            <div class="m2">
+                                <div id="tree"  class="tree"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+        </section>
+
+        <script id="rolTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="seguridad/rol/rolTemplate"></div>
+        </script>
+
+        <script id="menuSistemaTemplate" type="text/x-jsrender" class="hide">
+            <div th:substituteby="seguridad/rol/menuSistemaTemplate"></div>
+        </script>
+
+        <div id="rolModal"></div>
+    </div>
+
+    <div layout:fragment="js" th:remove="tag">
+        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <script th:src="@{/nestable/nestable.js}" charset="utf-8"></script>
+        <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

@@ -1,96 +1,62 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Roles de Sistema</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <link rel="stylesheet" type="text/css" th:href="@{/nestable/nestable.css}" />
-    <link rel="stylesheet" type="text/css" th:href="@{/iconpicker/css/fontawesome-iconpicker.min.css}" />
-    <style>
-        .m1 {
-            display: flex;
-            overflow: hidden;
-            height: calc(100vh - 175px);
-            padding-bottom: 40px;
-            position: relative;
-            width: 100%;
-            backface-visibility: hidden;
-            will-change: overflow;
-            border: #fff none thin;
+    </head>
 
-        }
-        .m2 {
-            overflow: auto;
-            height: auto;
-            padding: .5rem;
-            -webkit-overflow-scrolling: touch;
-            -ms-overflow-style: none;
-            flex: 1;
-        }
-    </style>
-</head>
+    <body>
+        <div id="pageRolSistemaVUE" layout:fragment="main">
 
-<body>
-    <div layout:fragment="main">
+            <header class="header b-b padder-lg">
 
-         <header class="header b-b padder-lg">
-
-            <div class="btn-group pull-right pointer new-rol">
-                <a class="btn btn-primary btn-sm">
-                    <i class="fa fa-plus"></i> Nuevo Rol
-                </a>
-            </div>
-
-            <h2>Roles del Sistema</h2>
-        </header>
-
-        <section class="panel">
-            <section class="panel-body">
-
-                <div class="row">
-                    <div class="col-sm-6">
-
-                        <table  id="dynaTable" class="table table-striped">
-                            <thead class="panel panel-heading">
-                                <tr>
-                                    <th class="col-md-6">Nombre</th>
-                                    <th class="col-md-4 text-center">Código</th>
-                                    <th class="col-md-2 text-center"></th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-
-                    </div>
-
-                    <div class="col-sm-6" id="formMenu">
-
-                        <div class="m1">
-                            <div class="m2">
-                                <div id="tree"  class="tree"></div>
-                            </div>
-                        </div>
-
-                    </div>
-
+                <div class="btn-group pull-right pointer new-rol">
+                    <a class="btn btn-primary btn-sm">
+                        <i class="fa fa-plus"></i> Nuevo Rol
+                    </a>
                 </div>
+
+                <h2>Roles del Sistema</h2>
+            </header>
+
+            <section class="panel">
+                <section class="panel-body">
+
+                    <movimiento-raptor inline-template="true" v-bind:ver-detalles="verDetalles">
+                        <raptor-table v-bind:url="rolesUrl">
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2 text-center">Código</th>
+                                            <th class="col-md-10">Nombre</th>
+                                            <th class=""></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data">
+                                            <td class="v-middle text-center">
+                                                <a class="text-lg bold text-primary pointer" v-text="item.codigo" v-on:click="verDetalles(item)"></a>
+                                            </td>
+                                            <td class="v-middle">
+                                                <span v-text="item.nombre"></span>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+                    </movimiento-raptor>
+
+                </section>
             </section>
-        </section>
+        </div>
 
-        <script id="rolTemplate" type="text/x-jsrender" class="hide">
-            <div th:substituteby="seguridad/rol/rolTemplate"></div>
-        </script>
+        <div layout:fragment="js" th:remove="tag">
+            <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
+        </div>
 
-        <script id="menuSistemaTemplate" type="text/x-jsrender" class="hide">
-            <div th:substituteby="seguridad/rol/menuSistemaTemplate"></div>
-        </script>
-
-        <div id="rolModal"></div>
-    </div>
-
-    <div layout:fragment="js" th:remove="tag">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
-        <script th:src="@{/nestable/nestable.js}" charset="utf-8"></script>
-        <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
-    </div>
-
-</body>
+    </body>
 </html>

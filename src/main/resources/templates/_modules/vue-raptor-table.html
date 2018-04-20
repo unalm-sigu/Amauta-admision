@@ -1,0 +1,136 @@
+<template id="raptor-table-base">
+    <div class="row m-t-md m-b-md">
+
+        <!--span v-if="processing" style="position:relative; top: 30px; left:500px;">
+            <span class="raptor-table-process">
+                <i class="fa fa-spin fa-spinner"> </i> Cargando Información
+            </span>
+        </span-->
+
+        <div class="col-md-10">
+            <slot name="header"> </slot>
+        </div>
+
+        <div class="col-md-2">
+            <input v-on:keyup.enter="executeSearch"
+                   v-model="search" 
+                   placeholder="Buscar"
+                   type="text"
+                   class="form-control input-sm" />
+        </div>
+
+        <div class="col-md-1 hidden">
+            <select class="form-control input-sm">
+                <option> 10 </option>
+                <option> 20 </option>
+                <option> 50 </option>
+                <option> 100 </option>
+            </select>
+        </div>
+
+
+        <div class="col-md-12 m-t-sm">
+            <slot v-bind:data="data"></slot>
+        </div>
+
+        <div class="wrapper">
+            <div class="col-md-6">
+                <small class="text-muted">
+                    {{footer}}
+                </small>
+            </div>
+
+            <div class="col-md-6 text-right">
+                <uib-pagination v-model="page" 
+                                v-bind="pagination"
+                                v-on:change="loadRemoteData"
+                                previous-text="Anterior"
+                                next-text="Siguiente"
+                                class="pagination"/>
+            </div>
+        </div>
+
+    </div>
+
+</template>
+<script>
+    Vue.component('raptor-table', {
+        template: '#raptor-table-base',
+        props: {
+            processing: false,
+            search: "",
+            footer: "",
+            data: {type: Object, default: []},
+            url: {type: String, default: null},
+            page: {type: Object, default: {currentPage: 1}},
+            pagination: {type: Object, default: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true}},
+        },
+        mounted() {
+            this.loadRemoteData();
+        },
+        methods: {
+            executeSearch() {
+                let $vue = this;
+                Vue.set($vue.page, 'currentPage', 1);
+                $vue.loadRemoteData();
+            },
+            loadRemoteData() {
+                if (this.url === null) {
+                    return;
+                }
+
+                let $vue = this;
+                $vue.processing = true;
+                let params = $vue.generateParams();
+                axios.get($vue.url, {params})
+                        .then(function (response) {
+
+                            $vue.processing = false;
+                            if (response.data.total === 0) {
+                                return;
+                            }
+
+                            $vue.data = response.data.data;
+                            $vue.generateFooterInfo(params, response.data);
+                            $vue.pagination['total-items'] = response.data.filtered;
+                        })
+                        .catch(function (error) {
+                            $vue.processing = false;
+                            console.log(error);
+                        });
+            },
+            generateFooterInfo(params, data) {
+                let $vue = this;
+                let first = params.offset + 1;
+                let tos = params.offset + data.data.length;
+                let filtero = data.filtered;
+                let total = data.total;
+
+                let info = first + " a " + tos + " de " + filtero + " registros";
+
+                if (typeof $vue.search !== "undefined") {
+                    info += " (filtrados de " + total + " registros)";
+                }
+
+                $vue.footer = info;
+            },
+            generateParams() {
+                let $vue = this;
+                let page = $vue.page['currentPage'];
+                let perPage = $vue.pagination['items-per-page'];
+                let offset = page * perPage - perPage;
+                let params = {
+                    page: page,
+                    offset: offset,
+                    perPage: perPage
+                };
+
+                if ($vue.search !== "") {
+                    params['queries[search]'] = $vue.search;
+                }
+                return params;
+            }
+        }
+    });
+
+</script>

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.seguridad.rol;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
@@ -18,5 +19,7 @@ public interface RolService {
     void delete(Rol rol);
 
     Rol findRol(Rol rol);
+
+    List<Rol> allRolByDynatable(DynatableFilter filter);
 
 }

@@ -5,6 +5,8 @@ import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -82,6 +84,18 @@ public class RolDAOH extends AbstractEasyDAO<Rol> implements RolDAO {
                 .from(Rol.class, "r")
                 .filter("r.codigo", rolEnum);
         return find(sql);
+    }
+    
+    @Override
+    public List<Rol> allByDynatable(DynatableFilter filter) {
+        
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Rol.class, "rol")
+                .searchFields("codigo", "nombre")
+                .orderBy("id DESC");
+        
+        return all(sql);
+        
     }
     
 }
