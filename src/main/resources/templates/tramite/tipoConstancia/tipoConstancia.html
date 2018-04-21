@@ -38,11 +38,12 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var tiposJson = /*[[${tipos.toString()}]]*/ 'json';
+                var tiposJson = /*[[${tipos.toString()}]]*/ '';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <div th:substituteby="_layout/includes :: vuemodal"/>
+            <div th:substituteby="_layout/includes :: lodash"/>
             <script th:src="@{/app/tramite/tipoConstancia/tipoConstanciaDynatable.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/tipoConstancia/tipoConstancia.js}" charset="utf-8"></script>
         </div>

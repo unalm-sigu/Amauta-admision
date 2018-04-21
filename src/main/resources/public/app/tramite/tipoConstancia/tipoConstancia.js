@@ -1,21 +1,26 @@
-Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
         tipos: JSON.parse(tiposJson),
         tipoConstancia: {},
         listTipoDocumento: [],
-        isNew: true,
+        copia: '',
         oficinas: [],
         tiposOficina: [],
-        ordenFirma: 1,
-        firmasDocumento: [{id: null, orden: 1, tipoOficina: {id: '', nombre: ''}, oficina: {id: '', nombre: ''}}],
+        firmasDocumento: [{orden: 1, tipoOficina: {}, oficina: {}}],
         addTipoConstanciaModal: {
             id: 'modalAddTipoConstancia',
             header: true,
             title: 'Nuevo Tipo Constancia',
-            okbtn: 'Agregar Tipo Constancia'
+            okbtn: 'Agregar Tipo Constancia',
+            modalSize: 'modal-lg',
+            modalScroll: 'modal-scroll-500'
         },
+    },
+    computed: {
+        orderedFirmasDocumento: function() {
+            return _.orderBy(this.firmasDocumento, 'orden');
+        }
     },
     mounted: function() {
         let vue = this;
@@ -60,31 +65,52 @@ new Vue({
         updateTipo: function(tipoConstancia) {
             let vue = this;
             vue.tipoConstancia = tipoConstancia;
-            vue.isNew = false;
             vue.$refs.modalAddTipoConstancia.open();
         },
-        nuevo: function() {
+        updateSelect2: function() {
             let vue = this;
-            vue.tipoConstancia = {};
-            vue.isNew = true;
-            vue.$refs.modalAddTipoConstancia.open();
+
+            try {
+                $(".oficina").select2('destroy');
+                $(".tipoOficina").select2('destroy');
+            } catch (e) {
+                console.log(e.toString());
+            }
 
             $(".oficina").select2(vue.selectOficina()).on('change.select2', function(e) {
                 let self = $(e.currentTarget);
-                let inx = self.attr("rev");
-                let firmaDocumento = vue.firmasDocumento[inx];
+                let orden = parseInt(self.attr("rev"));
+                let firmaDocumento = vue.firmasDocumento.find(item => item.orden === orden);
                 firmaDocumento.oficina = e.added;
+                firmaDocumento.tipoOficina = {};
+                setTimeout(function() {
+                    vue.updateSelect2();
+                }, 100);
             });
 
             $(".tipoOficina").select2(vue.selectTipoOficina()).on('change.select2', function(e) {
                 let self = $(e.currentTarget);
-                let inx = self.attr("rev");
-                let firmaDocumento = vue.firmasDocumento[inx];
+                let orden = parseInt(self.attr("rev"));
+                let firmaDocumento = vue.firmasDocumento.find(item => item.orden === orden);
                 firmaDocumento.tipoOficina = e.added;
+                firmaDocumento.oficina = {};
+                setTimeout(function() {
+                    vue.updateSelect2();
+                }, 100);
             });
-
+        },
+        nuevo: function() {
+            let vue = this;
+            vue.tipoConstancia = {};
+            vue.firmasDocumento = [{orden: 1, tipoOficina: {}, oficina: {}}];
+            vue.$refs.modalAddTipoConstancia.open();
+            setTimeout(function() {
+                vue.updateSelect2();
+            }, 100);
+            $("[name='tipo']").select2('val', '');
         },
         save: function(e) {
+            let vue = this;
             var self = $(e.currentTarget);
             self.btnDisabled();
             $(".mx-input").attr("required", true);
@@ -92,17 +118,10 @@ new Vue({
                 self.btnEnable();
                 return;
             }
-            self.btnEnable();
-            let vue = this;
-            vue.temp = {};
-            vue.temp.nombre = vue.tipoConstancia.nombre;
-            vue.temp.costoCiclo = vue.tipoConstancia.costoCiclo == true ? 1 : 0;
-            vue.temp.tipo = vue.tipoConstancia.tipo.name;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/tipoconstancia/save'),
-                contentType: "application/json",
-                data: JSON.stringify(vue.temp),
+                data: $("#formTipoConstancia").serialize(),
                 success: function(response) {
                     if (response.success) {
                         notify(response.message, 'info');
@@ -111,9 +130,11 @@ new Vue({
                     } else {
                         notify(response.message, 'error');
                     }
+                    self.btnEnable();
                 }, error: function() {
                     vue.$refs.modalAddTipoConstancia.close();
                     notify(MESSAGES.errorComunicacion, "error");
+                    self.btnEnable();
                 }
             });
         },
@@ -121,34 +142,28 @@ new Vue({
             let self = $(e.currentTarget);
             self.btnDisabled();
             let vue = this;
-            let orden = vue.ordenFirma + 1;
-            vue.ordenFirma++;
-            vue.firmasDocumento.push({orden: orden, tipoOficina: {id: '', nombre: ''}, oficina: {id: '', nombre: ''}});
+            let orden = vue.firmasDocumento.length + 1;
+            vue.firmasDocumento.push({orden: orden, tipoOficina: {}, oficina: {}});
             setTimeout(function() {
-
-                $(".oficina").select2(vue.selectOficina()).on('change.select2', function(e) {
-                    let self = $(e.currentTarget);
-                    let inx = self.attr("rev");
-                    let firmaDocumento = vue.firmasDocumento[inx];
-                    firmaDocumento.oficina = e.added;
-                });
-
-                $(".tipoOficina").select2(vue.selectTipoOficina()).on('change.select2', function(e) {
-                    let self = $(e.currentTarget);
-                    let inx = self.attr("rev");
-                    let firmaDocumento = vue.firmasDocumento[inx];
-                    firmaDocumento.tipoOficina = e.added;
-                });
-
+                vue.updateSelect2();
                 self.btnEnable();
-            }, 200);
+            }, 100);
         },
         eliminarFirma: function(firma) {
             let vue = this;
-            vue.firmasDocumento.splice(vue.firmasDocumento.indexOf(firma), 1);
+            if (vue.firmasDocumento.length < 2) {
+                notify("Debe haber una firma como mínimo", 'error');
+                return;
+            }
+            let backOrder = parseInt(firma.orden);
+            let maxOrder = parseInt(vue.firmasDocumento.length);
+            vue.$delete(vue.firmasDocumento, vue.firmasDocumento.indexOf(firma));
+            vue.reOrder(backOrder, maxOrder);
+            setTimeout(function() {
+                vue.updateSelect2();
+            }, 100);
         },
-        selectOficina(self) {
-            var vue = this;
+        selectOficina: function() {
             return {
                 allowClear: true,
                 placeholder: "Seleccione un oficina",
@@ -166,15 +181,11 @@ new Vue({
                 },
                 initSelection: function(element, callback) {
                     if (element.val() != "") {
-                        var inx = element.attr("rev");
-                        console.log(inx);
-                        let firmaDocumento = vue.firmasDocumento[inx];
-                        callback(firmaDocumento.oficina);
-//                        var datos = {
-//                            id: element.val(),
-//                            nombre: element.attr("rel")
-//                        };
-//                        callback(datos);
+                        var datos = {
+                            id: element.val(),
+                            nombre: element.attr("rel")
+                        };
+                        callback(datos);
                     }
                 },
                 formatResult: function(info) {
@@ -188,8 +199,7 @@ new Vue({
                 }
             };
         },
-        selectTipoOficina(self) {
-            var vue = this;
+        selectTipoOficina: function() {
             return {
                 allowClear: true,
                 placeholder: "Seleccione un tipo de oficina",
@@ -207,15 +217,11 @@ new Vue({
                 },
                 initSelection: function(element, callback) {
                     if (element.val() != "") {
-                        var inx = element.attr("rev");
-                        console.log(inx);
-                        let firmaDocumento = vue.firmasDocumento[inx];
-                        callback(firmaDocumento.tipoOficina);
-//                        var datos = {
-//                            id: element.val(),
-//                            nombre: element.attr("rel")
-//                        };
-//                        callback(datos);
+                        var datos = {
+                            id: element.val(),
+                            nombre: element.attr("rel")
+                        };
+                        callback(datos);
                     }
                 },
                 formatResult: function(info) {
@@ -229,5 +235,45 @@ new Vue({
                 }
             };
         },
+        upFirma: function(firma) {
+            let vue = this;
+            if (firma.orden < 2) {
+                return;
+            }
+            let oldOrder = parseInt(firma.orden);
+            let newOrder = parseInt(firma.orden - 1);
+            let firmaDocumento = vue.firmasDocumento.find(item => item.orden === newOrder);
+            firmaDocumento.orden = oldOrder;
+            firma.orden = newOrder;
+            setTimeout(function() {
+                vue.updateSelect2();
+            }, 50);
+        },
+        downFirma: function(firma) {
+            let vue = this;
+            if (firma.orden >= vue.firmasDocumento.length) {
+                return
+            }
+            let oldOrder = parseInt(firma.orden);
+            let newOrder = parseInt(firma.orden + 1);
+            let firmaDocumento = vue.firmasDocumento.find(item => item.orden === newOrder);
+            firmaDocumento.orden = oldOrder;
+            firma.orden = newOrder;
+            setTimeout(function() {
+                vue.updateSelect2();
+            }, 50);
+        },
+        reOrder: function(backOrder, max) {
+            let vue = this;
+            if (max <= backOrder) {
+                return;
+            }
+            for (var i = backOrder; i <= max; i++) {
+                let firmaDocumento = vue.firmasDocumento.find(item => item.orden === (i + 1));
+                if (firmaDocumento) {
+                    firmaDocumento.orden = i;
+                }
+            }
+        }
     }
 });

@@ -1682,3 +1682,9 @@ div.notas {
     margin-top: 30px;
 }
 
+/*modal scroll max height 500px*/
+.modal-scroll-500{
+    max-height: 500px;
+    overflow-y: scroll
+}
+

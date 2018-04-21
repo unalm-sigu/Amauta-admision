@@ -15,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,30 +71,19 @@ public class TipoConstanciaController {
     }
 
     @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(@RequestBody TipoDocumentoAcademico tipoDocumentoAcademico, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            service.update(tipoDocumentoAcademico, ds.getUsuario());
-            response.setMessage("Se actualizó");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody TipoDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+    public JsonResponse save(TipoDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.save(tramiteDocumentoAcademico, ds.getUsuario());
-            response.setMessage("Se guardó");
+
+            if (tramiteDocumentoAcademico.getId() == null) {
+                service.save(tramiteDocumentoAcademico, ds.getUsuario());
+                response.setMessage("Se guardó");
+            } else {
+                service.update(tramiteDocumentoAcademico, ds.getUsuario());
+                response.setMessage("Se actualizó");
+            }
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
