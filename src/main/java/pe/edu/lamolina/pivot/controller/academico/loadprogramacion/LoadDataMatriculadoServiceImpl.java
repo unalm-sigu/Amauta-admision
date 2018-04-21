@@ -203,18 +203,6 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + "(" + alumno.getId() + ") bloqueado para loadDataMatriculados");
 
         MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
-        if (resumen == null) {
-            resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
-            if (resumen != null) {
-                resumen.setMatriculaSeccion(new ArrayList());
-                resumen.setMatriculaCurso(new ArrayList());
-                resumen.setCreditosMatriculados(0);
-                resumen.setCreditosRetirados(0);
-                resumen.setCursosMatriculados(0);
-                resumen.setCursosRetirados(0);
-                mapResumenes.put(alumno.getCodigo(), resumen);
-            }
-        }
 
         if (resumen == null) {
             System.out.println("\t" + rr + " creando mat-resumen del alumno " + alumno.getCodigo() + " :::: ");
@@ -225,7 +213,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             resumen.setCreditosRetirados(0);
             resumen.setCursosMatriculados(0);
             resumen.setCursosRetirados(0);
-            resumen.setEstado(EstadoMatriculaEnum.MAT);
+            resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
             resumen.setNotaAcumulada("0");
             resumen.setNotaAvance("0");
             resumen.setNotaFinal("0");
@@ -240,14 +228,12 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
 
         if (resumen.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
             System.out.println("\t" + rr + " guardando mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
-            resumen.setEstado(EstadoMatriculaEnum.MAT);
+            resumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaResumenDAO.update(resumen);
         }
 
         MatriculaSeccion matriSeccBD = findMatriculaSeccion(resumen.getMatriculaSeccion(), seccion);
-        if (matriSeccBD == null) {
-            matriSeccBD = matriculaSeccionDAO.findByAlumnoSeccion(alumno, seccion);
-        }
+        
         if (matriSeccBD == null) {
             System.out.println("\t" + rr + " creando mat-seccion del alumno " + alumno.getCodigo());
             matriSeccBD = new MatriculaSeccion();
@@ -257,26 +243,15 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriSeccBD.setSeccion(seccion);
             matriSeccBD.setMatriculaResumen(resumen);
             matriculaSeccionDAO.save(matriSeccBD);
+            resumen.getMatriculaSeccion().add(matriSeccBD);
 
             System.out.println("\t" + rr + " mat-seccion es " + matriSeccBD.getId());
         }
-
-        if (!existeSeccion(resumen.getMatriculaSeccion(), seccion)) {
-            System.out.println("\t" + rr + " mat-seccion " + matriSeccBD.getId() + " se agrega al alumno " + alumno.getCodigo());
-            resumen.getMatriculaSeccion().add(matriSeccBD);
-        }
-
-        if (matriSeccBD.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
-            System.out.println("\t" + rr + " guardando mat-seccion " + matriSeccBD.getId() + " del alumno " + alumno.getCodigo());
-            matriSeccBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
-            matriculaSeccionDAO.update(matriSeccBD);
-        }
+        matriSeccBD.setCargado(1);
 
         Curso curso = seccion.getGrupoSeccion().getCurso();
         MatriculaCurso matriCursoBD = findMatriculaCurso(resumen.getMatriculaCurso(), curso, rr);
-        if (matriCursoBD == null) {
-            matriCursoBD = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
-        }
+        
         if (matriCursoBD == null) {
             System.out.print("\t" + rr + " creando mat-curso del alumno " + alumno.getCodigo() + " :::: ");
             matriCursoBD = new MatriculaCurso();
@@ -288,7 +263,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriCursoBD.setNotaAvance("0");
             matriCursoBD.setNotaFinal("0");
             matriCursoBD.setPorcentajeAvanceNota(0);
+            matriCursoBD.setCreditos(matriSecc.getCreditos());
             matriculaCursoDAO.save(matriCursoBD);
+            resumen.getMatriculaCurso().add(matriCursoBD);
 
             System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
             visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " creado", true, "info");
@@ -298,23 +275,10 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " ya existe", true, "info");
         }
 
+        matriCursoBD.setCargado(1);
         matriCursoBD.setCreditos(matriSecc.getCreditos());
         matriculaCursoDAO.update(matriCursoBD);
-
-        if (!existeCurso(resumen.getMatriculaCurso(), curso)) {
-            System.out.println("\t" + rr + " mat-curso " + matriCursoBD.getId() + " agregado al mat-resumen " + resumen.getId() + " del alumno " + alumno.getCodigo());
-            resumen.getMatriculaCurso().add(matriCursoBD);
-            resumen.setCursosMatriculados(resumen.getCursosMatriculados() + 1);
-            resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() + matriSecc.getCreditos());
-            matriculaResumenDAO.update(resumen);
-
-            System.out.println("\t" + rr + " finalizo actualizacion mat-resumen " + resumen.getId() + " para el mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo());
-        }
-
-        if (matriCursoBD.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
-            matriCursoBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
-            matriculaCursoDAO.update(matriCursoBD);
-        }
+        resumen.setCargado(1);
 
         matriSecc.setProcesado(1);
         matriSecc.setFechaFinProceso(new Date());

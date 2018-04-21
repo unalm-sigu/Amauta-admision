@@ -82,7 +82,7 @@ public interface ProgDataService {
             Map<String, Seccion> mapSecciones,
             CicloAcademico ciclo, DataSessionPivot ds);
 
-    void revisarAlumnoMatriculado(MatriculaResumen aluResumen, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados);
+    void revisarAlumnoMatriculado(MatriculaResumen aluResumen);
 
     void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo);
 

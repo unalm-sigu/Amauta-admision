@@ -93,7 +93,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         List<EventoCicloAcademico> eventosCicloAcademico = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
 
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByCiclo(cicloAcademico);
+        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allMatriculadosByCiclo(cicloAcademico);
         Map<Long, List<MatriculaSeccion>> matriculaSeccionPorSeccion = TypesUtil.convertListToMapList("seccion.id", matriculaSeccions);
         logger.debug("matriculaSeccions {}", matriculaSeccions.size());
 
