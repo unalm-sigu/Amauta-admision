@@ -204,7 +204,7 @@ public class TestController {
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByCiclo(ciclo);
+        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByCiclo(ciclo);
         for (MatriculaSeccion ms : alumnosSeccion) {
             Seccion seccion = ms.getSeccion();
             GrupoSeccion gpoSecc = seccion.getGrupoSeccion();

@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.ColaboradorMenu;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.dao.seguridad.ColaboradorMenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 
@@ -24,11 +25,14 @@ public class MenuColaboradorServiceImp implements MenuColaboradorService {
     @Autowired
     ColaboradorMenuDAO colaboradorMenuDAO;
 
+    @Autowired
+    DespliegueConfig despliegueConfig;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<Menu> allMenuReportes(MenuTipoEnum menuTipoEnum) {
-        return menuDAO.allByTipo(menuTipoEnum, new Sistema(1L));
+        return menuDAO.allByTipo(menuTipoEnum, new Sistema(despliegueConfig.getSistema()));
     }
 
     @Override
@@ -36,7 +40,7 @@ public class MenuColaboradorServiceImp implements MenuColaboradorService {
         List<ColaboradorMenu> menusCo = new ArrayList();
         Menu menuPadre = menuDAO.findByRuta("/reporte");
 
-        Sistema sistema = new Sistema(1L);
+        Sistema sistema = new Sistema(despliegueConfig.getSistema());
 
         List<Menu> menus = menuDAO.allBySuperMenu(sistema, menuPadre);
 

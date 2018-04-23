@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -58,7 +59,9 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
@@ -83,6 +86,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
 
     @Autowired
     ProgDataService progDataService;
@@ -463,7 +470,6 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
             List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
             progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            //progDataService.savePersona(persona, mapTiposDoc, mapKeyPersonas, mapDNIPersonas, ds);
             String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
             Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
             progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
@@ -473,7 +479,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     }
 
     private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {
-        List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
+//        List<MatriculaResumen> alumnosResumen = matriculaResumenDAO.allByCiclo(ciclo);
+        List<MatriculaResumen> alumnosResumen = new ArrayList(mapResumenes.values());
         int loop = 1;
         for (MatriculaResumen aluResumen : alumnosResumen) {
             Alumno alumno = aluResumen.getAlumno();
@@ -486,7 +493,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
-            progDataService.revisarAlumnoMatriculado(aluResumen, mapResumenes, mapBloqueados);
+            progDataService.revisarAlumnoMatriculado(aluResumen);
         }
 
         logger.debug("\trevisarAlumnosMatriculados envio {} alumnos a ser revisados", alumnosResumen.size());
@@ -568,7 +575,29 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
     }
 
     private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
-        Map<String, MatriculaResumen> mapResumenes = new LinkedHashMap();
+
+        List<MatriculaResumen> resumenesBD = matriculaResumenDAO.allByCiclo(ciclo);
+        Map<String, MatriculaResumen> mapResumenes = TypesUtil.convertListToMap("alumno.codigo", resumenesBD);
+        Map<String, MatriculaResumen> mapResumenesById = TypesUtil.convertListToMap("id", resumenesBD);
+        for (MatriculaResumen mr : resumenesBD) {
+            mr.setMatriculaCurso(new ArrayList());
+            mr.setMatriculaSeccion(new ArrayList());
+        }
+
+        List<MatriculaSeccion> matriSeccionesBD = matriculaSeccionDAO.allByCiclo(ciclo);
+        for (MatriculaSeccion ms : matriSeccionesBD) {
+            MatriculaResumen mr = mapResumenesById.get(ms.getMatriculaResumen().getId());
+            mr.getMatriculaSeccion().add(ms);
+            ms.setMatriculaResumen(mr);
+        }
+
+        List<MatriculaCurso> matriCursosBD = matriculaCursoDAO.allByCiclo(ciclo);
+        for (MatriculaCurso mc : matriCursosBD) {
+            MatriculaResumen mr = mapResumenesById.get(mc.getMatriculaResumen().getId());
+            mr.getMatriculaCurso().add(mc);
+            mc.setMatriculaResumen(mr);
+        }
+
         for (MatriculaSeccion matriSecc : matriculasSecciones) {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
@@ -997,6 +1026,10 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     private List<MatriculaSeccion> crearMatriculasSecciones(String rutaFile) {
         List<MatriculaSeccion> matriculasSecciones = new ArrayList();
+        List<String> rev = new ArrayList();
+        List<String> poste = new ArrayList();
+        List<MatriculaSeccion> posteMS = new ArrayList();
+
         try {
 
             FileInputStream fis = new FileInputStream(rutaFile);
@@ -1023,7 +1056,35 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Integer creditos = Integer.valueOf(getCellStringValue(4, row));
 
                 MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion, creditos);
+                if (rev.contains(codigoAlumno)) {
+                    poste.add(codigoAlumno);
+                    posteMS.add(alumnoSecc);
+                    continue;
+                }
+
+                if (!poste.isEmpty()) {
+                    String y = poste.get(0);
+                    MatriculaSeccion ms = posteMS.get(0);
+                    if (!rev.contains(y) && !y.equals(codigoAlumno)) {
+                        poste.remove(0);
+                        posteMS.remove(0);
+                        rev.add(y);
+                        matriculasSecciones.add(ms);
+                        if (rev.size() > 25) {
+                            rev.remove(0);
+                        }
+                    }
+                }
+
+                rev.add(codigoAlumno);
                 matriculasSecciones.add(alumnoSecc);
+                if (rev.size() > 25) {
+                    rev.remove(0);
+                }
+            }
+
+            if (!poste.isEmpty()) {
+                matriculasSecciones.addAll(posteMS);
             }
             logger.debug("Se han leido un total de {} alumnos-secciones", loop);
 
