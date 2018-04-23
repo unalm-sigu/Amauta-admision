@@ -103,7 +103,7 @@ Vue.component("historial-component", {
                             data: {id: vue.alumno.id},
                             success: function(response) {
                                 if (response.success) {
-                                    location.reload();
+                                    vue.cargaHistorial();
                                 } else {
                                     notify(response.message, 'error');
                                 }
