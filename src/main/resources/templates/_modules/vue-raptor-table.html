@@ -1,58 +1,62 @@
-<template id="raptor-table-base">
-    <div class="row m-t-md m-b-md">
+<div>
+    <template id="raptor-table-base">
+        <div class="row m-t-md m-b-md">
 
-        <!--span v-if="processing" style="position:relative; top: 30px; left:500px;">
-            <span class="raptor-table-process">
-                <i class="fa fa-spin fa-spinner"> </i> Cargando Información
-            </span>
-        </span-->
+            <!--                        <span v-if="processing" style="position:relative; top: 300px; left:500px;">
+                                        <span class="raptor-table-process">
+                                            <i  class="fa fa-spin fa-spinner"> </i> Cargando Información
+                                        </span>
+                                    </span>-->
 
-        <div class="col-md-10">
-            <slot name="header"> </slot>
-        </div>
-
-        <div class="col-md-2">
-            <input v-on:keyup.enter="executeSearch"
-                   v-model="search" 
-                   placeholder="Buscar"
-                   type="text"
-                   class="form-control input-sm" />
-        </div>
-
-        <div class="col-md-1 hidden">
-            <select class="form-control input-sm">
-                <option> 10 </option>
-                <option> 20 </option>
-                <option> 50 </option>
-                <option> 100 </option>
-            </select>
-        </div>
-
-
-        <div class="col-md-12 m-t-sm">
-            <slot v-bind:data="data"></slot>
-        </div>
-
-        <div class="wrapper">
-            <div class="col-md-6">
-                <small class="text-muted">
-                    {{footer}}
-                </small>
+            <div class="col-md-10">
+                <slot name="header">  </slot>
             </div>
 
-            <div class="col-md-6 text-right">
-                <uib-pagination v-model="page" 
-                                v-bind="pagination"
-                                v-on:change="loadRemoteData"
-                                previous-text="Anterior"
-                                next-text="Siguiente"
-                                class="pagination"/>
+            <div class="col-md-2">
+                <input v-on:keyup.enter="executeSearch"
+                       v-model="search" 
+                       placeholder="Buscar"
+                       type="text"
+                       class="form-control input-sm" 
+                       v-if="searcher"/>
             </div>
+
+            <div class="col-md-1 hidden">
+                <select class="form-control input-sm">
+                    <option> 10 </option>
+                    <option> 20 </option>
+                    <option> 50 </option>
+                    <option> 100 </option>
+                </select>
+            </div>
+
+
+            <div class="col-md-12 m-t-sm">
+                <slot v-bind:data="data"></slot>
+            </div>
+
+            <div class="wrapper">
+                <div class="col-md-6" v-if="paginate">
+                    <small class="text-muted">
+                        {{footer}}
+                    </small>
+                </div>
+
+                <div class="col-md-6 text-right">
+                    <uib-pagination v-model="page" 
+                                    v-bind="pagination"
+                                    v-on:change="loadRemoteData"
+                                    class="pagination"
+                                    previous-text="Anterior"
+                                    next-text="Siguiente"
+                                    v-if="paginate"/>
+                </div>
+            </div>
+
         </div>
 
-    </div>
-
-</template>
+    </template>
+</div> 
 <script>
     Vue.component('raptor-table', {
         template: '#raptor-table-base',
@@ -62,10 +66,14 @@
             footer: "",
             data: {type: Object, default: []},
             url: {type: String, default: null},
+            ajaxdata: {type: Object, default: {}},
+            searcher: {type: Boolean, default: false},
+            paginate: {type: Boolean, default: false},
             page: {type: Object, default: {currentPage: 1}},
             pagination: {type: Object, default: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true}},
         },
         mounted() {
+            console.log("vue raptor table");
             this.loadRemoteData();
         },
         methods: {
@@ -119,18 +127,23 @@
                 let page = $vue.page['currentPage'];
                 let perPage = $vue.pagination['items-per-page'];
                 let offset = page * perPage - perPage;
-                let params = {
-                    page: page,
-                    offset: offset,
-                    perPage: perPage
-                };
-
+                let params = {};
+                if ($vue.paginate) {
+                    params = {
+                        page: page,
+                        offset: offset,
+                        perPage: perPage
+                    };
+                }
                 if ($vue.search !== "") {
                     params['queries[search]'] = $vue.search;
                 }
-                return params;
+
+                var returnParams = Object.assign(params, $vue.ajaxdata);
+                return returnParams;
             }
         }
+
     });
 
 </script>
