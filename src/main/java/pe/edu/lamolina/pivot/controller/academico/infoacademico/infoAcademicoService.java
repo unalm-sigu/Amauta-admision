@@ -29,9 +29,11 @@ public interface infoAcademicoService {
     List<AlumnoCicloCurso> allPromediosByAlumnoOrderByCurso(Alumno alumno);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
-    
+
     List<PlanCurricular> allPlanCurricularByCarrera(Carrera carrera);
-    
+
     void cambiarPlan(Alumno alumno, PlanCurricular planCurricular);
+
+    void calcularPromedio(Alumno alumno, DataSessionPivot ds);
 
 }
