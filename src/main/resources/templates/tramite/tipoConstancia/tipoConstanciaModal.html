@@ -1,0 +1,120 @@
+<modal-vik ref="modalAddTipoConstancia"
+           v-bind="addTipoConstanciaModal"
+           v-bind:okaction="save">
+
+    <div slot="body" >
+
+        <form id="formTipoConstancia" class="form-horizontal"  data-parsley-validate="true">
+
+            <input   v-model="tipoConstancia.id" type="hidden" name="id"  />
+
+            <div class='form-group row'>
+                <label class="col-sm-3 control-label">Nombre:</label>
+                <div class="col-sm-6">
+                    <input name="nombre"  required="true" v-model="tipoConstancia.nombre" type="text" class="form-control " />
+                </div>
+            </div>
+
+            <div class='form-group'>
+                <label class="col-sm-3 control-label">Tipo:</label>
+                <div class="col-sm-6">
+                    <select name="tipo" class="form-control"   required="true"  v-model="tipoConstancia.tipo">
+                        <option v-for="tipo in tipos"   v-bind:value="tipo.name" v-text="tipo.value"  ></option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class='form-group' >
+                <label class="col-sm-3 control-label">Costo ciclo:</label>
+                <div class="col-sm-9">
+                    <label class="switch">
+                        <input type="checkbox" name="costoCiclo" value="1"  v-model="tipoConstancia.costoCiclo" ></input>
+                        <span></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+
+                <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Orden</th>
+                            <th>Oficina</th>
+                            <th>Tipo Oficina</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr   v-for="(firma, index)  in orderedFirmasDocumento">
+
+                            <td class='v-middle'>
+                                <i class="fa fa-arrow-up block pointer" v-on:click="upFirma(firma)"  aria-hidden="true"></i>
+                                <i class="fa fa-arrow-down block pointer" v-on:click="downFirma(firma)"  aria-hidden="true"></i>
+                            </td>
+
+                            <td class="v-middle text-center" >
+
+                                <input
+                                    v-bind:name=" 'configuracionFirmaDocumento['+index+'].orden' "
+                                    type="hidden"
+                                    v-model="firma.orden"
+                                    v-bind:value="firma.orden" />
+
+                                <p v-text="firma.orden"></p>
+
+                            </td>
+
+                            <td class="v-middle col-xs-6" >
+
+                                <input
+                                    v-bind:name=" 'configuracionFirmaDocumento['+index+'].oficina.id' "
+                                    type="text"
+                                    v-model="firma.oficina.id"
+                                    v-bind:value="firma.oficina.id"
+                                    v-bind:rev="firma.orden"
+                                    v-bind:rel="firma.oficina.nombre"
+                                    class="form-control oficina" />
+
+                            </td>
+
+                            <td class="v-middle col-xs-6" >
+
+                                <input
+                                    v-bind:name=" 'configuracionFirmaDocumento['+index+'].tipoOficina.id' "
+                                    type="text"
+                                    v-model="firma.tipoOficina.id"
+                                    v-bind:value="firma.tipoOficina.id"
+                                    v-bind:rev="firma.orden"
+                                    v-bind:rel="firma.tipoOficina.nombre"
+                                    class="form-control tipoOficina" />
+
+                            </td>
+
+                            <td class="v-middle">
+                                <div class="dropdown actions">
+                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="glyphicon glyphicon-option-vertical pointer"></i>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right" >
+                                        <li><a href="#"   v-on:click.prevent="eliminarFirma(firma)">Eliminar</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class='form-group' >
+                <div class="text-center">
+                    <button type="button" class="btn btn-info btn-sm" v-on:click.prevent="agregar($event)">Agregar firmante</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</modal-vik>
