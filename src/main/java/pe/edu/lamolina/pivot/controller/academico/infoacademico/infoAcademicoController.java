@@ -282,4 +282,11 @@ public class infoAcademicoController {
         return response;
     }
 
+    @RequestMapping("{idAlumno}/datoacademico")
+    public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        Alumno alumno = service.allInfo(new Alumno(idAlumno));
+        ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
+        model.addAttribute("datoAlumno", alumnoJson);
+        return "academico/alumno/datosAcademico";
+    }
 }

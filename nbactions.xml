@@ -9,4 +9,11 @@
                 <goal>spring-boot:run</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-run-boot</actionName>
+            <displayName>run-boot</displayName>
+            <goals>
+                <goal>spring-boot:run</goal>
+            </goals>
+        </action>
     </actions>

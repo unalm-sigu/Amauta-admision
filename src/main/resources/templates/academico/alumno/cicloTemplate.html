@@ -1,0 +1,49 @@
+<template id="cicloTemplate">
+
+    <div class="grupoCiclo" >
+
+        <table class="table table-striped col-md-12" v-bind:id="tab.descripción" >
+
+
+            <thead class="thead-dark">
+                <tr>
+                    <td colspan="3" class="col-md-12 p-3 mb-2 bg-primary text-white text-center" v-text="tab.ciclo" />
+                </tr>
+            </thead>
+
+
+            <tbody>
+                <tr>
+                    <th scope="col" class="col-md-8">
+                        Nombre del curso
+                    </th>
+                    <th scope="col" class="col-md-2 text-center">
+                        Créditos
+                    </th>
+                    <th scope="col" class="col-md-2 text-center">
+                        Nota
+                    </th>
+                </tr>
+
+                <tr v-for="curso in tab.cursos"  v-if="validarNota(curso,typeSearch)">
+
+                    <td class="col-md-8">
+                        <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
+                    </td>
+
+                    <td class="col-md-2 text-center" v-text="curso.creditos"/>
+
+                    <td class="col-md-2 text-center">
+                        <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>
+                    </td>
+
+                </tr>
+            </tbody>
+
+
+
+        </table>
+    </div>
+
+
+</template>
