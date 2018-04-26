@@ -92,7 +92,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
             matriculaSeccionEach.setSeccion(seccionClone);
 
             for (HorarioSeccion horaSeccion : matriculaSeccionEach.getSeccion().getHorarioSeccion()) {
-                horaSeccion.setSeleccionado(true);
+            //    horaSeccion.setSeleccionado(true);
                 if (inasistenciasAlumnos != null) {
                     InasistenciaAlumno inasistencia = inasistenciasAlumnos.stream()
                             .filter(x -> x.getMatriculaCurso().getMatriculaResumen().getAlumno().getId().compareTo(matriculaSeccionEach.getMatriculaResumen().getAlumno().getId()) == 0)
@@ -114,7 +114,9 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
 
         List<HorarioSeccion> horarioSeccion = horarioSeccionDAO.allBySeccionDia(seccion, dia);
         Collections.sort(horarioSeccion, (p1, p2) -> p1.getHora().getHora().compareTo(p2.getHora().getHora()));
-
+        for (HorarioSeccion horarioSeccionEach : horarioSeccion) {
+            horarioSeccionEach.setSeleccionado(true);
+        }
         seccion.setHorarioSeccion(horarioSeccion);
 
         return seccion;
