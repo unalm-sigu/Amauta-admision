@@ -4,8 +4,6 @@ import java.util.List;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
-import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
@@ -88,13 +86,25 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
     }
 
     @Override
-    public List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo) {
+    public List<MatriculaSeccion> allMatriculadosByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
                 .leftJoin("gs.planCalificacion")
                 .filter("ms.estado", MAT)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("gs.curso cur", "alu.persona per")
+                .leftJoin("gs.planCalificacion", "per.tipoDocumento tdoc")
                 .filter("ca.id", ciclo);
 
         return all(sql);

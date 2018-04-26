@@ -1,4 +1,4 @@
-Vue.component("multiselect", window.VueMultiselect.default)
+Vue.component("multiselect", window.VueMultiselect.default);
 Vue.component("date-picker", window.DatePicker.default);
 new Vue({
     el: '#colaboradorFormVue',
@@ -16,7 +16,8 @@ new Vue({
         personaValidTemp: {},
         newCola: false,
         colaboradorData: {},
-        sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}]
+        sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}],
+        seleccionado: {}
     },
     computed: {
 
@@ -34,10 +35,22 @@ new Vue({
     mounted: function () {
         let $vue = this;
         $('.numeric').numeric({negative: false});
+        
+        $global.$on("personaSeleccionada", function (personaSelec) {
+            $vue.seleccionado = personaSelec;
+        });
     },
     methods: {
-        chacked: function () {
-            console.log("hola")
+        seleccionar: function () {
+            let $vue = this;
+            $vue.persona = $vue.seleccionado;
+            if ($vue.persona != undefined) {
+                $vue.restringirValores();
+            }
+            $("#myModal").modal('hide');
+        },
+        searchPerson: function () {
+            $("#myModal").modal('show');
         },
         verificarDoc: function () {
             let $vue = this;
@@ -55,24 +68,7 @@ new Vue({
                 success: function (response) {
                     if (!response.success) {
                         $vue.persona = response.data;
-                        $vue.personaValidTemp = {};
-                        console.log($vue.persona);
-                        var map = new Map(Object.entries($vue.persona));
-                        Object.keys($vue.persona).forEach(function (elem) {
-                            if (elem == 'materno' && map.get(elem) !== null) {
-                                $vue.personaValidTemp.materno = true;
-                            } else if (elem == 'paterno' && map.get(elem) !== null) {
-                                $vue.personaValidTemp.paterno = true;
-                            } else if (elem == 'nombres' && map.get(elem) !== null) {
-                                $vue.personaValidTemp.nombres = true;
-                            } else if (elem == 'emailCompania' && map.get(elem) !== null) {
-                                $vue.personaValidTemp.emailCompania = true;
-                            } else if (elem == 'sexo' && map.get(elem) !== null) {
-                                $vue.personaValidTemp.sexo = true;
-                            }
-
-                        })
-                        $vue.removerError();
+                        $vue.restringirValores();
                     } else {
                         $vue.temp.numeroDocIdentidad = $vue.persona.numeroDocIdentidad;
                         $vue.temp.tipoDocumento = $vue.persona.tipoDocumento;
@@ -145,6 +141,7 @@ new Vue({
             self.btnEnable();
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
+            $vue.colaboradorData.oficinaMean = $vue.oficina;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),
@@ -177,7 +174,7 @@ new Vue({
             $vue.colaborador.persona = $vue.persona;
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
-
+            $vue.colaboradorData.oficinaMean = $vue.oficina;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),
@@ -204,6 +201,31 @@ new Vue({
             var FieldInstance = $('[name=' + response.item + ']').parsley(),
                     errorName = response.item;
             window.ParsleyUI.removeError(FieldInstance, errorName);
+
+        },
+        restringirValores: function () {
+            let $vue = this;
+            if ($vue.persona.id == null || $vue.persona.id == undefined) {
+                $vue.temp = $vue.persona;
+            }
+            $vue.personaValidTemp = {};
+            console.log($vue.persona);
+            var map = new Map(Object.entries($vue.persona));
+            Object.keys($vue.persona).forEach(function (elem) {
+                if (elem == 'materno' && map.get(elem) !== null) {
+                    $vue.personaValidTemp.materno = true;
+                } else if (elem == 'paterno' && map.get(elem) !== null) {
+                    $vue.personaValidTemp.paterno = true;
+                } else if (elem == 'nombres' && map.get(elem) !== null) {
+                    $vue.personaValidTemp.nombres = true;
+                } else if (elem == 'emailCompania' && map.get(elem) !== null) {
+                    $vue.personaValidTemp.emailCompania = true;
+                } else if (elem == 'sexo' && map.get(elem) !== null) {
+                    $vue.personaValidTemp.sexo = true;
+                }
+
+            })
+            $vue.removerError();
 
         }
     }

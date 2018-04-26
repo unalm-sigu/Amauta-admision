@@ -56,7 +56,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -118,7 +118,7 @@ public class ProfesorController {
 
             FotoHelper helper = new FotoHelper();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Docente> docentes = service.allByDynatable(filter);
+            List<Docente> docentes = service.allByDynatable(filter, ds.getDepartamentos());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Docente docente : docentes) {

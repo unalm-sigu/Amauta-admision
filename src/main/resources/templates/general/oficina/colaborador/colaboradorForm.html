@@ -32,12 +32,19 @@
                             </div>
                         </div>
                     </section>
-                    <form data-parsley-validate="true" id="formConfig"  method="post">
-                        <section class="panel-body">
-                            <div v-if="!newCola" > 
-                                <h2>Información Personal</h2>
+                    <section class="panel-body">
+                        <div v-if="!newCola" > 
+
+                            <h2>Información Personal
+                                <div class="btn-group pull-right">
+                                    <button href="#" v-on:click="searchPerson" class="btn btn-success btn-sm pull-right">Buscar Persona</button>
+                                </div>
+                            </h2>
+                            <div class="col-sm-12">
                                 <hr/>
-                            </div>  
+                            </div>
+                        </div>  
+                        <form data-parsley-validate="true" id="formConfig"  method="post">
                             <div class="row" v-if="!newCola" >
                                 <div class="col-sm-6">
                                     <label>Tipo de Documento</label>                                   
@@ -47,8 +54,9 @@
                                                      v-bind:options='tipoDoc'
                                                      label='nombre'
                                                      track-by='id'
-                                                     placeholder="Seleccione un tipo de documento"
                                                      v-on:input="verificarDoc"
+                                                     v-bind:hide-selected="true"
+                                                     placeholder="Seleccione un tipo de documento"
                                                      >
                                         </multiselect>
                                     </div>
@@ -110,12 +118,12 @@
                                     </div>
 
                                     <!--div class="form-group" v-if="!personaValidTemp.sexo" > 
-
+    
                                         <label >Femenino</label>
                                         <input  type="radio" id ="F" value="F"  v-model="persona.sexo"  />
                                         <label >Masculino</label>
                                         <input  type="radio"   id ="M" value="M" v-model="persona.sexo"  />
-
+    
                                     </div-->
                                     <div class="form-group" v-if="personaValidTemp.sexo">
                                         <span v-text="persona.sexo == 'M' ? 'Masculino' : 'Femenino'"></span>
@@ -136,8 +144,10 @@
                                                      track-by='id'
                                                      required="true"
                                                      placeholder="Seleccione un tipo de documento"
+                                                     v-bind:hide-selected="true"
                                                      >
                                         </multiselect>
+
                                     </div>
                                 </div>     
                                 <div class="col-sm-6">
@@ -157,6 +167,7 @@
                                                      track-by='id'
                                                      required="true"
                                                      placeholder="Seleccione un cargo"
+                                                     v-bind:hide-selected="true"
                                                      >
                                         </multiselect>
                                     </div>
@@ -175,45 +186,75 @@
                                                      >
                                         </multiselect>
                                     </div>
-                                </div>      
-
-                                <div class="form-group m-t-xxlg">
-                                    <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
-                                        <button class="btn btn-primary" 
-                                                type="submit"
-                                                v-on:click.prevent="save"     
-                                                v-if="!newCola"
-                                                >Guardar</button>            
-                                        <button class="btn btn-primary" 
-                                                type="submit"
-                                                v-on:click.prevent="update"      
-                                                v-if="newCola"
-                                                >Actualizar</button>    
-                                        <a v-on:click="regresar" class="btn btn-link" >Cancelar</a>
-                                    </div>
+                                </div>                                  
+                            </div>
+                            <div class="form-group m-t-xxlg">
+                                <div id="footerOficina" class="col-sm-10 col-sm-offset-4">
+                                    <button class="btn btn-primary" 
+                                            type="submit"
+                                            v-on:click.prevent="save"     
+                                            v-if="!newCola" v-text="'Guardar'"
+                                            ></button>            
+                                    <button class="btn btn-primary" 
+                                            type="submit"
+                                            v-on:click.prevent="update"      
+                                            v-if="newCola" v-text="'Actualizar'"
+                                            ></button>    
+                                    <a v-on:click="regresar" class="btn btn-link" >Cancelar</a>
                                 </div>
                             </div>
-                        </section>
-                    </form>
+
+                        </form>
+                    </section>
                 </section>
             </section>
+
+            <!--MODAL INICIO-->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" >Buscar Personas </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="col-md-offset-1 ">                                  
+                                <div class=' form-group row'>
+                                    <div class="col-sm-8">
+                                        <div class="form-group">    
+                                            <search-person v-model="seleccionado" ></search-person>
+                                        </div> 
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-success" v-on:click.prevent="seleccionar" >Seleccionar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>         
+                </div>
+            </div>
+            <!--MODAL FIN-->
         </div>
-    </div>
-    <div layout:fragment="js">
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            var oficinaId = /*[[${oficina}]]*/ 'json';
-            var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
-            var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
-            var sexoJson = /*[[${sexo}]]*/ 'json';
-            var areaJson = /*[[${area.toString()}]]*/ 'json';
-            var companiaJson = /*[[${compania.toString()}]]*/ 'json';
-            var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
-            /*]]>*/
-        </script>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/general/oficina/colaborador/colaboradorForm.js}" charset="utf-8"></script>
+        <div th:substituteby="_modules/vue-searchPerson"></div>
     </div>
 
 </body>
+<div layout:fragment="js">
+    <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var oficinaId = /*[[${oficina}]]*/ 'json';
+        var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
+        var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
+        var sexoJson = /*[[${sexo}]]*/ 'json';
+        var areaJson = /*[[${area.toString()}]]*/ 'json';
+        var companiaJson = /*[[${compania.toString()}]]*/ 'json';
+        var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
+        /*]]>*/
+    </script>
+    <script type="text/javascript" th:src="@{/phobos/modules/vue-searchPerson.js}"></script>
+    <script th:src="@{/app/general/oficina/colaborador/colaboradorForm.js}" charset="utf-8"></script>
+</div>
 </html>

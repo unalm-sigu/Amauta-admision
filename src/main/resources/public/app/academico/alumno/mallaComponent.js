@@ -13,7 +13,7 @@ Vue.component("malla-component", {
     },
     computed: {
         titulo() {
-            if (this.alumno.planCurricular === undefined || this.alumno.planCurricular === null)
+            if (this.alumno.planCurricular.id === undefined || this.alumno.planCurricular.id === null || this.alumno.planCurricular.id === '')
                 return '';
             return 'Malla Curricular de ' + this.alumno.planCurricular.carrera.nombre + ': ' + this.alumno.planCurricular.cicloInicioVigencia.descripcion;
         },
@@ -24,7 +24,7 @@ Vue.component("malla-component", {
     watch: {
         idPlan(val) {
             let $vue = this;
-            if(val !== undefined && val !== null){
+            if (val !== undefined && val !== null) {
                 $vue.verMalla();
             }
         }

@@ -115,8 +115,8 @@ public class AlumnoServiceImp implements AlumnoService {
     AvanceCurricularService avanceCurricularService;
 
     @Override
-    public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, String codigo, List<Long> filtros) {
-        return alumnoDAO.allByRolDynatable(filter, codigo, filtros);
+    public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
+        return alumnoDAO.allByRolDynatable(filter, carreras);
     }
 
     @Override
@@ -621,9 +621,9 @@ public class AlumnoServiceImp implements AlumnoService {
                     ObjectNode seccionNode = new ObjectNode(jsonFactory);
                     seccionNode.put("seccion", horarioSeccion.getSeccion().getCodigo());
                     seccionNode.put("tipoSeccion", horarioSeccion.getSeccion().getTipoSeccion());
-                    seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo());
-                    seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
-                    seccionNode.put("aula", horarioSeccion.getAula().getCodigo());
+                    seccionNode.put("codigoCurso", horarioSeccion.getSeccion().getGrupoSeccion() != null ? horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getCodigo() : "");
+                    seccionNode.put("curso", horarioSeccion.getSeccion().getGrupoSeccion() != null ? horarioSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre() : "");
+                    seccionNode.put("aula", horarioSeccion.getAula() != null ? horarioSeccion.getAula().getCodigo() : "");
                     seccionNode.put("grupo", (String) ObjectUtil.getParentTree(horarioSeccion, "seccion.grupoHoras.codigo"));
                     DocenteSeccion ds = docenteSeccionesMap.get(horarioSeccion.getSeccion().getId());
                     String nombre = (String) ObjectUtil.getParentTree(ds, "docente.persona.letraNomPaterno");

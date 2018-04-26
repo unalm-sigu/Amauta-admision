@@ -103,38 +103,12 @@ public class AlumnoController {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        logger.debug("Rol activo {}", ds.getRolActivo().getCodigo());
-
-        List<Long> filtros = new ArrayList();
-
-        switch (RolEnum.valueOf(ds.getRolActivo().getCodigo())) {
-            case TODO:
-                break;
-            case MOD:
-                for (ModalidadEstudio modalidad : ds.getModalidades()) {
-                    filtros.add(modalidad.getId());
-                }
-                break;
-            case FAC:
-                for (Facultad fac : ds.getFacultades()) {
-                    filtros.add(fac.getId());
-                }
-                break;
-            case ESP:
-                for (Carrera carrera : ds.getCarreras()) {
-                    filtros.add(carrera.getId());
-                }
-                break;
-            default:
-                break;
-        }
-
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             FotoHelper helper = new FotoHelper();
-            List<Alumno> alumnos = service.allAlumnosByCicloDynatable(filter, ds.getRolActivo().getCodigo(), filtros);
+            List<Alumno> alumnos = service.allAlumnosByCicloDynatable(filter, ds.getCarreras());
 
             for (Alumno alumn : alumnos) {
                 Persona persona = alumn.getPersona();

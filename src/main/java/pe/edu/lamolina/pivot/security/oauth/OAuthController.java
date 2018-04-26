@@ -26,7 +26,6 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;

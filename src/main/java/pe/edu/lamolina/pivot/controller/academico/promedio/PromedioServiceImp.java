@@ -189,12 +189,12 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCicloSiguienteRegular.defaultValuesToCreate(alumno, lastCicloAcademico, usuario, today);
                 alumnoCicloSiguienteRegular.setSituacionInicio(alumnoFinal.getSituacionAcademica());
                 alumnoCicloSiguienteRegular.setSituacionFinal(alumnoFinal.getSituacionAcademica());
-                alumnoCicloSiguienteRegular.setEstado(EstadoMatriculaEnum.NMAT);
+                alumnoCicloSiguienteRegular.setEstadoEnum(EstadoMatriculaEnum.NMAT);
                 alumnoCicloDAO.save(alumnoCicloSiguienteRegular);
             } else {
                 alumnoCicloSiguienteRegular.setSituacionInicio(alumnoFinal.getSituacionAcademica());
                 alumnoCicloSiguienteRegular.setSituacionFinal(alumnoFinal.getSituacionAcademica());
-                alumnoCicloSiguienteRegular.setEstado(EstadoMatriculaEnum.NMAT);
+                alumnoCicloSiguienteRegular.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             }
         }
          */

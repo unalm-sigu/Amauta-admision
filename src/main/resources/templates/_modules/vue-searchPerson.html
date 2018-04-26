@@ -1,0 +1,11 @@
+<template id="searchperson">
+    <multiselect v-model='personaSelected'
+                 v-bind:internal-search='false'
+                 v-bind:limit='15'
+                 v-on:search-change="searchPerson"
+                 v-on:input="seleccionado"
+                 v-bind:options='personas'
+                 placeholder="Ingresa un caracter como mínimo"
+                 label='nombreCompleto'>
+    </multiselect>
+</template>
