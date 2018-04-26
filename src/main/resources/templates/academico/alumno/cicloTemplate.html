@@ -1,49 +1,82 @@
 <template id="cicloTemplate">
 
-    <div class="grupoCiclo" >
+    <section class="panel">
+        <section class="panel-body">
 
-        <table class="table table-striped col-md-12" v-bind:id="tab.descripción" >
+            <div class="row m-b-lg">
 
+                <input type="hidden" v-bind:name=" 'alumnoCiclo['+inx+'].alumno.id'  " v-bind:value="alumno.id" />
 
-            <thead class="thead-dark">
-                <tr>
-                    <td colspan="3" class="col-md-12 p-3 mb-2 bg-primary text-white text-center" v-text="tab.ciclo" />
-                </tr>
-            </thead>
+                <div class="col-lg-3 col-sm-6 col-xs-11">
+                    <label class="text-sm col-xs-12">Ciclo Acádemico</label>
+                    <div class="col-xs-12">
+                        <select
+                            v-model="ciclo.id"
+                            required="true"
+                            v-bind:name=" 'alumnoCiclo['+inx+'].cicloAcademico.id'  "
+                            class="cicloSelect form-control input-sm">
+                            <option value=""></option>
+                            <option th:value="${ciclo.id}" th:each="ciclo:${ciclosAcademico}"  th:text="${ciclo.descripcion}"></option>
+                        </select>
+                    </div>
+                </div>
 
+                <div class="col-lg-9 col-sm-6 col-xs-1">
+                    <div class="pull-right m-t-md">
+                        <div class="dropdown actions">
 
-            <tbody>
-                <tr>
-                    <th scope="col" class="col-md-8">
-                        Nombre del curso
-                    </th>
-                    <th scope="col" class="col-md-2 text-center">
-                        Créditos
-                    </th>
-                    <th scope="col" class="col-md-2 text-center">
-                        Nota
-                    </th>
-                </tr>
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="glyphicon glyphicon-option-vertical pointer"></i>
+                            </a>
 
-                <tr v-for="curso in tab.cursos"  v-if="validarNota(curso,typeSearch)">
+                            <ul class="dropdown-menu pull-right" >
+                                <li><a href="#"  class="" v-on:click.prevent="agregarCurso(ciclo)">Agregar curso</a></li>
+                                <li role="presentation" class="divider"></li>
+                                <li><a href="#"  class="" v-on:click.prevent="deleteCiclo(ciclo)">Eliminar</a></li>
+                            </ul>
 
-                    <td class="col-md-8">
-                        <span v-text="curso.codigo"/>&nbsp;-&nbsp;<span v-text="curso.curso"/>
-                    </td>
+                        </div>
+                    </div>
+                </div>
 
-                    <td class="col-md-2 text-center" v-text="curso.creditos"/>
+            </div>
 
-                    <td class="col-md-2 text-center">
-                        <div v-bind:class="styleNota(curso.nota)" v-text="curso.nota"/>
-                    </td>
+            <table class="table unborder table-condensed col-md-12"  >
 
-                </tr>
-            </tbody>
+                <thead class="thead-dark">
+                    <tr>
+                        <td colspan="4"  class="col-md-12 p-3 mb-2 text-primary text-center" v-text="ciclo.descripcion" v-if="ciclo.descripcion" />
+                    </tr>
+                </thead>
 
+                <tbody>
 
+                    <tr>
+                        <th scope="col" class="col-md-8">
+                            Nombre del curso
+                        </th>
+                        <th scope="col" class="col-md-2 text-center">
+                            Créditos
+                        </th>
+                        <th scope="col" class="col-md-2 text-center">
+                            Nota
+                        </th>
+                        <th scope="col" class="col-md-2 text-center">
+                        </th>
+                    </tr>
 
-        </table>
-    </div>
+                    <tr is="curso-component"
+                        v-for="( curso, index ) in ciclo.cursos"
+                        v-bind:curso="curso"
+                        v-bind:inx="inx"
+                        v-bind:index="index"
+                        v-bind:ciclo="ciclo"
+                        ></tr>
 
+                </tbody>
 
+            </table>
+
+        </section>
+    </section>
 </template>

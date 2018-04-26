@@ -12,34 +12,56 @@
                 <header class="header b-b padder-lg">
                     <h2>Información Académica</h2>
                     <div class="pull-right m-t-md">
-                        <a th:href="@{/academico/alumno}" class="btn btn-default">Regresar</a>
+
+                        <a th:href="@{/academico/alumno}" class="btn btn-link btn-sm">Regresar</a>
+
+                        <button class="btn btn-info btn-sm" type="button"
+                                v-on:click.prevent="guardarInformacion"  v-bind:disabled="guardando">
+                            <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>  &nbsp;   Guardar Informacion
+                        </button>
+
                     </div>
                     <header-info-component v-bind:alumno="alumno"></header-info-component>
                 </header>
 
                 <section class="wrapper-lg">
+
+                    <form  method="POST" id="form"   data-parsley-validate="true">
+
+                        <ciclo-component
+                            v-for="( ciclo , inx )  in ciclos"
+                            v-bind:ciclo="ciclo"
+                            v-bind:inx="inx"
+                            v-bind:alumno="alumno"
+                            ></ciclo-component>
+
+                    </form>
+
                     <section class="panel">
-                        <section class="panel-body">
 
-                            <ciclo-component
-                                v-for="tab in ciclos"
-                                v-bind:validarNota="validarNota"
-                                v-bind:styleNota="styleNota"
-                                v-bind:tab="tab" ></ciclo-component>
+                        <div class="text-center">
+                            <button class="btn btn-link btn-sm" type="button" v-on:click.prevent="agregarCiclo" >Agregar Ciclo</button>
+                        </div>
 
-                            <div class="text-center">
-                                <button class="btn btn-link" type="button" v-on:click.prevent="agregarCiclo" >Agregar Ciclo</button>
+                        <section class="panel-footer">
+                            <div class="text-right">
+
+                                <button class="btn btn-info btn-sm" type="button"
+                                        v-on:click.prevent="guardarInformacion"  v-bind:disabled="guardando">
+                                    <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>   &nbsp;  Guardar Informacion
+                                </button>
+
                             </div>
-
                         </section>
+
                     </section>
+
                 </section>
-
-
             </div>
 
             <div th:substituteby="academico/alumno/includes/headerInfo"/>
             <div th:substituteby="academico/alumno/cicloTemplate"/>
+            <div th:substituteby="academico/alumno/cursoTemplate"/>
 
         </section>
         <div layout:fragment="js">
@@ -52,6 +74,7 @@
 
             <script th:src="@{/app/academico/alumno/headerInfoComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/cicloAcademicoComponet.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/cursoComponet.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/datoAcademico.js}" charset="utf-8"></script>
 
         </div>

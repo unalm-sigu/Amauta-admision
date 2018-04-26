@@ -2,38 +2,74 @@ new Vue({
     el: '#main',
     data: {
         alumno: JSON.parse(alumnoJson),
-        ident: true,
-        flag: true,
-        typeSearch: false,
-        ciclos: [{"ciclo": "1997 Primer Ciclo", "descripción": "1997-I", "promedio": 13.23, "promedioPonderadoAcum": 13.18, "CreditoCursadosCiclo": 13, "CreditoAprobadosAcu": 204, "CreditoAprobaCiclo": 13, "creditoAcumulado": 206, "situacionAcademica": "Egresado matriculable", "cursos": [{"curso": "Manejo de Cuencas", "codigo": "IA6011", "creditos": 3, "nota": "14"}, {"curso": "Materiales y Procedimientos de Construccion", "codigo": "IA4015", "creditos": 4, "nota": "14"}, {"curso": "Planeamiento Rural I", "codigo": "IA4020", "creditos": 4, "nota": "12"}, {"curso": "Redaccion Tecnica", "codigo": "EP1014", "creditos": 2, "nota": "13"}]}, {"ciclo": "1996 Segundo Ciclo", "descripción": "1996-II", "promedio": 12.82, "promedioPonderadoAcum": 13.18, "CreditoCursadosCiclo": 17, "CreditoAprobadosAcu": 191, "CreditoAprobaCiclo": 15, "creditoAcumulado": 193, "situacionAcademica": "Egresado matriculable", "cursos": [{"curso": "Analisis Macro Economico I", "codigo": "EP2005", "creditos": 4, "nota": "15"}, {"curso": "Concreto Reforzado", "codigo": "IA4004", "creditos": 4, "nota": "13"}, {"curso": "Ingenieria Economica", "codigo": "IA5008", "creditos": 3, "nota": "13"}, {"curso": "Proyectos de Irrigacion", "codigo": "IA6017", "creditos": 2, "nota": "08"}, {"curso": "Riegos y Recuperacion de Tierras II", "codigo": "IA5015", "creditos": 3, "nota": "12"}, {"curso": "Seminario No Graduado en Ingenieria Agricola", "codigo": "IA5016", "creditos": 1, "nota": "15"}]}]
-    },
-    computed: {
+        guardando: false,
+        ciclos: [{id: null, cursos: [{}]}]
     },
     created() {
         let vue = this;
     },
     mounted: function() {
         let vue = this;
+        $('.numeric').numeric();
+        $global.$on("agregarCurso", function(ciclo) {
+            vue.agregarCurso(ciclo);
+        });
+        $global.$on("deleteCiclo", function(ciclo) {
+            vue.deleteCiclo(ciclo);
+        });
+        $global.$on("deleteCurso", function(curso, ciclo, self) {
+            vue.deleteCurso(curso, ciclo, self);
+        });
     },
     methods: {
-        styleNota(nota) {
-            if (nota < 11 || nota == 'DE') {
-                return "text-danger";
-            } else {
-                return "text-primary";
+        deleteCiclo: function(ciclo) {
+            let vue = this;
+            if (vue.ciclos.length < 2) {
+                notify("Debe haber un ciclo como mínimo", 'error');
+                return;
             }
+            vue.$delete(vue.ciclos, vue.ciclos.indexOf(ciclo));
         },
-        validarNota(curso, tipo) {
-            if (!tipo) {
-                return true;
-            } else {
-                if (curso.nota >= 11)
-                    return true;
+        deleteCurso: function(curso, ciclo, self) {
+            let vue = this;
+            if (ciclo.cursos.length < 2) {
+                notify("Debe haber un curso como mínimo", 'error');
+                return;
             }
+            self.find(".selectCurso").select2("destroy");
+            vue.$delete(ciclo.cursos, ciclo.cursos.indexOf(curso));
+        },
+        agregarCurso: function(ciclo) {
+            let vue = this;
+            ciclo.cursos.push({});
         },
         agregarCiclo: function() {
             let vue = this;
-            vue.ciclos.push({"ciclo": "1997 Primer Ciclo", "descripción": "1997-I", "promedio": 13.23, "promedioPonderadoAcum": 13.18, "CreditoCursadosCiclo": 13, "CreditoAprobadosAcu": 204, "CreditoAprobaCiclo": 13, "creditoAcumulado": 206, "situacionAcademica": "Egresado matriculable", "cursos": [{"curso": "Manejo de Cuencas", "codigo": "IA6011", "creditos": 3, "nota": "14"}, {"curso": "Materiales y Procedimientos de Construccion", "codigo": "IA4015", "creditos": 4, "nota": "14"}, {"curso": "Planeamiento Rural I", "codigo": "IA4020", "creditos": 4, "nota": "12"}, {"curso": "Redaccion Tecnica", "codigo": "EP1014", "creditos": 2, "nota": "13"}]});
-        }
+            vue.ciclos.push({id: null, cursos: [{}]});
+        },
+        guardarInformacion: function() {
+            var vue = this;
+            vue.guardando = true;
+            var valid = $('#form').parsley().validate();
+            if (valid != true) {
+                vue.guardando = false;
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/alumno/updateinfoacademica'),
+                data: $('#form').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    vue.guardando = false;
+                }, error: function() {
+                    vue.guardando = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
     }
 });

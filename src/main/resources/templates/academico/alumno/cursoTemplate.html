@@ -1,0 +1,38 @@
+<template id="cursoTemplate"  >
+    <tr>
+
+        <td class="col-xs-8">
+
+            <input
+                class="selectCurso form-control input-sm"
+                type="text"
+                v-bind:value="curso.id"
+                v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].curso.id'  "
+                required="true"   v-bind:rel="curso.curso"  />
+        </td>
+
+        <td class="col-xs-2" >
+            <input
+                class="form-control input-sm text-right numeric"
+                type="text"
+                required="true"
+                v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].creditos'  "
+                v-bind:value="curso.creditos" />
+        </td>
+
+        <td class="col-xs-2">
+            <input
+                class="form-control input-sm  text-right numeric"
+                type="text"
+                max="20"
+                required="true"
+                v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].nota'  "
+                v-bind:value="curso.nota" />
+        </td>
+
+        <td class="v-middle ">
+            <a href="#" v-on:click="deleteCurso( curso, ciclo)"><i class="fa fa-trash" aria-hidden="true"></i></a>
+        </td>
+
+    </tr>
+</template>
