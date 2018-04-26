@@ -1,0 +1,82 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Asistencia Académica</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="header b-b padder-lg">        
+            <h2>Aistencia Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>   
+            <span class="block"><strong>Curso:</strong> <span  th:text="${curso.nombre}">Juan Perez</span></span> 
+            <span class="block"><strong>Seccion:</strong> <span  th:text="${seccion.codigo2}">Juan Perez</span></span> 
+        </header>
+
+        <section id="asistenciaAcademicaApp" class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+
+                    <raptor-table v-bind:url="URL_LECCIONES" 
+                                  v-bind:ajaxdata="{seccion:seccion.id}">
+
+                        <template scope="props">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-5">Tema</th>
+                                        <th class="col-md-3 text-center">Fecha Tema</th>
+                                        <th class="col-md-3 text-center">Fecha Registro</th>
+                                        <th class="col-md-1 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in props.data"> 
+                                        <td> 
+                                            {{item.tema}}
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{item.fecha}}
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{item.fechaRegistro}}
+                                        </td>
+                                        <td>
+
+                                            <div class="dropdown actions" v-if="item.allowEdit">
+                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="glyphicon glyphicon-cog"></i>
+                                                </a> 
+                                                <ul class="dropdown-menu pull-right"> 
+                                                    <li><a class="btn-link pointer" 
+                                                           v-on:click="controlarLeccion(item.seccion,$event)">Editar</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </template>
+                    </raptor-table>
+
+
+
+                </section>
+            </section>
+        </section>
+
+        <div th:substituteby="templates/modal"/>
+
+
+    </div>
+
+    <div layout:fragment="js" th:remove="tag">
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:inline="javascript">
+            var seccionJson = [[${seccionJson}]];
+        </script>
+        <script th:src="@{/app/academico/docente/asistenciaacademica/leccionesAcademicas.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

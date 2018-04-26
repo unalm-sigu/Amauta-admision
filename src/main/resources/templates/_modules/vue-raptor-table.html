@@ -63,10 +63,11 @@
             search: "",
             footer: "",
             data: {type: Object, default: []},
+            header: {type: Object, default: []},
             url: {type: String, default: null},
             ajaxdata: {type: Object, default: {}},
-            searcher: {type: Boolean, default: false},
-            paginate: {type: Boolean, default: false},
+            searcher: {type: Boolean, default: true},
+            paginate: {type: Boolean, default: true},
             page: {type: Object, default: {currentPage: 1}},
             pagination: {type: Object, default: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true}},
         },
@@ -95,8 +96,14 @@
                             if (response.data.total === 0) {
                                 return;
                             }
-
+                            console.dir("log 1");
+                            console.dir(response);
                             $vue.data = response.data.data;
+                            if (response.data.header != null) {
+                                console.dir("log 2");
+                                console.dir(response.data.header);
+                                $vue.header = response.data.header;
+                            }
                             $vue.generateFooterInfo(params, response.data);
                             $vue.pagination['total-items'] = response.data.filtered;
                         })
