@@ -3,8 +3,8 @@ new Vue({
     data: {
         alumno: JSON.parse(alumnoJson),
         guardando: false,
-        alumnociclo: {cicloAcademico: {}},
-        alumnociclos: [{cicloAcademico: {}}]
+        alumnociclo: {cicloAcademico: {id: null}},
+        alumnociclos: [{id: null, cicloAcademico: {id: null}, alumnociclocursos: [{curso: {id: null}}]}]
     },
     mounted: function() {
         let vue = this;
@@ -12,8 +12,8 @@ new Vue({
         $global.$on("agregarAlumnoCicloCurso", function(alumnociclo) {
             vue.agregarAlumnoCicloCurso(alumnociclo);
         });
-        $global.$on("deleteAlumnoCiclo", function(alumnociclo) {
-            vue.deleteAlumnoCiclo(alumnociclo);
+        $global.$on("deleteAlumnoCiclo", function(alumnociclo, self) {
+            vue.deleteAlumnoCiclo(alumnociclo, self);
         });
         $global.$on("deleteAlumnoCicloCurso", function(alumnociclocurso, alumnociclo, self) {
             vue.deleteAlumnoCicloCurso(alumnociclocurso, alumnociclo, self);
@@ -21,30 +21,61 @@ new Vue({
         vue.notas();
     },
     methods: {
-        deleteAlumnoCiclo: function(alumnoCiclo) {
+        deleteAlumnoCiclo: function(alumnociclo, self) {
             let vue = this;
-            if (vue.alumnosCiclo.length < 2) {
+            if (vue.alumnociclos.length < 2) {
                 notify("Debe haber un ciclo como mínimo", 'error');
                 return;
             }
-            vue.$delete(vue.alumnosCiclo, vue.alumnosCiclo.indexOf(alumnoCiclo));
+
+            bootbox.confirm({
+                message: '¿Seguro que desea eliminar el ciclo académico?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function(result) {
+                    if (result) {
+
+                        self.find("select.cicloSelect").select2("destroy");
+                        vue.$delete(vue.alumnociclos, vue.alumnociclos.indexOf(alumnociclo));
+
+                    }
+                }
+            });
+
         },
-        deleteAlumnoCicloCurso: function(alumnoCicloCurso, alumnociclo, self) {
+        deleteAlumnoCicloCurso: function(alumnociclocurso, alumnociclo, self) {
             let vue = this;
-            if (alumnociclo.alumnosCicloCurso.length < 2) {
+            if (alumnociclo.alumnociclocursos.length < 2) {
                 notify("Debe haber un curso como mínimo", 'error');
                 return;
             }
-            self.find(".selectCurso").select2("destroy");
-            vue.$delete(alumnociclo.alumnosCicloCurso, alumnociclo.alumnosCicloCurso.indexOf(alumnoCicloCurso));
+
+            bootbox.confirm({
+                message: '¿Seguro que desea eliminar el curso ?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function(result) {
+                    if (result) {
+
+                        self.find(".selectCurso").select2("destroy");
+                        vue.$delete(alumnociclo.alumnociclocursos, alumnociclo.alumnociclocursos.indexOf(alumnociclocurso));
+
+                    }
+                }
+            });
+
         },
         agregarAlumnoCicloCurso: function(alumnociclo) {
             let vue = this;
-            alumnociclo.alumnosCicloCurso.push({});
+            alumnociclo.alumnociclocursos.push({curso: {id: null}});
         },
         agregarAlumnoCiclo: function() {
             let vue = this;
-            vue.alumnosCiclo.push({id: null, cicloAcademico: {}, alumnosCicloCurso: [{curso: {}}]});
+            vue.alumnociclos.push({id: null, cicloAcademico: {id: null}, alumnociclocursos: [{curso: {id: null}}]});
         },
         guardarInformacion: function() {
             var vue = this;
@@ -79,7 +110,9 @@ new Vue({
                 data: {id: vue.alumno.id},
                 success: function(response) {
                     if (response.success) {
-                        vue.alumnociclos = response.data;
+                        if (response.total > 0) {
+                            vue.alumnociclos = response.data;
+                        }
                     } else {
                         notify(response.message, 'error');
                     }

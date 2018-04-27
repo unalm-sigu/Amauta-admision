@@ -1,10 +1,13 @@
 Vue.component("curso-component", {
     template: "#cursoTemplate",
     props: {
-        curso: {},
+        alumnociclocurso: {curso: {}},
         alumnociclo: {},
         inx: null,
         index: null
+    },
+    date: function() {
+        return {alumnociclocurso: {curso: {}}}
     },
     mounted: function() {
         let vue = this;
@@ -26,7 +29,7 @@ Vue.component("curso-component", {
                 placeholder: "Seleccione un curso",
                 minimumInputLength: 1,
                 ajax: {
-                    url: APP.url("academico/horariocachimbo/curso/searchcurso"),
+                    url: APP.url("academico/alumno/updatehistorial/searchcurso"),
                     dataType: 'json',
                     type: 'post',
                     data: function(term, page) {
@@ -37,28 +40,31 @@ Vue.component("curso-component", {
                     }
                 },
                 initSelection: function(element, callback) {
-                    if (element.val() != "") {
-                        callback(vm.curso.curso);
+                    if (vm.alumnociclocurso.curso.id != null) {
+                        callback(vm.alumnociclocurso.curso);
                     }
                 },
                 formatResult: function(info) {
+                    console.log(info.creditos);
                     return info.codigo + " - " + info.nombre;
                 },
                 formatSelection: function(info) {
-                    vm.curso.id = info.id;
-                    vm.curso.nombre = info.nombre;
-                    vm.curso.creditos = info.creditos;
-                    return info.codigo + " - " + info.curso;
+                    vm.alumnociclocurso.curso.id = info.id;
+                    vm.alumnociclocurso.curso.nombre = info.nombre;
+                    vm.alumnociclocurso.curso.codigo = info.codigo;
+                    vm.alumnociclocurso.curso.creditos = info.creditos;
+                    vm.alumnociclocurso.creditos = info.creditos;
+                    return info.codigo + " - " + info.nombre;
                 },
                 escapeMarkup: function(m) {
                     return m;
                 }
             };
         },
-        deleteAlumnoCicloCurso: function(alumnoCicloCurso, alumnociclo) {
+        deleteAlumnoCicloCurso: function(alumnociclocurso, alumnociclo) {
             let vue = this;
             let self = $(vue.$el);
-            $global.$emit("deleteAlumnoCicloCurso", alumnoCicloCurso, alumnociclo, self);
+            $global.$emit("deleteAlumnoCicloCurso", alumnociclocurso, alumnociclo, self);
         }
     },
 });

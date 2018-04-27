@@ -2,7 +2,7 @@ Vue.component("ciclo-component", {
     template: "#cicloTemplate",
     props: {
         alumnociclo: {cicloAcademico: {}},
-        alumnosCicloCurso: [],
+        alumnociclocursos: [],
         inx: null,
     },
     date: function() {
@@ -44,8 +44,7 @@ Vue.component("ciclo-component", {
         deleteAlumnoCiclo: function(alumnociclo) {
             let vue = this;
             let self = $(vue.$el);
-            self.find("select.cicloSelect").select2("destroy");
-            $global.$emit("deleteAlumnoCiclo", alumnociclo);
+            $global.$emit("deleteAlumnoCiclo", alumnociclo, self);
         },
         agregarAlumnoCicloCurso: function(alumnociclo) {
             $global.$emit("agregarAlumnoCicloCurso", alumnociclo);

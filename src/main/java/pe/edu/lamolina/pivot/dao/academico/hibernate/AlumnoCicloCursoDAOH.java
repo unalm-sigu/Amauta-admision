@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -9,6 +10,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -206,5 +208,17 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
 
         return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public void deleteByAlumnoCiclo(AlumnoCiclo alumnoCiclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" delete from AlumnoCicloCurso ")
+                .append("   where  alumnoCiclo.id = :ALUMNOCICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("ALUMNOCICLO", alumnoCiclo.getId());
+        query.executeUpdate();
     }
 }

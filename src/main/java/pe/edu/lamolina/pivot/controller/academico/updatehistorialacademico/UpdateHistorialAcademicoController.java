@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -65,7 +66,7 @@ public class UpdateHistorialAcademicoController {
         try {
 
             List<AlumnoCiclo> notas = service.allPromediosByAlumno(alumnoForm);
-            ArrayNode lstNode = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode arrayNotas = new ArrayNode(JsonNodeFactory.instance);
             for (AlumnoCiclo nota : notas) {
 
                 SituacionAcademica situacionAcademica = nota.getSituacionFinal();
@@ -87,18 +88,41 @@ public class UpdateHistorialAcademicoController {
                     cursosArray.add(alumnoCicloCursoNode);
                 }
 
-                alumnoCicloNode.set("alumnosCicloCurso", cursosArray);
-                lstNode.add(alumnoCicloNode);
-                response.setSuccess(true);
+                alumnoCicloNode.set("alumnociclocursos", cursosArray);
+                arrayNotas.add(alumnoCicloNode);
             }
-            response.setData(lstNode);
 
+            response.setData(arrayNotas);
+            response.setTotal(arrayNotas.size());
+            response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchcurso")
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            List<Curso> cursos = service.allCursoByName(nombre);
+            ArrayNode jCursos = new ArrayNode(jsonFactory);
+            for (Curso curso : cursos) {
+                jCursos.add(service.toJson(curso));
+            }
+            response.setData(jCursos);
+            response.setTotal(jCursos.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

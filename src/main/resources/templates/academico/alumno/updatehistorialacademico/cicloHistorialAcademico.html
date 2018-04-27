@@ -6,6 +6,8 @@
 
             <div class="row m-b-lg">
 
+                <input type="hidden"  v-bind:name=" 'alumnoCiclo['+inx+'].id'  "  v-bind:value="alumnociclo.id" />
+
                 <div class="col-lg-3 col-sm-6 col-xs-11">
                     <label class="text-sm col-xs-12">Ciclo Acádemico</label>
                     <div class="col-xs-12">
@@ -20,7 +22,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-9 col-sm-6 col-xs-1">
+                <div class="col-lg-9 col-sm-6 col-xs-1 pull-right">
                     <div class="pull-right m-t-md">
                         <div class="dropdown actions">
 
@@ -66,7 +68,7 @@
 
                     <tr is="curso-component"
                         v-bind:alumnociclo="alumnociclo"
-                        v-for="( alumnociclocurso, index ) in alumnociclo.alumnosCicloCurso"
+                        v-for="( alumnociclocurso, index ) in alumnociclo.alumnociclocursos"
                         v-bind:alumnociclocurso="alumnociclocurso"
                         v-bind:inx="inx"
                         v-bind:index="index"

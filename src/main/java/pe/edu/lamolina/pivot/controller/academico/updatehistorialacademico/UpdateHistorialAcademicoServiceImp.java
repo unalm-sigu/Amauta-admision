@@ -76,7 +76,34 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         boolean calcularSituacionAcadFinal = Boolean.TRUE;
         Usuario usuario = ds.getUsuario();
         Alumno alumno = alumnoDAO.find(alumnoForm);
+        logger.debug("alumno id   {} codigo {} ", alumno.getId(), alumno.getCodigo());
         List<AlumnoCiclo> alumnosCiclo = alumnoForm.getAlumnoCiclo();
+        List<AlumnoCiclo> alumnosCicloDb = alumnoCicloDAO.allByAlumno(alumno);
+        logger.debug("existen  {} alumnoCiclo en db", alumnosCicloDb.size());
+        if (!alumnosCicloDb.isEmpty()) {
+            List<Long> alumnoCicloss = new ArrayList();
+            for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
+                if (alumnoCiclo.getId() != null) {
+                    alumnoCicloss.add(alumnoCiclo.getId());
+                }
+            }
+            Map<Long, AlumnoCiclo> alumnosCicloMap = TypesUtil.convertListToMap("id", alumnosCicloDb);
+            List<AlumnoCiclo> alumnosCicloDelete = new ArrayList();
+            for (Map.Entry<Long, AlumnoCiclo> entry : alumnosCicloMap.entrySet()) {
+                Long key = entry.getKey();
+                if (!alumnoCicloss.contains(key)) {
+                    alumnosCicloDelete.add(entry.getValue());
+                }
+            }
+            for (AlumnoCiclo alumnoCiclo : alumnosCicloDelete) {
+                if (alumnoCiclo.getEstadoEnum() != EstadoMatriculaEnum.NMAT) {
+                    logger.debug("remove alumnoCiclo {}", alumnoCiclo.getId());
+                    alumnoCicloCursoDAO.deleteByAlumnoCiclo(alumnoCiclo);
+                    alumnoCicloDAO.delete(alumnoCiclo);
+                }
+            }
+        }
+
         for (AlumnoCiclo alumnoCicloForm : alumnosCiclo) {
 
             CicloAcademico cicloAcademico = cicloAcademicoDAO.find(alumnoCicloForm.getCicloAcademico());
@@ -146,6 +173,8 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
                     alumnoCicloCurso.setRegistroActivo(BigDecimal.ONE.intValue());
                     alumnoCicloCurso.setUserModificacion(usuario);
                     alumnoCicloCurso.setUsuarioRegistro(usuario);
+                    //  update veces curso
+                    alumnoCicloCurso.setVecesCursado(1);
                     alumnoCicloCursoDAO.save(alumnoCicloCurso);
                     alumnoCicloCurso.getId();
                 } else {
@@ -293,4 +322,10 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         return promedios;
     }
+
+    @Override
+    public List<Curso> allCursoByName(String nombre) {
+        return cursoDAO.allCursoByName(nombre);
+    }
+
 }
