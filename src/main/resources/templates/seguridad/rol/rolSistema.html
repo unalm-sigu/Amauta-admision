@@ -20,41 +20,54 @@
             <section class="panel">
                 <section class="panel-body">
 
-                    <movimiento-raptor inline-template="true" v-bind:ver-detalles="verDetalles">
-                        <raptor-table v-bind:url="rolesUrl">
-                            <template scope="props">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th class="col-md-2 text-center">Código</th>
-                                            <th class="col-md-10">Nombre</th>
-                                            <th class=""></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in props.data">
-                                            <td class="v-middle text-center">
-                                                <a class="text-lg bold text-primary pointer" v-text="item.codigo" v-on:click="verDetalles(item)"></a>
-                                            </td>
-                                            <td class="v-middle">
-                                                <span v-text="item.nombre"></span>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </template>
-                        </raptor-table>
-                    </movimiento-raptor>
+                    <raptor-table v-bind:url="rolesUrl">
+                        <template scope="props" >
+
+                            <table class="table table-striped" style="z-index: 1">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2 text-center">Código</th>
+                                        <th class="col-md-10">Nombre</th>
+                                        <th class=""></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in props.data">
+                                        <td class="v-middle text-center">
+                                            <a class="text-lg bold text-primary pointer" v-text="item.codigo"></a>
+                                        </td>
+                                        <td class="v-middle">
+                                            <span v-text="item.nombre"></span>
+                                        </td>
+                                        <td class="v-middle text-left"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </template>
+                    </raptor-table>
 
                 </section>
             </section>
+
+            <template id="modalAulaComp"> 
+                <div> 
+                </div>
+            </template>
+
+            <modal-vik ref="modalMenu"
+                       v-bind="aulaModal">
+                <div slot="body">
+                    <aula-component></aula-component>
+                </div>
+            </modal-vik>
         </div>
 
+        <div th:substituteby="_modules/vue-modal"/>
+
         <div layout:fragment="js" th:remove="tag">
-            <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
         </div>
 

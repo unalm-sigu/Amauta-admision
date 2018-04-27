@@ -158,7 +158,7 @@ public class MatriculableServiceImp implements MatriculableService {
             matri.setNotaAcumulada("0");
             matri.setNotaAvance("0");
             matri.setNotaFinal("0");
-            matri.setEstado(EstadoMatriculaEnum.NMAT);
+            matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumenDAO.save(matri);
         }
 
@@ -181,7 +181,7 @@ public class MatriculableServiceImp implements MatriculableService {
             matri.setNotaAcumulada("0");
             matri.setNotaAvance("0");
             matri.setNotaFinal("0");
-            matri.setEstado(EstadoMatriculaEnum.NMAT);
+            matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculaResumenDAO.save(matri);
         }
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();

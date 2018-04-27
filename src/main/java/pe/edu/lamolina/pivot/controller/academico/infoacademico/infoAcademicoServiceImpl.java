@@ -34,6 +34,8 @@ import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -79,6 +81,12 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
+
+    @Autowired
+    PromedioService promedioService;
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo) {
@@ -293,6 +301,14 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
             promedio.setAlumnoCicloCurso(cursos);
         }
         return promedios;
+    }
+
+    @Override
+    @Transactional
+    public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
+        Alumno alumno = alumnoDAO.find(alumnoForm);
+        visorCalculoNotas.iniciar();
+        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
     }
 
 }

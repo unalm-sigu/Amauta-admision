@@ -1,61 +1,61 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 
-Vue.component('movimiento-raptor', {
+Vue.component("aula-component", {
+    template: "#modalAulaComp",
     props: {
-        verDetalles: {
-            required: true
+
+    },
+    data: function () {
+        return {
+            seccionModal: null,
+            tabAulas: {
+                aulaSel: null,
+                oera: {
+                    id: 50,
+                    nombre: "oera",
+                    moduloSel: null,
+                    aulaSel: null,
+                    modulosCombo: [],
+                    tblAulas: null
+                },
+                oficinas: {
+                    oficinaSel: null,
+                    aulaSel: null,
+                    oficinasDisponibles: [],
+                    tblAulas: null
+                },
+                especificas: {
+                    aulasEspecificaSel: null,
+                    aulasEspecificas: [],
+                    errores: []
+                }
+            }
         }
     },
-    data() {
-        return {
-            rolesUrl: APP.url('seguridad/rol/list')
-        }
+    mounted: function () {
+        let $vue = this;
+        $global.$on("loadAulaComponent", function (seccion) {
+            $vue.loadAula($vue, seccion);
+        });
     },
     methods: {
-        date2string(date) {
-            return new Date(date).toLocaleDateString('la', {day: '2-digit', month: '2-digit', year: 'numeric'});
-        },
-        getNombre(cliente) {
-            if (cliente.tipoContacto === 'PERSONA') {
-                return cliente.persona.nombreCompleto;
-            } else if (cliente.tipoContacto === 'EMPRESA') {
-                return cliente.empresa.razonSocial;
-            }
-        },
-        getDocumento(cliente) {
-            let ente = {};
-            if (cliente.tipoContacto === 'PERSONA') {
-                ente = cliente.persona;
-            } else if (cliente.tipoContacto === 'EMPRESA') {
-                ente = cliente.empresa;
-            }
-
-            return ente.tipoDocumento.simbolo + ' ' + ente.numeroDocIdentidad;
-        },
+        loadAula($vue, seccion) {
+            
+        }
     }
 });
+
+
 
 new Vue({
     el: '#pageRolSistemaVUE',
     data: {
-        movimiento: {tipoMovimiento: {}, contactoEmpresa: {persona: {tipoDocumento: {}}, empresa: {tipoDocumento: {}}}},
-        movimientoalmacenModal: {
-            id: 'movimientoalmacenModal',
-            header: 'true',
-            title: '',
-            cancelbtn: 'Cerrar',
-            cancelclass: 'btn btn-link',
-            showaccept: false,
-            modalSize: 'modal-lg'
-        }
+        rolesUrl: APP.url('seguridad/rol/list')
     },
     computed: {
     },
     mounted() {
     },
     methods: {
-        verDetalles(mov) {
-
-        }
     }
 });

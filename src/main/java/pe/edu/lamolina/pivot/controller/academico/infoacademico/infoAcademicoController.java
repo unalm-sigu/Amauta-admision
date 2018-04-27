@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -107,6 +108,9 @@ public class infoAcademicoController {
             List<AlumnoCiclo> promedios = service.allPromediosByAlumno(new Alumno(idAlumno));
             ArrayNode lstNode = new ArrayNode(JsonNodeFactory.instance);
             for (AlumnoCiclo promedio : promedios) {
+
+                SituacionAcademica situacionAcademica = promedio.getSituacionFinal();
+
                 ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
                 objNode.put("ciclo", promedio.getCicloAcademico().getDescripcion2());
                 objNode.put("descripción", promedio.getCicloAcademico().getDescripcion());
@@ -116,6 +120,7 @@ public class infoAcademicoController {
                 objNode.put("CreditoAprobadosAcu", promedio.getCreditosAprobadosAcumulados());
                 objNode.put("CreditoAprobaCiclo", promedio.getCreditosAprobadosCiclo());
                 objNode.put("creditoAcumulado", promedio.getCreditosAcumulados());
+                objNode.put("situacionAcademica", situacionAcademica.getNombre());
                 List<AlumnoCicloCurso> cursos = promedio.getAlumnoCicloCurso();
 
                 ArrayNode lstCurso = new ArrayNode(JsonNodeFactory.instance);
@@ -250,6 +255,23 @@ public class infoAcademicoController {
         JsonResponse response = new JsonResponse();
         try {
             service.cambiarPlan(new Alumno(idAlumno), new PlanCurricular(idPlan));
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("calcularpromedio")
+    public JsonResponse calcularpromedio(Alumno alumnoForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.calcularPromedio(alumnoForm, ds);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -15,14 +15,14 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySeccion(Seccion seccion);
 
-    MatriculaSeccion find(Long id);
-
     MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
 
     List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);
 
     List<MatriculaSeccion> allByGpoSeccion(GrupoSeccion grupoSeccion, CicloAcademico ciclo);
 
+    List<MatriculaSeccion> allMatriculadosByCiclo(CicloAcademico ciclo);
+    
     List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo);
 
     List<MatriculaSeccion> allByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
