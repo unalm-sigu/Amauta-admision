@@ -36,8 +36,4 @@ public interface infoAcademicoService {
 
     void calcularPromedio(Alumno alumno, DataSessionPivot ds);
 
-    List<CicloAcademico> allCicloAcademico();
-
-    void updateInfoAcademica(AlumnoCicloForm AlumnoCicloForm, DataSessionPivot ds);
-
 }

@@ -282,30 +282,4 @@ public class infoAcademicoController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("updateinfoacademica")
-    public JsonResponse updateinfoacademica(AlumnoCicloForm alumnoCicloForm, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            service.updateInfoAcademica(alumnoCicloForm, ds);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @RequestMapping("{idAlumno}/datoacademico")
-    public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
-        ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
-        model.addAttribute("datoAlumno", alumnoJson);
-        model.addAttribute("ciclosAcademico", ciclosAcademico);
-        return "academico/alumno/datosAcademico";
-    }
 }

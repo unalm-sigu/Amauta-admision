@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -316,20 +315,4 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
     }
 
-    @Override
-    public List<CicloAcademico> allCicloAcademico() {
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        return cicloAcademicoDAO.allCicloAcademicoByRange((year - 10), (year + 1));
-    }
-
-    @Override
-    @Transactional
-    public void updateInfoAcademica(AlumnoCicloForm alumnoCicloForm, DataSessionPivot ds) {
-        List<AlumnoCiclo> alumnosCiclo = alumnoCicloForm.getAlumnoCiclo();
-        for (AlumnoCiclo alumnoCiclo : alumnosCiclo) {
-            Alumno alumno = alumnoDAO.find(alumnoCiclo.getAlumno());
-            alumnoCiclo.setAlumno(alumno);
-        }
-    }
 }

@@ -1,13 +1,12 @@
 Vue.component("ciclo-component", {
     template: "#cicloTemplate",
     props: {
-        ciclo: {},
-        alumno: {},
-        cursos: [],
+        alumnociclo: {cicloAcademico: {}},
+        alumnosCicloCurso: [],
         inx: null,
     },
     date: function() {
-        return {ciclo: {}, cursos: []}
+        return {alumnociclo: {cicloAcademico: {}}}
     },
     mounted: function() {
         let vue = this;
@@ -16,11 +15,11 @@ Vue.component("ciclo-component", {
                 select2({minimumResultsForSearch: -1, allowClear: true}).
                 on('change.select2', function(eve) {
                     if (eve.added == undefined) {
-                        vue.ciclo.id = null;
-                        vue.ciclo.descripcion = null;
+                        vue.alumnociclo.cicloAcademico.id = null;
+                        vue.alumnociclo.cicloAcademico.descripcion = null;
                     } else {
-                        vue.ciclo.id = eve.added.id;
-                        vue.ciclo.descripcion = eve.added.text;
+                        vue.alumnociclo.cicloAcademico.id = eve.added.id;
+                        vue.alumnociclo.cicloAcademico.descripcion = eve.added.text;
                     }
                 });
     },
@@ -32,24 +31,24 @@ Vue.component("ciclo-component", {
                     select2({minimumResultsForSearch: -1, allowClear: true}).
                     on('change.select2', function(eve) {
                         if (eve.added == undefined) {
-                            vue.ciclo.id = null;
-                            vue.ciclo.descripcion = null;
+                            vue.alumnociclo.cicloAcademico.id = null;
+                            vue.alumnociclo.cicloAcademicodescripcion = null;
                         } else {
-                            vue.ciclo.id = eve.added.id;
-                            vue.ciclo.descripcion = eve.added.text;
+                            vue.alumnociclo.cicloAcademico.id = eve.added.id;
+                            vue.alumnociclo.cicloAcademico.descripcion = eve.added.text;
                         }
                     });
-        })
+        });
     },
     methods: {
-        deleteCiclo: function(ciclo) {
+        deleteAlumnoCiclo: function(alumnociclo) {
             let vue = this;
             let self = $(vue.$el);
             self.find("select.cicloSelect").select2("destroy");
-            $global.$emit("deleteCiclo", ciclo);
+            $global.$emit("deleteAlumnoCiclo", alumnociclo);
         },
-        agregarCurso: function(ciclo) {
-            $global.$emit("agregarCurso", ciclo);
+        agregarAlumnoCicloCurso: function(alumnociclo) {
+            $global.$emit("agregarAlumnoCicloCurso", alumnociclo);
         },
     },
 });

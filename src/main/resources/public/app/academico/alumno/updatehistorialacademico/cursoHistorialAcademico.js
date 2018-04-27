@@ -2,7 +2,7 @@ Vue.component("curso-component", {
     template: "#cursoTemplate",
     props: {
         curso: {},
-        ciclo: {},
+        alumnociclo: {},
         inx: null,
         index: null
     },
@@ -17,7 +17,7 @@ Vue.component("curso-component", {
         this.$nextTick(function() {
             let self = $(vue.$el);
             self.find(".selectCurso").select2(vue.selectCurso(vue));
-        })
+        });
     },
     methods: {
         selectCurso: function(vm) {
@@ -38,17 +38,16 @@ Vue.component("curso-component", {
                 },
                 initSelection: function(element, callback) {
                     if (element.val() != "") {
-                        callback(vm.curso);
+                        callback(vm.curso.curso);
                     }
                 },
                 formatResult: function(info) {
-                    return info.codigo + " - " + info.curso;
+                    return info.codigo + " - " + info.nombre;
                 },
                 formatSelection: function(info) {
                     vm.curso.id = info.id;
-                    vm.curso.curso = info.curso;
+                    vm.curso.nombre = info.nombre;
                     vm.curso.creditos = info.creditos;
-                    vm.curso.nota = info.nota;
                     return info.codigo + " - " + info.curso;
                 },
                 escapeMarkup: function(m) {
@@ -56,10 +55,10 @@ Vue.component("curso-component", {
                 }
             };
         },
-        deleteCurso: function(curso, ciclo) {
+        deleteAlumnoCicloCurso: function(alumnoCicloCurso, alumnociclo) {
             let vue = this;
             let self = $(vue.$el);
-            $global.$emit("deleteCurso", curso, ciclo, self);
+            $global.$emit("deleteAlumnoCicloCurso", alumnoCicloCurso, alumnociclo, self);
         }
     },
 });

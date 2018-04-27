@@ -5,10 +5,12 @@
 
             <input
                 class="selectCurso form-control input-sm"
-                type="text"
-                v-bind:value="curso.id"
+                type="text"  required="true"
+                v-model="alumnociclocurso.curso.id"
+                v-bind:value="alumnociclocurso.curso.id"
                 v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].curso.id'  "
-                required="true"   v-bind:rel="curso.curso"  />
+                v-bind:rel="alumnociclocurso.curso.nombre"  />
+
         </td>
 
         <td class="col-xs-2" >
@@ -17,21 +19,21 @@
                 type="text"
                 required="true"
                 v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].creditos'  "
-                v-bind:value="curso.creditos" />
+                v-bind:value="alumnociclocurso.creditos" />
         </td>
 
         <td class="col-xs-2">
             <input
-                class="form-control input-sm  text-right numeric"
+                class="form-control input-sm  text-right"
                 type="text"
-                max="20"
+                maxlength="2"
                 required="true"
                 v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].nota'  "
-                v-bind:value="curso.nota" />
+                v-bind:value="alumnociclocurso.nota" />
         </td>
 
         <td class="v-middle ">
-            <a href="#" v-on:click="deleteCurso( curso, ciclo)"><i class="fa fa-trash" aria-hidden="true"></i></a>
+            <a href="#" v-on:click="deleteAlumnoCicloCurso( alumnociclocurso, alumnociclo)"><i class="fa fa-trash" aria-hidden="true"></i></a>
         </td>
 
     </tr>

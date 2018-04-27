@@ -1,0 +1,30 @@
+<template id="headerInfoComponent">
+    <section class="panel-body">
+        <div class="col-md-12" >
+            <div class="col-md-2  m-t-lg" align="center">
+                <img  class="img-responsive img-thumbnail img-circle" src="/phobos/images/unalm/unknown-person.gif"> </img>
+            </div>
+            <div class="col-md-10">
+                <div class="col-md-12">
+                    <h3 v-text='alumno.persona.apellidosNombres'> </h3>
+                </div>
+                <div class="col-md-12">
+                    <span v-text='alumno.codigo'> </span> -  <span v-text ="alumno.situacionAcademica.nombre"></span>
+                </div>
+                <div class="col-md-12" v-if="ident">
+                    <span v-text="alumno.persona.tipoDocumento.simbolo"/>
+                    <span v-text="alumno.persona.numeroDocIdentidad"/>
+                </div>
+                <div class="col-md-12" v-if="flag">
+                    <span v-text="alumno.carrera.nombre"/>
+                    <span v-if="alumno.carrera.codigo != alumno.carrera.facultad.codigo">
+                        - <span v-text="alumno.carrera.facultad.nombre"/>
+                    </span>
+                </div>
+                <div class="col-md-12">
+                    <span > <small v-text="alumno.modalidadEstudio.nombre"> </small> </span>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>

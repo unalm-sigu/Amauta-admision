@@ -28,11 +28,12 @@
 
                     <form  method="POST" id="form"   data-parsley-validate="true">
 
+                        <input type="hidden" name="id" v-bind:value="alumno.id" />
+
                         <ciclo-component
-                            v-for="( ciclo , inx )  in ciclos"
-                            v-bind:ciclo="ciclo"
+                            v-for="( alumnociclo , inx)  in alumnociclos"
+                            v-bind:alumnociclo="alumnociclo"
                             v-bind:inx="inx"
-                            v-bind:alumno="alumno"
                             ></ciclo-component>
 
                     </form>
@@ -40,7 +41,7 @@
                     <section class="panel">
 
                         <div class="text-center">
-                            <button class="btn btn-link btn-sm" type="button" v-on:click.prevent="agregarCiclo" >Agregar Ciclo</button>
+                            <button class="btn btn-link btn-sm" type="button" v-on:click.prevent="agregarAlumnoCiclo" >Agregar Ciclo</button>
                         </div>
 
                         <section class="panel-footer">
@@ -59,9 +60,9 @@
                 </section>
             </div>
 
-            <div th:substituteby="academico/alumno/includes/headerInfo"/>
-            <div th:substituteby="academico/alumno/cicloTemplate"/>
-            <div th:substituteby="academico/alumno/cursoTemplate"/>
+            <div th:substituteby="academico/alumno/updatehistorialacademico/headerHistorialAcademico"/>
+            <div th:substituteby="academico/alumno/updatehistorialacademico/cicloHistorialAcademico"/>
+            <div th:substituteby="academico/alumno/updatehistorialacademico/cursoHistorialAcademico"/>
 
         </section>
         <div layout:fragment="js">
@@ -73,9 +74,9 @@
             </script>
 
             <script th:src="@{/app/academico/alumno/headerInfoComponent.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/alumno/cicloAcademicoComponet.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/alumno/cursoComponet.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/alumno/datoAcademico.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/updatehistorialacademico/cicloHistorialAcademico.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/updatehistorialacademico/cursoHistorialAcademico.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/updatehistorialacademico/updateHistorialAcademico.js}" charset="utf-8"></script>
 
         </div>
     </body>
