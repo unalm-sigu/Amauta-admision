@@ -671,6 +671,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional(readOnly = false)
+    public void actualizarSeccionResctriccionCapa(Seccion seccionForm, Usuario usuario) {
+        seccionDAO.updateRestriccionCapa(seccionForm);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void actualizarSeccionVacantes(Seccion seccionForm, Usuario usuario) {
         DateTime today = new DateTime();
         Seccion seccioDB = seccionDAO.find(seccionForm.getId());

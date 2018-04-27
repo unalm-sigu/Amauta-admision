@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 
 public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 

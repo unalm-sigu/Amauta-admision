@@ -1,0 +1,84 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Asistencia Académica</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+        <header class="header b-b padder-lg">        
+            <h2>Aistencia Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
+        </header>
+
+        <section id="asistenciaAcademicaApp" class="wrapper-lg">
+            <section class="panel">
+                <section class="panel-body">
+
+                    <raptor-table v-bind:url="URL_GRUPOS_SECCION" >
+
+                        <template scope="props">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-4">Curso</th>
+                                        <th class="col-md-1 text-center">Tipo Ciclo</th>
+                                        <th class="col-md-3 text-center">Claves</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in props.data"> 
+                                        <td> 
+                                            <p class="h4 text-info">{{item.curso.nombre}}</p>
+                                            <small class="block text-muted">Código: {{item.curso.codigo}}</small>
+                                            <small class="block text-muted">TPC: {{item.curso.tpc}}</small>
+
+
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{ item.cicloAcademico.tipoCicloEnumValue}}
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            <div v-for="sec in item.secciones" class="m-l-md inline">
+                                                <a href="#"
+                                                   v-if="sec.verInformacion"
+                                                   v-on:click="controlarSeccion(sec,$event)">
+                                                    {{sec.codigo2}}
+                                                    -
+                                                    {{sec.grupoHoras.codigo}}
+                                                </a>
+                                                <span v-if="sec.verInformacion==false">
+                                                    {{sec.codigo2}}
+                                                    -
+                                                    {{sec.grupoHoras.codigo}}
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </template>
+                    </raptor-table>
+
+
+
+                </section>
+            </section>
+        </section>
+
+        <div th:substituteby="templates/modal"/>
+
+
+    </div>
+
+    <div layout:fragment="js" th:remove="tag">
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:inline="javascript">
+            var seccionJson = [[${seccionJson}]];
+        </script>
+        <script th:src="@{/app/academico/docente/asistenciaacademica/asistenciaAcademica.js}" charset="utf-8"></script>
+    </div>
+</body>
+</html>

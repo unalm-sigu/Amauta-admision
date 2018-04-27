@@ -17,6 +17,8 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
 
     List<HorarioSeccion> allBySeccion(Seccion seccion);
 
+    List<HorarioSeccion> allBySeccionDia(Seccion seccion, Dia dia);
+
     HorarioSeccion findBySeccionDiaHora(Seccion seccion, Dia dia, Hora hora);
 
     void deleteAllByNotInList(List<HorarioSeccion> horarios);

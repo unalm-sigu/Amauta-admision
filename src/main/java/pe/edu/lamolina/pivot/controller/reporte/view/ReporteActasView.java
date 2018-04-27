@@ -32,7 +32,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SistemaNotas;
-import pe.edu.lamolina.pivot.controller.academico.cargaacademica.CargaAcademicaService;
+import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 
 @Component
 public class ReporteActasView extends AbstractPOIExcelView {

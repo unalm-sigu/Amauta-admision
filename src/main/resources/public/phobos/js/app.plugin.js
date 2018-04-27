@@ -143,7 +143,21 @@
         $(document).on('change', 'table thead [type="checkbox"]', function (e) {
             e && e.preventDefault();
             var $table = $(e.target).closest('table'), $checked = $(e.target).is(':checked');
-            $('tbody [type="checkbox"]', $table).prop('checked', $checked);
+            //   $('tbody [type="checkbox"]', $table).prop('checked', $checked); fuckito before
+            var parent = this; //fuckito after
+            if ($(parent).attr("dir") != null && $(parent).attr("dir") != false) {
+/*
+                $('tbody [type="checkbox"]', $table).each(function () {
+                    if ($(parent).attr("dir") == $(this).attr("dir")) {
+                        //    $(this).prop('checked', $checked);
+
+                        $(this).val($checked);
+                        this.dispatchEvent(new Event('change'));
+                    }
+                });*/
+            } else {
+                $('tbody [type="checkbox"]', $table).prop('checked', $checked);
+            }
         });
 
         // random progress

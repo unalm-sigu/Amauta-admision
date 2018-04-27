@@ -278,6 +278,17 @@ function pause(milliseconds) {
 }
 
 APP = {
+    colorEstado: {
+        CRE: "default",
+        ACT: "success", MAT: "success", ABI: "success",
+        ANU: "danger", BLO: "danger", INA: "danger", RHZ: "danger", RCU: "danger", RCI: "danger",
+        APR: "primary", ACEP: "primary",
+        OBS: "warning",
+        SOL: "info", 
+        REE: "info"},
+    getEstadoClass: function (estadoCode) {
+        return "label-" + APP.colorEstado[estadoCode];
+    },
     cleanForm: function (f) {
         f.find("input[type=text], textarea, #id").val("");
         f.find("input[type=checkbox]").prop("checked", false);

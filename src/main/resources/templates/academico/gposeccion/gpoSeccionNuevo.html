@@ -1,6 +1,17 @@
 <div class="wrapper scrollable">
     <form id="frmPlanCurricular" >
         <!-- class="form-horizontal m-t-lg" -->
+
+        <div class="form-group">
+            <label for="cboCurso" >Curso</label>
+            <div >
+                <input id="cboCurso" class="form-control" 
+                       name="curso.id"
+                       type="text" 
+                       required="yes"/>
+            </div>
+        </div>
+
         <div class="form-group">
             <label for="cboAnexo" >Anexo</label>
 
@@ -22,15 +33,6 @@
 
         </div>
 
-        <div class="form-group">
-            <label for="cboCurso" >Curso</label>
-            <div >
-                <input id="cboCurso" class="form-control" 
-                       name="curso.id"
-                       type="text" 
-                       required="yes"/>
-            </div>
-        </div>
 
         <div class="form-group" >
             <label  class="col-md-3">Estructura</label>
@@ -55,7 +57,7 @@
 
 <div id="templateCursosProgBody" type="text/x-jsrender" class="hide" >
     <span class="block bold h5 text-success">{{:cursoNombre}}</span>
-    <span class="block"><strong>Código:</strong> {{:cursoCodigo}} - <strong>TPC:</strong> {{:cursoTpc}}</span>
     <small class="block"><strong>Dpto. Académico:</strong> {{:departamentoAcademico}}</small>
-    <small class="block"><strong>Facultad:</strong> {{:facultadNombre}}</small>
+    <span class="block"><strong>Código:</strong>{{:cursoCodigo}} - <strong>TPC:</strong>tpc {{:cursoTpc}}</span>
+    <!-- <small class="block"><strong>Facultad:</strong> {{:facultadNombre}}</small> -->
 </div>

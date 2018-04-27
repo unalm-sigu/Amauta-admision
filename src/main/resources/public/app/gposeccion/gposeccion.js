@@ -98,7 +98,7 @@ $(function () {
         }, nuevoGrupoSec: function ($this, e) {
             MODAL.hide();
             MODAL.init("md");
-            MODAL.title("Curso : ");
+            MODAL.title("Nuevo Grupo Sección");
             MODAL.show();
             MODAL.buttons('<a class="btn btn-success" id="btnSaveGpo">Aceptar</a>');
             MODAL.body('');
