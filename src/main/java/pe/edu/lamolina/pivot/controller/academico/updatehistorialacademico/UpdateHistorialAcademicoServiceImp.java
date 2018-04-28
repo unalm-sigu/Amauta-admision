@@ -21,7 +21,6 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -148,11 +147,40 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             }
 
             List<AlumnoCicloCurso> alumnosCicloCurso = alumnoCicloForm.getAlumnoCicloCurso();
+            List<AlumnoCicloCurso> alumnosCicloCursoDb = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
+            logger.debug("existen  {} AlumnoCicloCurso en db", alumnosCicloCursoDb.size());
+            if (!alumnosCicloCursoDb.isEmpty()) {
+                List<Long> alumnoCicloCursoss = new ArrayList();
+                for (AlumnoCicloCurso alumnoCicloCurso : alumnosCicloCurso) {
+                    if (alumnoCicloCurso.getId() != null) {
+                        alumnoCicloCursoss.add(alumnoCicloCurso.getId());
+                    }
+                }
+                Map<Long, AlumnoCicloCurso> alumnosCicloCursoMap = TypesUtil.convertListToMap("id", alumnosCicloCursoDb);
+                List<AlumnoCicloCurso> alumnosCicloCursoDelete = new ArrayList();
+                for (Map.Entry<Long, AlumnoCicloCurso> entry : alumnosCicloCursoMap.entrySet()) {
+                    Long key = entry.getKey();
+                    if (!alumnoCicloCursoss.contains(key)) {
+                        alumnosCicloCursoDelete.add(entry.getValue());
+                    }
+                }
+                for (AlumnoCicloCurso alumnoCicloCurso : alumnosCicloCursoDelete) {
+                    if (alumnoCicloCurso.getEstadoEnum() != EstadoMatriculaEnum.NMAT) {
+                        logger.debug("remove alumnoCiclo {}", alumnoCicloCurso.getId());
+                        alumnoCicloCursoDAO.delete(alumnoCicloCurso);
+                    }
+                }
+            }
+
             for (AlumnoCicloCurso alumnoCicloCursoForm : alumnosCicloCurso) {
 
                 Curso curso = cursoDAO.find(alumnoCicloCursoForm.getCurso().getId());
-
-                AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
+                AlumnoCicloCurso alumnoCicloCurso = null;
+                if (alumnoCicloCursoForm.getId() != null) {
+                    alumnoCicloCurso = alumnoCicloCursoDAO.find(alumnoCicloCursoForm);
+                } else {
+                    alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
+                }
 
                 if (alumnoCicloCurso == null) {
                     alumnoCicloCurso = new AlumnoCicloCurso();
@@ -161,8 +189,9 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
                     alumnoCicloCurso.setCreditos(alumnoCicloCursoForm.getCreditos());
                     alumnoCicloCurso.setCurso(curso);
                     //  aprobado from form
-                    Integer aprobado = this.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumno);
-                    alumnoCicloCurso.setEstaAprobado(aprobado);
+                    //Integer aprobado = this.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumno);
+                    //alumnoCicloCurso.setEstaAprobado(aprobado);
+                    alumnoCicloCurso.setEstaAprobado(0);
 
                     alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
                     alumnoCicloCurso.setFechaModificacion(today.toDate());
@@ -182,9 +211,10 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
                     //  update nota from form
                     alumnoCicloCurso.setNota(alumnoCicloCursoForm.getNota());
                     alumnoCicloCurso.setUserModificacion(usuario);
+                    alumnoCicloCurso.setCurso(curso);
                     //  aprobado from form
-                    Integer aprobado = this.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumno);
-                    alumnoCicloCurso.setEstaAprobado(aprobado);
+                    //Integer aprobado = this.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumno);
+                    //alumnoCicloCurso.setEstaAprobado(aprobado);
 
                     alumnoCicloCursoDAO.update(alumnoCicloCurso);
                     alumnoCicloCurso.getId();
@@ -270,19 +300,19 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             }
             alumnoCicloDAO.update(alumnoCiclo);
             alumnoCiclo.getId();
-            if (calcularSituacionAcadFinal) {
-                SituacionAcademica situacionAcademicaIni = alumnoCicloAnterior != null ? alumnoCicloAnterior.getSituacionFinal() : alumno.getSituacionAcademica();
-                SituacionAcademica situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(alumnoCiclo, situacionAcademicaIni, alumno.getCiclosEstudiados(), alumno.getCreditosAprobados(), cicloAcademico);
-
-                alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
-                alumnoCicloDAO.update(alumnoCiclo);
-
-                Alumno alumnoUpd = new Alumno();
-                alumnoUpd.setId(alumno.getId());
-                alumnoUpd.setCicloActivo(cicloAcademico);
-                alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
-                alumnoDAO.updateCicloActivoSituacionAcad(alumnoUpd);
-            }
+//            if (calcularSituacionAcadFinal) {
+//                SituacionAcademica situacionAcademicaIni = alumnoCicloAnterior != null ? alumnoCicloAnterior.getSituacionFinal() : alumno.getSituacionAcademica();
+//                SituacionAcademica situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(alumnoCiclo, situacionAcademicaIni, alumno.getCiclosEstudiados(), alumno.getCreditosAprobados(), cicloAcademico);
+//
+//                alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
+//                alumnoCicloDAO.update(alumnoCiclo);
+//
+//                Alumno alumnoUpd = new Alumno();
+//                alumnoUpd.setId(alumno.getId());
+//                alumnoUpd.setCicloActivo(cicloAcademico);
+//                alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
+//                alumnoDAO.updateCicloActivoSituacionAcad(alumnoUpd);
+//            }
 
         }
     }

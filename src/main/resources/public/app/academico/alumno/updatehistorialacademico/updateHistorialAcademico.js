@@ -91,7 +91,7 @@ new Vue({
                 data: $('#form').serialize(),
                 success: function(response) {
                     if (response.success) {
-                        location.href = APP.url("academico/alumno/updatehistorial");
+                        location.href = APP.url("academico/alumno");
                     } else {
                         notify(response.message, 'error');
                     }

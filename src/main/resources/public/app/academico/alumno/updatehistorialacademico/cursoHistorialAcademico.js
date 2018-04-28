@@ -45,7 +45,6 @@ Vue.component("curso-component", {
                     }
                 },
                 formatResult: function(info) {
-                    console.log(info.creditos);
                     return info.codigo + " - " + info.nombre;
                 },
                 formatSelection: function(info) {

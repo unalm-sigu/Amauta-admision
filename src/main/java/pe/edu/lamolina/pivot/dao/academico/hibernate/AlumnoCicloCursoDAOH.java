@@ -10,7 +10,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
-import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -221,4 +220,25 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         query.setLong("ALUMNOCICLO", alumnoCiclo.getId());
         query.executeUpdate();
     }
+
+    @Override
+    public AlumnoCicloCurso find(AlumnoCicloCurso alumnoCicloCursoForm) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .filter("acc.id", alumnoCicloCursoForm);
+        return find(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allByAlumnoCiclo(AlumnoCiclo alumnoCiclo) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .filter("ac.id", alumnoCiclo)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+        return all(sql);
+    }
+
 }
