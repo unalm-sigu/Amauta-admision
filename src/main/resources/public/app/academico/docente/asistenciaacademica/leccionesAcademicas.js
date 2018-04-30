@@ -1,19 +1,19 @@
 var app = new Vue({
     el: '#asistenciaAcademicaApp',
     data: {
-        URL_GRUPOS_SECCION: APP.url('academico/docente/asistenciaacademica/listGruposSecciones'),
-        hola: "chau"
+        URL_LECCIONES: APP.url('academico/docente/asistenciaacademica/listLeccionesAcademicas'),
+        seccion: null
     }, created: function () {
-
+        this.seccion = JSON.parse(seccionJson);
     }, mounted: function () {
         let $vue = this;
 
     }, methods: {
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
-        }, controlarSeccion(seccion, e) {
+        }, controlarLeccion(seccion, e) {
             e.preventDefault();
-            location.href = APP.url('academico/docente/asistenciaacademica/' + seccion.id + '/lecciones');
+            location.href = APP.url('academico/docente/asistenciaacademica/' + seccion.id + '/control');
         }
     }
 })

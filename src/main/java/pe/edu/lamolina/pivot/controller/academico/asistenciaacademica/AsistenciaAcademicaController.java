@@ -9,7 +9,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +20,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -32,8 +37,11 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TemaLeccion;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -46,7 +54,7 @@ public class AsistenciaAcademicaController {
     CargaAcademicaService cargaAcademicaService;
 
     @Autowired
-    AsistenciaAcademicaService asistenciaAcademicaServiceImp;
+    AsistenciaAcademicaService asistenciaAcademicaService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -128,20 +136,89 @@ public class AsistenciaAcademicaController {
         return json;
     }
 
-    @RequestMapping("{seccion}/control")
-    public String control(
+    @ResponseBody
+    @RequestMapping("listLeccionesAcademicas")
+    public DynatableResponse listLeccionesAcademicas(DynatableFilter filter,
+            @RequestParam(name = "seccion", required = true) Long seccionId,
+            HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            Docente docente = ds.getDocente();
+            DateTime dateTime = new DateTime();
+
+            List<TemaLeccion> lecciones = asistenciaAcademicaService.allTemaLeccionBySeccionDocenteDyna(
+                    new Seccion(seccionId), docente, filter
+            );
+            logger.debug(this.getClass() + " Cantidad de lecciones {}", lecciones.size());
+
+            for (TemaLeccion leccion : lecciones) {
+                DateTime editLimitDATE = new DateTime().plusDays(pe.edu.lamolina.model.miscelaneo.Constantine.DAYS_EDIT_TEMA_CICLO * -1);
+                DateTime fechaRegistro = new DateTime(leccion.getFechaRegistro());
+                ObjectNode node = leccion.toJson();
+                node.put("allowEdit", leccion.isAllowEdit());
+                array.add(node);
+            }
+
+            json.setData(array);
+            json.setTotal(lecciones.size());
+            json.setFiltered(lecciones.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @RequestMapping("{seccion}/lecciones")
+    public String lecciones(
             @PathVariable("seccion") Long idSeccion,
             Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DateTime today = new DateTime();
 
-        Seccion seccion = cargaAcademicaService.findSeccion(idSeccion);
+        Seccion seccion = asistenciaAcademicaService.findSeccionDia(new Seccion(idSeccion), today);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
         GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
         Curso curso = grupoSeccion.getCurso();
 
         model.addAttribute("seccion", seccion);
         model.addAttribute("seccionJson", seccion.toJson().toString());
+        model.addAttribute("grupoSeccion", grupoSeccion);
+        model.addAttribute("curso", curso);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("docente", ds.getDocente());
+        model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
+        return "academico/docente/asistenciaacademica/leccionesAcademicas";
+    }
+
+    @RequestMapping("{seccion}/control")
+    public String control(
+            @PathVariable("seccion") Long idSeccion,
+            Model model, HttpSession session) {
+        logger.debug("la seccion es {}", idSeccion);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DateTime today = new DateTime();
+
+        TemaLeccion temaLeccion = asistenciaAcademicaService.findTemaLeccionSeccionDocenteFecha(new Seccion(idSeccion), ds.getDocente(), today);
+        if (temaLeccion == null) {
+            temaLeccion = new TemaLeccion();
+        }
+
+        Seccion seccion = asistenciaAcademicaService.findSeccionDia(new Seccion(idSeccion), today);
+        logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
+        GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(seccion.getGrupoSeccion().getId());
+        Curso curso = grupoSeccion.getCurso();
+
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("seccionJson", seccion.toJson().toString());
+        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
 
@@ -157,7 +234,6 @@ public class AsistenciaAcademicaController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-//todo
         jsonResponse.setSuccess(true);
         jsonResponse.setData(data);
         return jsonResponse;
@@ -173,7 +249,8 @@ public class AsistenciaAcademicaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            List<MatriculaSeccion> matriculasSeccionByFilter = asistenciaAcademicaServiceImp.allMatriculaSeccionBySeccion(new Seccion(seccionId));
+            DateTime today = new DateTime();
+            List<MatriculaSeccion> matriculasSeccionByFilter = asistenciaAcademicaService.allMatriculaSeccionBySeccion(new Seccion(seccionId), ds.getDocente(), today);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (MatriculaSeccion matriculaSeccionEach : matriculasSeccionByFilter) {
@@ -181,6 +258,7 @@ public class AsistenciaAcademicaController {
             }
 
             json.setData(array);
+
             json.setTotal(matriculasSeccionByFilter.size());
             json.setFiltered(matriculasSeccionByFilter.size());
 
@@ -189,6 +267,41 @@ public class AsistenciaAcademicaController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAsistencia")
+    public JsonResponse saveAsistencia(
+            @RequestBody TemaLeccion temaLeccion,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            for (MatriculaSeccion matriculaSeccion : temaLeccion.getSeccion().getMatriculaSeccion()) {
+
+                List<HorarioSeccion> horariosSeccion = matriculaSeccion.getSeccion().getHorarioSeccion().stream().filter(x -> !x.isSeleccionado()).collect(Collectors.toList());
+                matriculaSeccion.getSeccion().setHorarioSeccion(horariosSeccion);
+            }
+
+            if (temaLeccion.getId() == null) {
+                asistenciaAcademicaService.saveInasistencia(temaLeccion, ds.getDocente(), ds.getUsuario(), ds.getCicloAcademico());
+            } else {
+                asistenciaAcademicaService.updateInasistencia(temaLeccion, ds.getDocente(), ds.getUsuario(), ds.getCicloAcademico());
+            }
+            String message = "Asistencia guardada.";
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
