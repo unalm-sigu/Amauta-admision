@@ -44,4 +44,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     void updateFechasTurnosAignadosDisponibles(CicloAcademico cicloAcademico);
 
+    CicloAcademico find(CicloAcademico cicloAcademico);
+
 }

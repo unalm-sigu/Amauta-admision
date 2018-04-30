@@ -28,7 +28,15 @@ new Vue({
         tabla14: false,
         horarios: [],
         horaTmp: '',
-        alumnoInfo: {}
+        alumnoInfo: {},
+        modalWait: {
+            id: 'modalWait',
+            styleModal: {'background-color': '#D8D8D8'},
+            dataBackdrop: 'static',
+            dataKeyboard: 'false',
+            header: false,
+            footer: false
+        }
 
     },
     computed: {

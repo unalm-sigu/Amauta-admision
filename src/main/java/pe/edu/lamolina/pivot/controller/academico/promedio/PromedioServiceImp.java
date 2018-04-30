@@ -137,7 +137,15 @@ public class PromedioServiceImp implements PromedioService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void promediarAllCicloAsync(Alumno alumno, Usuario usuario) {
-        visorCalculoNotas.incrementarCantidad();
+        promediarAllCicloSync(alumno, usuario);
+    }
+
+    @Override
+    @Transactional
+    public void promediarAllCicloSync(Alumno alumno, Usuario usuario) {
+        if (visorCalculoNotas.getActivo()) {
+            visorCalculoNotas.incrementarCantidad();
+        }
         DateTime today = new DateTime();
         try {
             this.promediarTrasladosAllCiclos(alumno, usuario, today);
@@ -164,7 +172,11 @@ public class PromedioServiceImp implements PromedioService {
 
                 }
             }
-            visorCalculoNotas.incrementarProcesados();
+
+            if (visorCalculoNotas.getActivo()) {
+                visorCalculoNotas.incrementarProcesados();
+            }
+
         } catch (Exception e) {
             String excepcion = this.messageException(e);
             logger.error("####Error en el hilo alumno " + alumno.getId() + " ciclo activo " + alumno.getCicloActivo().getCodigo());//, e 
@@ -172,7 +184,9 @@ public class PromedioServiceImp implements PromedioService {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
 
-        visorCalculoNotas.reporte();
+        if (visorCalculoNotas.getActivo()) {
+            visorCalculoNotas.reporte();
+        }
 
     }
 

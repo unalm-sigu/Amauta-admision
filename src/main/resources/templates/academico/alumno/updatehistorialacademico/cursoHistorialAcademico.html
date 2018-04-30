@@ -1,0 +1,45 @@
+<template id="cursoTemplate"  >
+    <tr>
+
+        <td class="col-xs-8">
+
+            <input type="hidden"   v-bind:value="alumnociclocurso.id"  v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].id'  "   />
+
+            <input
+                class="selectCurso form-control input-sm"
+                type="text"  required="true"
+                v-bind:model="alumnociclocurso.curso.id"
+                v-bind:value="alumnociclocurso.curso.id"
+                v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].curso.id'  "
+                />
+
+        </td>
+
+        <td class="col-xs-2" >
+            <input
+                class="form-control input-sm text-right numeric"
+                type="text"
+                required="true"
+                v-bind:model="alumnociclocurso.creditos"
+                v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].creditos'  "
+                v-bind:value="alumnociclocurso.creditos" />
+        </td>
+
+        <td class="col-xs-2">
+            <input
+                class="form-control input-sm  text-right"
+                type="text"
+                maxlength="2"
+                required="true"
+                v-bind:model="alumnociclocurso.nota"
+                v-bind:name=" 'alumnoCiclo['+inx+'].alumnoCicloCurso['+index+'].nota'  "
+                v-bind:value="alumnociclocurso.nota"
+                />
+        </td>
+
+        <td class="v-middle ">
+            <a href="#" v-on:click="deleteAlumnoCicloCurso( alumnociclocurso, alumnociclo)"><i class="fa fa-trash" aria-hidden="true"></i></a>
+        </td>
+
+    </tr>
+</template>
