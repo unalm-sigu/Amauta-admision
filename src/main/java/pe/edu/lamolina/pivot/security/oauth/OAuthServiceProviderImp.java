@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EntidadOficinaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NivelOficinaEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.RolEnum.ADM_UNALM;
@@ -133,8 +134,8 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Override
     public void loginManually(String email, HttpSession session, HttpServletRequest servlet) {
-
-        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo();
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo(modalidad);
         Usuario usuario = usuarioDAO.findByGoogleEmail(email);
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
@@ -188,11 +189,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         ds.setDocente(null);
         ds.setDepartamentoAcademico(null);
-//        List<Docente> docentes = docenteDAO.allByPersona(usuario.getPersona());
-//        if (!docentes.isEmpty()) {
-//            ds.setDocente(docentes.get(0));
-//            ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
-//        }
 
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);

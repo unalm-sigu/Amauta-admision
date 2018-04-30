@@ -311,8 +311,8 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     @Transactional
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        visorCalculoNotas.iniciar();
-        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+        visorCalculoNotas.setActivo(false);
+        promedioService.promediarAllCicloSync(alumno, ds.getUsuario());
     }
 
 }

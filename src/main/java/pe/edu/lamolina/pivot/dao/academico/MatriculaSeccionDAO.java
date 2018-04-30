@@ -15,8 +15,6 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySeccion(Seccion seccion);
 
-    MatriculaSeccion find(Long id);
-
     MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
 
     List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);

@@ -10,8 +10,13 @@ public class VisorCalculoNotas {
     private Integer cantidad;
     private Integer procesados;
     private long inicio;
+    private Boolean activo;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public VisorCalculoNotas() {
+        activo = false;
+    }
 
     public void iniciar() {
         cantidad = 0;
@@ -34,4 +39,13 @@ public class VisorCalculoNotas {
             logger.info("Finalizó procesos de recalculo de notas en {} mseg", (fin - inicio));
         }
     }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
 }

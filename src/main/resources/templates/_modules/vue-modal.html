@@ -1,14 +1,14 @@
 <template id="modal-vik-template">
     <transition name="modal">
 
-        <div v-bind:id="id" class="modal fade" tabindex="-1" role="dialog">
+        <div v-bind:id="id" class="modal fade" tabindex="-1" role="dialog"
+             v-bind:data-backdrop="dataBackdrop" v-bind:data-keyboard="dataKeyboard">
             <div class="modal-dialog" v-bind:class="modalSize" role="document">
 
-                <div class="modal-content">
+                <div class="modal-content" v-bind:style="styleModal">
                     <div v-if="header" class="modal-header">
                         <slot name="header">
                             <button v-on:click="close"  type="button"  class="close">
-
                                 <span aria-hidden="true">&times;</span>
                             </button>
                             <h4 class="modal-title">{{ title }}</h4>
@@ -32,3 +32,13 @@
         </div>
     </transition>
 </template>
+
+<modal-vik ref="modalWait"
+           v-bind="modalWait">
+    <div slot="body">
+        <div class="m-t m-b text-center">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp; 
+            <span class="h3 bold"  id="bodyModalWait">Espere un momento por favor..</span>
+        </div>
+    </div>
+</modal-vik>

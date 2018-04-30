@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
@@ -175,6 +176,11 @@ public class RolServiceImp implements RolService {
     @Override
     public Rol findRol(Rol rol) {
         return rolDAO.find(rol.getId());
+    }
+
+    @Override
+    public List<Rol> allRolByDynatable(DynatableFilter filter) {
+        return rolDAO.allByDynatable(filter);
     }
 
 }
