@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite;
+package pe.edu.lamolina.pivot.controller.tramite.solicitudconstancia;
 
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;

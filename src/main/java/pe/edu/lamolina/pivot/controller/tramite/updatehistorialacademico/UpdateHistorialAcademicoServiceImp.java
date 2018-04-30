@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.academico.updatehistorialacademico;
+package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
