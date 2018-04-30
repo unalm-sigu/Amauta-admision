@@ -28,15 +28,7 @@ new Vue({
         tabla14: false,
         horarios: [],
         horaTmp: '',
-        alumnoInfo: {},
-        modalWait: {
-            id: 'modalWait',
-            styleModal: {'background-color': '#D8D8D8'},
-            dataBackdrop: 'static',
-            dataKeyboard: 'false',
-            header: false,
-            footer: false
-        }
+        alumnoInfo: {}
 
     },
     computed: {
@@ -61,13 +53,15 @@ new Vue({
         if ($vue.alumno.carrera.codigo == $vue.alumno.carrera.facultad.codigo) {
             $vue.facu = false;
         }
+
     },
-    mounted: function () {
+    mounted: function() {
         let $vue = this;
         $vue.alumnoCursoTemp = $vue.alumnoCurso;
+        console.log($vue);
     },
     methods: {
-        updateTabs: function (tab) {
+        updateTabs: function(tab) {
 
             let $vue = this;
             $vue.tabId = tab.id;
@@ -75,7 +69,7 @@ new Vue({
                 $vue.cargaHorario();
             }
         },
-        settingSeccionColor: function () {
+        settingSeccionColor: function() {
             let vue = this;
             var horarios = vue.horarios.horarios;
             for (var i = 0; i < horarios.length; i++) {
@@ -89,7 +83,7 @@ new Vue({
                 }
             }
 
-            vue.secciones.map(function (data, index) {
+            vue.secciones.map(function(data, index) {
                 let seccionColor = {
                     seccion: data,
                     color: 'curso color' + (index + 1)
@@ -100,7 +94,7 @@ new Vue({
         getColorBySeccion(seccion) {
             let vue = this;
             let classDiv = "";
-            vue.coloresCurso.map(function (data, index) {
+            vue.coloresCurso.map(function(data, index) {
                 if (seccion === data.seccion) {
                     classDiv = data.color;
                 }
@@ -122,7 +116,7 @@ new Vue({
             let vue = this;
             let cantHoras = vue.horas.length;
             let horasTotal = []; //horas desde las 8 am
-            vue.allHoras.map(function (data, index) {
+            vue.allHoras.map(function(data, index) {
                 if (data.numero != 6 && data.numero != 7) {   //  menos 6 y 7
                     horasTotal.push(data.numero);
                 }
@@ -132,19 +126,19 @@ new Vue({
             var horaMax = Math.max.apply(null, horasTotal);
             //var longitudHoras = horasTotal.length;
             var posicionMayor = horasTotal.indexOf(horaMax);
-            //eliminando las horas despues del mayor  
+            //eliminando las horas despues del mayor
             for (var i = horasTotal.length - 1; i >= 0; i--) {
                 if (horasTotal[i] > posicionMayor)
                     horasTotal.splice(horasTotal[i], 1);
             }
 
-            //obtener index 
+            //obtener index
             let indexs = [];
-            horasTotal.map(function (data, index) {
+            horasTotal.map(function(data, index) {
                 indexs.push(horasTotal.indexOf(vue.horas[index]));
             });
             let horasRestante = [];
-            //eliminando horas entre los rangos de horas minimo y maximo 
+            //eliminando horas entre los rangos de horas minimo y maximo
             for (var i = horasTotal.length - 1; i >= 0; i--) {
                 if (indexs[i] > -1)
                     horasTotal.splice(indexs[i], 1);
@@ -211,7 +205,7 @@ new Vue({
                     vue.getDiasHorasVacias(dias, vue.horaTmp);
                     let itemAdd = {dias: dias, hora: vue.horaTmp, numeroHora: horaAdd};
                     vue.horarios.horarios.push(itemAdd)
-                    vue.horarios.horarios.sort(function (a, b) {
+                    vue.horarios.horarios.sort(function(a, b) {
                         if (a.numeroHora < b.numeroHora) {
                             return -1;
                         }
@@ -246,7 +240,7 @@ new Vue({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + numero + '/hora'),
                 contentType: "application/json",
-                success: function (response) {
+                success: function(response) {
                     vue.horaTmp = response.data.descripcion;
                 }
             });
@@ -257,7 +251,7 @@ new Vue({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + this.alumno.id + '/horario'),
                 contentType: "application/json",
-                success: function (response) {
+                success: function(response) {
                     $vue.horarios = response.data;
                     $vue.settingSeccionColor();
                     $vue.settingHoras();

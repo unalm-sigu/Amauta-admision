@@ -1,0 +1,36 @@
+<div  id="moda-wait-ooo">
+    <modal-vik ref="modalwait"
+               v-bind="modalWait">
+        <div slot="body">
+            <div class="m-t m-b text-center">
+                <i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp;
+                <span class="h3 bold"  id="bodyModalWait">Espere un momento por favor..</span>
+            </div>
+        </div>
+    </modal-vik>
+</div>
+<script>
+    new Vue({
+        el: '#moda-wait-ooo',
+        data: {
+            titulo: 'MODAL-CREADO',
+            modalWait: {
+                id: 'modalWait',
+                styleModal: {'background-color': '#D8D8D8'},
+                dataBackdrop: 'static',
+                dataKeyboard: 'false',
+                header: false,
+                footer: false
+            }
+        },
+        mounted() {
+            let vue = this;
+            $global.$on('MODAL-WAIT-OPEN', () => {
+                vue.$refs.modalwait.open();
+            });
+            $global.$on('MODAL-WAIT-CLOSE', () => {
+                vue.$refs.modalwait.close();
+            });
+        }
+    });
+</script>

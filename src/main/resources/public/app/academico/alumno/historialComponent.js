@@ -90,13 +90,14 @@ Vue.component("historial-component", {
                 return;
             }
             bootbox.confirm({
-                message: '¿Seguro que desea calcular el promedio?',
+                message: '¿Seguro que desea recalcular el promedio?',
                 buttons: {
                     confirm: {label: 'Si, Calcular', className: "btn-primary"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function(result) {
                     if (result) {
+                        $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/alumno/calcularpromedio'),
@@ -104,11 +105,14 @@ Vue.component("historial-component", {
                             success: function(response) {
                                 if (response.success) {
                                     vue.cargaHistorial();
+                                    notify(response.message, 'error');
                                 } else {
                                     notify(response.message, 'error');
                                 }
+                                $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }, error: function() {
                                 notify(MESSAGES.errorComunicacion, "error");
+                                $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }
                         });
                     }

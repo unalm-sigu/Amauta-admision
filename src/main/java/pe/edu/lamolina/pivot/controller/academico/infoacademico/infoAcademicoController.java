@@ -273,9 +273,9 @@ public class infoAcademicoController {
         try {
             service.calcularPromedio(alumnoForm, ds);
             response.setSuccess(true);
+            response.setMessage("Se calculó el promedio satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
