@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 
 public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
-    CicloAcademico findActivo();
+    CicloAcademico findActivo(ModalidadEstudio modalidad);
 
     CicloAcademico findByCodigo(String codigo);
 

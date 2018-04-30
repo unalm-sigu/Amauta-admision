@@ -17,7 +17,10 @@ Vue.component('modal-vik', {
         cancelclass: {type: String, default: 'btn-default'},
         modalSize: {type: String, default: "modal-md"},
         showaccept: {type: Boolean, default: true},
-        modalScroll: {type: String, default: ''}
+        modalScroll: {type: String, default: ''},
+        styleModal: {type: Object, default: null},
+        dataBackdrop: {type: String, default: null},
+        dataKeyboard: {type: String, default: null},
     },
     methods: {
         open() {
