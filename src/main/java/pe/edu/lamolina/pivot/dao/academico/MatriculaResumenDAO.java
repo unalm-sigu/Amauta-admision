@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
-import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -25,9 +24,11 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     void updatePuntajePrioridad(MatriculaResumen matriculaResumen);
 
-    public List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico);
+    List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico);
 
     void updatePrioridad(MatriculaResumen matriculaResumen);
 
     void updateTurnoAtencion(CicloAcademico cicloAcademico, TurnoAtencion turnoAtencion);
+
+    List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno);
 }

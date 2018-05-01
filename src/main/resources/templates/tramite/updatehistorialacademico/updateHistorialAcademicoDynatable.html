@@ -1,0 +1,60 @@
+<template id="dynatableTemplate">
+    <transition name="fade">
+
+        <div class="panel padder-v">
+            <table id="dynaTable" class="table">
+                <thead>
+                    <tr>
+                        <th class="col-xs-8 v-middle"></th>
+                        <th class="col-xs-3 v-middle">Solicitud</th>
+                        <th class="col-xs-1 v-middle">Estado</th>
+                        <th class="v-middle"></th>
+                    </tr>
+                </thead>
+                <tbody id="dynaTbody"><tr></tr></tbody>
+            </table>
+        </div>
+
+    </transition>
+</template>
+
+<template  type="text/x-template" id="dynatableRowTemplate">
+    <tr  v-bind:class="{ 'rowactive' :   solicitud.id == rowActive}" >
+
+        <td  class="v-middle"  >
+            <p  class="h5 bold text-primary" v-text="solicitud.nombre"></p>
+            <span class="block"> Matrícula: {{solicitud.codigo}}</span>
+            <small class="block bold">{{solicitud.tipo}} {{solicitud.dni}}</small>
+            <span v-if="solicitud.showfacultad" class="block"> Matrícula: {{solicitud.codigoMatricula}}</span>
+        </td>
+
+        <td class="v-middle">
+            <p   v-on:click.prevent="seleccionar(solicitud)" class="pointer" > {{ solicitud.numero}} </p>
+            <p class=""> {{ solicitud.documento}} </p>
+        </td>
+
+        <td class="v-middle">
+            <span   v-if="solicitud.estado=='ACEP' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='PEND' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='DEV' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='ENV' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='ANU' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='ACT' " class="label label-primary ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='CRE' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+        </td>
+
+        <td class="v-middle">
+            <div class="dropdown actions">
+                <a class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="glyphicon glyphicon-option-vertical"></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li><a v-on:click.prevent="eliminar(solicitud.id)"  href="#">Eliminar Solicitud Documento</a></li>
+                    <li class="divider"></li>
+                    <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+
+</template>

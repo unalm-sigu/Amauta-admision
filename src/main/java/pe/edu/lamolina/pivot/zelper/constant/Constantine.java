@@ -45,5 +45,10 @@ public interface Constantine {
     String REQ_MIN_ALUMNO = "No cumple requisito de mínimo alumnos";
     String REQ_CUR_TEORIA = "Encuestado en el curso de  teoría";
     String REQ_EVENTO = "Evento académico no configurado";
-
+    //html to pdf
+    String PDF_CSS = "public/app/pdf/css/pdf.css";
+    String PDF_IMG = "/public/app/pdf/img/";
+    //code idioma
+    String CODE_IDIOMA_ESPANOL = "es";
+    String CODE_IDIOMA_INGLES = "en";
 }

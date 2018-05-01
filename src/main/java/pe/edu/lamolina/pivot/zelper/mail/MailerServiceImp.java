@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.mail.connector.MailMessage;
 import pe.edu.lamolina.pivot.zelper.mail.connector.MailerConnector;
 
@@ -39,8 +40,26 @@ public class MailerServiceImp implements MailerService {
         mail.setContext(ctx);
         mail.setTemplate("mail/mailUsuarioCreacion");
         mail.setSubject("Creación de usuario");
-        //mail.setDestinatarios(new String[]{persona.getEmail()});
-        mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
+        mail.setDestinatarios(new String[]{persona.getEmail()});
+        //mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
+        mailerConnector.sendMail(mail);
+    }
+
+    @Override
+    public void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico, ContenidoCarta contenidoCarta) {
+
+        String contenido = contenidoCarta.getContenido();
+        contenido = contenido.replaceAll("__NOMBREPERSONA__", tramiteDocumentoAcademico.getPersonaContacto());
+
+        Context ctx = new Context();
+        ctx.setVariable("contenido", contenido);
+
+        MailMessage mail = new MailMessage();
+        mail.setContext(ctx);
+        mail.setTemplate("mail/mailSolicitudConstancia");
+        mail.setSubject("Creación de usuario");
+        mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
+        //mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMail(mail);
     }
 }

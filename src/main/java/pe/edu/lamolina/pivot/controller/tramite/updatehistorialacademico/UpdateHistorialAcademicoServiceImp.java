@@ -1,10 +1,12 @@
 package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -14,22 +16,53 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.SerieDocumento;
+import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
+import pe.edu.lamolina.model.tramite.PrecioDocumento;
+import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
+import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
+import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
+import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.PrecioDocumentoDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoConstanciaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
+import pe.edu.lamolina.pivot.dao.tramite.hibernate.SolicitudConstanciaDAOH;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -55,6 +88,42 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Autowired
     CursoDAO cursoDAO;
+
+    @Autowired
+    SolicitudConstanciaDAOH tramiteDocumentoAcademicoDAO;
+
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    IdiomaDAO idiomaDAO;
+
+    @Autowired
+    TipoConstanciaDAO tipoDocumentoAcademicoDAO;
+
+    @Autowired
+    PersonaDAO personaDAO;
+
+    @Autowired
+    TramiteDAO tramiteDAO;
+
+    @Autowired
+    PrecioDocumentoDAO precioDocumentoDAO;
+
+    @Autowired
+    SerieDocumentoService serieDocumentoService;
+
+    @Autowired
+    TipoTramiteDAO tipoTramiteDAO;
+
+    @Autowired
+    ContenidoCartaDAO contenidoCartaDAO;
+
+    @Autowired
+    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+
+    @Autowired
+    MailerService mailerService;
 
     @Override
     public Alumno allInfo(Alumno alumno) {
@@ -356,6 +425,162 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     public List<Curso> allCursoByName(String nombre) {
         return cursoDAO.allCursoByName(nombre);
+    }
+
+    @Override
+    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
+        return tramiteDocumentoAcademicoDAO.allTramiteDocumentoAcademico(filter);
+    }
+
+    @Override
+    @Transactional
+    public void delete(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+        tramiteDocumentoAcademicoDAO.delete(tramiteDocumentoAcademico);
+    }
+
+    @Override
+    public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getId());
+    }
+
+    @Override
+    @Transactional
+    public void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionMaipi ds) {
+
+        Usuario usuario = ds.getUsuario();
+        CicloAcademico cicloAcademico = ds.getCiclo();
+        Compania compania = ds.getCompania();
+        DateTime today = new DateTime();
+
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
+        TipoTramite tipoTramiteRCI = tipoTramiteDAO.findByCodigo("CODE001");
+
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        tramite.setCicloAcademico(cicloAcademico);
+        tramite.setCompania(compania);
+        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
+        tramite.setFechaRegistro(today.toDate());
+        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+        tramite.setTipoTramite(tipoTramiteRCI);
+        tramite.setUserRegistro(usuario);
+        tramiteDAO.save(tramite);
+
+        tramiteDocumentoAcademico.setTramite(tramite);
+        tramiteDocumentoAcademico.setEstadoEnum(TramiteEstadoEnum.CRE);
+        tramiteDocumentoAcademico.setCantidadCiclos(1);
+        tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
+        this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
+    }
+
+    private void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigoEnum(ContenidoCartaEnum.NOTIFYSOLICITUD);
+        mailerService.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico, contenidoCarta);
+    }
+
+    @Override
+    @Transactional
+    public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionMaipi ds) {
+        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
+        throw new PhobosException("Update no soportado");
+    }
+
+    @Override
+    public List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno) {
+        return matriculaResumenDAO.allMatriculaResumenByAlumno(alumno);
+    }
+
+    @Override
+    public List<Idioma> allIdiomas() {
+        return idiomaDAO.allByCodigo(Arrays.asList(Constantine.CODE_IDIOMA_ESPANOL, Constantine.CODE_IDIOMA_INGLES));
+    }
+
+    @Override
+    public List<TipoDocumentoAcademico> allTipoDocumentoAcademico() {
+        return tipoDocumentoAcademicoDAO.all();
+    }
+
+    @Override
+    public Alumno findAlumno(Alumno alumno) {
+        return alumnoDAO.find(alumno);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByPersona(Persona persona) {
+        return alumnoDAO.allByPersona(persona);
+    }
+
+    @Override
+    public Persona findPersona(Persona persona) {
+        return personaDAO.find(persona.getId());
+    }
+
+    @Override
+    public void fillTipoDocumentoAcademico(ArrayNode array) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        List<TipoDocumentoAcademico> tipos = tipoDocumentoAcademicoDAO.all();
+        List<PrecioDocumento> precios = precioDocumentoDAO.allPrecioDocumento();
+        Map<Long, List<PrecioDocumento>> precioByDocumento = TypesUtil.convertListToMapList("tipoDocumento.id", precios);
+        for (TipoDocumentoAcademico tipo : tipos) {
+            ObjectNode nodeTipoDocumento = this.toJson(tipo);
+            ArrayNode arrayCostos = new ArrayNode(factory);
+            List<PrecioDocumento> preciosDocumento = precioByDocumento.get(tipo.getId());
+            if (preciosDocumento != null) {
+                for (PrecioDocumento precioDocumento : preciosDocumento) {
+                    ObjectNode objectCostos = this.toJson(precioDocumento);
+                    ObjectNode objectIdioma = this.toJson(precioDocumento.getIdioma());
+                    objectCostos.put("idioma", objectIdioma);
+                    arrayCostos.add(objectCostos);
+                }
+            }
+            nodeTipoDocumento.put("precios", arrayCostos);
+            array.add(nodeTipoDocumento);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void cancelar(TramiteDocumentoAcademico solicitudConstancia) {
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia.getId());
+        tda.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramiteDocumentoAcademicoDAO.update(tda);
+    }
+
+    @Override
+    public List<PrecioDocumento> allPrecioDocumento() {
+        return precioDocumentoDAO.allPrecioDocumento();
+    }
+
+    @Override
+    public String getCostoDocumento(TramiteDocumentoAcademico tramiteDoc, Map<Long, List<PrecioDocumento>> preciosMap) {
+        TipoDocumentoAcademico tpa = tramiteDoc.getTipoDocumentoAcademico();
+        Idioma idioma = tramiteDoc.getIdioma();
+        List<PrecioDocumento> precios = preciosMap.get(tpa.getId());
+        if (precios == null) {
+            return "0.0";
+        }
+        for (PrecioDocumento precio : precios) {
+            if (precio.getIdioma().getId() == idioma.getId().longValue()) {
+                return precio.getPrecio().toString();
+            }
+        }
+        return "0.0";
+    }
+
+    @Override
+    public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
+        return tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademicoForm);
+    }
+
+    @Override
+    public ContenidoCarta findContenidoBoletaByCodigoEnum(ContenidoCartaEnum contenidoCartaEnum) {
+        return contenidoCartaDAO.findByCodigoEnum(contenidoCartaEnum);
+    }
+
+    @Override
+    public PrecioDocumento findPrecioDocumentoByTipoIdioma(TipoDocumentoAcademico tipoDocumento, Idioma idioma) {
+        return precioDocumentoDAO.findByTipoIdioma(tipoDocumento, idioma);
     }
 
 }

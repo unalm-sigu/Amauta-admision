@@ -5,4 +5,6 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 
 public interface TipoTramiteDAO extends EasyDAO<TipoTramite> {
 
+    public TipoTramite findByCodigo(String tipoTramite);
+
 }

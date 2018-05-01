@@ -1,0 +1,95 @@
+/*
+    Created on : Apr 13, 2018, 5:57:15 PM
+    Author     : alba
+*/
+.containerprogress{
+    width: 100%;
+    z-index: 1;
+    margin-top: 20px;
+}
+.progressvue{
+    counter-reset: step;
+}
+.progressvue li{
+    float: left;
+    width: 14.28%;
+    position: relative;
+    text-align: center;
+    list-style-type: none;
+}
+.progressvue li:before{
+    content:counter(step);
+    counter-increment: step;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #bebebe;
+    display: block;
+    margin: 0 auto 10px auto;
+    border-radius: 50%;
+    line-height: 27px;
+    background: white;
+    color: #bebebe;
+    text-align: center;
+    font-weight: bold;
+}
+.progressvue li:after{
+    content: '';
+    position: absolute;
+    width:100%;
+    height: 3px;
+    background: #979797;
+    top: 15px;
+    left: -50%;
+    z-index: -1;
+}
+.progressvue li.active:before{
+    border-color: #3aac5d;
+    background: #3aac5d;
+    color: white
+}
+.progressvue li.active:after{
+    background: #3aac5d;
+}
+.progressvue li.primary.active:before{
+    border-color: #3aac5d;
+    background: #3aac5d;
+    color: white
+}
+.progressvue li.primary.active:after{
+    background: #3aac5d;
+}
+.progressvue li.danger.active:before{
+    border-color: #ff4444;
+    background: #ff4444;
+    color: white
+}
+.progressvue li.danger.active:after{
+    background: #ff4444;
+}
+.progressvue li.success.active:before{
+    border-color: #00C851;
+    background: #00C851;
+    color: white
+}
+.progressvue li.success.active:after{
+    background: #00C851;
+}
+.progressvue li.warning.active:before{
+    border-color: #ffbb33;
+    background: #ffbb33;
+    color: white
+}
+.progressvue li.warning.active:after{
+    background: #ffbb33;
+}
+.progressvue li.info.active:before{
+    border-color: #33b5e5;
+    background: #33b5e5;
+    color: white
+}
+.progressvue li.info.active:after{
+    background: #33b5e5;
+}
+.progressvue li:first-child:after{
+    content: none;
+}

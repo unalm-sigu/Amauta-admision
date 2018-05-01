@@ -17,10 +17,19 @@ public class IdiomaDAOH extends AbstractEasyDAO<Idioma> implements IdiomaDAO {
 
     @Override
     public List<Idioma> allInglesAndEspañol() {
-        String[] ids={"en","es"};
+        String[] ids = {"en", "es"};
         Octavia sql = Octavia.query()
-                .from(Idioma.class,"idi")
+                .from(Idioma.class, "idi")
                 .in("idi.codigo", ids);
         return all(sql);
+    }
+
+    @Override
+    public List<Idioma> allByCodigo(List<String> codigos) {
+        Octavia sql = Octavia.query()
+                .from(Idioma.class, "idi")
+                .in("idi.codigo", codigos).
+                orderBy("idi.codigo desc");
+        return sql.all(getCurrentSession());
     }
 }

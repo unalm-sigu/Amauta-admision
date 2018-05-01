@@ -66,6 +66,9 @@
 <base th:fragment="styles-bootstrap-colorpicker">
 <link rel="stylesheet" type="text/css" th:href="@{/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css}" />
 </base>
+<base th:fragment="styles-progressvue">
+<link th:href="@{/vendor/progressvue/progressvue.css}" rel="stylesheet" type="text/css"/>
+</base>
 
 
 
@@ -266,6 +269,9 @@
 <div th:fragment="lodash">
     <script th:src="@{/vendor/lodash/lodash.core.js}" type="text/javascript" charset="utf-8"></script>
     <script th:src="@{/vendor/lodash/lodash.min.js}" type="text/javascript" charset="utf-8"></script>
+</div>
+<div th:fragment="javascript-filedownload">
+    <script th:src="@{/vendor/filedownload/jquery.fileDownload.js}" type="text/javascript" charset="utf-8"/>
 </div>
 
 

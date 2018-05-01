@@ -8,4 +8,6 @@ public interface IdiomaDAO extends EasyDAO<Idioma> {
 
     public List<Idioma> allInglesAndEspañol();
 
+    public List<Idioma> allByCodigo(List<String> codigos);
+
 }

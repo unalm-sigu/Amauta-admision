@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
@@ -15,6 +16,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -180,6 +183,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         this.update(octavia);
     }
 
+    @Override
     public List<MatriculaResumen> allNoMatriculadoByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
@@ -202,6 +206,14 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         query.setParameter("prm_prioridad_fin", BigDecimal.valueOf(turnoAtencion.getPrioridadFin()));
         query.setParameter("prm_ciclo", cicloAcademico.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
+                .filter("alu.id", alumno);
+        return sql.all(getCurrentSession());
     }
 
 }

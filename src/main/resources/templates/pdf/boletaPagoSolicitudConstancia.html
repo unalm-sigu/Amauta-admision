@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Boleta de Pago</title>
+        <meta charset="utf-8"/>
+        <style>
+            table, th, td {
+                border: 1px solid black;
+                padding: 10px;
+            }
+            .alert {
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid transparent;
+                border-radius: 4px;
+            }
+            .alert-warning{
+                color: #a94442;
+                text-align: center;
+                background-color: #FFFFE7;
+                border-color: #FFFFE7;
+            }
+        </style>
+    </head>
+    <body>
+        <img src="escudoUnalm.png"  height="55" width="200"/>
+
+        <div class="col-md-12">
+
+            <p th:utext="${cabecera}" th:remove="tag">
+                CONTENIDO DE CABECERA
+            </p>
+            <br/>
+
+
+            <p style="font-size: 22px;font-weight: bold ;text-align: center; color: #0B6121;"
+               th:inline="text">Boleta de pago Nº [[${numero}]]</p>
+            <table width="100%"
+                   align="center"
+                   th:style="|background-color: #D6EDDE; margin-bottom: 20px; font-size: 13px|">
+                <tbody class="">
+                    <tr>
+                        <td style="width:40%">Entidad Bancaria</td>
+                        <td style="width:60%" th:text="${cuenta.banco}">BANCO DE CRÉDITO DEL PERÚ</td>
+                    </tr>
+                    <tr>
+                        <td>Nombre Comercial</td>
+                        <td >UNIVERSIDADES AGRARIA LA MOLINA</td>
+                    </tr>
+                    <tr>
+                        <td>Número de la Cuenta</td>
+                        <td th:text="${cuenta.numero}"></td>
+                    </tr>
+                    <tr>
+                        <td>Concepto de Pago</td>
+                        <td th:text="${cuenta.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <td>Código de Identificación (DNI)</td>
+                        <td  th:text="${persona.numeroDocIdentidad}"></td>
+                    </tr>
+                    <tr>
+                        <td>Monto a Pagar</td>
+                        <td th:text="${montoString}"></td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <h4>
+                <p th:utext="${pieBoleta}"></p>
+            </h4>
+
+        </div>
+    </body>
+</html>

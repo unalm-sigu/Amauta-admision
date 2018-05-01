@@ -1,0 +1,67 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Tramites documentarios </title>
+        <link th:substituteby="_layout/includes :: styles-dynatable"/>
+        <link th:substituteby="_layout/includes :: styles-progressvue"/>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="main">
+
+                <header class="header b-b padder-lg">
+
+                    <a class="pull-right btn btn-success btn-sm" type="button"    th:href="@{/tramite/solicitudconstancia/nuevo}" >
+                        Agregar Tramite
+                    </a>
+
+                    <h1>Tramites documentarios</h1>
+
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel">
+                        <section class="panel-body m-t-sm">
+                            <dynatable />
+                        </section>
+
+                        <section v-if="rowActive!=0" class="panel-body m-t-sm">
+                            <div class="text-center row">
+                                <div class="containerprogress col-xs-10 col-xs-offset-2">
+                                    <ul class="progressvue">
+                                        <li class="primary" v-bind:class="{ 'active' :   stepActivo == 1  }"  >Inicio</li>
+                                        <li class="info"  v-bind:class="{ 'active' :   stepActivo == 2  }">Revisado</li>
+                                        <li class="warning"  v-bind:class="{ 'active' :  stepActivo == 3 }">Firmado</li>
+                                        <li class="danger"  v-bind:class="{ 'active' :   stepActivo ==  4 }">Entregado</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section v-if="rowActive!=0" class="panel-body">
+                            <div class="text-center col-xs-12" style="margin-top: 80px">
+                                <button type="button" v-on:click="imprimir"  v-bind:disabled="showSpinner" >
+                                    <i v-if="showSpinner" class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                                    imprimir boleta
+                                    <i class="fa fa-print" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </section>
+
+                    </section>
+                </section>
+
+            </div>
+
+            <th:block th:replace="tramite/updatehistorialacademico/updateHistorialAcademicoDynatable"/>
+
+        </div>
+        <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
+            <div th:substituteby="_layout/includes :: vuejs"/>
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoDynatable.js}" charset="utf-8"></script>
+            <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoList.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

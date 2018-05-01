@@ -6,7 +6,7 @@ new Vue({
         alumnociclo: {cicloAcademico: {id: null}},
         alumnociclos: [{id: null, cicloAcademico: {id: null}, alumnociclocursos: [{curso: {id: null}}]}]
     },
-    mounted: function() {
+    mounted() {
         let vue = this;
         $('.numeric').numeric();
         $global.$on("agregarAlumnoCicloCurso", function(alumnociclo) {
@@ -87,7 +87,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/alumno/updatehistorial/update'),
+                url: APP.url('tramite/solicitudconstancia/updatehistorial/updatehistorial'),
                 data: $('#form').serialize(),
                 success: function(response) {
                     if (response.success) {
@@ -106,7 +106,7 @@ new Vue({
             let vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/alumno/updatehistorial/notas'),
+                url: APP.url('tramite/solicitudconstancia/updatehistorial/notas'),
                 data: {id: vue.alumno.id},
                 success: function(response) {
                     if (response.success) {

@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.zelper.pdf;
 
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Image;
-import com.itextpdf.text.pdf.codec.Base64;
 import com.itextpdf.tool.xml.pipeline.html.AbstractImageProvider;
 import java.io.IOException;
 
@@ -10,7 +9,7 @@ import java.io.IOException;
  *
  * @author Albatross
  */
-class PdfImageProvider extends AbstractImageProvider {
+public class PdfImageProvider extends AbstractImageProvider {
 
     public final static String PATH = "/public/pdf/img/";
 

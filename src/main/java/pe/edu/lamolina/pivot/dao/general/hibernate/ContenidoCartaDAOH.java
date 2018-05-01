@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
@@ -36,6 +37,14 @@ public class ContenidoCartaDAOH extends AbstractEasyDAO<ContenidoCarta> implemen
                 .from(ContenidoCarta.class, "cc")
                 .filter("cc.codigo", codigo);
         return (ContenidoCarta) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public ContenidoCarta findByCodigoEnum(ContenidoCartaEnum contenidoCartaEnum) {
+        Octavia sql = Octavia.query()
+                .from(ContenidoCarta.class, "cc")
+                .filter("cc.codigo", contenidoCartaEnum.name());
+        return find(sql);
     }
 
 }

@@ -29,7 +29,7 @@ Vue.component("curso-component", {
                 placeholder: "Seleccione un curso",
                 minimumInputLength: 1,
                 ajax: {
-                    url: APP.url("academico/alumno/updatehistorial/searchcurso"),
+                    url: APP.url("tramite/solicitudconstancia/updatehistorial/searchcurso"),
                     dataType: 'json',
                     type: 'post',
                     data: function(term, page) {

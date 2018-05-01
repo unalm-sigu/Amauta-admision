@@ -1,0 +1,150 @@
+<html layout:decorator="zlayout/layout-side">
+    <head>
+        <title> Solicitud Constancia </title>
+    </head>
+    <body>
+
+        <div layout:fragment="BANNER">
+            <h1 >Nueva Solicitud de Constancia</h1>
+        </div>
+
+        <div layout:fragment="LEFT">
+            <div th:replace="zlayout/menu :: TRAMITE"></div>
+        </div>
+
+        <div layout:fragment="CONTAINER">
+
+            <div id="main">
+                <section class="panel">
+                    <section class="panel-body m-t-sm">
+
+                        <div class="row">
+
+                            <div class="col-sm-2 col-xs-12">
+
+                                <div class="text-center m-t-lg m-l-sm" >
+                                    <img class="img-responsive img-thumbnail img-circle" th:src="${rutaFoto}" ></img>
+                                </div>
+
+                            </div>
+
+                            <div class="col-sm-10 col-xs-12">
+
+                                <h3 th:text="${persona.nombreCompleto}"></h3>
+
+                                <div th:if="${alumnos.size()>1}">
+                                    <span th:text="${persona.tipoDocumento.simbolo}"></span>
+                                    <span th:text="${persona.numeroDocIdentidad}"></span>
+                                </div>
+
+                                <div th:if="${alumnos.size()==1}">
+                                    <span class="block bold" th:if="${showfacultad}" th:inline="text">Facultad de [[${alumnos.get(0).carrera.facultad.nombre}]]</span>
+                                    <span class="block bold" th:text="${alumnos.get(0).carrera.nombre}"></span>
+                                    <span class="block bold" th:text="${alumnos.get(0).codigo }"></span>
+                                    <span class="block bold" th:inline="text">[[${persona.tipoDocumento.simbolo}]]:[[${persona.numeroDocIdentidad}]]</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <form  method="post" id="formSolicitudConstancia"   data-parsley-validate="true">
+
+                            <input th:if="${alumnos.size()==1}" type="hidden" name="tramite.alumno.id" th:value="${alumnos.get(0).id}"/>
+                            <input type="hidden" name="tramite.persona.id" th:value="${persona.id}"/>
+
+                            <div class="panel-body">
+
+                                <div class="col-xs-12"  th:if="${alumnos.size()>1}">
+                                    <div class="form-group">
+                                        <label>¿Para que tipo de matrícula?</label>
+                                        <select name="tramite.alumno.id" class="form-control" required="true">
+                                            <option></option>
+                                            <option th:each="tipo : ${tiposDocumentoAcademico}"  th:text="${tipo.nombre}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-xs-12">
+                                    <div class="form-group">
+                                        <label>¿Que documento necesita?</label>
+                                        <select name="tipoDocumentoAcademico.id" class="form-control" required="true">
+                                            <option></option>
+                                            <option th:each="tipo : ${tiposDocumentoAcademico}"  th:text="${tipo.nombre}" th:value="${tipo.id}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-6">
+                                    <div class="form-group">
+                                        <label>Idioma</label>
+                                        <select name="idioma.id" class="form-control" required="true">
+                                            <option th:each="item : ${idiomas}" th:value="${item.id}"  th:text="${item.nombre}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div v-if="showCostoDocumento" class="col-xs-12">
+                                    <div class="form-group">
+                                        <label>Importe a pagar</label>
+                                        <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12">
+                                    <h4  class="m-b-md m-t-md">Información de Contacto</h4>
+                                </div>
+
+                                <div class="col-xs-12">
+                                    <div class="form-group">
+                                        <label>Nombre del contacto</label>
+                                        <input type="text" class="form-control" name="personaContacto" required="true" th:value="${persona.nombreCompleto}"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-6">
+                                    <div class="form-group">
+                                        <label>Celular</label>
+                                        <input type="text" class="form-control" name="celular" required="true"  th:value="${persona.celular}"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-6">
+                                    <div class="form-group">
+                                        <label>Teléfono</label>
+                                        <input type="text" class="form-control" name="telefono" required="true"  th:value="${persona.telefono}"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12">
+                                    <div class="form-group">
+                                        <label>Correo electrónico</label>
+                                        <input type="email" class="form-control" name="email" required="true"  th:value="${persona.email!=null?persona.email:persona.emailCompania}"/>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <hr/>
+
+                            <div class="col-md-12 text-center">
+                                <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">Guardar</button>
+                            </div>
+
+                        </form>
+
+                    </section>
+                </section>
+            </div>
+
+            <th:block th:replace="tramites/solicitudconstancia/solicitudConstanciaDynatable"/>
+
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="zlayout/includes :: vuejs"/>
+            <script th:src="@{/app/tramites/solicitudconstancia/solicitudconstanciaform.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
