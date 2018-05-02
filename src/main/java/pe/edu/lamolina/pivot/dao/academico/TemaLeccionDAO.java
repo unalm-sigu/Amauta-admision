@@ -10,12 +10,18 @@ import pe.edu.lamolina.model.academico.TemaLeccion;
 
 public interface TemaLeccionDAO extends EasyDAO<TemaLeccion> {
 
+    List<TemaLeccion> allBySeccion(Seccion seccion);
+
+    List<TemaLeccion> allBySeccionOrder(Seccion seccion, String orderBy);
+
     List<TemaLeccion> allBySeccionDocenteFecha(Seccion seccion, Docente docente, Date fecha);
 
-    List<TemaLeccion> allBySeccionDocenteDyna(Seccion seccion, Docente docente,  DynatableFilter filter);
+    List<TemaLeccion> allBySeccionDocenteDyna(Seccion seccion, Docente docente, DynatableFilter filter);
 
     TemaLeccion findBySeccionDocenteFecha(Seccion seccion, Docente docente, Date fecha);
 
     void updateTema(TemaLeccion temaLeccion);
+
+    TemaLeccion find(Long idTemaLeccion);
 
 }

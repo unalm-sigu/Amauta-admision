@@ -15,7 +15,6 @@ var app = new Vue({
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
         },
-
         saveAsistencia(event) {
             event.preventDefault();
 

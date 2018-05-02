@@ -1,10 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.asistenciaacademica;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,25 +15,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.InasistenciaAlumno;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TemaLeccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.TipoLeccionEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HoraReprogramada;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.horario.LeccionReprogramada;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.InasistenciaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TemaLeccionDAO;
+import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraReprogramadaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.LeccionReprogramadaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,6 +81,60 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     @Autowired
     TemaLeccionDAO temaLeccionDAO;
 
+    @Autowired
+    EventoAcademicoDAO eventoAcademicoDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    CursoDAO cursoDAO;
+
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    LeccionReprogramadaDAO leccionReprogramadaDAO;
+
+    @Autowired
+    HoraReprogramadaDAO horaReprogramadaDAO;
+
+    @Autowired
+    HoraDAO horaDAO;
+
+    @Autowired
+    AulaDAO aulaDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Date> findStartEndDateReschedule(Seccion seccion, Docente docente, CicloAcademico cicloAcademico) {
+        seccion = seccionDAO.find(seccion.getId());
+        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+        Curso curso = cursoDAO.find(grupoSeccion.getCurso().getId());
+
+        DateTime fechaInicio = null;
+        DateTime fechaFin = null;
+
+        if (curso.getModalidadEstudio().isPregrado()) {
+            EventoCicloAcademico eventCicloClasesPre1 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE1);
+            EventoCicloAcademico eventCicloClasesPre2 = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE2);
+            fechaInicio = new DateTime(eventCicloClasesPre1.getFechaInicio());
+            fechaFin = new DateTime(eventCicloClasesPre2.getFechaFin());
+        } else if (curso.getModalidadEstudio().isPostgrado()) {
+            EventoCicloAcademico clasesEpg = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_EPG);
+            fechaInicio = new DateTime(clasesEpg.getFechaInicio());
+            fechaFin = new DateTime(clasesEpg.getFechaFin());
+        }
+
+        List<Date> fechas = new ArrayList<>();
+        fechas.add(fechaInicio.toDate());
+        fechas.add(fechaFin.toDate());
+        return fechas;
+    }
+
     @Override
     public TemaLeccion findTemaLeccionSeccionDocenteFecha(Seccion seccion, Docente docente, DateTime today) {
         TemaLeccion temaLeccion = temaLeccionDAO.findBySeccionDocenteFecha(seccion, docente, today.toDate());
@@ -71,8 +147,19 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     }
 
     @Override
+    public List<TemaLeccion> allTemaLeccionBySeccion(Seccion seccion) {
+        return temaLeccionDAO.allBySeccion(seccion);
+    }
+
+    @Override
+    public List<LeccionReprogramada> allLeccionReprogramadaBySeccion(Seccion seccion) {
+        return leccionReprogramadaDAO.allBySeccion(seccion);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion, Docente docente, DateTime today) {
+
         TemaLeccion temaLeccion = temaLeccionDAO.findBySeccionDocenteFecha(seccion, docente, today.toDate());
         seccion = this.findSeccionDia(seccion, today);
 
@@ -92,7 +179,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
             matriculaSeccionEach.setSeccion(seccionClone);
 
             for (HorarioSeccion horaSeccion : matriculaSeccionEach.getSeccion().getHorarioSeccion()) {
-            //    horaSeccion.setSeleccionado(true);
+                //    horaSeccion.setSeleccionado(true);
                 if (inasistenciasAlumnos != null) {
                     InasistenciaAlumno inasistencia = inasistenciasAlumnos.stream()
                             .filter(x -> x.getMatriculaCurso().getMatriculaResumen().getAlumno().getId().compareTo(matriculaSeccionEach.getMatriculaResumen().getAlumno().getId()) == 0)
@@ -110,7 +197,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     @Override
     public Seccion findSeccionDia(Seccion seccion, DateTime today) {
         seccion = seccionDAO.find(seccion.getId());
-        Dia dia = diaDAO.findByNumeroDia(today.getDayOfWeek() - 3);
+        Dia dia = diaDAO.findByNumeroDia(today.getDayOfWeek());
 
         List<HorarioSeccion> horarioSeccion = horarioSeccionDAO.allBySeccionDia(seccion, dia);
         Collections.sort(horarioSeccion, (p1, p2) -> p1.getHora().getHora().compareTo(p2.getHora().getHora()));
@@ -123,9 +210,18 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
     }
 
     @Override
+    @Transactional(readOnly = false)
     public Seccion findSeccion(Long idSeccion) {
         Seccion seccion = seccionDAO.find(idSeccion);
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
+        seccion.setHorarioSeccion(horariosSeccion);
         return seccion;
+    }
+
+    @Override
+    public TemaLeccion findTemaLeccion(Long idTemaLeccion) {
+        TemaLeccion temaLeccion = temaLeccionDAO.find(idTemaLeccion);
+        return temaLeccion;
     }
 
     @Override
@@ -137,6 +233,7 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
         temaLeccion.setFecha(today.toDate());
         temaLeccion.setUsuarioRegistro(usuario);
         temaLeccion.setFechaRegistro(today.toDate());
+        temaLeccion.setTipoEnum(TipoLeccionEnum.REG);
 
         Seccion seccion = temaLeccion.getSeccion();
         List<MatriculaSeccion> matriculasSeccion = seccion.getMatriculaSeccion();
@@ -247,6 +344,82 @@ public class AsistenciaAcademicaServiceImp implements AsistenciaAcademicaService
             }
         }
 
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveReprogramacion(LeccionReprogramada leccionReprogramada, Usuario usuario, Docente docente, CicloAcademico cicloAcademico) {
+        DateTime today = new DateTime();
+        DateTime fechaReprogramada = new DateTime(leccionReprogramada.getFechaReprogramada());
+
+        Seccion seccion = leccionReprogramada.getSeccion();
+        DateTime fechaOrigen = new DateTime(leccionReprogramada.getFechaOrigen());
+        Dia diaOrigen = diaDAO.findByNumeroDia(fechaOrigen.getDayOfWeek());
+
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccionDia(seccion, diaOrigen);
+        String[] horaInicio = leccionReprogramada.getHoraInicio().split(":");
+        String[] horaFin = leccionReprogramada.getHoraFin().split(":");
+
+        LocalTime horaInicioLT = LocalTime.of(Integer.parseInt(horaInicio[0]), Integer.parseInt(horaInicio[1]), 0);
+        LocalTime horaFinLT = LocalTime.of(Integer.parseInt(horaFin[0]), Integer.parseInt(horaFin[1]), 0);
+
+        if (horaFinLT.getHour() <= horaInicioLT.getHour()) {
+            throw new PhobosException("Error en las horas seleccionadas");
+        }
+
+        long horas = ChronoUnit.HOURS.between(horaInicioLT, horaFinLT);
+        if (horas != horariosSeccion.size()) {
+            throw new PhobosException("Solo puede reprogramar %s horas", horariosSeccion.size());
+        }
+
+        List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(leccionReprogramada.getAula(), cicloAcademico);
+        horariosAulas.stream().filter(x -> x.getDia().getNumeroDia().compareTo(fechaReprogramada.getDayOfWeek()) == 0).collect(Collectors.toList());
+        for (int i = horaInicioLT.getHour(); i <= horaFinLT.getHour(); i++) {
+            for (HorarioAula horariosAula : horariosAulas) {
+                if (horariosAula.getHora().getNumero().compareTo(i) == 0) {
+                    throw new PhobosException("Las horas seleccionadas, no están disponibles para el aula.");
+                }
+            }
+        }
+
+        leccionReprogramada.setEstadoEnum(EstadoEnum.ACT);
+        leccionReprogramada.setUsuarioRegistro(usuario);
+        leccionReprogramada.setFechaRegistro(today.toDate());
+        leccionReprogramadaDAO.save(leccionReprogramada);
+
+        for (int i = horaInicioLT.getHour(); i <= horaFinLT.getHour(); i++) {
+            Hora hora = horaDAO.findByNumeroHora(i);
+            HoraReprogramada horaReprogramada = new HoraReprogramada();
+            horaReprogramada.setLeccionReprogramada(leccionReprogramada);
+            horaReprogramada.setHora(hora);
+            horaReprogramadaDAO.save(horaReprogramada);
+        }
+
+        for (int i = horaInicioLT.getHour(); i <= horaFinLT.getHour(); i++) {
+            Hora hora = horaDAO.findByNumeroHora(i);
+            Dia dia = diaDAO.findByNumeroDia(fechaReprogramada.getDayOfWeek());
+            HorarioAula horarioAula = new HorarioAula();
+            horarioAula.setHora(hora);
+            horarioAula.setDia(dia);
+            horarioAula.setAula(leccionReprogramada.getAula());
+            horarioAula.setSeccion(leccionReprogramada.getSeccion());
+            horarioAulaDAO.save(horarioAula);
+        }
+
+        TemaLeccion temaLeccion = new TemaLeccion();
+        temaLeccion.setTema(leccionReprogramada.getMotivo());
+        temaLeccion.setDocente(docente);
+        temaLeccion.setSeccion(leccionReprogramada.getSeccion());
+        temaLeccion.setFecha(leccionReprogramada.getFechaReprogramada());
+        temaLeccion.setUsuarioRegistro(usuario);
+        temaLeccion.setFechaRegistro(today.toDate());
+        temaLeccion.setTipoEnum(TipoLeccionEnum.REP);
+        temaLeccionDAO.save(temaLeccion);
+    }
+
+    @Override
+    public List<Aula> searchAulaByName(String nombre) {
+        return aulaDAO.searchByNombreFilter(nombre, Integer.SIZE);
     }
 
 }
