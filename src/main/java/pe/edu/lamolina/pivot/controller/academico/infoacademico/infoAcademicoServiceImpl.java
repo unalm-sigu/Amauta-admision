@@ -39,6 +39,7 @@ import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
@@ -87,6 +88,9 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo) {
@@ -307,8 +311,8 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
     @Transactional
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        visorCalculoNotas.iniciar();
-        promedioService.promediarAllCicloAsync(alumno, ds.getUsuario());
+        visorCalculoNotas.setActivo(false);
+        promedioService.promediarAllCicloSync(alumno, ds.getUsuario());
     }
 
 }

@@ -12,7 +12,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
@@ -200,7 +199,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu")
                 .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                .leftJoin("userModificacion um", "alumnoCicloCurso acc")
+                .leftJoin("userModificacion um")
                 .filter("alu.id", alumno);
         return all(sql);
     }

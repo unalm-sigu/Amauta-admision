@@ -1687,6 +1687,14 @@ div.notas {
     max-height: 500px;
     overflow-y: scroll
 }
+/*table tbody sin borde */
+.unborder.table th {
+    border-bottom: 1px solid #eaeef1;
+}
+.unborder.table td {
+    padding: 8px 15px;
+    border-top: 1px solid #fff;
+}
 
 .raptor-table-process-main {
     position: absolute; 

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -207,4 +208,37 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
 
         return (Long) sql.find(getCurrentSession());
     }
+
+    @Override
+    public void deleteByAlumnoCiclo(AlumnoCiclo alumnoCiclo) {
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" delete from AlumnoCicloCurso ")
+                .append("   where  alumnoCiclo.id = :ALUMNOCICLO ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("ALUMNOCICLO", alumnoCiclo.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public AlumnoCicloCurso find(AlumnoCicloCurso alumnoCicloCursoForm) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .filter("acc.id", alumnoCicloCursoForm);
+        return find(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allByAlumnoCiclo(AlumnoCiclo alumnoCiclo) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .filter("ac.id", alumnoCiclo)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+        return all(sql);
+    }
+
 }
