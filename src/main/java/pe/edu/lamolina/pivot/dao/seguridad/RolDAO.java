@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.seguridad;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
@@ -19,5 +20,7 @@ public interface RolDAO extends EasyDAO<Rol> {
     List<Rol> allActivoByUsuario(Usuario usuario);
 
     Rol findByCode(RolEnum rolEnum);
+
+    List<Rol> allByDynatable(DynatableFilter filter);
 
 }

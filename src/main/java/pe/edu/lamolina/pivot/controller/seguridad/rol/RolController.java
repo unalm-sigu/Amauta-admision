@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring4.SpringTemplateEngine;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -85,7 +85,7 @@ public class RolController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            List<Rol> roles = service.allRol();
+            List<Rol> roles = service.allRolByDynatable(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (Rol rol : roles) {

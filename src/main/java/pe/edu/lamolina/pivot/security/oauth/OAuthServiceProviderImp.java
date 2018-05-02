@@ -188,11 +188,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
         ds.setDocente(null);
         ds.setDepartamentoAcademico(null);
-//        List<Docente> docentes = docenteDAO.allByPersona(usuario.getPersona());
-//        if (!docentes.isEmpty()) {
-//            ds.setDocente(docentes.get(0));
-//            ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
-//        }
 
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);

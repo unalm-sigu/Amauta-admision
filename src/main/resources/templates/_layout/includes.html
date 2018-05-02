@@ -139,6 +139,7 @@
     <script type="text/javascript" th:src="@{/vendor/axios/axios.min.js}" ></script>
     <script type="text/javascript" th:src="@{/vendor/vuejs/vue.min.js}" />
     <script type="text/javascript" th:src="@{/vendor/vue2-datepicker/build.js}"></script>
+    <script type="text/javascript" th:src="@{/vendor/vuejs-uib-pagination/vuejs-uib-pagination.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
     <script type="text/javascript" th:src="@{/phobos/js/util.js}" charset="utf-8"/>
@@ -209,7 +210,7 @@
         }
         var msgJson = /*[[${notificaciones.all()}]]*/ mensajes;
 
-        $(function () {
+        $(function() {
             for (var i = 0; i < msgJson.length; i++) {
                 notify(msgJson[i].mensaje, msgJson[i].tipo);
             }
@@ -240,7 +241,7 @@
 <div th:fragment="tawkto">
     <script th:if="${TAWKTO == 'true'}" type="text/javascript">
         var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-        (function () {
+        (function() {
             var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
             s1.async = true;
             s1.src = 'https://embed.tawk.to/58923aba85dc370a6b942edb/default';
@@ -254,9 +255,20 @@
 <div th:fragment="javascript-ckeditor">
     <script type="text/javascript" th:src="@{/vendor/ckeditor/ckeditor.js}"/>
 </div>
+<div th:fragment="vuemodal">
+    <script th:src="@{/phobos/modules/vue-modal.js}" type="text/javascript" charset="utf-8"></script>
+</div>
 <div th:fragment="bootstrap-colorpicker">
     <script type="text/javascript" th:src="@{/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js}"/>
 </div>
+<div th:fragment="underscore">
+    <script th:src="@{/vendor/underscore/underscore-min.js}" type="text/javascript" charset="utf-8"></script>
+</div>
+<div th:fragment="lodash">
+    <script th:src="@{/vendor/lodash/lodash.core.js}" type="text/javascript" charset="utf-8"></script>
+    <script th:src="@{/vendor/lodash/lodash.min.js}" type="text/javascript" charset="utf-8"></script>
+</div>
+
 
 
 <div th:fragment="google-analytics">

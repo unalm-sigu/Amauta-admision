@@ -23,4 +23,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     List<Oficina> allAndSuperiorOfi();
 
+    List<Oficina> allByName(String nombre);
+
 }

@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.controller.tramite.tipoConstancia;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -13,9 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -23,6 +25,8 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -62,35 +66,24 @@ public class TipoConstanciaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
-        model.addAttribute("tipos",TipoConstanciaEnum.getJsonValues());
+        model.addAttribute("tipos", TipoConstanciaEnum.getJsonValues());
         return "tramite/tipoConstancia/tipoConstancia";
     }
 
     @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(@RequestBody TipoDocumentoAcademico tipoDocumentoAcademico, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            service.update(tipoDocumentoAcademico, ds.getUsuario());
-            response.setMessage("Se actualizó");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody TipoDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
+    public JsonResponse save(TipoDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.save(tramiteDocumentoAcademico, ds.getUsuario());
-            response.setMessage("Se guardó");
+
+            if (tramiteDocumentoAcademico.getId() == null) {
+                service.save(tramiteDocumentoAcademico, ds.getUsuario());
+                response.setMessage("Se guardó");
+            } else {
+                service.update(tramiteDocumentoAcademico, ds.getUsuario());
+                response.setMessage("Se actualizó");
+            }
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -133,4 +126,71 @@ public class TipoConstanciaController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(TipoDocumentoAcademico tipoDocumento, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.delete(tipoDocumento);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allOficina")
+    public JsonResponse allOficina(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Oficina> oficinas = service.allOficina(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            for (Oficina oficina : oficinas) {
+                jsonList.add(oficina.toJson());
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allTipoOficina")
+    public JsonResponse allTipoOficina(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<TipoOficina> TipoOficinas = service.allTipoOficina(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            for (TipoOficina tipoOficina : TipoOficinas) {
+                jsonList.add(tipoOficina.toJson());
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }
