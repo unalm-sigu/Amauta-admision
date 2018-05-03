@@ -25,6 +25,9 @@ var DynatableRow = Vue.component("dynatableRow", {
         cambiarActivo: function(id) {
             let vue = this;
             vue.rowActive = id;
+        },
+        urll: function(pathh) {
+            return APP.url(pathh);
         }
     }
 });

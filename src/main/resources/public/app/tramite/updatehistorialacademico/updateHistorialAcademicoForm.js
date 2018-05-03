@@ -1,13 +1,33 @@
+var AlumnoSearch = Vue.component("alumnoSearch", {
+    template: "#alumnoSearchTemplate",
+    data: function() {
+        return {alumno: {}};
+    }
+});
 new Vue({
     el: '#main',
     data: {
         tipodocumento: [],
         showCostoDocumento: false,
-        costoDocumento: 0.0
+        costoDocumento: 0.0,
+        guardando: false,
+        alumno: {id: null},
+        solicitud: {id: null},
+        eseditar: false
+    },
+    watch: {
+        alumno: function(newQuestion, oldQuestion) {
+            let vue = this;
+            if (!vue.eseditar) {
+                vue.solicitud.personaContacto = vue.alumno.nombre;
+                vue.solicitud.telefono = vue.alumno.telefono;
+                vue.solicitud.celular = vue.alumno.celular;
+                vue.solicitud.email = vue.alumno.email;
+            }
+        }
     },
     mounted: function() {
         let vue = this;
-        $('[name="matricula.id"]').select2({minimumResultsForSearch: -1});
 
         $('[name="tipoDocumentoAcademico.id"]').
                 select2({minimumResultsForSearch: -1}).
@@ -20,13 +40,60 @@ new Vue({
                     vue.changeTipo();
                 });
 
+        $('[name="tramite.alumno.id"]').select2(vue.selectAlumno(vue)).
+                on("change.select2", function(el) {
+                    if (el.val.length < 1) {
+                        vue.alumno = {id: null};
+                    }
+                });
+
+        vue.eseditar = $('[name="id"]').val() > 0;
         vue.allTipoDocumento();
+
     },
     methods: {
+        selectAlumno: function(vue) {
+            return {
+                allowClear: true,
+                placeholder: "Seleccione un alumno",
+                minimumInputLength: 1,
+                ajax: {
+                    url: APP.url("tramite/solicitudconstancia/updatehistorial/searchalumno"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function(term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function(response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    if (vue.alumno.id != null) {
+                        callback(vue.alumno);
+                    }
+                },
+                formatResult: function(info) {
+                    var alumnoSearch = new AlumnoSearch();
+                    alumnoSearch.alumno = info;
+                    var cmp = alumnoSearch.$mount();
+                    return cmp.$el;
+                },
+                formatSelection: function(info) {
+                    vue.alumno = info;
+                    return info.nombre;
+                },
+                escapeMarkup: function(m) {
+                    return m;
+                }
+            };
+        },
         submitForm: function() {
             var vue = this;
+            vue.guardando = true;
             var valid = $('#formSolicitudConstancia').parsley().validate();
             if (valid != true) {
+                vue.guardando = false;
                 return;
             }
             $.ajax({
@@ -35,12 +102,14 @@ new Vue({
                 data: $('#formSolicitudConstancia').serialize(),
                 success: function(response) {
                     if (response.success) {
-                        location.href = APP.url("tramite/solicitudconstancia");
+                        location.href = APP.url("tramite/solicitudconstancia/updatehistorial");
                     } else {
                         notify(response.message, 'error');
                     }
+                    vue.guardando = false;
                 }, error: function() {
                     notify(MESSAGES.errorComunicacion, "error");
+                    vue.guardando = false;
                 }
             });
         },
@@ -67,16 +136,13 @@ new Vue({
             var idIdioma = parseInt($('[name="idioma.id"]').select2('val'));
             var tipoDocumento = vue.tipodocumento.find(item => item.id === idTipo);
             var subtipo = tipoDocumento.tipo;
-            console.log(tipoDocumento.tipo);
             var precioss = tipoDocumento.precios;
-            console.log(precioss.length);
             vue.showCostoDocumento = false;
             vue.costoDocumento = 0.0;
             if (precioss.length > 0) {
                 if (subtipo == 'CONS') {
                     var precio = precioss.find(item => item.idioma.id === idIdioma);
                     if (precio) {
-                        console.log(precio.precio);
                         vue.showCostoDocumento = true;
                         vue.costoDocumento = precio.precio;
                     }

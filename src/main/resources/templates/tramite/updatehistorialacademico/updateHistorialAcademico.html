@@ -31,7 +31,7 @@
                         <input type="hidden" name="id" v-bind:value="alumno.id" />
 
                         <ciclo-component
-                            v-for="( alumnociclo , inx)  in alumnociclos"
+                            v-for="( alumnociclo , inx )  in alumnociclos"
                             v-bind:alumnociclo="alumnociclo"
                             v-bind:inx="inx"
                             ></ciclo-component>
@@ -49,7 +49,7 @@
 
                                 <button class="btn btn-info btn-sm" type="button"
                                         v-on:click.prevent="guardarInformacion"  v-bind:disabled="guardando">
-                                    <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>   &nbsp;  Guardar Informacion
+                                    <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>&nbsp;  Guardar Informacion
                                 </button>
 
                             </div>

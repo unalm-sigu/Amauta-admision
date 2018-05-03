@@ -40,8 +40,8 @@ public class MailerServiceImp implements MailerService {
         mail.setContext(ctx);
         mail.setTemplate("mail/mailUsuarioCreacion");
         mail.setSubject("Creación de usuario");
-        mail.setDestinatarios(new String[]{persona.getEmail()});
-        //mail.setDestinatarios(new String[]{"bladymir@albatross.pe"});
+        //mail.setDestinatarios(new String[]{persona.getEmail()});
+        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMail(mail);
     }
 
@@ -57,9 +57,9 @@ public class MailerServiceImp implements MailerService {
         MailMessage mail = new MailMessage();
         mail.setContext(ctx);
         mail.setTemplate("mail/mailSolicitudConstancia");
-        mail.setSubject("Creación de usuario");
-        mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
-        //mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+        mail.setSubject("Solicitud de constancia");
+//        mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
+        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMail(mail);
     }
 }

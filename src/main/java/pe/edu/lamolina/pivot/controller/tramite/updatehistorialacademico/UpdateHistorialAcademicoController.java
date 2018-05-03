@@ -37,14 +37,11 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__ESTIMADO__;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__NOMBREPERSONA__;
-import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.misc.FotoHelper;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -78,11 +75,11 @@ public class UpdateHistorialAcademicoController {
         ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclosAcademico", ciclosAcademico);
-        return "academico/alumno/updatehistorialacademico/updateHistorialAcademico";
+        return "tramite/updatehistorialacademico/updateHistorialAcademico";
     }
 
     @ResponseBody
-    @RequestMapping("updatehistorial")
+    @RequestMapping("savehistorial")
     public JsonResponse update(Alumno alumnoForm, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -112,12 +109,10 @@ public class UpdateHistorialAcademicoController {
                 CicloAcademico cicloAcademico = nota.getCicloAcademico();
 
                 ObjectNode alumnoCicloNode = service.toJson(nota);
-
                 alumnoCicloNode.put("cicloAcademico", service.toJson(cicloAcademico));
                 alumnoCicloNode.put("situacionAcademica", service.toJson(situacionAcademica));
 
                 List<AlumnoCicloCurso> cursos = nota.getAlumnoCicloCurso();
-
                 ArrayNode cursosArray = new ArrayNode(JsonNodeFactory.instance);
 
                 for (AlumnoCicloCurso alumnoCicloCurso : cursos) {
@@ -166,6 +161,42 @@ public class UpdateHistorialAcademicoController {
     }
 
     @ResponseBody
+    @RequestMapping("searchalumno")
+    public JsonResponse searchalumno(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            FotoHelper helper = new FotoHelper();
+            List<Alumno> alumnos = service.allAlumnoByName(nombre);
+            ArrayNode jAlumno = new ArrayNode(jsonFactory);
+            for (Alumno alumno : alumnos) {
+                //jAlumno.add(service.toJson(alumno));
+                ObjectNode json = new ObjectNode(jsonFactory);
+                json.put("id", alumno.getId());
+                json.put("nombre", alumno.getPersona().getNombreCompleto());
+                json.put("email", alumno.getPersona().getEmailCompania());
+                json.put("telefono", alumno.getPersona().getTelefono());
+                json.put("celular", alumno.getPersona().getCelular());
+                json.put("codigoMatricula", alumno.getCodigo());
+                json.put("carrera", alumno.getCarrera().getNombre());
+                json.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+                json.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
+                json.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+                json.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
+                jAlumno.add(json);
+            }
+            response.setData(jAlumno);
+            response.setTotal(jAlumno.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("list")
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
 
@@ -187,6 +218,7 @@ public class UpdateHistorialAcademicoController {
                 node.put("id", tramiteDoc.getId());
 
                 node.put("nombre", alumno.getPersona().getApellidosNombres());
+                node.put("idalumno", alumno.getId());
                 node.put("carrera", alumno.getCarrera().getNombre());
                 node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 node.put("codigoMatricula", alumno.getCodigo());
@@ -195,6 +227,7 @@ public class UpdateHistorialAcademicoController {
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
 
                 node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
+                node.put("documentoName", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
                 node.put("estado", tramiteDoc.getEstado());
@@ -218,31 +251,15 @@ public class UpdateHistorialAcademicoController {
         response.setSuccess(false);
         try {
 
-            DataSessionMaipi ds = (DataSessionMaipi) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             if (solicitudConstanciaForm.getId() == null) {
                 service.saveTramiteDocumentoAcademico(solicitudConstanciaForm, ds);
-                response.setMessage("Tipo de documento creado satisfactoriamente");
+                response.setMessage("Solicitud creado satisfactoriamente");
             } else {
                 service.updateTramiteDocumentoAcademico(solicitudConstanciaForm, ds);
-                response.setMessage("Tipo de documento actualizado satisfactoriamente");
+                response.setMessage("Solicitud actualizado satisfactoriamente");
             }
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("update")
-    public JsonResponse update(TramiteDocumentoAcademico solicitudConstanciaForm, Model model, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            TramiteDocumentoAcademico solicitudConstancia = service.findTramiteDocumentoAcademico(solicitudConstanciaForm);
-            response.setData(solicitudConstancia.toJson());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -289,38 +306,45 @@ public class UpdateHistorialAcademicoController {
 
         try {
 
-            DataSessionMaipi ds = (DataSessionMaipi) session.getAttribute(Constantine.SESSION_USUARIO);
-            FotoHelper helper = new FotoHelper();
-            Persona persona = service.findPersona(ds.getPersona());
-            List<Alumno> alumnos = service.allAlumnoByPersona(persona);
-
             List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
             List<Idioma> idiomas = service.allIdiomas();
+            TramiteDocumentoAcademico tramiteDocumentoAcademico = new TramiteDocumentoAcademico();
 
-            TramiteDocumentoAcademico solicitudConstancia = new TramiteDocumentoAcademico();
-
-            if (alumnos.size() == 1) {
-                Facultad facultad = alumnos.get(0).getCarrera().getFacultad();
-                Carrera carrera = alumnos.get(0).getCarrera();
-                boolean showfacultad = !facultad.getCodigo().equals(carrera.getCodigo());
-                model.addAttribute("showfacultad", showfacultad);
-            }
-
-            model.addAttribute("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-            model.addAttribute("solicitudConstancia", solicitudConstancia);
-            model.addAttribute("alumnos", alumnos);
+            model.addAttribute("solicitud", tramiteDocumentoAcademico);
             model.addAttribute("idiomas", idiomas);
-            model.addAttribute("persona", persona);
             model.addAttribute("tiposDocumentoAcademico", tiposDocumentoAcademico);
 
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
-            return "redirect:/tramites/solicitudconstancia";
+            return "redirect:/tramite/solicitudconstancia/updatehistorial";
         } catch (Exception e) {
             ExceptionHandler.handleException(e, redirectAttr);
-            return "redirect:/tramites/solicitudconstancia";
+            return "redirect:/tramite/solicitudconstancia/updatehistorial";
         }
-        return "tramites/solicitudconstancia/solicitudConstanciaForm";
+        return "tramite/updatehistorialacademico/updateHistorialAcademicoForm";
+    }
+
+    @RequestMapping("{idTramite}/update")
+    public String update(@PathVariable("idTramite") Long idTramite, Model model, HttpSession session, RedirectAttributes redirectAttr) {
+
+        try {
+
+            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
+            List<Idioma> idiomas = service.allIdiomas();
+            TramiteDocumentoAcademico tramiteDocumentoAcademico = service.findTramiteDocumentoAcademico(new TramiteDocumentoAcademico(idTramite));
+
+            model.addAttribute("solicitud", tramiteDocumentoAcademico);
+            model.addAttribute("idiomas", idiomas);
+            model.addAttribute("tiposDocumentoAcademico", tiposDocumentoAcademico);
+
+        } catch (PhobosException ex) {
+            ExceptionHandler.handleException(ex, redirectAttr);
+            return "redirect:/tramite/solicitudconstancia/updatehistorial";
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, redirectAttr);
+            return "redirect:/tramite/solicitudconstancia/updatehistorial";
+        }
+        return "tramite/updatehistorialacademico/updateHistorialAcademicoForm";
     }
 
     @ResponseBody

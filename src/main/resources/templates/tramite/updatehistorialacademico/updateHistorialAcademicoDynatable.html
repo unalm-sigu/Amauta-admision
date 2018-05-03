@@ -23,14 +23,17 @@
 
         <td  class="v-middle"  >
             <p  class="h5 bold text-primary" v-text="solicitud.nombre"></p>
-            <span class="block"> Matrícula: {{solicitud.codigo}}</span>
+            <span class="block"> {{solicitud.carrera}}</span>
+            <span v-if="solicitud.codigoMatricula"  class="block"> Especialida de {{solicitud.carrera}}</span>
+            <span v-if="solicitud.showfacultad" class="block">Facultad de {{solicitud.facultad}}</span>
             <small class="block bold">{{solicitud.tipo}} {{solicitud.dni}}</small>
             <span v-if="solicitud.showfacultad" class="block"> Matrícula: {{solicitud.codigoMatricula}}</span>
         </td>
 
         <td class="v-middle">
-            <p   v-on:click.prevent="seleccionar(solicitud)" class="pointer" > {{ solicitud.numero}} </p>
             <p class=""> {{ solicitud.documento}} </p>
+            <p  class="" > {{ solicitud.numero}} </p>
+            <p class=""> {{ solicitud.fecha}} </p>
         </td>
 
         <td class="v-middle">
@@ -49,6 +52,9 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
+                    <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')">Actualizar historial academico</a></li>
+                    <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.id+'/update')">Editar Solicitud Documento</a></li>
+                    <li class="divider"></li>
                     <li><a v-on:click.prevent="eliminar(solicitud.id)"  href="#">Eliminar Solicitud Documento</a></li>
                     <li class="divider"></li>
                     <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>

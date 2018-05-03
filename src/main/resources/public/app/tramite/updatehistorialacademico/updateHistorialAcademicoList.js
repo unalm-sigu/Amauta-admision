@@ -2,9 +2,6 @@ new Vue({
     el: '#main',
     data: {
         solicitud: {id: null},
-        rowActive: 0,
-        stepActivo: 0,
-        showSpinner: false
     },
     mounted() {
         let vue = this;
@@ -14,17 +11,10 @@ new Vue({
         $global.$on("cancelar", function(id) {
             vue.cancelar(id);
         });
-        $global.$on("seleccionar", function(solicitud) {
-            vue.seleccionar(solicitud);
-        });
-        $global.$on("imprimirr", function(solicitud, el) {
-            vue.imprimirr(solicitud, el);
-        });
     },
     methods: {
         eliminar: function(id) {
             var vue = this;
-            console.log(id);
             bootbox.confirm({
                 message: '¿Seguro que desea eliminar la solicitud de constancia?',
                 buttons: {
@@ -81,12 +71,6 @@ new Vue({
                     }
                 }
             });
-        },
-        seleccionar: function(solicitud) {
-            let vue = this;
-            vue.rowActive = solicitud.id;
-            vue.stepActivo = vue.stepActivo + 1;
-            $global.$emit("cambiarActivo", solicitud.id);
         },
         imprimir: function() {
             let vue = this;

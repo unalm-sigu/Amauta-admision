@@ -38,7 +38,6 @@ import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoTramite;
@@ -445,10 +444,10 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     @Transactional
-    public void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionMaipi ds) {
+    public void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
         Usuario usuario = ds.getUsuario();
-        CicloAcademico cicloAcademico = ds.getCiclo();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Compania compania = ds.getCompania();
         DateTime today = new DateTime();
 
@@ -457,6 +456,8 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         TipoTramite tipoTramiteRCI = tipoTramiteDAO.findByCodigo("CODE001");
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        tramite.setAlumno(alumno);
         tramite.setCicloAcademico(cicloAcademico);
         tramite.setCompania(compania);
         tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
@@ -465,6 +466,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
         tramite.setTipoTramite(tipoTramiteRCI);
         tramite.setUserRegistro(usuario);
+        tramite.setPersona(alumno.getPersona());
         tramiteDAO.save(tramite);
 
         tramiteDocumentoAcademico.setTramite(tramite);
@@ -481,7 +483,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     @Transactional
-    public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionMaipi ds) {
+    public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
         tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
         throw new PhobosException("Update no soportado");
     }
@@ -581,6 +583,11 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     public PrecioDocumento findPrecioDocumentoByTipoIdioma(TipoDocumentoAcademico tipoDocumento, Idioma idioma) {
         return precioDocumentoDAO.findByTipoIdioma(tipoDocumento, idioma);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByName(String nombre) {
+        return alumnoDAO.allByName(nombre);
     }
 
 }
