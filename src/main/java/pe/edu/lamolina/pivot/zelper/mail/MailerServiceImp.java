@@ -41,7 +41,7 @@ public class MailerServiceImp implements MailerService {
         mail.setTemplate("mail/mailUsuarioCreacion");
         mail.setSubject("Creación de usuario");
         //mail.setDestinatarios(new String[]{persona.getEmail()});
-        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+        mail.setDestinatarios(new String[]{"bladymircch@icloud.com"});
         mailerConnector.sendMail(mail);
     }
 
@@ -59,7 +59,7 @@ public class MailerServiceImp implements MailerService {
         mail.setTemplate("mail/mailSolicitudConstancia");
         mail.setSubject("Solicitud de constancia");
 //        mail.setDestinatarios(new String[]{tramiteDocumentoAcademico.getEmail()});
-        mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
+        mail.setDestinatarios(new String[]{"bladymircch@icloud.com"});
         mailerConnector.sendMail(mail);
     }
 }

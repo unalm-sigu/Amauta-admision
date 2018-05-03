@@ -12,14 +12,8 @@ new Vue({
         costoDocumento: 0.0,
         guardando: false,
         alumno: {id: null},
-        solicitud: {id: null, tramite: {id: null}},
-        eseditar: false,
-    },
-    computed: {
-        guardar: function() {
-            let vue = this;
-            return  vue.eseditar ? 'Actualizar' : 'Guardar';
-        }
+        solicitud: {id: null},
+        eseditar: false
     },
     watch: {
         alumno: function(newQuestion, oldQuestion) {
@@ -34,29 +28,27 @@ new Vue({
     },
     mounted: function() {
         let vue = this;
-        vue.allTipoDocumento();
+
+        $('[name="tipoDocumentoAcademico.id"]').
+                select2({minimumResultsForSearch: -1}).
+                on("change.select2", function(el) {
+                    vue.changeTipo();
+                });
+
+        $('[name="idioma.id"]').select2({minimumResultsForSearch: -1}).
+                on("change.select2", function(el) {
+                    vue.changeTipo();
+                });
+
+        $('[name="tramite.alumno.id"]').select2(vue.selectAlumno(vue)).
+                on("change.select2", function(el) {
+                    if (el.val.length < 1) {
+                        vue.alumno = {id: null};
+                    }
+                });
+
         vue.eseditar = $('[name="id"]').val() > 0;
-
-        $('[name="tipoDocumentoAcademico.id"]').select2().on("change.select2", function(el) {
-            vue.changeTipo();
-        });
-
-        $('[name="idioma.id"]').select2({minimumResultsForSearch: -1}).on("change.select2", function(el) {
-            vue.changeTipo();
-        });
-
-        $('[name="tramite.alumno.id"]').select2(vue.selectAlumno(vue)).on("change.select2", function(el) {
-            if (el.val.length < 1) {
-                vue.alumno = {id: null};
-            }
-        });
-
-        if (vue.eseditar) {
-            vue.updateSolicitud($('[name="id"]').val());
-            $('[name="tramite.alumno.id"]').select2('data', vue.alumno);
-            $('[name="tipoDocumentoAcademico.id"]').select2('val', vue.solicitud.tipoDocumentoAcademico.id);
-            $('[name="idioma.id"]').select2('val', vue.solicitud.idioma.id);
-        }
+        vue.allTipoDocumento();
 
     },
     methods: {
@@ -77,8 +69,12 @@ new Vue({
                     }
                 },
                 initSelection: function(element, callback) {
-                    if (vue.alumno.id != null) {
-                        callback(vue.alumno);
+                    if (element.val() != "") {
+                        var datos = {
+                            id: element.val(),
+                            nombre: element.attr("rel")
+                        };
+                        callback(datos);
                     }
                 },
                 formatResult: function(info) {
@@ -126,28 +122,10 @@ new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/solicitudconstancia/updatehistorial/tipodocumento'),
+                sync: true,
                 success: function(response) {
                     if (response.success) {
                         vue.tipodocumento = response.data;
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                }, error: function() {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        updateSolicitud: function(idSolicitud) {
-            var vue = this;
-            $.ajax({
-                method: 'POST',
-                url: APP.url('tramite/solicitudconstancia/updatehistorial/update'),
-                data: {id: idSolicitud},
-                async: false,
-                success: function(response) {
-                    if (response.success) {
-                        vue.solicitud = response.data.solicitud;
-                        vue.alumno = response.data.alumno;
                     } else {
                         notify(response.message, 'error');
                     }

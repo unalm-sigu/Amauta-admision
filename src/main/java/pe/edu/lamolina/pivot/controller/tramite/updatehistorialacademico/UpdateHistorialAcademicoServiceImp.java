@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -439,7 +439,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getId());
+        return tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
     }
 
     @Override
@@ -484,8 +484,22 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     @Transactional
     public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
-        tramiteDocumentoAcademicoDAO.update(tramiteDocumentoAcademico);
-        throw new PhobosException("Update no soportado");
+
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        Tramite tramite = tda.getTramite();
+        tramite.setAlumno(tramiteDocumentoAcademico.getTramite().getAlumno());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramite.setFechaModificacion(new Date());
+        tramiteDAO.update(tramite);
+
+        tda.setPersonaContacto(tramiteDocumentoAcademico.getPersonaContacto());
+        tda.setEmail(tramiteDocumentoAcademico.getEmail());
+        tda.setTelefono(tramiteDocumentoAcademico.getTelefono());
+        tda.setCelular(tramiteDocumentoAcademico.getCelular());
+        tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
+        tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+        tramiteDocumentoAcademicoDAO.update(tda);
+        this.enviarNotificacionSolicitudConstanciaCreacion(tda);
     }
 
     @Override
