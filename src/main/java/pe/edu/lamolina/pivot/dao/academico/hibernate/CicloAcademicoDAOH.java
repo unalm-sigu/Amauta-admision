@@ -145,7 +145,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
-                .filter("tipo", "REG")
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .filter("year", ">", yearinit)
                 .filter("year", "<", yearend)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC");

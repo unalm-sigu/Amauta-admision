@@ -43,8 +43,10 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -122,7 +124,13 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
 
     @Autowired
+    VisorCalculoNotas visorCalculoNotas;
+
+    @Autowired
     MailerService mailerService;
+
+    @Autowired
+    PromedioService promedioService;
 
     @Override
     public Alumno allInfo(Alumno alumno) {
@@ -132,16 +140,13 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public List<CicloAcademico> allCicloAcademico() {
-        //LocalDate localDate = LocalDate.now();
-        //int year = localDate.getYear();
-        //return cicloAcademicoDAO.allCicloAcademicoByRange((year - 10), (year + 1));
         return cicloAcademicoDAO.all();
     }
 
     @Override
     @Transactional
     public void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds) {
-        boolean calcularSituacionAcadFinal = Boolean.TRUE;
+
         Usuario usuario = ds.getUsuario();
         Alumno alumno = alumnoDAO.find(alumnoForm);
         logger.debug("alumno id   {} codigo {} ", alumno.getId(), alumno.getCodigo());
@@ -176,9 +181,6 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
             CicloAcademico cicloAcademico = cicloAcademicoDAO.find(alumnoCicloForm.getCicloAcademico());
 
-            CicloAcademico cicloAcademicoAnterior = cicloAcademicoDAO.findAnteriorActivo(cicloAcademico);
-            AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademicoAnterior);
-
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             DateTime today = new DateTime();
 
@@ -187,16 +189,15 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
                 alumnoCiclo.setAlumno(alumno);
                 alumnoCiclo.setCarrera(alumno.getCarrera());
                 alumnoCiclo.setCicloAcademico(cicloAcademico);
-                //todos los ciclos
+
                 alumnoCiclo.setCreditosAcumulados(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCreditosAprobadosAcumulados(BigDecimal.ZERO.intValue());
 
-                //por ciclo
                 alumnoCiclo.setCreditosAprobadosCiclo(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCreditosCursadosCiclo(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCursosAprobados(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCursosInscritos(BigDecimal.ZERO.intValue());
-                //
+
                 alumnoCiclo.setEstado(EstadoMatriculaEnum.MAT);
                 alumnoCiclo.setUserRegistro(usuario);
                 alumnoCiclo.setUserModificacion(usuario);
@@ -206,9 +207,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
                 alumnoCiclo.setSituacionInicio(alumno.getSituacionAcademica());
                 alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
-                // alumnoCiclo.setSituacionFinal(situacionAcademica);
 
-                //calcular
                 alumnoCiclo.setPromedioAcumulado(BigDecimal.ZERO);
                 alumnoCiclo.setPromedioCiclo(BigDecimal.ZERO);
                 alumnoCicloDAO.save(alumnoCiclo);
@@ -252,38 +251,33 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
                 }
 
                 if (alumnoCicloCurso == null) {
+
                     alumnoCicloCurso = new AlumnoCicloCurso();
                     alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
-                    //  update creditos from form
+
                     alumnoCicloCurso.setCreditos(alumnoCicloCursoForm.getCreditos());
                     alumnoCicloCurso.setCurso(curso);
-                    //  aprobado from form
-                    //Integer aprobado = this.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumno);
-                    //alumnoCicloCurso.setEstaAprobado(aprobado);
-                    alumnoCicloCurso.setEstaAprobado(0);
+                    alumnoCicloCurso.setEstaAprobado(BigDecimal.ZERO.intValue());
 
                     alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
                     alumnoCicloCurso.setFechaModificacion(today.toDate());
                     alumnoCicloCurso.setFechaRegistro(today.toDate());
-                    //  update nota from form
+
                     alumnoCicloCurso.setNota(alumnoCicloCursoForm.getNota());
                     alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.ACTA);
                     alumnoCicloCurso.setRegistroActivo(BigDecimal.ONE.intValue());
                     alumnoCicloCurso.setUserModificacion(usuario);
                     alumnoCicloCurso.setUsuarioRegistro(usuario);
-                    //  update veces curso
+
                     alumnoCicloCurso.setVecesCursado(1);
                     alumnoCicloCursoDAO.save(alumnoCicloCurso);
                     alumnoCicloCurso.getId();
                 } else {
+
                     alumnoCicloCurso.setFechaModificacion(today.toDate());
-                    //  update nota from form
                     alumnoCicloCurso.setNota(alumnoCicloCursoForm.getNota());
                     alumnoCicloCurso.setUserModificacion(usuario);
                     alumnoCicloCurso.setCurso(curso);
-                    //  aprobado from form
-                    //Integer aprobado = this.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumno);
-                    //alumnoCicloCurso.setEstaAprobado(aprobado);
 
                     alumnoCicloCursoDAO.update(alumnoCicloCurso);
                     alumnoCicloCurso.getId();
@@ -291,97 +285,8 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
             }
 
-            //todos los ciclos
-            Integer credAcumuladosAlumno = BigDecimal.ZERO.intValue();
-            Integer credAprAcumuladosAlumno = BigDecimal.ZERO.intValue();
-
-            //por ciclo
-            Integer credCursadosAlumnoCiclo = BigDecimal.ZERO.intValue();
-            Integer credCursadosAproAlumnoCiclo = BigDecimal.ZERO.intValue();
-
-            Integer cursosInscritosAlumnoCiclo = BigDecimal.ZERO.intValue();
-            Integer cursosAprInscritosAlumnoCiclo = BigDecimal.ZERO.intValue();
-
-            List<AlumnoCicloCurso> allByAlumnoCiclo = alumnoCicloCursoDAO.allOperativesByAlumnoCiclo(alumno, cicloAcademico);
-
-            BigDecimal sumNotasCreditos = BigDecimal.ZERO;
-            BigDecimal sumCreditos = BigDecimal.ZERO;
-            for (AlumnoCicloCurso alumnoCicloCursoEach : allByAlumnoCiclo) {
-                credCursadosAlumnoCiclo += alumnoCicloCursoEach.getCreditos();
-                cursosInscritosAlumnoCiclo += 1;
-                if (alumnoCicloCursoEach.isAprobado()) {
-                    credCursadosAproAlumnoCiclo += alumnoCicloCursoEach.getCreditos();
-                    cursosAprInscritosAlumnoCiclo += 1;
-                }
-                BigDecimal notaBig = TypesUtil.getBigDecimal(alumnoCicloCursoEach.getNota());
-                BigDecimal creditosBig = TypesUtil.getBigDecimal(alumnoCicloCursoEach.getCreditos());
-                if (notaBig != null) {
-                    sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
-                    sumCreditos = sumCreditos.add(creditosBig);
-                }
-            }
-
-            List<AlumnoCicloCurso> allByAlumno = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-            BigDecimal sumNotasCreditosTotal = BigDecimal.ZERO;
-            BigDecimal sumCreditosTotal = BigDecimal.ZERO;
-            for (AlumnoCicloCurso alumnoCicloCursoEach : allByAlumno) {
-
-                credAcumuladosAlumno += alumnoCicloCursoEach.getCreditos();
-                if (alumnoCicloCursoEach.isAprobado()) {
-                    credAprAcumuladosAlumno += alumnoCicloCursoEach.getCreditos();
-                }
-                BigDecimal notaBig = TypesUtil.getBigDecimal(alumnoCicloCursoEach.getNota());
-                BigDecimal creditosBig = TypesUtil.getBigDecimal(alumnoCicloCursoEach.getCreditos());
-                if (notaBig != null) {
-                    sumNotasCreditosTotal = sumNotasCreditosTotal.add(notaBig.multiply(creditosBig));
-                    sumCreditosTotal = sumCreditosTotal.add(creditosBig);
-                }
-            }
-
-            BigDecimal promedio = BigDecimal.ZERO;
-            if (sumNotasCreditos.compareTo(BigDecimal.ZERO) != 0 && sumCreditos.compareTo(BigDecimal.ZERO) != 0) {
-                promedio = sumNotasCreditos.divide(sumCreditos, 2, RoundingMode.HALF_UP);
-            }
-
-            BigDecimal promedioAcumulado = BigDecimal.ZERO;
-            if (sumNotasCreditosTotal.compareTo(BigDecimal.ZERO) != 0 && sumCreditosTotal.compareTo(BigDecimal.ZERO) != 0) {
-                promedioAcumulado = sumNotasCreditosTotal.divide(sumCreditosTotal, 2, RoundingMode.HALF_UP);
-            }
-            alumnoCiclo.setPromedioCiclo(promedio);
-            alumnoCiclo.setPromedioAcumulado(promedioAcumulado);
-
-            alumnoCiclo.setCreditosAcumulados(credAcumuladosAlumno);
-            alumnoCiclo.setCreditosAprobadosAcumulados(credAprAcumuladosAlumno);
-
-            alumnoCiclo.setCreditosAprobadosCiclo(credCursadosAproAlumnoCiclo);
-            alumnoCiclo.setCreditosCursadosCiclo(credCursadosAlumnoCiclo);
-            alumnoCiclo.setCursosAprobados(cursosAprInscritosAlumnoCiclo);
-            alumnoCiclo.setCursosInscritos(cursosInscritosAlumnoCiclo);
-
-            alumnoCiclo.setUserModificacion(usuario);
-            alumnoCiclo.setFechaModificacion(today.toDate());
-
-            if (allByAlumnoCiclo.size() == BigDecimal.ONE.intValue()) {
-                alumnoCiclo.setEstaAprobado(allByAlumnoCiclo.get(0).getEstaAprobado());
-            } else {
-                Integer aprobado = this.evaluateEstaAprobado(promedio, alumno);
-                alumnoCiclo.setEstaAprobado(aprobado);
-            }
-            alumnoCicloDAO.update(alumnoCiclo);
-            alumnoCiclo.getId();
-//            if (calcularSituacionAcadFinal) {
-//                SituacionAcademica situacionAcademicaIni = alumnoCicloAnterior != null ? alumnoCicloAnterior.getSituacionFinal() : alumno.getSituacionAcademica();
-//                SituacionAcademica situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(alumnoCiclo, situacionAcademicaIni, alumno.getCiclosEstudiados(), alumno.getCreditosAprobados(), cicloAcademico);
-//
-//                alumnoCiclo.setSituacionFinal(situacionAcademicaFinal);
-//                alumnoCicloDAO.update(alumnoCiclo);
-//
-//                Alumno alumnoUpd = new Alumno();
-//                alumnoUpd.setId(alumno.getId());
-//                alumnoUpd.setCicloActivo(cicloAcademico);
-//                alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
-//                alumnoDAO.updateCicloActivoSituacionAcad(alumnoUpd);
-//            }
+            visorCalculoNotas.setActivo(false);
+            promedioService.promediarAllCicloSync(alumno, ds.getUsuario());
 
         }
     }
