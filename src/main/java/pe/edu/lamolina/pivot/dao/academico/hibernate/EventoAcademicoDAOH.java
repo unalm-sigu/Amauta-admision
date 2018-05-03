@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.EventoAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.pivot.dao.academico.EventoAcademicoDAO;
 
 @Repository
@@ -28,6 +29,13 @@ public class EventoAcademicoDAOH extends AbstractEasyDAO<EventoAcademico> implem
         return sql.all(getCurrentSession());
     }
 
-   
+    @Override
+    public EventoAcademico findByCodigo(EventoAcademicoEnum eventoAcademicoEnum) {
+        Octavia sql = Octavia.query()
+                .from(EventoAcademico.class, "ea")
+                .filter("ea.codigo", eventoAcademicoEnum.name());
+
+        return find(sql);
+    }
 
 }

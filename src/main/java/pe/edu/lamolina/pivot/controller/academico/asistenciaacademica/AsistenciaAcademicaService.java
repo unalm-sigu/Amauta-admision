@@ -9,9 +9,13 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TemaLeccion;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.horario.LeccionReprogramada;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface AsistenciaAcademicaService {
+
+    List<Date> findStartEndDateReschedule(Seccion seccion, Docente docente, CicloAcademico cicloAcademico);
 
     TemaLeccion findTemaLeccionSeccionDocenteFecha(Seccion seccion, Docente docente, DateTime today);
 
@@ -26,5 +30,15 @@ public interface AsistenciaAcademicaService {
     void updateInasistencia(TemaLeccion temaLeccion, Docente docente, Usuario usuario, CicloAcademico cicloAcademico);
 
     List<TemaLeccion> allTemaLeccionBySeccionDocenteDyna(Seccion seccion, Docente docente, DynatableFilter filter);
+
+    TemaLeccion findTemaLeccion(Long idTemaLeccion);
+
+    List<TemaLeccion> allTemaLeccionBySeccion(Seccion seccion);
+
+    List<LeccionReprogramada> allLeccionReprogramadaBySeccion(Seccion seccion);
+
+    void saveReprogramacion(LeccionReprogramada leccionReprogramada, Usuario usuario, Docente docente, CicloAcademico cicloAcademico);
+
+    List<Aula> searchAulaByName(String nombre);
 
 }

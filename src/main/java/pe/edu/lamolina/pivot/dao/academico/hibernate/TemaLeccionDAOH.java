@@ -21,6 +21,25 @@ public class TemaLeccionDAOH extends AbstractEasyDAO<TemaLeccion> implements Tem
     }
 
     @Override
+    public List<TemaLeccion> allBySeccionOrder(Seccion seccion, String orderBy) {
+        Octavia sql = Octavia.query()
+                .from(TemaLeccion.class, "t")
+                .join("seccion sec", "docente doc")
+                .filter("sec.id", seccion)
+                .orderBy(orderBy);
+        return this.all(sql);
+    }
+
+    @Override
+    public List<TemaLeccion> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(TemaLeccion.class, "t")
+                .join("seccion sec", "docente doc")
+                .filter("sec.id", seccion);
+        return this.all(sql);
+    }
+
+    @Override
     public List<TemaLeccion> allBySeccionDocenteFecha(Seccion seccion, Docente docente, Date fecha) {
         Octavia sql = Octavia.query()
                 .from(TemaLeccion.class, "t")
@@ -50,6 +69,15 @@ public class TemaLeccionDAOH extends AbstractEasyDAO<TemaLeccion> implements Tem
                 .filter("sec.id", seccion)
                 .filter("doc.id", docente);
 
+        return find(sql);
+    }
+
+    @Override
+    public TemaLeccion find(Long idTemaLeccion) {
+        Octavia sql = Octavia.query()
+                .from(TemaLeccion.class, "t")
+                .join("seccion sec", "docente doc")
+                .filter("t.id", idTemaLeccion);
         return find(sql);
     }
 

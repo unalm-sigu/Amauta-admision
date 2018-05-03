@@ -6,77 +6,182 @@
 
 <body>
     <div layout:fragment="main">
-        <header class="header b-b padder-lg">        
-            <h2>Aistencia Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
-            <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
-            <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>   
-            <span class="block"><strong>Curso:</strong> <span  th:text="${curso.nombre}">Juan Perez</span></span> 
-            <span class="block"><strong>Seccion:</strong> <span  th:text="${seccion.codigo2}">Juan Perez</span></span> 
-        </header>
+        <div id="asistenciaAcademicaApp">
+            <header class="header b-b padder-lg">    
+                <div class="pull-right panel-body" >
+                    <a class="btn btn-success" th:href="@{'/academico/docente/asistenciaacademica/'+${seccion.id}+'/control'}"  >Registrar Asistencia</a>
+                    <a class="btn btn-primary" v-on:click="reprogramarClase" >Reprogramar Clase</a>
+                    <a class="btn btn-default" th:href="@{/academico/docente/asistenciaacademica}">Regresar</a>
+                </div>
 
-        <section id="asistenciaAcademicaApp" class="wrapper-lg">
-            <section class="panel">
-                <section class="panel-body">
+                <h2>Aistencia Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+                <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
+                <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>   
+                <span class="block"><strong>Curso:</strong> <span  th:text="${curso.nombre}">Juan Perez</span></span> 
+                <span class="block"><strong>Seccion:</strong> <span  th:text="${seccion.codigo2}">Juan Perez</span></span> 
+            </header>
 
-                    <raptor-table v-bind:url="URL_LECCIONES" 
-                                  v-bind:ajaxdata="{seccion:seccion.id}">
+            <section  class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
 
-                        <template scope="props">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th class="col-md-5">Tema</th>
-                                        <th class="col-md-3 text-center">Fecha Tema</th>
-                                        <th class="col-md-3 text-center">Fecha Registro</th>
-                                        <th class="col-md-1 text-center"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in props.data"> 
-                                        <td> 
-                                            {{item.tema}}
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{item.fecha}}
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{item.fechaRegistro}}
-                                        </td>
-                                        <td>
+                        <raptor-table v-bind:url="URL_LECCIONES" 
+                                      ref="tblLecciones"
+                                      v-bind:ajaxdata="{seccion:seccion.id}">
 
-                                            <div class="dropdown actions" v-if="item.allowEdit">
-                                                <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-cog"></i>
-                                                </a> 
-                                                <ul class="dropdown-menu pull-right"> 
-                                                    <li><a class="btn-link pointer" 
-                                                           v-on:click="controlarLeccion(item.seccion,$event)">Editar</a></li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </template>
-                    </raptor-table>
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-5">Tema</th>
+                                            <th class="col-md-3 text-center">Fecha Tema</th>
+                                            <th class="col-md-3 text-center">Fecha Registro</th>
+                                            <th class="col-md-1 text-center"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td> 
+                                                {{item.tema}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{item.fecha}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{item.fechaRegistro}}
+                                            </td>
+                                            <td>
+
+                                                <div class="dropdown actions" v-if="item.allowEdit">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-cog"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right"> 
+                                                        <li><a class="btn-link pointer" 
+                                                               v-on:click="editarLeccion(item,$event)">Editar</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
 
 
 
+                    </section>
                 </section>
+
+                <modal-vik ref="modalReprogramacion"
+                           v-bind="reprogramacionModal"
+                           v-bind:okaction="saveReprogramacion"
+                           modalsize="modal-md">
+                    <div slot="body">
+                        <form id="frmReprogramacion">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Motivo</label>
+                                    <div class="form-group">
+                                        <input v-model="leccionReprogramada.motivo"
+                                               class="form-control" 
+                                               required="true"
+                                               />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Fecha Origen</label>
+                                    <div class="form-group"> 
+                                        <v-date-picker id="fechaOrigen"
+                                                       v-model="leccionReprogramada.fechaOrigen"
+                                                       v-bind:startdate="reprogramacionAttr.fechaInicioOrigen"
+                                                       v-bind:enddate="reprogramacionAttr.fechaFinOrigen"
+                                                       v-bind:daysweekdisabled="reprogramacionAttr.disabledDaysArg"
+                                                       v-bind:datesdisabled="reprogramacionAttr.disabledDatesArg"
+                                                       required="true"
+                                                       ></v-date-picker>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Fecha Reprogramada</label>
+                                    <div class="form-group">
+
+                                        <v-date-picker id="fechaOrigen"
+                                                       v-model="leccionReprogramada.fechaReprogramada"
+                                                       v-bind:startdate="reprogramacionAttr.fechaInicioOrigen"
+                                                       v-bind:enddate="reprogramacionAttr.fechaFinOrigen"
+                                                       v-bind:datesdisabled="reprogramacionAttr.disabledDatesArg"
+                                                       required="true"
+                                                       ></v-date-picker>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label>Hora Inicio</label>
+                                    <div class="form-group">
+                                        <input type="time"
+                                               class="form-control" 
+                                               v-model="leccionReprogramada.horaInicio"
+                                               required=""> </input>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label>Hora Fin</label>
+                                    <div class="form-group">
+                                        <input type="time"
+                                               class="form-control" 
+                                               v-model="leccionReprogramada.horaFin"
+                                               required=""> </input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Buscar Aula</label>
+                                    <div class="form-group">
+
+                                        <multiselect v-model="leccionReprogramada.aula"
+                                                     track-by="id"
+                                                     v-bind:internal-search="false"
+                                                     v-bind:limit="15"
+                                                     v-on:search-change="asyncFindAulas"
+                                                     v-bind:options="aulasOptions"
+                                                     label="codigo"
+                                                     >
+                                        </multiselect>   
+
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </modal-vik>
+
             </section>
-        </section>
+        </div>
 
         <div th:substituteby="templates/modal"/>
+        <div th:substituteby="_modules/vue-modal"/>
 
 
     </div>
 
     <div layout:fragment="js" th:remove="tag">
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+
         <div th:substituteby="_modules/vue-raptor-table"/>
         <script th:inline="javascript">
             var seccionJson = [[${seccionJson}]];
         </script>
         <script th:src="@{/app/academico/docente/asistenciaacademica/leccionesAcademicas.js}" charset="utf-8"></script>
+
     </div>
 </body>
 </html>

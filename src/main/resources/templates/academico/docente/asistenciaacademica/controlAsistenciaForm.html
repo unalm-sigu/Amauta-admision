@@ -49,8 +49,8 @@
 
         <section id="controlAsistenciaApp" class="wrapper-lg">
             <section class="panel">
-                <section class="panel-body">
-                    <form id="frmAsistencia">
+                <section class="panel-body"> 
+                    <form id="frmAsistencia" th:if="${not #lists.isEmpty(seccion.horarioSeccion)}">
                         <div class="form-group">
                             <label  class="col-sm-2 control-label">Tema</label>
 
@@ -66,7 +66,7 @@
                         </div>      
 
                         <raptor-table v-bind:url="URL_MATRICULAS_SECCION" 
-                                      v-bind:ajaxdata="{seccion:seccion.id}"
+                                      v-bind:ajaxdata="{seccion:seccion.id,temaLeccion:temaLeccion.id}"
                                       v-bind:searcher="false"
                                       ref="tblMatriculasSeccion"
                                       v-bind:paginate="false">
@@ -123,6 +123,9 @@
                                >Grabar Notas</a>
                         </div>
                     </form>
+                    <div th:if="${#lists.isEmpty(seccion.horarioSeccion)}">
+                        No tiene horario para el día de hoy. 
+                    </div>
                 </section>
 
             </section>
