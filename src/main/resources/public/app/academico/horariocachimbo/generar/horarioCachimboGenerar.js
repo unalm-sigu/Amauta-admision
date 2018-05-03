@@ -90,7 +90,7 @@ $(function() {
                 id: 'modalVerCurso',
                 header: true,
                 title: 'Cursos',
-                modalSize: 'modal-lg',
+                modalsize: 'modal-lg',
                 cancelbtn: 'Aceptar',
                 showaccept: false
             },
@@ -98,7 +98,7 @@ $(function() {
                 id: 'modalVerHorario',
                 header: true,
                 title: 'Horario',
-                modalSize: 'modal-lg',
+                modalsize: 'modal-lg',
                 cancelbtn: 'Aceptar',
                 showaccept: false
             },

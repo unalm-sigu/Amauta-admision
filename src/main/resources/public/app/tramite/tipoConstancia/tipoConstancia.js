@@ -13,8 +13,8 @@ new Vue({
             header: true,
             title: 'Nuevo Tipo Constancia',
             okbtn: 'Agregar Tipo Constancia',
-            modalSize: 'modal-lg',
-            modalScroll: 'modal-scroll-500'
+            modalsize: 'modal-lg',
+            modalscroll: 'modal-scroll-500'
         },
     },
     computed: {

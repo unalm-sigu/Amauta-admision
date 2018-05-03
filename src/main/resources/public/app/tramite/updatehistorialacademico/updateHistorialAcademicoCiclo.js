@@ -12,7 +12,7 @@ Vue.component("ciclo-component", {
         let vue = this;
         let self = $(vue.$el);
         self.find("select.cicloSelect").
-                select2({minimumResultsForSearch: -1, allowClear: true}).
+                select2({allowClear: true}).
                 on('change.select2', function(eve) {
                     if (eve.added == undefined) {
                         vue.alumnociclo.cicloAcademico.id = null;
@@ -28,7 +28,7 @@ Vue.component("ciclo-component", {
         vue.$nextTick(function() {
             let self = $(vue.$el);
             self.find("select.cicloSelect").
-                    select2({minimumResultsForSearch: -1, allowClear: true}).
+                    select2({allowClear: true}).
                     on('change.select2', function(eve) {
                         if (eve.added == undefined) {
                             vue.alumnociclo.cicloAcademico.id = null;

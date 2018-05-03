@@ -254,4 +254,13 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return find(sql);
     }
 
+    @Override
+    public List<CicloAcademico> all() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
+                .orderBy("year desc", "numeroCiclo desc");
+        return all(sql);
+    }
+
 }

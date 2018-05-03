@@ -132,9 +132,10 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public List<CicloAcademico> allCicloAcademico() {
-        LocalDate localDate = LocalDate.now();
-        int year = localDate.getYear();
-        return cicloAcademicoDAO.allCicloAcademicoByRange((year - 10), (year + 1));
+        //LocalDate localDate = LocalDate.now();
+        //int year = localDate.getYear();
+        //return cicloAcademicoDAO.allCicloAcademicoByRange((year - 10), (year + 1));
+        return cicloAcademicoDAO.all();
     }
 
     @Override

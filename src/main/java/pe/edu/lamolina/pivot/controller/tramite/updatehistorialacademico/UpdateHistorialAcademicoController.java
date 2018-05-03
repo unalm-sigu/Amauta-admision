@@ -170,8 +170,9 @@ public class UpdateHistorialAcademicoController {
             List<Alumno> alumnos = service.allAlumnoByName(nombre);
             ArrayNode jAlumno = new ArrayNode(jsonFactory);
             for (Alumno alumno : alumnos) {
-                //jAlumno.add(service.toJson(alumno));
+
                 ObjectNode json = new ObjectNode(jsonFactory);
+
                 json.put("id", alumno.getId());
                 json.put("nombre", alumno.getPersona().getNombreCompleto());
                 json.put("email", alumno.getPersona().getEmailCompania());
@@ -305,13 +306,6 @@ public class UpdateHistorialAcademicoController {
     public String nuevo(Model model, HttpSession session, RedirectAttributes redirectAttr) {
 
         try {
-//
-//            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
-//            List<Idioma> idiomas = service.allIdiomas();
-//            TramiteDocumentoAcademico tramiteDocumentoAcademico = new TramiteDocumentoAcademico();
-//            model.addAttribute("solicitud", tramiteDocumentoAcademico);
-//            model.addAttribute("idiomas", idiomas);
-//            model.addAttribute("tiposDocumentoAcademico", tiposDocumentoAcademico);
 
             List<Idioma> idiomas = service.allIdiomas();
             List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
@@ -333,13 +327,6 @@ public class UpdateHistorialAcademicoController {
     @RequestMapping("{idTramite}/update")
     public String update(@PathVariable("idTramite") Long idTramite, Model model, HttpSession session, RedirectAttributes redirectAttr) {
         try {
-//
-//            List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
-//            List<Idioma> idiomas = service.allIdiomas();
-//            TramiteDocumentoAcademico tramiteDocumentoAcademico = service.findTramiteDocumentoAcademico(new TramiteDocumentoAcademico(idTramite));
-//            model.addAttribute("solicitud", tramiteDocumentoAcademico);
-//            model.addAttribute("idiomas", idiomas);
-//            model.addAttribute("tiposDocumentoAcademico", tiposDocumentoAcademico);
 
             List<Idioma> idiomas = service.allIdiomas();
             List<TipoDocumentoAcademico> tiposDocumentoAcademico = service.allTipoDocumentoAcademico();
@@ -370,6 +357,8 @@ public class UpdateHistorialAcademicoController {
             TramiteDocumentoAcademico tramiteDocumento = service.findTramiteDocumentoAcademico(solicitudConstancia);
             Alumno alumno = tramiteDocumento.getTramite().getAlumno();
             Persona persona = alumno.getPersona();
+            Carrera carrera = alumno.getCarrera();
+            Facultad facultad = carrera.getFacultad();
 
             ObjectNode jSolicitudConstancia = service.toJson(tramiteDocumento);
             jSolicitudConstancia.put("tramite", service.toJson(tramiteDocumento.getTramite()));
@@ -388,6 +377,7 @@ public class UpdateHistorialAcademicoController {
             jAlumno.put("codigoMatricula", alumno.getCodigo());
             jAlumno.put("carrera", alumno.getCarrera().getNombre());
             jAlumno.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+            jAlumno.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
             data.put("alumno", jAlumno);
 
             response.setData(data);
@@ -433,8 +423,6 @@ public class UpdateHistorialAcademicoController {
 
         String cabecera = headBoletaPdf.getContenido();
         String pieBoleta = footBoletaPdf.getContenido();
-        logger.debug("tipoDocumento {}", tipoDocumento.getId());
-        logger.debug("idioma {}", idioma.getId());
         PrecioDocumento precioDocumento = service.findPrecioDocumentoByTipoIdioma(tipoDocumento, idioma);
         CuentaBancaria cuenta = precioDocumento.getCuentaBancaria();
         String montoString = precioDocumento.getPrecio().toString();

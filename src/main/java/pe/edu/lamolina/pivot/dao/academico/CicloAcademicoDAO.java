@@ -30,11 +30,11 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
-    public List<CicloAcademico> allByDynatable(DynatableFilter filter);
+    List<CicloAcademico> allByDynatable(DynatableFilter filter);
 
-    public CicloAcademico findCicloAcademicoActivo();
+    CicloAcademico findCicloAcademicoActivo();
 
-    public CicloAcademico findCicloAcademicoActivoByModalidad(ModalidadEstudio modalidadEstudio);
+    CicloAcademico findCicloAcademicoActivoByModalidad(ModalidadEstudio modalidadEstudio);
 
     void updateFechaMatriculables(CicloAcademico cicloAcademico);
 
@@ -45,5 +45,7 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
     void updateFechasTurnosAignadosDisponibles(CicloAcademico cicloAcademico);
 
     CicloAcademico find(CicloAcademico cicloAcademico);
+
+    List<CicloAcademico> all();
 
 }

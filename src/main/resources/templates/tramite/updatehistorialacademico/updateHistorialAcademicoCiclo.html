@@ -4,7 +4,7 @@
 
         <section class="panel-body">
 
-            <div class="row m-b-lg">
+            <div class="row m-b-sm">
 
                 <input type="hidden"  v-bind:name=" 'alumnoCiclo['+inx+'].id'  "  v-bind:value="alumnociclo.id" />
 
@@ -31,8 +31,6 @@
                             </a>
 
                             <ul class="dropdown-menu pull-right" >
-                                <li><a href="#"  class="" v-on:click.prevent="agregarAlumnoCicloCurso(alumnociclo)">Agregar curso</a></li>
-                                <li role="presentation" class="divider"></li>
                                 <li><a href="#"  class="" v-on:click.prevent="deleteAlumnoCiclo(alumnociclo)">Eliminar</a></li>
                             </ul>
 
@@ -43,12 +41,6 @@
             </div>
 
             <table class="table unborder table-condensed col-md-12"  >
-
-                <thead class="thead-dark">
-                    <tr>
-                        <td colspan="4"  class="col-md-12 p-3 mb-2 text-primary text-center" v-text="alumnociclo.cicloAcademico.descripcion" v-if="alumnociclo.cicloAcademico.id" />
-                    </tr>
-                </thead>
 
                 <tbody>
 
@@ -73,6 +65,12 @@
                         v-bind:inx="inx"
                         v-bind:index="index"
                         ></tr>
+
+                    <tr>
+                        <td colspan="4">
+                            <a href="#"  class="text-sm text-info" v-on:click.prevent="agregarAlumnoCicloCurso(alumnociclo)">Agregar curso</a>
+                        </td>
+                    </tr>
 
                 </tbody>
 

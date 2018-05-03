@@ -3,7 +3,7 @@
 
         <div v-bind:id="id" class="modal fade" tabindex="-1" role="dialog"
              v-bind:data-backdrop="dataBackdrop" v-bind:data-keyboard="dataKeyboard">
-            <div class="modal-dialog" v-bind:class="modalSize" role="document">
+            <div class="modal-dialog" v-bind:class="modalsize" role="document">
 
                 <div class="modal-content" v-bind:style="styleModal">
                     <div v-if="header" class="modal-header">
@@ -15,7 +15,7 @@
                         </slot>
                     </div>
 
-                    <div class="modal-body" v-bind:class="modalScroll" >
+                    <div class="modal-body" v-bind:class="modalscroll" >
                         <slot name="body">
                             <p>Modal Body</p>
                         </slot>
