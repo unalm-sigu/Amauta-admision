@@ -1,7 +1,7 @@
 <template id="headerInfoComponent">
     <section class="panel-body m-t-n-md">
         <div class="col-sm-2 col-xs-12" align="center">
-            <img style="min-width: 90px"  class="img-responsive img-circle m-t-lg" src="/phobos/images/unalm/unknown-person.gif"> </img>
+            <img style="min-width: 90px"  class="img-responsive img-circle m-t-lg" v-bind:src="alumno.rutaFoto"> </img>
         </div>
         <div class=" col-sm-10 col-xs-12">
             <h3 class="block" v-text='alumno.persona.apellidosNombres'> </h3>

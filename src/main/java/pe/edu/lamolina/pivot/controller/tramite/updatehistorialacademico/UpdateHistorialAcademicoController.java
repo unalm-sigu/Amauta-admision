@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -37,6 +39,7 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__ESTIMADO__;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__NOMBREPERSONA__;
+import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
@@ -70,9 +73,11 @@ public class UpdateHistorialAcademicoController {
 
     @RequestMapping("{idAlumno}/updatehistorial")
     public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        FotoHelper helper = new FotoHelper();
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
         ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
+        alumnoJson.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclosAcademico", ciclosAcademico);
         return "tramite/updatehistorialacademico/updateHistorialAcademico";
@@ -206,13 +211,14 @@ public class UpdateHistorialAcademicoController {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             List<PrecioDocumento> precios = service.allPrecioDocumento();
             Map<Long, List<PrecioDocumento>> preciosMap = TypesUtil.convertListToMapList("tipoDocumento.id", precios);
-
+            FotoHelper helper = new FotoHelper();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (TramiteDocumentoAcademico tramiteDoc : tipos) {
 
                 ObjectNode node = service.toJson(tramiteDoc.toJson());
                 Tramite tramite = tramiteDoc.getTramite();
                 Alumno alumno = tramiteDoc.getTramite().getAlumno();
+                TipoDocumentoAcademico tipoDocumento = tramiteDoc.getTipoDocumentoAcademico();
                 Carrera carrera = alumno.getCarrera();
                 Facultad facultad = carrera.getFacultad();
 
@@ -226,9 +232,12 @@ public class UpdateHistorialAcademicoController {
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("dni", alumno.getPersona().getNumeroDocIdentidad());
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-
+                node.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
+                logger.debug("************{}", tipoDocumento.getTipo());
+                if (!Strings.isNullOrEmpty(tipoDocumento.getTipo())) {
+                    node.put("documentoName", TipoConstanciaEnum.get(tipoDocumento.getTipo()).name());
+                }
                 node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
-                node.put("documentoName", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
                 node.put("estado", tramiteDoc.getEstado());

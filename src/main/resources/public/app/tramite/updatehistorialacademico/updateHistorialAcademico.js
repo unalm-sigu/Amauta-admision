@@ -8,6 +8,7 @@ new Vue({
     },
     mounted() {
         let vue = this;
+        console.log(JSON.parse(alumnoJson));
         $('.numeric').numeric();
         $global.$on("agregarAlumnoCicloCurso", function(alumnociclo) {
             vue.agregarAlumnoCicloCurso(alumnociclo);
