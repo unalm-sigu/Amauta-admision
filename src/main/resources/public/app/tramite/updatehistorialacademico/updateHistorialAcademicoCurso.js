@@ -1,3 +1,9 @@
+var CursoSearch = Vue.component("cursoSearch", {
+    template: "#itemCursoTemplate",
+    data: function() {
+        return {curso: {}};
+    }
+});
 Vue.component("curso-component", {
     template: "#cursoTemplate",
     props: {
@@ -14,6 +20,7 @@ Vue.component("curso-component", {
         let self = $(vue.$el);
         self.find(".selectCurso").select2(vue.selectCurso(vue));
         $('.numeric').numeric();
+        $('.upperCase').upperCase();
     },
     updated: function() {
         let vue = this;
@@ -45,7 +52,10 @@ Vue.component("curso-component", {
                     }
                 },
                 formatResult: function(info) {
-                    return info.codigo + " - " + info.nombre;
+                    var cursoSearch = new CursoSearch();
+                    cursoSearch.curso = info;
+                    var cmp = cursoSearch.$mount();
+                    return cmp.$el;
                 },
                 formatSelection: function(info) {
                     vm.alumnociclocurso.curso.id = info.id;

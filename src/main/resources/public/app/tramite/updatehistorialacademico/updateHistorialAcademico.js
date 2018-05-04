@@ -92,7 +92,7 @@ new Vue({
                 data: $('#form').serialize(),
                 success: function(response) {
                     if (response.success) {
-                        location.href = APP.url("academico/alumno");
+                        location.href = APP.url("tramite/solicitudconstancia/updatehistorial");
                     } else {
                         notify(response.message, 'error');
                     }

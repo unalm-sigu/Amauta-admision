@@ -6,11 +6,11 @@
                 <thead>
                     <tr>
                         <th></th>
-                        <th class="col-xs-8 v-middle"></th>
-                        <th class="col-xs-3 v-middle">Trámite</th>
-                        <th class="col-xs-3 v-middle">Documento</th>
-                        <th class="col-xs-1 v-middle">Estado</th>
-                        <th class="v-middle"></th>
+                        <th class="col-xs-6"></th>
+                        <th class="col-xs-3">Trámite</th>
+                        <th class="col-xs-2">Documento</th>
+                        <th class="col-xs-1">Estado</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="dynaTbody"><tr></tr></tbody>
@@ -29,11 +29,10 @@
 
         <td  class="v-middle"  >
             <p  class="h5 bold text-primary" v-text="solicitud.nombre"></p>
-            <span class="block"> {{solicitud.carrera}}</span>
             <span v-if="solicitud.codigoMatricula"  class="block"> Especialida de {{solicitud.carrera}}</span>
             <span v-if="solicitud.showfacultad" class="block">Facultad de {{solicitud.facultad}}</span>
             <small class="block bold">{{solicitud.tipo}} {{solicitud.dni}}</small>
-            <span v-if="solicitud.showfacultad" class="block"> Matrícula: {{solicitud.codigoMatricula}}</span>
+            <small v-if="solicitud.showfacultad" class="block bold"> Matrícula: {{solicitud.codigoMatricula}}</small>
         </td>
 
         <td class="v-middle">
@@ -42,7 +41,7 @@
 
         <td class="v-middle">
             <p class=""> {{ solicitud.documento}} </p>
-            <p class="text-sm"> {{ solicitud.documentoName}} </p>
+            <p class="text-xs"> {{ solicitud.documentoName}} </p>
         </td>
 
         <td class="v-middle">
@@ -61,12 +60,11 @@
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')">Actualizar historial academico</a></li>
+                    <li v-if="solicitud.showUpdateHistorial"><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')">Actualizar historial academico</a></li>
                     <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.id+'/update')">Editar Solicitud Documento</a></li>
+                    <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
                     <li class="divider"></li>
                     <li><a v-on:click.prevent="eliminar(solicitud.id)"  href="#">Eliminar Solicitud Documento</a></li>
-                    <li class="divider"></li>
-                    <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
                 </ul>
             </div>
         </td>

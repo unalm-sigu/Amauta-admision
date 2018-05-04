@@ -207,6 +207,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .beginBlock()
                 .__().filter("cur.nombre", "like", nombre)
                 .__().filter("cur.codigo", "like", nombre)
+                .__().filter("cur.codigoAnterior1", "like", nombre)
                 .endBlock()
                 .limit(15);
         return all(sql);

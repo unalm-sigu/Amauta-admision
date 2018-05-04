@@ -39,9 +39,11 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allActivoByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
 
-    public void deleteByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
+    void deleteByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
 
-    public AlumnoCicloCurso find(AlumnoCicloCurso alumnoCicloCursoForm);
+    AlumnoCicloCurso find(AlumnoCicloCurso alumnoCicloCursoForm);
 
-    public List<AlumnoCicloCurso> allByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
+    List<AlumnoCicloCurso> allByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
+
+    List<AlumnoCicloCurso> allByAlumnoCicloAsc(Alumno alumno);
 }
