@@ -15,7 +15,7 @@ public interface PromedioService {
     void promedio(MatriculaCurso matriculaCurso, Usuario usuario, boolean calcularSituacionAcadFinal);
 
     void promediarAllCicloAsync(Alumno alumno, Usuario usuario);
-    
+
     void promediarAllCicloSync(Alumno alumno, Usuario usuario);
 
     void trasladoPromediosSource(MatriculaCurso matriculaCurso, Usuario usuario);
@@ -26,5 +26,7 @@ public interface PromedioService {
             CicloAcademico cicloAcademico,
             Usuario usuario,
             DateTime today);
+
+    void calulcarSituacionAcademica(Alumno alumno, Usuario usuario);
 
 }
