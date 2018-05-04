@@ -88,7 +88,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/solicitudconstancia/updatehistorial/updatehistorial'),
+                url: APP.url('tramite/solicitudconstancia/updatehistorial/savehistorial'),
                 data: $('#form').serialize(),
                 success: function(response) {
                     if (response.success) {

@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -287,7 +285,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             }
 
             visorCalculoNotas.setActivo(false);
-            promedioService.promediarAllCicloSync(alumno, ds.getUsuario());
+            promedioService.calulcarSituacionAcademica(alumno, ds.getUsuario());
 
         }
     }
