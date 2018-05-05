@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -70,5 +71,9 @@ public interface UpdateHistorialAcademicoService {
     PrecioDocumento findPrecioDocumentoByTipoIdioma(TipoDocumentoAcademico tipoDocumento, Idioma idioma);
 
     List<Alumno> allAlumnoByName(String nombre);
+
+    List<Colaborador> allColaboradorByName(String nombre);
+
+    void revision(TramiteDocumentoAcademico solicitudConstancia);
 
 }

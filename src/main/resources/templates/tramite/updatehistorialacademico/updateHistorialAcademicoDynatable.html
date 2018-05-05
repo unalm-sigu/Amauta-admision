@@ -62,6 +62,7 @@
                 <ul class="dropdown-menu pull-right">
                     <li v-if="solicitud.showUpdateHistorial"><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')">Actualizar historial academico</a></li>
                     <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.id+'/update')">Editar Solicitud Documento</a></li>
+                    <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
                     <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
                     <li class="divider"></li>
                     <li><a v-on:click.prevent="eliminar(solicitud.id)"  href="#">Eliminar Solicitud Documento</a></li>
@@ -70,4 +71,15 @@
         </td>
     </tr>
 
+</template>
+
+<template id="colaboradorTemplate"  >
+    <div class="row">
+        <div class="pull-left m-l-sm m-r-sm" >
+            <img class="img-responsive img-thumbnail img-circle" v-bind:src="colaborador.rutaFoto" ></img>
+        </div>
+        <span class="block bold m-t-sm" v-text='colaborador.nombre' ></span>
+        <span class="block" v-text="colaborador.tipo+'  '+colaborador.numero" ></span>
+        <span class="block text-xs" v-text="'Cod:'+colaborador.codigo"></span>
+    </div>
 </template>

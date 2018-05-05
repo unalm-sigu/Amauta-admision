@@ -22,8 +22,11 @@
                     </section>
                 </section>
 
+                <th:block th:replace="tramite/updatehistorialacademico/updateHistorialAcademicoModal"/>
+
             </div>
 
+            <div th:substituteby="_modules/vue-modal"/>
             <th:block th:replace="tramite/updatehistorialacademico/updateHistorialAcademicoDynatable"/>
 
         </div>

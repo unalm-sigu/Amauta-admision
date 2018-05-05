@@ -2,6 +2,14 @@ new Vue({
     el: '#main',
     data: {
         solicitud: {id: null},
+        colaborador: {id: null},
+        dataEnviarRevision: {
+            id: 'modalEnviarRevision',
+            header: true,
+            title: 'Enviar a revisión',
+            okbtn: 'Aceptar'
+        },
+        solicitudActiva: {},
     },
     mounted() {
         let vue = this;
@@ -10,6 +18,9 @@ new Vue({
         });
         $global.$on("cancelar", function(id) {
             vue.cancelar(id);
+        });
+        $global.$on("enviarrevision", function(solicitud) {
+            vue.enviarrevision(solicitud);
         });
     },
     methods: {
@@ -116,6 +127,68 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, "error");
             });
 
+        },
+        selectColaborador: function(vm) {
+            return {
+                allowClear: true,
+                placeholder: "Seleccione un colaborador",
+                minimumInputLength: 1,
+                ajax: {
+                    url: APP.url("tramite/solicitudconstancia/updatehistorial/searchcolaborador"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: function(term, page) {
+                        return {nombre: term, page: page};
+                    },
+                    results: function(response, page) {
+                        return {results: response.data};
+                    }
+                },
+                initSelection: function(element, callback) {
+                    if (vm.colaborador.id != null) {
+                        callback(vm.colaborador);
+                    }
+                },
+                formatResult: function(info) {
+                    var colSearch = new ColaboradorSearch();
+                    colSearch.colaborador = info;
+                    var cmp = colSearch.$mount();
+                    return cmp.$el;
+                },
+                formatSelection: function(info) {
+                    return info.codigo + " - " + info.nombre;
+                },
+                escapeMarkup: function(m) {
+                    return m;
+                }
+            };
+        },
+        enviarrevision: function(solicitud) {
+            let vue = this;
+            vue.solicitudActiva = solicitud;
+            vue.$refs.enviarRevision.open();
+            $('[name="colaborador.id"]').select2(vue.selectColaborador(vue));
+        },
+        createEnviarRevision: function() {
+            var vue = this;
+            var valid = $('#formEnviarRevision').parsley().validate();
+            if (valid != true) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/solicitudconstancia/updatehistorial/revision'),
+                data: $('#formEnviarRevision').serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        dynatable.reload();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     },
 });

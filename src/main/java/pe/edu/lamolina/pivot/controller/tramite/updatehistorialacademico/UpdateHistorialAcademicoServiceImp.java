@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
@@ -52,6 +53,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
@@ -130,6 +132,9 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Autowired
     PromedioService promedioService;
+
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
 
     @Override
     public Alumno allInfo(Alumno alumno) {
@@ -507,6 +512,19 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     public List<Alumno> allAlumnoByName(String nombre) {
         return alumnoDAO.allByName(nombre);
+    }
+
+    @Override
+    public List<Colaborador> allColaboradorByName(String nombre) {
+        return colaboradorDAO.allByName(nombre);
+    }
+
+    @Override
+    @Transactional
+    public void revision(TramiteDocumentoAcademico solicitudConstancia) {
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(solicitudConstancia);
+        tda.setEstadoEnum(TramiteEstadoEnum.ENV);
+        tramiteDocumentoAcademicoDAO.update(tda);
     }
 
 }

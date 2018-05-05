@@ -1,7 +1,13 @@
+var ColaboradorSearch = Vue.component("colaboradorSearch", {
+    template: "#colaboradorTemplate",
+    data: function() {
+        return {colaborador: {}};
+    }
+});
 var DynatableRow = Vue.component("dynatableRow", {
     template: "#dynatableRowTemplate",
     data: function() {
-        return {solicitud: {}, rowActive: 0};
+        return {solicitud: {}};
     },
     mounted: function() {
         let vue = this;
@@ -22,12 +28,11 @@ var DynatableRow = Vue.component("dynatableRow", {
         seleccionar: function(solicitud) {
             $global.$emit("seleccionar", solicitud);
         },
-        cambiarActivo: function(id) {
-            let vue = this;
-            vue.rowActive = id;
-        },
         urll: function(pathh) {
             return APP.url(pathh);
+        },
+        enviarrevision: function(solicitud) {
+            $global.$emit("enviarrevision", solicitud);
         }
     }
 });
@@ -49,11 +54,7 @@ Vue.component("dynatable", {
                     ajaxUrl: APP.url('tramite/solicitudconstancia/updatehistorial/list'),
                 },
                 writers: {_rowWriter: vue.writter},
-                table: {bodyRowSelector: "tbody tr"},
-                features: {
-                    paginate: false,
-                    search: false
-                }
+                table: {bodyRowSelector: "tbody tr"}
             }).bind("dynatable:afterUpdate", function(e) {
                 var records = dynatable.settings.dataset.records;
                 for (var i = 0, max = records.length; i < max; i++) {

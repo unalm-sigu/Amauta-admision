@@ -40,6 +40,7 @@ import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__ESTIMADO__;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__NOMBREPERSONA__;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -451,6 +452,57 @@ public class UpdateHistorialAcademicoController {
         model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
 
         return new ModelAndView(pdfHtmlView);
+    }
+
+    @ResponseBody
+    @RequestMapping("searchcolaborador")
+    public JsonResponse searchcolaborador(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            FotoHelper helper = new FotoHelper();
+            List<Colaborador> colaboradores = service.allColaboradorByName(nombre);
+            ArrayNode jColaborador = new ArrayNode(jsonFactory);
+            for (Colaborador colaborador : colaboradores) {
+
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", colaborador.getId());
+                json.put("nombre", colaborador.getPersona().getNombreCompleto());
+                json.put("email", colaborador.getPersona().getEmailCompania());
+                json.put("telefono", colaborador.getPersona().getTelefono());
+                json.put("celular", colaborador.getPersona().getCelular());
+                json.put("codigo", colaborador.getCodigo());
+                json.put("tipo", colaborador.getPersona().getTipoDocumento().getSimbolo());
+                json.put("numero", colaborador.getPersona().getNumeroDocIdentidad());
+                json.put("rutaFoto", helper.getRutaFoto(colaborador.getPersona().getFoto(), colaborador.getPersona().getSexo()));
+                jColaborador.add(json);
+            }
+            response.setData(jColaborador);
+            response.setTotal(jColaborador.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("revision")
+    public JsonResponse revision(TramiteDocumentoAcademico solicitudConstancia) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.revision(solicitudConstancia);
+            response.setMessage("solicitud enviada a revisión satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
