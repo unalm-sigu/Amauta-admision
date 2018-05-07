@@ -83,26 +83,6 @@ new Vue({
                 }
             });
         },
-        imprimir: function() {
-            let vue = this;
-            let urll = APP.url('tramite/solicitudconstancia/updatehistorial/imprimir');
-            vue.showSpinner = true;
-
-            $.fileDownload(urll, {
-                httpMethod: "POST",
-                data: {id: vue.rowActive}
-            }).done(function() {
-                setTimeout(function() {
-                    vue.showSpinner = false;
-                }, 2000);
-            }).fail(function() {
-                setTimeout(function() {
-                    vue.showSpinner = false;
-                }, 2000);
-                notify(MESSAGES.errorComunicacion, "error");
-            });
-
-        },
         imprimirr: function(solicitud, el) {
 
             let vue = this;
