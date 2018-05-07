@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,13 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
+import pe.edu.lamolina.model.enums.EstadoAcreenciaTramiteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
@@ -53,6 +56,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AcreenciaTramiteDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
@@ -135,6 +139,9 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Autowired
     ColaboradorDAO colaboradorDAO;
+
+    @Autowired
+    AcreenciaTramiteDocumentoDAO acreenciaTramiteDocumentoDAO;
 
     @Override
     public Alumno allInfo(Alumno alumno) {
@@ -383,6 +390,27 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tramiteDocumentoAcademico.setEstadoEnum(TramiteEstadoEnum.CRE);
         tramiteDocumentoAcademico.setCantidadCiclos(1);
         tramiteDocumentoAcademicoDAO.save(tramiteDocumentoAcademico);
+
+        TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+        Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+        //ojo costo por ciclo ¿?
+        AcreenciaTramiteDocumento acreencia = new AcreenciaTramiteDocumento();
+        acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
+        acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        acreencia.setUserRegistro(usuario);
+        acreencia.setFechaRegistro(new Date());
+        LocalDate localDate = LocalDate.now();
+        LocalDate fechaVencimiento = localDate.plusDays(3);
+        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
+
+        if (precio != null) {
+            if (precio.getPrecio() != null) {
+                acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
+            }
+        }
+
+        acreenciaTramiteDocumentoDAO.save(acreencia);
         this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
     }
 
@@ -409,6 +437,41 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
         tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         tramiteDocumentoAcademicoDAO.update(tda);
+
+        AcreenciaTramiteDocumento acreencia = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        if (acreencia == null) {
+            acreencia = new AcreenciaTramiteDocumento();
+            acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
+            acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+            acreencia.setUserRegistro(ds.getUsuario());
+            acreencia.setFechaRegistro(new Date());
+            LocalDate localDate = LocalDate.now();
+            LocalDate fechaVencimiento = localDate.plusDays(3);
+            acreencia.setFechaVencimiento(fechaVencimiento.toDate());
+            TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+            Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+            if (precio != null) {
+                if (precio.getPrecio() != null) {
+                    acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
+                }
+            }
+            acreenciaTramiteDocumentoDAO.save(acreencia);
+        } else {
+            acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
+            LocalDate localDate = LocalDate.now();
+            LocalDate fechaVencimiento = localDate.plusDays(3);
+            acreencia.setFechaVencimiento(fechaVencimiento.toDate());
+            TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+            Idioma idioma = tramiteDocumentoAcademico.getIdioma();
+            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+            if (precio != null) {
+                if (precio.getPrecio() != null) {
+                    acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
+                }
+            }
+            acreenciaTramiteDocumentoDAO.update(acreencia);
+        }
         this.enviarNotificacionSolicitudConstanciaCreacion(tda);
     }
 
