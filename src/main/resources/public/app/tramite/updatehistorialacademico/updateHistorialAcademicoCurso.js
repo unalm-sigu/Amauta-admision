@@ -13,20 +13,30 @@ Vue.component("curso-component", {
         index: null
     },
     date: function() {
-        return {alumnociclocurso: {curso: {}}}
+        return {alumnociclocurso: {curso: {}}, alumnociclo: {}}
     },
     mounted: function() {
         let vue = this;
         let self = $(vue.$el);
-        self.find(".selectCurso").select2(vue.selectCurso(vue));
-        $('.numeric').numeric();
-        $('.upperCase').upperCase();
+        self.find(".selectCurso").select2(vue.selectCurso(vue)).on('change.select2', function(eve) {
+            if (eve.added == undefined) {
+                vue.alumnociclocurso.curso = {id: null};
+            }
+        });
+        self.find('.numeric').numeric();
+        self.find('.upperCase').upperCase();
     },
     updated: function() {
         let vue = this;
         this.$nextTick(function() {
             let self = $(vue.$el);
-            self.find(".selectCurso").select2(vue.selectCurso(vue));
+            self.find(".selectCurso").select2(vue.selectCurso(vue)).on('change.select2', function(eve) {
+                if (eve.added == undefined) {
+                    vue.alumnociclocurso.curso = {id: null};
+                }
+            });
+            self.find('.numeric').numeric();
+            self.find('.upperCase').upperCase();
         });
     },
     methods: {
@@ -40,7 +50,15 @@ Vue.component("curso-component", {
                     dataType: 'json',
                     type: 'post',
                     data: function(term, page) {
-                        return {nombre: term, page: page};
+                        let cursoss = [0];
+                        if (vm.alumnociclo.alumnociclocursos.length > 0) {
+                            vm.alumnociclo.alumnociclocursos.map(function(v) {
+                                if (v.curso.id) {
+                                    cursoss.push(v.curso.id);
+                                }
+                            });
+                        }
+                        return {nombre: term, page: page, idCursos: cursoss};
                     },
                     results: function(response, page) {
                         return {results: response.data};

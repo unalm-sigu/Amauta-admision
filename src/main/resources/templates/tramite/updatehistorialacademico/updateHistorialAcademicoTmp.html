@@ -11,14 +11,14 @@
                 <div class="col-lg-3 col-sm-6 col-xs-11">
                     <label class="text-sm col-xs-12">Ciclo Acádemico</label>
                     <div class="col-xs-12">
-                        <select
-                            v-model="alumnociclo.cicloAcademico.id"
-                            required="true"
-                            v-bind:name=" 'alumnoCiclo['+inx+'].cicloAcademico.id'  "
-                            class="cicloSelect form-control input-sm">
-                            <option value=""></option>
-                            <option th:value="${ciclo.id}" th:each="ciclo:${ciclosAcademico}"  th:text="${ciclo.descripcion}"></option>
-                        </select>
+
+                        <input
+                            class="cicloSelect form-control input-sm"
+                            type="text"  required="true"
+                            v-bind:value="alumnociclo.cicloAcademico.id"
+                            v-bind:name=" 'alumnociclo['+inx+'].cicloAcademico.id'  "
+                            />
+
                     </div>
                 </div>
 

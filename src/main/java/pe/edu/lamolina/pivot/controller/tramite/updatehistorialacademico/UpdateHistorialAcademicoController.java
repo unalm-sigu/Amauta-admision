@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -145,17 +146,39 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchcurso")
-    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            List<Curso> cursos = service.allCursoByName(nombre);
+            List<Curso> cursos = service.allCursoByNameExceptList(nombre, idCursos);
             ArrayNode jCursos = new ArrayNode(jsonFactory);
             for (Curso curso : cursos) {
                 jCursos.add(service.toJson(curso));
             }
             response.setData(jCursos);
             response.setTotal(jCursos.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchciclo")
+    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            List<CicloAcademico> ciclos = service.allCicloByNameExceptList(nombre, idCiclos);
+            ArrayNode jCiclo = new ArrayNode(jsonFactory);
+            for (CicloAcademico ciclo : ciclos) {
+                jCiclo.add(service.toJson(ciclo));
+            }
+            response.setData(jCiclo);
+            response.setTotal(jCiclo.size());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
