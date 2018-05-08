@@ -207,6 +207,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .beginBlock()
                 .__().filter("cur.nombre", "like", nombre)
                 .__().filter("cur.codigo", "like", nombre)
+                .__().filter("cur.codigoAnterior1", "like", nombre)
                 .endBlock()
                 .limit(15);
         return all(sql);
@@ -224,4 +225,21 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         return all(sql);
     }
 
+    @Override
+    public List<Curso> allCursoByNameExceptList(String nombre, List<Curso> cursos) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .join("departamentoAcademico dep")
+                .leftJoin("carrera car", "car.facultad fa", "planCalificacion  pc", "planCalificacionRegular pcr", "coordinador cor", "modalidadEstudio me")
+                .notIn("cur.id", cursos)
+                .filter("cur.estado", ACT)
+                .beginBlock()
+                .__().filter("cur.nombre", "like", nombre)
+                .__().filter("cur.codigo", "like", nombre)
+                .__().filter("cur.codigoAnterior1", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
+    }
 }

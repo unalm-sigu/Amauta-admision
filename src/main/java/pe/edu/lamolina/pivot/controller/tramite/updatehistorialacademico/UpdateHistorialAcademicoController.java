@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -37,7 +39,9 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__ESTIMADO__;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__NOMBREPERSONA__;
+import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -70,9 +74,11 @@ public class UpdateHistorialAcademicoController {
 
     @RequestMapping("{idAlumno}/updatehistorial")
     public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        FotoHelper helper = new FotoHelper();
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
         ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
+        alumnoJson.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclosAcademico", ciclosAcademico);
         return "tramite/updatehistorialacademico/updateHistorialAcademico";
@@ -140,17 +146,39 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchcurso")
-    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            List<Curso> cursos = service.allCursoByName(nombre);
+            List<Curso> cursos = service.allCursoByNameExceptList(nombre, idCursos);
             ArrayNode jCursos = new ArrayNode(jsonFactory);
             for (Curso curso : cursos) {
                 jCursos.add(service.toJson(curso));
             }
             response.setData(jCursos);
             response.setTotal(jCursos.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchciclo")
+    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            List<CicloAcademico> ciclos = service.allCicloByNameExceptList(nombre, idCiclos);
+            ArrayNode jCiclo = new ArrayNode(jsonFactory);
+            for (CicloAcademico ciclo : ciclos) {
+                jCiclo.add(service.toJson(ciclo));
+            }
+            response.setData(jCiclo);
+            response.setTotal(jCiclo.size());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -206,13 +234,14 @@ public class UpdateHistorialAcademicoController {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             List<PrecioDocumento> precios = service.allPrecioDocumento();
             Map<Long, List<PrecioDocumento>> preciosMap = TypesUtil.convertListToMapList("tipoDocumento.id", precios);
-
+            FotoHelper helper = new FotoHelper();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (TramiteDocumentoAcademico tramiteDoc : tipos) {
 
                 ObjectNode node = service.toJson(tramiteDoc.toJson());
                 Tramite tramite = tramiteDoc.getTramite();
                 Alumno alumno = tramiteDoc.getTramite().getAlumno();
+                TipoDocumentoAcademico tipoDocumento = tramiteDoc.getTipoDocumentoAcademico();
                 Carrera carrera = alumno.getCarrera();
                 Facultad facultad = carrera.getFacultad();
 
@@ -226,9 +255,13 @@ public class UpdateHistorialAcademicoController {
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("dni", alumno.getPersona().getNumeroDocIdentidad());
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-
+                node.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
+                if (!Strings.isNullOrEmpty(tipoDocumento.getTipo())) {
+                    node.put("documentoName", TipoConstanciaEnum.valueOf(tipoDocumento.getTipo()).getValue());
+                }
+                node.put("documentoTipo", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.tipo"));
+                node.put("showUpdateHistorial", TipoConstanciaEnum.CERT.name().equalsIgnoreCase(tipoDocumento.getTipo()));
                 node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
-                node.put("documentoName", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
                 node.put("estado", tramiteDoc.getEstado());
@@ -442,6 +475,57 @@ public class UpdateHistorialAcademicoController {
         model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
 
         return new ModelAndView(pdfHtmlView);
+    }
+
+    @ResponseBody
+    @RequestMapping("searchcolaborador")
+    public JsonResponse searchcolaborador(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            FotoHelper helper = new FotoHelper();
+            List<Colaborador> colaboradores = service.allColaboradorByName(nombre);
+            ArrayNode jColaborador = new ArrayNode(jsonFactory);
+            for (Colaborador colaborador : colaboradores) {
+
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", colaborador.getId());
+                json.put("nombre", colaborador.getPersona().getNombreCompleto());
+                json.put("email", colaborador.getPersona().getEmailCompania());
+                json.put("telefono", colaborador.getPersona().getTelefono());
+                json.put("celular", colaborador.getPersona().getCelular());
+                json.put("codigo", colaborador.getCodigo());
+                json.put("tipo", colaborador.getPersona().getTipoDocumento().getSimbolo());
+                json.put("numero", colaborador.getPersona().getNumeroDocIdentidad());
+                json.put("rutaFoto", helper.getRutaFoto(colaborador.getPersona().getFoto(), colaborador.getPersona().getSexo()));
+                jColaborador.add(json);
+            }
+            response.setData(jColaborador);
+            response.setTotal(jColaborador.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("revision")
+    public JsonResponse revision(TramiteDocumentoAcademico solicitudConstancia) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.revision(solicitudConstancia);
+            response.setMessage("solicitud enviada a revisión satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

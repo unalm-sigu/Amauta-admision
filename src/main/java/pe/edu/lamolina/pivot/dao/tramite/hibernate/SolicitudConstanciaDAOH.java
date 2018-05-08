@@ -21,8 +21,11 @@ public class SolicitudConstanciaDAOH extends AbstractEasyDAO<TramiteDocumentoAca
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(TramiteDocumentoAcademico.class, "pda")
-                .join("tipoDocumentoAcademico tda", "idioma idi", "tramite tra")
-                .searchFields("pda.contenido")
+                .join("tipoDocumentoAcademico tda", "idioma idi", "tramite tra", "tra.alumno alu", "alu.persona per")
+                .leftJoin("per.tipoDocumento td")
+                .searchFields("td.simbolo", "per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("pda.id desc");
         return sql.all(getCurrentSession());
     }

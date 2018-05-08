@@ -7,6 +7,8 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 
 public interface TipoConstanciaDAO extends EasyDAO<TipoDocumentoAcademico> {
 
-    public List<TipoDocumentoAcademico> allDynatable(DynatableFilter filter);
+    List<TipoDocumentoAcademico> allDynatable(DynatableFilter filter);
+
+    TipoDocumentoAcademico find(TipoDocumentoAcademico tipoDocumentoAcademico);
 
 }
