@@ -84,6 +84,16 @@
                                     </div>
                                 </div>
 
+
+                                <div class="col-xs-12 col-sm-12">
+                                    <div class="form-group">
+                                        <label>Fotografia para el documento</label>
+                                        <vueupload></vueupload>
+                                    </div>
+                                </div>
+
+
+
                                 <div class="col-xs-12">
                                     <h4  class="m-b-md m-t-md">Información de Contacto</h4>
                                 </div>
@@ -169,10 +179,28 @@
                 </div>
             </template>
 
+            <template id="fileuploadTemplate"  >
+                <div>
+                    <input type="file" id="fileupload" class="hidden" name="file"  placeholder="seleccionar archivo" />
+                    <div>
+                        <div id="dragarea" class="bg-info img-rounded text-center v-bottom text-muted" style="width: 140px; height: 140px;">
+                            <img alt=""  id="imgDocument"  class="img-rounded" style="width: 140px; height: 140px;"
+                                 data-holder-rendered="true" />
+                        </div>
+                        <a class="btn m-l-md btn-sm btn-link" v-on:click.prevent="open" href="#">Subir imagen</a>
+                    </div>
+                </div>
+            </template>
+
+            <div th:substituteby="_modules/vue-modal"/>
+
         </div>
 
         <div layout:fragment="js">
             <div th:substituteby="_layout/includes :: vuejs"/>
+            <div th:substituteby="_layout/includes :: javascript-upload"/>
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoFileUpload.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoForm.js}" charset="utf-8"></script>
         </div>
     </body>

@@ -4,10 +4,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
+import de.akquinet.commons.image.io.Image;
+import de.akquinet.commons.image.io.ImageMetadata;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +23,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -526,6 +532,69 @@ public class UpdateHistorialAcademicoController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("upload")
+    public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode json = new ObjectNode(jsonFactory);
+
+            String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
+            String fileName = TypesUtil.getUnixTime() + "." + fileExt;
+            String absoluteName = Constantine.TMP_DIR + fileName;
+            FileHelper.saveToDisk(archivo, absoluteName);
+            logger.debug("file guardado");
+            Image img = new Image(new File(absoluteName));
+            ImageMetadata metadata = img.getMetadata();
+            logger.debug("DpiHeight {}", metadata.getDpiHeight());
+            logger.debug("DpiWidth {}", metadata.getDpiWidth());
+            logger.debug("Height {}", metadata.getHeight());
+            logger.debug("Width {}", metadata.getWidth());
+            logger.debug("Format {}", metadata.getFormat());
+            logger.debug("FormatName {}", metadata.getFormatName());
+            logger.debug("FormatDetails {}", metadata.getFormatDetails());
+            logger.debug("Algorithm {}", metadata.getAlgorithm());
+            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
+            logger.debug("ColorType {}", metadata.getColorType());
+            logger.debug("ransparent {}", metadata.isTransparent());
+            logger.debug("rogressive {}", metadata.isProgressive());
+            logger.debug("NumberOfImages {}", metadata.getNumberOfImages());
+            logger.debug("Palette {}", metadata.usesPalette());
+
+            json.put("DpiHeight", metadata.getDpiHeight());
+            json.put("DpiWidth", metadata.getDpiWidth());
+            json.put("Height", metadata.getHeight());
+            json.put("Width", metadata.getWidth());
+            json.put("FormatName", metadata.getFormatName());
+            json.put("FormatDetails", metadata.getFormatDetails());
+            json.put("BitsPerPixel", metadata.getBitsPerPixel());
+            json.put("isTransparent", metadata.isTransparent());
+            json.put("rogressive", metadata.isProgressive());
+            json.put("NumberOfImages", metadata.getNumberOfImages());
+            json.put("Palette", metadata.usesPalette());
+
+            json.put("name", archivo.getOriginalFilename());
+            json.put("ruta", fileName);
+            json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
+            json.put("size", archivo.getSize());
+            response.setData(json);
+            response.setSuccess(true);
+            response.setMessage("Carga satisfactoria del archivo");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
     }
 
 }
