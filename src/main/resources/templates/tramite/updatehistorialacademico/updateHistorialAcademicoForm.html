@@ -45,6 +45,7 @@
                                         <label>Alumno</label>
                                         <input
                                             v-bind:value="alumno.id"
+                                            required="true"
                                             name="tramite.alumno.id"
                                             type="text"  class="form-control" />
                                     </div>
@@ -88,7 +89,9 @@
                                 <div class="col-xs-12 col-sm-12">
                                     <div class="form-group">
                                         <label>Fotografia para el documento</label>
-                                        <vueupload></vueupload>
+                                        <vueupload
+                                            v-bind:solicitud="solicitud"
+                                            ></vueupload>
                                     </div>
                                 </div>
 
@@ -129,7 +132,6 @@
                                                class="form-control"
                                                name="telefono"
                                                v-model="solicitud.telefono"
-                                               required="true"
                                                th:value="${solicitud.telefono}"/>
                                     </div>
                                 </div>
@@ -181,13 +183,25 @@
 
             <template id="fileuploadTemplate"  >
                 <div>
+                    <input type="text" class="hidden"
+                           name="foto"
+                           required="true"
+                           data-parsley-errors-container="#errorfoto"
+                           data-parsley-required-message="se requiere una fotografia"
+                           v-bind:value="solicitud.foto"
+                           v-model="solicitud.foto" />
                     <input type="file" id="fileupload" class="hidden" name="file"  placeholder="seleccionar archivo" />
                     <div>
                         <div id="dragarea" class="bg-info img-rounded text-center v-bottom text-muted" style="width: 140px; height: 140px;">
                             <img alt=""  id="imgDocument"  class="img-rounded" style="width: 140px; height: 140px;"
+                                 v-bind:src="solicitud.fullfoto"
                                  data-holder-rendered="true" />
                         </div>
                         <a class="btn m-l-md btn-sm btn-link" v-on:click.prevent="open" href="#">Subir imagen</a>
+                    </div>
+                    <div>
+                        <p class="m-l-sm" id="errorfoto"></p>
+                        <p class="text-danger" v-text="mensajeerror"></p>
                     </div>
                 </div>
             </template>

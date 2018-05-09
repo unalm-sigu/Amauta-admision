@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -72,6 +73,9 @@ public class UpdateHistorialAcademicoController {
 
     @Autowired
     PdfHtmlView pdfHtmlView;
+
+    @Autowired
+    S3Service s3Service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -403,6 +407,8 @@ public class UpdateHistorialAcademicoController {
             jSolicitudConstancia.put("tramite", service.toJson(tramiteDocumento.getTramite()));
             jSolicitudConstancia.put("tipoDocumentoAcademico", service.toJson(tramiteDocumento.getTipoDocumentoAcademico()));
             jSolicitudConstancia.put("idioma", service.toJson(tramiteDocumento.getIdioma()));
+            //ojo editar
+            jSolicitudConstancia.put("fullfoto", "http://albatross-codex.s3.amazonaws.com/tmp/" + tramiteDocumento.getFoto());
             data.put("solicitud", jSolicitudConstancia);
 
             ObjectNode jAlumno = service.toJson(alumno);
@@ -548,41 +554,82 @@ public class UpdateHistorialAcademicoController {
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
             String absoluteName = Constantine.TMP_DIR + fileName;
+            logger.debug("guardando imagen ...");
             FileHelper.saveToDisk(archivo, absoluteName);
-            logger.debug("file guardado");
+            Boolean formatook = Boolean.TRUE;
+            StringBuilder nocumplerequisito = new StringBuilder();
+
             Image img = new Image(new File(absoluteName));
             ImageMetadata metadata = img.getMetadata();
+
+            logger.debug("validando dpi...");
             logger.debug("DpiHeight {}", metadata.getDpiHeight());
+            if (Constantine.IMAGE_DPIHEIGHT > metadata.getDpiHeight()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_DPIHEIGHT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_DPIHEIGHT_MSG);
+            }
             logger.debug("DpiWidth {}", metadata.getDpiWidth());
+            if (Constantine.IMAGE_DPIWIDTH > metadata.getDpiWidth()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_DPIWIDTH_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_DPIWIDTH_MSG);
+            }
             logger.debug("Height {}", metadata.getHeight());
+            int sizeHeight = Math.abs(Constantine.IMAGE_HEIGHT - metadata.getHeight());
+            if (sizeHeight > Constantine.IMAGE_DELTA_SIZE) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_HEIGHT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_HEIGHT_MSG);
+            }
             logger.debug("Width {}", metadata.getWidth());
+            int sizeWidth = Math.abs(Constantine.IMAGE_WIDTH - metadata.getWidth());
+            if (sizeWidth > Constantine.IMAGE_DELTA_SIZE) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_WIDTH_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_WIDTH_MSG);
+            }
             logger.debug("Format {}", metadata.getFormat());
-            logger.debug("FormatName {}", metadata.getFormatName());
-            logger.debug("FormatDetails {}", metadata.getFormatDetails());
-            logger.debug("Algorithm {}", metadata.getAlgorithm());
-            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
+            if (!Constantine.IMAGE_FORMAT.equalsIgnoreCase(metadata.getFormat().toString())) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_FORMAT_MSG);
+            }
             logger.debug("ColorType {}", metadata.getColorType());
-            logger.debug("ransparent {}", metadata.isTransparent());
-            logger.debug("rogressive {}", metadata.isProgressive());
-            logger.debug("NumberOfImages {}", metadata.getNumberOfImages());
-            logger.debug("Palette {}", metadata.usesPalette());
+            if (!Constantine.IMAGE_COLORTYPE.equalsIgnoreCase(metadata.getColorType().toString())) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_COLORTYPE_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_COLORTYPE_MSG);
+            }
+            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
+            if (Constantine.IMAGE_BITSPERPIXEL > metadata.getBitsPerPixel()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_BITSPERPIXEL_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_BITSPERPIXEL_MSG);
+            }
+            logger.debug("Transparent {}", metadata.isTransparent());
+            if (metadata.isTransparent()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_TRANSPARENT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_TRANSPARENT_MSG);
+            }
 
-            json.put("DpiHeight", metadata.getDpiHeight());
-            json.put("DpiWidth", metadata.getDpiWidth());
-            json.put("Height", metadata.getHeight());
-            json.put("Width", metadata.getWidth());
-            json.put("FormatName", metadata.getFormatName());
-            json.put("FormatDetails", metadata.getFormatDetails());
-            json.put("BitsPerPixel", metadata.getBitsPerPixel());
-            json.put("isTransparent", metadata.isTransparent());
-            json.put("rogressive", metadata.isProgressive());
-            json.put("NumberOfImages", metadata.getNumberOfImages());
-            json.put("Palette", metadata.usesPalette());
-
-            json.put("name", archivo.getOriginalFilename());
+            json.put("ok", formatook);
+            json.put("nocumplerequisito", nocumplerequisito.toString());
             json.put("ruta", fileName);
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
             json.put("size", archivo.getSize());
+
+            this.uploadS3(Constantine.TMP_DIR, fileName, true);
+
             response.setData(json);
             response.setSuccess(true);
             response.setMessage("Carga satisfactoria del archivo");
@@ -595,6 +642,14 @@ public class UpdateHistorialAcademicoController {
 
         return response;
 
+    }
+
+    private void uploadS3(String localDirectory, String fileName, Boolean publico) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("tmp");
+        sb.append("/");
+        logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
+        s3Service.uploadFile("albatross-codex", sb.toString(), localDirectory, fileName, publico);
     }
 
 }

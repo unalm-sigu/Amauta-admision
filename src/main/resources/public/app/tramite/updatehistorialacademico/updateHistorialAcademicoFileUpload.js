@@ -2,9 +2,10 @@ Vue.component("vueupload", {
     template: "#fileuploadTemplate",
     props: {
         solicitud: {},
+        mensajeerror: ''
     },
     date: function() {
-        return {solicitud: {}}
+        return {solicitud: {}, mensajeerror: ''}
     },
     mounted: function() {
 
@@ -21,20 +22,12 @@ Vue.component("vueupload", {
             dataType: 'json',
             dropZone: '#dragarea',
             add: function(e, data) {
-
                 $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
-
-                $('#fileuploadtrigger').btnDisabled();
-                $('#btnSavePersona').btnDisabled();
-
                 if (data.files[0].type.search(/(\.|\/)(jpe?g|png)$/i) == -1) {
                     notify("Formato de archivo no soportado.", "error");
-                    $('#fileuploadtrigger').btnEnable();
-                    $('#btnSavePersona').btnEnable();
                     $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                     return;
                 }
-
                 if (data.files && data.files[0]) {
                     var reader = new FileReader();
                     reader.onload = function(e) {
@@ -42,28 +35,26 @@ Vue.component("vueupload", {
                     };
                     reader.readAsDataURL(data.files[0]);
                 }
-
                 data.submit();
             },
             progress: function(e, data) {
             },
             done: function(e, data) {
-
-                $('input:submit').removeAttr("disabled");
-
                 if (data.result.success) {
                     var ruta = data.result.data.ruta;
-                    $('#avatar').val(ruta);
-                    notify(data.result.message, "info");
+                    if (data.result.data.ok == true) {
+                        notify(data.result.message, "info");
+                        vue.mensajeerror = '';
+                        vue.solicitud.foto = ruta;
+                    } else {
+                        vue.mensajeerror = data.result.data.nocumplerequisito;
+                        vue.solicitud.foto = '';
+                        $('#imgDocument').attr('src', '');
+                    }
                 } else {
                     notify(data.result.message, "error");
                 }
-
-                $('#fileuploadtrigger').btnEnable();
-                $('#btnSavePersona').btnEnable();
-
                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-
             },
             fail: function(e, data) {
                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
