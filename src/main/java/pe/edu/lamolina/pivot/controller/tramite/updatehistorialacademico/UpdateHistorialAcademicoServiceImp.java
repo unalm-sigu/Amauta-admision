@@ -20,8 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -377,7 +375,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-        TipoTramite tipoTramiteRCI = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.SOLC.name());
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
@@ -388,7 +386,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tramite.setFechaRegistro(today.toDate());
         tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
         tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-        tramite.setTipoTramite(tipoTramiteRCI);
+        tramite.setTipoTramite(tipoTramite);
         tramite.setUserRegistro(usuario);
         tramite.setPersona(alumno.getPersona());
         tramiteDAO.save(tramite);
