@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.becado;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,13 +51,10 @@ public class AlumnoBecadoServiceImp implements AlumnoBecadoService {
 
     @Override
     public List<CicloAcademico> allCicloAcademico() {
-        Date date = new Date();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int year = cal.get(Calendar.YEAR);
+        int year = new DateTime().getYear();
         int yearinit = year - 4;
         int yearend = year + 3;
-        return cicloAcademicoDAO.allCicloAcademicoByRange(yearinit, yearend);
+        return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
 
     @Override

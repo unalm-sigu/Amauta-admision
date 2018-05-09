@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -412,6 +413,36 @@ public class PlanCurricularController {
                 }
                 node.set("postrrequisitos", arrayPostRequisitos);
 
+                ArrayNode arrayGruposEquivalentesElectivos = new ArrayNode(JsonNodeFactory.instance);
+                List<CursoEquivalenteElectivo> cursosEquivalentesElectivos = cursoOpcional.getCursoEquivalenteElectivo();
+                HashMap<Integer, ArrayNode> grupos = new HashMap<>();
+
+                for (CursoEquivalenteElectivo cursoEquivalente : cursosEquivalentesElectivos) {
+                    Integer grupo = cursoEquivalente.getGrupo();
+
+                    ObjectNode nodeEquivalente = new ObjectNode(JsonNodeFactory.instance);
+                    nodeEquivalente.put("curso", cursoEquivalente.getCursoEquivalente().getNombre());
+                    nodeEquivalente.put("codigo", cursoEquivalente.getCursoEquivalente().getCodigo());
+                    nodeEquivalente.put("tpc", cursoEquivalente.getCursoEquivalente().getTpc());
+                    nodeEquivalente.put("tipoDictadoCurso", cursoEquivalente.getCursoEquivalente().getTipoCursoEnum().getValue());
+                    if (!grupos.containsKey(grupo)) {
+                        grupos.put(cursoEquivalente.getGrupo(), new ArrayNode(JsonNodeFactory.instance));
+                    }
+                    grupos.get(grupo).add(nodeEquivalente);
+                }
+                for (Map.Entry<Integer, ArrayNode> entry : grupos.entrySet()) {
+                    Integer numeroGrupo = entry.getKey();
+                    ArrayNode arrCursosEquivalantes = entry.getValue();
+
+                    ObjectNode nodeGrupoEquivalente = new ObjectNode(JsonNodeFactory.instance);
+
+                    nodeGrupoEquivalente.put("numeroGrupo", numeroGrupo);
+                    nodeGrupoEquivalente.set("arrCursosEquivalantes", arrCursosEquivalantes);
+                    arrayGruposEquivalentesElectivos.add(nodeGrupoEquivalente);
+                }
+                node.put("numEquivalentes", arrayGruposEquivalentesElectivos.size());
+                node.set("arrayGruposEquivalentesElectivos", arrayGruposEquivalentesElectivos);
+
                 ArrayNode arrayPostRequisitosOpc = new ArrayNode(JsonNodeFactory.instance);
                 node.set("postrrequisitosOpc", arrayPostRequisitosOpc);
 
@@ -496,6 +527,32 @@ public class PlanCurricularController {
         model.addAttribute("format", new NumberFormat());
 
         return "academico/plancurricular/agregarCursoEqui";
+    }
+
+    @RequestMapping("{cursoOpcionalCurricula}/editarCursosEquivalentesElectivos")
+    public String editarCursosEquivalentesElectivos(@PathVariable("cursoOpcionalCurricula") Long cursoOpcionalCurriculaId, Model model, HttpSession session) {
+        CursoOpcionalCurricula cursoOpcionalCurricula = service.findCursoOpcionalCurricula(cursoOpcionalCurriculaId);
+        HashMap<Integer, ArrayList<CursoEquivalenteElectivo>> mapGrupos = new HashMap<>();
+        List<CursoEquivalenteElectivo> equivalentes = cursoOpcionalCurricula.getCursoEquivalenteElectivo();
+        List<GrupoCursoEquivalenteElectivo> grupos = new ArrayList<>();
+        for (CursoEquivalenteElectivo equivalente : equivalentes) {
+            if (!mapGrupos.containsKey(equivalente.getGrupo())) {
+                mapGrupos.put(equivalente.getGrupo(), new ArrayList<>());
+            }
+            mapGrupos.get(equivalente.getGrupo()).add(equivalente);
+        }
+        for (Map.Entry<Integer, ArrayList<CursoEquivalenteElectivo>> entry : mapGrupos.entrySet()) {
+            GrupoCursoEquivalenteElectivo grupo = new GrupoCursoEquivalenteElectivo();
+            grupo.setCursoEquivalenteElectivo(entry.getValue());
+            grupo.setNumeroGrupo(entry.getKey());
+            grupos.add(grupo);
+        }
+
+        model.addAttribute("gruposEquivalentes", grupos);
+        model.addAttribute("cursoOpcionalCurricula", cursoOpcionalCurricula);
+        model.addAttribute("format", new NumberFormat());
+
+        return "academico/plancurricular/agregarCursoEquiElec";
     }
 
     @RequestMapping("{plancurricular}/agregarCursoElectivo")
@@ -585,7 +642,7 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("saveGrupoEquivalente")
-    public JsonResponse savePlanCurricular(GrupoCursoEquivalente grupoCursoEquivalente, HttpSession session) {
+    public JsonResponse saveGrupoEquivalente(GrupoCursoEquivalente grupoCursoEquivalente, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -606,6 +663,46 @@ public class PlanCurricularController {
             if (grupoCursoEquivalente.getCursoEquivalente().size() > 0) {
                 node.put("cursoCurricula", grupoCursoEquivalente.getCursoEquivalente().get(0).getCursoCurricula().getId());
                 node.put("grupo", grupoCursoEquivalente.getCursoEquivalente().get(0).getGrupo());
+                node.set("array", array);
+            }
+            response.setData(node);
+            response.setSuccess(true);
+            response.setMessage(message);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveGrupoEquivalenteElectivo")
+    public JsonResponse saveGrupoEquivalenteElectivo(GrupoCursoEquivalenteElectivo grupoCursoEquivalente, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            String message = "Creado exitosamente";
+
+            ObjectUtil.printAttr(grupoCursoEquivalente);
+            service.saveGrupoEquivalenteElectivo(grupoCursoEquivalente, ds);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            for (CursoEquivalenteElectivo curso : grupoCursoEquivalente.getCursoEquivalenteElectivo()) {
+                ObjectNode arrnode = new ObjectNode(JsonNodeFactory.instance);
+                arrnode.put("codigo", curso.getCursoEquivalente().getCodigo());
+                arrnode.put("nombre", curso.getCursoEquivalente().getNombre());
+                arrnode.put("tpc", curso.getCursoEquivalente().getTpc());
+                array.add(arrnode);
+            }
+            if (grupoCursoEquivalente.getCursoEquivalenteElectivo().size() > 0) {
+                node.put("cursoCurricula", grupoCursoEquivalente.getCursoEquivalenteElectivo().get(0).getCursoOpcionalCurricula().getId());
+                node.put("grupo", grupoCursoEquivalente.getCursoEquivalenteElectivo().get(0).getGrupo());
                 node.set("array", array);
             }
             response.setData(node);
@@ -712,12 +809,33 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("deleteGrupoEquivalente")
-    public JsonResponse deleteCursoObligatorio(@RequestParam("grupo") Integer grupo, @RequestParam("curso") Long idCurso, HttpSession session) {
+    public JsonResponse deleteGrupoEquivalente(@RequestParam("grupo") Integer grupo, @RequestParam("curso") Long idCurso, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.deleteCursoEquivalenteByGrupoCursoCurricula(grupo, new CursoCurricula(idCurso));
+            response.setSuccess(true);
+            response.setMessage("Grupo eliminado exitosamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteGrupoEquivalenteElectivo")
+    public JsonResponse deleteGrupoEquivalenteElectivo(@RequestParam("grupo") Integer grupo, @RequestParam("curso") Long idCurso, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.deleteCursoEquivalenteElectivoByGrupoCursoCurricula(grupo, new CursoOpcionalCurricula(idCurso));
             response.setSuccess(true);
             response.setMessage("Grupo eliminado exitosamente");
 

@@ -20,7 +20,7 @@ public class ConvenioBecaDAOH extends AbstractEasyDAO<ConvenioBeca> implements C
     public List<ConvenioBeca> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(ConvenioBeca.class, "cb")
-                .join("Institucion ins", "pais pa")
+                .join("institucion ins", "pais pa")
                 .searchFields("cb.nombre", "pa.nombre", "ins.razonSocial", "cb.codigo", "cb.descripcion")
                 .orderBy("cb.id desc");
         return sql.all(getCurrentSession());

@@ -214,10 +214,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         for (GrupoSeccion gpoSecc : gruposSeccion) {
-            List<PlanCalificacionCurso> planCalificacionCursos = planCalificacionCursoDAO.allByFilter(null, ds.getCicloAcademico().getTipoCicloEnum(), gpoSecc.getCurso(), EstadoEnum.ACT);
+            List<PlanCalificacionCurso> planCalificacionCursos = planCalificacionCursoDAO.allByFilter(null, ds.getCicloAcademico().getTipoEnum(), gpoSecc.getCurso(), EstadoEnum.ACT);
             gpoSecc.getCurso().setPlanesCalificacionCursos(planCalificacionCursos);
             logger.debug("PlanCalificacionCurso del curso {}, con tipo de ciclo {}, cantidad {}",
-                    gpoSecc.getCurso().getId(), ds.getCicloAcademico().getTipoCicloEnum().name(), planCalificacionCursos.size());
+                    gpoSecc.getCurso().getId(), ds.getCicloAcademico().getTipoEnum().name(), planCalificacionCursos.size());
 
             List<Seccion> seccion = gpoSecc.getSecciones();
             logger.debug("GrupoSecc {}-{} tiene {} secciones", gpoSecc.getId(), gpoSecc.getCodigo(), gpoSecc.getSecciones().size());
