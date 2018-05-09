@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
+import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -52,6 +53,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoAdicionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoEquivalenteElectivoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
@@ -115,6 +117,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Autowired
     CursoEquivalenteDAO cursoEquivalenteDAO;
 
+    @Autowired
+    CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
+
     @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
         return carreraDAO.allRegularesByCarreras(carreras);
@@ -147,6 +152,17 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     @Transactional
+    public void deleteCursoEquivalenteElectivoByGrupoCursoCurricula(Integer grupo, CursoOpcionalCurricula cursoOpcionalCurricula) {
+        cursoEquivalenteElectivoDAO.deleteByGrupoCursoOpcionalCurricula(grupo, cursoOpcionalCurricula);
+    }
+
+    @Override
+    public CursoOpcionalCurricula findCursoOpcionalCurricula(Long cursoOpcionalCurriculaId) {
+        return cursoOpcionalCurriculaDAO.find(cursoOpcionalCurriculaId);
+    }
+
+    @Override
+    @Transactional
     public void saveGrupoEquivalente(GrupoCursoEquivalente grupo, DataSessionPivot ds) {
         if (grupo.getCursoEquivalente() == null) {
             logger.debug("Curso equivalente es null");
@@ -162,6 +178,24 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             curso.setFechaRegistro(new Date());
             curso.setUserRegistro(ds.getUsuario());
             cursoEquivalenteDAO.save(curso);
+        }
+    }
+
+    public void saveGrupoEquivalenteElectivo(GrupoCursoEquivalenteElectivo grupo, DataSessionPivot ds) {
+        if (grupo.getCursoEquivalenteElectivo() == null) {
+            logger.debug("Curso equivalente es null");
+            return;
+        }
+
+        Integer maxNumeroGrupo = cursoEquivalenteElectivoDAO.findMaxGrupoByCursoOpcionalCurricula(grupo.getCursoOpcionalCurricula()) + 1;
+        for (CursoEquivalenteElectivo curso : grupo.getCursoEquivalenteElectivo()) {
+            curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId()));
+            curso.setCursoOpcionalCurricula(grupo.getCursoOpcionalCurricula());
+            curso.setGrupo(maxNumeroGrupo);
+            curso.setEstado(EstadoEnum.ACT.name());
+            curso.setFechaRegistro(new Date());
+            curso.setUserRegistro(ds.getUsuario());
+            cursoEquivalenteElectivoDAO.save(curso);
         }
     }
 

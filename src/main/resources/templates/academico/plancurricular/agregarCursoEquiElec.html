@@ -1,0 +1,83 @@
+<div class="wrapper scrollable">
+    <form id="frmAgregarCursosEquivalenteElectivo" >
+        <input name="cursoOpcionalCurricula.id" type="hidden" th:value="${cursoOpcionalCurricula.id}"/>
+
+        <fieldset>
+            <div class="row">
+                <div class="form-group col-md-9">
+                    <label for="cboCursosEquiElec">Buscar aquí los cursos que formarán parte del grupo equivalente</label>
+                    <input id="cboCursosEquiObli" class="form-control" type="text" />
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label class="text-white"> . &nbsp;&nbsp;&nbsp; </label>
+                    <a class="btn btn-default btn-sm input-s-full" id="btnAddEquivalenteElec">Agregar</a>
+                </div>
+            </div>
+
+            <table id="tableEquivalentesElec" class="table table-striped" >
+                <tbody id="tableBodyEquivalentesElec"></tbody>
+            </table>
+
+            <div class="row">
+                <div class="form-group col-md-3">
+                    <a class="btn btn-default btn-sm input-s-full" id="btnGuardarGrupoEquivalenteElectivo">Guardar grupo</a>
+                </div>
+            </div>
+            <table id="tableEquivalentesElectivoAgregar" th:class="|table ${gruposEquivalentes.isEmpty()? 'hide':''}|"> 
+                <thead>
+                    <tr>
+                        <th class="col-md-1 text-center v-middle">Grupo</th>
+                        <th class="col-md-2 v-middle">Código</th>
+                        <th class="col-md-8 text-center v-middle" colspan="2">Curso Equivalente</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody  id="tableBodyEquivalentesElectivoAgregar">
+                <th:block th:each="grupo, i : ${gruposEquivalentes}">
+                    <tr th:each="curso, j : ${grupo.cursoEquivalenteElectivo}">
+                        <td th:if="${j.index == 0}" th:rowspan="${#lists.size(grupo.cursoEquivalenteElectivo)}" class="v-middle text-center">  
+                            <input name="cursoOpcionalCurricula.id" type="hidden" th:value="${cursoOpcionalCurricula.id}"/> 
+                            <span name="numero-grupo" th:text="${grupo.numeroGrupo}"/>
+                        </td>
+                        <td> <span th:text="${curso.cursoEquivalente.codigo}"/></td>
+                        <td class="col-md-6"> <span th:text="${curso.cursoEquivalente.nombre}"/></td>
+                        <td class="col-md-2 text-center"> <span th:text="${curso.cursoEquivalente.tpc}"/></td>
+                        <td th:if="${j.index == 0}" th:rowspan="${#lists.size(grupo.cursoEquivalenteElectivo)}" class="v-middle text-center"> 
+                            <a rel="${j.index}" class="pointer btn-delete-grupo-equivalente-electivo"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+                        </td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </fieldset>
+
+    </form>
+</div>
+
+<script id="templateEquivalenteCursoObligatorio" 
+type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/agregarCursoEquiElecTemplate"/></script>
+
+
+<script id="templateEquivalentesCursos" type="text/x-jsrender" class="hide">
+    {{for array ~grupo=grupo ~cursoOpcionalCurricula=cursoOpcionalCurricula}}
+    <tr>
+    {{if #index == 0}}
+    <td rowspan='{{:#get("array").data.length}}' class="v-middle text-center" > 
+        <input name="cursoOpcionalCurricula.id" type="hidden" value="{{:~cursoOpcionalCurricula}}"/> 
+        <span name="numero-grupo">
+                {{:~grupo}}</span>
+    </td>
+    {{/if}}
+    <td>{{:codigo}}</td>
+<td class="col-md-6">{{:nombre}}</td>
+<td class="col-md-2 text-center">{{:tpc}}</td>
+        {{if #index == 0}}
+<td rowspan='{{:#get("array").data.length}}' class="v-middle text-center" > 
+    <a class="pointer btn-delete-grupo-equivalente-electivo"><i class="fa fa-times-circle fa-lg text-danger"></i></a>
+</td>
+{{/if}}
+</tr>
+{{/for}}
+</script>
+

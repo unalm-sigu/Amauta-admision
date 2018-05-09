@@ -338,6 +338,29 @@ $(function () {
                 }
             });
         },
+        editarCursoEquiElec($this, e) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatableCursosElec.settings.dataset.records[idx];
+
+            MODAL.init("lg");
+            MODAL.title("Añadir cursos Equivalentes a " + rec.curso);
+            MODAL.show();
+
+            $.ajax({
+                url: APP.url('academico/planCurricular/' + rec.id + '/editarCursosEquivalentesElectivos'),
+                type: 'POST',
+                async: false,
+                success: function (response) {
+                    MODAL.body(response);
+                    $("#cboCursosEquiObli").select2(NuevaCurricula.select2Cursos);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
         editarCursoElec($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
@@ -457,6 +480,19 @@ $(function () {
             MODAL.init("md");
             MODAL.title("");
             MODAL.body($.templates("#equivalentesTemplate").render(rec));
+            MODAL.show();
+
+        },
+        verEquivalentesElec($this, e, tipoObli) {
+            e.preventDefault();
+            var tr = $this.closest("tr");
+            var idx = tr.attr("rel");
+            var rec = dynatableCursosObl.settings.dataset.records[idx];
+            rec = dynatableCursosElec.settings.dataset.records[idx];
+            MODAL.init("md");
+            MODAL.title("");
+            console.log(JSON.stringify(rec, null, 2));
+            MODAL.body($.templates("#equivalentesElectivoTemplate").render(rec));
             MODAL.show();
 
         },
@@ -1079,7 +1115,6 @@ $(function () {
                 data: form.serialize(),
                 success: function (response) {
                     if (response.success) {
-                        console.log(response);
                         notify(response.message, "info");
                         dynatableCursosObl.process();
                         $("#tableEquivalentesAgregar").removeClass("hide");
@@ -1097,6 +1132,45 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        guardarGrupoEquivalenteElectivo: function (btn) {
+            console.log('guardarGrupoEquivalenteElectivo() ENTRA');
+            var form = $("[id='frmAgregarCursosEquivalenteElectivo']");
+            form.parsley().destroy();
+            form.parsley();
+            console.log(JSON.stringify(form.serialize(), null, 2));
+            if (!form.parsley().validate()) {
+                return;
+            }
+            var rowCount = $('#tableEquivalentesElec tr').length;
+            if (rowCount === 0)
+                return;
+
+            $.ajax({
+                url: APP.url('academico/planCurricular/saveGrupoEquivalenteElectivo'),
+                type: 'POST',
+                async: true,
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        dynatableCursosObl.process();
+                        $("#tableEquivalentesElectivoAgregar").removeClass("hide");
+
+                        var html = $.templates("#templateEquivalentesCursos").render(response.data);
+                        var tbody = $("#tableBodyEquivalentesElectivoAgregar");
+                        tbody.append(html);
+                        $("#cboCursosEquiElec").select2('val', '');
+                        $('#tableBodyEquivalentesElec').empty();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+            console.log('guardarGrupoEquivalenteElectivo() SALE');
         },
         addCursoElectivo: function (btn) {
             var form = $("[id='frmAgregarCursoElec']");
@@ -1171,7 +1245,6 @@ $(function () {
             var found = 0;
             for (i = 0; i < rowCount; i++) {
                 var id = $("[name='cursoEquivalente[" + i + "].cursoEquivalente.id'").val();
-                console.log(id, "!=", NuevaCurricula.infoCursoCurricula.id);
                 if (parseInt(id) === NuevaCurricula.infoCursoCurricula.id) {
                     found++;
                 }
@@ -1190,6 +1263,36 @@ $(function () {
             var tbody = $("#tableBodyEquivalentesObli");
             tbody.append(html);
             $("#cboCursosEquiObli").select2('val', '');
+        },
+        addEquivalenteElec: function (e) {
+            console.log('aaaaaaaaaaaaaaaaaaaaaaaaa');
+            if ($("#cboCursosEquiElec").val() === "") {
+                return false;
+            }
+            var rowCount = $('#tableEquivalentesElec tr').length;
+
+            var found = 0;
+            for (i = 0; i < rowCount; i++) {
+                var id = $("[name='cursoEquivalenteElectivo[" + i + "].cursoEquivalente.id'").val();
+                if (parseInt(id) === NuevaCurricula.infoCursoCurricula.id) {
+                    found++;
+                }
+            }
+            if (found > 0) {
+                bootbox.alert({
+                    message: "Este curso ya fue agregado",
+                    size: 'small'
+                });
+                return false;
+            }
+
+            $("#tableRequisitosElec").removeClass("hide");
+            NuevaCurricula.infoCursoCurricula.index = rowCount;
+            var html = $.templates("#templateEquivalenteCursoObligatorio").render(NuevaCurricula.infoCursoCurricula);
+            var tbody = $("#tableBodyEquivalentesElec");
+            tbody.append(html);
+            $("#cboCursosEquiElec").select2('val', '');
+            console.log('aaaaaaaaaaaaaaaaaaaaaaaaa');
         },
         addRequisitoCursoElec: function () {
 
@@ -1468,7 +1571,6 @@ $(function () {
                     var x2 = x1 + ww;
                     var xc = x1 + ww / 2 - 60;
                     var tempXC = xc + 'px';
-                    console.log(xc)
                     var y1 = pad + (hh + pady) * (cursos[row].numeroCurso - 1);
                     var y2 = y1 + hh;
                     var yc = y1 + hh / 2 - 15;
@@ -1526,8 +1628,6 @@ $(function () {
 
                         var t1 = draw.text(data[0]).move(tempXC, y1).fill(colorLetra[cursos[row]["tipo"]]);
                         var t2 = draw.text(data[1]).move(tempXC, y2).fill(colorLetra[cursos[row]["tipo"]]);
-                        console.log(xc.toFixed(3));
-                        console.log(yc.toFixed(3));
                         group.add(t1);
                         group.add(t2);
 
@@ -1679,6 +1779,51 @@ $(function () {
                     }
                 }
             });
+        },
+        deleteGrupoEquivalenteElectivo($this, e) {
+            var tr = $this.closest('tr');
+            var nGrupo = tr.find("[name='numero-grupo']").text();
+            var cursoOpcionalCurricula = tr.find("[name='cursoOpcionalCurricula.id']").val();
+            console.log(cursoOpcionalCurricula);
+            bootbox.confirm({
+                message: '¿Está seguro que desea eliminar esta equivalencia?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                    cancel: {label: 'Cancel', className: 'btn-link'}
+                },
+                callback(result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('academico/planCurricular/deleteGrupoEquivalenteElectivo'),
+                            type: 'POST',
+                            async: true,
+                            data: {grupo: nGrupo, curso: cursoOpcionalCurricula},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatableCursosObl.process();
+                                    while (true) {
+                                        var nexttr = $this.closest('tr').next('tr');
+                                        var flag = nexttr.find("[name='numero-grupo']").length > 0;
+                                        if (flag)
+                                            break;
+                                        $this.closest('tr').next('tr').remove();
+                                        var flag2 = $this.closest('tr').next('tr').remove();
+                                        if (flag2.length === 0)
+                                            break;
+                                    }
+                                    tr.remove();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -1733,6 +1878,9 @@ $(function () {
     $("body").delegate("#btnGuardarGrupoEquivalente", "click", function (e) {
         NuevaCurricula.guardarGrupoEquivalente();
     });
+    $("body").delegate("#btnGuardarGrupoEquivalenteElectivo", "click", function (e) {
+        NuevaCurricula.guardarGrupoEquivalenteElectivo();
+    });
 
     $("body").delegate("#btnAddCurAdc", "click", function (e) {
         NuevaCurricula.addCursoAdicional($(this));
@@ -1750,6 +1898,10 @@ $(function () {
         NuevaCurricula.addEquivalenteObli(e);
     });
 
+    $("body").delegate("#btnAddEquivalenteElec", "click", function (e) {
+        NuevaCurricula.addEquivalenteElec(e);
+    });
+
     $("body").delegate("#btnAddRequisitoCursoElec", "click", function (e) {
         NuevaCurricula.addRequisitoCursoElec(e);
     });
@@ -1760,6 +1912,10 @@ $(function () {
 
     $("body").delegate(".editar-cur-equi-obl", "click", function (e) {
         NuevaCurricula.editarCursoEqui($(this), e);
+    });
+
+    $("body").delegate(".editar-cur-equi-elec", "click", function (e) {
+        NuevaCurricula.editarCursoEquiElec($(this), e);
     });
 
     $("body").delegate(".editar-cur-elec", "click", function (e) {
@@ -1784,6 +1940,9 @@ $(function () {
 
     $("body").delegate(".ver-equivalentes", "click", function (e) {
         NuevaCurricula.verEquivalentes($(this), e, "obli");
+    });
+    $("body").delegate(".ver-equivalentes-elec", "click", function (e) {
+        NuevaCurricula.verEquivalentesElec($(this), e, "obli");
     });
 
     $("body").delegate(".ver-pre-requisitos-elec", "click", function (e) {
@@ -1820,6 +1979,9 @@ $(function () {
 
     $("body").delegate(".btn-delete-grupo-equivalente", "click", function (e) {
         NuevaCurricula.deleteGrupoEquivalente($(this), e);
+    });
+    $("body").delegate(".btn-delete-grupo-equivalente-electivo", "click", function (e) {
+        NuevaCurricula.deleteGrupoEquivalenteElectivo($(this), e);
     });
 
     $("body").delegate(".btn-delete-requisito-elec", "click", function (e) {
