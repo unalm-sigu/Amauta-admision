@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -407,6 +405,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         LocalDate fechaVencimiento = localDate.plusDays(3);
         acreencia.setFechaVencimiento(fechaVencimiento.toDate());
 
+        acreencia.setPrecio(BigDecimal.ZERO);
         if (precio != null) {
             if (precio.getPrecio() != null) {
                 acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
@@ -439,6 +438,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
         tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
         tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
+        tda.setFoto(tramiteDocumentoAcademico.getFoto());
         tramiteDocumentoAcademicoDAO.update(tda);
 
         AcreenciaTramiteDocumento acreencia = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tramiteDocumentoAcademico);

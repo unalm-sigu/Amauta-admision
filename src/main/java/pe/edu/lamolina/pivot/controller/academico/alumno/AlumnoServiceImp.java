@@ -172,7 +172,7 @@ public class AlumnoServiceImp implements AlumnoService {
         int year = cal.get(Calendar.YEAR);
         int yearinit = year - 6;
         int yearend = year + 3;
-        return cicloAcademicoDAO.allCicloAcademicoByRange(yearinit, yearend);
+        return cicloAcademicoDAO.allPregradoByRange(yearinit, yearend);
     }
 
     @Override

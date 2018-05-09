@@ -24,7 +24,7 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allUltimos(Integer cantidadCiclos);
 
-    List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend);
+    List<CicloAcademico> allPregradoByRange(int yearinit, int yearend);
 
     CicloAcademico findSiguienteNivelacionActivo(CicloAcademico ciclo);
 

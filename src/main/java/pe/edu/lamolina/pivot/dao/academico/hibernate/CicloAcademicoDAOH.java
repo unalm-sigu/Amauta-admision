@@ -16,6 +16,8 @@ import static pe.edu.lamolina.model.enums.CicloEstadoEnum.PEND;
 import static pe.edu.lamolina.model.enums.CicloEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CER;
 import pe.edu.lamolina.model.enums.CicloEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -142,12 +144,15 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend) {
+    public List<CicloAcademico> allPregradoByRange(int yearinit, int yearend) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
                 .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .filter("year", ">", yearinit)
                 .filter("year", "<", yearend)
+                .filter("tipo", TipoCicloEnum.REG)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
 
         return all(sql);
