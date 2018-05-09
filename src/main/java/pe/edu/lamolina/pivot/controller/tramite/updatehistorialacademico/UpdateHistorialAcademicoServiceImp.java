@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -194,7 +196,6 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         }
 
         for (AlumnoCiclo alumnoCicloForm : alumnosCiclo) {
-//            logger.debug("  *** getCicloAcademico *** {}", alumnoCicloForm.getCicloAcademico().getId());
 
             CicloAcademico cicloAcademico = cicloAcademicoDAO.find(alumnoCicloForm.getCicloAcademico());
 
