@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -142,6 +144,9 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Autowired
     AcreenciaTramiteDocumentoDAO acreenciaTramiteDocumentoDAO;
+
+    @Autowired
+    S3Service s3Service;
 
     @Override
     public Alumno allInfo(Alumno alumno) {
@@ -609,6 +614,18 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             ciclos.add(new CicloAcademico(ciclo));
         }
         return cicloAcademicoDAO.allCicloByNameExceptList(nombre, ciclos);
+    }
+
+    @Override
+    public void uploadS3(String localDirectory, String fileName, Boolean publico) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("tmp");
+        sb.append("/");
+        logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
+        File f = new File(localDirectory + fileName);
+        if (f.exists() && !f.isDirectory()) {
+            s3Service.uploadFile("albatross-codex", sb.toString(), localDirectory, fileName, publico);
+        }
     }
 
 }
