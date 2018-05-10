@@ -404,7 +404,7 @@ public class UpdateHistorialAcademicoController {
             jSolicitudConstancia.put("tipoDocumentoAcademico", service.toJson(tramiteDocumento.getTipoDocumentoAcademico()));
             jSolicitudConstancia.put("idioma", service.toJson(tramiteDocumento.getIdioma()));
             //ojo editar
-            jSolicitudConstancia.put("fullfoto", "http://albatross-codex.s3.amazonaws.com/tmp/" + tramiteDocumento.getFoto());
+            jSolicitudConstancia.put("fullfoto", Constantine.S3_LINK_TMP + Constantine.S3_DIR_TMP + tramiteDocumento.getFoto());
             data.put("solicitud", jSolicitudConstancia);
 
             ObjectNode jAlumno = service.toJson(alumno);
@@ -624,7 +624,7 @@ public class UpdateHistorialAcademicoController {
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
             json.put("size", archivo.getSize());
 
-            service.uploadS3(Constantine.TMP_DIR, fileName, true);
+            //service.uploadS3(Constantine.TMP_DIR, fileName, true);
 
             response.setData(json);
             response.setSuccess(true);

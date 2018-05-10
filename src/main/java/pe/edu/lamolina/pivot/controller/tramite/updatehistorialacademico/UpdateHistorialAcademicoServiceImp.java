@@ -618,12 +618,11 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     public void uploadS3(String localDirectory, String fileName, Boolean publico) {
         StringBuilder sb = new StringBuilder();
-        sb.append("tmp");
-        sb.append("/");
+        sb.append(Constantine.S3_DIR_TMP);
         logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
         File f = new File(localDirectory + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile("albatross-codex", sb.toString(), localDirectory, fileName, publico);
+            s3Service.uploadFile(Constantine.S3_BUKET_TMP, sb.toString(), localDirectory, fileName, publico);
         }
     }
 
