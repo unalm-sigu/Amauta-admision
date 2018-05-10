@@ -371,7 +371,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-        TipoTramite tipoTramiteRCI = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.SOLC.name());
+        TipoTramite tipoTramiteRCI = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
