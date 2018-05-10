@@ -23,6 +23,12 @@ public interface PlanCurricularService {
 
     List<OrientacionCarrera> allOrientacionByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum);
 
+    public void deleteCursoEquivalenteElectivoByGrupoCursoCurricula(Integer grupo, CursoOpcionalCurricula cursoOpcionalCurricula);
+
+    public CursoOpcionalCurricula findCursoOpcionalCurricula(Long cursoOpcionalCurriculaId);
+
+    void saveGrupoEquivalenteElectivo(GrupoCursoEquivalenteElectivo grupoCursoEquivalente, DataSessionPivot ds);
+
     PlanCurricular savePlanCurricular(PlanCurricular planCurricular);
 
     void saveCursoCurricula(CursoCurricula cursoCurricula, DataSessionPivot ds);

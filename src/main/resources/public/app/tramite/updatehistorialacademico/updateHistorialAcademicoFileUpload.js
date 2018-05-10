@@ -1,0 +1,78 @@
+Vue.component("vueupload", {
+    template: "#fileuploadTemplate",
+    props: {
+        solicitud: {},
+        mensajeerror: ''
+    },
+    date: function() {
+        return {solicitud: {}, mensajeerror: ''}
+    },
+    mounted: function() {
+
+        let vue = this;
+        let self = $(vue.$el);
+
+        $global.$on("open", function() {
+            vue.open();
+        });
+
+        $('#fileupload').fileupload({
+            url: APP.url('tramite/solicitudconstancia/updatehistorial/upload'),
+            maxNumberOfFiles: 1,
+            dataType: 'json',
+            dropZone: '#dragarea',
+            add: function(e, data) {
+                $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+                if (data.files[0].type.search(/(\.|\/)(jpe?g|png)$/i) == -1) {
+                    notify("Formato de archivo no soportado.", "error");
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    return;
+                }
+                if (data.files && data.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imgDocument').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(data.files[0]);
+                }
+                data.submit();
+            },
+            progress: function(e, data) {
+            },
+            done: function(e, data) {
+                if (data.result.success) {
+                    var ruta = data.result.data.ruta;
+                    if (data.result.data.ok == true) {
+                        notify(data.result.message, "info");
+                        vue.mensajeerror = '';
+                        vue.solicitud.foto = ruta;
+                    } else {
+                        vue.mensajeerror = data.result.data.nocumplerequisito;
+                        vue.solicitud.foto = '';
+                        $('#imgDocument').attr('src', '');
+                    }
+                } else {
+                    notify(data.result.message, "error");
+                }
+                $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+            },
+            fail: function(e, data) {
+                $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                notify(data.result.message, "error");
+            }
+        });
+    },
+    updated: function() {
+        let vue = this;
+        this.$nextTick(function() {
+            let self = $(vue.$el);
+        });
+    },
+    methods: {
+        open: function() {
+            let vue = this;
+            $('#fileupload').trigger('click');
+        }
+    },
+});
+

@@ -3,9 +3,15 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
+import de.akquinet.commons.image.io.Image;
+import de.akquinet.commons.image.io.ImageMetadata;
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +23,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -37,7 +46,9 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__ESTIMADO__;
 import static pe.edu.lamolina.model.enums.ContenidoVariableEnum.__NOMBREPERSONA__;
+import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
+import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -63,6 +74,9 @@ public class UpdateHistorialAcademicoController {
     @Autowired
     PdfHtmlView pdfHtmlView;
 
+    @Autowired
+    S3Service s3Service;
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         return "tramite/updatehistorialacademico/updateHistorialAcademicoList";
@@ -70,9 +84,11 @@ public class UpdateHistorialAcademicoController {
 
     @RequestMapping("{idAlumno}/updatehistorial")
     public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        FotoHelper helper = new FotoHelper();
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
         ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
+        alumnoJson.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclosAcademico", ciclosAcademico);
         return "tramite/updatehistorialacademico/updateHistorialAcademico";
@@ -140,17 +156,39 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchcurso")
-    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            List<Curso> cursos = service.allCursoByName(nombre);
+            List<Curso> cursos = service.allCursoByNameExceptList(nombre, idCursos);
             ArrayNode jCursos = new ArrayNode(jsonFactory);
             for (Curso curso : cursos) {
                 jCursos.add(service.toJson(curso));
             }
             response.setData(jCursos);
             response.setTotal(jCursos.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("searchciclo")
+    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            List<CicloAcademico> ciclos = service.allCicloByNameExceptList(nombre, idCiclos);
+            ArrayNode jCiclo = new ArrayNode(jsonFactory);
+            for (CicloAcademico ciclo : ciclos) {
+                jCiclo.add(service.toJson(ciclo));
+            }
+            response.setData(jCiclo);
+            response.setTotal(jCiclo.size());
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -206,13 +244,14 @@ public class UpdateHistorialAcademicoController {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             List<PrecioDocumento> precios = service.allPrecioDocumento();
             Map<Long, List<PrecioDocumento>> preciosMap = TypesUtil.convertListToMapList("tipoDocumento.id", precios);
-
+            FotoHelper helper = new FotoHelper();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (TramiteDocumentoAcademico tramiteDoc : tipos) {
 
                 ObjectNode node = service.toJson(tramiteDoc.toJson());
                 Tramite tramite = tramiteDoc.getTramite();
                 Alumno alumno = tramiteDoc.getTramite().getAlumno();
+                TipoDocumentoAcademico tipoDocumento = tramiteDoc.getTipoDocumentoAcademico();
                 Carrera carrera = alumno.getCarrera();
                 Facultad facultad = carrera.getFacultad();
 
@@ -226,9 +265,13 @@ public class UpdateHistorialAcademicoController {
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("dni", alumno.getPersona().getNumeroDocIdentidad());
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
-
+                node.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
+                if (!Strings.isNullOrEmpty(tipoDocumento.getTipo())) {
+                    node.put("documentoName", TipoConstanciaEnum.valueOf(tipoDocumento.getTipo()).getValue());
+                }
+                node.put("documentoTipo", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.tipo"));
+                node.put("showUpdateHistorial", TipoConstanciaEnum.CERT.name().equalsIgnoreCase(tipoDocumento.getTipo()));
                 node.put("numero", tramiteDoc.getTramite().getSerie() + "-" + tramiteDoc.getTramite().getNumero());
-                node.put("documentoName", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("documento", (String) ObjectUtil.getParentTree(tramiteDoc, "tipoDocumentoAcademico.nombre"));
                 node.put("fecha", new DateTime(tramite.getFechaRegistro()).toString("dd/MM/yyyy"));
                 node.put("estado", tramiteDoc.getEstado());
@@ -364,6 +407,8 @@ public class UpdateHistorialAcademicoController {
             jSolicitudConstancia.put("tramite", service.toJson(tramiteDocumento.getTramite()));
             jSolicitudConstancia.put("tipoDocumentoAcademico", service.toJson(tramiteDocumento.getTipoDocumentoAcademico()));
             jSolicitudConstancia.put("idioma", service.toJson(tramiteDocumento.getIdioma()));
+            //ojo editar
+            jSolicitudConstancia.put("fullfoto", "http://albatross-codex.s3.amazonaws.com/tmp/" + tramiteDocumento.getFoto());
             data.put("solicitud", jSolicitudConstancia);
 
             ObjectNode jAlumno = service.toJson(alumno);
@@ -442,6 +487,169 @@ public class UpdateHistorialAcademicoController {
         model.addAttribute("nombrePdf", "BoletaPagoSolicitudConstancia");
 
         return new ModelAndView(pdfHtmlView);
+    }
+
+    @ResponseBody
+    @RequestMapping("searchcolaborador")
+    public JsonResponse searchcolaborador(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            FotoHelper helper = new FotoHelper();
+            List<Colaborador> colaboradores = service.allColaboradorByName(nombre);
+            ArrayNode jColaborador = new ArrayNode(jsonFactory);
+            for (Colaborador colaborador : colaboradores) {
+
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", colaborador.getId());
+                json.put("nombre", colaborador.getPersona().getNombreCompleto());
+                json.put("email", colaborador.getPersona().getEmailCompania());
+                json.put("telefono", colaborador.getPersona().getTelefono());
+                json.put("celular", colaborador.getPersona().getCelular());
+                json.put("codigo", colaborador.getCodigo());
+                json.put("tipo", colaborador.getPersona().getTipoDocumento().getSimbolo());
+                json.put("numero", colaborador.getPersona().getNumeroDocIdentidad());
+                json.put("rutaFoto", helper.getRutaFoto(colaborador.getPersona().getFoto(), colaborador.getPersona().getSexo()));
+                jColaborador.add(json);
+            }
+            response.setData(jColaborador);
+            response.setTotal(jColaborador.size());
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("revision")
+    public JsonResponse revision(TramiteDocumentoAcademico solicitudConstancia) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.revision(solicitudConstancia);
+            response.setMessage("solicitud enviada a revisión satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("upload")
+    public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode json = new ObjectNode(jsonFactory);
+
+            String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
+            String fileName = TypesUtil.getUnixTime() + "." + fileExt;
+            String absoluteName = Constantine.TMP_DIR + fileName;
+            logger.debug("guardando imagen ...");
+            FileHelper.saveToDisk(archivo, absoluteName);
+            Boolean formatook = Boolean.TRUE;
+            StringBuilder nocumplerequisito = new StringBuilder();
+
+            Image img = new Image(new File(absoluteName));
+            ImageMetadata metadata = img.getMetadata();
+
+            logger.debug("validando dpi...");
+            logger.debug("DpiHeight {}", metadata.getDpiHeight());
+            if (Constantine.IMAGE_DPIHEIGHT > metadata.getDpiHeight()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_DPIHEIGHT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_DPIHEIGHT_MSG);
+            }
+            logger.debug("DpiWidth {}", metadata.getDpiWidth());
+            if (Constantine.IMAGE_DPIWIDTH > metadata.getDpiWidth()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_DPIWIDTH_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_DPIWIDTH_MSG);
+            }
+            logger.debug("Height {}", metadata.getHeight());
+            int sizeHeight = Math.abs(Constantine.IMAGE_HEIGHT - metadata.getHeight());
+            if (sizeHeight > Constantine.IMAGE_DELTA_SIZE) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_HEIGHT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_HEIGHT_MSG);
+            }
+            logger.debug("Width {}", metadata.getWidth());
+            int sizeWidth = Math.abs(Constantine.IMAGE_WIDTH - metadata.getWidth());
+            if (sizeWidth > Constantine.IMAGE_DELTA_SIZE) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_WIDTH_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_WIDTH_MSG);
+            }
+            logger.debug("Format {}", metadata.getFormat());
+            if (!Constantine.IMAGE_FORMAT.equalsIgnoreCase(metadata.getFormat().toString())) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_FORMAT_MSG);
+            }
+            logger.debug("ColorType {}", metadata.getColorType());
+            if (!Constantine.IMAGE_COLORTYPE.equalsIgnoreCase(metadata.getColorType().toString())) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_COLORTYPE_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_COLORTYPE_MSG);
+            }
+            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
+            if (Constantine.IMAGE_BITSPERPIXEL > metadata.getBitsPerPixel()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_BITSPERPIXEL_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_BITSPERPIXEL_MSG);
+            }
+            logger.debug("Transparent {}", metadata.isTransparent());
+            if (metadata.isTransparent()) {
+                formatook = Boolean.FALSE;
+                nocumplerequisito.append(Constantine.IMAGE_TRANSPARENT_MSG);
+                nocumplerequisito.append(" , ");
+                logger.debug("{}", Constantine.IMAGE_TRANSPARENT_MSG);
+            }
+
+            json.put("ok", formatook);
+            json.put("nocumplerequisito", nocumplerequisito.toString());
+            json.put("ruta", fileName);
+            json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
+            json.put("size", archivo.getSize());
+
+            this.uploadS3(Constantine.TMP_DIR, fileName, true);
+
+            response.setData(json);
+            response.setSuccess(true);
+            response.setMessage("Carga satisfactoria del archivo");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+
+    private void uploadS3(String localDirectory, String fileName, Boolean publico) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("tmp");
+        sb.append("/");
+        logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
+        s3Service.uploadFile("albatross-codex", sb.toString(), localDirectory, fileName, publico);
     }
 
 }

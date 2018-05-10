@@ -16,6 +16,8 @@ import static pe.edu.lamolina.model.enums.CicloEstadoEnum.PEND;
 import static pe.edu.lamolina.model.enums.CicloEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CER;
 import pe.edu.lamolina.model.enums.CicloEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Repository
 public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implements CicloAcademicoDAO {
@@ -142,12 +144,15 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public List<CicloAcademico> allCicloAcademicoByRange(int yearinit, int yearend) {
+    public List<CicloAcademico> allPregradoByRange(int yearinit, int yearend) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
                 .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .filter("year", ">", yearinit)
                 .filter("year", "<", yearend)
+                .filter("tipo", TipoCicloEnum.REG)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
 
         return all(sql);
@@ -260,6 +265,26 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .orderBy("year desc", "numeroCiclo desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allCicloByNameExceptList(String nombre, List<CicloAcademico> ciclos) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .notIn("ca.id", ciclos)
+                .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
+                .beginBlock()
+                .__().filter("ca.numeroCiclo", "like", nombre)
+                .__().filter("ca.year", "like", nombre)
+                .__().filter("ca.codigo", "like", nombre)
+                .__().filter("ca.descripcion", "like", nombre)
+                .__().filter("ca.descripcion2", "like", nombre)
+                .__().filter("ca.descripcion3", "like", nombre)
+                .endBlock()
+                .limit(15);
         return all(sql);
     }
 

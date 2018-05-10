@@ -10,7 +10,7 @@
             <div id="main" >
                 <header class="header b-b padder-lg">
                     <div class="pull-right m-t-md">
-                        <a th:href="@{/academico/alumno}" class="btn btn-link btn-sm">Regresar</a>
+                        <a th:href="@{/tramite/solicitudconstancia/updatehistorial}" class="btn btn-link btn-sm">Regresar</a>
                         <button class="btn btn-info btn-sm" type="button"
                                 v-on:click.prevent="guardarInformacion"  v-bind:disabled="guardando">
                             <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>  &nbsp;   Guardar Informacion
@@ -22,9 +22,7 @@
                 <section class="wrapper-lg">
 
                     <section class="panel">
-
                         <header-info-component v-bind:alumno="alumno"></header-info-component>
-
                     </section>
 
 
@@ -34,6 +32,7 @@
 
                         <ciclo-component
                             v-for="( alumnociclo , inx )  in alumnociclos"
+                            v-bind:alumnociclos="alumnociclos"
                             v-bind:alumnociclo="alumnociclo"
                             v-bind:inx="inx"
                             ></ciclo-component>
@@ -62,9 +61,7 @@
                 </section>
             </div>
 
-            <div th:substituteby="tramite/updatehistorialacademico/updateHistorialAcademicoHeader"/>
-            <div th:substituteby="tramite/updatehistorialacademico/updateHistorialAcademicoCiclo"/>
-            <div th:substituteby="tramite/updatehistorialacademico/updateHistorialAcademicoCurso"/>
+            <div th:substituteby="tramite/updatehistorialacademico/updateHistorialAcademicoTmp"/>
 
         </section>
         <div layout:fragment="js">

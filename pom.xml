@@ -311,6 +311,24 @@
         </dependency>
 
         <dependency>
+            <groupId>net.sourceforge.htmlcleaner</groupId>
+            <artifactId>htmlcleaner</artifactId>
+            <version>2.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.akquinet.commons.imageio</groupId>
+            <artifactId>commons-image-io</artifactId>
+            <version>0.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-sanselan</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>octavia</artifactId>
@@ -320,19 +338,14 @@
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <artifactId>zelpers</artifactId>
-            <version>0.1.26</version>
+            <version>0.1.31</version>
         </dependency>
 
-        <dependency>
-            <groupId>net.sourceforge.htmlcleaner</groupId>
-            <artifactId>htmlcleaner</artifactId>
-            <version>2.10</version>
-        </dependency>
 
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.12.1</version>
+            <version>0.12.9</version>
         </dependency>
 
     </dependencies>

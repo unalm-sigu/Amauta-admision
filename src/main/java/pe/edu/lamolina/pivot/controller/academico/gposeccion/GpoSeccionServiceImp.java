@@ -1566,7 +1566,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     public GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion) {
         seccion = seccionDAO.find(seccion.getId());
-        GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoCicloEnum());
+        GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoEnum());
         List<Dia> dias = diaDAO.all();
         List<Dia> utilDays = new ArrayList<>();
 

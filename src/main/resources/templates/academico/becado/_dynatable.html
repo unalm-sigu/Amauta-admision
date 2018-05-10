@@ -77,7 +77,14 @@
 
 <div id="divBuscarAlumno" type="text/x-jsrender" class="hide" >
     <span class="block bold">{{:nombre}}</span>
-    <span class="block">Especialida de {{:carrera}}    Facultad de {{:facultad}} </span>
-    <span class="text-sm block"> {{:tipo}}   {{:numero}}   Nro Matrícula  {{:codigoMatricula}} </span>
+    <span class="block">{{:carrera}}
+        {{if codigoCarrera != codigoFacultad}}
+        <span>Facultad de {{:facultad}}</span> 
+        {{/if}}
+    </span>
+    <small class="block">{{:codigo}} </small>
+    {{if nroDocumento != undefined}}
+        <small class="block">{{:tipoDoc}} {{:nroDocumento}} </small>
+    {{/if}}
 </div>
 

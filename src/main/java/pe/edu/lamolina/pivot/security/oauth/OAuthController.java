@@ -110,13 +110,16 @@ public class OAuthController {
 
     @RequestMapping("route66")
     public String route66(HttpSession session, Model model) {
+        logger.debug("route66");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         if (ds == null) {
+            logger.debug("return redirect:/login");
             return "redirect:/login";
         }
 
         logger.debug("Usuario tiene: {} roles y activo: {}", ds.getRolesMain().size(), ds.getRolActivo());
         if (ds.getRolesMain().size() > 1 && ds.getRolActivo() == null) {
+            logger.debug("return security/rolland");
             return "security/rolland";
         }
 
