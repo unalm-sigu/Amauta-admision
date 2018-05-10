@@ -1,0 +1,107 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Resoluciones</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style>
+        .td-vacio {
+            padding-right: 4px !important;
+            padding-left: 4px !important;
+        }
+        .bg-row {
+            background-color: #f9fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="header b-b padder-lg">
+
+            <div class="pull-right m-t-md">      
+            </div> 
+            <h2 >Resoluciones</h2>
+        </header>
+        <section id="tramitesAcademicos" class="wrapper-lg">
+
+            <section class="panel">
+                <section class="panel-body">
+
+                    <!-- ->
+                    <raptor-table ref="tblTramitesAcademicos"
+                                  v-bind:url="URL_TRAMITES" >
+
+                        <template scope="props">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th >Tramite</th>
+                                        <th class="col-md-4 text-center">Persona</th>
+                                        <th >Tipo Tramite</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Registro</th>
+                                        <th>
+
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in props.data"> 
+                                        <td> 
+                                            <small class="block text-muted">Serie: {{item.serie}}</small>
+                                            <small class="block text-muted">Número: {{item.numero}}</small>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{ item.persona.apellidosNombres}}
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{ item.tipoTramite.nombre}}
+                                        </td>
+                                        <td class="v-middle text-left">
+                                            <small class="block text-muted">Tramite:  {{ item.estadoValue}}</small>
+                                            <small class="block text-muted" 
+                                                   v-if="item.tipoTramite.esTipoTramiteRei">
+                                                Reincorporación: {{item.reincorporaciones[0].estadoTramite.nombre}}
+                                            </small>
+                                        </td>
+                                        <td class="v-middle text-center">
+                                            {{ item.fechaRegistro}}
+                                        </td>
+                                        <td>
+                                            <div class="dropdown actions">
+                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="glyphicon glyphicon-cog"></i>
+                                                </a> 
+                                                <ul class="dropdown-menu pull-right"> 
+                                                    <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
+                                                    <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolReincorporacion">
+                                                        <a class="btn-link pointer editar-gpo-seccion" 
+                                                           v-on:click="cambiarEstadoReincorporacion(item,'SOL_ACEP',$event)">
+                                                            Aceptar Sol. Reincorporacion</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </template>
+                    </raptor-table>
+                    -->
+                </section>
+            </section>
+        </section>
+        <div th:substituteby="templates/modal"/>
+
+
+    </div>
+
+    <div layout:fragment="js">
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <!--     <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script> --> 
+    </div>
+
+
+</body>
+</html>
