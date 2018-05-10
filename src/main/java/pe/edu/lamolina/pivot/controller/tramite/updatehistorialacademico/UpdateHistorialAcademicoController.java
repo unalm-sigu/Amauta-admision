@@ -624,7 +624,7 @@ public class UpdateHistorialAcademicoController {
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
             json.put("size", archivo.getSize());
 
-            //service.uploadS3(Constantine.TMP_DIR, fileName, true);
+            service.uploadS3(Constantine.TMP_DIR, fileName, true);
 
             response.setData(json);
             response.setSuccess(true);
