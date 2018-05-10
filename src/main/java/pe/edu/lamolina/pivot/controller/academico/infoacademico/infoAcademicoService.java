@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -35,5 +36,7 @@ public interface infoAcademicoService {
     void cambiarPlan(Alumno alumno, PlanCurricular planCurricular);
 
     void calcularPromedio(Alumno alumno, DataSessionPivot ds);
+
+    List<BoletaIngresante> allAportesAlumno(Alumno alumno, CicloAcademico cicloAcademico);
 
 }
