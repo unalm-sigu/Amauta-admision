@@ -170,6 +170,10 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     private void analizarEgresado(Alumno alumno, Usuario usuario, DateTime today) {
+        /*    AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+        lastAlumnoCiclo.getCreditosAcumulados();
+        lastAlumnoCiclo.getCreditosAprobadosAcumulados();*/
+
         if (alumno.getSituacionAcademica().isCodigoEM()) {
             Egresado egresado = egresadoDAO.findByAlumno(alumno);
             if (egresado != null && egresado.getCicloAcademico() != null) {
@@ -589,9 +593,13 @@ public class PromedioServiceImp implements PromedioService {
                     alumnoCicloDAO.update(alumnoCicloSiguienteRegular);
                 }
             }
-
+            /*
+                        alumnoCiclo.setCreditosAcumulados(credAcumuladosAlumno);
+            alumnoCiclo.setCreditosAprobadosAcumulados(credAprAcumuladosAlumno);
+             */
             alumno.setCicloActivo(alumnoCiclo.getCicloAcademico());
             alumno.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
+            alumno.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
             alumno.setSituacionAcademica(situacionAcademicaFinal);
             alumnoDAO.updateSituacionCicloCapa(alumno);
 
