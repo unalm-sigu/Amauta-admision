@@ -33,6 +33,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -103,8 +104,10 @@ public class DepartamentoController {
                 node.put("estado", departamentoAcademico.getEstado());
                 node.put("motivoDesactivacion", departamentoAcademico.getMotivoDesactivacion());
                 node.put("fecha", new DateTime(departamentoAcademico.getFechaDesactivacion()).toString("dd/MM/yyyy"));
-                node.put("docente", depCurDocMap.getDocente());
-                node.put("curso", depCurDocMap.getCurso());
+                node.put("docenteActivos", depCurDocMap.getDocenteActivos());
+                node.put("docenteInactivos", depCurDocMap.getDocenteInactivos());
+                node.put("cursoActivos", depCurDocMap.getCursoActivos());
+                node.put("cursoInactivos", depCurDocMap.getCursoInactivos());
                 node.put("facultad", departamentoAcademico.getFacultad().getNombre());
                 array.add(node);
             }
@@ -221,6 +224,40 @@ public class DepartamentoController {
                 a.put("nombre", departamento.getNombre());
                 a.put("facultadCod", departamento.getFacultad().getCodigo());
                 a.put("facultadName", departamento.getFacultad().getNombre());
+                array.add(a);
+            }
+
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allFacultad")
+    public JsonResponse allFacultad(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Compania compania = ds.getCompania();
+
+            List<Facultad> facultades = service.allFacultad(nombre, compania);
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (Facultad facultad : facultades) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", facultad.getId());
+                a.put("codigo", facultad.getCodigo());
+                a.put("nombre", facultad.getNombre());
                 array.add(a);
             }
 

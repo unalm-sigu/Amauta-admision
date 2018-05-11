@@ -119,75 +119,12 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
 
     @Override
     public List<DepartamentoAcademico> allDynatable(DynatableFilter filter) {
-
-        StringBuilder sql;
-        Query query;
-
-        String search = filter.getSearchValue();
-
-        if (!StringUtils.isEmpty(search)) {
-            search = "%" + search.replaceAll(" ", "%") + "%";
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select count( distinct da ) ");
-            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
-            sql.append("  inner join  da.facultad fa ");
-            sql.append("  where 1 = 1 ");
-
-            query = getCurrentSession().createQuery(sql.toString());
-            filter.setTotal(((Long) query.uniqueResult()).intValue());
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select count( distinct da ) ");
-            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
-            sql.append("  inner join  da.facultad fa ");
-            sql.append("  where 1 = 1 ");
-
-            if (!StringUtils.isEmpty(search)) {
-                sql.append("    and  ( ");
-                sql.append("    da.nombre like :SEARCH ");
-                sql.append("    or da.codigo like :SEARCH ");
-                sql.append("    or da.estado like :SEARCH ");
-                sql.append("    or da.nombreLargo like :SEARCH ");
-                sql.append("    )    ");
-            }
-
-            query = getCurrentSession().createQuery(sql.toString());
-            if (!StringUtils.isEmpty(search)) {
-                query.setString("SEARCH", search);
-            }
-            filter.setFiltered(((Long) query.uniqueResult()).intValue());
-        }
-
-        {
-            sql = new StringBuilder();
-            sql.append("  select distinct da ");
-            sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
-            sql.append("  inner join  da.facultad fa ");
-            sql.append("  where 1 = 1 ");
-
-            if (!StringUtils.isEmpty(search)) {
-                sql.append("    and  ( ");
-                sql.append("    da.nombre like :SEARCH ");
-                sql.append("    or da.codigo like :SEARCH ");
-                sql.append("    or da.estado like :SEARCH ");
-                sql.append("    or da.nombreLargo like :SEARCH ");
-                sql.append("    )    ");
-            }
-
-            query = getCurrentSession().createQuery(sql.toString());
-            if (!StringUtils.isEmpty(search)) {
-                query.setString("SEARCH", search);
-            }
-            query.setFirstResult((filter.getPage() - 1) * filter.getPerPage());
-            query.setMaxResults(filter.getPerPage());
-
-            return query.list();
-        }
+        DynatableSql sql = new DynatableSql(filter)
+                .from(DepartamentoAcademico.class, "da")
+                .join("facultad fa")
+                .searchFields("da.nombre", "da.codigo", "da.estado", "da.nombreLargo", "fa.nombre")
+                .orderBy("da.estado", "da.id desc");
+        return all(sql);
     }
 
     @Override
@@ -208,13 +145,23 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
         sql.append("  da.id, ");
         sql.append("  ( ");
         sql.append("  select count(cu) ");
-        sql.append("  from ").append(Curso.class.getSimpleName()).append(" as cu ");
-        sql.append("  where cu.departamentoAcademico.id = da.id ");
+        sql.append("  from ").append(Curso.class.getName()).append(" as cu ");
+        sql.append("  where cu.departamentoAcademico.id = da.id and cu.estado =:ACTIVO_CURSO ");
+        sql.append("  ), ");
+        sql.append("  ( ");
+        sql.append("  select count(cu) ");
+        sql.append("  from ").append(Curso.class.getName()).append(" as cu ");
+        sql.append("  where cu.departamentoAcademico.id = da.id and cu.estado =:INACTIVO_CURSO ");
         sql.append("  ), ");
         sql.append("  ( ");
         sql.append("  select count(do) ");
-        sql.append("  from ").append(Docente.class.getSimpleName()).append(" as do ");
-        sql.append("  where do.departamentoAcademico.id = da.id ");
+        sql.append("  from ").append(Docente.class.getName()).append(" as do ");
+        sql.append("  where do.departamentoAcademico.id = da.id and do.estado =:ACTIVO_DOCENTE ");
+        sql.append("  ), ");
+        sql.append("  ( ");
+        sql.append("  select count(do) ");
+        sql.append("  from ").append(Docente.class.getName()).append(" as do ");
+        sql.append("  where do.departamentoAcademico.id = da.id and do.estado =:INACTIVO_DOCENTE ");
         sql.append("  ) ");
         sql.append("  ) ");
         sql.append("  from ").append(DepartamentoAcademico.class.getName()).append(" as da ");
@@ -222,6 +169,10 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameterList("DEPARTAMENTOS", departamentosList);
+        query.setString("ACTIVO_CURSO", EstadoEnum.ACT.name());
+        query.setString("INACTIVO_CURSO", EstadoEnum.INA.name());
+        query.setString("ACTIVO_DOCENTE", EstadoEnum.ACT.name());
+        query.setString("INACTIVO_DOCENTE", EstadoEnum.INA.name());
         return query.list();
     }
 

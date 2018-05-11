@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.DepartamentoAcademicoEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -21,6 +23,8 @@ public class DepartamentoServiceImp implements DepartamentoService {
 
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    @Autowired
+    FacultadDAO facultadDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -93,6 +97,11 @@ public class DepartamentoServiceImp implements DepartamentoService {
 
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    public List<Facultad> allFacultad(String nombre, Compania compania) {
+        return facultadDAO.allFacultad(nombre, compania);
     }
 
 }

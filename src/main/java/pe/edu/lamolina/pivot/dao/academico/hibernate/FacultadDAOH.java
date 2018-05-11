@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.FacultadEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 
 @Repository
@@ -45,7 +46,7 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
         Octavia sql = Octavia.query()
                 .from(Facultad.class, "fa")
                 .join("compania")
-                .filter("estado", EstadoEnum.ACT.name());
+                .filter("estado", EstadoEnum.ACT);
 
         return all(sql);
     }
@@ -56,6 +57,7 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
                 .from(Facultad.class, "fa")
                 .join("compania cia")
                 .filter("cia.id", compania)
+                .filter("fa.estado", FacultadEstadoEnum.ACT)
                 .beginBlock()
                 .__().like("fa.codigo", nombre)
                 .__().like("fa.nombre", nombre)
