@@ -28,7 +28,8 @@ new Vue({
         tabla14: false,
         horarios: [],
         horaTmp: '',
-        alumnoInfo: {}
+        alumnoInfo: {},
+        aportes: []
 
     },
     computed: {
@@ -45,7 +46,8 @@ new Vue({
             {id: 3, name: "Avance"},
             {id: 4, name: "Matricula"},
             {id: 5, name: "Horario"},
-            {id: 6, name: "Malla"}];
+            {id: 6, name: "Malla"},
+            {id: 7, name: "Aportes"}];
 
         if ($vue.alumno.modalidadEstudio.codigo == 'VIS' || $vue.alumno.modalidadEstudio.codigo == 'ESP') {
             $vue.facu = false;
@@ -55,21 +57,24 @@ new Vue({
         }
 
     },
-    mounted: function() {
+    mounted: function () {
         let $vue = this;
+        $vue.cargaAportes();
         $vue.alumnoCursoTemp = $vue.alumnoCurso;
-        console.log($vue);
     },
     methods: {
-        updateTabs: function(tab) {
+        updateTabs: function (tab) {
 
             let $vue = this;
             $vue.tabId = tab.id;
             if ($vue.tabId === 5) {
                 $vue.cargaHorario();
             }
+            if ($vue.tabId === 7) {
+                $vue.cargaAportes();
+            }
         },
-        settingSeccionColor: function() {
+        settingSeccionColor: function () {
             let vue = this;
             var horarios = vue.horarios.horarios;
             for (var i = 0; i < horarios.length; i++) {
@@ -83,7 +88,7 @@ new Vue({
                 }
             }
 
-            vue.secciones.map(function(data, index) {
+            vue.secciones.map(function (data, index) {
                 let seccionColor = {
                     seccion: data,
                     color: 'curso color' + (index + 1)
@@ -94,7 +99,7 @@ new Vue({
         getColorBySeccion(seccion) {
             let vue = this;
             let classDiv = "";
-            vue.coloresCurso.map(function(data, index) {
+            vue.coloresCurso.map(function (data, index) {
                 if (seccion === data.seccion) {
                     classDiv = data.color;
                 }
@@ -116,7 +121,7 @@ new Vue({
             let vue = this;
             let cantHoras = vue.horas.length;
             let horasTotal = []; //horas desde las 8 am
-            vue.allHoras.map(function(data, index) {
+            vue.allHoras.map(function (data, index) {
                 if (data.numero != 6 && data.numero != 7) {   //  menos 6 y 7
                     horasTotal.push(data.numero);
                 }
@@ -134,7 +139,7 @@ new Vue({
 
             //obtener index
             let indexs = [];
-            horasTotal.map(function(data, index) {
+            horasTotal.map(function (data, index) {
                 indexs.push(horasTotal.indexOf(vue.horas[index]));
             });
             let horasRestante = [];
@@ -205,7 +210,7 @@ new Vue({
                     vue.getDiasHorasVacias(dias, vue.horaTmp);
                     let itemAdd = {dias: dias, hora: vue.horaTmp, numeroHora: horaAdd};
                     vue.horarios.horarios.push(itemAdd)
-                    vue.horarios.horarios.sort(function(a, b) {
+                    vue.horarios.horarios.sort(function (a, b) {
                         if (a.numeroHora < b.numeroHora) {
                             return -1;
                         }
@@ -240,7 +245,7 @@ new Vue({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + numero + '/hora'),
                 contentType: "application/json",
-                success: function(response) {
+                success: function (response) {
                     vue.horaTmp = response.data.descripcion;
                 }
             });
@@ -251,7 +256,7 @@ new Vue({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + this.alumno.id + '/horario'),
                 contentType: "application/json",
-                success: function(response) {
+                success: function (response) {
                     $vue.horarios = response.data;
                     $vue.settingSeccionColor();
                     $vue.settingHoras();
@@ -259,6 +264,20 @@ new Vue({
                 }
             });
         },
+        cargaAportes() {
+            let $vue = this;
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/' + this.alumno.id + '/aportes'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.aportes = response.data;
+                    }
+                }
+            });
+        },
+
         styleMenu(index) {
             let $vue = this;
             let id = $vue.tabId;

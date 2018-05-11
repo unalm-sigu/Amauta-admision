@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +29,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -34,6 +37,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/alumno")
 public class infoAcademicoController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     infoAcademicoService service;
@@ -276,6 +281,29 @@ public class infoAcademicoController {
             response.setMessage("Se calculó el promedio satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "{idAlumno}/aportes", method = RequestMethod.GET)
+    public JsonResponse aportes(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        response.setSuccess(false);
+        try {
+            List<BoletaIngresante> aportes = service.allAportesAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
+            ArrayNode aportesArray = new ArrayNode(JsonNodeFactory.instance);
+            for (BoletaIngresante aporte : aportes) {
+                aportesArray.add(aporte.toJson());
+            }
+            response.setSuccess(true);
+            response.setData(aportesArray);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

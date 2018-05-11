@@ -1155,6 +1155,7 @@ $(function () {
                     if (response.success) {
                         notify(response.message, "info");
                         dynatableCursosObl.process();
+                        dynatableCursosElec.process();
                         $("#tableEquivalentesElectivoAgregar").removeClass("hide");
 
                         var html = $.templates("#templateEquivalentesCursos").render(response.data);
@@ -1878,6 +1879,7 @@ $(function () {
     $("body").delegate("#btnGuardarGrupoEquivalente", "click", function (e) {
         NuevaCurricula.guardarGrupoEquivalente();
     });
+    
     $("body").delegate("#btnGuardarGrupoEquivalenteElectivo", "click", function (e) {
         NuevaCurricula.guardarGrupoEquivalenteElectivo();
     });

@@ -17,7 +17,7 @@ $(function () {
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
 
-        var colorEstado = {ACT: "success", INA: "danger",CRE: 'default'};
+        var colorEstado = {ACT: "success", INA: "danger", CRE: 'default'};
         var nameEstado = {ACT: "Activo", INA: "Inactivo", CRE: 'Creado'};
 
         record.colorEstado = colorEstado[record.estado];
@@ -120,7 +120,55 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        allDocentes: function (e, $this, estado) {
+            e.preventDefault();
+            var idDpto = $this.attr('rel');
+
+            $.ajax({
+                url: APP.url('academico/departamento/allDocentesByDptoEstado'),
+                type: 'POST',
+                async: true,
+                data: {id: idDpto, estado: estado},
+                success: function (response) {
+                    if (response.success && response.total > 0) {
+                        console.dir(response.data)
+                        MODAL.init("lg");
+                        MODAL.title('');
+                        MODAL.body($.templates("#divListaDocente").render({docentes: response.data}));
+                        MODAL.buttons('')
+                        MODAL.show();
+                    }
+                },
+                error: function () {
+                    MODAL.hide();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        allCursos: function (e, $this, estado) {
+            e.preventDefault();
+            var idDpto = $this.attr('rel');
+
+            $.ajax({
+                url: APP.url('academico/departamento/allCursosByDptoEstado'),
+                type: 'POST',
+                async: true,
+                data: {id: idDpto, estado: estado},
+                success: function (response) {
+                    if (response.success && response.total > 0) {
+                        MODAL.init("lg");
+                        MODAL.body($.templates("#divListaCurso").render({cursos: response.data}));
+                        MODAL.buttons('')
+                        MODAL.show();
+                    }
+                },
+                error: function () {
+                    MODAL.hide();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
     };
 
     Departamento.body.delegate(".delete", "click", function (e) {
@@ -128,6 +176,18 @@ $(function () {
     });
     Departamento.body.delegate(".estado", "click", function (e) {
         Departamento.estado(e);
+    });
+    Departamento.body.delegate("#docenteActivos", "click", function (e) {
+        Departamento.allDocentes(e, $(this), "ACT");
+    });
+    Departamento.body.delegate("#docenteInactivos", "click", function (e) {
+        Departamento.allDocentes(e, $(this), "INA");
+    });
+    Departamento.body.delegate("#cursoActivos", "click", function (e) {
+        Departamento.allCursos(e, $(this), "ACT");
+    });
+    Departamento.body.delegate("#cursoInactivos", "click", function (e) {
+        Departamento.allCursos(e, $(this), "INA");
     });
     Departamento.init();
 });

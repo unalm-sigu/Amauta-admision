@@ -7,11 +7,11 @@
 <body>
     <div layout:fragment="main">
 
-         <header class="header b-b padder-lg">
-            
+        <header class="header b-b padder-lg">
+
             <a class="btn btn-info pull-right" th:href="@{/academico/departamento/nuevo}" >Nuevo Departamento</a>
             <h3>Departamentos Académicos</h3>
-            
+
         </header>
 
         <section class="panel">
@@ -22,11 +22,10 @@
                     <thead class="panel panel-heading">
                         <tr>
                             <th class="col-xs-1 text-center v-middle">Código</th>
-                            <th class="col-xs-3 text-center v-middle">Nombre</th>
+                            <th class="col-xs-3 text-center v-middle"></th>
                             <th class="col-xs-3 text-center v-middle">Nombre Largo</th>
-                            <th class="col-xs-2 text-center v-middle">Facultad</th>
-                            <th class="col-xs-1 text-center v-middle">Docente</th>
-                            <th class="col-xs-1 text-center v-middle">Curso</th>
+                            <th class="col-xs-2 text-center v-middle">Docente</th>
+                            <th class="col-xs-2 text-center v-middle">Curso</th>
                             <th class="col-xs-1 text-center v-middle">Estado</th>
                             <th></th>
                         </tr>
@@ -55,6 +54,26 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+        <div th:substituteby="templates/modal"/>
+
+        <div id="divListaDocente" type="text/x-jsrender" class="hide">
+            <div class="panel-body">
+                {{for docentes}}
+                <div class="col-sm-4">
+                    {{:nombre}}
+                </div>
+                {{/for}}
+            </div>
+        </div>
+        <div id="divListaCurso" type="text/x-jsrender" class="hide">
+            <div class="panel-body">
+                {{for cursos}}
+                <div class="col-sm-4">
+                    {{:nombre}}
+                </div>
+                {{/for}}
             </div>
         </div>
 

@@ -42,6 +42,9 @@
                             <div v-show="6 == tabId">
                                 <malla-component v-bind:alumno="alumno"></malla-component>
                             </div>
+                            <div v-show="7 == tabId">
+                                <th:block th:substituteby="academico/alumno/includes/aportes"/>
+                            </div>
                         </section>
                     </section>
                 </div>

@@ -7,7 +7,7 @@ $(function () {
                 minimumInputLength: 2,
                 placeholder: " ",
                 ajax: {
-                    url: APP.url("academico/facultad/allFacultad"),
+                    url: APP.url("academico/departamento/allFacultad"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {

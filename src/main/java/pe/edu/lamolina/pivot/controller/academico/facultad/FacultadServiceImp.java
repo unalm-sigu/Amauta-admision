@@ -68,9 +68,4 @@ public class FacultadServiceImp implements FacultadService {
         facultadDAO.update(facultadBD);
     }
 
-    @Override
-    public List<Facultad> allFacultad(String nombre, Compania compania) {
-        return facultadDAO.allFacultad(nombre, compania);
-    }
-
 }

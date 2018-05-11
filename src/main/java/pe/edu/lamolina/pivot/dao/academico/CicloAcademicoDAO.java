@@ -50,4 +50,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allCicloByNameExceptList(String nombre, List<CicloAcademico> ciclos);
 
+    CicloAcademico findByCodigoModalidadEstudio(String codigoCiclo, ModalidadEstudio modalidad);
+
 }

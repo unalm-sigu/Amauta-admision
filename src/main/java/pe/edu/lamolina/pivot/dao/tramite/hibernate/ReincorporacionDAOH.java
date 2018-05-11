@@ -1,0 +1,36 @@
+package pe.edu.lamolina.pivot.dao.tramite.hibernate;
+
+import java.util.List;
+import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
+
+@Repository
+public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implements ReincorporacionDAO {
+
+    public ReincorporacionDAOH() {
+        super();
+        setClazz(Reincorporacion.class);
+    }
+
+    @Override
+    public List<Reincorporacion> allByTramite(Tramite tramite) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .filter("tra.id", tramite);
+
+        return all(sql);
+    }
+
+    @Override
+    public void updateEstado(Reincorporacion reincorporacion) {
+        Octavia octavia = Octavia.update(Reincorporacion.class);
+        octavia.set(reincorporacion, "estadoTramite");
+        this.update(octavia);
+    }
+
+}
