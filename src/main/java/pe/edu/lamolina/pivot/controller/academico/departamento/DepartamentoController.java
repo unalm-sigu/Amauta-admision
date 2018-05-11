@@ -32,7 +32,9 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -273,4 +275,75 @@ public class DepartamentoController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("allDocentesByDptoEstado")
+    public JsonResponse allDocentesByDpto(@RequestParam("id") Long idDpto,
+            @RequestParam("estado") String estado,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<Docente> docentes = service.allDocenteByDptoEstado(idDpto, estado);
+
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (Docente docente : docentes) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", docente.getId());
+                a.put("nombre", docente.getPersona().getApellidosNombres());
+                array.add(a);
+            }
+
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCursosByDptoEstado")
+    public JsonResponse allCursosByDptoEstado(@RequestParam("id") Long idDpto,
+            @RequestParam("estado") String estado,
+            HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<Curso> cursos = service.allCursoByDptoEstado(idDpto, estado);
+
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (Curso curso : cursos) {
+                ObjectNode a = new ObjectNode(jsonFactory);
+                a.put("id", curso.getId());
+                a.put("nombre", curso.getNombre());
+                array.add(a);
+            }
+
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

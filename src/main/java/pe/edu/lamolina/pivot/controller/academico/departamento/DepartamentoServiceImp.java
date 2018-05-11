@@ -10,11 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.DepartamentoAcademicoEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 
 @Service
@@ -25,6 +29,10 @@ public class DepartamentoServiceImp implements DepartamentoService {
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
     @Autowired
     FacultadDAO facultadDAO;
+    @Autowired
+    DocenteDAO docenteDAO;
+    @Autowired
+    CursoDAO cursoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -102,6 +110,16 @@ public class DepartamentoServiceImp implements DepartamentoService {
     @Override
     public List<Facultad> allFacultad(String nombre, Compania compania) {
         return facultadDAO.allFacultad(nombre, compania);
+    }
+
+    @Override
+    public List<Docente> allDocenteByDptoEstado(Long idDpto, String estado) {
+        return docenteDAO.allByDptoEstado(idDpto, estado);
+    }
+
+    @Override
+    public List<Curso> allCursoByDptoEstado(Long idDpto, String estado) {
+        return cursoDAO.allByDptoEstado(idDpto, estado);
     }
 
 }

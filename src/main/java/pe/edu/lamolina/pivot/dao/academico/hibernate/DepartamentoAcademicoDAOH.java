@@ -156,11 +156,13 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
         sql.append("  ( ");
         sql.append("  select count(do) ");
         sql.append("  from ").append(Docente.class.getName()).append(" as do ");
+        sql.append("  inner join do.persona ");
         sql.append("  where do.departamentoAcademico.id = da.id and do.estado =:ACTIVO_DOCENTE ");
         sql.append("  ), ");
         sql.append("  ( ");
         sql.append("  select count(do) ");
         sql.append("  from ").append(Docente.class.getName()).append(" as do ");
+        sql.append("  inner join do.persona ");
         sql.append("  where do.departamentoAcademico.id = da.id and do.estado =:INACTIVO_DOCENTE ");
         sql.append("  ) ");
         sql.append("  ) ");
