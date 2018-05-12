@@ -3,19 +3,20 @@
         {{:codigo}}
     </td>
     <td class="v-middle">
-        {{:nombre}}
+        <span class="block bold text-primary h5 m-t-xs m-b-xs">{{:nombre}}</span>
+        <span class="block">{{:facultad}}</span>
+        
     </td>
     <td class="v-middle">
         {{:nombreLargo}}
     </td>
-    <td class="v-middle">
-        {{:facultad}}
-    </td>
     <td class="v-middle  text-center">
-        <span class="badge">{{:docente}}</span>
+        <span class="pointer estado-green" id="docenteActivos" rel="{{:id}}">{{:docenteActivos}}</span>
+        <span class="pointer estado-red" id="docenteInactivos" rel="{{:id}}">{{:docenteInactivos}}</span>
     </td>
     <td class="v-middle text-center">
-        <span class="badge">{{:curso}}</span>
+        <span class="pointer estado-green" id="cursoActivos" rel="{{:id}}">{{:cursoActivos}}</span>
+        <span class="pointer estado-red" id="cursoInactivos" rel="{{:id}}">{{:cursoInactivos}}</span>
     </td>
     <td class="v-middle">
         {{if estado == 'ACT'}}

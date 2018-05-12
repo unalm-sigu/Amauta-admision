@@ -24,4 +24,6 @@ public interface DocenteDAO extends EasyDAO<Docente> {
 
     List<Docente> allByNombreFilter(String nombre, Integer limit);
 
+    List<Docente> allByDptoEstado(Long idDpto, String estado);
+
 }

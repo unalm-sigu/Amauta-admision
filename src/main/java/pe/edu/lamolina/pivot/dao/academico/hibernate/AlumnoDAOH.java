@@ -402,6 +402,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         octavia.set(alumno, "situacionAcademica");
         octavia.set(alumno, "creditosAprobados");
         octavia.set(alumno, "cicloActivo");
+        octavia.set(alumno, "creditosCursados");
         this.update(octavia);
     }
 

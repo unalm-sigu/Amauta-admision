@@ -242,4 +242,14 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .limit(15);
         return all(sql);
     }
+
+    @Override
+    public List<Curso> allByDptoEstado(Long idDpto, String estado) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cu")
+                .join("departamentoAcademico da")
+                .filter("da.id", idDpto)
+                .filter("cu.estado", estado);
+        return all(sql);
+    }
 }

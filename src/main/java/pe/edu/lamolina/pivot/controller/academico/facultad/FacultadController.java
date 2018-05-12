@@ -190,38 +190,4 @@ public class FacultadController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("allFacultad")
-    public JsonResponse allFacultad(@RequestParam("nombre") String nombre, HttpSession session) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            Compania compania = ds.getCompania();
-
-            List<Facultad> facultades = service.allFacultad(nombre, compania);
-            ArrayNode array = new ArrayNode(jsonFactory);
-            for (Facultad facultad : facultades) {
-                ObjectNode a = new ObjectNode(jsonFactory);
-                a.put("id", facultad.getId());
-                a.put("codigo", facultad.getCodigo());
-                a.put("nombre", facultad.getNombre());
-                array.add(a);
-            }
-
-            response.setData(array);
-            response.setTotal(array.size());
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
 }
