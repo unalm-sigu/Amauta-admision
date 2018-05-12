@@ -338,14 +338,14 @@
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <artifactId>zelpers</artifactId>
-            <version>0.1.31</version>
+            <version>0.1.33</version>
         </dependency>
 
 
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.12.10</version>
+            <version>0.12.13</version>
         </dependency>
 
     </dependencies>

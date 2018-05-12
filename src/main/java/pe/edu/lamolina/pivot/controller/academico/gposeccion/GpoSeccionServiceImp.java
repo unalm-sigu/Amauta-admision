@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
+import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -244,10 +245,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public GrupoSeccion saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
-        GrupoSeccion lastGrupoSeccion = grupoSeccionDAO.findLast();
+        List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(cicloAcademico);
+        //logger.debug(String.join(",", codigosByCiclo));
         Curso curso = cursoDAO.find(grupoSeccion.getCurso().getId());
+        String codigo = CodeGenerator.getNextCode(codigosByCiclo, 0);
 
-        String codigo = generateCodigo(lastGrupoSeccion.getCodigo());
         grupoSeccion.setCodigo(codigo);
         grupoSeccion.setVersion(BigDecimal.ONE.toString());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
