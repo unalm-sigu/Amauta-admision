@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 
 @Repository
@@ -124,9 +125,26 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         return all(sql);
     }
 
-    public List<HorarioAula> allByDiaHoraCiclo(Dia dia, Hora hora, CicloAcademico cicloAcademico) {
+    @Override
+    public List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico);
 
-        return null;
+        return all(sql);
     }
 
+    @Override
+    public void deleteAllInList(List<HorarioAula> horarios) {
+        if (horarios.isEmpty()) {
+            return;
+        }
+
+        String sql = "delete HorarioAula hs where hs in :HORARIOS";
+        Query query = getCurrentSession().createQuery(sql);
+        query.setParameterList("HORARIOS", horarios);
+        query.executeUpdate();
+    }
 }

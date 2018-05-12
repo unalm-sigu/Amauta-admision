@@ -18,6 +18,9 @@ $(function () {
                 LoadHorario.stop = false;
                 LoadHorario.revisarLog();
             } else {
+                $("#btnLoadHorario").removeAttr("disabled");
+                $("#btnLoadHorario").html('Cargar Horarios');
+                $("#btnStopLoadHorario").attr("disabled");
                 notify(json.message, 'error');
             }
         },
@@ -133,6 +136,7 @@ $(function () {
     $("#btnLoadHorario").click(function () {
         LoadHorario.cargarArchivos();
     });
+
     $("#btnStopLoadHorario").click(function () {
         LoadHorario.detenerCarga();
     });
@@ -140,6 +144,7 @@ $(function () {
     $(".activar-envio").click(function () {
         LoadHorario.activarEnvioFiles();
     });
+
     $(".exportar-errores").click(function () {
         var nom = $("#nombreSede").val();
         LoadHorario.exportarJson2Csv(LoadHorario.log, nom, true);
