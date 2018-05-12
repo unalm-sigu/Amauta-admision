@@ -337,6 +337,7 @@
 
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
+<!--            <groupId>pe.albatross</groupId>-->
             <artifactId>zelpers</artifactId>
             <version>0.1.31</version>
         </dependency>
@@ -345,7 +346,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.12.13</version>
+            <version>0.12.14</version>
         </dependency>
 
     </dependencies>
