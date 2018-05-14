@@ -244,7 +244,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         List<MatriculaSeccion> matriculaSecciones = crearMatriculasSecciones(rutaFileAlumnoSecciones);
         visor.inicializar("aluSecc", matriculaSecciones.size());
-        
+
         List<Persona> personasDB = personaDAO.all();
         Map<String, List<Persona>> mapKeyPersonas = TypesUtil.convertListToMapList("key", personasDB);
         Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
@@ -301,55 +301,55 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
         Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataGpoSecciones ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataSecciones");
         Map<String, Seccion> mapSecciones = progDataService.loadDataSecciones(secciones, ciclo, mapGpoSecciones);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataSecciones ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentesSecciones");
         Map<String, DocenteSeccion> mapDocenteSecciones = progDataService.loadDataDocentesSecciones(docentesSecciones, mapSecciones, mapDocentes, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataDocentesSecciones ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("revisarDocenteSecciones");
         progDataService.revisarDocenteSecciones(mapDocenteSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarDocenteSecciones ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataMatriculados");
         Map<String, MatriculaResumen> mapResumenes = loadDataMatriculados(matriculaSecciones, mapSecciones, ciclo, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tloadDataMatriculados ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("revisarAlumnosMatriculados");
         revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("revisarSecciones");
         progDataService.revisarSecciones(secciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarSecciones ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("Obtener mapas para horarios");
         Map<Integer, Dia> mapDias = diaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumeroDia(), x -> x));
@@ -1203,12 +1203,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String codigoDocente = getCellStringValue(2, row);
                 String codigoSeccion = getCellStringValue(3, row);
                 Integer principal = Integer.valueOf(getCellStringValue(4, row));
+                String carga = getCellStringValue(7, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-                DocenteSeccion profeSecc = new DocenteSeccion(principal, codigoDocente, codigoSeccion);
+                DocenteSeccion profeSecc = new DocenteSeccion(principal, codigoDocente, codigoSeccion, carga);
                 docenteSecciones.add(profeSecc);
 
             }

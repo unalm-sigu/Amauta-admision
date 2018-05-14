@@ -7,13 +7,13 @@ Vue.component("aula-component", {
         return {
             seccionModal: null,
             tabAulas: {
-                aulaSel: null,
+                aulaSel: {},
                 oera: {
                     id: 50,
                     nombre: "oera",
                     moduloSel: null,
                     aulaSel: null,
-                    modulosCombo: [],
+                    modulosOera: [],
                     tblAulas: null
                 },
                 oficinas: {
@@ -43,13 +43,13 @@ Vue.component("aula-component", {
     methods: {
         loadAula($vue, seccion) {
             $vue.tabAulas = {
-                aulaSel: null,
+                aulaSel: {},
                 oera: {
                     id: 50,
                     nombre: "oera",
                     moduloSel: null,
                     aulaSel: null,
-                    modulosCombo: [],
+                    modulosOera: [],
                     tblAulas: null
                 },
                 oficinas: {
@@ -76,11 +76,12 @@ Vue.component("aula-component", {
 
                         $vue.seccionModal = response.data.seccion;
                         console.dir($vue.seccionModal);
-                        $vue.tabAulas['oera'].modulosCombo = response.data.modulosOera;
+                        $vue.tabAulas['oera'].modulosOera = response.data.modulosOera;
                         $vue.tabAulas['oficinas'].oficinasDisponibles = response.data.oficinasDisponibles;
                         // $vue.modulosCombo = response.data.modulosOera;
 
                         if (response.data.aulaSel != null) {
+
                             $vue.tabAulas.aulaSel = response.data.aulaSel;
                             if ($vue.tabAulas.aulaSel.esOera) {
                                 console.log("esOera");
@@ -239,6 +240,7 @@ Vue.component("aula-component", {
             }
             return "btn-default";
         }, selectAula(aula) {
+            this.tabAulas.aulaSel
             let seleccionado = !aula.seleccionado;
             if (seleccionado) {
                 this.tabAulas.aulaSel = aula;
@@ -284,7 +286,12 @@ Vue.component("aula-component", {
                     }
                 }
             } else {
-                this.tabAulas.aulaSel = null;
+                let antes = this.tabAulas.aulaSel;
+                this.tabAulas.aulaSel = {
+                    esOera : antes.esOera,
+                    esOficina : antes.esOficina,
+                    esEspecifica : antes.esEspecifica
+                }
                 if (this.tabAulas['oficinas'].tblAulas != null) {
                     for (let key in this.tabAulas['oficinas'].tblAulas) {
                         this.tabAulas['oficinas'].tblAulas[key].seleccionado = false;
@@ -296,7 +303,6 @@ Vue.component("aula-component", {
                         this.tabAulas['oera'].tblAulas[key].seleccionado = false;
                     }
                 }
-
             }
         }
     }

@@ -11,7 +11,7 @@ Vue.component('modal-vik', {
         okaction: {type: Function, default: () => {
             }},
         okclass: {type: String, default: 'btn-success'},
-        cancelbtn: {type: String, default: 'Cancelar'},
+        cancelbtn: {type: String, default: 'Cerrar'},
         cancelaction: {type: Function, default: () => {
             }},
         cancelclass: {type: String, default: 'btn-default'},

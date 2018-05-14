@@ -1728,4 +1728,7 @@ div.notas {
     background: #a4d2ff;
 }
 
+[v-cloak] {
+    display: none;
+}
 

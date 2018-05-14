@@ -1188,6 +1188,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setSeccion(seccion);
                 profeSeccBD.setPrincipal(profeSecc.getPrincipal() == null ? 0 : profeSecc.getPrincipal());
                 profeSeccBD.setEstado(EstadoEnum.ACT.name());
+                profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
                 docenteSeccionDAO.save(profeSeccBD);
                 visor.agregarLog("docSecc", "saveDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + seccion.getCodigo() + " nuevo", true, "info");
 
@@ -1196,6 +1197,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setEstado(EstadoEnum.ACT.name());
                 profeSeccBD.setUserAnulacion(null);
                 profeSeccBD.setFechaAnulacion(null);
+                profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
                 docenteSeccionDAO.update(profeSeccBD);
                 visor.agregarLog("docSecc", "saveDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + seccion.getCodigo() + " ya existe y se actualiza", true, "info");
             }
@@ -1231,6 +1233,7 @@ public class ProgDataServiceImp implements ProgDataService {
             profeSeccBD.setEstado(EstadoEnum.INA.name());
             profeSeccBD.setUserAnulacion(ds.getUsuario());
             profeSeccBD.setFechaAnulacion(new Date());
+            profeSeccBD.setPorcentajeCarga(null);
             docenteSeccionDAO.update(profeSeccBD);
             visor.agregarLog("docSecc", "revisarDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + secc.getCodigo() + " se vuelve a INA", true, "info");
         }

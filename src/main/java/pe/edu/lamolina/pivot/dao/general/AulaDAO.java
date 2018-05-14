@@ -25,13 +25,13 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     Aula find(Long id);
 
-    List<Aula> allAulasSuperiorByOficina(Oficina oficina);
+    List<Aula> allPabellonesByOficina(Oficina oficina);
 
-    List<Aula> allBySuperior(Aula aula);
+    List<Aula> allByPabellon(Aula aula);
 
     List<Aula> allAulasSuperiorByTipoOficina(TipoOficinaEnum tipoOficinaEnum);
 
-    List<Aula> allSuperiorByOficinaWithAulas(List<Oficina> oficinas);
+    List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas);
 
     List<Aula> searchByNombreFilter(String nombre, Integer limit);
 

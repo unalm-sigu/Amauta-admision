@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
@@ -29,6 +28,18 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public Seccion find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
+                .leftJoin("grupoHoras gh", "aula au", "au.oficinaSupervisora", "au.aulaSuperior")
+                .filter("sec.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public List<Seccion> allByCargaAcademica(DynatableFilter filter, Docente docente) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Curso.class, "sec")
@@ -37,18 +48,6 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .orderBy("sec.id desc");
 
         return all(sql);
-    }
-
-    @Override
-    public Seccion find(Long idSeccion) {
-        Octavia sql = Octavia.query()
-                .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur")
-                .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
-                .leftJoin("grupoHoras gh", "aula au")
-                .filter("sec.id", idSeccion);
-
-        return find(sql);
     }
 
     @Override
@@ -144,7 +143,8 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula", "grupoHoras", "cur.carrera")
-                .filter("gs.id", gruposSeccion);
+                .filter("gs.id", gruposSeccion)
+                .orderBy("sec.codigo2");
 
         return all(sql);
     }

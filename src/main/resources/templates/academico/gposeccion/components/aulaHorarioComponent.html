@@ -6,7 +6,8 @@
                     <label class="col-md-2 control-label">Aula</label>
 
                     <div class="col-md-4">
-                        <span> {{aula.codigo}}</span>
+                        <span v-if="aula.nombre==''"> {{aula.codigo}}</span>
+                        <span v-if="aula.nombre!=''"> {{aula.nombre}}</span>
                     </div>
 
                     <label class="col-md-2 control-label">Capacidad</label>
@@ -21,27 +22,27 @@
                     <label class="col-md-2 control-label">Tipo Aula</label>
 
                     <div class="col-md-4">
-                        <span v-if="aula.tipoAula"> {{aula.tipoAula.nombre}} </span>
+                        <span v-if="aula.tipoAula.id != '' "> {{aula.tipoAula.nombre}} </span>
                     </div>
                     <label class="col-md-2 control-label">Tipo Ambiente</label>
 
                     <div class="col-md-4">
-                        <span v-if="aula.tipoAmbienteValue"> {{aula.tipoAmbienteValue}}</span>
+                        <span v-if="aula.tipoAmbienteValue != '' "> {{aula.tipoAmbienteEnum}}</span>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="form-group">
-                    <label class="col-md-2 control-label">Pabellon</label>
+                    <label class="col-md-2 control-label">Ubicación</label>
 
                     <div class="col-md-4">
-                        <span v-if="aula.aulaSuperior"> {{aula.aulaSuperior.nombre}}</span>
+                        <span v-if="aula.aulaSuperior.id != '' "> {{aula.aulaSuperior.nombre}}</span>
                     </div>
 
-                    <label class="col-md-2 control-label">Oficina</label>
+                    <label class="col-md-2 control-label">Gestionada por</label>
 
                     <div class="col-md-4">
-                        <span v-if="aula.oficina"> {{aula.oficina.nombre}} </span>
+                        <span v-if="aula.oficinaSupervisora.id != '' "> {{aula.oficinaSupervisora.nombre}} </span>
                     </div>
                 </div>
             </div>
@@ -72,7 +73,7 @@
                                 <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"
                                       class="text-primary block">
 
-                                    {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo}}
+                                    {{jsonHorarioAula[dia.id+'_'+hora.id].seccion.codigo2}}
 
                                 </span>
                                 <span v-if="jsonHorarioAula[dia.id+'_'+hora.id]"

@@ -34,6 +34,10 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     GrupoSeccion findLast();
 
+    String findMaxCodigoByCiclo(CicloAcademico cicloAcademico);
+
+    List<String> allCodigoByCiclo(CicloAcademico cicloAcademico);
+
     void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion);
 
     GrupoSeccion findLock(Long id);
