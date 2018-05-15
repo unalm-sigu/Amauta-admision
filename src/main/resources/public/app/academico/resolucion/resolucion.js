@@ -1,4 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('file-upload', VueUploadComponent);
 
 var app = new Vue({
     el: '#resoluciones',
@@ -12,7 +13,8 @@ var app = new Vue({
             modalsize: 'modal-lg'
         },
         resolucion: null,
-        tiposResoluciones: null
+        tiposResoluciones: null,
+        files: []
     }, created: function () {
 
     }, mounted: function () {
@@ -71,6 +73,21 @@ var app = new Vue({
             if (event) {
                 event.preventDefault();
             }
+
+
+            $('#frmResolucion').find(".multiselect__input").each(function () {
+                $(this).attr("required", true);
+            });
+            $('#frmResolucion').find('.multiselect__input').each(function () {
+                var input = $(this);
+                let element = input.closest('.multiselect').find('.multiselect__tags-wrap');
+
+                if (element.css('display') != 'none' && element.html() != "") {
+                    $(this).removeAttr("required");
+                }
+            });
+
+
             var form = $("[id='frmResolucion']");
             form.parsley().destroy();
             form.parsley();
@@ -101,6 +118,75 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        inputFile(newFile, oldFile) {
+            let $vue = this;
+            if (newFile && oldFile) {
+                // update
+                if (newFile.active && !oldFile.active) {
+                    // beforeSend
+                    // min size
+                    if (newFile.size >= 0 && this.minSize > 0 && newFile.size < this.minSize) {
+                        this.$refs.upload.update(newFile, {error: 'size'})
+                    }
+                }
+                if (newFile.progress !== oldFile.progress) {
+
+                    // progress
+                }
+                if (newFile.error && !oldFile.error) {
+                }
+                if (newFile.success && !oldFile.success) {
+                    //  $vue.producto.productoImagen.splice(0, 0, newFile.response.data)
+                }
+            }
+            if (!newFile && oldFile) {
+                if (oldFile.success && oldFile.response.id) {
+                }
+            }
+            // Automatically activate upload
+            if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
+                if (!this.$refs.upload.active) {
+                    //console.log('subiendo')
+                    this.$refs.upload.active = true
+                } else {
+                    //console.log("FIN?")
+                }
+            }
+
+            if ($vue.$refs.upload.uploaded) {
+                if ($vue.files.length > 0) {
+                    //  $vue.reloadProducto();x
+                    $vue.resolucion.rutaUrl = $vue.files[0].response.data;
+                }
+
+                if ($vue.$refs.upload.clear()) {
+                    //   console.log("reiniciar img 2")
+                }
+            }
+
+        },
+        inputFilter(newFile, oldFile, prevent) {
+            if (newFile && !oldFile) {
+                if (!/\.(gif|jpg|jpeg|png|pdf)$/i.test(newFile.name)) {
+                    swal(
+                            'Oops...',
+                            'Este archivo no esta permitido!',
+                            'error'
+                            )
+                    return prevent();
+                }
+            }
+            if (newFile && (!oldFile || newFile.file !== oldFile.file)) {
+                newFile.url = ''
+                let URL = window.URL || window.webkitURL
+                if (URL && URL.createObjectURL) {
+                    newFile.url = URL.createObjectURL(newFile.file)
+                }
+            }
+        }, changeFile(value) {
+            console.log("changeFile");
+            console.dir(this.files);
         }
     }
 })

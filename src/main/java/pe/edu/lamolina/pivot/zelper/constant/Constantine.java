@@ -29,7 +29,12 @@ public interface Constantine {
 
     String S3_LINK = "http://lamolina-admision.s3.amazonaws.com/";
 
-    String S3_DIR = "lamolina-admision";
+    //String S3_DIR = "albatross-pruebas/lamolina-pivot";
+    String S3_DIR = "lamolina-academico";
+
+    String PIVOT_DIR = "lamolina-pivot/";
+
+    String S3_RESOLUCIONES_DIR = "resoluciones/";
 
     String COD_CARRERA_ALUMNO_VISITANTE = "001";
 

@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,12 +24,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
@@ -46,6 +48,8 @@ public class ResolucionController {
 
     @Autowired
     ResolucionService resolucionService;
+
+    private MultipartFile resolucionFile;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -95,7 +99,15 @@ public class ResolucionController {
             logger.debug("cantidad de resoluciones " + resoluciones.size());
 
             for (Resolucion resolucionEach : resoluciones) {
-                array.add(resolucionEach.toJson());
+
+                ObjectNode resolucionJson = JsonHelper.createJson(resolucionEach, JsonNodeFactory.instance,
+                        new String[]{
+                            "*",
+                            "oficina.*",
+                            "tipoResolucion.*",
+                            "userRegistro.persona.*"
+                        });
+                array.add(resolucionJson);
             }
 
             json.setData(array);
@@ -123,7 +135,9 @@ public class ResolucionController {
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
             Resolucion resolucion = new Resolucion();
-            resolucion.setFecha(new Date());
+
+            resolucionFile = null;
+            //resolucion.setFecha(new Date());
             ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, true,
                     new String[]{"*",
                         "oficina.*",
@@ -165,6 +179,11 @@ public class ResolucionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            if (StringUtils.isBlank(resolucion.getRutaUrl())) {
+                throw new PhobosException("Seleccion su archivo de resolucion.");
+            }
+
+            resolucionService.saveResolucion(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getOficinaMain());
 
             String message = "Resolución guardada correctamente.";
             response.setSuccess(true);
@@ -178,6 +197,32 @@ public class ResolucionController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addFile")
+    public JsonResponse addFile(@RequestParam("file") MultipartFile file) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            logger.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
+
+            String name = TypesUtil.getUnixTime() + file.getOriginalFilename();
+            String absoluteName = Constantine.TMP_DIR + name;
+
+            FileHelper.saveToDisk(file, absoluteName);
+
+            response.setData(name);
+            response.setMessage("Archivo cargado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+        return response;
+
     }
 
 }
