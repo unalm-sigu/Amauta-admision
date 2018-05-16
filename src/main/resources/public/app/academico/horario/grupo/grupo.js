@@ -3,7 +3,7 @@ $(function () {
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/horario/grupo/list'),
-            perPageDefault: 6,
+            perPageDefault: 12,
             ajaxData: {idTipoGrupo: $('[name="idTipoGrupo"]').val()},
         },
         writers: {
@@ -12,7 +12,7 @@ $(function () {
         table: {
             bodyRowSelector: 'div'
         },
-        features: {pushState: false, search: false},
+        features: {pushState: false, search: true},
         inputs: {
             processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
         }
@@ -272,9 +272,11 @@ $(function () {
                         notify(response.message, "error");
                     }
                     mibox.modal('hide');
+                    console.log("cerrando box")
                 },
                 error: function () {
                     mibox.modal('hide');
+                    console.log("cerrando box")
                     notify(MESSAGES.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
@@ -307,9 +309,11 @@ $(function () {
                         notify(response.message, "error");
                     }
                     mibox.modal('hide');
+                    console.log("cerrando box22")
                 },
                 error: function () {
                     mibox.modal('hide');
+                    console.log("cerrando box22")
                     notify(MESSAGES.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
