@@ -213,7 +213,7 @@
         }
         var msgJson = /*[[${notificaciones.all()}]]*/ mensajes;
 
-        $(function() {
+        $(function () {
             for (var i = 0; i < msgJson.length; i++) {
                 notify(msgJson[i].mensaje, msgJson[i].tipo);
             }
@@ -244,7 +244,7 @@
 <div th:fragment="tawkto">
     <script th:if="${TAWKTO == 'true'}" type="text/javascript">
         var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-        (function() {
+        (function () {
             var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
             s1.async = true;
             s1.src = 'https://embed.tawk.to/58923aba85dc370a6b942edb/default';
@@ -275,7 +275,9 @@
     <script th:src="@{/vendor/filedownload/jquery.fileDownload.js}" type="text/javascript" charset="utf-8"/>
 </div>
 
-
+<div th:fragment="javascript-vue-upload">
+    <script type="text/javascript" th:src="@{/vendor/vue-upload-component/vue-upload-component.min.js}"/>
+</div>
 
 <div th:fragment="google-analytics">
     <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-89883780-4"></script>

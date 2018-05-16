@@ -235,6 +235,7 @@ public class AulaController {
 
                 json.put("id", gestor.getId());
                 json.put("nombre", gestor.getNombre());
+                json.put("codigo", gestor.getCodigo());
 
                 jsonList.add(json);
 

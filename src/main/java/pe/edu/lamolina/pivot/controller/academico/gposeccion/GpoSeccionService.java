@@ -15,9 +15,10 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -30,9 +31,13 @@ import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 
 public interface GpoSeccionService {
 
+    Oficina findOficinaOera();
+
+    List<Oficina> allOficinas(Compania compania);
+
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void cambiarEstadoGpoSeccion(EstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
+    void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -80,6 +85,8 @@ public interface GpoSeccionService {
 
     Seccion findSeccion(Long seccionId);
 
+    Seccion findSeccionWithRestriccions(Long seccionId);
+
     List<TipoGrupoHoras> allGrupoHorasActivosTipoAndCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
     List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
@@ -100,11 +107,11 @@ public interface GpoSeccionService {
 
     List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico);
 
-    List<Aula> allAulasSuperiorByOficina(Oficina oficina);
+    List<Aula> allPabellonesByOficina(Oficina oficina);
 
-    List<Aula> allAulasBySuperior(Seccion seccion, Aula aula, CicloAcademico cicloAcademico);
+    List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico);
 
-    List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
+    //List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
 
     Aula findAula(Long aulaId);
 
@@ -112,7 +119,7 @@ public interface GpoSeccionService {
 
     List<Oficina> allOficinasWithAula(List<Oficina> oficinas);
 
-    List<Aula> allAulaSuperiorByOficinasWithAula(List<Oficina> oficinas);
+    List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas);
 
     List<Aula> searchAulaByName(String nombre);
 

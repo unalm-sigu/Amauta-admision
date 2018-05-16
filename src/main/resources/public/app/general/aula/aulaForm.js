@@ -151,6 +151,19 @@ $(function () {
             }
 
             form.submit();
+        },
+        validandoOficina: function (e) {
+
+            if (e.added != undefined) {
+                var codigo = e.added.codigo;
+                if (codigo == 'OERA') {
+                    $('[name="nombre"]').val("");
+                    $('[name="nombre"]').attr("readonly", true);
+                }
+            } else {
+                $('[name="nombre"]').removeAttr("readonly");
+            }
+
         }
     };
     AulaForm.init();
@@ -167,7 +180,8 @@ $(function () {
         $(this).parsley().destroy();
     });
 
-    $("body").delegate("[name='oficinaSupervisora.id']", "change", function () {
+    $("body").delegate("[name='oficinaSupervisora.id']", "change", function (e) {
+        AulaForm.validandoOficina(e);
         $(this).parsley().destroy();
     });
 

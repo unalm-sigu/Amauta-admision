@@ -162,7 +162,7 @@ public class OficinaServiceImp implements OficinaService {
         ObjectUtil.eliminarAttrSinId(oficina, "personaJefe");
         ObjectUtil.eliminarAttrSinId(oficina, "jefeEncargado");
         oficina.setTipoOficina(oficina.getTipoOficina());
-        oficina.setEstado(OficinaEstadoEnum.ACT);
+        oficina.setEstadoEnum(OficinaEstadoEnum.ACT);
         oficina.setFechaRegistro(new Date());
         oficina.setUserRegistro(ds.getUsuario());
         oficinaDAO.save(oficina);
@@ -207,9 +207,9 @@ public class OficinaServiceImp implements OficinaService {
     public void estado(Oficina oficina) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
         if (OficinaEstadoEnum.INA.name().equalsIgnoreCase(oficinaBD.getEstado())) {
-            oficinaBD.setEstado(OficinaEstadoEnum.ACT);
+            oficinaBD.setEstadoEnum(OficinaEstadoEnum.ACT);
         } else {
-            oficinaBD.setEstado(OficinaEstadoEnum.INA);
+            oficinaBD.setEstadoEnum(OficinaEstadoEnum.INA);
         }
         oficinaDAO.update(oficinaBD);
     }

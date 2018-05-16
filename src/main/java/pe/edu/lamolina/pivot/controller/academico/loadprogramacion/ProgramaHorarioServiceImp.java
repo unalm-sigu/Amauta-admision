@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +55,7 @@ import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -75,6 +77,7 @@ import pe.edu.lamolina.pivot.dao.general.UbicacionDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
@@ -124,6 +127,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
 
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
@@ -146,8 +151,23 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
     @Override
     public Map<String, String> loadArchivosHorario(MultipartFile[] files) {
+        List<String> nombreFiles = Arrays.asList("GruposSecciones.xls", "Secciones.xls", "Personas.xls", "Docentes.xls", "DocentesSecciones.xls", "Alumnos.xls", "Matricula.xls", "HorarioGrupos.xls", "HorarioSecciones.xls", "Cursos.xls");
 
         Map<String, String> mapRutaFiles = new HashMap();
+        if (files.length != 10) {
+            throw new PhobosException("Deben ser 10 archivos de carga");
+        }
+        for (MultipartFile file : files) {
+            String nombre = file.getOriginalFilename();
+            mapRutaFiles.put(nombre, nombre);
+        }
+        for (String name : nombreFiles) {
+            String nfile = mapRutaFiles.get(name);
+            if (nfile == null) {
+                throw new PhobosException("No está enviando el archivo " + name);
+            }
+        }
+
         for (MultipartFile file : files) {
             String nombre = file.getOriginalFilename();
             String ruta = saveFile(file);
@@ -341,6 +361,8 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         t1 = System.currentTimeMillis();
         logger.debug("horariosSeccion");
+//        List<Seccion> seccionesBD = seccionDAO.allByCiclo(ciclo);
+//        Map<String, Seccion> mapSecciones = TypesUtil.convertListToMap("codigo", seccionesBD);
         List<HorarioSeccion> horariosSeccion = crearHorarioSecciones(rutaFileHorarioSecciones, mapSecciones, mapDias, mapHoras, mapAulas, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosSeccion ejecutado en {} mseg", (t2 - t1));
@@ -760,6 +782,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
             Sheet mySheet = myWorkBook.getSheetAt(0);
 
             Map<String, List<HorarioSeccion>> mapSeccHorarios = new LinkedHashMap();
+            Map<String, List<HorarioAula>> mapAulaHorarios = new LinkedHashMap();
 
             Iterator<Row> rowIterator = mySheet.iterator();
             int loop = 0;
@@ -788,6 +811,9 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
                 Hora hora = mapHoras.get(Integer.parseInt(horaNum));
                 Aula aula = mapAulas.get(aulaCod);
+                if (aula == null && !StringUtils.isEmpty(aulaCod)) {
+                    throw new PhobosException("Aula " + aulaCod + " no se halló en la base de datos");
+                }
 
                 List<HorarioSeccion> horarioSecc = mapSeccHorarios.get(clave);
                 if (horarioSecc == null) {
@@ -798,13 +824,30 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 HorarioSeccion horario = new HorarioSeccion(seccion, dia, hora, aula);
                 horarioSecc.add(horario);
 
+                if (aula != null) {
+                    List<HorarioAula> horariosAula = mapAulaHorarios.get(clave);
+                    if (horariosAula == null) {
+                        horariosAula = new ArrayList();
+                        mapAulaHorarios.put(clave, horariosAula);
+                    }
+
+                    HorarioAula horarioAula = new HorarioAula(seccion, dia, hora, aula);
+                    horariosAula.add(horarioAula);
+                }
+
             }
 
             visor.inicializar("horSecc", mapSeccHorarios.size());
+            visor.inicializar("horAula", mapAulaHorarios.size());
 
             logger.debug("{} horarioSeccion leídos", mapSeccHorarios.size());
+            logger.debug("{} horarioAula leídos", mapAulaHorarios.size());
             List<HorarioSeccion> horarioSeccCicloBD = horarioSeccionDAO.allByCiclo(cicloAcademico);
-            Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
+            List<HorarioAula> horarioAulaCicloBD = horarioAulaDAO.allByCiclo(cicloAcademico);
+
+            Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
+            Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
+
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
                 logger.debug("clave {} de horarioSeccion", clave);
@@ -815,7 +858,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
                 List<HorarioSeccion> horarioSecc = entry.getValue();
                 //List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
-                List<HorarioSeccion> horarioSeccBD = mapHorarios.get(seccion.getId());
+                List<HorarioSeccion> horarioSeccBD = mapHorariosSecciones.get(seccion.getId());
                 horarioSeccBD = (horarioSeccBD == null) ? new ArrayList() : horarioSeccBD;
                 ListsInspector inspector = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
 
@@ -824,7 +867,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
                 int contador = 0;
                 for (HorarioSeccion nuevo : nuevos) {
-                    logger.debug("\t ( {} / {} ) Agregando seccion {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
                     horarioSeccionDAO.save(nuevo);
                     horarios.add(nuevo);
                 }
@@ -840,11 +883,51 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                     HorarioSeccion hsBD = entry2.getValue();
                     HorarioSeccion hsForm = mapHorarioSeccForm.get(entry2.getKey());
                     hsBD.setAula(hsForm.getAula());
-                    logger.debug("\tActualizando seccion {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getSeccion().getCodigo());
+                    logger.debug("\tActualizando horario-seccion {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getSeccion().getCodigo());
                     horarioSeccionDAO.update(hsBD);
                     horarios.add(hsBD);
                 }
                 visor.agregarLog("horSecc", "saveHorSecc", "horarios-seccion actualizados para " + seccion.getCodigo(), true, "info");
+            }
+
+            for (Map.Entry<String, List<HorarioAula>> entry : mapAulaHorarios.entrySet()) {
+                String clave = entry.getKey();
+                logger.debug("clave {} de horarioSeccion", clave);
+                Seccion seccion = mapSecciones.get(clave);
+                if (seccion == null) {
+                    visor.agregarLog("horSecc", "saveHorSecc", "Horario-aula no se puede grabar para seccion " + clave + " no existente", false, "error");
+                    logger.debug("\tNo existe PTM!!!!");
+                }
+                List<HorarioAula> horarioSecc = entry.getValue();
+                //List<HorarioSeccion> horarioSeccBD = horarioSeccionDAO.allBySeccion(seccion);
+                List<HorarioAula> horarioAulaBD = mapHorariosAulas.get(seccion.getId());
+                horarioAulaBD = (horarioAulaBD == null) ? new ArrayList() : horarioAulaBD;
+                ListsInspector inspector = TypesUtil.analizeLists(horarioAulaBD, horarioSecc, "key");
+
+                List<HorarioAula> nuevos = inspector.getNewList();
+                List<HorarioAula> muertos = inspector.getDeadList();
+
+                int contador = 0;
+                for (HorarioAula nuevo : nuevos) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    horarioAulaDAO.save(nuevo);
+                }
+
+                horarioAulaDAO.deleteAllInList(muertos);
+
+                List<HorarioAula> existentesBD = inspector.getOldListDB();
+                List<HorarioAula> existentesForm = inspector.getOldListForm();
+                Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+
+                for (Map.Entry<String, HorarioAula> entry2 : mapHorarioAulaBD.entrySet()) {
+                    HorarioAula hsBD = entry2.getValue();
+                    HorarioAula hsForm = mapHorarioAulaForm.get(entry2.getKey());
+                    hsBD.setSeccion(hsForm.getSeccion());
+                    logger.debug("\tActualizando horario-aula {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getAula().getCodigo());
+                    horarioAulaDAO.update(hsBD);
+                }
+                visor.agregarLog("horAula", "saveHorAula", "horarios-aula actualizados para " + seccion.getCodigo(), true, "info");
             }
 
             return horarios;
@@ -1120,12 +1203,13 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 String codigoDocente = getCellStringValue(2, row);
                 String codigoSeccion = getCellStringValue(3, row);
                 Integer principal = Integer.valueOf(getCellStringValue(4, row));
+                String carga = getCellStringValue(7, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
-                DocenteSeccion profeSecc = new DocenteSeccion(principal, codigoDocente, codigoSeccion);
+                DocenteSeccion profeSecc = new DocenteSeccion(principal, codigoDocente, codigoSeccion, carga);
                 docenteSecciones.add(profeSecc);
 
             }

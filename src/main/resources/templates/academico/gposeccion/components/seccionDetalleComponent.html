@@ -23,7 +23,7 @@
                 <label class="col-md-2 control-label">Clave</label>
 
                 <div class="col-md-4">
-                    <span> {{seccion.codigo}}</span>
+                    <span> {{seccion.codigo2}}</span>
                 </div>
 
                 <label class="col-md-2 control-label">Vacantes</label>
@@ -38,7 +38,8 @@
                 <label class="col-md-2 control-label">Aula</label>
 
                 <div class="col-md-4">
-                    <span v-if="seccion.aula.id!=null"> {{seccion.aula.codigo}}</span>
+                    <span v-if="seccion.aula.nombre == '' "> {{seccion.aula.codigo}}</span>
+                    <span v-if="seccion.aula.nombre != '' "> {{seccion.aula.nombre}}</span>
                 </div>
 
                 <label class="col-md-2 control-label">Horas</label>

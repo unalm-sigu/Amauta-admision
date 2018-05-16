@@ -29,7 +29,7 @@
                         <td style="width: 12.5%" th:each="diaHora : ${hora.diaHoraGrupo}">
                             <span
                                 class="form-control pointer text-center"
-                                th:classappend="|${diaHora.grupoHorario.id==null ? 'asignar-hora' : 'desasignar-hora'}|"
+                                th:classappend="${diaHora.grupoHorario.id==null ? 'asignar-hora' : 'desasignar-hora'}"
                                 th:style="'border-color:'+${diaHora.grupoHorario.color}+';background-color:'+${diaHora.grupoHorario.color}"
                                 th:rel="${diaHora.hora.id}" 
                                 

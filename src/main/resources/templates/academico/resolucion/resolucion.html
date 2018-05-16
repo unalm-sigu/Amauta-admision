@@ -15,91 +15,193 @@
 
 <body>
     <div layout:fragment="main">
+        <div id="resoluciones" >
+            <header class="header b-b padder-lg">
+                <div class="pull-right panel-body" >
+                    <a class="btn btn-success" 
+                       v-on:click="nuevaResolucion($event)" 
+                       >Nueva Resolución
+                    </a>
+                </div>
+                <h2 >Resoluciones</h2>
+            </header>
+            <section class="wrapper-lg">
 
-        <header class="header b-b padder-lg">
+                <section class="panel">
+                    <section class="panel-body">
 
-            <div class="pull-right m-t-md">      
-            </div> 
-            <h2 >Resoluciones</h2>
-        </header>
-        <section id="tramitesAcademicos" class="wrapper-lg">
 
-            <section class="panel">
-                <section class="panel-body">
+                        <raptor-table ref="tblResoluciones"
+                                      v-bind:url="URL_RESOLUCIONES" >
 
-                    <!-- ->
-                    <raptor-table ref="tblTramitesAcademicos"
-                                  v-bind:url="URL_TRAMITES" >
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th >Tipo Resolución</th>
+                                            <th >Oficina</th>
+                                            <th >Serie</th>
+                                            <th >Número</th>
+                                            <th>Fecha Resolución</th>
+                                            <th>Fecha Registro</th>
+                                            <th>Usuario Registro </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td>
+                                                {{item.tipoResolucion.nombre}}
+                                            </td>
+                                            <td>
 
-                        <template scope="props">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th >Tramite</th>
-                                        <th class="col-md-4 text-center">Persona</th>
-                                        <th >Tipo Tramite</th>
-                                        <th>Estado</th>
-                                        <th>Fecha Registro</th>
-                                        <th>
+                                            </td>
+                                            <td>
+                                                {{item.serie}}
+                                            </td> 
+                                            <td>
+                                                {{item.numero}}
+                                            </td> 
+                                            <td>
+                                                {{item.fecha}}
+                                            </td> 
+                                            <td>
+                                                {{item.fechaRegistro}}
+                                            </td> 
+                                            <td>
+                                                usuario
+                                            </td> 
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
 
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in props.data"> 
-                                        <td> 
-                                            <small class="block text-muted">Serie: {{item.serie}}</small>
-                                            <small class="block text-muted">Número: {{item.numero}}</small>
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.persona.apellidosNombres}}
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.tipoTramite.nombre}}
-                                        </td>
-                                        <td class="v-middle text-left">
-                                            <small class="block text-muted">Tramite:  {{ item.estadoValue}}</small>
-                                            <small class="block text-muted" 
-                                                   v-if="item.tipoTramite.esTipoTramiteRei">
-                                                Reincorporación: {{item.reincorporaciones[0].estadoTramite.nombre}}
-                                            </small>
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.fechaRegistro}}
-                                        </td>
-                                        <td>
-                                            <div class="dropdown actions">
-                                                <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-cog"></i>
-                                                </a> 
-                                                <ul class="dropdown-menu pull-right"> 
-                                                    <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
-                                                    <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolReincorporacion">
-                                                        <a class="btn-link pointer editar-gpo-seccion" 
-                                                           v-on:click="cambiarEstadoReincorporacion(item,'SOL_ACEP',$event)">
-                                                            Aceptar Sol. Reincorporacion</a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </template>
-                    </raptor-table>
-                    -->
+                    </section>
                 </section>
-            </section>
-        </section>
-        <div th:substituteby="templates/modal"/>
 
+
+                <modal-vik ref="modalResolucion"
+                           v-bind="resolucionModal"
+                           v-bind:okaction="saveResolucion"
+                           modalsize="modal-md">
+                    <div slot="body">
+                        <form id="frmResolucion" v-if="resolucion!=null">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Tipo Resolución</label>
+                                    <div class="form-group">
+                                        <multiselect 
+                                            v-model="resolucion.tipoResolucion" 
+                                            v-bind:options="tiposResoluciones"
+                                            label="nombre"
+                                            track-by="id" 
+                                            >
+                                        </multiselect>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Fecha Resolución</label>
+                                    <div class="form-group">
+                                        <v-date-picker id="dpFecha"
+                                                       v-model="resolucion.fecha"
+                                                       required="true"
+                                                       class="col-md-6"
+                                                       ></v-date-picker>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label>Serie</label>
+                                    <div class="form-group">
+                                        <input type="text"
+                                               v-model="resolucion.serie"
+                                               class="form-control" 
+                                               required="true"></input>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label>Número</label>
+                                    <div class="form-group">
+                                        <input type="text"
+                                               v-model="resolucion.numero"
+                                               class="form-control" 
+                                               required="true"> </input>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Archivo</label>
+                                    <div class="form-group">
+
+                                        <file-upload
+                                            extensions="gif,jpg,jpeg,png,webp"
+                                            accept="image/png,image/gif,image/jpeg,image/webp"
+                                            class="pull-right"
+                                            post-action="/almacen/producto/addImagen"
+                                            v-bind:data="{id: producto.id}"
+                                            v-model="files"
+                                            v-bind:multiple="true"
+                                            v-on:input-filter="inputFilter"
+                                            v-on:input-file="inputFile"
+                                            ref="upload">
+                                            <span class="btn btn-primary pull-right m-b-md"
+                                                  v-if="!$refs.upload || !$refs.upload.active"
+                                                  v-on:click="$refs.upload.active = true">
+                                                <i class="fa fa-cloud-upload"></i> &nbsp;Subir imagenes
+                                            </span>
+                                        </file-upload>
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" v-if="resolucion.userRegistro.id!=''">
+                                <div class="col-lg-6">
+                                    <label>Usuario Registro</label>
+                                    <div class="form-group">
+                                        <input type="text"
+                                               v-model="resolucion.userRegistro.persona.apellidosNombres"
+                                               class="form-control" 
+                                               required="true"></input>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <label>Fecha Registro</label>
+                                    <div class="form-group">
+                                        <input type="text"
+                                               v-model="resolucion.fechaRegistro"
+                                               class="form-control" 
+                                               required="true"> </input>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </modal-vik>
+
+
+            </section>
+        </div>
+        <div th:substituteby="templates/modal"/>
+        <div th:substituteby="_modules/vue-modal"/>
 
     </div>
 
     <div layout:fragment="js">
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+        <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <!--     <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script> --> 
+
+        <div th:substituteby="_modules/vue-raptor-table"/>
+
+        <script th:src="@{/app/academico/resolucion/resolucion.js}" charset="utf-8"></script> 
     </div>
 
 
