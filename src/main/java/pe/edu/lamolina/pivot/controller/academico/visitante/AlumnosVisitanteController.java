@@ -232,4 +232,21 @@ public class AlumnosVisitanteController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("existepersona")
+    public JsonResponse existepersona(Persona personaForm) {
+        JsonResponse response = new JsonResponse();
+        try {
+            Persona persona = service.findPersonaByDocumento(personaForm);
+            ObjectNode jPersona = service.validarAlumno(persona);
+            response.setData(jPersona);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

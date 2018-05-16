@@ -5,8 +5,8 @@ new Vue({
         showUniverdidadName: codigoPaisUniversidad != 'PE',
         showUniverdidadPeru: codigoPaisUniversidad == 'PE',
         showUbicacionDomicilio: codigoPaisDomicilio == 'PE',
-        docente:{},
-        persona:{tipoDocumento:{id:null}},
+        docente: {},
+        persona: {tipoDocumento: {id: null}},
     },
     mounted: function () {
 
@@ -16,7 +16,7 @@ new Vue({
             vue.cambioTipoDoc();
         });
         $('[name="cicloEstudia.id"]').select2({minimumResultsForSearch: -1});
-        
+
         $(".buscar-distrito").select2(vue.buscarDistrito());
         $(".date").datepicker();
         $(".numerico").numeric({negative: false});
@@ -211,32 +211,37 @@ new Vue({
             APP.revisarNombre(self);
         },
         cambioTipoDoc: function () {
-            var vue=this;
-            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+            var vue = this;
+            $global.$emit('MODAL-WAIT-OPEN');
             vue.completarPersona();
-            $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
         },
         cambiarNumDoc: function () {
-            var vue=this;
-            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+            var vue = this;
+            $global.$emit('MODAL-WAIT-OPEN');
             vue.completarPersona();
-            $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-        }, completarPersona: function () {
+        },
+        completarPersona: function () {
+            var vue = this;
+            console.log('hola mama');
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/alumno/calcularpromedio'),
-                data: {id: vue.alumno.id},
+                url: APP.url('academico/visitante/existepersona'),
+                data: {
+                    'tipoDocumento.id': vue.persona.tipoDocumento.id,
+                    numeroDocIdentidad: vue.persona.numeroDocIdentidad
+                },
                 success: function (response) {
                     if (response.success) {
-                        vue.cargaHistorial();
-                        notify(response.message, 'error');
+                        vue.persona = response.data;
                     } else {
+                        vue.persona.tipoDocumento.id=null;
+                        vue.persona.numeroDocIdentidad=null;
                         notify(response.message, 'error');
                     }
-                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    $global.$emit('MODAL-WAIT-CLOSE');
                 }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
-                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    $global.$emit('MODAL-WAIT-CLOSE');
                 }
             });
         }
