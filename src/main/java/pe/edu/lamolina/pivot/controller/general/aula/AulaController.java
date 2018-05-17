@@ -7,8 +7,12 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import static javax.management.Query.attr;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +27,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -44,6 +54,9 @@ public class AulaController {
 
     @Autowired
     AulaService service;
+
+    @Autowired
+    SpringTemplateEngine springHtml;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -291,6 +304,41 @@ public class AulaController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    //
+    @ResponseBody
+    @RequestMapping("loadModalAulaHorario")
+    public JsonResponse loadModalAulaHorario(
+            @RequestParam("aula") Long aulaId, HttpSession session, Model model) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            Aula aula = service.findAulaFull(aulaId, ds.getCicloAcademico());
+
+            List<Dia> dias = service.allDia();
+            List<HorarioAula> horarioAula = aula.getHorariosAula();
+            Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", horarioAula);
+            HelperHorarioAula helper = new HelperHorarioAula();
+            List<Hora> horas = new ArrayList(mapHoras.values());
+            Collections.sort(horas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+            Context ctx = new Context();
+            ctx.setVariable("horas", horas);
+            ctx.setVariable("dias", dias);
+            ctx.setVariable("horario", horarioAula);
+            ctx.setVariable("helper", helper);
+
+            String htmlContent = springHtml.process("general/aula/aulaHorarioTemplate", ctx);
+            response.setData(htmlContent);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

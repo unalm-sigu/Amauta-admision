@@ -14,7 +14,7 @@
                     <a type="button" class="btn btn-success" th:href="@{'/general/aula/nuevo'}">Nuevo</a>
                 </div>
             </div> 
-            <h2>Lista de ambientes</h2>
+            <h2 th:text="${'Lista de ambientes '+ ciclo.descripcion}"></h2>
         </header>
         <section class="wrapper-lg">
             <section class="panel">
@@ -42,7 +42,6 @@
         <div th:substituteby="templates/modal"/>
         <div th:substituteby="general/aula/modalAula"/>
         <script id="aulaTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="general/aula/aulaTemplate"/></script>
-
     </div>
 
     <div layout:fragment="js">

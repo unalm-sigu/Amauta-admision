@@ -1,0 +1,43 @@
+<section class="panel">
+    <section class="panel-body">
+
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered">
+
+                <thead>
+                    <tr>
+                        <th style="width: 12.5%" class="text-center">Hora</th>
+                        <th style="width: 12.5%" class="text-center" th:each="dia : ${dias}" 
+                            th:text="${dia.nombre}" >
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody >
+                    <tr th:each="hora : ${horas}"  th:inline="text">
+                        <td class="v-middle">
+                            <span class="bold">
+                                [[${hora.descripcion}]]
+                            </span>
+                        </td>
+                        <td class="text-center" th:each="dia : ${dias}">
+                            <!--<span class="block">-->
+                            <span class="block text-primary" th:text="${helper.getCodigoSeccion(dia.id, hora.id, horario)}"></span>
+                            <span class="block" th:text="${helper.getCodigoGrupoHora(dia.id, hora.id, horario)}"></span>
+                            <!--</span>-->
+                        </td>
+
+                    </tr>
+                    <tr th:if="${horas.size() eq 0}">
+                        <td colspan="8" class="text-center text-danger">
+                            Sin horario.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </section>
+</section>
