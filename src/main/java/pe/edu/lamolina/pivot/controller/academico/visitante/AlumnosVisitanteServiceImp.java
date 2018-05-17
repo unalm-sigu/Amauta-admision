@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -560,11 +561,34 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     @Override
     public ObjectNode validarAlumno(Persona persona) {
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
         if (persona == null) {
-            new ObjectNode(jsonFactory);
+            persona = new Persona();
         }
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        AlumnoVisitante alumnoVisitanteDb = alumnoVisitanteDAO.findByPersona(persona);
+        if (alumnoVisitanteDb != null) {
+            throw new PhobosException("Alumno ya registrado");
+        }
+
+        logger.debug("persona {}", persona.getId());
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ObjectNode node = JsonHelper.createJson(persona, jsonFactory, true, new String[]{
+            "*",
+            "tipoDocumento.*",
+            "ubicacionNacer.*",
+            "paisNacer.id",
+            "paisNacer.nombre",
+            "paisNacer.codigo",
+            "nacionalidad.id",
+            "nacionalidad.nombre",
+            "nacionalidad.codigo",
+            "paisDomicilio.id",
+            "paisDomicilio.nombre",
+            "paisDomicilio.codigo"
+        });
+        return node;
     }
 
 }

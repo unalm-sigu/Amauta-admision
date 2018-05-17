@@ -21,8 +21,11 @@
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-                            
-                            <p>{{persona}}</p>
+
+                            <p>{{persona.ubicacionNacer}}</p>
+                            <p>{{persona.paisNacer}}</p>
+                            <p>{{persona.nacionalidad}}</p>
+                            <p>{{persona.paisDomicilio}}</p>
 
                             <form data-parsley-validate="true" method="POST" id="formAlumnoVisitante" >
 
@@ -41,6 +44,7 @@
                                             <label>Tipo de documento de identidad</label>
 
                                             <select name="persona.tipoDocumento.id"
+                                                    v-model="persona.tipoDocumento.id"
                                                     class="form-control" required="true">
                                                 <option></option>
                                                 <option th:each="tipo : ${tiposDocIdentidad}"
@@ -59,6 +63,8 @@
 
                                             <input type="text"
                                                    v-on:blur="cambiarNumDoc"
+                                                   v-model="persona.numeroDocIdentidad"
+                                                   v-bind:value="persona.numeroDocIdentidad"
                                                    name="persona.numeroDocIdentidad"
                                                    th:value="${alumnoVisitante.persona.numeroDocIdentidad}"
                                                    class="form-control" required="true"/>
@@ -73,6 +79,7 @@
 
                                             <input type="text"
                                                    name="persona.paterno"
+                                                   v-bind:value="persona.paterno"
                                                    v-on:change="nombrePersona"
                                                    th:value="${alumnoVisitante.persona.paterno}"
                                                    class="form-control"/>
@@ -87,6 +94,7 @@
 
                                             <input type="text"
                                                    name="persona.materno"
+                                                   v-bind:value="persona.materno"
                                                    v-on:change="nombrePersona"
                                                    th:value="${alumnoVisitante.persona.materno}"
                                                    class="form-control"/>
@@ -101,6 +109,7 @@
                                             <input type="text"
                                                    name="persona.nombres"
                                                    required="true"
+                                                   v-bind:value="persona.nombres"
                                                    v-on:change="nombrePersona"
                                                    th:value="${alumnoVisitante.persona.nombres}"
                                                    class="form-control"/>
@@ -123,6 +132,7 @@
                                                                     name="persona.sexo"
                                                                     id="inlineCheckbox1"
                                                                     value="M"
+                                                                    v-model="persona.sexo"
                                                                     th:checked="${alumnoVisitante.persona.sexo=='M'}" /> Masculino
                                                         </label>
 
@@ -135,6 +145,7 @@
                                                                     name="persona.sexo"
                                                                     id="inlineCheckbox2"
                                                                     value="F"
+                                                                    v-model="persona.sexo"
                                                                     th:checked="${alumnoVisitante.persona.sexo=='F'}" /> Femenino
                                                         </label>
 
@@ -156,6 +167,7 @@
                                                    class="form-control input-s-full buscar-pais"
                                                    name="persona.paisNacer.id"
                                                    data-trigger="change"
+                                                   v-model="persona.paisNacer.id"
                                                    th:attr="codigo=${helper.showCodigoPais(alumnoVisitante.persona.paisNacer)}"
                                                    th:rel="${alumnoVisitante.persona.paisNacer != null}? ${alumnoVisitante.persona.paisNacer.nombre}"
                                                    th:value="${alumnoVisitante.persona.paisNacer != null}? ${alumnoVisitante.persona.paisNacer.id}"
@@ -165,19 +177,12 @@
 
                                     <div class="col-sm-6">
 
-                                        <div  v-if="showLugarNacimiento" id="lugarNacimiento" class="form-group" >
-                                            <label>Distrito de nacimiento (en Perú)</label>
-
-                                            <input type="text"
-                                                   id="distNacimiento"
-                                                   class="form-control input-s-full buscar-distrito"
-                                                   name="persona.ubicacionNacer.id"
-                                                   data-trigger="change"
-                                                   th:rel="${alumnoVisitante.persona.ubicacionNacer != null}? ${alumnoVisitante.persona.ubicacionNacer.distrito}"
-                                                   th:value="${alumnoVisitante.persona.ubicacionNacer != null}? ${alumnoVisitante.persona.ubicacionNacer.id}"/>
-                                            <span id="mensaje"></span>
-
-                                        </div>
+                                        <ubicacionnacer 
+                                            v-if="persona.ubicacionNacer.id!=null"  
+                                            v-model="persona"
+                                            v-bind:persona="persona"
+                                            />
+                                        
                                     </div>
 
                                     <div class="col-sm-6">
@@ -190,6 +195,7 @@
                                                        data-parsley-errors-container="#errorfechaNacer"
                                                        th:value="${alumnoVisitante.persona.fechaNacer}? ${#dates.format(alumnoVisitante.persona.fechaNacer,'dd/MM/yyyy')}"
                                                        class="form-control"
+                                                       v-model="persona.fechaNacer"
                                                        name="persona.fechaNacer" required="true" />
 
                                                 <span class="input-group-addon">
@@ -211,6 +217,7 @@
                                                    name="persona.nacionalidad.id"
                                                    id="nacionalidad"
                                                    data-trigger="change"
+                                                   v-model="persona.nacionalidad.id"
                                                    th:rel="${alumnoVisitante.persona.nacionalidad != null}? ${alumnoVisitante.persona.nacionalidad.nombre}"
                                                    th:value="${alumnoVisitante.persona.nacionalidad != null}? ${alumnoVisitante.persona.nacionalidad.id}"
                                                    required="true"/>
@@ -229,6 +236,7 @@
 
                                             <input type="text"
                                                    name="persona.telefono"
+                                                   v-model="persona.telefono"
                                                    th:value="${alumnoVisitante.persona.telefono}"
                                                    class="form-control sin-espacios numerico"/>
 
@@ -242,6 +250,7 @@
 
                                             <input type="text"
                                                    name="persona.celular"
+                                                   v-model="persona.celular"
                                                    th:value="${alumnoVisitante.persona.celular}"
                                                    class="form-control sin-espacios numerico"/>
 
@@ -255,6 +264,7 @@
 
                                             <input type="text"
                                                    name="persona.email"
+                                                   v-model="persona.email"
                                                    th:value="${alumnoVisitante.persona.email}"
                                                    class="form-control verificar-email"/>
 
@@ -273,6 +283,7 @@
                                                    id="paisDomicilio"
                                                    class="form-control"
                                                    name="persona.paisDomicilio.id"
+                                                   v-model="persona.paisDomicilio.id"
                                                    data-trigger="change"
                                                    th:rel="${helper.getParentTree(alumnoVisitante,'persona.paisDomicilio.nombre')}"
                                                    th:value="${helper.getParentTree(alumnoVisitante,'persona.paisDomicilio.id')}"
@@ -291,6 +302,7 @@
                                                    class="form-control buscar-distrito"
                                                    name="persona.ubicacionDomicilio.id"
                                                    data-trigger="change"
+                                                   v-model="persona.ubicacionDomicilio.id"
                                                    th:rel="${helper.getParentTree(alumnoVisitante,'persona.ubicacionDomicilio.nombre')}"
                                                    th:value="${helper.getParentTree(alumnoVisitante,'persona.ubicacionDomicilio.id')}"
                                                    required="true"/>
@@ -306,6 +318,7 @@
                                             <input type="text"
                                                    class="form-control"
                                                    name="persona.direccion"
+                                                   v-model="persona.direccion"
                                                    th:value="${alumnoVisitante.persona.direccion}"
                                                    data-trigger="change" required="true" />
 
@@ -374,6 +387,7 @@
 
                                                 <option th:each="ciclo : ${ciclos}"
                                                         th:value="${ciclo.id}"
+                                                        v-model="alumnoVisitante.cicloEstudia.id"
                                                         th:selected="${alumnoVisitante.cicloEstudia!=null?alumnoVisitante.cicloEstudia.id==ciclo.id:0}"
                                                         th:text="${ciclo.descripcion}"></option>
 
@@ -400,8 +414,8 @@
 
             </div>
 
-            <th:block th:replace="academico/visitante/_alumnovisitante"/>
-            
+            <th:block th:replace="academico/visitante/alumnovisitanteformtemp"/>
+
             <div th:substituteby="_modules/vue-modal"/>
 
             <script  th:inline="javascript" >
@@ -418,6 +432,7 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/academico/visitante/alumnoVisitanteUbicacion.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/visitante/alumnoVisitanteForm.js}" charset="utf-8"></script>
         </div>
 

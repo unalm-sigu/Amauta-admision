@@ -1,0 +1,19 @@
+<div id="divBuscarDistrito" type="text/x-jsrender" class="hide" >
+    <span class="block h5 bold">{{:distrito}}</span>
+    <span class=""><strong>Provincia:</strong>{{:provincia}}
+        <strong>Departamento:</strong> {{:departamento}}</span>
+</div>
+
+<template id="ubicacionNacerTemp">
+    <div  class="form-group" >
+        <label>Distrito de nacimiento (en Perú)</label>
+        <p>{{persona.ubicacionNacer}}</p>
+        <input type="text"
+               class="form-control input-s-full buscar-distrito"
+               data-trigger="change"
+               name="persona.ubicacionNacer.id"
+               v-model="persona.ubicacionNacer.id"
+               />
+        <span id="mensaje"></span>
+    </div>
+</template>

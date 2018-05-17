@@ -234,8 +234,8 @@ public class AlumnosVisitanteController {
     }
 
     @ResponseBody
-    @RequestMapping("existepersona")
-    public JsonResponse existepersona(Persona personaForm) {
+    @RequestMapping("existealumno")
+    public JsonResponse existealumno(Persona personaForm) {
         JsonResponse response = new JsonResponse();
         try {
             Persona persona = service.findPersonaByDocumento(personaForm);
