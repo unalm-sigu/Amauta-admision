@@ -445,7 +445,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     private void enviarNotificacionUsuarioCreacion(Persona persona) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
-        //mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
+        mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
     }
 
     @Override
