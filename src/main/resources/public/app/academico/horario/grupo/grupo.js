@@ -267,26 +267,33 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         Grupo.getHorario();
-                        dynatable.process();
+//                        dynatable.process();
                     } else {
                         notify(response.message, "error");
                     }
                     mibox.modal('hide');
-                    console.log("cerrando box")
                 },
                 error: function () {
                     mibox.modal('hide');
-                    console.log("cerrando box")
                     notify(MESSAGES.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });
         },
-        desasignarHora: function (e) {
+        desasignarHora: function ($this, e) {
             e.preventDefault();
+            var letra = $this.find(".text-item-horario").text();
+            var color = $this.css('border-color');
+
+            if (letra != '' && color == 'rgb(203, 213, 221)') {
+                notify("Esta hora - día se encuentra ocupada.", "error")
+                return;
+            }
+
             if (Grupo.grupoActivo == null) {
                 return;
             }
+
             var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             var self = $(e.currentTarget);
             var id = self.data("id");
@@ -309,11 +316,9 @@ $(function () {
                         notify(response.message, "error");
                     }
                     mibox.modal('hide');
-                    console.log("cerrando box22")
                 },
                 error: function () {
                     mibox.modal('hide');
-                    console.log("cerrando box22")
                     notify(MESSAGES.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
@@ -342,7 +347,7 @@ $(function () {
     });
 
     Grupo.body.delegate('.desasignar-hora', 'dblclick', function (e) {
-        Grupo.desasignarHora(e);
+        Grupo.desasignarHora($(this), e);
     });
 
     Grupo.init();

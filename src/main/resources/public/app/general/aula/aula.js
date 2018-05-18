@@ -118,12 +118,41 @@ $(function () {
             var rec = APP.recDynatable(dynatable, e);
             bootbox.alert({
                 message: $.templates("#divAulasContenido").render(rec),
-                buttons:{
-                    ok:{label:'Aceptar',className:'btn-primary'}
+                buttons: {
+                    ok: {label: 'Aceptar', className: 'btn-primary'}
                 }
             });
 
-        }
+        },
+        verAulaHorario: function (e, $this) {
+            e.preventDefault();
+            var rec = APP.recDynatable(dynatable, e);
+            var idAula = rec.id;
+            var codigo = rec.codigo;
+
+            MODAL.init("lg");
+            $.ajax({
+                url: APP.url('general/aula/loadModalAulaHorario'),
+                type: 'POST',
+                async: true,
+                data: {aula: idAula},
+                success: function (response) {
+                    if (response.success) {
+
+                        MODAL.title("Horario del aula " + codigo);
+                        MODAL.buttons('');
+                        MODAL.body(response.data);
+                        MODAL.show();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
     };
 
     Aula.init();
@@ -142,6 +171,10 @@ $(function () {
 
     $("body").delegate(".ver-aulas-contenido", "click", function (e) {
         Aula.verAulasContenido(e, $(this));
+    });
+
+    $("body").delegate(".ver-aula-horario", "click", function (e) {
+        Aula.verAulaHorario(e, $(this));
     });
 
 });
