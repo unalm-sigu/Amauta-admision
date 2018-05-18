@@ -1,35 +1,32 @@
-Vue.component("ubicacionsearch", {
-    template: "#ubicacionTemp",
+Vue.component("paissearh", {
+    template: "#paisTemp",
     data: function () {
         return {
-            ubicacion: {
+            pais: {
                 id: null
             }
         }
     },
     props: {
-        ubicacion: {
-            id: null
-        },
+        pais: {id: null},
         nombre: {type: String, default: ''},
     },
     mounted: function () {
         let vue = this;
         let self = $(vue.$el);
-        self.select2(vue.buscarDistrito(vue));
+        self.select2(vue.buscarPais(vue));
     },
     updated: function () {
         let vue = this;
         let self = $(vue.$el);
-        self.select2(vue.buscarDistrito(vue));
+        self.select2(vue.buscarPais(vue));
     },
     methods: {
-        buscarDistrito: function (vue) {
+        buscarPais: function (vue) {
             return {
-                placeholder: "  ",
                 minimumInputLength: 2,
                 ajax: {
-                    url: APP.url("comun/buscar/allDistritos"),
+                    url: APP.url("comun/buscar/allPaises"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
@@ -40,19 +37,18 @@ Vue.component("ubicacionsearch", {
                     }
                 },
                 initSelection: function (element, callback) {
-                    if (vue.ubicacion.id != "") {
-                        callback(vue.ubicacion);
+                    if (vue.pais.id != null) {
+                        callback(vue.pais);
                     }
                 },
                 formatResult: function (info) {
-                    return $.templates("#divBuscarDistrito").render(info);
+                    return info.nombre + " | " + info.codigo;
                 },
                 formatSelection: function (info) {
-                    vue.ubicacion.id = info.id;
-                    vue.ubicacion.codigo = info.codigo;
-                    vue.ubicacion.nombre = info.nombre;
-                    vue.ubicacion.distrito = info.distrito;
-                    return info.distrito;
+                    vue.pais.id = info.id;
+                    vue.pais.codigo = info.codigo;
+                    vue.pais.nombre = info.nombre;
+                    return info.nombre;
                 },
                 escapeMarkup: function (m) {
                     return m;

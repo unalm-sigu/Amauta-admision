@@ -31,6 +31,8 @@ public interface AlumnosVisitanteService {
 
     Persona findPersonaByDocumento(Persona personaForm);
 
-    ObjectNode validarAlumno(Persona persona);
+    ObjectNode validarAlumno(AlumnoVisitante alumnoVisitanteForm);
+
+    AlumnoVisitante findAlumnoVisitante(AlumnoVisitante idAlumnoVisitante);
 
 }

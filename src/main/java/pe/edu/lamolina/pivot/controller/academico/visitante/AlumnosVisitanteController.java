@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -77,19 +78,7 @@ public class AlumnosVisitanteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-
-        AlumnoVisitante alumnoVisitante = new AlumnoVisitante();
-        alumnoVisitante.setPersona(new Persona());
-        List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
-        List<CicloAcademico> ciclos = service.allCicloAcademico();
-
-        model.addAttribute("alumnoVisitante", alumnoVisitante);
-        model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
-        model.addAttribute("ciclos", ciclos);
-        model.addAttribute("helper", new AlumnoHelper());
-
         return "academico/visitante/alumnovisitante";
-
     }
 
     @ResponseBody
@@ -159,16 +148,12 @@ public class AlumnosVisitanteController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
-        AlumnoVisitante alumnoVisitante = new AlumnoVisitante();
-        alumnoVisitante.setPersona(new Persona());
         List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
         List<CicloAcademico> ciclos = service.allCicloAcademico();
 
-        model.addAttribute("alumnoVisitante", alumnoVisitante);
+        model.addAttribute("alumnoVisitante", new AlumnoVisitante());
         model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
         model.addAttribute("ciclos", ciclos);
-        model.addAttribute("helper", new AlumnoHelper());
-
         return "academico/visitante/alumnovisitanteform";
 
     }
@@ -176,17 +161,52 @@ public class AlumnosVisitanteController {
     @RequestMapping("{alumnoVisitante}/update")
     public String update(@PathVariable("alumnoVisitante") Long idAlumnoVisitante, Model model, HttpSession session) {
 
-        AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante);
         List<TipoDocIdentidad> tiposDocIdentidad = service.allTiposDocIdentidad();
         List<CicloAcademico> ciclos = service.allCicloAcademico();
 
-        model.addAttribute("alumnoVisitante", alumnoVisitante);
+        model.addAttribute("alumnoVisitante", new AlumnoVisitante(idAlumnoVisitante));
         model.addAttribute("tiposDocIdentidad", tiposDocIdentidad);
         model.addAttribute("ciclos", ciclos);
-        model.addAttribute("helper", new AlumnoHelper());
-
         return "academico/visitante/alumnovisitanteform";
 
+    }
+
+    @ResponseBody
+    @RequestMapping("find")
+    public JsonResponse find(AlumnoVisitante idAlumnoVisitante) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(jsonFactory);
+
+            AlumnoVisitante alumnoVisitante = service.findAlumnoVisitante(idAlumnoVisitante.getId());
+            ObjectNode jAlumnoVisitante = JsonHelper.createJson(alumnoVisitante, jsonFactory, true, new String[]{
+                "*",
+                "universidad.*",
+                "paisUniversidad.*",
+                "cicloEstudia.*"
+            });
+            data.put("alumnoVisitante", jAlumnoVisitante);
+            Persona persona = alumnoVisitante.getPersona();
+            ObjectNode jPersona = JsonHelper.createJson(persona, jsonFactory, true, new String[]{
+                "*",
+                "tipoDocumento.*",
+                "ubicacionNacer.*",
+                "paisNacer.*",
+                "nacionalidad.*",
+                "paisDomicilio.*",
+                "ubicacionDomicilio.*"
+            });
+            data.put("persona", jPersona);
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody
@@ -198,16 +218,14 @@ public class AlumnosVisitanteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
             if (alumnoVisitante.getId() == null) {
                 service.save(alumnoVisitante, ds);
+                response.setMessage("Alumno Visitante guardado satisfactoriamente");
             } else {
                 service.update(alumnoVisitante, ds);
+                response.setMessage("Alumno Visitante actualizado satisfactoriamente");
             }
-
-            response.setMessage("Alumno Visitante guardado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
-
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -235,11 +253,13 @@ public class AlumnosVisitanteController {
 
     @ResponseBody
     @RequestMapping("existealumno")
-    public JsonResponse existealumno(Persona personaForm) {
+    public JsonResponse existealumno(AlumnoVisitante alumnoVisitanteForm) {
         JsonResponse response = new JsonResponse();
         try {
+            Persona personaForm = alumnoVisitanteForm.getPersona();
             Persona persona = service.findPersonaByDocumento(personaForm);
-            ObjectNode jPersona = service.validarAlumno(persona);
+            alumnoVisitanteForm.setPersona(persona);
+            ObjectNode jPersona = service.validarAlumno(alumnoVisitanteForm);
             response.setData(jPersona);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {

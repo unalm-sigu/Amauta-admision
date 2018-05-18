@@ -4,16 +4,29 @@
         <strong>Departamento:</strong> {{:departamento}}</span>
 </div>
 
-<template id="ubicacionNacerTemp">
-    <div  class="form-group" >
-        <label>Distrito de nacimiento (en Perú)</label>
-        <p>{{persona.ubicacionNacer}}</p>
-        <input type="text"
-               class="form-control input-s-full buscar-distrito"
-               data-trigger="change"
-               name="persona.ubicacionNacer.id"
-               v-model="persona.ubicacionNacer.id"
-               />
-        <span id="mensaje"></span>
-    </div>
+<template id="ubicacionTemp">
+    <input type="text"
+           class="form-control"
+           data-trigger="change"
+           v-bind:name="nombre"
+           v-model="ubicacion.id"
+           />
+</template>
+
+<template id="paisTemp">
+    <input  type="text"
+            class="form-control"
+            v-bind:name="nombre"
+            data-trigger="change"
+            v-model="pais.id"
+            required="true"/>
+</template>
+
+<template id="universidadTemp">
+    <input  type="text"
+            class="form-control"
+            v-bind:name="nombre"
+            data-trigger="change"
+            v-model="universidad.id"
+            required="true"/>
 </template>

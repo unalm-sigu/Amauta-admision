@@ -181,6 +181,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             alumno.setCursosCarreraInscritos(0);
             alumno.setCursosCarreraAprobados(0);
             alumno.setPromedioCarreraAcumulado(BigDecimal.ZERO);
+            alumno.setCiclosEstudiados(0);
 
             alumnoDAO.save(alumno);
 
@@ -444,7 +445,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
 
     private void enviarNotificacionUsuarioCreacion(Persona persona) {
         ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
-        mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
+        //mailerService.enviarNotificacionUsuarioCreacion(persona, contenidoCarta);
     }
 
     @Override
@@ -469,6 +470,11 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Override
     public AlumnoVisitante findAlumnoVisitante(Long idAlumnoVisitante) {
         return alumnoVisitanteDAO.findAlumnoVisitante(new AlumnoVisitante(idAlumnoVisitante));
+    }
+
+    @Override
+    public AlumnoVisitante findAlumnoVisitante(AlumnoVisitante alumnoVisitante) {
+        return alumnoVisitanteDAO.findAlumnoVisitante(alumnoVisitante);
     }
 
     @Override
@@ -560,15 +566,23 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     }
 
     @Override
-    public ObjectNode validarAlumno(Persona persona) {
+    public ObjectNode validarAlumno(AlumnoVisitante alumnoVisitanteForm) {
+        Persona persona = alumnoVisitanteForm.getPersona();
 
+        AlumnoVisitante alumnoVisitanteDb = null;
+        
         if (persona == null) {
             persona = new Persona();
+        } else {
+            alumnoVisitanteDb = alumnoVisitanteDAO.findByPersona(persona);
         }
 
-        AlumnoVisitante alumnoVisitanteDb = alumnoVisitanteDAO.findByPersona(persona);
         if (alumnoVisitanteDb != null) {
-            throw new PhobosException("Alumno ya registrado");
+            if (alumnoVisitanteForm.getId() != null) {
+                if (alumnoVisitanteForm.getId() != alumnoVisitanteDb.getId().longValue()) {
+                    throw new PhobosException("Alumno ya registrado");
+                }
+            }
         }
 
         logger.debug("persona {}", persona.getId());
@@ -578,6 +592,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
             "*",
             "tipoDocumento.*",
             "ubicacionNacer.*",
+            "ubicacionDomicilio.*",
             "paisNacer.id",
             "paisNacer.nombre",
             "paisNacer.codigo",

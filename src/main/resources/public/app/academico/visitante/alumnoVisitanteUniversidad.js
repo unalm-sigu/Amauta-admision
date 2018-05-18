@@ -1,35 +1,32 @@
-Vue.component("ubicacionsearch", {
-    template: "#ubicacionTemp",
+Vue.component("universidadsearch", {
+    template: "#universidadTemp",
     data: function () {
         return {
-            ubicacion: {
+            universidad: {
                 id: null
             }
         }
     },
     props: {
-        ubicacion: {
-            id: null
-        },
+        universidad: {id: null},
         nombre: {type: String, default: ''},
     },
     mounted: function () {
         let vue = this;
         let self = $(vue.$el);
-        self.select2(vue.buscarDistrito(vue));
+        self.select2(vue.buscarUniversidad(vue));
     },
     updated: function () {
         let vue = this;
         let self = $(vue.$el);
-        self.select2(vue.buscarDistrito(vue));
+        self.select2(vue.buscarUniversidad(vue));
     },
     methods: {
-        buscarDistrito: function (vue) {
+        buscarUniversidad: function (vue) {
             return {
-                placeholder: "  ",
                 minimumInputLength: 2,
                 ajax: {
-                    url: APP.url("comun/buscar/allDistritos"),
+                    url: APP.url("comun/buscar/allUniversidad"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
@@ -40,19 +37,18 @@ Vue.component("ubicacionsearch", {
                     }
                 },
                 initSelection: function (element, callback) {
-                    if (vue.ubicacion.id != "") {
-                        callback(vue.ubicacion);
+                    if (vue.universidad.id != null) {
+                        callback(vue.universidad);
                     }
                 },
                 formatResult: function (info) {
-                    return $.templates("#divBuscarDistrito").render(info);
+                    return info.nombre + " | " + info.codigo;
                 },
                 formatSelection: function (info) {
-                    vue.ubicacion.id = info.id;
-                    vue.ubicacion.codigo = info.codigo;
-                    vue.ubicacion.nombre = info.nombre;
-                    vue.ubicacion.distrito = info.distrito;
-                    return info.distrito;
+                    vue.universidad.id = info.id;
+                    vue.universidad.codigo = info.codigo;
+                    vue.universidad.nombre = info.nombre;
+                    return info.nombre;
                 },
                 escapeMarkup: function (m) {
                     return m;
