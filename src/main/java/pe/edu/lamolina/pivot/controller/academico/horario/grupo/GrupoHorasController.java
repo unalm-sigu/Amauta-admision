@@ -84,9 +84,12 @@ public class GrupoHorasController {
 
     @RequestMapping(method = RequestMethod.GET, value = "{tipo}")
     public String index(@PathVariable("tipo") Long idTipoGrupo, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
 
         TipoGrupoHoras tipoGrupoHoras = service.findTipoGrupoHoras(idTipoGrupo);
         model.addAttribute("tipoGrupoHoras", tipoGrupoHoras);
+        model.addAttribute("ciclo", ciclo.getDescripcion());
         return "academico/horario/grupo/grupo";
     }
 
@@ -95,7 +98,6 @@ public class GrupoHorasController {
     public DynatableResponse list(DynatableFilter filter, Long idTipoGrupo, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();

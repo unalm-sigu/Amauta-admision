@@ -67,7 +67,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoHoras.class, "gh")
                 .leftJoin("tipoGrupoHoras tgh")
-                .searchFields("codigo", "letra", "tipoCiclo", "tipoSeccion", "color")
+                .searchFields("codigo", "letra")
                 .filter("tgh.id", idTipoGrupo)
                 .orderBy("gh.id desc");
 

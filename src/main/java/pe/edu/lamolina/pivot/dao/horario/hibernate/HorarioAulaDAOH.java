@@ -12,7 +12,6 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
-import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 
 @Repository
@@ -159,4 +158,5 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         query.setParameterList("HORARIOS", horarios);
         query.executeUpdate();
     }
+
 }
