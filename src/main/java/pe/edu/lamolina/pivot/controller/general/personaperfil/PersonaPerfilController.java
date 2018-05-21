@@ -32,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
@@ -98,9 +99,9 @@ public class PersonaPerfilController {
                 node.put("personaNombre", pp.getPersona().getApellidosNombres());
 
                 node.put("estadoPersonaPerfil", EstadoEnum.getNombre(pp.getEstado()));
-                node.put("esActivo", pp.isEstadoLike(EstadoEnum.ACT));
-                node.put("esInactivo", pp.isEstadoLike(EstadoEnum.INA));
-                node.put("esCreado", pp.isEstadoLike(EstadoEnum.CRE));
+                node.put("esActivo", pp.isEstadoLike(PerfilEstadoEnum.ACT));
+                node.put("esInactivo", pp.isEstadoLike(PerfilEstadoEnum.INA));
+                node.put("esCreado", pp.isEstadoLike(PerfilEstadoEnum.CRE));
                 node.put("fechaIngreso", pp.getFechaInicio() != null ? "" : new DateTime(pp.getFechaInicio()).toString("dd/MM/yyyy"));
 
                 array.add(node);

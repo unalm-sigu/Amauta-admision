@@ -9,5 +9,8 @@ public interface RestriccionCarreraDAO extends EasyDAO<RestriccionCarrera> {
 
     List<RestriccionCarrera> allActivasBySeccion(Seccion seccion);
 
+    List<RestriccionCarrera> allActivasBySecciones(List<Seccion> secciones);
+
     void updateEstadoFechaUsuario(RestriccionCarrera restriccionCarrera);
+
 }

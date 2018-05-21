@@ -97,10 +97,12 @@ public class GrupoHorasController {
         DynatableResponse json = new DynatableResponse();
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<GrupoHoras> grupos = service.allGrupoHoras(filter, idTipoGrupo);
-            List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(grupos);
+            List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(grupos, cicloAcademico);
             Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
             for (GrupoHoras grupo : grupos) {
 

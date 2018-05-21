@@ -25,11 +25,11 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
+import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
-import static pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum.PERFIL;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -288,7 +288,7 @@ public class OficinaServiceImp implements OficinaService {
         perfil.setPersona(oficinaBD.getPersonaJefe());
         perfil.setPerfilCompania(oficinaBD.getCargoJefe());
         perfil.setOficina(oficinaBD);
-        perfil.setEstado(EstadoEnum.ACT);
+        perfil.setEstadoEnum(PerfilEstadoEnum.ACT);
         perfil.setFechaInicio(oficinaBD.getFechaInicioJefatura());
         perfil.setFechaRegistro(new Date());
         perfil.setUserRegistro(ds.getUsuario());
@@ -337,7 +337,7 @@ public class OficinaServiceImp implements OficinaService {
             perfil.setPersona(oficinaBD.getPersonaJefe());
             perfil.setPerfilCompania(oficinaBD.getCargoJefe());
             perfil.setOficina(oficinaBD);
-            perfil.setEstado(EstadoEnum.ACT);
+            perfil.setEstadoEnum(PerfilEstadoEnum.ACT);
             perfil.setFechaInicio(oficinaBD.getFechaInicioJefatura());
             perfil.setFechaRegistro(new Date());
             perfil.setUserRegistro(ds.getUsuario());
@@ -345,7 +345,7 @@ public class OficinaServiceImp implements OficinaService {
         }
 
         perfil.setFechaFin(oficina.getFechaFinJefatura());
-        perfil.setEstado(EstadoEnum.CER);
+        perfil.setEstadoEnum(PerfilEstadoEnum.CER);
         perfil.setUserModificacion(ds.getUsuario());
         perfil.setFechaModificacion(new Date());
         personaPerfilDAO.update(perfil);
@@ -683,7 +683,7 @@ public class OficinaServiceImp implements OficinaService {
 
         PersonaCargo personaCargo = new PersonaCargo();
         personaCargo.setCompania(dataSessionPivot.getCompania());
-        personaCargo.setEstado(EstadoEnum.ACT);
+        personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
         personaCargo.setFechaInicio(colaborador.getFechaInicio());
         personaCargo.setFechaRegistro(new Date());
         personaCargo.setOficina(colaborador.getOficina());
@@ -754,7 +754,7 @@ public class OficinaServiceImp implements OficinaService {
 
             PersonaCargo personaCargo = new PersonaCargo();
             personaCargo.setCompania(dataSessionPivot.getCompania());
-            personaCargo.setEstado(EstadoEnum.ACT);
+            personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
             personaCargo.setFechaInicio(colaborador.getFechaInicio());
             personaCargo.setFechaRegistro(new Date());
             personaCargo.setOficina(colaborador.getOficina());
@@ -839,7 +839,7 @@ public class OficinaServiceImp implements OficinaService {
 
         if (colaborador.getOficina().getId() != oficinaAnterior.getId()) {
             PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaborador.getCargo(), colaborador.getPersona());
-            personaCargo.setEstado(EstadoEnum.INA);
+            personaCargo.setEstadoEnum(PerfilEstadoEnum.INA);
             personaCargo.setFechaFin(new Date());
             personaCargo.setFechaModificacion(new Date());
             personaCargo.setUserModificacion(usuario);
@@ -847,7 +847,7 @@ public class OficinaServiceImp implements OficinaService {
 
             personaCargo = new PersonaCargo();
             personaCargo.setCompania(dataSessionPivot.getCompania());
-            personaCargo.setEstado(EstadoEnum.ACT);
+            personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
             personaCargo.setFechaInicio(colaborador.getFechaInicio());
             personaCargo.setFechaRegistro(new Date());
             personaCargo.setOficina(colaborador.getOficina());

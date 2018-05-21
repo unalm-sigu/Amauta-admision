@@ -56,8 +56,8 @@ public class TipoGrupoHorasDAOH extends AbstractEasyDAO<TipoGrupoHoras> implemen
     public TipoGrupoHoras findByTipoCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(TipoGrupoHoras.class, "tg")
-                .filter("tipo", tipoGrupoHorasEnum.getValue())
-                .filter("estado", EstadoEnum.ACT.name())
+                .filter("tipo", tipoGrupoHorasEnum)
+                .filter("estado", EstadoEnum.ACT)
                 .in("tipoCiclo", Arrays.asList(cicloAcademico.getTipo(), TipoCicloEnum.AMB.name()));
 
         return find(sql);

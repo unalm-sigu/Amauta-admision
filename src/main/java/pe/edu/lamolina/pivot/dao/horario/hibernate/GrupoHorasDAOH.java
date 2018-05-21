@@ -14,6 +14,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
@@ -89,6 +90,7 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
         Octavia sql = Octavia.query()
                 .selectDistinct("gh")
                 .from(DiaHoraGrupo.class, "dhg")
+                .join("dia", "hora")
                 .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ca")
                 .filter("tgh.id", tipoGrupoHoras)
                 .filter("ca.id", cicloAcademico);
@@ -96,30 +98,11 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
 
     @Override
-    public List<GrupoHoras> allByTipoGrupoHoraDyna(DynatableFilter filter,
+    public List<GrupoHoras> allByTipoGpoDynatable(DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico,
-            Seccion seccion,
             List<GrupoHoras> grupoHorasFilter) {
 
-        /*
-        StringBuilder strb = new StringBuilder();
-        strb.append(" Select gh.id, count(dhg) from GrupoHoras gh ");
-        strb.append(" join gh.diaHoraGrupo dhg ");
-        strb.append(" join gh.tipoGrupoHoras tgh ");
-        strb.append(" join dhg.cicloAcademico ca ");
-        strb.append(" where ");
-        strb.append(" tgh.id=:prm_tipo_grupo_hora ");
-        strb.append(" and  ca.id=:prm_ciclo ");
-        strb.append(" group by  gh.id  ");
-        strb.append(" having ount(dhg)>:prm_cant_horas ");
-
-        Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("prm_tipo_grupo_hora", tipoGrupoHoras.getId());
-        query.setParameter("prm_ciclo", cicloAcademico.getId());
-        query.setParameter("prm_cant_horas", seccion.getHorasSemanales());
-        List<GrupoHoras> grupoHoras = query.list();
-         */
         DynatableSql sql = new DynatableSql(filter)
                 .selectDistinct("gh")
                 .from(DiaHoraGrupo.class, "dhg")
@@ -133,16 +116,12 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
 
     @Override
-    public List<GrupoHoras> allZetasByDynatable(DynatableFilter filter, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
-
+    public List<GrupoHoras> allZetasByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
-                // .selectDistinct("gh")
-                .from(GrupoHoras.class,
-                        "gh")
+                .from(GrupoHoras.class, "gh")
                 .join("gh.tipoGrupoHoras tgh")
-                .filter("tgh.id", tipoGrupoHoras)
-                .searchFields("gh.codigo");;
-        // .filter("ca.id", cicloAcademico);
+                .filter("tgh.tipo", TipoGrupoHorasEnum.ZETA)
+                .searchFields("gh.codigo");
         return sql.all(getCurrentSession());
     }
 

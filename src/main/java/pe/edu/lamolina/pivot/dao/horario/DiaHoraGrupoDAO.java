@@ -13,19 +13,19 @@ public interface DiaHoraGrupoDAO extends EasyDAO<DiaHoraGrupo> {
 
     DiaHoraGrupo findByDiaHoraCiclo(DiaHoraGrupo diaHoraGrupo);
 
-    List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    List<DiaHoraGrupo> allByGrupoCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+    //List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
 
-    List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
+    List<DiaHoraGrupo> allByTipoGpoCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
-    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
+    List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
 
-    DiaHoraGrupo findByCicloAcademicoGrupoHorasDiaHora(CicloAcademico cicloAcademico, GrupoHoras grupo, Dia dia, Hora hora);
+    DiaHoraGrupo findByCicloGrupoDiaHora(CicloAcademico cicloAcademico, GrupoHoras grupo, Dia dia, Hora hora);
 
     void deleteAllByNotInList(List<DiaHoraGrupo> horarios);
 
-    List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo);
+    //List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo);
 
     void deleteAllInList(List<DiaHoraGrupo> diaHoraGrupos);
 
