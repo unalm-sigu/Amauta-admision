@@ -35,7 +35,7 @@ public interface GrupoHorasService {
 
     void desasignarHora(DiaHoraGrupo diaHoraGrupo);
 
-    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
 
     TipoGrupoHoras findTipoGrupoHoras(Long idTipoGrupo);
 

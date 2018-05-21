@@ -148,8 +148,8 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     }
 
     @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
-        return diaHoraGrupoDAO.allDiaHoraGrupo(grupos);
+    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico ciclo) {
+        return diaHoraGrupoDAO.allDiaHoraGrupo(grupos, ciclo);
     }
 
     @Override

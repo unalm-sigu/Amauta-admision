@@ -97,6 +97,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     public List<Oficina> allOficinasByName(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
+                .join("oficinaSuperior")
                 .filter("ofi.nombre", "like", nombre);
 
         return all(sql);
