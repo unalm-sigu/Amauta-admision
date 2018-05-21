@@ -3,13 +3,13 @@
         <title>Tramties Academicos</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style>
-        .td-vacio {
-            padding-right: 4px !important;
-            padding-left: 4px !important;
-        }
-        .bg-row {
-            background-color: #f9fafc;
-        }
+.td-vacio {
+    padding-right: 4px !important;
+    padding-left: 4px !important;
+}
+.bg-row {
+    background-color: #f9fafc;
+}
     </style>
 </head>
 
@@ -79,6 +79,12 @@
                                                            v-on:click="cambiarEstadoReincorporacion(item,'SOL_ACEP',$event)">
                                                             Aceptar Sol. Reincorporacion</a>
                                                     </li>
+                                                    <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.isSolicitudAceptada">
+                                                        <a class="btn-link pointer editar-gpo-seccion" 
+                                                           v-on:click="cambiarEstadoReincorporacion(item,'CON_FAC',$event)">
+                                                            Agendar</a>
+                                                    </li>
+
                                                 </ul>
                                             </div>
                                         </td>

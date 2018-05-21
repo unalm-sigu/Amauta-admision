@@ -34,4 +34,14 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         octavia.set(tramite, "fechaModificacion");
         this.update(octavia);
     }
+
+    @Override
+    public Tramite find(Long id) {
+        Octavia sql = Octavia.query()
+                .from(Tramite.class, "tr")
+                .join("alumno alum", "tipoTramite tt", "cicloAcademico ca")
+                .join("alum.carrera car", "car.facultad fac")
+                .filter("tr.id", id);
+        return find(sql);
+    }
 }

@@ -11,4 +11,6 @@ public interface TramiteDAO extends EasyDAO<Tramite> {
 
     void updateEstado(Tramite tramite);
 
+    Tramite find(Long id);
+
 }

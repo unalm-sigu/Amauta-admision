@@ -24,7 +24,7 @@ var app = new Vue({
                 async: false,
                 data: {
                     tramite: tramite.id,
-                    estado: "SOL_ACEP"
+                    estado: estadoDestino
                 },
                 success: function (response) {
                     if (response.success) {

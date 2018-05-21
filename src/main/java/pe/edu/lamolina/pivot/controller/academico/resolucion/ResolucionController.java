@@ -84,6 +84,13 @@ public class ResolucionController {
         return "academico/resolucion/resolucion";
     }
 
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        return "academico/resolucion/resolucionForm";
+    }
+
     @ResponseBody
     @RequestMapping("listResoluciones")
     public DynatableResponse listTramites(DynatableFilter filter,
@@ -137,7 +144,7 @@ public class ResolucionController {
             Resolucion resolucion = new Resolucion();
 
             resolucionFile = null;
-            //resolucion.setFecha(new Date());
+            resolucion.setFecha(new Date());
             ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, true,
                     new String[]{"*",
                         "oficina.*",

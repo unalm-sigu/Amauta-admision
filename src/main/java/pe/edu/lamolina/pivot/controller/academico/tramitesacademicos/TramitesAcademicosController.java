@@ -91,6 +91,21 @@ public class TramitesAcademicosController {
             List<Tramite> tramites = tramitesAcademicosService.allTramitesByFilter(filter);
             logger.debug(this.getClass() + " Cantidad de tramites {}", tramites.size());
 
+            String[] mapperTramite = new String[]{
+                "*",
+                "persona.*",
+                "alumno.*",
+                "compania.*",
+                "cicloAcademico.*",
+                "tipoTramite.*",
+                "userRegistro.*",
+                "userRespuesta.*"
+            };
+            String[] mapperReincorporacion = new String[]{
+                "*",
+                "estadoTramite.*"
+            };
+            JsonNodeFactory jc = JsonNodeFactory.instance;
             for (Tramite tramite : tramites) {
                 array.add(tramite.toJson());
             }
@@ -119,6 +134,9 @@ public class TramitesAcademicosController {
             if (EstadoTramiteEnum.SOL_ACEP.name().equals(estadoDestino)) {
                 tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), ds.getUsuario());
                 response.setMessage("Solicitud aceptada.");
+            } else if (EstadoTramiteEnum.CON_FAC.name().equals(estadoDestino)) {
+                tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), ds.getUsuario());
+                response.setMessage("Solicitud agendada.");
             }
 
             response.setSuccess(Boolean.TRUE);
