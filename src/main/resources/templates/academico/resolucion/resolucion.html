@@ -10,6 +10,7 @@
         .bg-row {
             background-color: #f9fafc;
         }
+
     </style>
 </head>
 
@@ -19,7 +20,7 @@
             <header class="header b-b padder-lg">
                 <div class="pull-right panel-body" >
                     <a class="btn btn-success" 
-                       v-on:click="nuevaResolucion($event)" 
+                       th:href="@{/academico/resolucion/nuevo}" 
                        >Nueva Resolución
                     </a>
                 </div>

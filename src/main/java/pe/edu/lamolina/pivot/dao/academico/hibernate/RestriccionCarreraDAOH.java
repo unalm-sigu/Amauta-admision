@@ -28,6 +28,16 @@ public class RestriccionCarreraDAOH extends AbstractEasyDAO<RestriccionCarrera> 
     }
 
     @Override
+    public List<RestriccionCarrera> allActivasBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(RestriccionCarrera.class, "rc")
+                .join("carrera car", "seccion sec")
+                .filter("rc.estado", EstadoEnum.ACT)
+                .in("sec.id", secciones);
+        return all(sql);
+    }
+
+    @Override
     public void updateEstadoFechaUsuario(RestriccionCarrera restriccionCarrera) {
         Octavia octavia = Octavia.update(RestriccionCarrera.class);
         octavia.set(restriccionCarrera, "estado");

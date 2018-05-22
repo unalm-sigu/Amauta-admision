@@ -137,7 +137,7 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Override
     public List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
-        return diaHoraGrupoDAO.allDiaHoraGrupoByGrupo(grupoHoras, cicloAcademico);
+        return diaHoraGrupoDAO.allByGrupoCiclo(grupoHoras, cicloAcademico);
     }
 
     @Override
@@ -148,8 +148,8 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     }
 
     @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico ciclo) {
-        return diaHoraGrupoDAO.allDiaHoraGrupo(grupos, ciclo);
+    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico) {
+        return diaHoraGrupoDAO.allByGruposCiclo(grupos, cicloAcademico);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Override
     public List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
-        return diaHoraGrupoDAO.allDiaHoraGrupoByTipo(tipoGrupoHoras, cicloAcademico);
+        return diaHoraGrupoDAO.allByTipoGpoCiclo(tipoGrupoHoras, cicloAcademico);
     }
 
     @Override

@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -26,6 +25,17 @@ public class RestriccionModalidadDAOH extends AbstractEasyDAO<RestriccionModalid
                 .filter("rm.estado", EstadoEnum.ACT)
                 .filter("sec.id", seccion);
         return all(sql);
+    }
+
+    @Override
+    public List<RestriccionModalidad> allActivasBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(RestriccionModalidad.class, "rm")
+                .join("modalidadEstudio mod", "seccion sec")
+                .filter("rm.estado", EstadoEnum.ACT)
+                .in("sec.id", secciones);
+        return all(sql);
+
     }
 
     @Override

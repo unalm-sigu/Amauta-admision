@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -25,6 +24,16 @@ public class RestriccionRepitenciaDAOH extends AbstractEasyDAO<RestriccionRepite
                 .join("tipoRepitencia tr", "seccion sec")
                 .filter("rp.estado", EstadoEnum.ACT)
                 .filter("sec.id", seccion);
+        return all(sql);
+    }
+
+    @Override
+    public List<RestriccionRepitencia> allActivasBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(RestriccionRepitencia.class, "rp")
+                .join("tipoRepitencia tr", "seccion sec")
+                .filter("rp.estado", EstadoEnum.ACT)
+                .in("sec.id", secciones);
         return all(sql);
     }
 

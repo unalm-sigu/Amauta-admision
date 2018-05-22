@@ -14,12 +14,16 @@ import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoResolucionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Service
@@ -35,12 +39,20 @@ public class ResolucionServiceImp implements ResolucionService {
     TipoResolucionDAO tipoResolucionDAO;
 
     @Autowired
+    TramiteDAO tramiteDAO;
+
+    @Autowired
     S3Service s3service;
 
     @Override
-    public List<Resolucion> allTramitesByFilter(DynatableFilter filter) {
-        List<Resolucion> tramites = resolucionDAO.allByDyna(filter);
-        return tramites;
+    public List<Resolucion> allResolucionesByFilter(DynatableFilter filter) {
+        List<Resolucion> resoluciones = resolucionDAO.allByDyna(filter);
+        return resoluciones;
+    }
+
+    @Override
+    public List<Tramite> allTramitesByTipoEstadoTram(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum) {
+        return tramiteDAO.allByTipoTramiteEstadoTramite(tipoTramiteEnum, estadoTramiteEnum);
     }
 
     @Override

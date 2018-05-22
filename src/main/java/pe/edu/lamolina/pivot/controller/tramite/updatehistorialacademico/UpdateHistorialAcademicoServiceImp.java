@@ -438,7 +438,6 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
         tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
         tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-        tda.setFoto(tramiteDocumentoAcademico.getFoto());
         tramiteDocumentoAcademicoDAO.update(tda);
 
         AcreenciaTramiteDocumento acreencia = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tramiteDocumentoAcademico);

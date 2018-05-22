@@ -34,8 +34,11 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -93,7 +96,7 @@ public class ResolucionController {
 
     @ResponseBody
     @RequestMapping("listResoluciones")
-    public DynatableResponse listTramites(DynatableFilter filter,
+    public DynatableResponse listResoluciones(DynatableFilter filter,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -102,7 +105,7 @@ public class ResolucionController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             DateTime today = new DateTime();
 
-            List<Resolucion> resoluciones = resolucionService.allTramitesByFilter(filter);
+            List<Resolucion> resoluciones = resolucionService.allResolucionesByFilter(filter);
             logger.debug("cantidad de resoluciones " + resoluciones.size());
 
             for (Resolucion resolucionEach : resoluciones) {
@@ -120,6 +123,46 @@ public class ResolucionController {
             json.setData(array);
             json.setTotal(resoluciones.size());
             json.setFiltered(resoluciones.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("listTramites")
+    public DynatableResponse listTramites(DynatableFilter filter,
+            HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            DateTime today = new DateTime();
+
+            List<Tramite> tramites = resolucionService.allTramitesByTipoEstadoTram(TipoTramiteEnum.REI, EstadoTramiteEnum.CON_FAC);
+            logger.debug("cantidad de tramites " + tramites.size());
+
+            for (Tramite tramiteEach : tramites) {
+
+                String[] mapperTramite = new String[]{
+                    "*",
+                    "persona.*",
+                    "alumno.*",
+                    "compania.*",
+                    "cicloAcademico.*",
+                    "tipoTramite.*",
+                    "userRegistro.*",
+                    "userRespuesta.*"
+                };
+                array.add(JsonHelper.createJson(tramiteEach, JsonNodeFactory.instance, false, mapperTramite));
+            }
+
+            json.setData(array);
+            json.setTotal(tramites.size());
+            json.setFiltered(tramites.size());
 
         } catch (Exception e) {
             e.printStackTrace();

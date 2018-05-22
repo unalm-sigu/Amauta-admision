@@ -19,7 +19,9 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allBySeccionCiclo(Seccion seccion, CicloAcademico cicloAcademico);
 
-    List<HorarioAula> allByPabellonCicloDiasHoras(Aula aula, CicloAcademico cicloAcademico, List<String> hdias);
+    List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, CicloAcademico cicloAcademico, List<String> hdias);
+
+    List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, CicloAcademico cicloAcademico, List<String> hdias);
 
     void deleteBySeccionAula(Seccion seccion, Aula aula);
 

@@ -7,6 +7,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository
@@ -23,6 +26,19 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .from(Tramite.class, "t")
                 .join("compania", "persona", "alumno", "tipoTramite")
                 .left("reincorporaciones");
+        return this.all(sql);
+    }
+
+    @Override
+    public List<Tramite> allByTipoTramiteEstadoTramite(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("tr")
+                .from(Reincorporacion.class, "r")
+                .join("estadoTramite et")
+                .join("tramite tr", "tr.persona", "tr.alumno", "tr.tipoTramite tt", "tr.userRegistro")
+                .left("tr.userRespuesta", "tr.userModificacion");
+        sql.filter("et.id", estadoTramiteEnum.getId());
+        sql.filter("tt.codigo", tipoTramiteEnum);
         return this.all(sql);
     }
 

@@ -47,7 +47,7 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
     }
 
     @Override
-    public DiaHoraGrupo findByCicloAcademicoGrupoHorasDiaHora(CicloAcademico cicloAcademico, GrupoHoras grupo, Dia dia, Hora hora) {
+    public DiaHoraGrupo findByCicloGrupoDiaHora(CicloAcademico cicloAcademico, GrupoHoras grupo, Dia dia, Hora hora) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
@@ -73,7 +73,7 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
     }
 
     @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+    public List<DiaHoraGrupo> allByGrupoCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
@@ -83,18 +83,18 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         return all(sql);
     }
 
-    @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos) {
-        Octavia sql = Octavia.query()
-                .from(DiaHoraGrupo.class, "dhg")
-                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
-                .in("gh.id", grupos);
+//    @Override
+//    public List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos) {
+//        Octavia sql = Octavia.query()
+//                .from(DiaHoraGrupo.class, "dhg")
+//                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora")
+//                .in("gh.id", grupos);
+//
+//        return all(sql);
+//    }
 
-        return all(sql);
-    }
-
     @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
+    public List<DiaHoraGrupo> allByTipoGpoCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora", "gh.tipoGrupoHoras tgh")
@@ -105,7 +105,7 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
     }
 
     @Override
-    public List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico) {
+    public List<DiaHoraGrupo> allByGruposCiclo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(DiaHoraGrupo.class, "dhg")
                 .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
@@ -116,16 +116,16 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         return all(sql);
     }
 
-    @Override
-    public List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo) {
-        Octavia sql = Octavia.query()
-                .from(DiaHoraGrupo.class, "dhg")
-                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
-                .filter("gh.id", grupo)
-                .filter("ciclo.id", ciclo);
-
-        return all(sql);
-    }
+//    @Override
+//    public List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo) {
+//        Octavia sql = Octavia.query()
+//                .from(DiaHoraGrupo.class, "dhg")
+//                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
+//                .filter("gh.id", grupo)
+//                .filter("ciclo.id", ciclo);
+//
+//        return all(sql);
+//    }
 
     @Override
     public List<DiaHoraGrupo> allByCiclo(CicloAcademico ciclo) {
