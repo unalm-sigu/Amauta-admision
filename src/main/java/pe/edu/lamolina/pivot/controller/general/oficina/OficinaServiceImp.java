@@ -886,8 +886,9 @@ public class OficinaServiceImp implements OficinaService {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             perfiles.add(perfil);
         }
-
-        updateUserRol(usuarioColaborador, perfiles, usuario, oficinaMea, colaborador);
+        if (usuarioColaborador != null) {
+            updateUserRol(usuarioColaborador, perfiles, usuario, oficinaMea, colaborador);
+        }
     }
 
     @Transactional

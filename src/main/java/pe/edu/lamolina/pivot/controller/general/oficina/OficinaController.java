@@ -30,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -103,7 +104,22 @@ public class OficinaController {
         List<PerfilCompania> funciones = service.allFunciones();
 
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
-        model.addAttribute("colaborador", colaborador == null ? new Colaborador() : colaborador.toJson());
+        ObjectNode jsonColaborador = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "persona.id",
+            "persona.tipoDocumento.*",
+            "persona.numeroDocIdentidad",
+            "persona.tituloAcademico",
+            "persona.nombreCompleto",
+            "oficina.id",
+            "oficina.codigo",
+            "oficina.nombre",
+            "cargo.id",
+            "cargo.codigo",
+            "cargo.nombre",
+            "funcionColaborador.*"
+        });
+        model.addAttribute("colaborador", jsonColaborador);
         model.addAttribute("oficina", idOficina);
         model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
         model.addAttribute("sexo", SexoEnum.values());
@@ -705,7 +721,7 @@ public class OficinaController {
         try {
 
             List<Persona> personas = service.allPersonasByNombre(buscar);
-            
+
             response.setData(new Persona().toJsonArray(personas));
             response.setSuccess(true);
 

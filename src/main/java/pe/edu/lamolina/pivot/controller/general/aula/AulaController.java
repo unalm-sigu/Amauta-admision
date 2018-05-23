@@ -32,6 +32,7 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -97,7 +98,7 @@ public class AulaController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allByDynatableee(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -144,6 +145,68 @@ public class AulaController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+//    @ResponseBody
+//    @RequestMapping("list")
+    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Aula> aulas = service.allByDynatable(filter);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Aula aula : aulas) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("id", aula.getId());
+                node.put("codigo", aula.getCodigo());
+                node.put("nombre", aula.getNombre());
+                node.put("tipoAmbienteEnum", aula.getTipoAmbienteEnum().getValue());
+                node.put("piso", aula.getPiso());
+                node.put("pisos", aula.getPisos());
+                node.put("aforo", aula.getAforo());
+                node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
+                node.put("capacidad", aula.getCapacidadAula());
+                node.put("tipoAmbiente", aula.getTipoAmbiente());
+                node.put("aulasContenido", aula.getAulasContenido().size());
+                ObjectNode objSede = JsonHelper.createJson(aula.getSede(), JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                node.set("sede", objSede);
+                ObjectNode objTipoAula = JsonHelper.createJson(aula.getTipoAula(), JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                node.set("tipoAula", objTipoAula);
+                ObjectNode objOficina = JsonHelper.createJson(aula.getOficinaSupervisora(), JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                node.set("gestor", objOficina);
+                node.put("estado", aula.getEstado());
+                node.put("estadoEnum", aula.getEstadoEnum().getValue());
+                node.put("motivo", aula.getMotivoAnulacion());
+
+                ArrayNode arrayHijas = new ArrayNode(JsonNodeFactory.instance);
+                List<Aula> aulasHijas = aula.getAulasContenido();
+                for (Aula aulaHija : aulasHijas) {
+                    ObjectNode nodeHija = new ObjectNode(JsonNodeFactory.instance);
+                    nodeHija.put("codigo", aulaHija.getCodigo());
+                    nodeHija.put("nombre", aulaHija.getNombre());
+                    arrayHijas.add(nodeHija);
+                }
+                node.set("aulasHijas", arrayHijas);
+                array.add(node);
+            }
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
