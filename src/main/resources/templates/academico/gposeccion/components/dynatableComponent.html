@@ -1,6 +1,6 @@
 <template id="dynatableTemplate">
     <transition name="fade">
-        <div class="panel padder-v">
+        <div class="">
             <div id="dynaTable" class="dynaTables"></div>
         </div>
     </transition>
@@ -8,7 +8,7 @@
 
 <template id="dynatableTemplateEspecial">
     <transition name="fade">
-        <div class="panel padder-v">
+        <div class="">
             <div id="dynaTableEspecial" class="dynaTables"></div>
         </div>
     </transition>
@@ -17,17 +17,11 @@
 <template id="dynatableRowTemplate">
     <div class="col-sm-2 col-xs-1" >
         <div class="list-group">
-            <!--
-            onclick="alert($(this).attr('rel'))"
-            -->
             <div href="#" name="dvGruposZeta" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
                  rel="{{:id}}" >
-
-
                 <div class="m-t-sm pointer cls-grupos-sel"  rel="{{:id}}"  >
                     <h4 class="list-group-item-heading" >{{:codigo}}</h4>
                     <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>
-                    <h6 class="list-group-item-heading text-center" >{{:horas}} horas</h6>
                 </div>
 
             </div>
@@ -38,14 +32,8 @@
 <template id="dynatableRowTemplateEsp">
     <div class="col-sm-2 col-xs-1" >
         <div class="list-group">
-            <!--
-            onclick="alert($(this).attr('rel'))"
-            -->
             <div href="#" name="dvGruposEsp" class="list-group-item item" style="border-width: 1px;border-color:black;padding: 5px !important;"  
-                 rel="{{:id}}" 
-                 >
-
-
+                 rel="{{:id}}">
                 <div class="m-t-sm pointer cls-grupos-sel-esp"  rel="{{:id}}"  >
                     <h4 class="list-group-item-heading" >{{:codigo}}</h4>
                     <h5 class="list-group-item-heading" >{{:tipoSeccion}}/{{:letra}}</h5>

@@ -146,11 +146,13 @@ var app = new Vue({
         minFechaPeriodo: null,
         maxFechaPeriodo: null,
         modulosCombo: {}
-    }, created: function () {
+    },
+    created: function () {
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.loadGpoSeccionForm();
         this.loadSecciones();
-    }, mounted: function () {
+    },
+    mounted: function () {
         let $vue = this;
         $global.$on("afterSaveAula", function (response) {
             $vue.afterSaveAula(response, $vue);
@@ -166,7 +168,8 @@ var app = new Vue({
             $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
 
-    }, methods: {
+    },
+    methods: {
         addSeccion: function () {
             let $vue = this;
             $.ajax({
@@ -453,7 +456,8 @@ var app = new Vue({
         },
         getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
-        }, loadGpoSeccionForm: function () {
+        },
+        loadGpoSeccionForm: function () {
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -466,7 +470,8 @@ var app = new Vue({
                     }
                 }
             });
-        }, loadSecciones: function () {
+        },
+        loadSecciones: function () {
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -477,7 +482,8 @@ var app = new Vue({
                     }
                 }
             });
-        }, loadDocentesSec: function () {
+        },
+        loadDocentesSec: function () {
             let $vue = this;
             //$vue.docentesSeccion = null;
             /*
@@ -508,14 +514,20 @@ var app = new Vue({
                     }
                 }
             });
-        }, showModalGrupos(seccion) {
+        },
+        showModalGrupos(seccion) {
+            var tabs = $("#tab-grupos");
+            tabs.find("li").removeClass("active");
+            tabs.find(".tab-pane").removeClass("active");
+            
             let $vue = this;
             $global.$emit('loadGrupoComponent', seccion.id);
             this.$refs.modalGrupo.open();
-
-        }, saveGrupo() {
+        },
+        saveGrupo() {
             $global.$emit('saveGrupoHorario');
-        }, afterSaveGrupo(response, $vue) {
+        },
+        afterSaveGrupo(response, $vue) {
             $vue.$refs.modalGrupo.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -523,7 +535,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, afterSaveRestriccion(response, $vue) {
+        },
+        afterSaveRestriccion(response, $vue) {
             $vue.$refs.modalRestriccion.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -531,7 +544,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, afterSaveTipoRepRestriccion(response, $vue) {
+        },
+        afterSaveTipoRepRestriccion(response, $vue) {
             $vue.$refs.modalTipoRepitencia.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -539,7 +553,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, changeVacantes(seccion, event) {
+        },
+        changeVacantes(seccion, event) {
 
             seccion.editVacantes = false;
             let $vue = this;
@@ -582,7 +597,8 @@ var app = new Vue({
                     }
                 });
             }
-        }, changeRestriccionCapa(seccion, event) {
+        },
+        changeRestriccionCapa(seccion, event) {
 
             seccion.editRestriccionCapa = false;
             let $vue = this;
@@ -627,23 +643,35 @@ var app = new Vue({
                     }
                 });
             }
-        }, directAulaChange(event) {
+        },
+        directAulaChange(event) {
             let target = event.target.closest("table");
             $(target).find('[class*="parsley-errors"]').each(function () {
                 this.remove();
             });
-        }
-        , showModalAula(seccion) {
+        },
+        showModalAula(seccion) {
+            var tabs = $("#tab-aula");
+            tabs.find("li").removeClass("active");
+            tabs.find(".tab-pane").removeClass("active");
+
             let $vue = this;
             $global.$emit('loadAulaComponent', seccion.id);
             this.$refs.modalAula.open();
-        }, showModalAulaHorario(aula) {
+
+        },
+        showModalAulaHorario(aula) {
             let $vue = this;
             $global.$emit('loadAulaHorarioComponent', aula);
             this.$refs.modalAulaHorario.open();
-        }, saveAula() {
+        },
+        saveAula() {
             $global.$emit('saveAula');
-        }, afterSaveAula(response, $vue) {
+        },
+        closeAula() {
+            $global.$emit('closeAula');
+        },
+        afterSaveAula(response, $vue) {
             $vue.$refs.modalAula.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -651,7 +679,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, asyncModuloOera(nombre) {
+        },
+        asyncModuloOera(nombre) {
             this.isLoading = true;
             let $vue = this;
             $.ajax({
@@ -666,19 +695,24 @@ var app = new Vue({
                 this.ubigeos = response.data
                 this.isLoading = false
             })
-        }, showModalRestriccion(seccion) {
+        },
+        showModalRestriccion(seccion) {
             let $vue = this;
             $global.$emit('loadRestriccionComponent', seccion.id);
             this.$refs.modalRestriccion.open();
-        }, saveRestriccion() {
+        },
+        saveRestriccion() {
             $global.$emit('saveRestriccion');
-        }, showModalTipoRepitencia(seccion) {
+        },
+        showModalTipoRepitencia(seccion) {
             let $vue = this;
             $global.$emit('loadRepitenciaComponent', seccion.id);
             this.$refs.modalTipoRepitencia.open();
-        }, saveTipoRepRestriccion() {
+        },
+        saveTipoRepRestriccion() {
             $global.$emit('saveTipoRepRestriccion');
-        }, cambiarFechaIniPeriodo(docSeccion) {
+        },
+        cambiarFechaIniPeriodo(docSeccion) {
             let $vue = this;
 
             let docSeccionSend = {};
@@ -710,7 +744,8 @@ var app = new Vue({
                 }
             });
 
-        }, cambiarFechaFinPeriodo(docSeccion) {
+        },
+        cambiarFechaFinPeriodo(docSeccion) {
 
             let $vue = this;
             let docSeccionSend = {};
@@ -743,7 +778,8 @@ var app = new Vue({
                 }
             });
 
-        }, directEditAula(seccion, event) {
+        },
+        directEditAula(seccion, event) {
             let $vue = this;
             let target = $(event.target);
             target.parsley().destroy();
@@ -770,7 +806,8 @@ var app = new Vue({
                     MODAL.hideWait();
                 }
             });
-        }, directEditGrupoHor(seccion, event) {
+        },
+        directEditGrupoHor(seccion, event) {
             let $vue = this;
             let target = $(event.target);
             target.parsley().destroy();
@@ -797,6 +834,9 @@ var app = new Vue({
                     MODAL.hideWait();
                 }
             });
+        },
+        upper(e) {
+            e.target.value = e.target.value.toUpperCase()
         }
     }
 })

@@ -26,8 +26,9 @@ new Vue({
         let $vue = this;
         if ($vue.colabo.id != 0) {
             $vue.colaborador = $vue.colabo;
+            console.dir($vue.colaborador)
             $vue.persona = $vue.colaborador.persona;
-            $vue.persona.tipoDocumento = $vue.colaborador.tipoDocumento;
+            $vue.persona.tipoDocumento = $vue.colaborador.persona.tipoDocumento;
             $vue.newCola = true;
         }
 
@@ -35,7 +36,7 @@ new Vue({
     mounted: function () {
         let $vue = this;
         $('.numeric').numeric({negative: false});
-        
+
         $global.$on("personaSeleccionada", function (personaSelec) {
             $vue.seleccionado = personaSelec;
         });
@@ -134,7 +135,6 @@ new Vue({
             self.btnDisabled();
             $(".mx-input").attr("required", true);
             if (!$("#formConfig").parsley().validate()) {
-
                 self.btnEnable();
                 return;
             }
@@ -142,6 +142,10 @@ new Vue({
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
+//            $vue.colaboradorData.fechaInicio = $vue.convertDate($vue.colaboradorData.fechaInicio);
+//            $vue.colaboradorData.fechaRegistro = $vue.convertDate($vue.colaboradorData.fechaRegistro);
+            console.log(JSON.stringify($vue.colaboradorData))
+//            return;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),

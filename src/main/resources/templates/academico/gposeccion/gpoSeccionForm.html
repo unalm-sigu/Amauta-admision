@@ -138,7 +138,6 @@
                                                 <input v-if="directEditSecciones"
                                                        v-on:blur="directEditAula(seccion,$event)"
                                                        v-on:keyup.enter="directEditAula(seccion,$event)"
-                                                       required='true'
                                                        v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
                                                        class="form-control"/>
 
@@ -162,8 +161,8 @@
                                                 <input v-if="directEditSecciones"
                                                        v-on:blur="directEditGrupoHor(seccion,$event)"
                                                        v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
-                                                       required='true'
                                                        v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
+                                                       v-on:input="upper($event)"
                                                        class="form-control"/>
 
                                             </td>
@@ -327,11 +326,11 @@
                                                         <li role="presentation">
                                                             <a href="#"
                                                                v-on:click="activarSeccion(seccion)"
-                                                               v-if="seccion.isEstadoBloqueado || seccion.isEstadoAnulado">
+                                                               v-if="seccion.isEstadoBloqueado || seccion.isEstadoAnulado || seccion.isEstadoCreado">
                                                                 Activar
                                                             </a>
                                                             <a href="#"
-                                                               v-if="seccion.isEstadoActivo"
+                                                               v-if="seccion.isEstadoActivo || seccion.isEstadoCreado"
                                                                v-on:click="anularSeccion(seccion)"
                                                                >
                                                                 Anular
@@ -404,7 +403,8 @@
 
             <modal-vik ref="modalAula"
                        v-bind="aulaModal"
-                       v-bind:okaction="saveAula">
+                       v-bind:okaction="saveAula"
+                       v-bind:cancelaction="closeAula">
                 <div slot="body">
                     <aula-component></aula-component>
                 </div>

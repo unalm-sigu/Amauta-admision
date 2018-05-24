@@ -28,6 +28,16 @@ public class RestriccionFacultadDAOH extends AbstractEasyDAO<RestriccionFacultad
     }
 
     @Override
+    public List<RestriccionFacultad> allActivasBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(RestriccionFacultad.class, "rf")
+                .join("facultad fac", "seccion sec")
+                .filter("rf.estado", EstadoEnum.ACT)
+                .in("sec.id", secciones);
+        return all(sql);
+    }
+
+    @Override
     public void updateEstadoFechaUsuario(RestriccionFacultad restriccionFacultad) {
         Octavia octavia = Octavia.update(RestriccionFacultad.class);
         octavia.set(restriccionFacultad, "estado");

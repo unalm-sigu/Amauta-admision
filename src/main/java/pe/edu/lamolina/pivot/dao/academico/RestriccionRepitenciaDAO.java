@@ -9,6 +9,8 @@ public interface RestriccionRepitenciaDAO extends EasyDAO<RestriccionRepitencia>
 
     List<RestriccionRepitencia> allActivasBySeccion(Seccion seccion);
 
+    List<RestriccionRepitencia> allActivasBySecciones(List<Seccion> secciones);
+
     void updateEstadoFechaUsuario(RestriccionRepitencia restriccionRepitencia);
 
 }
