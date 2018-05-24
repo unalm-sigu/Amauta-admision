@@ -151,9 +151,9 @@
                                     </div>
                                 </div>     
                                 <div class="col-sm-6">
-                                    <label >Fecha Inicio</label>
+                                    <label >Fecha Inicio {{colaborador.fechaInicio}}</label>
                                     <div class="form-group">
-                                        <date-picker v-model="colaborador.fechaInicio" lang="es" format="dd/MM/yyyy" input-class="mx-input" ></date-picker>
+                                        <date-picker v-model="colaborador.fechaInicio" lang="es" v-bind:config="config" input-class="mx-input" ></date-picker>
                                     </div>
                                 </div>                                
                             </div>
@@ -243,6 +243,7 @@
 </body>
 <div layout:fragment="js">
     <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+    <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"/>
     <script th:inline="javascript">
         /*<![CDATA[*/
         var oficinaId = /*[[${oficina}]]*/ 'json';
@@ -254,6 +255,7 @@
         var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
         /*]]>*/
     </script>
+
     <script type="text/javascript" th:src="@{/phobos/modules/vue-searchPerson.js}"></script>
     <script th:src="@{/app/general/oficina/colaborador/colaboradorForm.js}" charset="utf-8"></script>
 </div>
