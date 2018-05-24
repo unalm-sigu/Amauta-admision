@@ -379,6 +379,10 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        Persona persona = alumno.getPersona();
+        persona.setRutaFotoTemporal(tramite.getPersona().getRutaFotoTemporal());
+        personaDAO.update(persona);
+
         tramite.setAlumno(alumno);
         tramite.setCicloAcademico(cicloAcademico);
         tramite.setCompania(compania);
@@ -388,7 +392,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
         tramite.setTipoTramite(tipoTramite);
         tramite.setUserRegistro(usuario);
-        tramite.setPersona(alumno.getPersona());
+        tramite.setPersona(persona);
         tramiteDAO.save(tramite);
 
         tramiteDocumentoAcademico.setTramite(tramite);
@@ -418,6 +422,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         acreenciaTramiteDocumentoDAO.save(acreencia);
         this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
+        this.uploadS3(Constantine.TMP_DIR, persona.getRutaFotoTemporal(), true);
     }
 
     private void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
@@ -431,10 +436,16 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
         Tramite tramite = tda.getTramite();
-        tramite.setAlumno(tramiteDocumentoAcademico.getTramite().getAlumno());
+        Tramite tramiteForm = tramiteDocumentoAcademico.getTramite();
+        Alumno alumno = alumnoDAO.find(tramiteForm.getAlumno());
+        tramite.setAlumno(alumno);
         tramite.setUserModificacion(ds.getUsuario());
         tramite.setFechaModificacion(new Date());
         tramiteDAO.update(tramite);
+
+        Persona persona = alumno.getPersona();
+        persona.setRutaFotoTemporal(tramite.getPersona().getRutaFotoTemporal());
+        personaDAO.update(persona);
 
         tda.setPersonaContacto(tramiteDocumentoAcademico.getPersonaContacto());
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
@@ -479,6 +490,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             acreenciaTramiteDocumentoDAO.update(acreencia);
         }
         this.enviarNotificacionSolicitudConstanciaCreacion(tda);
+        this.uploadS3(Constantine.TMP_DIR, persona.getRutaFotoTemporal(), true);
     }
 
     @Override
@@ -617,11 +629,12 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     public void uploadS3(String localDirectory, String fileName, Boolean publico) {
         StringBuilder sb = new StringBuilder();
-        sb.append(Constantine.S3_DIR_TMP);
-        logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
+        sb.append(Constantine.S3_DIR_FOTO_TMP);
+        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUKET, sb.toString(), localDirectory, fileName, publico);
         File f = new File(localDirectory + fileName);
+        logger.debug("existe el archivo    {}  {}  ", (localDirectory + fileName), f.exists());
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUKET_TMP, sb.toString(), localDirectory, fileName, publico);
+            s3Service.uploadFile(Constantine.S3_BUKET, sb.toString(), localDirectory, fileName, publico);
         }
     }
 

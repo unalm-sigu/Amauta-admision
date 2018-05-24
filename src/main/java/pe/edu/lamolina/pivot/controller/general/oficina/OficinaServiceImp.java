@@ -696,7 +696,7 @@ public class OficinaServiceImp implements OficinaService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+//            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setColaborador(colaborador);
             funcionColaborador.setFuncion(perfil);
@@ -768,7 +768,7 @@ public class OficinaServiceImp implements OficinaService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+//            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setFuncion(perfil);
             funcionColaborador.setFechaInico(new Date());
@@ -871,7 +871,7 @@ public class OficinaServiceImp implements OficinaService {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             if (mapTengo.get(perfil.getId()) == null) {
                 funcionColaborador.setFechaRegistro(new Date());
-                funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+//                funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
                 funcionColaborador.setEstado(EstadoEnum.ACT.name());
                 funcionColaborador.setColaborador(colaborador);
                 funcionColaborador.setFuncion(perfil);
