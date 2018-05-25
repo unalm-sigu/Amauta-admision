@@ -21,3 +21,38 @@
             v-model="pais.id"
             required="true"/>
 </template>
+
+<template id="departamentoTemp">
+    <input  type="text"
+            class="form-control"
+            v-bind:name="nombre"
+            data-trigger="change"
+            v-model="departamento.id"
+            required="true"/>
+</template>
+
+
+<template id="fileuploadTemplate"  >
+    <div>
+        <input type="text" class="hidden"
+               name="persona.rutaFotoTemporal"
+               required="true"
+               data-parsley-errors-container="#errorfoto"
+               data-parsley-required-message="se requiere una fotografia"
+               v-bind:value="persona.rutaFotoTemporal"
+               v-model="persona.rutaFotoTemporal" />
+        <input type="file" id="fileupload" class="hidden" name="file"  placeholder="seleccionar archivo" />
+        <div>
+            <div id="dragarea" class="bg-info img-rounded text-center v-bottom text-muted" style="width: 140px; height: 140px;">
+                <img alt=""  id="imgDocument"  class="img-rounded" style="width: 140px; height: 140px;"
+                     v-bind:src="persona.fullRutaFotoTemporal"
+                     data-holder-rendered="true" />
+            </div>
+            <a class="btn m-l-md btn-sm btn-link" v-on:click.prevent="open" href="#">Subir imagen</a>
+        </div>
+        <div>
+            <p class="m-l-sm" id="errorfoto"></p>
+            <p class="text-danger" v-text="mensajeerror"></p>
+        </div>
+    </div>
+</template>

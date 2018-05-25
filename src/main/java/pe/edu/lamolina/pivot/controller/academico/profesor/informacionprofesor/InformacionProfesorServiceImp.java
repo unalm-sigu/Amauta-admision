@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -62,6 +63,58 @@ public class InformacionProfesorServiceImp implements InformacionProfesorService
     @Override
     public List<ModalidadEstudio> allModalidadEstudio(Compania compania) {
         return modalidadEstudioDAO.allActivoByCompania(compania);
+    }
+
+    @Override
+    public String validarEmailByPersona(String email, Persona persona) {
+        List<Persona> personas = null;
+        if (persona.getId() == null) {
+            personas = personaDAO.allByEmail(email);
+
+        } else {
+            persona.setEmail(email);
+            personas = personaDAO.allByEmailWithoutPersona(persona);
+        }
+
+        if (personas.isEmpty()) {
+            return null;
+        }
+
+        int loop = 0;
+        String msg = "Este correo ya pertenece al: ";
+        for (Persona per : personas) {
+            TipoDocIdentidad tipo = per.getTipoDocumento();
+            msg += (loop == 0) ? "" : ", ";
+            msg += tipo.getSimbolo() + " " + per.getNumeroDocIdentidad();
+            loop++;
+        }
+        return msg;
+    }
+
+    @Override
+    public String validarEmailEmpresaByPersona(String email, Persona persona) {
+        List<Persona> personas = null;
+        if (persona.getId() == null) {
+            personas = personaDAO.allByEmailEmpresa(email);
+
+        } else {
+            persona.setEmailCompania(email);
+            personas = personaDAO.allByEmailEmpresaWithoutPersona(persona);
+        }
+
+        if (personas.isEmpty()) {
+            return null;
+        }
+
+        int loop = 0;
+        String msg = "Este correo ya pertenece al: ";
+        for (Persona per : personas) {
+            TipoDocIdentidad tipo = per.getTipoDocumento();
+            msg += (loop == 0) ? "" : ", ";
+            msg += tipo.getSimbolo() + " " + per.getNumeroDocIdentidad();
+            loop++;
+        }
+        return msg;
     }
 
 }

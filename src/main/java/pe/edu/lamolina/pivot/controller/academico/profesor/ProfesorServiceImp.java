@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -69,6 +70,9 @@ public class ProfesorServiceImp implements ProfesorService {
     @Autowired
     PaisDAO paisDAO;
 
+    @Autowired
+    S3Service s3Service;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -108,7 +112,7 @@ public class ProfesorServiceImp implements ProfesorService {
             if (Strings.isNullOrEmpty(personaForm.getFoto())) {
                 personaForm.setFoto(null);
             } else {
-                this.saveFoto(personaForm.getFoto());
+                this.uploadS3(personaForm.getRutaFotoTemporal());
             }
             personaForm.setFechaRegistro(new Date());
             personaForm.setUserRegistro(user);
@@ -136,11 +140,11 @@ public class ProfesorServiceImp implements ProfesorService {
             if (persona.getFechaValidacionReniec() == null) {
                 persona = this.getPersonaBDreniec(personaForm);
             }
-            if (Strings.isNullOrEmpty(personaForm.getFoto())) {
-                persona.setFoto(null);
+            if (Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
+                persona.setRutaFotoTemporal(null);
             } else {
-                this.saveFoto(personaForm.getFoto());
-                persona.setFoto(personaForm.getFoto());
+                persona.setRutaFotoTemporal(personaForm.getFoto());
+                this.uploadS3(personaForm.getRutaFotoTemporal());
             }
         }
 
@@ -221,11 +225,11 @@ public class ProfesorServiceImp implements ProfesorService {
             persona = this.getPersonaBDreniec(personaForm);
             logger.debug("-> Dato basicos de persona actualizados");
         }
-        if (Strings.isNullOrEmpty(personaForm.getFoto())) {
-            persona.setFoto(null);
+        if (Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
+            persona.setRutaFotoTemporal(null);
         } else {
-            this.saveFoto(personaForm.getFoto());
-            persona.setFoto(personaForm.getFoto());
+            persona.setRutaFotoTemporal(personaForm.getRutaFotoTemporal());
+            this.uploadS3(personaForm.getRutaFotoTemporal());
         }
         personaDAO.update(persona);
         logger.debug("***Resolviendo en Tabla Docente***");
@@ -507,19 +511,27 @@ public class ProfesorServiceImp implements ProfesorService {
         return modalidadEstudioDAO.allActivoByCompania(compania);
     }
 
-    private void saveFoto(String avatar) {
-        String oldName = Constantine.TMP_DIR + avatar;
-        String newName = Constantine.AVATAR_DIR + avatar;
-        File directorio = new File(Constantine.AVATAR_DIR);
-        if (!directorio.isDirectory()) {
-            directorio.mkdirs();
-        }
-        FileHelper.renameFile(oldName, newName);
-    }
-
+//    private void saveFoto(String avatar) {
+//        String oldName = Constantine.TMP_DIR + avatar;
+//        String newName = Constantine.AVATAR_DIR + avatar;
+//        File directorio = new File(Constantine.AVATAR_DIR);
+//        if (!directorio.isDirectory()) {
+//            directorio.mkdirs();
+//        }
+//        FileHelper.renameFile(oldName, newName);
+//    }
+    
     @Override
     public Persona findPersona(Persona persona) {
         return personaDAO.find(persona.getId());
+    }
+
+    public void uploadS3(String fileName) {
+        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+        File f = new File(Constantine.TMP_DIR + fileName);
+        if (f.exists() && !f.isDirectory()) {
+            s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+        }
     }
 
 }

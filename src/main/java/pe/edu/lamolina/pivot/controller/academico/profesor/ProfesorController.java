@@ -232,50 +232,50 @@ public class ProfesorController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("validarEmail")
-    public JsonResponse validarEmail(@RequestParam("email") String email, @RequestParam("docente") Long idDocente) {
-
-        JsonResponse response = new JsonResponse();
-        try {
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            String msg = service.validarEmailByDocente(email, new Docente(idDocente));
-
-            node.put("respuesta", msg);
-            response.setData(node);
-            response.setSuccess(StringUtils.isEmpty(msg));
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("validarEmailEmpresa")
-    public JsonResponse validarEmailEmpresa(@RequestParam("email") String email, @RequestParam("docente") Long idDocente) {
-
-        JsonResponse response = new JsonResponse();
-
-        try {
-
-            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            String msg = service.validarEmailEmpresaByDocente(email, new Docente(idDocente));
-            node.put("respuesta", msg);
-            response.setData(node);
-            response.setSuccess(StringUtils.isEmpty(msg));
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-
-        return response;
-    }
+//    @ResponseBody
+//    @RequestMapping("validarEmail")
+//    public JsonResponse validarEmail(@RequestParam("email") String email, @RequestParam("docente") Long idDocente) {
+//
+//        JsonResponse response = new JsonResponse();
+//        try {
+//            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+//            String msg = service.validarEmailByDocente(email, new Docente(idDocente));
+//
+//            node.put("respuesta", msg);
+//            response.setData(node);
+//            response.setSuccess(StringUtils.isEmpty(msg));
+//
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//
+//        return response;
+//    }
+//
+//    @ResponseBody
+//    @RequestMapping("validarEmailEmpresa")
+//    public JsonResponse validarEmailEmpresa(@RequestParam("email") String email, @RequestParam("docente") Long idDocente) {
+//
+//        JsonResponse response = new JsonResponse();
+//
+//        try {
+//
+//            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+//            String msg = service.validarEmailEmpresaByDocente(email, new Docente(idDocente));
+//            node.put("respuesta", msg);
+//            response.setData(node);
+//            response.setSuccess(StringUtils.isEmpty(msg));
+//
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//
+//        return response;
+//    }
 
     @ResponseBody
     @RequestMapping("estado")

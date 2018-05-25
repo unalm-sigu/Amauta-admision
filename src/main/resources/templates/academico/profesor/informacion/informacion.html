@@ -8,13 +8,14 @@
             <div id="main">
 
                 <header class="header b-b padder-lg">
-                    
+
                     <a th:href="@{/academico/profesor}" class="btn btn-default btn-sm pull-right">Regresar</a>
 
                     <h2  v-text="docente.persona.id!=null ? docente.persona.nombreCompleto : 'Nuevo Docente' " >Nuevo Docente</h2>
 
                     <div class="tabbable-line">
                         <ul class="nav nav-tabs" >
+
 
                             <!--tab 1-->
                             <li  v-bind:class="{ 'active': stepactivo==1 }">
@@ -43,23 +44,34 @@
                         <section class="panel-body">
 
 
-                            <div v-show="stepactivo==1"  >
 
-                                <th:block th:replace="academico/profesor/informacion/informacionpersonal"/>
+                            <form data-parsley-validate="true" method="POST" id="formDocente" >
 
-                            </div>
 
-                            <div v-show="stepactivo==2"  >
+                                <input type="hidden"  name="id" v-bind:value="docente.id"/>
+                                <input type="hidden"  name="persona.id" v-bind:value="docente.persona.id"/>
 
-                                <th:block th:replace="academico/profesor/informacion/informacionacademica"/>
 
-                            </div>
+                                <div v-show="stepactivo==1"  >
 
-                            <div v-show="stepactivo==3"  >
+                                    <th:block th:replace="academico/profesor/informacion/informacionpersonal"/>
 
-                                <th:block th:replace="academico/profesor/informacion/informacionlaboral"/>
+                                </div>
 
-                            </div>
+                                <div v-show="stepactivo==2"  >
+
+                                    <th:block th:replace="academico/profesor/informacion/informacionacademica"/>
+
+                                </div>
+
+                                <div v-show="stepactivo==3"  >
+
+                                    <th:block th:replace="academico/profesor/informacion/informacionlaboral"/>
+
+                                </div>
+
+
+                            </form>
 
 
 
@@ -91,6 +103,8 @@
             <div th:substituteby="_layout/includes :: vuemodal"/>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicapais.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicaubicacion.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/profesor/informacion/informacionacademicadepartamento.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/profesor/informacion/informacionfileupload.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademica.js}" charset="utf-8"></script>
         </div>
 
