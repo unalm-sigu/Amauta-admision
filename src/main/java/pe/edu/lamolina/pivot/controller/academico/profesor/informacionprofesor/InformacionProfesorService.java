@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
 public interface InformacionProfesorService {
 
-    Docente find(Docente docente);
+    Docente findDocente(Docente docente);
 
     List<TipoDocIdentidad> allDocumentos();
 

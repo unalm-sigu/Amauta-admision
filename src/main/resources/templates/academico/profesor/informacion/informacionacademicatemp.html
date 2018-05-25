@@ -1,0 +1,23 @@
+<div id="divBuscarDistrito" type="text/x-jsrender" class="hide" >
+    <span class="block h5 bold">{{:distrito}}</span>
+    <span class=""><strong>Provincia:</strong>{{:provincia}}
+        <strong>Departamento:</strong> {{:departamento}}</span>
+</div>
+
+<template id="ubicacionTemp">
+    <input type="text"
+           class="form-control"
+           data-trigger="change"
+           v-bind:name="nombre"
+           v-model="ubicacion.id"
+           />
+</template>
+
+<template id="paisTemp">
+    <input  type="text"
+            class="form-control"
+            v-bind:name="nombre"
+            data-trigger="change"
+            v-model="pais.id"
+            required="true"/>
+</template>
