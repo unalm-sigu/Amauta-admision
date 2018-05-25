@@ -870,11 +870,7 @@ public class OficinaServiceImp implements OficinaService {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             if (mapTengo.get(perfil.getId()) == null) {
                 funcionColaborador.setFechaRegistro(new Date());
-<<<<<<< HEAD (ce3a1dc) - fix docente academico t
-//                funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
-=======
                 funcionColaborador.setUserRegistro(ds.getUsuario());
->>>>>>> master (2d819a0) - fix editor de conteni
                 funcionColaborador.setEstado(EstadoEnum.ACT.name());
                 funcionColaborador.setColaborador(colaboradorForm);
                 funcionColaborador.setFuncion(perfil);
