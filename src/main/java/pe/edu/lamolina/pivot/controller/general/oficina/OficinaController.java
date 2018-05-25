@@ -136,15 +136,15 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
+            List<FuncionColaborador> funciones = new ArrayList();
             Colaborador colaborador = colaboradorBean.getColaborador();
             System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
             for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
                 FuncionColaborador funcionColaborador = new FuncionColaborador();
                 funcionColaborador.setFuncion(perfilCompania);
-                arrayList.add(funcionColaborador);
+                funciones.add(funcionColaborador);
             }
-            colaborador.setFuncionColaborador(arrayList);
+            colaborador.setFuncionColaborador(funciones);
             service.updateColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
             response.setMessage("Se actualizó el colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
