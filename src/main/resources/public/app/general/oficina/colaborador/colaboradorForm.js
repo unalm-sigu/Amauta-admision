@@ -1,5 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-Vue.component("date-picker", window.DatePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+
 new Vue({
     el: '#colaboradorFormVue',
     data: {
@@ -17,7 +18,11 @@ new Vue({
         newCola: false,
         colaboradorData: {},
         sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}],
-        seleccionado: {}
+        seleccionado: {},
+        configDate: {
+            format: 'DD/MM/YYYY',
+            useCurrent: false
+        }
     },
     computed: {
 
@@ -153,9 +158,9 @@ new Vue({
                 data: JSON.stringify($vue.colaboradorData),
                 success: function (response) {
                     if (response.success) {
-                        $vue.colaborador = {}
-                        $vue.persona = {}
-                        location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
+//                        $vue.colaborador = {}
+//                        $vue.persona = {}
+//                        location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
                         notify(response.message, 'info');
 
                     } else {
@@ -176,9 +181,13 @@ new Vue({
             }
             self.btnEnable();
             $vue.colaborador.persona = $vue.persona;
+            $vue.colaborador.persona.fechaNacer = moment($vue.colaborador.persona.fechaNacer, "dd/MM/yyyy");
+//            $vue.colaboradorData.colaborador.persona = $vue.colaborador.persona;
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
+            console.dir($vue.colaboradorData)
+//            return;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),

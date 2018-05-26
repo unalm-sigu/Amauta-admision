@@ -3,11 +3,11 @@ package pe.edu.lamolina.pivot.controller.general.oficina;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +42,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.medico.Medico;
 import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -64,6 +65,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoOficinaDAO;
+import pe.edu.lamolina.pivot.dao.medico.MedicoDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 
 @Service
@@ -123,6 +125,9 @@ public class OficinaServiceImp implements OficinaService {
 
     @Autowired
     ColaboradorEstadoDAO colaboradorEstadoDAO;
+
+    @Autowired
+    MedicoDAO medicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -657,8 +662,8 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot) {
-        Usuario usuario = dataSessionPivot.getUsuario();
+    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) {
+//        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
         persona.setUserRegistro(usuario);
@@ -682,7 +687,7 @@ public class OficinaServiceImp implements OficinaService {
         colaboradorEstadoDAO.save(colaboradorEstado);
 
         PersonaCargo personaCargo = new PersonaCargo();
-        personaCargo.setCompania(dataSessionPivot.getCompania());
+        personaCargo.setCompania(compania);
         personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
         personaCargo.setFechaInicio(colaborador.getFechaInicio());
         personaCargo.setFechaRegistro(new Date());
@@ -692,11 +697,26 @@ public class OficinaServiceImp implements OficinaService {
         personaCargo.setUserRegistro(usuario);
         personaPerfilDAO.save(personaCargo);
 
+        Oficina oficina = oficinaDAO.find(colaborador.getOficina().getId());
+//        PerfilCompania cargoOBUAE = perfilCompaniaDAO.find(colaborador.getCargo().getId());
+        Oficina oficinaBienestar = oficinaDAO.findByCode("OBUAE");
+        System.out.println("OFICINA SUPERIOR" + oficina.getOficinaSuperior().getId());
+        System.out.println("OFICINA HIJO" + oficinaBienestar.getId().longValue());
+        System.out.println("OFICINA" + (oficina.getOficinaSuperior().getId() == oficinaBienestar.getId().longValue()));
+
+        if (oficina.getOficinaSuperior().getId() == oficinaBienestar.getId().longValue()) {
+            Medico medico = new Medico();
+            medico.setColaborador(colaborador);
+            medico.setFechaRegistro(new Date());
+            medico.setUserRegistro(usuario);
+            medicoDAO.save(medico);
+        }
+
         ArrayList<PerfilCompania> list = new ArrayList();
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+            funcionColaborador.setUserRegistro(usuario);
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setColaborador(colaborador);
             funcionColaborador.setFuncion(perfil);
@@ -720,8 +740,8 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public Boolean saveColaboradorExit(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot) throws PhobosException {
-        Usuario usuario = dataSessionPivot.getUsuario();
+    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) throws PhobosException {
+//        Usuario usuario = dataSessionPivot.getUsuario();
         Oficina oficina = colaborador.getOficina();
 
         Persona personaForm = colaborador.getPersona();
@@ -753,7 +773,7 @@ public class OficinaServiceImp implements OficinaService {
             colaboradorEstadoDAO.save(colaboradorEstado);
 
             PersonaCargo personaCargo = new PersonaCargo();
-            personaCargo.setCompania(dataSessionPivot.getCompania());
+            personaCargo.setCompania(compania);
             personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
             personaCargo.setFechaInicio(colaborador.getFechaInicio());
             personaCargo.setFechaRegistro(new Date());
@@ -768,7 +788,7 @@ public class OficinaServiceImp implements OficinaService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+            funcionColaborador.setUserRegistro(usuario);
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setFuncion(perfil);
             funcionColaborador.setFechaInico(new Date());
@@ -835,6 +855,7 @@ public class OficinaServiceImp implements OficinaService {
         emp.setUserModificacion(usuario);
         emp.setCargo(colaborador.getCargo());
         emp.setOficina(colaborador.getOficina());
+        emp.setFechaInicio(colaborador.getFechaInicio());
         colaboradorDAO.update(emp);
 
         if (colaborador.getOficina().getId() != oficinaAnterior.getId()) {
@@ -856,7 +877,7 @@ public class OficinaServiceImp implements OficinaService {
             personaCargo.setUserRegistro(usuario);
             personaPerfilDAO.save(personaCargo);
         }
-
+        
         List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaborador);
         Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("funcion.id", colaborador.getFuncionColaborador());
         Map<Long, FuncionColaborador> mapTengo = TypesUtil.convertListToMap("funcion.id", funcionesEmp);
@@ -871,7 +892,7 @@ public class OficinaServiceImp implements OficinaService {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             if (mapTengo.get(perfil.getId()) == null) {
                 funcionColaborador.setFechaRegistro(new Date());
-                funcionColaborador.setIdUserRegistro(BigInteger.valueOf(usuario.getId()));
+                funcionColaborador.setUserRegistro(usuario);
                 funcionColaborador.setEstado(EstadoEnum.ACT.name());
                 funcionColaborador.setColaborador(colaborador);
                 funcionColaborador.setFuncion(perfil);
