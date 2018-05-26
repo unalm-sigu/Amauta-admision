@@ -70,4 +70,11 @@ public interface Constantine {
     String IMAGE_BITSPERPIXEL_MSG = "la imagen debe de tener la cantidad de bits por pixel mayor a  24";
     boolean IMAGE_TRANSPARENT = Boolean.FALSE;
     String IMAGE_TRANSPARENT_MSG = "la imagen no debe de ser transparente";
+
+    //ruta imagen
+    String S3_BUKET = "lamolina-academico";
+    String S3_DIR_FOTO_TMP = "fotos/temporal/";
+    String S3_DIR_FOTO_DOCUMENTO = "fotos/documentos/";
+    String S3_DIR_FOTO_CARNET = "fotos/carnet/";
+    
 }

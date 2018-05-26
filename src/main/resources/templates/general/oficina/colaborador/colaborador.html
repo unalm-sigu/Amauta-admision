@@ -30,7 +30,7 @@
 
             </header>
             <section class="wrapper-lg m-b-xs">
-                <section class="panel">
+                <section class="panel m-b-xs">
                     <section class="panel-body">
                         <div class="row">
                             <div class="col-md-2 text-center" >
@@ -72,8 +72,8 @@
                         </div>
                     </section>
                 </section>
+                
                 <section class="panel">            
-
                     <section class="panel-body">
                         <div class="col-sm-6">
                             <div class="form-group">                                
@@ -92,6 +92,7 @@
                     </section>
                 </section>
             </section>
+            
             <!--MODAL INICIO-->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog modal-lg" role="document">
@@ -139,15 +140,15 @@
     </div>
 
 </body>
-    <div layout:fragment="js">
-        <script th:inline="javascript">
-            /*<![CDATA[*/
-            var oficinaId = /*[[${oficina}]]*/ 'json';
-            var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
-            var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
-            /*]]>*/
-        </script>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
-    </div>
+<div layout:fragment="js">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var oficinaId = /*[[${oficina}]]*/ 'json';
+        var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
+        var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
+        /*]]>*/
+    </script>
+    <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+    <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
+</div>
 </html>

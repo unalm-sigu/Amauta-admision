@@ -136,7 +136,7 @@
                             <hr/>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <label>√Årea</label>
+                                    <label>√?rea</label>
                                     <div class="form-group">                                
                                         <multiselect v-model="colaborador.oficina" 
                                                      v-bind:options='area'
@@ -256,9 +256,7 @@
         var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
         /*]]>*/
     </script>
-    <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-    <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
-    <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
+
     <script type="text/javascript" th:src="@{/phobos/modules/vue-searchPerson.js}"></script>
     <script th:src="@{/app/general/oficina/colaborador/colaboradorForm.js}" charset="utf-8"></script>
 </div>

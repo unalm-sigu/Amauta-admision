@@ -19,8 +19,8 @@ new Vue({
         colaboradorData: {},
         sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}],
         seleccionado: {},
-        configDate: {
-            format: 'DD/MM/YYYY',
+        config: {
+            format: "dd/MM/yyyy",
             useCurrent: false
         }
     },
@@ -126,6 +126,7 @@ new Vue({
             location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
         },
         updateColaborador: function (id) {
+            return;
             $.ajax({
                 url: APP.url('general/oficina/updateColaborador'),
                 type: 'POST',
@@ -150,17 +151,18 @@ new Vue({
 //            $vue.colaboradorData.fechaInicio = $vue.convertDate($vue.colaboradorData.fechaInicio);
 //            $vue.colaboradorData.fechaRegistro = $vue.convertDate($vue.colaboradorData.fechaRegistro);
             console.log(JSON.stringify($vue.colaboradorData))
-//            return;
+            //return;
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.colaboradorData),
                 success: function (response) {
+
                     if (response.success) {
 //                        $vue.colaborador = {}
 //                        $vue.persona = {}
-//                        location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
+                        //location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
                         notify(response.message, 'info');
 
                     } else {

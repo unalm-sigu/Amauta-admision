@@ -71,58 +71,58 @@ import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 @Service
 @Transactional(readOnly = true)
 public class OficinaServiceImp implements OficinaService {
-
+    
     @Autowired
     OficinaDAO oficinaDAO;
-
+    
     @Autowired
     ColaboradorDAO colaboradorDAO;
-
+    
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
-
+    
     @Autowired
     CarreraDAO carreraDAO;
-
+    
     @Autowired
     FacultadDAO facultadDAO;
-
+    
     @Autowired
     PersonaDAO personaDAO;
-
+    
     @Autowired
     PerfilCompaniaDAO perfilCompaniaDAO;
-
+    
     @Autowired
     AusenciaJefeDAO ausenciaJefeDAO;
-
+    
     @Autowired
     PersonaCargoDAO personaPerfilDAO;
-
+    
     @Autowired
     DocenteDAO docenteDAO;
-
+    
     @Autowired
     UsuarioDAO usuarioDAO;
-
+    
     @Autowired
     RolDAO rolDAO;
-
+    
     @Autowired
     UsuarioRolDAO usuarioRolDAO;
-
+    
     @Autowired
     FuncionColaboradorDAO funcionColaboradorDAO;
-
+    
     @Autowired
     TipoOficinaDAO tipoOficinaDAO;
-
+    
     @Autowired
     TipoDocIdentidadDAO tipoDocIdentidadDAO;
-
+    
     @Autowired
     FuncionRolDAO funcionRolDAO;
-
+    
     @Autowired
     ColaboradorEstadoDAO colaboradorEstadoDAO;
 
@@ -130,17 +130,17 @@ public class OficinaServiceImp implements OficinaService {
     MedicoDAO medicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     public List<Oficina> allByDynatable(DynatableFilter filter, Compania compania) {
         return oficinaDAO.allByFilter(filter, compania);
     }
-
+    
     @Override
     public Oficina find(Oficina persona) {
         return oficinaDAO.find(persona.getId());
     }
-
+    
     @Override
     @Transactional
     public void update(Oficina oficina, DataSessionPivot ds) {
@@ -148,7 +148,7 @@ public class OficinaServiceImp implements OficinaService {
         ObjectUtil.eliminarAttrSinId(oficina, "cargoJefe");
         ObjectUtil.eliminarAttrSinId(oficina, "personaJefe");
         ObjectUtil.eliminarAttrSinId(oficina, "jefeEncargado");
-
+        
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
         oficinaBD.setOficinaSuperior(oficina.getOficinaSuperior());
         oficinaBD.setNombre(oficina.getNombre());
@@ -158,7 +158,7 @@ public class OficinaServiceImp implements OficinaService {
         oficinaBD.setCargoJefe(oficina.getCargoJefe());
         oficinaDAO.update(oficinaBD);
     }
-
+    
     @Override
     @Transactional
     public void save(Oficina oficina, DataSessionPivot ds) {
@@ -172,13 +172,13 @@ public class OficinaServiceImp implements OficinaService {
         oficina.setUserRegistro(ds.getUsuario());
         oficinaDAO.save(oficina);
     }
-
+    
     @Override
     @Transactional
     public void delete(Oficina oficina) {
         oficinaDAO.delete(oficina);
     }
-
+    
     @Override
     public List<Colaborador> allColaborador(List<Oficina> oficinas) {
         if (oficinas.size() < 1) {
@@ -186,27 +186,27 @@ public class OficinaServiceImp implements OficinaService {
         }
         return colaboradorDAO.allColaborador(oficinas);
     }
-
+    
     @Override
     public List<Oficina> allUnidadSuperior(String nombre, Compania compania) {
         return oficinaDAO.allUnidadSuperior(nombre, compania);
     }
-
+    
     @Override
     public List<DepartamentoAcademico> allDepartamento(Compania compania) {
         return departamentoAcademicoDAO.allByCompania(compania);
     }
-
+    
     @Override
     public List<Carrera> allCarrera(Compania compania) {
         return carreraDAO.allByCompania(compania);
     }
-
+    
     @Override
     public List<Facultad> allFacultad(Compania compania) {
         return facultadDAO.allByCompania(compania);
     }
-
+    
     @Override
     @Transactional
     public void estado(Oficina oficina) {
@@ -218,22 +218,22 @@ public class OficinaServiceImp implements OficinaService {
         }
         oficinaDAO.update(oficinaBD);
     }
-
+    
     @Override
     public List<Persona> allPersona(String nombre) {
         return personaDAO.allByNombre(nombre);
     }
-
+    
     @Override
     public List<Colaborador> allColaboradorByOficina(Oficina oficina) {
         return colaboradorDAO.allColaboradorByOficina(oficina);
     }
-
+    
     @Override
     public List<PerfilCompania> allCargo(String nombre) {
         return perfilCompaniaDAO.allByNombre(nombre);
     }
-
+    
     @Override
     public void fillReferencia(Oficina oficina) {
         TipoOficina tipo = oficina.getTipoOficina();
@@ -253,41 +253,41 @@ public class OficinaServiceImp implements OficinaService {
             oficina.setInstanciaOficinaNombre(facultad.getNombre());
         }
     }
-
+    
     @Override
     @Transactional
     public void asignarJefe(Oficina oficina, DataSessionPivot ds) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
         TipoOficina tipo = oficinaBD.getTipoOficina();
         List<Docente> docentesBD = docenteDAO.allByPersona(oficina.getPersonaJefe());
-
+        
         if (oficinaBD.getPersonaJefe() != null) {
             throw new PhobosException("Esta Unidad ya tiene asignado un jefe");
         }
-
+        
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
         if (oficina.getFechaInicioJefatura().after(hoy)) {
             throw new PhobosException("No puede poner como fecha de inicio un día futuro");
         }
-
+        
         if (oficinaBD.getCargoJefe() == null) {
             throw new PhobosException("Falta definir el Cargo de la jefatura de esta Unidad");
         }
-
+        
         if (tipo.getNivel().equals("OFI") && docentesBD.isEmpty()) {
             throw new PhobosException("La persona seleccionada no es un docente. Elija un docente activo.");
         }
-
+        
         oficinaBD.setPersonaJefe(oficina.getPersonaJefe());
         oficinaBD.setFechaInicioJefatura(oficina.getFechaInicioJefatura());
         oficinaDAO.update(oficinaBD);
-
+        
         if (oficina.getPersonaJefe().getTituloAcademico() != null) {
             Persona jefeBD = personaDAO.find(oficina.getPersonaJefe().getId());
             jefeBD.setTituloAcademico(oficina.getPersonaJefe().getTituloAcademico());
             personaDAO.update(jefeBD);
         }
-
+        
         PersonaCargo perfil = new PersonaCargo();
         perfil.setCompania(ds.getCompania());
         perfil.setPersona(oficinaBD.getPersonaJefe());
@@ -298,7 +298,7 @@ public class OficinaServiceImp implements OficinaService {
         perfil.setFechaRegistro(new Date());
         perfil.setUserRegistro(ds.getUsuario());
         personaPerfilDAO.save(perfil);
-
+        
         Colaborador colaborador = new Colaborador();
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.toString());
         colaborador.setFechaInicio(new Date());
@@ -308,16 +308,16 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setCargo(oficinaBD.getCargoJefe());
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaboradorDAO.save(colaborador);
-
+        
         this.asignarRol(oficinaBD.getPersonaJefe(), RolEnum.JEFE_DPTO_ACA, ds);
-
+        
     }
-
+    
     @Override
     @Transactional
     public void retirarJefe(Oficina oficina, DataSessionPivot ds) {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
-
+        
         Long idJefe = (Long) ObjectUtil.getParentTree(oficinaBD, "personaJefe.id");
         if (idJefe == null) {
             throw new PhobosException("Esta Unidad no tiene jefe asignado");
@@ -325,16 +325,16 @@ public class OficinaServiceImp implements OficinaService {
         if (idJefe.longValue() != oficina.getPersonaJefe().getId()) {
             throw new PhobosException("No coinciden el Jefe de la Unidad y los datos enviados");
         }
-
+        
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
         if (oficina.getFechaFinJefatura().after(hoy)) {
             throw new PhobosException("No puede poner como fecha final un día futuro");
         }
-
+        
         if (oficinaBD.getFechaInicioJefatura().after(oficina.getFechaFinJefatura())) {
             throw new PhobosException("La fecha final no puede ser antes de la fecha de inicio");
         }
-
+        
         PersonaCargo perfil = personaPerfilDAO.findSinCerrar(oficinaBD, ds.getCompania());
         if (perfil == null) {
             perfil = new PersonaCargo();
@@ -348,49 +348,49 @@ public class OficinaServiceImp implements OficinaService {
             perfil.setUserRegistro(ds.getUsuario());
             personaPerfilDAO.save(perfil);
         }
-
+        
         perfil.setFechaFin(oficina.getFechaFinJefatura());
         perfil.setEstadoEnum(PerfilEstadoEnum.CER);
         perfil.setUserModificacion(ds.getUsuario());
         perfil.setFechaModificacion(new Date());
         personaPerfilDAO.update(perfil);
-
+        
         oficinaBD.setPersonaJefe(null);
         oficinaBD.setFechaInicioJefatura(null);
         oficinaDAO.update(oficinaBD);
-
+        
     }
-
+    
     @Override
     @Transactional
-
+    
     public void asignarEncargado(Oficina oficina, DataSessionPivot ds) {
-
+        
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
         if (oficinaBD.getJefeEncargado() != null) {
             throw new PhobosException("Esta Unidad ya tiene asignado un jefe encargado");
         }
-
+        
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
         if (oficina.getFechaEncargatura().after(hoy)) {
             throw new PhobosException("No puede poner como fecha de inicio un día futuro");
         }
-
+        
         if (oficinaBD.getCargoJefe() == null) {
             throw new PhobosException("Falta definir el Cargo de la jefatura de esta Unidad");
         }
-
+        
         oficinaBD.setJefeEncargado(oficina.getJefeEncargado());
         oficinaBD.setMotivoAusenciaJefe(oficina.getMotivoAusenciaJefe());
         oficinaBD.setFechaEncargatura(oficina.getFechaEncargatura());
         oficinaDAO.update(oficinaBD);
-
+        
         if (oficina.getJefeEncargado().getTituloAcademico() != null) {
             Persona jefeBD = personaDAO.find(oficina.getJefeEncargado().getId());
             jefeBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
             personaDAO.update(jefeBD);
         }
-
+        
         AusenciaJefe ausenciaJefe = new AusenciaJefe();
         ausenciaJefe.setJefe(oficinaBD.getPersonaJefe());
         ausenciaJefe.setEncargado(oficina.getJefeEncargado());
@@ -398,22 +398,22 @@ public class OficinaServiceImp implements OficinaService {
         ausenciaJefe.setFechaRegistro(new Date());
         ausenciaJefe.setOficina(oficinaBD);
         ausenciaJefe.setUserRegistro(ds.getUsuario());
-
+        
         ausenciaJefe.setMotivo(oficina.getMotivoAusenciaJefe());
         if (oficinaBD.getPersonaJefe() == null) {
             ausenciaJefe.setMotivo("Encargado por falta de nombramiento de jefe oficial");
         }
         ausenciaJefeDAO.save(ausenciaJefe);
-
+        
     }
-
+    
     @Override
     @Transactional
     public void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds) {
-
+        
         Oficina oficinaBD = oficinaDAO.find(ausencia.getOficina().getId());
         AusenciaJefe ausenciaBD = ausenciaJefeDAO.findSinCerrar(ausencia);
-
+        
         if (ausenciaBD == null) {
             throw new PhobosException("No existe una encargatura pendiente de cierre con estos datos para esta unidad");
         }
@@ -431,21 +431,21 @@ public class OficinaServiceImp implements OficinaService {
         if (ausenciaBD.getFechaInicioEncargatura().after(ausencia.getFechaFinEncargatura())) {
             throw new PhobosException("La fecha final no puede ser antes de la fecha de inicio");
         }
-
+        
         ausenciaBD.setFechaFinEncargatura(ausencia.getFechaFinEncargatura());
         ausenciaBD.setUserModificacion(ds.getUsuario());
         ausenciaBD.setFechaModificacion(new Date());
         ausenciaJefeDAO.update(ausenciaBD);
-
+        
         oficinaBD.setJefeEncargado(null);
         oficinaBD.setFechaEncargatura(null);
         oficinaBD.setMotivoAusenciaJefe(null);
         oficinaDAO.update(oficinaBD);
     }
-
+    
     private void asignarRol(Persona personaJefe, RolEnum rolEnum, DataSessionPivot ds) {
         Usuario usuarioDb = usuarioDAO.findByPersona(personaJefe);
-
+        
         if (usuarioDb == null) {
             throw new PhobosException("La persona asignada no está registrado como usuario.");
         } else {
@@ -463,7 +463,7 @@ public class OficinaServiceImp implements OficinaService {
             }
         }
     }
-
+    
     @Override
     public List<Oficina> allOficina(Persona persona) {
         List<Oficina> oficinasSuperiorPersona = new ArrayList<>();
@@ -483,7 +483,7 @@ public class OficinaServiceImp implements OficinaService {
         }
         return oficinasSuperiorPersona;
     }
-
+    
     private Oficina find(Map<Long, Oficina> mapOficinasTodas, Oficina oficina) {
         Oficina ofi = mapOficinasTodas.get(oficina.getId());
         if (ofi.getTipoOficina().getNivel().equalsIgnoreCase(TipoOficinaEnum.OFI.name())) {
@@ -492,18 +492,18 @@ public class OficinaServiceImp implements OficinaService {
             return find(mapOficinasTodas, ofi.getOficinaSuperior());
         }
     }
-
+    
     @Override
     public Colaboradores countColaborador(Oficina oficina) {
         List<Oficina> oficinas = allOficinasByMain(oficina);
         Colaboradores colaboradors = colaboradorDAO.countColaboradores(oficinas);
         return colaboradors;
     }
-
+    
     @Override
     public ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain) {
         List<Oficina> oficinas = allOficinasByMain(oficinaMain);
-
+        
         List<Colaborador> colaboradors = colaboradorDAO.allByOficina(filter, oficinas);
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -512,19 +512,19 @@ public class OficinaServiceImp implements OficinaService {
         for (Colaborador colaborador : colaboradors) {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-
+            
             if (ColaboradorEstadoEnum.DESP.name().equals(colaborador.getEstado())) {
                 objNode.put("id", colaborador.getId());
                 objNode.put("name", ColaboradorEstadoEnum.ACT.name());
                 objNode.put("value", ColaboradorEstadoEnum.ACT.getValue());
                 objNode.put("estado", colaborador.getEstado());
                 array.add(objNode);
-
+                
             } else {
                 for (ColaboradorEstadoEnum value : ColaboradorEstadoEnum.values()) {
                     objNode = new ObjectNode(JsonNodeFactory.instance);
                     if (value.name().equalsIgnoreCase(colaborador.getEstado())) {
-
+                        
                     } else {
                         objNode.put("id", colaborador.getId());
                         objNode.put("name", value.name());
@@ -534,7 +534,7 @@ public class OficinaServiceImp implements OficinaService {
                     }
                 }
             }
-
+            
             node = new ObjectNode(JsonNodeFactory.instance);
             node.put("id", colaborador.getId());
             node.put("area", colaborador.getOficina().getNombre());
@@ -547,14 +547,14 @@ public class OficinaServiceImp implements OficinaService {
             node.set("estados", array);
             arrayNode.add(node);
         }
-
+        
         return arrayNode;
     }
-
+    
     private List<Oficina> allOficinasByMain(Oficina oficinaMain) {
         List<Oficina> oficinasTodas = oficinaDAO.all();
         Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasTodas);
-
+        
         for (Oficina oficina : oficinasTodas) {
             oficina.setOficinasDependientes(new ArrayList());
         }
@@ -568,17 +568,17 @@ public class OficinaServiceImp implements OficinaService {
         List<Oficina> oficinas = new ArrayList();
         oficinas.add(oficinaBD);
         agregarOficinasHijas(oficinaBD, oficinas);
-
+        
         return oficinas;
     }
-
+    
     private void agregarOficinasHijas(Oficina oficinaMain, List<Oficina> oficinas) {
         for (Oficina oficinasDependiente : oficinaMain.getOficinasDependientes()) {
             oficinas.add(oficinasDependiente);
             agregarOficinasHijas(oficinasDependiente, oficinas);
         }
     }
-
+    
     public Long getCodigoColaborador() {
         Long código = 10001l;
         Colaborador colaborador = colaboradorDAO.findMaxCodigo();
@@ -587,7 +587,7 @@ public class OficinaServiceImp implements OficinaService {
         }
         return código;
     }
-
+    
     @Override
     @Transactional
     public void updateEstado(Colaborador colaborador, DataSessionPivot dataSessionPivot) {
@@ -596,14 +596,14 @@ public class OficinaServiceImp implements OficinaService {
         col.setEstado(ColaboradorEstadoEnum.getName(colaborador.getEstado()));
         col.setFechaModificacion(new Date());
         colaboradorDAO.update(col);
-
+        
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
         colaboradorEstado.setColaborador(colaborador);
         colaboradorEstado.setEstado(ColaboradorEstadoEnum.valueOf(ColaboradorEstadoEnum.getName(colaborador.getEstado())));
         colaboradorEstado.setUserRegistro(usuario);
         colaboradorEstado.setFechaRegistro(new Date());
         colaboradorEstadoDAO.save(colaboradorEstado);
-
+        
         String estadoEnum = ColaboradorEstadoEnum.getName(colaborador.getEstado());
         if (ColaboradorEstadoEnum.DESP.toString().equals(estadoEnum)) {
             Colaborador emp = colaboradorDAO.find(colaborador);
@@ -613,18 +613,18 @@ public class OficinaServiceImp implements OficinaService {
             // FALTA INHABILITAR LAS FUNCIONES
         }
     }
-
+    
     @Override
     public List<TipoOficina> allTipoOficina() {
-
+        
         return tipoOficinaDAO.all();
     }
-
+    
     @Override
     public TipoOficina findTipoById(String id) {
         return tipoOficinaDAO.find(Long.valueOf(id));
     }
-
+    
     @Override
     public Colaborador findColarador(Colaborador colaborador) {
         Colaborador colab = colaboradorDAO.find(colaborador);
@@ -632,60 +632,59 @@ public class OficinaServiceImp implements OficinaService {
         colab.setFuncionColaborador(list);
         return colab;
     }
-
+    
     @Override
     public List<TipoDocIdentidad> allDocumentosIdentidad() {
         return tipoDocIdentidadDAO.allForPersonaNatural();
     }
-
+    
     @Override
     public List<Oficina> findOficinas(Oficina oficina) {
         return allOficinasByMain(oficina);
     }
-
+    
     @Override
     public List<PerfilCompania> allCargos(Oficina oficina) {
         List<PerfilCompania> oficinaCompanias = perfilCompaniaDAO.allTipoCargoByOfi(oficina);
         List<PerfilCompania> companias = perfilCompaniaDAO.allTipoCargo();
         List<PerfilCompania> allCompanias = new ArrayList<PerfilCompania>();
-
+        
         allCompanias.addAll(oficinaCompanias);
         allCompanias.addAll(companias);
         return allCompanias;
     }
-
+    
     @Override
     public List<PerfilCompania> allCargosByOficina(Oficina oficina) {
-
+        
         return perfilCompaniaDAO.allTipoCargoByOfi(oficina);
     }
-
+    
     @Override
     @Transactional
     public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) {
 //        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
-        persona.setUserRegistro(usuario);
+        persona.setUserRegistro(ds.getUsuario());
         persona.setEstadoEnum(PersonaEstadoEnum.ACT);
         persona.setSexo(colaborador.getPersona().getSexo());
         personaDAO.save(persona);
-
+        
         colaborador.setFechaRegistro(new Date());
-        colaborador.setUserRegistro(usuario);
+        colaborador.setUserRegistro(ds.getUsuario());
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
-
         colaboradorDAO.save(colaborador);
-
+        
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
         colaboradorEstado.setColaborador(colaborador);
         colaboradorEstado.setEstado(ColaboradorEstadoEnum.ACT);
-        colaboradorEstado.setUserRegistro(usuario);
+        colaboradorEstado.setUserRegistro(ds.getUsuario());
         colaboradorEstado.setFechaRegistro(new Date());
         colaboradorEstadoDAO.save(colaboradorEstado);
-
+        
         PersonaCargo personaCargo = new PersonaCargo();
         personaCargo.setCompania(compania);
         personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
@@ -694,7 +693,7 @@ public class OficinaServiceImp implements OficinaService {
         personaCargo.setOficina(colaborador.getOficina());
         personaCargo.setPerfilCompania(colaborador.getCargo());
         personaCargo.setPersona(persona);
-        personaCargo.setUserRegistro(usuario);
+        personaCargo.setUserRegistro(ds.getUsuario());
         personaPerfilDAO.save(personaCargo);
 
         Oficina oficina = oficinaDAO.find(colaborador.getOficina().getId());
@@ -725,26 +724,26 @@ public class OficinaServiceImp implements OficinaService {
             list.add(perfil);
         }
         Usuario usuario1 = new Usuario();
-
+        
         if (persona.getEmailCompania() != null) {
             usuario1.setEstadoEnum(UserEstadoEnum.ACT);
             usuario1.setGoogle(persona.getEmailCompania());
             usuario1.setPersona(persona);
-            usuario1.setUserRegistro(usuario);
+            usuario1.setUserRegistro(ds.getUsuario());
             usuario1.setFechaRegistro(new Date());
             usuarioDAO.save(usuario1);
-            addUserRoll(list, oficinaMean, usuario, usuario1, colaborador);
+            addUserRoll(list, oficinaMean, usuario1, colaborador, ds);
         }
-
+        
     }
-
+    
     @Override
     @Transactional
     public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) throws PhobosException {
 //        Usuario usuario = dataSessionPivot.getUsuario();
         Oficina oficina = colaborador.getOficina();
-
         Persona personaForm = colaborador.getPersona();
+        
         Persona personaBD = personaDAO.find(personaForm.getId());
         personaBD.setPaterno(personaForm.getPaterno());
         personaBD.setMaterno(personaForm.getMaterno());
@@ -754,24 +753,25 @@ public class OficinaServiceImp implements OficinaService {
         personaBD.setTipoDocumento(personaForm.getTipoDocumento());
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
         personaDAO.update(personaBD);
-
+        
         Colaborador colaboradors = colaboradorDAO.allActivosByPersonaAndOficina(oficina, personaBD);
         if (colaboradors != null) {
             throw new PhobosException("El colaborador existe en la oficina");
+            
         } else {
             colaborador.setFechaRegistro(new Date());
-            colaborador.setUserRegistro(usuario);
+            colaborador.setUserRegistro(ds.getUsuario());
             colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
             colaborador.setCodigo(getCodigoColaborador() + "");
             colaboradorDAO.save(colaborador);
-
+            
             ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
             colaboradorEstado.setColaborador(colaborador);
             colaboradorEstado.setEstado(ColaboradorEstadoEnum.ACT);
-            colaboradorEstado.setUserRegistro(usuario);
+            colaboradorEstado.setUserRegistro(ds.getUsuario());
             colaboradorEstado.setFechaRegistro(new Date());
             colaboradorEstadoDAO.save(colaboradorEstado);
-
+            
             PersonaCargo personaCargo = new PersonaCargo();
             personaCargo.setCompania(compania);
             personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
@@ -780,10 +780,10 @@ public class OficinaServiceImp implements OficinaService {
             personaCargo.setOficina(colaborador.getOficina());
             personaCargo.setPerfilCompania(colaborador.getCargo());
             personaCargo.setPersona(personaBD);
-            personaCargo.setUserRegistro(usuario);
+            personaCargo.setUserRegistro(ds.getUsuario());
             personaPerfilDAO.save(personaCargo);
         }
-
+        
         ArrayList<PerfilCompania> perfiles = new ArrayList();
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
@@ -796,23 +796,23 @@ public class OficinaServiceImp implements OficinaService {
             funcionColaboradorDAO.save(funcionColaborador);
             perfiles.add(perfil);
         }
-
+        
         Usuario usuario1 = usuarioDAO.findByPersona(personaForm);
         if (usuario1 == null) {
             usuario1 = new Usuario();
             if (colaborador.getPersona().getEmailCompania() != null) {
-                usuario1 = addUser(personaForm, usuario);
-                addUserRoll(perfiles, oficinaMean, usuario, usuario1, colaborador);
+                usuario1 = addUser(personaForm, ds.getUsuario());
+                addUserRoll(perfiles, oficinaMean, usuario1, colaborador, ds);
             }
         } else {
             UsuarioRol ur = usuarioRolDAO.findUsuarioAndOficina(usuario1, oficina);
             if (ur == null) {
-                addUserRoll(perfiles, oficinaMean, usuario, usuario1, colaborador);
+                addUserRoll(perfiles, oficinaMean, usuario1, colaborador, ds);
             }
         }
         return true;
     }
-
+    
     @Transactional
     public Usuario addUser(Persona personaForm, Usuario usuario) {
         Usuario usuario1 = new Usuario();
@@ -821,12 +821,11 @@ public class OficinaServiceImp implements OficinaService {
         usuario1.setPersona(personaForm);
         usuario1.setUserRegistro(usuario);
         usuarioDAO.save(usuario1);
-
+        
         return usuario1;
     }
-
-    @Transactional
-    public void addUserRoll(List<PerfilCompania> perfilesCompania, Oficina oficinaMean, Usuario usuario, Usuario Usuariocolaborador, Colaborador colaborador) {
+    
+    private void addUserRoll(List<PerfilCompania> perfilesCompania, Oficina oficinaMean, Usuario Usuariocolaborador, Colaborador colaborador, DataSessionPivot ds) {
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfilCompania(perfilesCompania);
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
         for (PerfilCompania compania : perfilesCompania) {
@@ -837,49 +836,50 @@ public class OficinaServiceImp implements OficinaService {
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMean);
                 usuarioRol.setRol(rol);
-                usuarioRol.setUserRegistro(usuario);
+                usuarioRol.setUserRegistro(ds.getUsuario());
                 usuarioRol.setUsuario(Usuariocolaborador);
                 usuarioRolDAO.save(usuarioRol);
             }
         }
     }
-
+    
     @Override
     @Transactional
-    public void updateColaborador(Colaborador colaborador, Oficina oficinaMea, DataSessionPivot dataSessionPivot) {
-        Usuario usuario = dataSessionPivot.getUsuario();
-        Colaborador emp = colaboradorDAO.find(colaborador.getId());
-        Oficina oficinaAnterior = emp.getOficina();
-
-        emp.setFechaModificacion(new Date());
-        emp.setUserModificacion(usuario);
-        emp.setCargo(colaborador.getCargo());
-        emp.setOficina(colaborador.getOficina());
-        emp.setFechaInicio(colaborador.getFechaInicio());
-        colaboradorDAO.update(emp);
-
-        if (colaborador.getOficina().getId() != oficinaAnterior.getId()) {
-            PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaborador.getCargo(), colaborador.getPersona());
+    public void updateColaborador(Colaborador colaboradorForm, Oficina oficinaMea, DataSessionPivot ds) {
+        Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
+        Oficina oficinaAnterior = colaboradorBD.getOficina();
+        
+        ObjectUtil.printAttr(colaboradorForm);
+        
+        colaboradorBD.setFechaModificacion(new Date());
+        colaboradorBD.setUserModificacion(ds.getUsuario());
+        colaboradorBD.setCargo(colaboradorForm.getCargo());
+        colaboradorBD.setOficina(colaboradorForm.getOficina());
+        colaboradorBD.setFechaInicio(colaboradorForm.getFechaInicio());
+        colaboradorDAO.update(colaboradorBD);
+        
+        if (colaboradorForm.getOficina().getId() != oficinaAnterior.getId()) {
+            PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getCargo(), colaboradorForm.getPersona());
             personaCargo.setEstadoEnum(PerfilEstadoEnum.INA);
             personaCargo.setFechaFin(new Date());
             personaCargo.setFechaModificacion(new Date());
-            personaCargo.setUserModificacion(usuario);
+            personaCargo.setUserModificacion(ds.getUsuario());
             personaPerfilDAO.update(personaCargo);
-
+            
             personaCargo = new PersonaCargo();
-            personaCargo.setCompania(dataSessionPivot.getCompania());
+            personaCargo.setCompania(ds.getCompania());
             personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
-            personaCargo.setFechaInicio(colaborador.getFechaInicio());
+            personaCargo.setFechaInicio(colaboradorForm.getFechaInicio());
             personaCargo.setFechaRegistro(new Date());
-            personaCargo.setOficina(colaborador.getOficina());
-            personaCargo.setPerfilCompania(colaborador.getCargo());
-            personaCargo.setPersona(colaborador.getPersona());
-            personaCargo.setUserRegistro(usuario);
+            personaCargo.setOficina(colaboradorForm.getOficina());
+            personaCargo.setPerfilCompania(colaboradorForm.getCargo());
+            personaCargo.setPersona(colaboradorForm.getPersona());
+            personaCargo.setUserRegistro(ds.getUsuario());
             personaPerfilDAO.save(personaCargo);
         }
         
-        List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaborador);
-        Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("funcion.id", colaborador.getFuncionColaborador());
+        List<FuncionColaborador> funcionesEmp = funcionColaboradorDAO.findFuncionByColaborador(colaboradorForm);
+        Map<Long, FuncionColaborador> mapNuevo = TypesUtil.convertListToMap("funcion.id", colaboradorForm.getFuncionColaborador());
         Map<Long, FuncionColaborador> mapTengo = TypesUtil.convertListToMap("funcion.id", funcionesEmp);
         for (FuncionColaborador funcionColaborador : funcionesEmp) {
             if (mapNuevo.get(funcionColaborador.getFuncion().getId()) == null) {
@@ -888,38 +888,37 @@ public class OficinaServiceImp implements OficinaService {
                 funcionColaboradorDAO.update(funcionColaborador);
             }
         }
-        for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
+        for (FuncionColaborador funcionColaborador : colaboradorForm.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             if (mapTengo.get(perfil.getId()) == null) {
                 funcionColaborador.setFechaRegistro(new Date());
-                funcionColaborador.setUserRegistro(usuario);
+                funcionColaborador.setUserRegistro(ds.getUsuario());
                 funcionColaborador.setEstado(EstadoEnum.ACT.name());
-                funcionColaborador.setColaborador(colaborador);
+                funcionColaborador.setColaborador(colaboradorForm);
                 funcionColaborador.setFuncion(perfil);
                 funcionColaborador.setFechaInico(new Date());
                 funcionColaboradorDAO.save(funcionColaborador);
-
+                
             }
         }
-        Usuario usuarioColaborador = usuarioDAO.findByPersona(colaborador.getPersona());
+        Usuario usuarioColaborador = usuarioDAO.findByPersona(colaboradorForm.getPersona());
         ArrayList<PerfilCompania> perfiles = new ArrayList();
         for (FuncionColaborador funcionColaborador : mapNuevo.values()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             perfiles.add(perfil);
         }
         if (usuarioColaborador != null) {
-            updateUserRol(usuarioColaborador, perfiles, usuario, oficinaMea, colaborador);
+            updateUserRol(usuarioColaborador, perfiles, oficinaMea, colaboradorForm, ds);
         }
     }
-
-    @Transactional
-    public void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Usuario usuario, Oficina oficinaMean, Colaborador colaborador) {
+    
+    private void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Oficina oficinaMean, Colaborador colaborador, DataSessionPivot ds) {
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfilCompania(perfilesCompaniaNuevos);
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
-
+        
         List<UsuarioRol> rolesUsuarioTengo = usuarioRolDAO.allUsuarioAndOficina(usuarioColaborador, oficinaMean);
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
-
+        
         for (UsuarioRol usuarioRol : rolesUsuarioTengo) {
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
@@ -928,6 +927,7 @@ public class OficinaServiceImp implements OficinaService {
                 usuarioRolDAO.update(usuarioRol);
             }
         }
+        
         for (FuncionRol funcionRolNuevo : funcionRolNuevos) {
             if (mapRolTengo.get(funcionRolNuevo.getRol().getId()) == null) {
                 UsuarioRol usuarioRol = new UsuarioRol();
@@ -935,31 +935,31 @@ public class OficinaServiceImp implements OficinaService {
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMean);
-                usuarioRol.setUserRegistro(usuario);
+                usuarioRol.setUserRegistro(ds.getUsuario());
                 usuarioRol.setUsuario(usuarioColaborador);
                 usuarioRol.setRol(funcionRolNuevo.getRol());
                 usuarioRolDAO.save(usuarioRol);
             }
-
+            
         }
     }
-
+    
     @Override
     public List<PerfilCompania> allFunciones() {
         return perfilCompaniaDAO.allTipoFuncion();
     }
-
+    
     @Override
     public Persona verifiDocumento(Persona persona) {
         return personaDAO.findByDoc(persona);
     }
-
+    
     @Override
     public Usuario verifiEmail(Persona persona) {
         Usuario u = usuarioDAO.findByGoogleEmail(persona.getEmailCompania());
         return u;
     }
-
+    
     @Override
     @Transactional
     public void addCargo(PerfilCompania perfilCompania, DataSessionPivot dsp) {
@@ -969,23 +969,23 @@ public class OficinaServiceImp implements OficinaService {
         perfilCompania.setEsAutomatico(1l);
         perfilCompaniaDAO.save(perfilCompania);
     }
-
+    
     public String getCodigoPerfilCompania() {
         String codigoNuevo = "CAR";
         PerfilCompania compania = perfilCompaniaDAO.findUltimoCodigo();
         if (compania != null) {
-
+            
             String codigoNume = compania.getCodigo().substring(3);
-
+            
             codigoNuevo = codigoNuevo + (Long.parseLong(codigoNume) + 1);
         } else {
             codigoNuevo = codigoNuevo.concat("10001");
         }
-
+        
         return codigoNuevo;
-
+        
     }
-
+    
     @Override
     public List<Persona> allPersonasByNombre(String nombre) {
         return personaDAO.allByNombre(nombre);

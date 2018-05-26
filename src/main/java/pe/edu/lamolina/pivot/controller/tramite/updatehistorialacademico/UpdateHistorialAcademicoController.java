@@ -28,7 +28,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -74,9 +73,6 @@ public class UpdateHistorialAcademicoController {
     @Autowired
     PdfHtmlView pdfHtmlView;
 
-    @Autowired
-    S3Service s3Service;
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         return "tramite/updatehistorialacademico/updateHistorialAcademicoList";
@@ -112,7 +108,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("notas")
-    public JsonResponse notas(Alumno alumnoForm, Model model, HttpSession session) {
+    public JsonResponse notas(Alumno alumnoForm) {
         JsonResponse response = new JsonResponse();
 
         try {
@@ -156,7 +152,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchcurso")
-    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos, HttpSession session) {
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
@@ -178,7 +174,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchciclo")
-    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos, HttpSession session) {
+    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
@@ -200,7 +196,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchalumno")
-    public JsonResponse searchalumno(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse searchalumno(@RequestParam("nombre") String nombre) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
@@ -237,7 +233,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allByDynatable(DynatableFilter filter) {
 
         DynatableResponse json = new DynatableResponse();
         try {
@@ -408,7 +404,11 @@ public class UpdateHistorialAcademicoController {
             jSolicitudConstancia.put("tipoDocumentoAcademico", service.toJson(tramiteDocumento.getTipoDocumentoAcademico()));
             jSolicitudConstancia.put("idioma", service.toJson(tramiteDocumento.getIdioma()));
             //ojo editar
-//            jSolicitudConstancia.put("fullfoto", "http://albatross-codex.s3.amazonaws.com/tmp/" + tramiteDocumento.getFoto());
+
+            if (!Strings.isNullOrEmpty(persona.getRutaFotoTemporal())) {
+                jSolicitudConstancia.put("fullfoto", Constantine.S3_LINK + Constantine.S3_DIR_FOTO_TMP + persona.getRutaFotoTemporal());
+            }
+            
             data.put("solicitud", jSolicitudConstancia);
 
             ObjectNode jAlumno = service.toJson(alumno);
@@ -628,8 +628,6 @@ public class UpdateHistorialAcademicoController {
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
             json.put("size", archivo.getSize());
 
-            this.uploadS3(Constantine.TMP_DIR, fileName, true);
-
             response.setData(json);
             response.setSuccess(true);
             response.setMessage("Carga satisfactoria del archivo");
@@ -642,14 +640,6 @@ public class UpdateHistorialAcademicoController {
 
         return response;
 
-    }
-
-    private void uploadS3(String localDirectory, String fileName, Boolean publico) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("tmp");
-        sb.append("/");
-        logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
-        s3Service.uploadFile("albatross-codex", sb.toString(), localDirectory, fileName, publico);
     }
 
 }

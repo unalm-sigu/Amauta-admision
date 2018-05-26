@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.tramite.tipoConstancia;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -27,6 +28,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -134,6 +136,7 @@ public class TipoConstanciaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             service.delete(tipoDocumento);
+            response.setMessage("Registro removido satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -185,6 +188,37 @@ public class TipoConstanciaController {
             response.setTotal(jsonList.size());
             response.setSuccess(true);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("update")
+    public JsonResponse update(TipoDocumentoAcademico tipoDocumento) {
+        JsonResponse response = new JsonResponse();
+        try {
+            TipoDocumentoAcademico tipoDocumentoAcademico = service.findTipoDocumentoAcademico(tipoDocumento);
+            ObjectNode jTipoDocumento = service.toJson(tipoDocumentoAcademico);
+            ArrayNode firmas = new ArrayNode(JsonNodeFactory.instance);
+            for (ConfiguracionFirmaDocumento configuracionFirmaDocumento : tipoDocumentoAcademico.getConfiguracionFirmaDocumento()) {
+                ObjectNode firma = service.toJson(configuracionFirmaDocumento);
+                firma.put("oficina", "");
+                firma.put("tipoOficina", "");
+                if (configuracionFirmaDocumento.getOficina() != null) {
+                    firma.put("oficina", service.toJson(configuracionFirmaDocumento.getOficina()));
+                }
+                if (configuracionFirmaDocumento.getTipoOficina() != null) {
+                    firma.put("tipoOficina", service.toJson(configuracionFirmaDocumento.getTipoOficina()));
+                }
+                firmas.add(firma);
+            }
+            jTipoDocumento.put("firmasDocumento", firmas);
+            response.setData(jTipoDocumento);
+            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
