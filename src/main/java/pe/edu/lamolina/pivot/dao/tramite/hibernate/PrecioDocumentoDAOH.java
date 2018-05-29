@@ -38,5 +38,23 @@ public class PrecioDocumentoDAOH extends AbstractEasyDAO<PrecioDocumento> implem
                 filter("idi.id", idioma);
         return find(sql);
     }
+    
+    @Override
+    public List<PrecioDocumento> allByTipoDocumentoAcademico(List<TipoDocumentoAcademico> tipos) {
+        Octavia sql = Octavia.query()
+                .from(PrecioDocumento.class, "pd")
+                .join("tipoDocumento td", "idioma idi", "cuentaBancaria cb")
+                .in("td.id", tipos);
+        return all(sql);
+    }
+
+    @Override
+    public List<PrecioDocumento> allByTipoDocumentoAcademico(TipoDocumentoAcademico tipo) {
+        Octavia sql = Octavia.query()
+                .from(PrecioDocumento.class, "pd")
+                .join("tipoDocumento td", "idioma idi", "cuentaBancaria cb")
+                .filter("td.id", tipo);
+        return all(sql);
+    }
 
 }

@@ -54,14 +54,11 @@
                                 <div class="col-xs-12">
                                     <div class="form-group">
                                         <label>¿Que documento necesita?</label>
-                                        <select name="tipoDocumentoAcademico.id" class="form-control" required="true">
-                                            <option></option>
-                                            <option
-                                                th:each="tipo : ${tiposDocumentoAcademico}"
-                                                th:text="${tipo.nombre}"
-                                                th:selected="${solicitud.tipoDocumentoAcademico!=null?solicitud.tipoDocumentoAcademico.id==tipo.id:0}"
-                                                th:value="${tipo.id}"></option>
-                                        </select>
+
+                                        <tipodocumentosearh 
+                                            v-bind:tipo="solicitud.tipoDocumentoAcademico"
+                                            v-bind:nombre="'tipoDocumentoAcademico.id'"/>
+
                                     </div>
                                 </div>
 
@@ -86,7 +83,7 @@
                                 </div>
 
 
-                                <div class="col-xs-12 col-sm-12">
+                                <div v-if="solicitud.tipoDocumentoAcademico.requiereFoto==1" class="col-xs-12 col-sm-12">
                                     <div class="form-group">
                                         <label>Fotografia para el documento</label>
                                         <vueupload
@@ -184,17 +181,17 @@
             <template id="fileuploadTemplate"  >
                 <div>
                     <input type="text" class="hidden"
-                           name="foto"
+                           name="tramite.persona.rutaFotoTemporal"
                            required="true"
                            data-parsley-errors-container="#errorfoto"
                            data-parsley-required-message="se requiere una fotografia"
-                           v-bind:value="solicitud.foto"
-                           v-model="solicitud.foto" />
+                           v-bind:value="solicitud.tramite.persona.rutaFotoTemporal"
+                           v-model="solicitud.tramite.persona.rutaFotoTemporal" />
                     <input type="file" id="fileupload" class="hidden" name="file"  placeholder="seleccionar archivo" />
                     <div>
                         <div id="dragarea" class="bg-info img-rounded text-center v-bottom text-muted" style="width: 140px; height: 140px;">
                             <img alt=""  id="imgDocument"  class="img-rounded" style="width: 140px; height: 140px;"
-                                 v-bind:src="solicitud.fullfoto"
+                                 v-bind:src="solicitud.tramite.persona.fullRutaFotoTemporal"
                                  data-holder-rendered="true" />
                         </div>
                         <a class="btn m-l-md btn-sm btn-link" v-on:click.prevent="open" href="#">Subir imagen</a>
@@ -206,6 +203,15 @@
                 </div>
             </template>
 
+            <template id="tipoDocumentoTemp">
+                <input type="text"
+                       class="form-control"
+                       data-trigger="change"
+                       v-bind:name="nombre"
+                       v-model="tipo.id"
+                       />
+            </template>
+
             <div th:substituteby="_modules/vue-modal"/>
 
         </div>
@@ -215,6 +221,7 @@
             <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_layout/includes :: vuemodal"/>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoFileUpload.js}" charset="utf-8"></script>
+            <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoTipo.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoForm.js}" charset="utf-8"></script>
         </div>
     </body>

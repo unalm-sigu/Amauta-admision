@@ -113,8 +113,7 @@
 
     <script type="text/javascript" th:src="@{/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js}" ></script>
     <script type="text/javascript" th:src="@{/vendor/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js}" ></script>
-
-
+  
     <script type="text/javascript" th:src="@{/bootstrap-timepicker/js/bootstrap-timepicker.min.js}"/>
     <script type="text/javascript" th:src="@{/bootstrap-timepicker/js/bootstrap-timepicker.js}"/>
 
@@ -290,5 +289,12 @@
 
         gtag('config', 'UA-89883780-4');
     </script>
+</div>
+
+<div th:fragment="javacsript-vue-bootstrap-datetimepicker" th:remove="tag">
+    <script type="text/javascript" th:src="@{/vendor/vue-bootstrap-datetimepicker/vue-bootstrap-datetimepicker.min.js}" charset="utf-8"></script>
+</div>
+<div th:fragment="javascript-bootstrap-datetimepicker" th:remove="tag">
+    <script type="text/javascript" th:src="@{/vendor/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js}" charset="utf-8"></script>
 </div>
 
