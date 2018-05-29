@@ -31,7 +31,7 @@ public class SolicitudConstanciaDAOH extends AbstractEasyDAO<TramiteDocumentoAca
     }
 
     @Override
-    public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+    public TramiteDocumentoAcademico find(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
         Octavia sql = Octavia.query()
                 .from(TramiteDocumentoAcademico.class, "tda")
                 .join("tipoDocumentoAcademico td", "idioma idi", "tramite tra")

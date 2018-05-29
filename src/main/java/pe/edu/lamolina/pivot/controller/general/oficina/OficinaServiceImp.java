@@ -666,13 +666,13 @@ public class OficinaServiceImp implements OficinaService {
 //        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
-        persona.setUserRegistro(ds.getUsuario());
+//        persona.setUserRegistro(ds.getUsuario());
         persona.setEstadoEnum(PersonaEstadoEnum.ACT);
         persona.setSexo(colaborador.getPersona().getSexo());
         personaDAO.save(persona);
         
         colaborador.setFechaRegistro(new Date());
-        colaborador.setUserRegistro(ds.getUsuario());
+//        colaborador.setUserRegistro(ds.getUsuario());
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
@@ -681,7 +681,7 @@ public class OficinaServiceImp implements OficinaService {
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
         colaboradorEstado.setColaborador(colaborador);
         colaboradorEstado.setEstado(ColaboradorEstadoEnum.ACT);
-        colaboradorEstado.setUserRegistro(ds.getUsuario());
+//        colaboradorEstado.setUserRegistro(ds.getUsuario());
         colaboradorEstado.setFechaRegistro(new Date());
         colaboradorEstadoDAO.save(colaboradorEstado);
         
@@ -693,7 +693,7 @@ public class OficinaServiceImp implements OficinaService {
         personaCargo.setOficina(colaborador.getOficina());
         personaCargo.setPerfilCompania(colaborador.getCargo());
         personaCargo.setPersona(persona);
-        personaCargo.setUserRegistro(ds.getUsuario());
+//        personaCargo.setUserRegistro(ds.getUsuario());
         personaPerfilDAO.save(personaCargo);
 
         Oficina oficina = oficinaDAO.find(colaborador.getOficina().getId());
@@ -729,10 +729,10 @@ public class OficinaServiceImp implements OficinaService {
             usuario1.setEstadoEnum(UserEstadoEnum.ACT);
             usuario1.setGoogle(persona.getEmailCompania());
             usuario1.setPersona(persona);
-            usuario1.setUserRegistro(ds.getUsuario());
+//            usuario1.setUserRegistro(ds.getUsuario());
             usuario1.setFechaRegistro(new Date());
             usuarioDAO.save(usuario1);
-            addUserRoll(list, oficinaMean, usuario1, colaborador, ds);
+//            addUserRoll(list, oficinaMean, usuario1, colaborador, ds);
         }
         
     }
@@ -760,7 +760,7 @@ public class OficinaServiceImp implements OficinaService {
             
         } else {
             colaborador.setFechaRegistro(new Date());
-            colaborador.setUserRegistro(ds.getUsuario());
+//            colaborador.setUserRegistro(ds.getUsuario());
             colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
             colaborador.setCodigo(getCodigoColaborador() + "");
             colaboradorDAO.save(colaborador);
@@ -768,7 +768,7 @@ public class OficinaServiceImp implements OficinaService {
             ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
             colaboradorEstado.setColaborador(colaborador);
             colaboradorEstado.setEstado(ColaboradorEstadoEnum.ACT);
-            colaboradorEstado.setUserRegistro(ds.getUsuario());
+//            colaboradorEstado.setUserRegistro(ds.getUsuario());
             colaboradorEstado.setFechaRegistro(new Date());
             colaboradorEstadoDAO.save(colaboradorEstado);
             
@@ -780,7 +780,7 @@ public class OficinaServiceImp implements OficinaService {
             personaCargo.setOficina(colaborador.getOficina());
             personaCargo.setPerfilCompania(colaborador.getCargo());
             personaCargo.setPersona(personaBD);
-            personaCargo.setUserRegistro(ds.getUsuario());
+//            personaCargo.setUserRegistro(ds.getUsuario());
             personaPerfilDAO.save(personaCargo);
         }
         
@@ -801,13 +801,13 @@ public class OficinaServiceImp implements OficinaService {
         if (usuario1 == null) {
             usuario1 = new Usuario();
             if (colaborador.getPersona().getEmailCompania() != null) {
-                usuario1 = addUser(personaForm, ds.getUsuario());
-                addUserRoll(perfiles, oficinaMean, usuario1, colaborador, ds);
+//                usuario1 = addUser(personaForm, ds.getUsuario());
+//                addUserRoll(perfiles, oficinaMean, usuario1, colaborador, ds);
             }
         } else {
             UsuarioRol ur = usuarioRolDAO.findUsuarioAndOficina(usuario1, oficina);
             if (ur == null) {
-                addUserRoll(perfiles, oficinaMean, usuario1, colaborador, ds);
+//                addUserRoll(perfiles, oficinaMean, usuario1, colaborador, ds);
             }
         }
         return true;

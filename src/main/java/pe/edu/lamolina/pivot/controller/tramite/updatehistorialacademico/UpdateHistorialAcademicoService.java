@@ -83,4 +83,6 @@ public interface UpdateHistorialAcademicoService {
 
     List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
 
+    void updateFotoTemporal(Persona imagenForm);
+
 }

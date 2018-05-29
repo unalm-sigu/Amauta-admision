@@ -33,6 +33,9 @@ var DynatableRow = Vue.component("dynatableRow", {
         },
         enviarrevision: function(solicitud) {
             $global.$emit("enviarrevision", solicitud);
+        },
+        cargarfoto: function(solicitud) {
+            $global.$emit("cargarfoto", solicitud);
         }
     }
 });
