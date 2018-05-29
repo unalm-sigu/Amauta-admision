@@ -202,10 +202,10 @@ public class OficinaController {
             }
             colaborador.setFuncionColaborador(funciones);
             if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
+                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds, ds.getCompania());
                 response.setSuccess(true);
             } else {
-                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
+                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds, ds.getCompania());
                 response.setSuccess(true);
                 response.setSuccess(success);
             }
