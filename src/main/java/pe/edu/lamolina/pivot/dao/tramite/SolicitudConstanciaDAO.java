@@ -9,6 +9,6 @@ public interface SolicitudConstanciaDAO extends EasyDAO<TramiteDocumentoAcademic
 
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
 
-    public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+    public TramiteDocumentoAcademico find(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
 }

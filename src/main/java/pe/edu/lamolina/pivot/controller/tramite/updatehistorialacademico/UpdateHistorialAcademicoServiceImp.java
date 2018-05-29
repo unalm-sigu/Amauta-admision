@@ -363,7 +363,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-        return tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
     }
 
     @Override
@@ -410,7 +410,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-        
+
         AcreenciaTramiteDocumento acreencia = new AcreenciaTramiteDocumento();
         acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
         acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
@@ -441,7 +441,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Transactional
     public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
-        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
         Tramite tramite = tda.getTramite();
         Tramite tramiteForm = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramiteForm.getAlumno());
@@ -587,7 +587,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
-        return tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademicoForm);
+        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
     }
 
     @Override
@@ -613,7 +613,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     @Transactional
     public void revision(TramiteDocumentoAcademico solicitudConstancia) {
-        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(solicitudConstancia);
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia);
         tda.setEstadoEnum(TramiteEstadoEnum.ENV);
         tramiteDocumentoAcademicoDAO.update(tda);
     }
@@ -656,5 +656,17 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             }
         }
         return tda;
+    }
+
+    @Override
+    @Transactional
+    public void updateFotoTemporal(Persona imagenForm) {
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(imagenForm.getId()));
+        if (!Strings.isNullOrEmpty(imagenForm.getRutaFotoTemporal())) {
+            Persona persona = (Persona) ObjectUtil.getParentTree(tda, "tramite.persona");
+            persona.setRutaFotoTemporal(imagenForm.getRutaFotoTemporal());
+            personaDAO.update(persona);
+            this.uploadS3(persona.getRutaFotoTemporal());
+        }
     }
 }

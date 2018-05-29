@@ -33,8 +33,10 @@
         <div layout:fragment="js">
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <div th:substituteby="_layout/includes :: javascript-filedownload"/>
+            <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_layout/includes :: vuejs"/>
             <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoUploadFoto.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoDynatable.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoList.js}" charset="utf-8"></script>
         </div>

@@ -678,4 +678,17 @@ public class UpdateHistorialAcademicoController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("onlyfoto")
+    public JsonResponse onlyfoto(Persona imagenForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.updateFotoTemporal(imagenForm);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }
