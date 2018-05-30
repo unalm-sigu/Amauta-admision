@@ -90,15 +90,11 @@ public class PlantillaConstanciaController {
 
     @ResponseBody
     @RequestMapping("updateContenido")
-    public JsonResponse updateContenido(@RequestParam("id") Long id,
-            @RequestParam("contenido") String contenido, HttpSession session) {
+    public JsonResponse updateContenido(PlantillaDocumentoAcademico documentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            PlantillaDocumentoAcademico documentoAcademico = new PlantillaDocumentoAcademico();
-            documentoAcademico.setId(id);
-            documentoAcademico.setContenido(contenido);
             service.updateContenido(documentoAcademico, ds.getUsuario());
             response.setMessage("Se actualizó");
             response.setSuccess(true);

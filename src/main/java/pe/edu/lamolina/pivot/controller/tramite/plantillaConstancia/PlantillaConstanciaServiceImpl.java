@@ -1,9 +1,12 @@
 package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +18,8 @@ import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaConstanciaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.VariableGenericaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,6 +31,14 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     @Autowired
     IdiomaDAO idiomaDAO;
 
+    @Autowired
+    VariableGenericaDAO variableGenericaDAO;
+
+    @Autowired
+    VariablePlantillaDAO variablePlantillaDAO;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     @Transactional
     public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
@@ -35,19 +48,23 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     @Transactional
-    public void updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
-        PlantillaDocumentoAcademico academico = plantillaConstanciaDAO.find(plantillaDocumentoAcademico.getId());
-        academico.setContenido(plantillaDocumentoAcademico.getContenido());
-        Map<String, String> mapVariables = this.getConstants(plantillaDocumentoAcademico.getContenido());
+    public void updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
+        PlantillaDocumentoAcademico academico = plantillaConstanciaDAO.find(plantillaDoc.getId());
+        academico.setContenido(plantillaDoc.getContenido());
+        plantillaConstanciaDAO.update(academico);
+        Map<String, String> mapVariables = this.getConstants(plantillaDoc.getContenido());
+        List<String> listVariable = new ArrayList(mapVariables.values());
+        List<VariableGenerica> VariableGenerica = variableGenericaDAO.allByCodigo(listVariable);
+        List<VariablePlantilla> misVariable = variablePlantillaDAO.allByPlantilla(plantillaDoc);
+
         VariablePlantilla vp = new VariablePlantilla();
-        vp.setPlantillaDocumentoAcademico(plantillaDocumentoAcademico);
+        vp.setPlantillaDocumentoAcademico(plantillaDoc);
         vp.setFechaRegistro(new Date());
 //        vp.setVariableGenerica(variableGenerica);
         VariableGenerica vg = new VariableGenerica();
 //        vg.setCodigo(codigo);
 //        vg.setDescripcion(codigo);
 
-        plantillaConstanciaDAO.update(academico);
     }
 
     @Override
@@ -84,9 +101,6 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
                     mapVariables.put(variable, variable);
                 }
             }
-        }
-        for (Map.Entry<String, String> entry : mapVariables.entrySet()) {
-            System.out.println(entry.getKey());
         }
         return mapVariables;
     }
