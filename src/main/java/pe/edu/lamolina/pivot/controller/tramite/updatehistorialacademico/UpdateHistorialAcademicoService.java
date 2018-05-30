@@ -81,6 +81,8 @@ public interface UpdateHistorialAcademicoService {
 
     List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos);
 
-    void uploadS3(String localDirectory, String fileName, Boolean publico);
+    List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
+
+    void updateFotoTemporal(Persona imagenForm);
 
 }

@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
@@ -361,7 +363,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public TramiteDocumentoAcademico findTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
-        return tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
     }
 
     @Override
@@ -380,8 +382,13 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         Persona persona = alumno.getPersona();
-        persona.setRutaFotoTemporal(tramite.getPersona().getRutaFotoTemporal());
-        personaDAO.update(persona);
+
+        String rutaFotoTemporal = (String) ObjectUtil.getParentTree(tramite, "persona.rutaFotoTemporal");
+        if (!Strings.isNullOrEmpty(rutaFotoTemporal)) {
+            persona.setRutaFotoTemporal(rutaFotoTemporal);
+            personaDAO.update(persona);
+            this.uploadS3(persona.getRutaFotoTemporal());
+        }
 
         tramite.setAlumno(alumno);
         tramite.setCicloAcademico(cicloAcademico);
@@ -403,7 +410,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-        //ojo costo por ciclo ¿?
+
         AcreenciaTramiteDocumento acreencia = new AcreenciaTramiteDocumento();
         acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
         acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
@@ -422,7 +429,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
         acreenciaTramiteDocumentoDAO.save(acreencia);
         this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
-        this.uploadS3(Constantine.TMP_DIR, persona.getRutaFotoTemporal(), true);
+
     }
 
     private void enviarNotificacionSolicitudConstanciaCreacion(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
@@ -434,7 +441,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Transactional
     public void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
-        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
         Tramite tramite = tda.getTramite();
         Tramite tramiteForm = tramiteDocumentoAcademico.getTramite();
         Alumno alumno = alumnoDAO.find(tramiteForm.getAlumno());
@@ -444,8 +451,12 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         tramiteDAO.update(tramite);
 
         Persona persona = alumno.getPersona();
-        persona.setRutaFotoTemporal(tramite.getPersona().getRutaFotoTemporal());
-        personaDAO.update(persona);
+        String rutaFotoTemporal = (String) ObjectUtil.getParentTree(tramiteForm, "persona.rutaFotoTemporal");
+        if (!Strings.isNullOrEmpty(rutaFotoTemporal)) {
+            persona.setRutaFotoTemporal(rutaFotoTemporal);
+            personaDAO.update(persona);
+            this.uploadS3(persona.getRutaFotoTemporal());
+        }
 
         tda.setPersonaContacto(tramiteDocumentoAcademico.getPersonaContacto());
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
@@ -490,7 +501,6 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             acreenciaTramiteDocumentoDAO.update(acreencia);
         }
         this.enviarNotificacionSolicitudConstanciaCreacion(tda);
-        this.uploadS3(Constantine.TMP_DIR, persona.getRutaFotoTemporal(), true);
     }
 
     @Override
@@ -577,7 +587,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
-        return tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(tramiteDocumentoAcademicoForm);
+        return tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
     }
 
     @Override
@@ -603,7 +613,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     @Override
     @Transactional
     public void revision(TramiteDocumentoAcademico solicitudConstancia) {
-        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.findTramiteDocumentoAcademico(solicitudConstancia);
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia);
         tda.setEstadoEnum(TramiteEstadoEnum.ENV);
         tramiteDocumentoAcademicoDAO.update(tda);
     }
@@ -626,16 +636,37 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
         return cicloAcademicoDAO.allCicloByNameExceptList(nombre, ciclos);
     }
 
-    @Override
-    public void uploadS3(String localDirectory, String fileName, Boolean publico) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(Constantine.S3_DIR_FOTO_TMP);
-        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUKET, sb.toString(), localDirectory, fileName, publico);
-        File f = new File(localDirectory + fileName);
-        logger.debug("existe el archivo    {}  {}  ", (localDirectory + fileName), f.exists());
+    public void uploadS3(String fileName) {
+        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+        File f = new File(Constantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUKET, sb.toString(), localDirectory, fileName, publico);
+            s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
         }
     }
 
+    @Override
+    public List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre) {
+        List<TipoDocumentoAcademico> tda = tipoDocumentoAcademicoDAO.allTipoDocumentoAcademicoByName(nombre);
+        List<PrecioDocumento> precios = precioDocumentoDAO.allByTipoDocumentoAcademico(tda);
+        Map<Long, List<PrecioDocumento>> precioByDocumento = TypesUtil.convertListToMapList("tipoDocumento.id", precios);
+        for (TipoDocumentoAcademico tipo : tda) {
+            List<PrecioDocumento> preciosDocumento = precioByDocumento.get(tipo.getId());
+            if (preciosDocumento != null) {
+                tipo.setPrecioDocumento(preciosDocumento);
+            }
+        }
+        return tda;
+    }
+
+    @Override
+    @Transactional
+    public void updateFotoTemporal(Persona imagenForm) {
+        TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(new TramiteDocumentoAcademico(imagenForm.getId()));
+        if (!Strings.isNullOrEmpty(imagenForm.getRutaFotoTemporal())) {
+            Persona persona = (Persona) ObjectUtil.getParentTree(tda, "tramite.persona");
+            persona.setRutaFotoTemporal(imagenForm.getRutaFotoTemporal());
+            personaDAO.update(persona);
+            this.uploadS3(persona.getRutaFotoTemporal());
+        }
+    }
 }

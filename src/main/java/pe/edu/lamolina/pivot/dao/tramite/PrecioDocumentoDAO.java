@@ -11,4 +11,8 @@ public interface PrecioDocumentoDAO extends EasyDAO<PrecioDocumento> {
     public List<PrecioDocumento> allPrecioDocumento();
 
     public PrecioDocumento findByTipoIdioma(TipoDocumentoAcademico tipoDocumento, Idioma idioma);
+
+    public List<PrecioDocumento> allByTipoDocumentoAcademico(List<TipoDocumentoAcademico> tipos);
+
+    public List<PrecioDocumento> allByTipoDocumentoAcademico(TipoDocumentoAcademico tipo);
 }

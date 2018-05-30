@@ -1,11 +1,12 @@
 Vue.component("vueupload", {
     template: "#fileuploadTemplate",
     props: {
-        solicitud: {},
-        mensajeerror: ''
+        mensajeerror: '',
+        rutaFotoTemporal:null,
+        fullRutaFotoTemporal:null
     },
     date: function () {
-        return {solicitud: {}, mensajeerror: ''}
+        return {rutaFotoTemporal: null, fullRutaFotoTemporal:null,mensajeerror: ''}
     },
     mounted: function () {
 
@@ -31,13 +32,11 @@ Vue.component("vueupload", {
                 if (data.files && data.files[0]) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        vue.solicitud.tramite.persona.fullRutaFotoTemporal = e.target.result;
+                        vue.fullRutaFotoTemporal = e.target.result;
                     };
                     reader.readAsDataURL(data.files[0]);
                 }
                 data.submit();
-            },
-            progress: function (e, data) {
             },
             done: function (e, data) {
                 if (data.result.success) {
@@ -45,11 +44,11 @@ Vue.component("vueupload", {
                     if (data.result.data.ok == true) {
                         notify(data.result.message, "info");
                         vue.mensajeerror = '';
-                        vue.solicitud.tramite.persona.rutaFotoTemporal = ruta;
+                        vue.rutaFotoTemporal = ruta;
                     } else {
                         vue.mensajeerror = data.result.data.nocumplerequisito;
-                        vue.solicitud.tramite.persona.rutaFotoTemporal = '';
-                        vue.solicitud.tramite.persona.fullRutaFotoTemporal = '';
+                        vue.rutaFotoTemporal = '';
+                        vue.fullRutaFotoTemporal = '';
                     }
                 } else {
                     notify(data.result.message, "error");
