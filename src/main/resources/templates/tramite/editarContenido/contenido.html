@@ -7,21 +7,13 @@
         <div layout:fragment="main">
             <div id="plantillaContenido">
                 <header class="header b-b padder-lg">
-                    <h2 class="block" th:text=" ${tipoDocumentoNombre}">Titulo</h2>
-                    <h3 th:text="${idioma}">Idioma</h3>
+                    <h2 th:text=" ${tipoDocumentoNombre}">Titulo</h2>
+                    <p  class="block text-primary h4 m-t-n-xs" th:text="|Idioma ${idioma}|">Idioma</p>
                 </header>
 
                 <section class="wrapper-lg">
 
                     <section  class="panel">
-                        <!-- <section v-if="${plantilla.variables != null}" class="panel-body">
-                             <p>
-                                 <i class="fa fa-asterisk"></i> Las siguientes variables pueden ser usadas en distintos casos según lo requerido, de no encontrar el valor este se enviará en blanco o vacío.
-                             </p>
-                             <ul>
-                                 <li th:each="variable : ${variables}"><span class="bold" th:text="${variable.codigo}"></span> : <span th:text="${variable.descripcion}"></span></li>
-                             </ul>
-                         </section>-->
                         <section class="panel-body">
                             <input id="idCont" type="hidden" th:value="${id}"/>
 

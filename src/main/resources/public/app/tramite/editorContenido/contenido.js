@@ -1,16 +1,11 @@
 $(function () {
 
     Contenido = {
-
         Init: function () {
-
             CKEDITOR.replace('contenido', {height: 380});
-
         },
         updateContenido: function () {
-
-            for (instance in CKEDITOR.instances)
-            {
+            for (instance in CKEDITOR.instances) {
                 CKEDITOR.instances[instance].updateElement();
             }
             var idCont = $("#idCont").val();
