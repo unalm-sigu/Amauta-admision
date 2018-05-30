@@ -77,7 +77,7 @@ public interface OficinaService {
 
     public List<PerfilCompania> allCargos(Oficina oficina);
 
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot ds, Compania compania);
+    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
@@ -87,7 +87,7 @@ public interface OficinaService {
 
     Usuario verifiEmail(Persona persona);
 
-    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot ds, Compania compania);
+    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     List<PerfilCompania> allCargosByOficina(Oficina oficina);
 

@@ -202,10 +202,10 @@ public class OficinaController {
             }
             colaborador.setFuncionColaborador(funciones);
             if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds, ds.getCompania());
+                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
                 response.setSuccess(true);
             } else {
-                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds, ds.getCompania());
+                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
                 response.setSuccess(true);
                 response.setSuccess(success);
             }
@@ -401,7 +401,6 @@ public class OficinaController {
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        System.out.println("Oficina: -----> " + oficina.getTipoOficina().getId());
         model.addAttribute("oficina", oficina);
         model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
