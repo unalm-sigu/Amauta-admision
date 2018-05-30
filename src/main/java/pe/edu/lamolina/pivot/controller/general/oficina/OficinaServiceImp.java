@@ -661,7 +661,7 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     @Transactional
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot ds, Compania compania) {
+    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) {
 //        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
@@ -702,7 +702,7 @@ public class OficinaServiceImp implements OficinaService {
             Medico medico = new Medico();
             medico.setColaborador(colaborador);
             medico.setFechaRegistro(new Date());
-            medico.setUserRegistro(ds.getUsuario());
+            medico.setUserRegistro(usuario);
             medicoDAO.save(medico);
         }
 
@@ -710,7 +710,7 @@ public class OficinaServiceImp implements OficinaService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setUserRegistro(ds.getUsuario());
+            funcionColaborador.setUserRegistro(usuario);
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setColaborador(colaborador);
             funcionColaborador.setFuncion(perfil);
@@ -793,7 +793,7 @@ public class OficinaServiceImp implements OficinaService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setUserRegistro(ds.getUsuario());
+            funcionColaborador.setUserRegistro(usuario);
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setFuncion(perfil);
             funcionColaborador.setFechaInico(new Date());
