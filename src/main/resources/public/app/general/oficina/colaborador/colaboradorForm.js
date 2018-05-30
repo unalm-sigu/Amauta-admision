@@ -19,8 +19,8 @@ new Vue({
         colaboradorData: {},
         sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}],
         seleccionado: {},
-        config: {
-            format: "dd/MM/yyyy",
+        configDate: {
+            format: "DD/MM/YYYY",
             useCurrent: false
         }
     },
@@ -31,7 +31,6 @@ new Vue({
         let $vue = this;
         if ($vue.colabo.id != 0) {
             $vue.colaborador = $vue.colabo;
-            console.dir($vue.colaborador)
             $vue.persona = $vue.colaborador.persona;
             $vue.persona.tipoDocumento = $vue.colaborador.persona.tipoDocumento;
             $vue.newCola = true;
@@ -88,10 +87,11 @@ new Vue({
         },
         verificarEmail(e) {
             let $vue = this;
-            console.log($vue.persona.emailCompania)
             if ($vue.persona.emailCompania === undefined || $vue.persona.emailCompania == '') {
                 return;
             }
+            $vue.persona.fechaNacer = moment($vue.persona.fechaNacer, "dd/MM/yyyy");
+            
             $.ajax({
                 url: APP.url('general/oficina/validarEmail'),
                 type: 'POST',
@@ -148,10 +148,7 @@ new Vue({
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
-//            $vue.colaboradorData.fechaInicio = $vue.convertDate($vue.colaboradorData.fechaInicio);
-//            $vue.colaboradorData.fechaRegistro = $vue.convertDate($vue.colaboradorData.fechaRegistro);
-            console.log(JSON.stringify($vue.colaboradorData))
-            //return;
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),
@@ -184,12 +181,10 @@ new Vue({
             self.btnEnable();
             $vue.colaborador.persona = $vue.persona;
             $vue.colaborador.persona.fechaNacer = moment($vue.colaborador.persona.fechaNacer, "dd/MM/yyyy");
-//            $vue.colaboradorData.colaborador.persona = $vue.colaborador.persona;
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
-            console.dir($vue.colaboradorData)
-//            return;
+            
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),
@@ -224,7 +219,7 @@ new Vue({
                 $vue.temp = $vue.persona;
             }
             $vue.personaValidTemp = {};
-            console.log($vue.persona);
+            
             var map = new Map(Object.entries($vue.persona));
             Object.keys($vue.persona).forEach(function (elem) {
                 if (elem == 'materno' && map.get(elem) !== null) {

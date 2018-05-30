@@ -67,7 +67,8 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        $(location).attr('href', APP.url('academico/profesor'));
+                        self.btnEnable();
+//                        $(location).attr('href', APP.url('academico/profesor'));
                     } else {
                         notify(response.message, "error");
                         self.btnEnable();

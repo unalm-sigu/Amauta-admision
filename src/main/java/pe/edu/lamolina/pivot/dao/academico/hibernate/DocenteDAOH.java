@@ -85,7 +85,7 @@ public class DocenteDAOH extends AbstractEasyDAO<Docente> implements DocenteDAO 
         Octavia sql = Octavia.query()
                 .from(Docente.class, "doc")
                 .join("persona per")
-                .leftJoin("modalidadEstudio me", "departamentoAcademico")
+                .leftJoin("modalidadEstudio me", "departamentoAcademico", "per.paisDomicilio")
                 .filter("doc.id", docente);
 
         return find(sql);
