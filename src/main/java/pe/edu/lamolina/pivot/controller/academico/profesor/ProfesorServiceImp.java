@@ -214,11 +214,11 @@ public class ProfesorServiceImp implements ProfesorService {
             throw new PhobosException("El correo principal es obligatorio.");
         }
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaForm);
-        logger.debug("-> Email-Compania validado.");
-        if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
-            this.validarEmailConPersona(personaForm.getEmail(), personaForm);
-            logger.debug("-> Email-Persona validado.");
-        }
+//        logger.debug("-> Email-Compania validado.");
+//        if (!Strings.isNullOrEmpty(personaForm.getEmail())) {
+//            this.validarEmailConPersona(personaForm.getEmail(), personaForm);
+//            logger.debug("-> Email-Persona validado.");
+//        }
         Persona persona = this.getPersonaBDbasic(personaForm);
         logger.debug("-> Dato basicos de persona actualizados");
         if (persona.getFechaValidacionReniec() == null) {

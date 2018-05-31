@@ -24,9 +24,8 @@
     <div class="form-group">
 
         <label>Número de documento de identidad</label>
-
+        
         <input type="text"
-               v-on:blur="cambiarNumDoc"
                v-model="docente.persona.numeroDocIdentidad"
                v-bind:value="docente.persona.numeroDocIdentidad"
                name="persona.numeroDocIdentidad"
@@ -83,8 +82,8 @@
 <div class="col-sm-6">
     <div class="form-group">
         <label >Correo  Institucional</label>
+        
         <input  class="inline form-control"
-                v-on:blur="validarEmailEmpresa"
                 data-trigger="change" required="true" type="email"
                 data-trim-value="true"
                 v-model="docente.persona.emailCompania"
@@ -241,7 +240,6 @@
         <label>Correo Electrónico</label>
 
         <input type="text"
-               v-on:blur="validarEmail"
                name="persona.email"
                v-model="docente.persona.email"
                class="form-control verificar-email"/>
