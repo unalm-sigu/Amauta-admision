@@ -5,8 +5,9 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="plantillaContenido">
+            <div id="main">
                 <header class="header b-b padder-lg">
+                    <a th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2 th:text=" ${tipoDocumentoNombre}">Titulo</h2>
                     <p  class="block text-primary h4 m-t-n-xs" th:text="|Idioma ${idioma}|">Idioma</p>
                 </header>
@@ -15,24 +16,71 @@
 
                     <section  class="panel">
                         <section class="panel-body">
-                            <input id="idCont" type="hidden" th:value="${id}"/>
+                            <div class="col-sm-6 col-sm-offset-4">
+                                <pre>{{alumno}}</pre>
+                                <div class="form-group">
+                                    <alumnosearch   v-bind:alumno="alumno" />
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <a href="#" type="button" v-on:click.prevent="previewPdf" class="btn btn-default btn-sm"><i class="fa fa-html5" aria-hidden="true"></i></a>
+                                <a href="#" type="button" v-on:click.prevent="previewHtml" class="btn btn-default btn-sm"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a>
+                            </div>
+                        </section>
 
-                            <textarea class="form-control vresize" id="contenido" name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
+                        <section class="panel-body">
+                            <form id="form" method="POST" >
+
+                                <input  type="hidden" name="id" th:value="${id}"/>
+                                <textarea class="form-control vresize"  name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
+
+                            </form>
                         </section>
+
                         <section class="panel-body text-center v-middle">
-                            <a href="/tramite/plantillaconstancia" class="btn btn-link btn-lg">Regresar</a>
-                            <button class="btn btn-primary btn-lg" id="updateContenido">Guardar</button>
+                            <a href="/tramite/plantillaconstancia" class="btn btn-link">Regresar</a>
+                            <button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
                         </section>
+
+                        <section class="panel-body">
+                            <h4>Variables</h4>
+                            <div v-for="variable in variables" class="col-sm-6">
+                                <p v-bind:class="{ 'text-danger' : variable.variableGenerica.id==null }" class="text-danger">{{variable.variableGenerica.codigo}} : {{variable.variableGenerica.descripcion}} </p>
+                            </div>
+                        </section>
+
                     </section>
                 </section>
             </div>
+
+            <template id="alumnoTemp">
+                <input type="text"
+                       class="form-control"
+                       data-trigger="change"
+                       v-model="alumno.id"
+                       />
+            </template>
+
+            <template   type="text/x-template" id="alumnoItem">
+                <div class="row">
+                    <div class="pull-left m-l-sm m-r-xs" >
+                        <img class="img-responsive img-thumbnail img-circle" v-bind:src="alumno.rutaFoto" ></img>
+                    </div>
+                    <span class="block bold m-t-sm">{{alumno.nombre}}</span>
+                    <span class="block">Especialida de {{alumno.carrera}}    Facultad de {{alumno.facultad}} </span>
+                    <span class="text-sm block"> {{alumno.tipo}}   {{alumno.numero}}   Nro Matrícula  {{alumno.codigoMatricula}} </span>
+                </div>
+            </template>
+
         </div>
 
         <div layout:fragment="js" th:remove='tag'>
 
             <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
             <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
+            <script th:src="@{/app/tramite/editorContenido/contenidoalumno.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/editorContenido/contenido.js}" charset="utf-8"></script>
+
         </div>
     </body>
 </html>

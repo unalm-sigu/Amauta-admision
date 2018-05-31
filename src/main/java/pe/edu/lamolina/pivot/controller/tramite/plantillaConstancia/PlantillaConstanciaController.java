@@ -1,5 +1,7 @@
 package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -17,11 +19,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.general.Idioma;
@@ -92,12 +94,23 @@ public class PlantillaConstanciaController {
     @RequestMapping("updateContenido")
     public JsonResponse updateContenido(PlantillaDocumentoAcademico documentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.updateContenido(documentoAcademico, ds.getUsuario());
-            response.setMessage("Se actualizó");
+            
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            response.setSuccess(false);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            PlantillaDocumentoAcademico psa = service.updateContenido(documentoAcademico, ds.getUsuario());
+            
+            ObjectNode jPlantillaDocumentoAcademico = JsonHelper.createJson(psa, jsonFactory, true, new String[]{
+                "id",
+                "variablePlantilla.*",
+                "variablePlantilla.variableGenerica.*"
+            });
+            
+            response.setData(jPlantillaDocumentoAcademico);
+            response.setMessage("Registro actualizado satisfactoriamente");
             response.setSuccess(true);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

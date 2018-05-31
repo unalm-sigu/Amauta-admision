@@ -1,22 +1,27 @@
-$(function () {
-
-    Contenido = {
-        Init: function () {
-            CKEDITOR.replace('contenido', {height: 380});
-        },
+new Vue({
+    el: '#main',
+    data: {
+        variables: [],
+        alumno:{}
+    },
+    mounted() {
+        let vue = this;
+        CKEDITOR.replace('contenido', {height: 380});
+    },
+    methods: {
         updateContenido: function () {
+            let vue = this;
             for (instance in CKEDITOR.instances) {
                 CKEDITOR.instances[instance].updateElement();
             }
-            var idCont = $("#idCont").val();
-            var contenido = $("#contenido").val();
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/plantillaconstancia/updateContenido'),
-                data: {id: idCont, contenido: contenido},
+                data: $('form').serialize(),
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
+                        vue.variables = response.data.variablePlantilla;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -25,14 +30,8 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
-        }
-    };
-
-    Contenido.Init();
-
-    $("body").delegate("#updateContenido", "click", function (e) {
-        Contenido.updateContenido();
-    });
-
+        },
+        previewPdf:function(){},
+        previewHtml:function(){},
+    }
 });

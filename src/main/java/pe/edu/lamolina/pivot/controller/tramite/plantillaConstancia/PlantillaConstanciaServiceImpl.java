@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
@@ -24,49 +26,69 @@ import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
 @Service
 @Transactional(readOnly = true)
 public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaService {
-
+    
     @Autowired
     PlantillaConstanciaDAO plantillaConstanciaDAO;
-
+    
     @Autowired
     IdiomaDAO idiomaDAO;
-
+    
     @Autowired
     VariableGenericaDAO variableGenericaDAO;
-
+    
     @Autowired
     VariablePlantillaDAO variablePlantillaDAO;
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     @Transactional
     public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
-
+        
         plantillaConstanciaDAO.update(plantillaDocumentoAcademico);
     }
-
+    
     @Override
     @Transactional
-    public void updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
-        PlantillaDocumentoAcademico academico = plantillaConstanciaDAO.find(plantillaDoc.getId());
-        academico.setContenido(plantillaDoc.getContenido());
-        plantillaConstanciaDAO.update(academico);
+    public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
+        PlantillaDocumentoAcademico plantilla = plantillaConstanciaDAO.find(plantillaDoc.getId());
+        plantilla.setContenido(plantillaDoc.getContenido());
+        //plantillaConstanciaDAO.update(plantilla);
         Map<String, String> mapVariables = this.getConstants(plantillaDoc.getContenido());
-        List<String> listVariable = new ArrayList(mapVariables.values());
-        List<VariableGenerica> VariableGenerica = variableGenericaDAO.allByCodigo(listVariable);
-        List<VariablePlantilla> misVariable = variablePlantillaDAO.allByPlantilla(plantillaDoc);
-
-        VariablePlantilla vp = new VariablePlantilla();
-        vp.setPlantillaDocumentoAcademico(plantillaDoc);
-        vp.setFechaRegistro(new Date());
-//        vp.setVariableGenerica(variableGenerica);
-        VariableGenerica vg = new VariableGenerica();
-//        vg.setCodigo(codigo);
-//        vg.setDescripcion(codigo);
-
+        List<String> formVariable = new ArrayList(mapVariables.values());
+        List<VariableGenerica> regVariable = variableGenericaDAO.allByCodigo(formVariable);
+        Map<String, VariableGenerica> regVariableMap = TypesUtil.convertListToMap("codigo", regVariable);
+        if (regVariableMap == null) {
+            regVariableMap = new LinkedHashMap();
+        }
+        for (String variable : formVariable) {
+            VariableGenerica vg = regVariableMap.get(variable);
+            if (vg == null) {
+                vg = new VariableGenerica();
+                vg.setCodigo(variable);
+                vg.setDescripcion(variable);
+                regVariableMap.put(variable, vg);
+            }
+        }
+        List<VariablePlantilla> allVariable = variablePlantillaDAO.allByPlantilla(plantilla);
+        Map<String, VariablePlantilla> allVariableMap = TypesUtil.convertListToMap("variableGenerica.codigo", allVariable);
+        if (allVariableMap == null) {
+            allVariableMap = new LinkedHashMap();
+        }
+        for (VariableGenerica variable : regVariableMap.values()) {
+            VariablePlantilla vp = allVariableMap.get(variable.getCodigo());
+            if (vp == null) {
+                vp = new VariablePlantilla();
+                vp.setPlantillaDocumentoAcademico(plantilla);
+                vp.setUserRegistro(usuario);
+                vp.setVariableGenerica(variable);
+                allVariableMap.put(variable.getCodigo(), vp);
+            }
+        }
+        plantilla.setVariablePlantilla(new ArrayList(allVariableMap.values()));
+        return plantilla;
     }
-
+    
     @Override
     @Transactional
     public void save(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
@@ -75,22 +97,22 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         plantillaDocumentoAcademico.setContenido("Constancia");
         plantillaConstanciaDAO.save(plantillaDocumentoAcademico);
     }
-
+    
     @Override
     public PlantillaDocumentoAcademico findById(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
         return plantillaConstanciaDAO.findById(plantillaDocumentoAcademico.getId());
     }
-
+    
     @Override
     public List<PlantillaDocumentoAcademico> all(DynatableFilter filter) {
         return plantillaConstanciaDAO.allDynatable(filter);
     }
-
+    
     @Override
     public List<Idioma> allIdioma() {
         return idiomaDAO.all();
     }
-
+    
     private Map<String, String> getConstants(String contenido) {
         String partes[] = contenido.split("__");
         Map<String, String> mapVariables = new LinkedHashMap();
@@ -104,7 +126,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         }
         return mapVariables;
     }
-
+    
     public static boolean isAlpha(String name) {
         return name.matches("[0-9A-Z]+");
     }
