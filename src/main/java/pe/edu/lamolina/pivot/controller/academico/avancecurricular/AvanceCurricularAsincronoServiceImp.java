@@ -440,16 +440,23 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private boolean cumpleRequisitos(List<RequisitoCursoCurricula> requisitos, Map<Long, AlumnoCursoCurricula> cursos, AlumnoCursoCurricula evaluado, DataSessionPivot ds) {
-        boolean requisitosCumplidos = true;
+
+        List<RequisitoCursoCurricula> requisitosNoSimulataneos = requisitos.stream().filter(x -> x.getSimultaneo() != 1).collect(Collectors.toList());
+        if (requisitosNoSimulataneos.isEmpty()) {
+            return true;
+        }
+
+        boolean requisitosCumplidos = false;
 
         for (RequisitoCursoCurricula requisito : requisitos) {
-            if (requisito.getSimultaneo() == 1) {
-                continue;
-            }
             AlumnoCursoCurricula cursoRequisito = cursos.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null || (cursoRequisito.getEstadoEnum() != APR && cursoRequisito.getEstadoEnum() != EQUIV && cursoRequisito.getEstadoEnum() != CONV)) {
-                requisitosCumplidos = false;
-                break;
+                if (!evaluado.getCursoCurricula().getRequisitosOr()) {
+                    requisitosCumplidos = false;
+                    break;
+                }
+            } else {
+                requisitosCumplidos = requisitosCumplidos || true;
             }
 
         }
