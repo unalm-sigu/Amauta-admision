@@ -180,6 +180,7 @@ public class PlanCurricularController {
                 node.put("creditosRequisito", cursoCurricula.getCreditosRequisito());
                 node.put("cursosRequisito", cursoCurricula.getCursosCurricula().size());
                 node.put("esRequisitoDe", esRequisitoDe);
+                node.put("requisitosOr", cursoCurricula.getRequisitosOr());
 
                 ArrayNode arrayPreRequisitos = new ArrayNode(JsonNodeFactory.instance);
                 List<RequisitoCursoCurricula> cursosRequisitos = cursoCurricula.getCursosCurricula();
