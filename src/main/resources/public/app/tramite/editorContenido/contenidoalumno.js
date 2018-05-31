@@ -29,7 +29,7 @@ Vue.component("alumnosearch", {
     },
     methods: {
         buscarAlumno: function (vue) {
-           return {
+            return {
                 allowClear: true,
                 placeholder: "Seleccione un alumno de prueba",
                 minimumInputLength: 1,
@@ -56,7 +56,8 @@ Vue.component("alumnosearch", {
                     return cmp.$el;
                 },
                 formatSelection: function (info) {
-                    vue.alumno = info;
+                    vue.alumno.id = info.id;
+                    vue.alumno.nombre = info.nombre;
                     return info.nombre;
                 },
                 escapeMarkup: function (m) {

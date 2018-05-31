@@ -11,13 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaConstanciaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariableGenericaDAO;
@@ -38,6 +39,9 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     
     @Autowired
     VariablePlantillaDAO variablePlantillaDAO;
+    
+    @Autowired
+    AlumnoDAO alumnoDAO;
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -130,4 +134,10 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     public static boolean isAlpha(String name) {
         return name.matches("[0-9A-Z]+");
     }
+
+    @Override
+    public Alumno findAlumno(Long idalumno) {
+        return alumnoDAO.find(new Alumno(idalumno));
+    }
+    
 }

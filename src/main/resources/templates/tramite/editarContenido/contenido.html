@@ -17,19 +17,20 @@
                     <section  class="panel">
                         <section class="panel-body">
                             <div class="col-sm-6 col-sm-offset-4">
-                                <pre>{{alumno}}</pre>
                                 <div class="form-group">
-                                    <alumnosearch   v-bind:alumno="alumno" />
+                                    <alumnosearch   v-bind:alumno="alumno"  />
                                 </div>
                             </div>
                             <div class="col-sm-2">
-                                <a href="#" type="button" v-on:click.prevent="previewPdf" class="btn btn-default btn-sm"><i class="fa fa-html5" aria-hidden="true"></i></a>
-                                <a href="#" type="button" v-on:click.prevent="previewHtml" class="btn btn-default btn-sm"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></a>
+                                <button type="button" v-on:click.prevent="previewHtml" class="btn btn-default btn-sm"><i class="fa fa-html5" aria-hidden="true"></i></button>
+                                <button type="button" v-on:click.prevent="previewPdf($event)" class="btn btn-default btn-sm"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></button>
                             </div>
                         </section>
 
                         <section class="panel-body">
                             <form id="form" method="POST" >
+
+                                <input  type="hidden" name="idalumno" v-bind:value="alumno.id"/>
 
                                 <input  type="hidden" name="id" th:value="${id}"/>
                                 <textarea class="form-control vresize"  name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
@@ -51,6 +52,9 @@
 
                     </section>
                 </section>
+
+                <div th:substituteby="tramite/editarContenido/contenidopreview"/>
+
             </div>
 
             <template id="alumnoTemp">
@@ -72,12 +76,16 @@
                 </div>
             </template>
 
+            <div th:substituteby="_modules/vue-modal"/>
+
         </div>
 
         <div layout:fragment="js" th:remove='tag'>
 
             <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
             <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <script th:src="@{/app/tramite/editorContenido/contenidoalumno.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/editorContenido/contenido.js}" charset="utf-8"></script>
 

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
@@ -19,4 +20,6 @@ public interface PlantillaConstanciaService {
     List<Idioma> allIdioma();
     
     PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+
+    Alumno findAlumno(Long idalumno);
 }
