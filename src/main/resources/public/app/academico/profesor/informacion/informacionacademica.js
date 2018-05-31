@@ -33,7 +33,6 @@ new Vue({
                 select2({minimumResultsForSearch: -1}).
                 on("change.select2", function (el) {
                     vue.docente.persona.tipoDocumento.id = el.val;
-                    vue.cambiarNumDoc();
                 });
 
         self.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
@@ -68,7 +67,6 @@ new Vue({
                     if (response.success) {
                         notify(response.message, "info");
                         self.btnEnable();
-//                        $(location).attr('href', APP.url('academico/profesor'));
                     } else {
                         notify(response.message, "error");
                         self.btnEnable();
@@ -88,93 +86,6 @@ new Vue({
             var self = $(e.currentTarget);
             APP.revisarNombre(self);
         },
-        cambiarNumDoc: function () {
-            var vue = this;
-            $global.$emit('MODAL-WAIT-OPEN');
-            var isvalid = $('[name="persona.tipoDocumento.id"]').parsley().isValid() == true;
-            isvalid &= $('[name="persona.numeroDocIdentidad"]').parsley().isValid() == true;
-            if (!isvalid) {
-                $global.$emit('MODAL-WAIT-CLOSE');
-                return;
-            }
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/profesor/existedocente'),
-                data: {
-                    'persona.tipoDocumento.id': vue.docente.persona.tipoDocumento.id,
-                    'persona.numeroDocIdentidad': vue.docente.persona.numeroDocIdentidad,
-                    'id': vue.docente.id
-                },
-                success: function (response) {
-                    if (response.success) {
-                        if (response.data.id) {
-                            vue.docente.persona = response.data;
-                        }
-                    } else {
-                        vue.docente.persona.numeroDocIdentidad = null;
-                        notify(response.message, 'error');
-                    }
-                    $global.$emit('MODAL-WAIT-CLOSE');
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                    $global.$emit('MODAL-WAIT-CLOSE');
-                }
-            });
-        },
-        validarEmailEmpresa: function () {
-            var vue = this;
-            $global.$emit('MODAL-WAIT-OPEN');
-            var isvalid = $('[name="persona.emailCompania"]').parsley().isValid() == true;
-            if (!isvalid) {
-                $global.$emit('MODAL-WAIT-CLOSE');
-                return;
-            }
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/profesor/validarEmailEmpresa'),
-                data: {
-                    email: vue.docente.persona.emailCompania,
-                    persona: vue.docente.persona.id
-                },
-                success: function (response) {
-                    if (!response.success) {
-                        vue.docente.persona.emailCompania = null;
-                        notify(response.message, 'error');
-                    }
-                    $global.$emit('MODAL-WAIT-CLOSE');
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                    $global.$emit('MODAL-WAIT-CLOSE');
-                }
-            });
-        },
-        validarEmail: function () {
-            var vue = this;
-            $global.$emit('MODAL-WAIT-OPEN');
-            var isvalid = $('[name="persona.email"]').parsley().isValid() == true;
-            if (!isvalid) {
-                $global.$emit('MODAL-WAIT-CLOSE');
-                return;
-            }
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/profesor/validarEmail'),
-                data: {
-                    email: vue.docente.persona.email,
-                    persona: vue.docente.persona.id
-                },
-                success: function (response) {
-                    if (!response.success) {
-                        vue.docente.persona.email = null;
-                        notify(response.message, 'error');
-                    }
-                    $global.$emit('MODAL-WAIT-CLOSE');
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                    $global.$emit('MODAL-WAIT-CLOSE');
-                }
-            });
-        },
         updateDocente: function (idDocente) {
             var vue = this;
             $.ajax({
@@ -184,7 +95,6 @@ new Vue({
                 async: false,
                 success: function (response) {
                     if (response.success) {
-                        console.log(response.data);
                         vue.docente = response.data;
                     } else {
                         notify(response.message, 'error');

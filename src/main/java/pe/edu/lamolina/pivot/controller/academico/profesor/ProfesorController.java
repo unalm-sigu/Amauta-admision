@@ -353,44 +353,44 @@ public class ProfesorController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("disponibilidad")
-    public JsonResponse disponibilidadPersona(Docente docente, HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
-        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-        try {
-
-            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
-            Persona personaDb = service.findPersona(docente.getPersona());
-            node.put("numeroDocOriginal", personaDb.getNumeroDocIdentidad());
-
-            if (personaDb.getFechaValidacionReniec() != null) {
-                logger.debug("No puede editar el numero del documento de un registro ya validado");
-                response.setMessage("No puede editar el numero del documento de un registro ya validado");
-                node.put("tipoDocOriginal", personaDb.getTipoDocumento().getNombre());
-                node.put("tipoIdDocOriginal", personaDb.getTipoDocumento().getId());
-                node.put("validadoReniec", (personaDb.getFechaValidacionReniec() != null));
-            }
-
-            node.put("existePersona", (persona != null));
-            if (persona != null) {
-                Persona personaForm = docente.getPersona();
-                node.put("passPersona", (personaForm.getId().longValue() == persona.getId()));
-                node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
-                node.put("numeroDoc", persona.getNumeroDocIdentidad());
-
-            }
-            response.setData(node);
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
+//    @ResponseBody
+//    @RequestMapping("existedocente")
+//    public JsonResponse existedocente(Docente docente, HttpSession session) {
+//
+//        JsonResponse response = new JsonResponse();
+//        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+//        try {
+//
+//            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
+//            Persona personaDb = service.findPersona(docente.getPersona());
+//            node.put("numeroDocOriginal", personaDb.getNumeroDocIdentidad());
+//
+//            if (personaDb.getFechaValidacionReniec() != null) {
+//                logger.debug("No puede editar el numero del documento de un registro ya validado");
+//                response.setMessage("No puede editar el numero del documento de un registro ya validado");
+//                node.put("tipoDocOriginal", personaDb.getTipoDocumento().getNombre());
+//                node.put("tipoIdDocOriginal", personaDb.getTipoDocumento().getId());
+//                node.put("validadoReniec", (personaDb.getFechaValidacionReniec() != null));
+//            }
+//
+//            node.put("existePersona", (persona != null));
+//            if (persona != null) {
+//                Persona personaForm = docente.getPersona();
+//                node.put("passPersona", (personaForm.getId().longValue() == persona.getId()));
+//                node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
+//                node.put("numeroDoc", persona.getNumeroDocIdentidad());
+//
+//            }
+//            response.setData(node);
+//            response.setSuccess(true);
+//
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
 
     @ResponseBody
     @RequestMapping("upload")
