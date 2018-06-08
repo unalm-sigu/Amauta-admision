@@ -4,15 +4,15 @@ Vue.component("vueupload", {
         solicitud: {},
         mensajeerror: ''
     },
-    date: function() {
+    date: function () {
         return {solicitud: {}, mensajeerror: ''}
     },
-    mounted: function() {
+    mounted: function () {
 
         let vue = this;
         let self = $(vue.$el);
 
-        $global.$on("open", function() {
+        $global.$on("open", function () {
             vue.open();
         });
 
@@ -21,7 +21,7 @@ Vue.component("vueupload", {
             maxNumberOfFiles: 1,
             dataType: 'json',
             dropZone: '#dragarea',
-            add: function(e, data) {
+            add: function (e, data) {
                 $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
                 if (data.files[0].type.search(/(\.|\/)(jpe?g|png)$/i) == -1) {
                     notify("Formato de archivo no soportado.", "error");
@@ -30,48 +30,49 @@ Vue.component("vueupload", {
                 }
                 if (data.files && data.files[0]) {
                     var reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#imgDocument').attr('src', e.target.result);
+                    reader.onload = function (e) {
+                        vue.solicitud.tramite.persona.fullRutaFotoTemporal = e.target.result;
                     };
                     reader.readAsDataURL(data.files[0]);
                 }
                 data.submit();
             },
-            progress: function(e, data) {
+            progress: function (e, data) {
             },
-            done: function(e, data) {
+            done: function (e, data) {
                 if (data.result.success) {
                     var ruta = data.result.data.ruta;
                     if (data.result.data.ok == true) {
                         notify(data.result.message, "info");
                         vue.mensajeerror = '';
-                        vue.solicitud.foto = ruta;
+                        vue.solicitud.tramite.persona.rutaFotoTemporal = ruta;
                     } else {
                         vue.mensajeerror = data.result.data.nocumplerequisito;
-                        vue.solicitud.foto = '';
-                        $('#imgDocument').attr('src', '');
+                        vue.solicitud.tramite.persona.rutaFotoTemporal = '';
+                        vue.solicitud.tramite.persona.fullRutaFotoTemporal = '';
                     }
                 } else {
                     notify(data.result.message, "error");
                 }
                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
             },
-            fail: function(e, data) {
+            fail: function (e, data) {
                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                 notify(data.result.message, "error");
             }
         });
     },
-    updated: function() {
+    updated: function () {
         let vue = this;
-        this.$nextTick(function() {
+        this.$nextTick(function () {
             let self = $(vue.$el);
         });
     },
     methods: {
-        open: function() {
+        open: function () {
             let vue = this;
-            $('#fileupload').trigger('click');
+            let self = $(vue.$el);
+            self.find('#fileupload').trigger('click');
         }
     },
 });

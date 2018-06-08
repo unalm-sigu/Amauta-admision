@@ -81,4 +81,8 @@ public interface UpdateHistorialAcademicoService {
 
     List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos);
 
+    List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
+
+    void updateFotoTemporal(Persona imagenForm);
+
 }

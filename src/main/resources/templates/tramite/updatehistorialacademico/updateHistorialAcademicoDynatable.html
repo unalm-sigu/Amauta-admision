@@ -62,6 +62,7 @@
                 <ul class="dropdown-menu pull-right">
                     <li v-if="solicitud.showUpdateHistorial"><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')">Actualizar historial academico</a></li>
                     <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.id+'/update')">Editar Solicitud Documento</a></li>
+                    <li> <a v-on:click.prevent="cargarfoto(solicitud)"  href="#">Cargar fotografía</a></li>
                     <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
                     <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
                     <li class="divider"></li>
@@ -81,5 +82,29 @@
         <span class="block bold m-t-sm" v-text='colaborador.nombre' ></span>
         <span class="block" v-text="colaborador.tipo+'  '+colaborador.numero" ></span>
         <span class="block text-xs" v-text="'Cod:'+colaborador.codigo"></span>
+    </div>
+</template>
+
+<template id="fileuploadTemplate"  >
+    <div>
+        <input type="text" class="hidden"
+               name="rutaFotoTemporal"
+               data-parsley-errors-container="#errorfoto"
+               data-parsley-required-message="se requiere una fotografia"
+               v-bind:value="rutaFotoTemporal"
+               v-model="rutaFotoTemporal" />
+        <input type="file" id="fileupload" class="hidden" name="file"  placeholder="seleccionar archivo" />
+        <div class="text-center">
+            <div id="dragarea" class="bg-info img-rounded center-block text-center v-bottom text-muted" style="width: 200px; height: 296px;">
+                <img alt=""  id="imgDocument"  class="img-rounded" style="width: 200px; height: 296px;"
+                     v-bind:src="fullRutaFotoTemporal"
+                     data-holder-rendered="true" />
+            </div>
+            <a class="btn m-l-md btn-sm btn-link" v-on:click.prevent="open" href="#">Subir imagen</a>
+        </div>
+        <div>
+            <p class="m-l-sm" id="errorfoto"></p>
+            <p class="text-danger" v-text="mensajeerror"></p>
+        </div>
     </div>
 </template>

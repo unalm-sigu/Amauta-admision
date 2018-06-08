@@ -15,18 +15,19 @@
                         <a class="btn btn-default" type="button"   th:href="@{/academico/visitante/alumno}"  >Regresar</a>
                     </div>
 
-                    <h2 th:inline="text">Registro de Alumno Visitante</h2>
+                    <h2 v-text="persona.nombreCompleto!=null?persona.nombreCompleto:'Registro de Alumno Visitante'" >Registro de Alumno Visitante</h2>
+                    
                 </header>
 
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
 
-
                             <form data-parsley-validate="true" method="POST" id="formAlumnoVisitante" >
 
-                                <input type="hidden"  name="id" th:value="${alumnoVisitante.id}"/>
-                                <input type="hidden"  name="persona.id" th:value="${alumnoVisitante.persona.id}"/>
+                                <input type="hidden"  name="id"  th:value="${alumnoVisitante.id}"/>
+
+                                <input type="hidden"  name="persona.id" v-bind:value="persona.id"/>
 
                                 <div class="panel-body">
                                     <div class="col-xs-12">
@@ -40,11 +41,11 @@
                                             <label>Tipo de documento de identidad</label>
 
                                             <select name="persona.tipoDocumento.id"
+                                                    v-model="persona.tipoDocumento.id"
                                                     class="form-control" required="true">
                                                 <option></option>
                                                 <option th:each="tipo : ${tiposDocIdentidad}"
                                                         th:value="${tipo.id}"
-                                                        th:selected="${alumnoVisitante.persona.tipoDocumento!=null?alumnoVisitante.persona.tipoDocumento.id==tipo.id:0}"
                                                         th:text="${tipo.nombre}"></option>
                                             </select>
 
@@ -57,8 +58,10 @@
                                             <label>Número de documento de identidad</label>
 
                                             <input type="text"
+                                                   v-on:blur="cambiarNumDoc"
+                                                   v-model="persona.numeroDocIdentidad"
+                                                   v-bind:value="persona.numeroDocIdentidad"
                                                    name="persona.numeroDocIdentidad"
-                                                   th:value="${alumnoVisitante.persona.numeroDocIdentidad}"
                                                    class="form-control" required="true"/>
 
                                         </div>
@@ -71,8 +74,8 @@
 
                                             <input type="text"
                                                    name="persona.paterno"
+                                                   v-bind:value="persona.paterno"
                                                    v-on:change="nombrePersona"
-                                                   th:value="${alumnoVisitante.persona.paterno}"
                                                    class="form-control"/>
 
                                         </div>
@@ -85,8 +88,8 @@
 
                                             <input type="text"
                                                    name="persona.materno"
+                                                   v-bind:value="persona.materno"
                                                    v-on:change="nombrePersona"
-                                                   th:value="${alumnoVisitante.persona.materno}"
                                                    class="form-control"/>
 
                                         </div>
@@ -99,8 +102,8 @@
                                             <input type="text"
                                                    name="persona.nombres"
                                                    required="true"
+                                                   v-bind:value="persona.nombres"
                                                    v-on:change="nombrePersona"
-                                                   th:value="${alumnoVisitante.persona.nombres}"
                                                    class="form-control"/>
 
                                         </div>
@@ -121,7 +124,8 @@
                                                                     name="persona.sexo"
                                                                     id="inlineCheckbox1"
                                                                     value="M"
-                                                                    th:checked="${alumnoVisitante.persona.sexo=='M'}" /> Masculino
+                                                                    v-model="persona.sexo"
+                                                                    /> Masculino
                                                         </label>
 
                                                     </div>
@@ -133,7 +137,8 @@
                                                                     name="persona.sexo"
                                                                     id="inlineCheckbox2"
                                                                     value="F"
-                                                                    th:checked="${alumnoVisitante.persona.sexo=='F'}" /> Femenino
+                                                                    v-model="persona.sexo"
+                                                                    /> Femenino
                                                         </label>
 
                                                     </div>
@@ -150,32 +155,27 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>País</label>
-                                            <input id="paisNacimiento" type="text"
-                                                   class="form-control input-s-full buscar-pais"
-                                                   name="persona.paisNacer.id"
-                                                   data-trigger="change"
-                                                   th:attr="codigo=${helper.showCodigoPais(alumnoVisitante.persona.paisNacer)}"
-                                                   th:rel="${alumnoVisitante.persona.paisNacer != null}? ${alumnoVisitante.persona.paisNacer.nombre}"
-                                                   th:value="${alumnoVisitante.persona.paisNacer != null}? ${alumnoVisitante.persona.paisNacer.id}"
-                                                   required="true"/>
+
+                                            <paissearh 
+                                                v-bind:pais="persona.paisNacer"
+                                                v-bind:nombre="'persona.paisNacer.id'"/>
+
                                         </div>
                                     </div>
 
                                     <div class="col-sm-6">
 
-                                        <div  v-if="showLugarNacimiento" id="lugarNacimiento" class="form-group" >
+
+                                        <div v-if="persona.paisNacer.codigo=='PE'"  class="form-group" >
                                             <label>Distrito de nacimiento (en Perú)</label>
 
-                                            <input type="text"
-                                                   id="distNacimiento"
-                                                   class="form-control input-s-full buscar-distrito"
-                                                   name="persona.ubicacionNacer.id"
-                                                   data-trigger="change"
-                                                   th:rel="${alumnoVisitante.persona.ubicacionNacer != null}? ${alumnoVisitante.persona.ubicacionNacer.distrito}"
-                                                   th:value="${alumnoVisitante.persona.ubicacionNacer != null}? ${alumnoVisitante.persona.ubicacionNacer.id}"/>
-                                            <span id="mensaje"></span>
+                                            <ubicacionsearch 
+                                                v-bind:ubicacion="persona.ubicacionNacer"
+                                                v-bind:nombre="'persona.ubicacionNacer.id'"/>
 
                                         </div>
+
+
                                     </div>
 
                                     <div class="col-sm-6">
@@ -186,8 +186,8 @@
 
                                                 <input type="text"
                                                        data-parsley-errors-container="#errorfechaNacer"
-                                                       th:value="${alumnoVisitante.persona.fechaNacer}? ${#dates.format(alumnoVisitante.persona.fechaNacer,'dd/MM/yyyy')}"
                                                        class="form-control"
+                                                       v-model="persona.fechaNacer"
                                                        name="persona.fechaNacer" required="true" />
 
                                                 <span class="input-group-addon">
@@ -204,14 +204,9 @@
 
                                             <label>Nacionalidad (Ingresa el país de tu nacionalidad)</label>
 
-                                            <input type="text"
-                                                   class="form-control input-s-full buscar-pais"
-                                                   name="persona.nacionalidad.id"
-                                                   id="nacionalidad"
-                                                   data-trigger="change"
-                                                   th:rel="${alumnoVisitante.persona.nacionalidad != null}? ${alumnoVisitante.persona.nacionalidad.nombre}"
-                                                   th:value="${alumnoVisitante.persona.nacionalidad != null}? ${alumnoVisitante.persona.nacionalidad.id}"
-                                                   required="true"/>
+                                            <paissearh 
+                                                v-bind:pais="persona.nacionalidad"
+                                                v-bind:nombre="'persona.nacionalidad.id'"/>
 
                                         </div>
                                     </div>
@@ -227,7 +222,7 @@
 
                                             <input type="text"
                                                    name="persona.telefono"
-                                                   th:value="${alumnoVisitante.persona.telefono}"
+                                                   v-model="persona.telefono"
                                                    class="form-control sin-espacios numerico"/>
 
                                         </div>
@@ -240,7 +235,7 @@
 
                                             <input type="text"
                                                    name="persona.celular"
-                                                   th:value="${alumnoVisitante.persona.celular}"
+                                                   v-model="persona.celular"
                                                    class="form-control sin-espacios numerico"/>
 
                                         </div>
@@ -253,7 +248,7 @@
 
                                             <input type="text"
                                                    name="persona.email"
-                                                   th:value="${alumnoVisitante.persona.email}"
+                                                   v-model="persona.email"
                                                    class="form-control verificar-email"/>
 
                                         </div>
@@ -267,31 +262,23 @@
 
                                             <label>País Domicilio</label>
 
-                                            <input type="text"
-                                                   id="paisDomicilio"
-                                                   class="form-control"
-                                                   name="persona.paisDomicilio.id"
-                                                   data-trigger="change"
-                                                   th:rel="${helper.getParentTree(alumnoVisitante,'persona.paisDomicilio.nombre')}"
-                                                   th:value="${helper.getParentTree(alumnoVisitante,'persona.paisDomicilio.id')}"
-                                                   required="true"/>
+                                            <paissearh 
+                                                v-bind:pais="persona.paisDomicilio"
+                                                v-bind:nombre="'persona.paisDomicilio.id'"/>
+
 
                                         </div>
                                     </div>
 
-                                    <div v-if="showUbicacionDomicilio"   class="col-sm-6">
+                                    <div v-if="persona.paisDomicilio.codigo=='PE'"    class="col-sm-6">
                                         <div class="form-group">
 
                                             <label>Ubicación Domicilio</label>
 
-                                            <input type="text"
-                                                   id="ubicacionDomicilio"
-                                                   class="form-control buscar-distrito"
-                                                   name="persona.ubicacionDomicilio.id"
-                                                   data-trigger="change"
-                                                   th:rel="${helper.getParentTree(alumnoVisitante,'persona.ubicacionDomicilio.nombre')}"
-                                                   th:value="${helper.getParentTree(alumnoVisitante,'persona.ubicacionDomicilio.id')}"
-                                                   required="true"/>
+                                            <ubicacionsearch 
+                                                v-bind:ubicacion="persona.ubicacionDomicilio"
+                                                v-bind:nombre="'persona.ubicacionDomicilio.id'"/>
+
 
                                         </div>
                                     </div>
@@ -304,7 +291,7 @@
                                             <input type="text"
                                                    class="form-control"
                                                    name="persona.direccion"
-                                                   th:value="${alumnoVisitante.persona.direccion}"
+                                                   v-model="persona.direccion"
                                                    data-trigger="change" required="true" />
 
                                         </div>
@@ -318,48 +305,46 @@
                                     <div class="col-sm-6">
                                         <div class="form-group">
 
+
+
                                             <label>País de la universidad</label>
 
-                                            <input type="text"
-                                                   id="paisUniversidad"
-                                                   class="form-control buscar-pais"
-                                                   name="paisUniversidad.id"
-                                                   data-trigger="change"
-                                                   th:rel="${helper.getParentTree(alumnoVisitante,'paisUniversidad.nombre')}"
-                                                   th:value="${helper.getParentTree(alumnoVisitante,'paisUniversidad.id')}"
-                                                   required="true"/>
+                                            <paissearh 
+                                                v-bind:pais="alumnoVisitante.paisUniversidad"
+                                                v-bind:nombre="'paisUniversidad.id'"/>
 
                                         </div>
                                     </div>
 
-                                    <div v-if="showUniverdidadName"   class="col-sm-6">
-                                        <div class="form-group">
+
+
+                                    <div    class="col-sm-6">
+
+                                        <pre style="display: none">{{alumnoVisitante}}</pre>
+
+                                        <div v-if="alumnoVisitante.paisUniversidad.codigo=='PE'"  class="form-group">
+
+                                            <label>Universidad Peruana</label>
+
+                                            <universidadsearch 
+                                                v-bind:universidad="alumnoVisitante.universidad"
+                                                v-bind:nombre="'universidad.id'" />
+
+                                        </div>
+
+                                        <div v-if="alumnoVisitante.paisUniversidad.codigo!='PE'"  class="form-group">
 
                                             <label>Nombre de la Universidad</label>
 
                                             <input class="form-control"
-                                                   name="universidadExtranjera"
-                                                   id="universidadExtranjeraName"
-                                                   required="true"
-                                                   th:value="${alumnoVisitante.universidadExtranjera}"/>
+                                                   type="text" required="true"
+                                                   v-model="alumnoVisitante.universidadExtranjera"
+                                                   name="universidadExtranjera"    />
 
                                         </div>
+
                                     </div>
 
-                                    <div  v-if="showUniverdidadPeru" class="col-sm-6">
-                                        <div class="form-group">
-
-                                            <label>Universidad Peruana</label>
-
-                                            <input class="form-control"
-                                                   id="univ-peru"
-                                                   required="true"
-                                                   th:rel="${alumnoVisitante.universidad != null}? ${alumnoVisitante.universidad.nombre}"
-                                                   th:value="${alumnoVisitante.universidad != null}? ${alumnoVisitante.universidad.id}"
-                                                   name="universidad.id"/>
-
-                                        </div>
-                                    </div>
 
                                     <div class="col-sm-6">
                                         <div class="form-group">
@@ -367,12 +352,13 @@
                                             <label>Ciclo Académico</label>
 
                                             <select name="cicloEstudia.id"
+                                                    v-model="alumnoVisitante.cicloEstudia.id"
                                                     class="form-control" required="true">
                                                 <option></option>
 
                                                 <option th:each="ciclo : ${ciclos}"
                                                         th:value="${ciclo.id}"
-                                                        th:selected="${alumnoVisitante.cicloEstudia!=null?alumnoVisitante.cicloEstudia.id==ciclo.id:0}"
+                                                        v-model="alumnoVisitante.cicloEstudia.id"
                                                         th:text="${ciclo.descripcion}"></option>
 
                                             </select>
@@ -380,15 +366,16 @@
                                         </div>
                                     </div>
 
+
+
+
                                 </div>
 
                                 <hr/>
 
                                 <div class="col-md-12 text-center">
-                                    <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">Guardar</button>
+                                    <button type="button" class="btn btn-success" v-text="actualizar==true?'Actualizar':'Guardar'"  v-on:click.prevent="submitForm">Guardar</button>
                                 </div>
-
-                                <input type="hidden" id="mensajeError" th:value='${mensaje}'/>
 
                             </form>
 
@@ -398,22 +385,17 @@
 
             </div>
 
-            <th:block th:replace="academico/visitante/_alumnovisitante"/>
+            <th:block th:replace="academico/visitante/alumnovisitanteformtemp"/>
 
-            <script  th:inline="javascript" >
-                /*<![CDATA[*/
-                var showLugarNacimiento = /*[[${alumnoVisitante.persona.ubicacionNacer != null}]]*/'';
-                var showUniverdidadName = /*[[${alumnoVisitante.universidadExtranjera!=null}]]*/'';
-                var showUniverdidadPeru = /*[[${alumnoVisitante.universidad!=null}]]*/ '';
-                var codigoPaisUniversidad = /*[[${alumnoVisitante.paisUniversidad!=null?alumnoVisitante.paisUniversidad.codigo:''}]]*/ '';
-                var codigoPaisDomicilio = /*[[${alumnoVisitante.persona.paisDomicilio!=null?alumnoVisitante.persona.paisDomicilio.codigo:''}]]*/ '';
-                /*]]>*/
-            </script>
+            <div th:substituteby="_modules/vue-modal"/>
 
         </div>
 
         <div layout:fragment="js">
-            <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
+            <div th:substituteby="_layout/includes :: vuemodal"/>
+            <script th:src="@{/app/academico/visitante/alumnoVisitantePais.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/visitante/alumnoVisitanteUbicacion.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/visitante/alumnoVisitanteUniversidad.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/visitante/alumnoVisitanteForm.js}" charset="utf-8"></script>
         </div>
 

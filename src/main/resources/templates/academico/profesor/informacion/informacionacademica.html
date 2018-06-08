@@ -1,0 +1,36 @@
+<div class="col-xs-12">
+    <h4>Datos Académicos</h4>
+</div>
+
+<div class="col-sm-6">
+    <div class="form-group">
+        <label  for="departamentoAcademico.id">Departamento Académico</label>
+
+        <departamentosearch 
+            v-bind:departamento="docente.departamentoAcademico"
+            v-bind:nombre="'departamentoAcademico.id'"/>
+
+    </div>
+</div>
+
+<div class="col-sm-6">
+    <div class="form-group">
+
+        <label for="modalidadEstudio.id" >Modalidad de Estudio</label>
+
+        <select name="modalidadEstudio.id"
+                required="true"
+                class="form-control" >
+            <option></option>
+            <option th:each="item : ${modalidades}"
+                    th:text="${item.nombre}"
+                    th:value="${item.id}" ></option>
+        </select>
+    </div>
+
+</div>
+
+<div class="panel-footer col-md-12 text-center">
+    <button type="button" class="btn btn-success"  v-on:click.prevent="submitForm">Guardar</button>
+</div>
+

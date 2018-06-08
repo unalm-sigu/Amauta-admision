@@ -1,35 +1,58 @@
 package pe.edu.lamolina.pivot.zelper;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import pe.albatross.zelpers.miscelanea.Commutator;
 
 public class Laboratory {
 
     public static void main666(String[] args) {
 
-        Map<Long, Object> mapDias = new LinkedHashMap();
-        mapDias.put(1L, 2);
-        mapDias.put(2L, 3);
-        mapDias.put(4L, 1);
-        mapDias.put(6L, 2);
+        String conte = "__AULA__<p style=\"text-align:right\">__NUMERO__-DRAD/__SERIE__</p>\n"
+                + "\n"
+                + "<p style=\"text-align:right\">&nbsp;</p>\n"
+                + "\n"
+                + "<p style=\"text-align:right\">&nbsp;</p>\n"
+                + "\n"
+                + "<p style=\"text-align:right\">&nbsp;</p>\n"
+                + "\n"
+                + "<p style=\"text-align:right\">&nbsp;</p>\n"
+                + "\n"
+                + "<h1><strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; __NOMBRE__</strong></h1>\n"
+                + "\n"
+                + "<p style=\"text-align:justify\">Con matr&iacute;cula N&ordm; __CODIGOALUMNO__, es __ALUMNO__ de la Facultad de <strong>__FACULTAD__</strong>, ha realizado estudios en dicha Facultad desde el __CICLOINICIOROMANO_ ciclo de __YEARINICIOCICLO__al __CICLOFINROMANO_ de __YEARFINCICLO__, en forma ininterrumpida.</p>\n"
+                + "\n"
+                + "<p style=\"text-align:justify\">Se encuentra __MATRICULADO__ en el ciclo _CICLOACTUAL__.</p>\n"
+                + "\n"
+                + "<p style=\"text-align:justify\">&nbsp;</p>\n"
+                + "\n"
+                + "<p style=\"text-align:center\">__FECHA__</p>\n"
+                + "\n"
+                + "<p style=\"text-align:center\">&nbsp;</p>\n"
+                + "\n"
+                + "<p style=\"text-align:center\">&nbsp;</p>\n"
+                + "\n"
+                + "<p style=\"text-align:center\">__JEFEOFICINA__</p>\n"
+                + "\n"
+                + "<p style=\"text-align:center\">&nbsp;</p>";
 
-        List<Map<Long, Object>> busquedas = Commutator.create(mapDias);
-
-        for (Map<Long, Object> busqueda : busquedas) {
-            int total = 0;
-            String dias = "";
-            String horas = "";
-            for (Map.Entry<Long, Object> entry : busqueda.entrySet()) {
-                total += (Integer) entry.getValue();
-                dias += dias.equals("") ? "" : "-";
-                dias += entry.getKey();
-                horas += horas.equals("") ? "" : "+";
-                horas += entry.getValue();
+        String partes[] = conte.split("__");
+        Map<String, String> mapVariables = new LinkedHashMap();
+        for (String parte : partes) {
+            if (isAlpha(parte)) {
+                String variable = "__" + parte + "__";
+                if (conte.contains(variable)) {
+                    mapVariables.put(variable, variable);
+                }
             }
-            System.out.println(total + " :::: " + horas + " :::: " + dias);
         }
 
+        for (Map.Entry<String, String> entry : mapVariables.entrySet()) {
+            System.out.println(entry.getKey());
+        }
+
+    }
+
+    public static boolean isAlpha(String name) {
+        return name.matches("[0-9A-Z]+");
     }
 }

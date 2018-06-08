@@ -8,6 +8,7 @@ import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -28,9 +29,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.albatross.zelpers.aws.S3Service;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -74,9 +75,6 @@ public class UpdateHistorialAcademicoController {
     @Autowired
     PdfHtmlView pdfHtmlView;
 
-    @Autowired
-    S3Service s3Service;
-
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         return "tramite/updatehistorialacademico/updateHistorialAcademicoList";
@@ -112,7 +110,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("notas")
-    public JsonResponse notas(Alumno alumnoForm, Model model, HttpSession session) {
+    public JsonResponse notas(Alumno alumnoForm) {
         JsonResponse response = new JsonResponse();
 
         try {
@@ -156,7 +154,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchcurso")
-    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos, HttpSession session) {
+    public JsonResponse searchCurso(@RequestParam("nombre") String nombre, @RequestParam("idCursos[]") ArrayList<Long> idCursos) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
@@ -178,7 +176,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchciclo")
-    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos, HttpSession session) {
+    public JsonResponse searchciclo(@RequestParam("nombre") String nombre, @RequestParam("idCiclos[]") ArrayList<Long> idCiclos) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
@@ -200,7 +198,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("searchalumno")
-    public JsonResponse searchalumno(@RequestParam("nombre") String nombre, HttpSession session) {
+    public JsonResponse searchalumno(@RequestParam("nombre") String nombre) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
@@ -237,7 +235,7 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allByDynatable(DynatableFilter filter) {
 
         DynatableResponse json = new DynatableResponse();
         try {
@@ -399,17 +397,20 @@ public class UpdateHistorialAcademicoController {
             ObjectNode data = new ObjectNode(jsonFactory);
             TramiteDocumentoAcademico tramiteDocumento = service.findTramiteDocumentoAcademico(solicitudConstancia);
             Alumno alumno = tramiteDocumento.getTramite().getAlumno();
+
+            ObjectNode jSolicitudConstancia = JsonHelper.createJson(tramiteDocumento, jsonFactory, true, new String[]{
+                "*",
+                "tramite.*",
+                "tramite.persona.fullRutaFotoTemporal",
+                "tramite.persona.rutaFotoTemporal",
+                "tipoDocumentoAcademico.*",
+                "idioma.*"
+            });
+
+            data.put("solicitud", jSolicitudConstancia);
             Persona persona = alumno.getPersona();
             Carrera carrera = alumno.getCarrera();
             Facultad facultad = carrera.getFacultad();
-
-            ObjectNode jSolicitudConstancia = service.toJson(tramiteDocumento);
-            jSolicitudConstancia.put("tramite", service.toJson(tramiteDocumento.getTramite()));
-            jSolicitudConstancia.put("tipoDocumentoAcademico", service.toJson(tramiteDocumento.getTipoDocumentoAcademico()));
-            jSolicitudConstancia.put("idioma", service.toJson(tramiteDocumento.getIdioma()));
-            //ojo editar
-//            jSolicitudConstancia.put("fullfoto", "http://albatross-codex.s3.amazonaws.com/tmp/" + tramiteDocumento.getFoto());
-            data.put("solicitud", jSolicitudConstancia);
 
             ObjectNode jAlumno = service.toJson(alumno);
             jAlumno.put("nombre", persona.getNombreCompleto());
@@ -594,7 +595,7 @@ public class UpdateHistorialAcademicoController {
                 logger.debug("{}", Constantine.IMAGE_WIDTH_MSG);
             }
             logger.debug("Format {}", metadata.getFormat());
-            if (!Constantine.IMAGE_FORMAT.equalsIgnoreCase(metadata.getFormat().toString())) {
+            if (!Arrays.asList(Constantine.IMAGE_FORMAT).contains(metadata.getFormat().toString())) {
                 formatook = Boolean.FALSE;
                 nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
                 nocumplerequisito.append(" , ");
@@ -628,8 +629,6 @@ public class UpdateHistorialAcademicoController {
             json.put("mime", TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())));
             json.put("size", archivo.getSize());
 
-            this.uploadS3(Constantine.TMP_DIR, fileName, true);
-
             response.setData(json);
             response.setSuccess(true);
             response.setMessage("Carga satisfactoria del archivo");
@@ -644,12 +643,52 @@ public class UpdateHistorialAcademicoController {
 
     }
 
-    private void uploadS3(String localDirectory, String fileName, Boolean publico) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("tmp");
-        sb.append("/");
-        logger.debug("upload to s3    {}  {}   {}  {} ", sb.toString(), localDirectory, fileName, publico);
-        s3Service.uploadFile("albatross-codex", sb.toString(), localDirectory, fileName, publico);
+    @ResponseBody
+    @RequestMapping("allTipoDocumento")
+    public JsonResponse allTipoDocumento(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<TipoDocumentoAcademico> tipos = service.allTipoDocumentoAcademicoByName(nombre);
+            for (TipoDocumentoAcademico tipo : tipos) {
+
+                ObjectNode nodeTipoDocumento = JsonHelper.createJson(tipo, jsonFactory, true, new String[]{
+                    "*",
+                    "precioDocumento.*",
+                    "precioDocumento.idioma.*",
+                    "precioDocumento.tipoDocumento.*"
+                });
+
+                nodeTipoDocumento.put("tipoName", TipoConstanciaEnum.valueOf(tipo.getTipo()).getValue());
+                jsonList.add(nodeTipoDocumento);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("onlyfoto")
+    public JsonResponse onlyfoto(Persona imagenForm, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.updateFotoTemporal(imagenForm);
+            response.setSuccess(Boolean.TRUE);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
