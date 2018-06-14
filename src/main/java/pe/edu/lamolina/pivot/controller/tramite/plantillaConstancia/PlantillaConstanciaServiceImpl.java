@@ -20,16 +20,17 @@ import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
-import pe.edu.lamolina.pivot.dao.tramite.PlantillaConstanciaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ConstanciaPlantillaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariableGenericaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.PlantillaDocumentoAcademicoDAO;
 
 @Service
 @Transactional(readOnly = true)
 public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaService {
     
     @Autowired
-    PlantillaConstanciaDAO plantillaConstanciaDAO;
+    PlantillaDocumentoAcademicoDAO plantillaConstanciaDAO;
     
     @Autowired
     IdiomaDAO idiomaDAO;
@@ -42,6 +43,12 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     
     @Autowired
     AlumnoDAO alumnoDAO;
+    
+    @Autowired
+    PlantillaDocumentoAcademicoDAO plantillaDocumentoAcademicoDAO;
+    
+    @Autowired
+    ConstanciaPlantillaDAO constanciaPlantillaDAO;
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -103,8 +110,8 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     }
     
     @Override
-    public PlantillaDocumentoAcademico findById(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
-        return plantillaConstanciaDAO.findById(plantillaDocumentoAcademico.getId());
+    public PlantillaDocumentoAcademico find(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
+        return plantillaConstanciaDAO.find(plantillaDocumentoAcademico.getId());
     }
     
     @Override
@@ -124,6 +131,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             if (this.isAlpha(parte)) {
                 String variable = "__" + parte + "__";
                 if (contenido.contains(variable)) {
+                    logger.debug("{}", variable);
                     mapVariables.put(variable, variable);
                 }
             }
@@ -134,10 +142,112 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     public static boolean isAlpha(String name) {
         return name.matches("[0-9A-Z]+");
     }
-
+    
     @Override
     public Alumno findAlumno(Long idalumno) {
         return alumnoDAO.find(new Alumno(idalumno));
     }
     
+    @Override
+    public PlantillaGenerica fillPlantilla(Alumno alumno, PlantillaDocumentoAcademico plantillaForm) {
+        
+        PlantillaGenerica plantilla = new PlantillaGenerica();
+        PlantillaDocumentoAcademico pda = plantillaDocumentoAcademicoDAO.find(plantillaForm.getId());
+        plantilla.setContenido(pda.getContenido());
+        
+        if (TipoDocumentoAcademicoEnum.ALIANZAESTRATEGICAEMPRESARIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALIANZAESTRATEGICAEMPRESARIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNOESPECIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNOESPECIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNOREGULAR.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNOREGULAR.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNOVISITANTE.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ALUMNOVISITANTE.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.BACHILLER.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.BACHILLER.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.BACHILLERCONFECHAEGRESO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.BACHILLERCONFECHAEGRESO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.COLEGIATURA.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.COLEGIATURA.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.COMBINANDOTERICIOYQUINTO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.COMBINANDOTERICIOYQUINTO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.COMPARATIVO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.COMPARATIVO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.CUADRODEHORAS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.CUADRODEHORAS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESCUELANACIONALDEAGRICULTURAESPECIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESCUELANACIONALDEAGRICULTURAESPECIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALCOMPARATIVOYPORCENTAJE.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALCOMPARATIVOYPORCENTAJE.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALCONTINUARESTUDIOSENELEXTRANJERO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALCONTINUARESTUDIOSENELEXTRANJERO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALCONVERSIONDESISTEMACALIFICACION.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALCONVERSIONDESISTEMACALIFICACION.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALDURACIONCICLO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALDURACIONCICLO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALDURACIONDECICLO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALDURACIONDECICLO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALPRIMERAMATRICULA.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALPRIMERAMATRICULA.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALPROMEDIOACUMULADODELOSCICLOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALPROMEDIOACUMULADODELOSCICLOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALPROMEDIOVIGESIMAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESPECIALPROMEDIOVIGESIMAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ESTUDIOSININTERRUMPIDOSOCONTINUOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+            plantilla.setAlumno("holamama");
+            plantilla.setCodigoalumno("holamama");
+            plantilla.setContenido("holamama");
+            plantilla.setFacultad("holamama");
+            plantilla.setFecha("holamama");
+            plantilla.setJefeoficina("holamama");
+            plantilla.setMatriculado("holamama");
+            plantilla.setNombre("holamama");
+            plantilla.setNumero("holamama");
+            plantilla.setSerie("holamama");
+            plantilla.setYearfinciclo("holamama");
+            plantilla.setYeariniciociclo("holamama");
+        } else if (TipoDocumentoAcademicoEnum.ESTUDIOSININTERRUMPIDOSOCONTINUOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.NIVELACADEMICO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.NIVELACADEMICO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.NIVELACADEMICODEEXALUMNOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.NIVELACADEMICODEEXALUMNOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.NOSEPARADO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.NOSEPARADO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOALUMNOSVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOALUMNOSVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOEGRESADOFACULTADESPECIALIDADPROMOCION.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOEGRESADOFACULTADESPECIALIDADPROMOCION.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOEGRESADOVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEMERITOEGRESADOVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENDEVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENMERITOCONTERCIOYQUINTO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.ORDENMERITOCONTERCIOYQUINTO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.QUINTOSUPERIORALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.QUINTOSUPERIORALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.QUINTOSUPERIORVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.QUINTOSUPERIORVARIOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.SISTEMACALIFICACION.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.SISTEMACALIFICACION.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TEORIAPRACTICACREDITO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TEORIAPRACTICACREDITO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TERCIODELOSCICLOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TERCIODELOSCICLOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TERCIOSUPERIOR.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TERCIOSUPERIOR.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TERCIOQUINTOCOMBINADOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TERCIOQUINTOCOMBINADOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TITULO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.TITULO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.CURSOSDELPRIMERCICLO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.ES.getAcronimo()) {
+        } else if (TipoDocumentoAcademicoEnum.CURSOSDELPRIMERCICLO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && pda.getIdioma().getCodigo() == IdiomaEnum.EN.getAcronimo()) {
+        }
+        return plantilla;
+    }
 }

@@ -15,11 +15,13 @@ public interface PlantillaConstanciaService {
 
     List<PlantillaDocumentoAcademico> all(DynatableFilter filter);
 
-    PlantillaDocumentoAcademico findById(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
+    PlantillaDocumentoAcademico find(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 
     List<Idioma> allIdioma();
     
     PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 
     Alumno findAlumno(Long idalumno);
+
+    PlantillaGenerica fillPlantilla(Alumno alumno,PlantillaDocumentoAcademico plantillaForm);
 }
