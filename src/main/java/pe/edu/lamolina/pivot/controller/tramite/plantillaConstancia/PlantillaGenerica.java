@@ -3,7 +3,7 @@ package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 public class PlantillaGenerica {
 
     private String contenido;
-    
+
     private String numero;
     private String serie;
     private String nombre;
@@ -15,6 +15,9 @@ public class PlantillaGenerica {
     private String matriculado;
     private String fecha;
     private String jefeoficina;
+    private String cicloinicioromano;
+    private String ciclofinromano;
+    private String cicloactual;
 
     public String getContenido() {
         return contenido;
@@ -111,7 +114,29 @@ public class PlantillaGenerica {
     public void setJefeoficina(String jefeoficina) {
         this.jefeoficina = jefeoficina;
     }
-    
-    
-        
+
+    public String getCicloinicioromano() {
+        return cicloinicioromano;
+    }
+
+    public void setCicloinicioromano(String cicloinicioromano) {
+        this.cicloinicioromano = cicloinicioromano;
+    }
+
+    public String getCiclofinromano() {
+        return ciclofinromano;
+    }
+
+    public void setCiclofinromano(String ciclofinromano) {
+        this.ciclofinromano = ciclofinromano;
+    }
+
+    public String getCicloactual() {
+        return cicloactual;
+    }
+
+    public void setCicloactual(String cicloactual) {
+        this.cicloactual = cicloactual;
+    }
+
 }

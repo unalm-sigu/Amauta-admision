@@ -46,7 +46,7 @@
                         <section class="panel-body">
                             <h4>Variables</h4>
                             <div v-for="variable in variables" class="col-sm-6">
-                                <p v-bind:class="{ 'text-danger' : variable.variableGenerica.id==null }" class="text-danger">{{variable.variableGenerica.codigo}} : {{variable.variableGenerica.descripcion}} </p>
+                                <p v-bind:class="{ 'text-danger' : variable.variableGenerica.id=='' }" class="" >{{variable.variableGenerica.codigo}} : {{variable.variableGenerica.descripcion}} </p>
                             </div>
                         </section>
 

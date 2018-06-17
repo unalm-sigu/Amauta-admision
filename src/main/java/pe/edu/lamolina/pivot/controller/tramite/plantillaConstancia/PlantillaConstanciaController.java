@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -35,6 +36,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -139,7 +141,7 @@ public class PlantillaConstanciaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
-            System.out.println("ENTRE...... -->");
+
             service.update(plantillaDocumentoAcademico, ds.getUsuario());
             response.setMessage("Se actualizó");
             response.setSuccess(true);
@@ -212,27 +214,19 @@ public class PlantillaConstanciaController {
             Alumno alumno = service.findAlumno(idalumno);
 
             PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
-
             String contenido = plantillaGenerica.getContenido();
 
-            for (PlantillaGenericaEnum ennum : PlantillaGenericaEnum.values()) {
-                contenido = contenido.replaceAll(ennum.getUppername(), (String) ObjectUtil.getParentTree(plantillaGenerica, ennum.getValue()));
+            List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
+            for (VariableGenerica vg : vgs) {
+                String attr = vg.getCodigo();
+                attr = attr.replaceAll("_", "");
+                attr = attr.toLowerCase();
+                String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
+                if (!Strings.isNullOrEmpty(vall)) {
+                    contenido = contenido.replaceAll(vg.getCodigo(), vall);
+                }
             }
 
-//            contenido = contenido.replaceAll("__NUMERO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__SERIE__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__NOMBRE__", alumno.getPersona().getNombreCompleto());
-//            contenido = contenido.replaceAll("__CODIGOALUMNO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__ALUMNO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__FACULTAD__", alumno.getCarrera().getFacultad().getNombre());
-//            contenido = contenido.replaceAll("__YEARINICIOCICLO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__YEARFINCICLO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__MATRICULADO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__FECHA__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__JEFEOFICINA__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__CICLOINICIOROMANO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__CICLOFINROMANO__", alumno.getCodigo());
-//            contenido = contenido.replaceAll("__CICLOACTUAL__", alumno.getCodigo());
             response.setData(contenido);
             response.setSuccess(Boolean.TRUE);
 
@@ -252,24 +246,17 @@ public class PlantillaConstanciaController {
 
         String contenido = plantillaGenerica.getContenido();
 
-        for (PlantillaGenericaEnum ennum : PlantillaGenericaEnum.values()) {
-            contenido = contenido.replaceAll(ennum.getUppername(), (String) ObjectUtil.getParentTree(plantillaGenerica, ennum.getValue()));
+        List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
+        for (VariableGenerica vg : vgs) {
+            String attr = vg.getCodigo();
+            attr = attr.replaceAll("_", "");
+            attr = attr.toLowerCase();
+            String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
+            if (!Strings.isNullOrEmpty(vall)) {
+                contenido = contenido.replaceAll(vg.getCodigo(), vall);
+            }
         }
 
-//        contenido = contenido.replaceAll("__NUMERO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__SERIE__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__NOMBRE__", alumno.getPersona().getNombreCompleto());
-//        contenido = contenido.replaceAll("__CODIGOALUMNO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__ALUMNO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__FACULTAD__", alumno.getCarrera().getFacultad().getNombre());
-//        contenido = contenido.replaceAll("__YEARINICIOCICLO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__YEARFINCICLO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__MATRICULADO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__FECHA__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__JEFEOFICINA__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__CICLOINICIOROMANO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__CICLOFINROMANO__", alumno.getCodigo());
-//        contenido = contenido.replaceAll("__CICLOACTUAL__", alumno.getCodigo());
         model.addAttribute("contenido", contenido);
         model.addAttribute("formatoEnum", PDFFormatoEnum.PLANTILLA_CERTIFICADO);
         model.addAttribute("nombrePdf", "CertificadoEstudio");

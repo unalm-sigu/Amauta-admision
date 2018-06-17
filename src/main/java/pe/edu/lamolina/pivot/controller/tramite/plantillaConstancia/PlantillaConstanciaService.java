@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariableGenerica;
 
 public interface PlantillaConstanciaService {
 
@@ -24,4 +25,6 @@ public interface PlantillaConstanciaService {
     Alumno findAlumno(Long idalumno);
 
     PlantillaGenerica fillPlantilla(Alumno alumno,PlantillaDocumentoAcademico plantillaForm);
+
+    List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 }
