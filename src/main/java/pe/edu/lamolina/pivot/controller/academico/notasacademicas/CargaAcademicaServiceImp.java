@@ -408,7 +408,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 continue;
             }
 
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds.getUsuario());
 
         }
 
@@ -529,6 +529,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Override
     @Transactional
     public void saveExpansionEvaluacion(EvaluacionExpandida evaluacionExpandidaForm, DataSessionPivot ds) {
+        DateTime today = new DateTime();
 
         EvaluacionExpandida evaluacionPadreBD = evaluacionExpandidaDAO.find(evaluacionExpandidaForm.getId());
 
@@ -545,6 +546,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionPadreBD.setFechaDesagregar(null);
             evaluacionPadreBD.setUsuarioDesagregar(null);
 
+            evaluacionPadreBD.setUsuarioActualizacion(ds.getUsuario());
+            evaluacionPadreBD.setFechaActualizacion(today.toDate());
+
             for (Evaluacion evaluacion : evaluacionPadreBD.getEvaluaciones()) {
                 evaluacion.setEstaDesagregado(BigDecimal.ZERO.intValue());
             }
@@ -556,6 +560,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionPadreBD.setEstaDesagregado(BigDecimal.ONE.intValue());
             evaluacionPadreBD.setFechaDesagregar(new Date());
             evaluacionPadreBD.setUsuarioDesagregar(ds.getUsuario());
+
+            evaluacionPadreBD.setUsuarioActualizacion(ds.getUsuario());
+            evaluacionPadreBD.setFechaActualizacion(today.toDate());
         }
 
         for (EvaluacionExpandida eval : evaluacionesHijasForm) {
@@ -580,6 +587,10 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 }
                 evalBD.setNumero(eval.getNumero());
                 evalBD.setPeso(eval.getPeso());
+
+                evalBD.setUsuarioActualizacion(ds.getUsuario());
+                evalBD.setFechaActualizacion(today.toDate());
+
                 evaluacionExpandidaDAO.update(evalBD);
                 //     continue;
             }
@@ -609,7 +620,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             evaluacionesHijasBD.remove(eliminado);
         }
 
-        Date today = new Date();
         List<Seccion> secciones = seccionDAO.allByFilter(evaluacionSeccion.getGrupoSeccion().getId());
         logger.debug("Cantidad de secciones del grupo {}", secciones.size());
         for (Seccion seccion : secciones) {
@@ -664,7 +674,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 if (!evalPadre.isDesagregado()) {
                     evalPadre.setEstaDesagregado(BigDecimal.ONE.intValue());
                     evalPadre.setUsuarioDesagregar(ds.getUsuario());
-                    evalPadre.setFechaDesagregar(today);
+                    evalPadre.setFechaDesagregar(today.toDate());
                 }
 
                 Evaluacion eval = new Evaluacion();
@@ -686,6 +696,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 //   evalForm.setEvaluaciones(null);
                 throw new PhobosException("Error. No se puedieron generar las evaluaciones.");
             }
+
+            evalForm.setFechaRegistro(today.toDate());
+            evalForm.setUsuarioRegistro(ds.getUsuario());
             evaluacionExpandidaDAO.save(evalForm);
 
         }
@@ -698,24 +711,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionExpBD.setNotaMinimaAnulable(evaluacionExpandidaForm.getNotaMinimaAnulable());
         evaluacionExpandidaDAO.update(evaluacionExpBD);
 
-        List<MatriculaSeccion> matriculasSeccion = this.allMatriculaSeccionByFilter(evaluacionExpBD, ds.getCicloAcademico());
-
-        for (MatriculaSeccion ms : matriculasSeccion) {
-            Seccion seccion = ms.getSeccion();
-            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
-            Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
-            if (gpoSecc.getPlanCalificacion() == null) {
-                break;
-            }
-
-            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                continue;
-            }
-
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
-
-        }
+        calculoNotasService.calcularNotas(evaluacionExpBD, ds.getCicloAcademico(), ds.getUsuario());
     }
 
     private void validarEvaluacionesExpandidas(EvaluacionExpandida evaluacionForm, EvaluacionExpandida evaluacionPadreBD) {
@@ -1387,7 +1383,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
 
             //List<EvaluacionExpandida> evaluasExpan = evaluacionExpandidaDAO.allByGpoSeccionPlan(gpoSeccion, plan);
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds);
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
 
@@ -1581,7 +1577,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion(),
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCurso(),
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCicloAcademico(),
-                ds);
+                ds.getUsuario());
     }
 
     @Override

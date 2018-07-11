@@ -27,7 +27,7 @@
         <header class="header b-b padder-lg">
             <h2>Nueva Resolución <span th:text="${cicloAcademico.descripcion}"></span></h2>
             <div class="pull-right m-t-md">
-                <a class="btn btn-default"   th:href="@{/academico/gposeccion}"  >Regresar</a>
+                <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
             </div>
         </header>
         <div id="pageGpoResolucionForm">
@@ -46,7 +46,7 @@
                                                 v-bind:options="tiposResoluciones"
                                                 label="nombre"
                                                 track-by="id" 
-
+                                                required="true"
                                                 >
                                             </multiselect>
                                         </div>
@@ -109,7 +109,7 @@
                         <section class="panel m-b-xs">
                             <section class="panel-body">
                                 Seleccione los tramites que incluirá en la resolución.
-                                <raptor-table ref="tblTramitesReincorporacion"
+                                <raptor-table ref="tblResoluciones"
                                               v-bind:url="URL_TRAMITES" 
                                               v-bind:searcher="false"
                                               v-bind:paginate="false">
@@ -125,7 +125,10 @@
                                                     <th>Estado</th>
                                                     <th>Fecha Registro</th>
                                                     <th>
-
+                                                        Aceptado
+                                                    </th>
+                                                    <th>
+                                                        Evaluar
                                                     </th>
                                                 </tr>
                                             </thead>
@@ -152,7 +155,24 @@
                                                         {{ item.fechaRegistro}}
                                                     </td>
                                                     <td>
-                                                        <input type="checkbox"/>
+                                                        <label class="switch">
+                                                            <input type="checkbox" 
+                                                                   v-bind:value="item.seleccionado" 
+                                                                   v-model="item.seleccionado"
+                                                                   v-bind:disabled="!item.activo"
+                                                                   checked="1"/>
+                                                            <span class="slider round"></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>
+                                                        <label class="switch">
+                                                            <input type="checkbox" 
+                                                                   v-bind:value="item.activo" 
+                                                                   v-bind:click="activacionTramite(item)"
+                                                                   v-model="item.activo"
+                                                                   checked="1"/>
+                                                            <span class="slider round"></span>
+                                                        </label>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -160,7 +180,12 @@
                                     </template>
 
                                 </raptor-table>
-
+<!--
+                                <a class="btn btn-info btn-sm pull-right m-t-xs">
+                                    <i aria-hidden="true" class="fa fa-plus add-seccion"></i> <strong> Agregar Sección</strong></a>
+ -->
+                                <button type="button" v-on:click="saveResolucion($event)" 
+                                        class="btn btn-success pull-right m-t-xs">Guardar</button>
                             </section>
                         </section>
                     </form>

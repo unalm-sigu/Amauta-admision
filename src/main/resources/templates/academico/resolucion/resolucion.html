@@ -59,7 +59,9 @@
                                             <td>
                                                 <small class="block text-muted">Número: {{item.numero}}</small>
                                                 <small class="block text-muted">Serie: {{item.serie}}</small>
-                                                <small class="block text-muted">Url: 
+                                                
+                                                <small class="block text-muted"
+                                                        v-if="item.rutaUrl">Url: 
                                                     <a v-bind:href="item.rutaUrl"
                                                        target="blank"
                                                        >Link

@@ -32,6 +32,60 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        }, activacionTramite(tramite) {
+            if (!tramite.activo) {
+                tramite.seleccionado = false;
+            }
+        },
+        saveResolucion(event) {
+            if (event) {
+                event.preventDefault();
+            }
+            let $vue = this;
+            var form = $("[id='frmResolucion']");
+            form.find(".multiselect__input").each(function () {
+                $(this).attr("required", true);
+            });
+            form.find('.multiselect__input').each(function () {
+                var input = $(this);
+                let element = input.closest('.multiselect').find('.multiselect__tags-wrap');
+
+                if (element.css('display') != 'none' && element.html() != "") {
+                    $(this).removeAttr("required");
+                }
+            });
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+            console.log("Resolucion");
+            console.dir(this.resolucion);
+            console.log("tramites");
+            console.dir(this.$refs.tblResoluciones.data);
+
+            this.resolucion.tramites = this.$refs.tblResoluciones.data;
+
+            $.ajax({
+                url: APP.url('academico/resolucion/saveResolucion'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify($vue.resolucion),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
         }
     }
 })

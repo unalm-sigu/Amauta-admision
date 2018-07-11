@@ -28,16 +28,21 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
@@ -65,6 +70,12 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
 
+    @Autowired
+    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+
     @Override
     @Transactional
     public void calcularNotasLista(List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds) {
@@ -73,7 +84,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             Curso curso = gpoSeccion.getCurso();
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-            calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds);
+            calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
 
@@ -84,7 +95,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         visorCalculoNotas.incrementarCantidad();
         Curso curso = grupoSeccion.getCurso();
-        calcularNotasAlumno(alumno, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), ds);
+        calcularNotasAlumno(alumno, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), ds.getUsuario());
 
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
@@ -93,7 +104,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
     @Override
     @Transactional
-    public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
 
         logger.debug("\n\n\n");
         logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
@@ -217,7 +228,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 nota.setAlumno(alumno);
                 nota.setEsIngresoRegular(0);
                 nota.setFechaIngresoNota(new Date());
-                nota.setUsuarioIngresoNota(ds.getUsuario());
+                nota.setUsuarioIngresoNota(usuario);
                 nota.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
                 alumnoEvaluacionDAO.save(nota);
 
@@ -604,6 +615,30 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         Fraxtion nota = ponderado.divide(pesoTotal);
         return nota.getValue(redondeo, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void calcularNotas(EvaluacionExpandida evaluacionExpandida, CicloAcademico cicloAcademico, Usuario usuario) {
+        evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), cicloAcademico);
+
+        for (MatriculaSeccion ms : matriculasSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+            if (gpoSecc.getPlanCalificacion() == null) {
+                break;
+            }
+
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+
+            this.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), usuario);
+
+        }
     }
 
 }

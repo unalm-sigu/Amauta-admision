@@ -146,7 +146,8 @@ public class ResolucionController {
             logger.debug("cantidad de tramites " + tramites.size());
 
             for (Tramite tramiteEach : tramites) {
-
+                tramiteEach.setSeleccionado(Boolean.FALSE);
+                tramiteEach.setActivo(Boolean.FALSE);
                 String[] mapperTramite = new String[]{
                     "*",
                     "persona.*",
@@ -157,7 +158,8 @@ public class ResolucionController {
                     "userRegistro.*",
                     "userRespuesta.*"
                 };
-                array.add(JsonHelper.createJson(tramiteEach, JsonNodeFactory.instance, false, mapperTramite));
+                ObjectNode tramiteJson = JsonHelper.createJson(tramiteEach, JsonNodeFactory.instance, false, mapperTramite);
+                array.add(tramiteJson);
             }
 
             json.setData(array);
@@ -229,10 +231,10 @@ public class ResolucionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            if (StringUtils.isBlank(resolucion.getRutaUrl())) {
+            /*  if (StringUtils.isBlank(resolucion.getRutaUrl())) {
                 throw new PhobosException("Seleccion su archivo de resolucion.");
             }
-
+             */
             resolucionService.saveResolucion(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getOficinaMain());
 
             String message = "Resolución guardada correctamente.";
