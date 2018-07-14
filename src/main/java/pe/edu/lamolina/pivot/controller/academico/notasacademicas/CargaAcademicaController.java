@@ -646,6 +646,8 @@ public class CargaAcademicaController {
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
                 planCalificacion.setUserRegistro(ds.getUsuario());
                 cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId, ds);
+                cargaAcademicaService.saveEstructuraEvaluacion(new GrupoSeccion(grupoSeccionId),
+                        LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
                 message = "Creado exitosamente.";
 
             } else {
