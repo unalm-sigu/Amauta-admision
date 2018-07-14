@@ -5,5 +5,5 @@ import javax.servlet.http.HttpSession;
 
 public interface InterceptorService {
 
-    void saveInterceptor (ObjectNode objNode,HttpSession session);
+    void saveInterceptor(ObjectNode objNode,HttpSession session);
 }

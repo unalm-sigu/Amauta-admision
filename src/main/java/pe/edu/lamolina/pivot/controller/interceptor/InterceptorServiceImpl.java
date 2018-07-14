@@ -53,7 +53,6 @@ public class InterceptorServiceImpl implements InterceptorService {
         obj.setUsuario(ds.getPersona().getNombreCompleto());
         obj.setSistema(objSis);
         userLogger.save(obj);
-
     }
 
 }

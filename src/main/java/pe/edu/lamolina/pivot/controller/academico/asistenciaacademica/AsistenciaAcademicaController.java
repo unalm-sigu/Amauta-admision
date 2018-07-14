@@ -162,7 +162,7 @@ public class AsistenciaAcademicaController {
             logger.debug(this.getClass() + " Cantidad de lecciones {}", lecciones.size());
 
             for (TemaLeccion leccion : lecciones) {
-                DateTime editLimitDATE = new DateTime().plusDays(pe.edu.lamolina.model.miscelaneo.Constantine.DAYS_EDIT_TEMA_CICLO * -1);
+           //     DateTime editLimitDATE = new DateTime().plusDays(pe.edu.lamolina.model.miscelaneo.Constantine.DAYS_EDIT_TEMA_CICLO * -1);
                 DateTime fechaRegistro = new DateTime(leccion.getFechaRegistro());
                 ObjectNode node = leccion.toJson();
                 node.put("allowEdit", leccion.isAllowEdit());

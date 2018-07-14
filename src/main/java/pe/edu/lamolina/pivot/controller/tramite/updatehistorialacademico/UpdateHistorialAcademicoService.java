@@ -59,7 +59,7 @@ public interface UpdateHistorialAcademicoService {
 
     void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
 
-    void cancelar(TramiteDocumentoAcademico solicitudConstancia);
+    void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds);
 
     List<PrecioDocumento> allPrecioDocumento();
 

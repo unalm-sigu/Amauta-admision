@@ -329,10 +329,12 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("cancelar")
-    public JsonResponse cancelar(TramiteDocumentoAcademico solicitudConstancia) {
+    public JsonResponse cancelar(TramiteDocumentoAcademico solicitudConstancia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.cancelar(solicitudConstancia);
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cancelar(solicitudConstancia,ds);
             response.setMessage("Tipo de documento cancelado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -511,6 +513,7 @@ public class UpdateHistorialAcademicoController {
                 json.put("codigo", colaborador.getCodigo());
                 json.put("tipo", colaborador.getPersona().getTipoDocumento().getSimbolo());
                 json.put("numero", colaborador.getPersona().getNumeroDocIdentidad());
+                json.put("oficina", colaborador.getOficina().getNombre());
                 json.put("rutaFoto", helper.getRutaFoto(colaborador.getPersona().getFoto(), colaborador.getPersona().getSexo()));
                 jColaborador.add(json);
             }

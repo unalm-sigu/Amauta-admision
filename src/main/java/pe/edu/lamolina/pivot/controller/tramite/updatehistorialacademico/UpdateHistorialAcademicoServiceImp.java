@@ -558,10 +558,15 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     @Transactional
-    public void cancelar(TramiteDocumentoAcademico solicitudConstancia) {
+    public void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds) {
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia.getId());
+        AcreenciaTramiteDocumento atd = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tda);
         tda.setEstadoEnum(TramiteEstadoEnum.ANU);
+        atd.setEstadoEnum(EstadoAcreenciaTramiteEnum.ANU);
         tramiteDocumentoAcademicoDAO.update(tda);
+        atd.setFechaAnulacion(new Date());
+        atd.setUserAnulacion(ds.getUsuario());
+        acreenciaTramiteDocumentoDAO.update(atd);
     }
 
     @Override
@@ -669,4 +674,5 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             this.uploadS3(persona.getRutaFotoTemporal());
         }
     }
+
 }
