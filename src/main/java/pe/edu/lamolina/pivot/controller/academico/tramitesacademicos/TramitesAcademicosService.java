@@ -11,4 +11,6 @@ public interface TramitesAcademicosService {
 
     void aceptarSolReincorporacion(Tramite tramite, Usuario usuario);
 
+    void agendarSolicitud(Tramite tramite, Usuario usuario);
+
 }

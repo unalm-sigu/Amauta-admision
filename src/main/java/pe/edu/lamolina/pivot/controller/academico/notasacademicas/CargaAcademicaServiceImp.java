@@ -417,7 +417,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 continue;
             }
 
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds.getUsuario());
 
         }
 
@@ -704,6 +704,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 //   evalForm.setEvaluaciones(null);
                 throw new PhobosException("Error. No se puedieron generar las evaluaciones.");
             }
+
+            evalForm.setFechaRegistro(today.toDate());
+            evalForm.setUsuarioRegistro(ds.getUsuario());
             evaluacionExpandidaDAO.save(evalForm);
 
         }
@@ -718,24 +721,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionExpBD.setUsuarioActualizacion(ds.getUsuario());
         evaluacionExpandidaDAO.update(evaluacionExpBD);
 
-        List<MatriculaSeccion> matriculasSeccion = this.allMatriculaSeccionByFilter(evaluacionExpBD, ds.getCicloAcademico());
-
-        for (MatriculaSeccion ms : matriculasSeccion) {
-            Seccion seccion = ms.getSeccion();
-            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
-            Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
-            if (gpoSecc.getPlanCalificacion() == null) {
-                break;
-            }
-
-            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                continue;
-            }
-
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
-
-        }
+        calculoNotasService.calcularNotas(evaluacionExpBD, ds.getCicloAcademico(), ds.getUsuario());
     }
 
     private void validarEvaluacionesExpandidas(EvaluacionExpandida evaluacionForm, EvaluacionExpandida evaluacionPadreBD) {
@@ -1492,7 +1478,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
 
             //List<EvaluacionExpandida> evaluasExpan = evaluacionExpandidaDAO.allByGpoSeccionPlan(gpoSeccion, plan);
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds);
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
 
@@ -1686,7 +1672,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion(),
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCurso(),
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCicloAcademico(),
-                ds);
+                ds.getUsuario());
     }
 
     @Override

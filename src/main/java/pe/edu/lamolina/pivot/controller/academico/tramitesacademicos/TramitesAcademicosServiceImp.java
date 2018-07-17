@@ -98,7 +98,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         Tramite tramiteUpd = new Tramite();
         tramiteUpd.setId(tramite.getId());
-        tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ACEP);
+        tramiteUpd.setEstadoEnum(TramiteEstadoEnum.PROC);
         tramiteUpd.setUserModificacion(usuario);
         tramiteUpd.setFechaModificacion(today.toDate());
         tramiteDAO.updateEstado(tramiteUpd);

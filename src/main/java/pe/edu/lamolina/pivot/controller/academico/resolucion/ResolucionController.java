@@ -24,15 +24,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -45,6 +51,8 @@ public class ResolucionController {
 
     @Autowired
     ResolucionService resolucionService;
+
+    private MultipartFile resolucionFile;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -79,8 +87,52 @@ public class ResolucionController {
         return "academico/resolucion/resolucion";
     }
 
+    @RequestMapping("nuevo")
+    public String nuevo(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        return "academico/resolucion/resolucionForm";
+    }
+
     @ResponseBody
     @RequestMapping("listResoluciones")
+    public DynatableResponse listResoluciones(DynatableFilter filter,
+            HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            DateTime today = new DateTime();
+
+            List<Resolucion> resoluciones = resolucionService.allResolucionesByFilter(filter);
+            logger.debug("cantidad de resoluciones " + resoluciones.size());
+
+            for (Resolucion resolucionEach : resoluciones) {
+
+                ObjectNode resolucionJson = JsonHelper.createJson(resolucionEach, JsonNodeFactory.instance,
+                        new String[]{
+                            "*",
+                            "oficina.*",
+                            "tipoResolucion.*",
+                            "userRegistro.persona.*"
+                        });
+                array.add(resolucionJson);
+            }
+
+            json.setData(array);
+            json.setTotal(resoluciones.size());
+            json.setFiltered(resoluciones.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("listTramites")
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
@@ -90,16 +142,29 @@ public class ResolucionController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             DateTime today = new DateTime();
 
-            List<Resolucion> resoluciones = resolucionService.allTramitesByFilter(filter);
-            logger.debug("cantidad de resoluciones " + resoluciones.size());
+            List<Tramite> tramites = resolucionService.allTramitesByTipoEstadoTram(TipoTramiteEnum.REI, EstadoTramiteEnum.CON_FAC);
+            logger.debug("cantidad de tramites " + tramites.size());
 
-            for (Resolucion resolucionEach : resoluciones) {
-                array.add(resolucionEach.toJson());
+            for (Tramite tramiteEach : tramites) {
+                tramiteEach.setSeleccionado(Boolean.FALSE);
+                tramiteEach.setActivo(Boolean.FALSE);
+                String[] mapperTramite = new String[]{
+                    "*",
+                    "persona.*",
+                    "alumno.*",
+                    "compania.*",
+                    "cicloAcademico.*",
+                    "tipoTramite.*",
+                    "userRegistro.*",
+                    "userRespuesta.*"
+                };
+                ObjectNode tramiteJson = JsonHelper.createJson(tramiteEach, JsonNodeFactory.instance, false, mapperTramite);
+                array.add(tramiteJson);
             }
 
             json.setData(array);
-            json.setTotal(resoluciones.size());
-            json.setFiltered(resoluciones.size());
+            json.setTotal(tramites.size());
+            json.setFiltered(tramites.size());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,6 +187,8 @@ public class ResolucionController {
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
             Resolucion resolucion = new Resolucion();
+
+            resolucionFile = null;
             resolucion.setFecha(new Date());
             ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, true,
                     new String[]{"*",
@@ -164,6 +231,11 @@ public class ResolucionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            /*  if (StringUtils.isBlank(resolucion.getRutaUrl())) {
+                throw new PhobosException("Seleccion su archivo de resolucion.");
+            }
+             */
+            resolucionService.saveResolucion(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getOficinaMain());
 
             String message = "Resolución guardada correctamente.";
             response.setSuccess(true);
@@ -177,6 +249,32 @@ public class ResolucionController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addFile")
+    public JsonResponse addFile(@RequestParam("file") MultipartFile file) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            logger.debug("file {}, content type {}, size {}", file.getOriginalFilename(), file.getContentType(), file.getSize());
+
+            String name = TypesUtil.getUnixTime() + file.getOriginalFilename();
+            String absoluteName = Constantine.TMP_DIR + name;
+
+            FileHelper.saveToDisk(file, absoluteName);
+
+            response.setData(name);
+            response.setMessage("Archivo cargado.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception ex) {
+            ExceptionHandler.handleException(ex, response);
+        }
+        return response;
+
     }
 
 }
