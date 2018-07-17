@@ -1238,6 +1238,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         grupoSeccion.getCurso().getTipoCurso();
         for (Seccion seccionEach : secciones) {
+            if (seccionEach.getEstado().equals("INA")) {
+                logger.debug("");
+            }
             if (!seccionEach.isEstadoActivo()) {
                 continue;
             }

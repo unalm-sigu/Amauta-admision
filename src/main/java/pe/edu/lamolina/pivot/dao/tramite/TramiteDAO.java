@@ -7,6 +7,8 @@ import pe.edu.lamolina.model.tramite.Tramite;
 
 public interface TramiteDAO extends EasyDAO<Tramite> {
 
+    Tramite find(long id);
+
     List<Tramite> allByFilter(DynatableFilter filter);
 
     void updateEstado(Tramite tramite);

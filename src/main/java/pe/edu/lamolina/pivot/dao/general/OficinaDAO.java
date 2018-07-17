@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
@@ -28,5 +30,7 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
     Oficina findByCode(String codigo);
 
     List<Oficina> allByCompania(Compania compania);
+
+    Oficina findByTipoAndFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad);
 
 }

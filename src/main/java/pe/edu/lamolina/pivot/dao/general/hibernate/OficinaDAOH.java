@@ -8,7 +8,9 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
@@ -161,6 +163,17 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("cia.id", compania);
         return all(sql);
+    }
+
+    @Override
+    public Oficina findByTipoAndFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .filter("to.codigo", tipoOficinaEnum)
+                .filter("o.instanciaOficina", facultad);
+
+        return (Oficina) sql.find(getCurrentSession());
     }
 
 }

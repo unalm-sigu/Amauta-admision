@@ -116,7 +116,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            if (EstadoTramiteEnum.SOL_ACEP.name().equals(estadoDestino)) {
+            if (EstadoTramiteEnum.REV_HIS.name().equals(estadoDestino)) {
                 tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), ds.getUsuario());
                 response.setMessage("Solicitud aceptada.");
             }

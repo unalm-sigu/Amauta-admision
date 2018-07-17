@@ -76,8 +76,8 @@
                                                     <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
                                                     <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolReincorporacion">
                                                         <a class="btn-link pointer editar-gpo-seccion" 
-                                                           v-on:click="cambiarEstadoReincorporacion(item,'SOL_ACEP',$event)">
-                                                            Aceptar Sol. Reincorporacion</a>
+                                                           v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
+                                                            Historial Revisado</a>
                                                     </li>
                                                 </ul>
                                             </div>

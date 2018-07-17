@@ -18,6 +18,15 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
     }
 
     @Override
+    public Tramite find(long id) {
+        Octavia sql = new Octavia()
+                .from(Tramite.class, "t")
+                .join("alumno", "tipoTramite", "cicloAcademico")
+                .left("reincorporaciones");
+        return this.find(sql);
+    }
+
+    @Override
     public List<Tramite> allByFilter(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Tramite.class, "t")
