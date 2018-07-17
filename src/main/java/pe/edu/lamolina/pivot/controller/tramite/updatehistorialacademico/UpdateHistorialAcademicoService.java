@@ -59,7 +59,7 @@ public interface UpdateHistorialAcademicoService {
 
     void saveTramiteDocumentoAcademico(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
 
-    void cancelar(TramiteDocumentoAcademico solicitudConstancia);
+    void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds);
 
     List<PrecioDocumento> allPrecioDocumento();
 
@@ -80,5 +80,9 @@ public interface UpdateHistorialAcademicoService {
     List<Curso> allCursoByNameExceptList(String nombre, ArrayList<Long> cursos);
 
     List<CicloAcademico> allCicloByNameExceptList(String nombre, ArrayList<Long> idCiclos);
+
+    List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
+
+    void updateFotoTemporal(Persona imagenForm);
 
 }

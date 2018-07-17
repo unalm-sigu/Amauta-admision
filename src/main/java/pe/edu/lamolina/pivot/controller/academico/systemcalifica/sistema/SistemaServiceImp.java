@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
@@ -224,7 +225,9 @@ public class SistemaServiceImp implements SistemaService {
 
     @Override
     @Transactional
-    public void changeStatePlanCalificacion(Long idPLanCalificacion, String observacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+    public void changeStatePlanCalificacion(
+            Long idPLanCalificacion, String observacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum, Usuario usuarioRegistro) {
+        DateTime today = new DateTime();
         PlanCalificacion planCalificacion = planCalificacionDAO.find(idPLanCalificacion);
         planCalificacion.setEstadoEnum(estadoPlanCalificaEnum);
         planCalificacion.setObservacion(observacion);
@@ -238,7 +241,7 @@ public class SistemaServiceImp implements SistemaService {
             grupoSeccion.setPlanCalificacion(planCalificacion);
             grupoSeccionDAO.update(grupoSeccion);
 
-            this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP);
+            this.createEvaluacionExpPorEvalSeccion(evaluacionSeccion, EstadoPlanCalificaEnum.ACEP, today.toDate(), usuarioRegistro);
 
             List<Seccion> secciones = seccionDAO.allByFilter(grupoSeccion.getId());
             logger.debug("Cantidad de secciones para el grupo {}", secciones.size());
@@ -282,7 +285,7 @@ public class SistemaServiceImp implements SistemaService {
         planCalificacionDAO.update(planCalificacion);
     }
 
-    private void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
+    private void createEvaluacionExpPorEvalSeccion(EvaluacionSeccion evaluacionSeccion, EstadoPlanCalificaEnum estadoPlanCalificaEnum, Date fechaRegistro, Usuario usuarioRegistro) {
         evaluacionSeccion.setEstadoEnum(estadoPlanCalificaEnum);
         evaluacionSeccionDAO.update(evaluacionSeccion);
 
@@ -299,7 +302,7 @@ public class SistemaServiceImp implements SistemaService {
                 for (int i = 1; i <= evaluacionPlan.getCantidadEvaluaciones().intValue(); i++) {
                     EvaluacionExpandida evaluacion = new EvaluacionExpandida();
                     evaluacion.setAlumnoEvaluacion(null);
-                    evaluacion.create(evaluacionSeccion, evaluacionPlan, i);
+                    evaluacion.create(evaluacionSeccion, evaluacionPlan, i, fechaRegistro, usuarioRegistro);
 
                     if (i == evaluacionPlan.getCantidadEvaluaciones().intValue()) {
                         BigDecimal pesoFinal = evaluacionPlan.getPesoTotal().subtract(peso);
@@ -319,8 +322,8 @@ public class SistemaServiceImp implements SistemaService {
 
     @Override
     @Transactional
-    public void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum) {
-        changeStatePlanCalificacion(idPLanCalificacion, null, estadoPlanCalificaEnum);
+    public void changeStatePlanCalificacion(Long idPLanCalificacion, EstadoPlanCalificaEnum estadoPlanCalificaEnum, Usuario usuarioRegistro) {
+        changeStatePlanCalificacion(idPLanCalificacion, null, estadoPlanCalificaEnum, usuarioRegistro);
     }
 
     @Override

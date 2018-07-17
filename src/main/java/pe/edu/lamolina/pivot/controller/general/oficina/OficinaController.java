@@ -30,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -103,7 +104,22 @@ public class OficinaController {
         List<PerfilCompania> funciones = service.allFunciones();
 
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
-        model.addAttribute("colaborador", colaborador == null ? new Colaborador() : colaborador.toJson());
+        ObjectNode jsonColaborador = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "persona.id",
+            "persona.tipoDocumento.*",
+            "persona.numeroDocIdentidad",
+            "persona.tituloAcademico",
+            "persona.nombreCompleto",
+            "oficina.id",
+            "oficina.codigo",
+            "oficina.nombre",
+            "cargo.id",
+            "cargo.codigo",
+            "cargo.nombre",
+            "funcionColaborador.*"
+        });
+        model.addAttribute("colaborador", jsonColaborador);
         model.addAttribute("oficina", idOficina);
         model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
         model.addAttribute("sexo", SexoEnum.values());
@@ -120,15 +136,14 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
+            List<FuncionColaborador> funciones = new ArrayList();
             Colaborador colaborador = colaboradorBean.getColaborador();
-            System.out.println("SIZe ---->" + colaboradorBean.getPerfilCompanias().size());
             for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
                 FuncionColaborador funcionColaborador = new FuncionColaborador();
                 funcionColaborador.setFuncion(perfilCompania);
-                arrayList.add(funcionColaborador);
+                funciones.add(funcionColaborador);
             }
-            colaborador.setFuncionColaborador(arrayList);
+            colaborador.setFuncionColaborador(funciones);
             service.updateColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
             response.setMessage("Se actualizó el colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -147,8 +162,19 @@ public class OficinaController {
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
         List<PerfilCompania> companias = service.allCargos(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFunciones();
+        ObjectNode colaboradorJson = JsonHelper.createJson(new Colaborador(), JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "persona.id",
+            "persona.tipoDocumento.id",
+            "persona.numeroDocIdentidad",
+            "persona.sexo",
+            "oficina.id",
+            "cargo.id",
+            "funcionColaborador.id"
+        });
+
         model.addAttribute("oficina", idOficina);
-        model.addAttribute("colaborador", new Colaborador().toJson());
+        model.addAttribute("colaborador", colaboradorJson);
         model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
         model.addAttribute("sexo", SexoEnum.values());
         model.addAttribute("area", new Oficina().toJsonArray(oficinas));
@@ -164,25 +190,26 @@ public class OficinaController {
         response.setSuccess(false);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            ArrayList<FuncionColaborador> arrayList = new ArrayList<FuncionColaborador>();
+            ArrayList<FuncionColaborador> funciones = new ArrayList();
             Colaborador colaborador = colaboradorBean.getColaborador();
             ObjectUtil.printAttr(colaboradorBean);
             if (colaboradorBean.getPerfilCompanias() != null) {
                 for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
                     FuncionColaborador funcionColaborador = new FuncionColaborador();
                     funcionColaborador.setFuncion(perfilCompania);
-                    arrayList.add(funcionColaborador);
+                    funciones.add(funcionColaborador);
                 }
             }
-            colaborador.setFuncionColaborador(arrayList);
+            colaborador.setFuncionColaborador(funciones);
             if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
-                response.setMessage("Se agregó el colaborador satisfactoriamente");
+                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
                 response.setSuccess(true);
             } else {
-                Boolean success = service.saveColaboradorExit(colaborador, colaboradorBean.getOficinaMean(), ds);
+                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
+                response.setSuccess(true);
                 response.setSuccess(success);
             }
+            response.setMessage("Se agregó el colaborador satisfactoriamente");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -374,7 +401,6 @@ public class OficinaController {
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
         List<TipoOficina> tipoOficina = service.allTipoOficina();
-        System.out.println("Oficina: -----> " + oficina.getTipoOficina().getId());
         model.addAttribute("oficina", oficina);
         model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
@@ -705,7 +731,7 @@ public class OficinaController {
         try {
 
             List<Persona> personas = service.allPersonasByNombre(buscar);
-            
+
             response.setData(new Persona().toJsonArray(personas));
             response.setSuccess(true);
 

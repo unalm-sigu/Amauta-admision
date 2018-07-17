@@ -8,13 +8,11 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByCargaAcademica(DynatableFilter filter, Docente docente);
-
-    Seccion find(Long idSeccion);
 
     List<Seccion> allByFilter(Long idGrupo);
 
@@ -28,7 +26,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allActivosByGpoSeccion(GrupoSeccion gruposSeccion);
 
-    List<Seccion> allByGpoSeccionEstados(GrupoSeccion gruposSeccion, List<EstadoEnum> estadoEnums);
+    List<Seccion> allByGpoSeccionEstados(GrupoSeccion gruposSeccion, List<SeccionEstadoEnum> estadoEnums);
 
     List<Seccion> allByGposSeccion(GrupoSeccion gruposSeccion);
 

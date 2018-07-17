@@ -1,73 +1,27 @@
 package pe.edu.lamolina.pivot.zelper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 
 public class Laboratory {
-
-    public static void main22(String[] args) {
-        List<Integer> lista = new ArrayList();
-        List<Integer> rev = new ArrayList();
-        List<Integer> poste = new ArrayList();
-        List<Integer> compa = new ArrayList();
-        List<String> ver = new ArrayList();
-
-        Random r = new Random();
-
-        for (int i = 0; i < 1000; i++) {
-            int x = r.nextInt(25) + 10;
-            compa.add(x);
-
-            ver.add(rev.toString());
-            if (rev.contains(x)) {
-                poste.add(x);
-                continue;
-            }
-            if (!poste.isEmpty()) {
-                int y = poste.get(0);
-                if (!rev.contains(y) && y != x) {
-                    poste.remove(0);
-                    rev.add(y);
-                    lista.add(y);
-                    if (rev.size() > 5) {
-                        rev.remove(0);
-                    }
-                }
-            }
-            rev.add(x);
-            lista.add(x);
-
-            if (rev.size() > 5) {
-                rev.remove(0);
-            }
-        }
-        if (!poste.isEmpty()) {
-            lista.addAll(poste);
-        }
-
-        int tope = 0;
-        for (int i = 0; i < lista.size(); i++) {
-            System.out.println(lista.get(i) + "-" + compa.get(i) + " " + ver.get(i));
-            tope++;
-            if (tope > 17) {
-                //System.out.println("");
-                tope = 0;
-            }
-        }
-        System.out.println("");
-
-        Collections.sort(lista);
-        Collections.sort(compa);
-        tope = 0;
-        for (int i = 0; i < lista.size(); i++) {
-            System.out.println(lista.get(i) + "-" + compa.get(i) + " " + ver.get(i));
-            tope++;
-            if (tope > 17) {
-                //System.out.println("");
-                tope = 0;
-            }
+    
+    public static void main666(String[] args) {
+        ObjectMapper mapper = new ObjectMapper();
+        Alumno alu = new Alumno(45234);
+        alu.setCicloIngreso(new CicloAcademico(33));
+        alu.setMatriculaResumen(new ArrayList());
+        alu.getMatriculaResumen().add(new MatriculaResumen(10));
+        alu.getMatriculaResumen().add(new MatriculaResumen(12));
+        
+        try {
+            String jsonInString = mapper.writeValueAsString(alu);
+            System.out.println(jsonInString);
+        } catch (JsonProcessingException ex) {
+            ex.printStackTrace();
         }
     }
 }

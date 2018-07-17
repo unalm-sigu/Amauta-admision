@@ -1,5 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-Vue.component("date-picker", window.DatePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+
 new Vue({
     el: '#colaboradorFormVue',
     data: {
@@ -17,7 +18,11 @@ new Vue({
         newCola: false,
         colaboradorData: {},
         sexos: [{id: 'M', value: 'Masculino'}, {id: 'F', value: 'Femenino'}],
-        seleccionado: {}
+        seleccionado: {},
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
+        }
     },
     computed: {
 
@@ -27,7 +32,7 @@ new Vue({
         if ($vue.colabo.id != 0) {
             $vue.colaborador = $vue.colabo;
             $vue.persona = $vue.colaborador.persona;
-            $vue.persona.tipoDocumento = $vue.colaborador.tipoDocumento;
+            $vue.persona.tipoDocumento = $vue.colaborador.persona.tipoDocumento;
             $vue.newCola = true;
         }
 
@@ -35,7 +40,7 @@ new Vue({
     mounted: function () {
         let $vue = this;
         $('.numeric').numeric({negative: false});
-        
+
         $global.$on("personaSeleccionada", function (personaSelec) {
             $vue.seleccionado = personaSelec;
         });
@@ -82,10 +87,11 @@ new Vue({
         },
         verificarEmail(e) {
             let $vue = this;
-            console.log($vue.persona.emailCompania)
             if ($vue.persona.emailCompania === undefined || $vue.persona.emailCompania == '') {
                 return;
             }
+            $vue.persona.fechaNacer = moment($vue.persona.fechaNacer, "dd/MM/yyyy");
+            
             $.ajax({
                 url: APP.url('general/oficina/validarEmail'),
                 type: 'POST',
@@ -120,6 +126,7 @@ new Vue({
             location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
         },
         updateColaborador: function (id) {
+            return;
             $.ajax({
                 url: APP.url('general/oficina/updateColaborador'),
                 type: 'POST',
@@ -134,7 +141,6 @@ new Vue({
             self.btnDisabled();
             $(".mx-input").attr("required", true);
             if (!$("#formConfig").parsley().validate()) {
-
                 self.btnEnable();
                 return;
             }
@@ -142,16 +148,18 @@ new Vue({
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/updateColaborador'),
                 contentType: "application/json",
                 data: JSON.stringify($vue.colaboradorData),
                 success: function (response) {
+
                     if (response.success) {
-                        $vue.colaborador = {}
-                        $vue.persona = {}
-                        location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
+//                        $vue.colaborador = {}
+//                        $vue.persona = {}
+                        //location.href = APP.url("general/oficina/" + $vue.oficina.id + "/colaboradores");
                         notify(response.message, 'info');
 
                     } else {
@@ -172,9 +180,11 @@ new Vue({
             }
             self.btnEnable();
             $vue.colaborador.persona = $vue.persona;
+            $vue.colaborador.persona.fechaNacer = moment($vue.colaborador.persona.fechaNacer, "dd/MM/yyyy");
             $vue.colaboradorData.colaborador = $vue.colaborador;
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
+            
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),
@@ -209,7 +219,7 @@ new Vue({
                 $vue.temp = $vue.persona;
             }
             $vue.personaValidTemp = {};
-            console.log($vue.persona);
+            
             var map = new Map(Object.entries($vue.persona));
             Object.keys($vue.persona).forEach(function (elem) {
                 if (elem == 'materno' && map.get(elem) !== null) {

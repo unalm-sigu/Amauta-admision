@@ -7,6 +7,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.resource.AppCacheManifestTransformer;
+import org.springframework.web.servlet.resource.GzipResourceResolver;
+import org.springframework.web.servlet.resource.VersionResourceResolver;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.MenuService;
 
 @EnableAsync
@@ -23,7 +26,12 @@ public class PivotApplication extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
                 .addResourceHandler("/**")
-                .addResourceLocations("classpath:/public/", "classpath:/META-INF/resources/webjars/");
+                .addResourceLocations("classpath:/public/", "classpath:/META-INF/resources/webjars/")
+                .setCachePeriod(null)
+                .resourceChain(false)
+                .addResolver(new GzipResourceResolver())
+                .addResolver(new VersionResourceResolver().addContentVersionStrategy("/**"))
+                .addTransformer(new AppCacheManifestTransformer());
     }
 
 }

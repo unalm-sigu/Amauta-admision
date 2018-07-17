@@ -280,6 +280,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         CursoCurricula cursoCurriculaBD = cursoCurriculaDAO.find(cursoCurricula.getId());
         int diff = cursoCurricula.getCreditos() - cursoCurriculaBD.getCreditos();
 
+        cursoCurriculaBD.setRequisitosOr(cursoCurricula.getRequisitosOr());
         cursoCurriculaBD.setCreditosRequisito(cursoCurricula.getCreditosRequisito());
         cursoCurriculaDAO.update(cursoCurriculaBD);
 

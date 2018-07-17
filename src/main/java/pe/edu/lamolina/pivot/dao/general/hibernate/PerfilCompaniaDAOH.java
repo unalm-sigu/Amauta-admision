@@ -70,4 +70,5 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
 
         return find(sql);
     }
+
 }

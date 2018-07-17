@@ -1,34 +1,39 @@
+
+
 <tr rel="{{:index}}">
 
     <td class="v-middle">
         {{if nombre}}
-            <span class="block text-primary h4 m-b-xs m-t-xs">{{:nombre}}</span>
-        {{/if}}
-        
-        {{if codigo}}
-            <span class="block bold">{{:codigo}}</span>
+        <span class="block text-primary h4 m-b-xs m-t-xs">{{:nombre}}</span>
         {{/if}}
 
-        <span class="block">{{:tipoAmbienteEnum}}</span>
+        {{if codigo}}
+        <span class="block bold">{{:codigo}}</span>
+        {{/if}}
+
+        <span class="block">{{:tipoAmbienteEnum}} 
+            <i class="pointer fa fa-calendar text-success ver-aula-horario" rel='{{:id}}'></i>
+        </span>
+
     </td>
     <td class="v-middle text-center">
         {{if aforo}}
-            <span class="block"><b>Aforo</b> {{:aforo}}</span>
+        <span class="block"><b>Aforo</b> {{:aforo}}</span>
         {{/if}}
-        
+
         {{if capacidad}}
-            <span class="block"><b>Cap.</b> {{:capacidad}}</span>
+        <span class="block"><b>Cap.</b> {{:capacidad}}</span>
         {{/if}}
     </td>
     <td class="v-middle">
         {{if pabellon}}
-            <span class="block">{{:pabellon}}</span>
+        <span class="block">{{:pabellon}}</span>
         {{/if}}
         {{if piso}}
-            <span class="block">Planta {{:piso}}</span>
+        <span class="block">Planta {{:piso}}</span>
         {{/if}}
         {{if pisos}}
-            <span class="block">Plantas {{:pisos}}</span>
+        <span class="block">Plantas {{:pisos}}</span>
         {{/if}}
         <small class="block bold">{{:sede}}</small>
     </td>
@@ -37,13 +42,13 @@
     </td>
     <td class="v-middle text-center">
         {{if tipoAmbiente=='EDI'}}
-            {{if aulasContenido>0}}
-                <a class="ver-aulas-contenido pointer"><span class="estado-blue">{{:aulasContenido}}</span></a>
-            {{else}}
-                <span class="estado-gray">{{:aulasContenido}}</span>
-            {{/if}}
+        {{if aulasContenido>0}}
+        <a class="ver-aulas-contenido pointer"><span class="estado-blue">{{:aulasContenido}}</span></a>
         {{else}}
-            <a class="ver-contenido-aula pointer"><i class="fa fa-tasks" aria-hidden="true"></i></a>
+        <span class="estado-gray">{{:aulasContenido}}</span>
+        {{/if}}
+        {{else}}
+        <a class="ver-contenido-aula pointer"><i class="fa fa-tasks" aria-hidden="true"></i></a>
         {{/if}}
     </td>
     <td class="v-middle">
@@ -59,7 +64,7 @@
             {{/if}}
         </span>
     </td> 
-    
+
     <td class="v-middle"> 
         <div class="dropdown actions">
             <a class="dropdown-toggle" data-toggle="dropdown">
@@ -69,11 +74,12 @@
             <ul class="dropdown-menu pull-right">
                 <li><a class="" th:href="@{'/general/aula/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>
                 {{if estado == 'ACT'}}
-                    <li><a class="change-estado pointer" >Desactivar</a></li>
+                <li><a class="change-estado pointer" >Desactivar</a></li>
+                <li><a class="pointer ver-aula-horario" rel='{{:id}}'>Ver horario</a></li>
                 {{/if}}
-                
+
                 {{if estado == 'INA' || estado == 'CRE'}}
-                    <li><a class="change-estado pointer" >Activar</a></li>
+                <li><a class="change-estado pointer" >Activar</a></li>
                 {{/if}}
                 <li><a class="eliminar-aula pointer" >Eliminar</a></li>
 

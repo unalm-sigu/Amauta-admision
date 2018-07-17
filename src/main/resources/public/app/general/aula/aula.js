@@ -118,12 +118,41 @@ $(function () {
             var rec = APP.recDynatable(dynatable, e);
             bootbox.alert({
                 message: $.templates("#divAulasContenido").render(rec),
-                buttons:{
-                    ok:{label:'Aceptar',className:'btn-primary'}
+                buttons: {
+                    ok: {label: 'Aceptar', className: 'btn-primary'}
                 }
             });
 
-        }
+        },
+        verAulaHorario: function (e, $this) {
+            e.preventDefault();
+            var rec = APP.recDynatable(dynatable, e);
+            var idAula = rec.id;
+            var codigo = rec.codigo;
+
+            MODAL.init("lg");
+            $.ajax({
+                url: APP.url('general/aula/loadModalAulaHorario'),
+                type: 'POST',
+                async: true,
+                data: {aula: idAula},
+                success: function (response) {
+                    if (response.success) {
+
+                        MODAL.title("Horario del aula " + codigo);
+                        MODAL.buttons('');
+                        MODAL.body(response.data);
+                        MODAL.show();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
     };
 
     Aula.init();
@@ -144,4 +173,104 @@ $(function () {
         Aula.verAulasContenido(e, $(this));
     });
 
+    $("body").delegate(".ver-aula-horario", "click", function (e) {
+        Aula.verAulaHorario(e, $(this));
+    });
+
 });
+
+
+//Vue.component("multiselect", window.VueMultiselect.default)
+//Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+
+//        new Vue({
+//            el: '#aulaVUE',
+//            data: {
+//                aulasURL: APP.url('general/aula/list'),
+//            },
+//            computed: {
+//
+//            },
+//            mounted: function () {
+//
+//            },
+//            methods: {
+//                eliminar(item) {
+//                    let $vue = this;
+//                    delete item["estadoEnum"];
+//                    bootbox.confirm({
+//                        message: '¿Está seguro que desea eliminar el registro del aula <b>' + item.nombre + '</b>?',
+//                        buttons: {
+//                            confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+//                            cancel: {label: 'Cancelar', className: 'btn-link'}
+//                        },
+//                        callback: function (result) {
+//                            if (result) {
+//                                $.ajax({
+//                                    url: APP.url('general/aula/eliminar'),
+//                                    type: 'POST',
+//                                    data: JSON.stringify(item),
+//                                    contentType: "application/json",
+//                                    success: function (response) {
+//                                        if (response.success) {
+//                                            $vue.$refs.load.loadRemoteData();
+//                                            notify(response.message, "info");
+//                                        } else {
+//                                            notify(response.message, "error");
+//                                        }
+//                                    },
+//                                    error: function () {
+//                                        notify(MESSAGES.errorComunicacion, "error");
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
+//                },
+//                editar(item) {
+//                    location.href = APP.url('general/aula/editar/' + item.id);
+//                },
+//                cambiarEstado(item, estado) {
+//                    let $vue = this;
+//                    console.log(item)
+//                    item.estado = estado;
+//                    delete item["estadoEnum"];
+//                    bootbox.confirm({
+//                        message: '¿Está seguro que desea modificar el registro del aula <b>' + item.nombre + '</b>?',
+//                        buttons: {
+//                            confirm: {label: 'Si, modificar', className: 'btn-primary'},
+//                            cancel: {label: 'Cancelar', className: 'btn-link'}
+//                        },
+//                        callback: function (result) {
+//                            if (result) {
+//                                $.ajax({
+//                                    url: APP.url('general/aula/cambioEstado'),
+//                                    type: 'POST',
+//                                    data: JSON.stringify(item),
+//                                    contentType: "application/json",
+//                                    success: function (response) {
+//                                        if (response.success) {
+//                                            $vue.$refs.load.loadRemoteData();
+//                                            notify(response.message, "info");
+//                                        } else {
+//                                            notify(response.message, "error");
+//                                        }
+//                                    },
+//                                    error: function () {
+//                                        notify(MESSAGES.errorComunicacion, "error");
+//                                    }
+//                                });
+//                            }
+//                        }
+//                    });
+//                },
+//            }
+//        });
+
+
+
+
+
+
+
+        

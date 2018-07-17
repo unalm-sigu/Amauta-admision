@@ -26,9 +26,7 @@ import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
-import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
@@ -189,15 +187,15 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             pesoConNota = pesoConNota.add(pesos.get(i));
         }
 
-        Fraxtion prom = dividendo.divide(pesoTotal);
         Fraxtion avance = dividendo.divide(pesoConNota);
+        Fraxtion prom = dividendo.divide(pesoTotal);
         matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(avance.getValue()));
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(prom.getValue()));
         matriculaCurso.setPorcentajeAvanceNota(pesoConNota.getValue().intValue());
         matriculaCurso.setNotaFinal("0");
 
-        avance = dividendo.divide(pesoTotal);
-        prom = dividendo.divide(pesoConNota);
+        avance = dividendo.divide(pesoConNota);
+        prom = dividendo.divide(pesoTotal);
 
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance.getValue(18)));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom.getValue(18)));

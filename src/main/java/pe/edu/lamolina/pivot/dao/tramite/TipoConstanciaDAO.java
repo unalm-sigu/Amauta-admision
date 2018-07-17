@@ -11,4 +11,6 @@ public interface TipoConstanciaDAO extends EasyDAO<TipoDocumentoAcademico> {
 
     TipoDocumentoAcademico find(TipoDocumentoAcademico tipoDocumentoAcademico);
 
+    List<TipoDocumentoAcademico> allTipoDocumentoAcademicoByName(String nombre);
+
 }

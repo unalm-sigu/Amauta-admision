@@ -18,8 +18,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allResponsablesByGpoSecciones(List<GrupoSeccion> gruposSeccion, CicloAcademico ciclo);
 
-    List<DocenteSeccion> allBySeccion(Seccion seccion);
-
     List<DocenteSeccion> allActivosBySeccion(Seccion seccion);
 
     List<DocenteSeccion> allPersonasActivasBySeccion(Seccion seccionResponsable);
@@ -37,6 +35,8 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
     List<DocenteSeccion> allByFilter(Docente docente, Seccion seccion);
 
     List<DocenteSeccion> allPendientePlan(CicloAcademico ciclo);
+
+    List<DocenteSeccion> allBySeccion(Seccion seccion);
 
     List<DocenteSeccion> allActivosBySecciones(List<Seccion> secciones);
 

@@ -10,7 +10,10 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum;
+import static pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum.DISP;
+import static pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum.OCUP;
+import static pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum.RSV;
+import static pe.edu.lamolina.model.enums.EstadoVacanteAlumnoEnum.RSVR;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 
@@ -23,11 +26,21 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
     }
 
     @Override
-    public List<VacanteAlumno> allBySeccion(List<Seccion> secciones) {
+    public List<VacanteAlumno> allBySecciones(List<Seccion> secciones) {
         Octavia sql = Octavia.query()
                 .from(VacanteAlumno.class, "va")
                 .join("seccion se", "alumno alu")
                 .in("se.id", secciones);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<VacanteAlumno> allBySeccion(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(VacanteAlumno.class, "va")
+                .join("seccion se")
+                .left("alumno alu")
+                .filter("se.id", seccion);
         return sql.all(getCurrentSession());
     }
 
@@ -37,8 +50,8 @@ public class VacanteAlumnoDAOH extends AbstractEasyDAO<VacanteAlumno> implements
                 .from(VacanteAlumno.class, "va")
                 .join("seccion se")
                 .left("alumno alu")
-                .filter("se.id", seccion);
-        sql.in("va.estado", Arrays.asList(EstadoVacanteAlumnoEnum.DISP.name(), EstadoVacanteAlumnoEnum.RSV.name(), EstadoVacanteAlumnoEnum.RSVR.name(), EstadoVacanteAlumnoEnum.OCUP.name()));
+                .filter("se.id", seccion)
+                .in("va.estado", Arrays.asList(DISP, RSV, RSVR, OCUP));
         return sql.all(getCurrentSession());
     }
 

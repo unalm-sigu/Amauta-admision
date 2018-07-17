@@ -7,13 +7,13 @@ Vue.component("aula-component", {
         return {
             seccionModal: null,
             tabAulas: {
-                aulaSel: null,
+                aulaSel: {},
                 oera: {
                     id: 50,
                     nombre: "oera",
                     moduloSel: null,
                     aulaSel: null,
-                    modulosCombo: [],
+                    modulosOera: [],
                     tblAulas: null
                 },
                 oficinas: {
@@ -39,17 +39,35 @@ Vue.component("aula-component", {
         $global.$on("saveAula", function () {
             $vue.saveAula($vue);
         });
+
+        $global.$on("closeAula", function () {
+            $vue.closeAula($vue);
+        });
+
+
     },
     methods: {
+        changeClassTab(tab) {
+            let $vue = this;
+            if (tab == 1)
+                $vue.tabAulas.aulaSel.tabAula = "oera";
+            if (tab == 2)
+                $vue.tabAulas.aulaSel.tabAula = "oficina";
+            if (tab == 3)
+                $vue.tabAulas.aulaSel.tabAula = "especifica";
+        },
+        labelAula() {
+            return "lalala";
+        },
         loadAula($vue, seccion) {
             $vue.tabAulas = {
-                aulaSel: null,
+                aulaSel: {},
                 oera: {
                     id: 50,
                     nombre: "oera",
                     moduloSel: null,
                     aulaSel: null,
-                    modulosCombo: [],
+                    modulosOera: [],
                     tblAulas: null
                 },
                 oficinas: {
@@ -75,25 +93,25 @@ Vue.component("aula-component", {
                     if (response.success) {
 
                         $vue.seccionModal = response.data.seccion;
-                        console.dir($vue.seccionModal);
-                        $vue.tabAulas['oera'].modulosCombo = response.data.modulosOera;
+                        $vue.tabAulas['oera'].modulosOera = response.data.modulosOera;
                         $vue.tabAulas['oficinas'].oficinasDisponibles = response.data.oficinasDisponibles;
-                        // $vue.modulosCombo = response.data.modulosOera;
 
                         if (response.data.aulaSel != null) {
+
                             $vue.tabAulas.aulaSel = response.data.aulaSel;
-                            if ($vue.tabAulas.aulaSel.esOera) {
+                            if ($vue.tabAulas.aulaSel.tabAula == "oera") {
                                 console.log("esOera");
-                                console.dir(response.data.modulosOeraSel);
                                 $vue.tabAulas['oera'].moduloSel = response.data.modulosOeraSel;
                                 $vue.cambiarModulo();
-                            } else if ($vue.tabAulas.aulaSel.esOficina) {
+                            } else if ($vue.tabAulas.aulaSel.tabAula == "oficina") {
                                 console.log("esOficina");
                                 $vue.tabAulas['oficinas'].oficinaSel = response.data.oficinaSel;
                                 $vue.cambiarOficina();
-                            } else if ($vue.tabAulas.aulaSel.esEspecifica) {
+                            } else if ($vue.tabAulas.aulaSel.tabAula == "especifica") {
                                 console.log("esEspecifica");
                             }
+                        } else {
+                            $vue.tabAulas.aulaSel = {tabAula: "oera"};
                         }
 
                     } else {
@@ -146,20 +164,27 @@ Vue.component("aula-component", {
                 }
             });
         },
+        closeAula($vue) {
+            $vue.tabAulas.aulaSel.tabAula = "zzz";
+        },
         asyncFindAulas(nombre) {
             let $vue = this;
             $.ajax({
                 url: APP.url("academico/gposeccion/asyncFindAulas"),
                 dataType: 'json',
                 type: 'post',
-                data: {nombre: nombre},
+                data: {
+                    seccion: $vue.seccionModal.id,
+                    nombre: nombre
+                },
             }).then(response => {
                 $vue.tabAulas["especificas"].aulasEspecificas = response.data;
                 if ($vue.tabAulas["especificas"].aulasEspecificas == null) {
                     $vue.tabAulas["especificas"].aulasEspecificas = [];
                 }
             })
-        }, seleccionarAulaEspecifica() {
+        },
+        seleccionarAulaEspecifica() {
             let $vue = this;
             if ($vue.tabAulas['especificas'].aulasEspecificaSel == null) {
                 return;
@@ -189,7 +214,8 @@ Vue.component("aula-component", {
             });
 
 
-        }, cambiarOficina() {
+        },
+        cambiarOficina() {
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -209,11 +235,13 @@ Vue.component("aula-component", {
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
-                }, error: function () {
+                },
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, cambiarModulo() {
+        },
+        cambiarModulo() {
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -228,21 +256,35 @@ Vue.component("aula-component", {
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
-                }, error: function () {
+                },
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
 
-        }, getClassAula(aula) {
+        },
+        getClassAula(aula) {
+            let $vue = this;
+            console.log(
+                    $vue.seccionModal.aula.id);
             if (aula.seleccionado) {
                 return "btn-primary";
             }
+            if ($vue.seccionModal.aula.id != '') {
+                if (aula.id == $vue.seccionModal.aula.id) {
+                    return "btn-warning";
+                }
+            }
+            if (!aula.isDisponible) {
+                return "btn-danger";
+            }
             return "btn-default";
-        }, selectAula(aula) {
+        },
+        selectAula(aula) {
             let seleccionado = !aula.seleccionado;
             if (seleccionado) {
                 this.tabAulas.aulaSel = aula;
-                if (aula.esOera) {
+                if (aula.tabAula == "oera") {
                     if (this.tabAulas['oficinas'].tblAulas != null) {
                         for (let key in this.tabAulas['oficinas'].tblAulas) {
                             this.tabAulas['oficinas'].tblAulas[key].seleccionado = false;
@@ -256,7 +298,7 @@ Vue.component("aula-component", {
                         }
                     }
 
-                } else if (aula.esOficina) {
+                } else if (aula.tabAula == "oficina") {
                     if (this.tabAulas['oera'].tblAulas != null) {
                         for (let key in this.tabAulas['oera'].tblAulas) {
                             this.tabAulas['oera'].tblAulas[key].seleccionado = false;
@@ -269,7 +311,7 @@ Vue.component("aula-component", {
                         }
                     }
 
-                } else if (aula.esEspecifica) {
+                } else if (aula.tabAula == "especifica") {
 
                     if (this.tabAulas['oera'].tblAulas != null) {
                         for (let key in this.tabAulas['oera'].tblAulas) {
@@ -284,7 +326,6 @@ Vue.component("aula-component", {
                     }
                 }
             } else {
-                this.tabAulas.aulaSel = null;
                 if (this.tabAulas['oficinas'].tblAulas != null) {
                     for (let key in this.tabAulas['oficinas'].tblAulas) {
                         this.tabAulas['oficinas'].tblAulas[key].seleccionado = false;
@@ -296,7 +337,6 @@ Vue.component("aula-component", {
                         this.tabAulas['oera'].tblAulas[key].seleccionado = false;
                     }
                 }
-
             }
         }
     }

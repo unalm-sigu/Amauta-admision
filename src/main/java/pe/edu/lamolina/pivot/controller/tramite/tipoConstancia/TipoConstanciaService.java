@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.tramite.tipoConstancia;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.general.Oficina;
@@ -24,5 +25,9 @@ public interface TipoConstanciaService {
     List<Oficina> allOficina(String nombre);
 
     List<TipoOficina> allTipoOficina(String nombre);
+
+    TipoDocumentoAcademico findTipoDocumentoAcademico(TipoDocumentoAcademico tipoDocumento);
+
+    ObjectNode toJson(Object object);
 
 }

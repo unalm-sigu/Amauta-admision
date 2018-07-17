@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,11 +27,15 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
@@ -45,6 +50,7 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
+import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -91,6 +97,9 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
     @Override
     public ObjectNode allAlumnosByCiclo(Alumno alumno, Long numeroCiclo) {
@@ -313,6 +322,49 @@ public class infoAcademicoServiceImpl implements infoAcademicoService {
         Alumno alumno = alumnoDAO.find(alumnoForm);
         visorCalculoNotas.setActivo(false);
         promedioService.calulcarSituacionAcademica(alumno, ds.getUsuario());
+    }
+
+    @Override
+    public List<BoletaIngresante> allAportesAlumno(Alumno alumno, CicloAcademico ciclo) {
+        Alumno alumnoBD = alumnoDAO.find(alumno);
+        CicloAcademico cicloModalidad = findCicloByModalidad(alumnoBD.getModalidadEstudio(), ciclo);
+
+        List<BoletaIngresante> boletas = new ArrayList();
+        List<AporteAlumnoCiclo> aportesAlumno = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumnoBD, cicloModalidad);
+
+        Map<Long, List<AporteAlumnoCiclo>> mapCtaAportes = TypesUtil.convertListToMapList("aporteCiclo.cuentaBancaria.id", aportesAlumno);
+        Map<Long, CuentaBancaria> mapCtaBanco = TypesUtil.convertListToMap("aporteCiclo.cuentaBancaria.id", "aporteCiclo.cuentaBancaria", aportesAlumno);
+        List<CuentaBancaria> ctas = new ArrayList(mapCtaBanco.values());
+        
+        for (CuentaBancaria cta : ctas) {
+            BigDecimal montoTotal = BigDecimal.ZERO;
+
+            List<AporteAlumnoCiclo> aportes = mapCtaAportes.get(cta.getId());
+
+            for (AporteAlumnoCiclo aporte : aportes) {
+                montoTotal = montoTotal.add(aporte.getMonto());
+            }
+
+            BoletaIngresante boleta = new BoletaIngresante(cta.getId(), null, cta.getNombre(), cta.getNumero(), cta.getCuentaDescripcion(), montoTotal);
+            boleta.setAportesAlumno(aportes);
+
+            boletas.add(boleta);
+        }
+
+        return boletas;
+    }
+
+    public CicloAcademico findCicloByModalidad(ModalidadEstudio modalidad, CicloAcademico ciclo) {
+        ModalidadEstudio modalidadCiclo = ciclo.getModalidadEstudio();
+        if (modalidadCiclo.getId() == modalidad.getId().longValue()) {
+            return ciclo;
+        }
+
+        String codigoCiclo = ciclo.getCodigo();
+        CicloAcademico cicloModalidad = cicloAcademicoDAO.findByCodigoModalidadEstudio(codigoCiclo, modalidad);
+
+        return cicloModalidad;
+
     }
 
 }

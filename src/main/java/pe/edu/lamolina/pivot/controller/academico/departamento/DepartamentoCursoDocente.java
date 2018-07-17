@@ -3,16 +3,20 @@ package pe.edu.lamolina.pivot.controller.academico.departamento;
 public class DepartamentoCursoDocente {
 
     private Long id;
-    private Long curso;
-    private Long docente;
+    private Long cursoActivos;
+    private Long cursoInactivos;
+    private Long docenteActivos;
+    private Long docenteInactivos;
 
     public DepartamentoCursoDocente() {
     }
 
-    public DepartamentoCursoDocente(Long id, Long curso, Long docente) {
+    public DepartamentoCursoDocente(Long id, Long cursoActivos, Long cursoInactivos, Long docenteActivos, Long docenteInactivos) {
         this.id = id;
-        this.curso = curso;
-        this.docente = docente;
+        this.cursoActivos = cursoActivos;
+        this.cursoInactivos = cursoInactivos;
+        this.docenteActivos = docenteActivos;
+        this.docenteInactivos = docenteInactivos;
     }
 
     public Long getId() {
@@ -23,20 +27,36 @@ public class DepartamentoCursoDocente {
         this.id = id;
     }
 
-    public Long getCurso() {
-        return curso;
+    public Long getCursoActivos() {
+        return cursoActivos;
     }
 
-    public void setCurso(Long curso) {
-        this.curso = curso;
+    public void setCursoActivos(Long cursoActivos) {
+        this.cursoActivos = cursoActivos;
     }
 
-    public Long getDocente() {
-        return docente;
+    public Long getCursoInactivos() {
+        return cursoInactivos;
     }
 
-    public void setDocente(Long docente) {
-        this.docente = docente;
+    public void setCursoInactivos(Long cursoInactivos) {
+        this.cursoInactivos = cursoInactivos;
+    }
+
+    public Long getDocenteActivos() {
+        return docenteActivos;
+    }
+
+    public void setDocenteActivos(Long docenteActivos) {
+        this.docenteActivos = docenteActivos;
+    }
+
+    public Long getDocenteInactivos() {
+        return docenteInactivos;
+    }
+
+    public void setDocenteInactivos(Long docenteInactivos) {
+        this.docenteInactivos = docenteInactivos;
     }
 
 }

@@ -57,12 +57,12 @@ public interface Constantine {
     String IMAGE_DPIHEIGHT_MSG = "la imagen debe de tener un dpi mayor o igual a 72";
     int IMAGE_DPIWIDTH = 72;
     String IMAGE_DPIWIDTH_MSG = "la imagen debe de tener un dpi mayor o igual a 72";
-    int IMAGE_HEIGHT = 1080;
-    String IMAGE_HEIGHT_MSG = "la imagen debe de tener una altura aproximada a 1080";
-    int IMAGE_WIDTH = 1920;
+    int IMAGE_HEIGHT = 508;
+    String IMAGE_HEIGHT_MSG = "la imagen debe de tener una altura aproximada a 508px";
+    int IMAGE_WIDTH = 338;
     int IMAGE_DELTA_SIZE = 5;
-    String IMAGE_WIDTH_MSG = "la imagen debe de tener un ancho aproximada a 1920";
-    String IMAGE_FORMAT = "JPEG";
+    String IMAGE_WIDTH_MSG = "la imagen debe de tener un ancho aproximada a 338px";
+    String[] IMAGE_FORMAT = {"JPEG","PNG"};
     String IMAGE_FORMAT_MSG = "la imagen debe de ser formato jpeg";
     String IMAGE_COLORTYPE = "RGB";
     String IMAGE_COLORTYPE_MSG = "la imagen debe de tener el sistema de color  RGB";
@@ -70,4 +70,11 @@ public interface Constantine {
     String IMAGE_BITSPERPIXEL_MSG = "la imagen debe de tener la cantidad de bits por pixel mayor a  24";
     boolean IMAGE_TRANSPARENT = Boolean.FALSE;
     String IMAGE_TRANSPARENT_MSG = "la imagen no debe de ser transparente";
+
+    //ruta imagen
+    String S3_BUKET = "lamolina-academico";
+    String S3_DIR_FOTO_TMP = "fotos/temporal/";
+    String S3_DIR_FOTO_DOCUMENTO = "fotos/documentos/";
+    String S3_DIR_FOTO_CARNET = "fotos/carnet/";
+    
 }

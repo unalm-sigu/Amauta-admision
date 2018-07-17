@@ -9,6 +9,8 @@ public interface RestriccionModalidadDAO extends EasyDAO<RestriccionModalidad> {
 
     List<RestriccionModalidad> allActivasBySeccion(Seccion seccion);
 
+    List<RestriccionModalidad> allActivasBySecciones(List<Seccion> secciones);
+
     void updateEstadoFechaUsuario(RestriccionModalidad restriccionModalidad);
 
 }

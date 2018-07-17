@@ -3,7 +3,7 @@ $(function () {
     var dynatable = $('#dynaTable').dynatable({
         dataset: {
             ajaxUrl: APP.url('academico/horario/grupo/list'),
-            perPageDefault: 6,
+            perPageDefault: 12,
             ajaxData: {idTipoGrupo: $('[name="idTipoGrupo"]').val()},
         },
         writers: {
@@ -12,7 +12,7 @@ $(function () {
         table: {
             bodyRowSelector: 'div'
         },
-        features: {pushState: false, search: false},
+        features: {pushState: false, search: true},
         inputs: {
             processingText: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'
         }
@@ -267,7 +267,7 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         Grupo.getHorario();
-                        dynatable.process();
+//                        dynatable.process();
                     } else {
                         notify(response.message, "error");
                     }
@@ -280,11 +280,20 @@ $(function () {
                 }
             });
         },
-        desasignarHora: function (e) {
+        desasignarHora: function ($this, e) {
             e.preventDefault();
+            var letra = $this.find(".text-item-horario").text();
+            var color = $this.css('border-color');
+
+            if (letra != '' && color == 'rgb(203, 213, 221)') {
+                notify("Esta hora - día se encuentra ocupada.", "error")
+                return;
+            }
+
             if (Grupo.grupoActivo == null) {
                 return;
             }
+
             var mibox = bootbox.dialog({message: APP.template.wait, closeButton: false});
             var self = $(e.currentTarget);
             var id = self.data("id");
@@ -338,7 +347,7 @@ $(function () {
     });
 
     Grupo.body.delegate('.desasignar-hora', 'dblclick', function (e) {
-        Grupo.desasignarHora(e);
+        Grupo.desasignarHora($(this), e);
     });
 
     Grupo.init();

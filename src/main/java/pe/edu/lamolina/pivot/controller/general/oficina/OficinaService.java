@@ -63,7 +63,7 @@ public interface OficinaService {
 
     ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain);
 
-    void updateEstado(Colaborador colaborador,DataSessionPivot dataSessionPivot);
+    void updateEstado(Colaborador colaborador, DataSessionPivot dataSessionPivot);
 
     List<TipoOficina> allTipoOficina();
 
@@ -77,7 +77,7 @@ public interface OficinaService {
 
     public List<PerfilCompania> allCargos(Oficina oficina);
 
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
+    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
@@ -87,7 +87,7 @@ public interface OficinaService {
 
     Usuario verifiEmail(Persona persona);
 
-    public Boolean saveColaboradorExit(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
+    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
 
     List<PerfilCompania> allCargosByOficina(Oficina oficina);
 

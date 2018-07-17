@@ -8,7 +8,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.enums.CicloEstadoEnum;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CER;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.pivot.dao.encuesta.CicloPostulaDAO;
 
@@ -46,7 +47,7 @@ public class CicloPostulaDAOH extends AbstractEasyDAO<CicloPostula> implements C
                 .from(CicloPostula.class, "cp")
                 .join("cicloAcademico ca", "ca.modalidadEstudio me")
                 .filter("me.id", modalidad)
-                .filter("cp.estado", CicloEstadoEnum.ACT);
+                .filter("cp.estado", ACT);
 
         return find(sql);
     }
@@ -66,7 +67,7 @@ public class CicloPostulaDAOH extends AbstractEasyDAO<CicloPostula> implements C
         Octavia sql = Octavia.query()
                 .from(CicloPostula.class, "cp")
                 .join("cicloAcademico ca", "ca.modalidadEstudio me")
-                .filter("cp.estado", CicloEstadoEnum.CER)
+                .filter("cp.estado", CER)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
 

@@ -9,16 +9,18 @@ import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 
 public interface VacanteAlumnoDAO extends EasyDAO<VacanteAlumno> {
 
-    public List<VacanteAlumno> allBySeccion(List<Seccion> secciones);
+    List<VacanteAlumno> allBySecciones(List<Seccion> secciones);
+
+    List<VacanteAlumno> allBySeccion(Seccion seccion);
 
     List<VacanteAlumno> allActivosBySeccion(Seccion seccion);
 
-    public List<VacanteAlumno> allByAlumno(Alumno alumno);
+    List<VacanteAlumno> allByAlumno(Alumno alumno);
 
-    public void deleteAllByCiclo(CicloAcademico cicloAcademico);
+    void deleteAllByCiclo(CicloAcademico cicloAcademico);
 
     void updateEstadoFechaModUsuarioMod(VacanteAlumno vacanteAlumno);
 
-    public List<VacanteAlumno> allActivoBySeccion(List<Seccion> secciones);
+    List<VacanteAlumno> allActivoBySeccion(List<Seccion> secciones);
 
 }

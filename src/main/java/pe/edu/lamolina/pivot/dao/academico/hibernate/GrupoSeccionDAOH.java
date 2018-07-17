@@ -55,6 +55,48 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
+    public String findMaxCodigoByCiclo(CicloAcademico cicloAcademico) {
+        /*  Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .orderBy("gs.id desc")
+                .limit(1);
+             return find(sql);*/
+
+        StringBuilder strb = new StringBuilder();
+        strb.append("Select max(gs.codigo) from GrupoSeccion gs ");
+        strb.append(" join gs.cicloAcademico cs ");
+        strb.append(" where cs.id=:prm_ciclo ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+
+        return (String) query.uniqueResult();
+    }
+
+    @Override
+    public List<String> allCodigoByCiclo(CicloAcademico cicloAcademico) {
+        /*  Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
+                .orderBy("gs.id desc")
+                .limit(1);
+             return find(sql);*/
+
+        StringBuilder strb = new StringBuilder();
+        strb.append("Select gs.codigo from GrupoSeccion gs ");
+        strb.append(" join gs.cicloAcademico cs ");
+        strb.append(" where cs.id=:prm_ciclo ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_ciclo", cicloAcademico.getId());
+
+        return query.list();
+    }
+
+    @Override
     public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico ciclo, DepartamentoAcademico dpto, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
@@ -189,7 +231,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .searchFields("cu.nombre", "cu.codigo", "ab.nombre", "abs.nombre")
                 .searchSubquery(subQuery)
                 .subqueryLinkedBy("gs.id", "ggss.id")
-                .searchSubqueryFields("doc.codigo", "se.codigo", "gh.codigo", "au.codigo")
+                .searchSubqueryFields("doc.codigo", "se.codigo2", "gh.codigo", "au.codigo")
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("gs.id desc");

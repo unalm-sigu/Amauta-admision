@@ -119,7 +119,8 @@ $(function () {
                     }
                 }
             });
-        }, saveSistema: function () {
+        }, saveSistema: function (e) {
+            e.preventDefault();
             var form = $("[id='frmSistemaCalifica']");
             // form.submit();
 
@@ -220,7 +221,7 @@ $(function () {
     });
 
     $("body").delegate("#cmbSaveSistema", "click", function (e) {
-        NuevoSistema.saveSistema();
+        NuevoSistema.saveSistema(e);
     });
 
     $("body").delegate(".clsCantEvaluaciones", "keyup", function (e) {

@@ -111,22 +111,52 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allByAulaCicloDiasHoras(Aula aula, CicloAcademico cicloAcademico, List<Dia> dias, List<Hora> horas) {
+    public List<HorarioAula> allByPabellonCicloDiasHoras(Aula pabellon, CicloAcademico cicloAcademico, List<String> hdias) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
-                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("dia d", "hora h", "aula au", "au.aulaSuperior aus", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
-                .filter("au.id", aula)
+                .filter("aus.id", pabellon)
                 .filter("ca.id", cicloAcademico)
-                .in("d.id", dias)
-                .in("h.id", horas);
+                .complexFilter("concat(h.codigo,'-',d.id)", "in", hdias);
 
         return all(sql);
     }
 
-    public List<HorarioAula> allByDiaHoraCiclo(Dia dia, Hora hora, CicloAcademico cicloAcademico) {
+    @Override
+    public List<HorarioAula> allByAulasCicloDiasHoras(List<Aula> aulas, CicloAcademico cicloAcademico, List<String> hdias) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("au.id", aulas)
+                .filter("ca.id", cicloAcademico)
+                .complexFilter("concat(h.codigo,'-',d.id)", "in", hdias);
 
-        return null;
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
+    public void deleteAllInList(List<HorarioAula> horarios) {
+        if (horarios.isEmpty()) {
+            return;
+        }
+
+        String sql = "delete HorarioAula hs where hs in :HORARIOS";
+        Query query = getCurrentSession().createQuery(sql);
+        query.setParameterList("HORARIOS", horarios);
+        query.executeUpdate();
     }
 
 }

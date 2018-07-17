@@ -13,7 +13,7 @@ Vue.component("autocomplete-doc", {
             required: true
         }
     },
-    mounted: function() {
+    mounted: function () {
         var vm = this
 
         $(this.$el).select2({
@@ -24,33 +24,33 @@ Vue.component("autocomplete-doc", {
                 url: APP.url("academico/gposeccion/buscarDocentes"),
                 dataType: 'json',
                 type: 'post',
-                data: function(term, page) {
+                data: function (term, page) {
                     return {
                         nombre: term,
                         page: page
                     };
                 },
-                results: function(response, page) {
+                results: function (response, page) {
                     return {results: response.data};
                 }
             },
-            formatResult: function(info) {
+            formatResult: function (info) {
                 return info.apellidosNombres;
             },
-            formatSelection: function(info) {
+            formatSelection: function (info) {
                 return info.personaNombre + " " + info.personaPaterno + " " + info.personaMaterno;
             },
-            initSelection: function(element, callback) {
+            initSelection: function (element, callback) {
                 if (element.val() != "") {
                     callback({id: element.val(), apellidosNombres: element.attr("rel")});
                 }
             },
-            escapeMarkup: function(m) {
+            escapeMarkup: function (m) {
                 return m;
             }
         }
 
-        ).on('select2-selecting', function(e) {
+        ).on('select2-selecting', function (e) {
             vm.$emit('input', e.object.id);
 
             let docSeccion = vm.$options.propsData.docseccion;
@@ -63,22 +63,22 @@ Vue.component("autocomplete-doc", {
                     docSeccion: docSeccion,
                     docente: docente
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                     } else {
                         notify(response.message, "error");
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         });
     },
-    destroyed: function() {
+    destroyed: function () {
         $(this.$el).off().select2('destroy')
     },
-    watch: function() {
+    watch: function () {
 
     }
 });
@@ -104,8 +104,9 @@ var app = new Vue({
         directEditSecciones: false,
         docentesSeccion: [],
         seccionSeleccionada: null,
+        verDocentes: false,
         seccionModal: null,
-        colorEstado: {CRE: "default", ACT: "success", INA: "danger", ANU: "danger", BLO: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"},
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning"},
         grupoModal: {
             id: 'modalGrupo',
             header: true,
@@ -145,28 +146,31 @@ var app = new Vue({
         minFechaPeriodo: null,
         maxFechaPeriodo: null,
         modulosCombo: {}
-    }, created: function() {
+    },
+    created: function () {
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.loadGpoSeccionForm();
         this.loadSecciones();
-    }, mounted: function() {
+    },
+    mounted: function () {
         let $vue = this;
-        $global.$on("afterSaveAula", function(response) {
+        $global.$on("afterSaveAula", function (response) {
             $vue.afterSaveAula(response, $vue);
         });
-        $global.$on("afterSaveGrupo", function(response) {
+        $global.$on("afterSaveGrupo", function (response) {
             $vue.afterSaveGrupo(response, $vue);
         });
-        $global.$on("afterSaveRestriccion", function(response) {
+        $global.$on("afterSaveRestriccion", function (response) {
             $vue.afterSaveRestriccion(response, $vue);
         });
 
-        $global.$on("afterSaveTipoRepRestriccion", function(response) {
+        $global.$on("afterSaveTipoRepRestriccion", function (response) {
             $vue.afterSaveTipoRepRestriccion(response, $vue);
         });
 
-    }, methods: {
-        addSeccion: function() {
+    },
+    methods: {
+        addSeccion: function () {
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -174,19 +178,19 @@ var app = new Vue({
                 data: {
                     grupoSeccion: $vue.grupoSeccion.id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadSecciones();
                     } else {
                         notify(response.message, "error");
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        addDocSeccion: function() {
+        addDocSeccion: function () {
             let $vue = this;
             $.ajax({
                 method: 'POST',
@@ -194,7 +198,7 @@ var app = new Vue({
                 data: {
                     seccion: $vue.seccionSeleccionada.id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadSecciones();
@@ -202,36 +206,41 @@ var app = new Vue({
                     } else {
                         notify(response.message, "error");
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        seleccionarSeccion: function(seccion) {
+        seleccionarSeccion: function (seccion) {
+            this.verDocentes = false;
             this.seccionSeleccionada = seccion;
             this.loadDocentesSec();
         },
-        cambiarDocPrincipal: function(docSeccion) {
+        cambiarDocPrincipal: function (docSeccion) {
             let $vue = this;
+            //$vue.verDocentes = false;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/cambiarDocPrincipal'),
                 data: {
                     docSeccion: docSeccion.id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadDocentesSec();
+
                     } else {
                         notify(response.message, "error");
                     }
-                }, error: function() {
+                    //$vue.verDocentes = true;
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
+                    //$vue.verDocentes = true;
                 }
             });
         },
-        cambiarPorcentajeCarga: function(docSeccion, event) {
+        cambiarPorcentajeCarga: function (docSeccion, event) {
             let $vue = this;
             if (event != null) {
                 let target = $(event.target);
@@ -248,7 +257,7 @@ var app = new Vue({
                         docSeccion: docSeccion.id,
                         porcentajeAvance: parseFloat(docSeccion.porcentajeCarga)
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             notify(response.message, "info");
                             $vue.loadSecciones();
@@ -258,14 +267,14 @@ var app = new Vue({
                             notify(response.message, "error");
                             MODAL.hideWait();
                         }
-                    }, error: function() {
+                    }, error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
                         MODAL.hideWait();
                     }
                 });
             }
         },
-        deleteSeccion: function(seccion) {
+        deleteSeccion: function (seccion) {
             let $vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea elimar la seccón?",
@@ -273,7 +282,7 @@ var app = new Vue({
                     confirm: {label: 'Si', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
@@ -282,7 +291,7 @@ var app = new Vue({
                             data: {
                                 seccion: seccion.id
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     $vue.loadSecciones();
@@ -292,7 +301,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                     MODAL.hideWait();
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hideWait();
                             }
@@ -301,7 +310,7 @@ var app = new Vue({
                 }
             });
         },
-        bloquearSeccion: function(seccion) {
+        bloquearSeccion: function (seccion) {
             let $vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea bloquear la seccón?",
@@ -309,7 +318,7 @@ var app = new Vue({
                     confirm: {label: 'Si', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
@@ -318,7 +327,7 @@ var app = new Vue({
                             data: {
                                 seccion: seccion.id
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     $vue.loadSecciones();
@@ -328,7 +337,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                     MODAL.hideWait();
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hideWait();
                             }
@@ -337,7 +346,7 @@ var app = new Vue({
                 }
             });
         },
-        activarSeccion: function(seccion) {
+        activarSeccion: function (seccion) {
             let $vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea activar la seccón?",
@@ -345,7 +354,7 @@ var app = new Vue({
                     confirm: {label: 'Si', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
@@ -354,7 +363,7 @@ var app = new Vue({
                             data: {
                                 seccion: seccion.id
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     $vue.loadSecciones();
@@ -364,7 +373,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                     MODAL.hideWait();
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hideWait();
                             }
@@ -373,7 +382,7 @@ var app = new Vue({
                 }
             });
         },
-        anularSeccion: function(seccion) {
+        anularSeccion: function (seccion) {
             let $vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea anular la seccón?",
@@ -381,7 +390,7 @@ var app = new Vue({
                     confirm: {label: 'Si', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
@@ -390,7 +399,7 @@ var app = new Vue({
                             data: {
                                 seccion: seccion.id
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     $vue.loadSecciones();
@@ -400,7 +409,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                     MODAL.hideWait();
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hideWait();
                             }
@@ -409,7 +418,7 @@ var app = new Vue({
                 }
             });
         },
-        deleteDocSeccion: function(docSeccion) {
+        deleteDocSeccion: function (docSeccion) {
             let $vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea elimar el docente?",
@@ -417,7 +426,7 @@ var app = new Vue({
                     confirm: {label: 'Si', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
@@ -426,7 +435,7 @@ var app = new Vue({
                             data: {
                                 docSeccion: docSeccion.id
                             },
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
                                     $vue.loadSecciones();
@@ -436,7 +445,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                     MODAL.hideWait();
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 MODAL.hideWait();
                             }
@@ -445,14 +454,15 @@ var app = new Vue({
                 }
             });
         },
-        getEstadoClass: function(estadoCode) {
+        getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
-        }, loadGpoSeccionForm: function() {
+        },
+        loadGpoSeccionForm: function () {
             let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/' + $vue.grupoSeccion.id + '/loadGpoSeccionForm'),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
 
                         $vue.minFechaPeriodo = response.data.minFechaPeriodo;
@@ -460,20 +470,22 @@ var app = new Vue({
                     }
                 }
             });
-        }, loadSecciones: function() {
+        },
+        loadSecciones: function () {
             let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/' + this.grupoSeccion.id + '/findSecciones'),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         $vue.secciones = response.data;
                     }
                 }
             });
-        }, loadDocentesSec: function() {
+        },
+        loadDocentesSec: function () {
             let $vue = this;
-            $vue.docentesSeccion = null;
+            //$vue.docentesSeccion = null;
             /*
              for (let idx in this.$refs.datePicker) {
              let element = this.$refs.datePicker[idx];
@@ -484,29 +496,38 @@ var app = new Vue({
              let element = this.$refs.datePicker[idx];
              element.$mount('#elementidhere')
              }*/
-            MODAL.showWait("Espere un momento por favor");
+            //MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/gposeccion/findDocentesSecciones'),
                 data: {
                     seccion: $vue.seccionSeleccionada.id
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
 
                         $vue.docentesSeccion = response.data;
-                        MODAL.hideWait();
+                        $vue.verDocentes = true;
+                        //MODAL.hideWait();
+                    } else {
+                        $vue.docentesSeccion = null;
                     }
                 }
             });
-        }, showModalGrupos(seccion) {
+        },
+        showModalGrupos(seccion) {
+            var tabs = $("#tab-grupos");
+            tabs.find("li").removeClass("active");
+            tabs.find(".tab-pane").removeClass("active");
+            
             let $vue = this;
             $global.$emit('loadGrupoComponent', seccion.id);
             this.$refs.modalGrupo.open();
-
-        }, saveGrupo() {
+        },
+        saveGrupo() {
             $global.$emit('saveGrupoHorario');
-        }, afterSaveGrupo(response, $vue) {
+        },
+        afterSaveGrupo(response, $vue) {
             $vue.$refs.modalGrupo.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -514,7 +535,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, afterSaveRestriccion(response, $vue) {
+        },
+        afterSaveRestriccion(response, $vue) {
             $vue.$refs.modalRestriccion.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -522,7 +544,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, afterSaveTipoRepRestriccion(response, $vue) {
+        },
+        afterSaveTipoRepRestriccion(response, $vue) {
             $vue.$refs.modalTipoRepitencia.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -530,7 +553,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, changeVacantes(seccion, event) {
+        },
+        changeVacantes(seccion, event) {
 
             seccion.editVacantes = false;
             let $vue = this;
@@ -538,7 +562,7 @@ var app = new Vue({
                 let form = $(event.target);
 
                 form.attr("data-parsley-type", "digits");
-                if (seccion.aula != null) {
+                if (seccion.aula.capacidadAula != "") {
                     form.attr("data-parsley-max", seccion.aula.capacidadAula);
                 } else {
                     form.removeAttr("data-parsley-max");
@@ -559,7 +583,7 @@ var app = new Vue({
                         seccion: seccion.id,
                         vacantes: seccion.vacantes
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             notify(response.message, "info");
                             $vue.loadSecciones();
@@ -568,12 +592,13 @@ var app = new Vue({
                             notify(response.message, "error");
                         }
                     },
-                    error: function() {
+                    error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
             }
-        }, changeRestriccionCapa(seccion, event) {
+        },
+        changeRestriccionCapa(seccion, event) {
 
             seccion.editRestriccionCapa = false;
             let $vue = this;
@@ -604,7 +629,7 @@ var app = new Vue({
                         seccion: seccion.id,
                         capa: seccion.restriccionCapa
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             notify(response.message, "info");
                             $vue.loadSecciones();
@@ -613,28 +638,40 @@ var app = new Vue({
                             notify(response.message, "error");
                         }
                     },
-                    error: function() {
+                    error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
             }
-        }, directAulaChange(event) {
+        },
+        directAulaChange(event) {
             let target = event.target.closest("table");
-            $(target).find('[class*="parsley-errors"]').each(function() {
+            $(target).find('[class*="parsley-errors"]').each(function () {
                 this.remove();
             });
-        }
-        , showModalAula(seccion) {
+        },
+        showModalAula(seccion) {
+            var tabs = $("#tab-aula");
+            tabs.find("li").removeClass("active");
+            tabs.find(".tab-pane").removeClass("active");
+
             let $vue = this;
             $global.$emit('loadAulaComponent', seccion.id);
             this.$refs.modalAula.open();
-        }, showModalAulaHorario(aula) {
+
+        },
+        showModalAulaHorario(aula) {
             let $vue = this;
             $global.$emit('loadAulaHorarioComponent', aula);
             this.$refs.modalAulaHorario.open();
-        }, saveAula() {
+        },
+        saveAula() {
             $global.$emit('saveAula');
-        }, afterSaveAula(response, $vue) {
+        },
+        closeAula() {
+            $global.$emit('closeAula');
+        },
+        afterSaveAula(response, $vue) {
             $vue.$refs.modalAula.close();
             if (response.success) {
                 notify(response.message, "info");
@@ -642,7 +679,8 @@ var app = new Vue({
             } else {
                 notify(response.message, "error");
             }
-        }, asyncModuloOera(nombre) {
+        },
+        asyncModuloOera(nombre) {
             this.isLoading = true;
             let $vue = this;
             $.ajax({
@@ -657,19 +695,24 @@ var app = new Vue({
                 this.ubigeos = response.data
                 this.isLoading = false
             })
-        }, showModalRestriccion(seccion) {
+        },
+        showModalRestriccion(seccion) {
             let $vue = this;
             $global.$emit('loadRestriccionComponent', seccion.id);
             this.$refs.modalRestriccion.open();
-        }, saveRestriccion() {
+        },
+        saveRestriccion() {
             $global.$emit('saveRestriccion');
-        }, showModalTipoRepitencia(seccion) {
+        },
+        showModalTipoRepitencia(seccion) {
             let $vue = this;
             $global.$emit('loadRepitenciaComponent', seccion.id);
             this.$refs.modalTipoRepitencia.open();
-        }, saveTipoRepRestriccion() {
+        },
+        saveTipoRepRestriccion() {
             $global.$emit('saveTipoRepRestriccion');
-        }, cambiarFechaIniPeriodo(docSeccion) {
+        },
+        cambiarFechaIniPeriodo(docSeccion) {
             let $vue = this;
 
             let docSeccionSend = {};
@@ -685,7 +728,7 @@ var app = new Vue({
                 data:
                         JSON.stringify(docSeccionSend)
                 ,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
                         $vue.loadSecciones();
@@ -695,13 +738,14 @@ var app = new Vue({
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 },
-                error: function(response) {
+                error: function (response) {
                     MODAL.hideWait();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
 
-        }, cambiarFechaFinPeriodo(docSeccion) {
+        },
+        cambiarFechaFinPeriodo(docSeccion) {
 
             let $vue = this;
             let docSeccionSend = {};
@@ -718,7 +762,7 @@ var app = new Vue({
                 data:
                         JSON.stringify(docSeccionSend)
                 ,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         MODAL.hideWait();
                         $vue.loadSecciones();
@@ -728,13 +772,14 @@ var app = new Vue({
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 },
-                error: function(response) {
+                error: function (response) {
                     MODAL.hideWait();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
 
-        }, directEditAula(seccion, event) {
+        },
+        directEditAula(seccion, event) {
             let $vue = this;
             let target = $(event.target);
             target.parsley().destroy();
@@ -749,19 +794,20 @@ var app = new Vue({
                     seccion: seccion.id,
                     aula: target.val()
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadSecciones();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
-        }, directEditGrupoHor(seccion, event) {
+        },
+        directEditGrupoHor(seccion, event) {
             let $vue = this;
             let target = $(event.target);
             target.parsley().destroy();
@@ -776,18 +822,21 @@ var app = new Vue({
                     seccion: seccion.id,
                     grupoHor: target.val()
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $vue.loadSecciones();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
+        },
+        upper(e) {
+            e.target.value = e.target.value.toUpperCase()
         }
     }
 })

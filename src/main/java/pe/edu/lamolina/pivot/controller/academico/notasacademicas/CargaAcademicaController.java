@@ -63,6 +63,7 @@ import pe.edu.lamolina.model.academico.SistemaNotas;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
@@ -150,7 +151,7 @@ public class CargaAcademicaController {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", grupoSeccion.getId());
                 node.put("idCurso", grupoSeccion.getCurso().getId());
-               
+
                 node.put("tipoCiclo", grupoSeccion.getCicloAcademico().getTipoEnum().getValue());
                 node.put("nombre", grupoSeccion.getCurso().getNombre());
                 node.put("codigo", grupoSeccion.getCurso().getCodigo());
@@ -160,7 +161,7 @@ public class CargaAcademicaController {
                 node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
                 node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
                 //(String) ObjectUtil.getParentTree(docSeccion, "seccion.aula.nombre")
-                node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
+
                 String secciones = "";
 
                 for (Seccion seccion : grupoSeccion.getSecciones()) {
@@ -516,7 +517,7 @@ public class CargaAcademicaController {
         EvaluacionSeccion evalSeccion = cargaAcademicaService.findEvalSeccByPlanCalGrupoSec(null, idGrupoSeccion, null);
         model.addAttribute("evaluacionSeccion", evalSeccion);
         logger.debug("la evaluacion seccion es {}", evalSeccion.getId());
-        cargaAcademicaService.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP);
+        cargaAcademicaService.createEvaluacionExpPorEvalSeccion(evalSeccion, EstadoPlanCalificaEnum.ACEP, new Date(), ds.getUsuario());
 
         return "academico/docente/cargaacademica/expandirSistemaCalificacion";
     }
@@ -561,6 +562,8 @@ public class CargaAcademicaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             cargaAcademicaService.saveExpansionEvaluacion(evaluacion, ds);
+
+            cargaAcademicaService.saveEstructuraEvaluacion(evaluacion, LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
 
             /*
             List<MatriculaSeccion> alumnosSeccion = cargaAcademicaService.allMatriculaSeccionByFilter(evaluacion, ds.getCicloAcademico());
@@ -643,6 +646,8 @@ public class CargaAcademicaController {
                 planCalificacion.setOrigenEnum(OrigenPlanCalificaEnum.DOC);
                 planCalificacion.setUserRegistro(ds.getUsuario());
                 cargaAcademicaService.saveSistemaCalifica(planCalificacion, grupoSeccionId, ds);
+                cargaAcademicaService.saveEstructuraEvaluacion(new GrupoSeccion(grupoSeccionId),
+                        LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
                 message = "Creado exitosamente.";
 
             } else {
@@ -1230,6 +1235,7 @@ public class CargaAcademicaController {
             String message = "Aceptado correctamente.";
 
             cargaAcademicaService.aceptarPlanCalificacion(planCalificacion, cursoId, grupoId, ds);
+            cargaAcademicaService.saveEstructuraEvaluacion(new GrupoSeccion(grupoId), LoggerAccionEnum.ESTRUCTURA_EVALUACION_CRE, session);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setSuccess(true);

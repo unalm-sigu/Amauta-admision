@@ -1,11 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.visitante;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoVisitante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -25,6 +27,12 @@ public interface AlumnosVisitanteService {
 
     AlumnoVisitante findAlumnoVisitante(Long idAlumnoVisitante);
 
-    public void update(AlumnoVisitante alumnoVisitante, DataSessionPivot ds);
+    void update(AlumnoVisitante alumnoVisitante, DataSessionPivot ds);
+
+    Persona findPersonaByDocumento(Persona personaForm);
+
+    ObjectNode validarAlumno(AlumnoVisitante alumnoVisitanteForm);
+
+    AlumnoVisitante findAlumnoVisitante(AlumnoVisitante idAlumnoVisitante);
 
 }

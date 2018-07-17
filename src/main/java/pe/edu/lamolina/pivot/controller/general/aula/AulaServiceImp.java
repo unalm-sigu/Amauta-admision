@@ -14,17 +14,22 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
+import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.SedeDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoAulaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -42,6 +47,12 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     OficinaDAO oficinaDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    DiaDAO diaDAO;
 
     @Override
     public List<Aula> allByDynatable(DynatableFilter filter) {
@@ -225,6 +236,19 @@ public class AulaServiceImp implements AulaService {
         Assert.isTrue(aulasHijas.isEmpty(), "Este ambiente es tipo Edificio que agrupa otros ambientes. Desvincule primero esos ambientes e intente eliminar");
 
         aulaDAO.delete(aulaBD);
+    }
+
+    @Override
+    public Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico) {
+        Aula aula = aulaDAO.find(aulaId);
+        List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
+        aula.setHorariosAula(horariosAulas);
+        return aula;
+    }
+
+    @Override
+    public List<Dia> allDia() {
+        return diaDAO.allDia();
     }
 
 }

@@ -1,0 +1,29 @@
+<div v-for="item in aportes">
+    <br/>
+    <table class="table table-hover">
+        <thead>
+        <th class="col-md-6" v-text="item.cuentaNombre"></th>
+        <th class="col-md-1">N°Cuotas</th>
+        <th class="col-md-2 text-center">F. Vencimiento</th>
+        <th class="col-md-2 text-center">Monto</th>
+        <th class="col-md-1">Estado</th>
+        </thead>
+        <tbody>
+            <tr v-for="apoAlu in item.aportesAlumno">
+                <td v-text="apoAlu.aporteCiclo.aporte.nombre"></td>
+                <td class="text-center" v-text="apoAlu.numeroCuota"></td>
+                <td class="text-center" v-text="apoAlu.fechaVencimiento"></td>
+                <td class="text-center" v-text="apoAlu.monto.toFixed(2)"></td>
+                <td class="v-middle text-center">
+                    <span v-if="apoAlu.estado == 'PAGO'" class="label label-success" v-text='apoAlu.estadoEnum'></span>
+                    <span v-if="apoAlu.estado == 'DEBE'" class="label label-warning" v-text='apoAlu.estadoEnum'></span>
+                </td>
+            </tr>
+            <tr>
+                <td class="text-right bold" colspan="3">Total</td>
+                <td class="text-center bold" v-text="item.monto.toFixed(2)"></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

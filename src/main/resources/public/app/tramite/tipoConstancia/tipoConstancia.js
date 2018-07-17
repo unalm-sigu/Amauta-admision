@@ -2,7 +2,7 @@ new Vue({
     el: '#main',
     data: {
         tipos: JSON.parse(tiposJson),
-        tipoConstancia: {},
+        tipoConstancia: {tipo: {}},
         listTipoDocumento: [],
         copia: '',
         oficinas: [],
@@ -30,7 +30,6 @@ new Vue({
         $global.$on("eliminar", function(tipoConstancia) {
             vue.eliminar(tipoConstancia);
         });
-        $("[name='tipo']").select2({minimumResultsForSearch: -1});
     },
     methods: {
         eliminar: function(tipoConstancia) {
@@ -64,12 +63,34 @@ new Vue({
         },
         updateTipo: function(tipoConstancia) {
             let vue = this;
-            vue.tipoConstancia = tipoConstancia;
+            vue.tipoConstancia = {tipo: {}};
+            vue.firmasDocumento = [{orden: 1, tipoOficina: {}, oficina: {}}];
+            $("#formTipoConstancia").parsley().destroy();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/tipoconstancia/update'),
+                data: {id: tipoConstancia.id},
+                success: function(response) {
+                    if (response.success) {
+                        vue.tipoConstancia = response.data;
+                        if (response.data.firmasDocumento.length > 0) {
+                            vue.firmasDocumento = response.data.firmasDocumento;
+                            console.log(response.data.firmasDocumento);
+                        }
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
             vue.$refs.modalAddTipoConstancia.open();
+            setTimeout(function() {
+                vue.updateSelect2();
+            }, 100);
         },
         updateSelect2: function() {
             let vue = this;
-
             try {
                 $(".oficina").select2('destroy');
                 $(".tipoOficina").select2('destroy');
@@ -87,7 +108,6 @@ new Vue({
                     vue.updateSelect2();
                 }, 100);
             });
-
             $(".tipoOficina").select2(vue.selectTipoOficina()).on('change.select2', function(e) {
                 let self = $(e.currentTarget);
                 let orden = parseInt(self.attr("rev"));
@@ -101,7 +121,7 @@ new Vue({
         },
         nuevo: function() {
             let vue = this;
-            vue.tipoConstancia = {};
+            vue.tipoConstancia = {tipo: {}};
             vue.firmasDocumento = [{orden: 1, tipoOficina: {}, oficina: {}}];
             vue.$refs.modalAddTipoConstancia.open();
             setTimeout(function() {

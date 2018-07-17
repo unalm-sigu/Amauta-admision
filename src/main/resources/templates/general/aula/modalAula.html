@@ -3,17 +3,17 @@
     <form id="{{:form}}" method="POST">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type='hidden' name="estado" value="{{:nuevoEstado}}"/>
-        
+
         <div class="row m-b-md">
             <div class="form-group">
                 <div class="col-md-12">
                     {{if seDesactiva}}
-                        <div class="form-group m-b-xs">
-                            <label class="bold">Indique el motivo por el cual está desactivando el ambiente {{:codigo}}</label>
-                            <textarea class='form-control' name='motivoAnulacion' required='true' rows="3"></textarea>
-                        </div>
+                    <div class="form-group m-b-xs">
+                        <label class="bold">Indique el motivo por el cual está desactivando el ambiente {{:codigo}}</label>
+                        <textarea class='form-control' name='motivoAnulacion' required='true' rows="3"></textarea>
+                    </div>
                     {{else}}
-                        ¿Desea realmente activar el ambiente {{:codigo}}?
+                    ¿Desea realmente activar el ambiente {{:codigo}}?
                     {{/if}}
                 </div>
             </div>
@@ -24,30 +24,29 @@
 <script id="divAulasContenido" type="text/x-jsrender" class="hide"><span>
     </span>
     <p>
-        En <b>{{:codigo}}
-        {{if nombre}}
-            - {{:nombre}}
-        {{/if}}
-        </b>
-        existen los siguientes ambientes:
+    En <b>{{:codigo}}
+    {{if nombre}}
+    - {{:nombre}}
+    {{/if}}
+    </b>
+    existen los siguientes ambientes:
     </p>
     <table class="table table-striped">
-        <thead>
-            <tr>
-                <th class="col-md-3">Código</th>
-                <th class="col-md-9">Nombre</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{for aulasHijas}}
-            <tr>
-                <td>{{:codigo}}</td>
-                <td>{{:nombre}}</td>
-            </tr>
-            {{/for}}
-        </tbody>
+    <thead>
+    <tr>
+    <th class="col-md-3">Código</th>
+    <th class="col-md-9">Nombre</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{for aulasHijas}}
+    <tr>
+    <td>{{:codigo}}</td>
+    <td>{{:nombre}}</td>
+    </tr>
+    {{/for}}
+    </tbody>
     </table>
-    
-</script>
 
+</script>
 

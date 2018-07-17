@@ -15,7 +15,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import pe.edu.lamolina.model.enums.CicloEstadoEnum;
+import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.NumeroCicloAcademicoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -64,7 +64,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         }
         for (NumeroCicloAcademicoEnum numeroCicloAcademicoEnum : NumeroCicloAcademicoEnum.values()) {
             CicloAcademico cicloAcademicoNew = new CicloAcademico();
-            cicloAcademicoNew.setEstadoEnum(CicloEstadoEnum.CRE);
+            cicloAcademicoNew.setEstadoEnum(CicloAcademicoEstadoEnum.CRE);
             cicloAcademicoNew.setNumeroCiclo(numeroCicloAcademicoEnum.getValue());
             cicloAcademicoNew.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
             cicloAcademicoNew.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));
@@ -87,7 +87,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             throw new PhobosException("Tiene que especificar la modalidad de estudio.");
         }
         NumeroCicloAcademicoEnum numeroCicloAcademicoEnum = NumeroCicloAcademicoEnum.get(cicloAcademicoDB.getNumeroCiclo());
-        cicloAcademico.setEstadoEnum(CicloEstadoEnum.CRE);
+        cicloAcademico.setEstadoEnum(CicloAcademicoEstadoEnum.CRE);
         cicloAcademicoDB.setYear(cicloAcademico.getYear());
         cicloAcademicoDB.setModalidadEstudio(cicloAcademico.getModalidadEstudio());
         cicloAcademicoDB.setDescripcion(numeroCicloAcademicoEnum.getDescripcion().replace("XXXX", cicloAcademico.getYear().toString()));
@@ -123,8 +123,8 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
 
-        if (!(CicloEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
-                || CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+        if (!(CicloAcademicoEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
+                || CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CONFIGURADO o ACTIVO");
         }
 
@@ -133,7 +133,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             throw new PhobosException("No puede anular un ciclo académico que contiene datos");
         }
 
-        cicloAcademicoDB.setEstadoEnum(CicloEstadoEnum.ANU);
+        cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.ANU);
         cicloAcademicoDB.setMotivoAnulacion(cicloAcademico.getMotivoAnulacion());
         cicloAcademicoDAO.update(cicloAcademicoDB);
     }
@@ -143,7 +143,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void desactivar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
 
-        if (!(CicloEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+        if (!(CicloAcademicoEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CREADO");
         }
 
@@ -152,7 +152,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             throw new PhobosException("No puede desactivar un ciclo académico que contiene datos");
         }
 
-        cicloAcademicoDB.setEstadoEnum(CicloEstadoEnum.DES);
+        cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.DES);
         cicloAcademicoDB.setMotivoAnulacion("No se usa el ciclo.");
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
@@ -163,10 +163,10 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void configurar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
 
-        if (!(CicloEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+        if (!(CicloAcademicoEstadoEnum.CRE.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CREADO");
         }
-        cicloAcademicoDB.setEstadoEnum(CicloEstadoEnum.CFG);
+        cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.CFG);
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
     }
@@ -176,18 +176,18 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void activar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
 
-        if (!(CicloEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
-                || CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+        if (!(CicloAcademicoEstadoEnum.CFG.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
+                || CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser CONFIGURADO o ACTIVO");
         }
 
         CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivoByModalidad(cicloAcademicoDB.getModalidadEstudio());
         if (cicloAcademicoActivo != null) {
-            cicloAcademicoActivo.setEstadoEnum(CicloEstadoEnum.PEND);
+            cicloAcademicoActivo.setEstadoEnum(CicloAcademicoEstadoEnum.PEND);
             cicloAcademicoDAO.update(cicloAcademicoActivo);
         }
 
-        cicloAcademicoDB.setEstadoEnum(CicloEstadoEnum.ACT);
+        cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.ACT);
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
     }
@@ -197,8 +197,8 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void cerrar(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
 
-        if (!(CicloEstadoEnum.PEND.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
-                || CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+        if (!(CicloAcademicoEstadoEnum.PEND.name().equalsIgnoreCase(cicloAcademicoDB.getEstado())
+                || CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser PENDIENTE o ACTIVO");
         }
 
@@ -207,7 +207,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             throw new PhobosException("No se puede cerrar el ciclo académico , aun contiene actas sin cerrar.");
         }
 
-        cicloAcademicoDB.setEstadoEnum(CicloEstadoEnum.CER);
+        cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.CER);
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
     }
@@ -217,11 +217,11 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
     public void pendiente(CicloAcademico cicloAcademico) {
         CicloAcademico cicloAcademicoDB = cicloAcademicoDAO.findCicloAcademico(cicloAcademico);
 
-        if (!(CicloEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
+        if (!(CicloAcademicoEstadoEnum.ACT.name().equalsIgnoreCase(cicloAcademicoDB.getEstado()))) {
             throw new PhobosException("Su estado previo debe ser ACTIVO");
         }
 
-        cicloAcademicoDB.setEstadoEnum(CicloEstadoEnum.PEND);
+        cicloAcademicoDB.setEstadoEnum(CicloAcademicoEstadoEnum.PEND);
         cicloAcademicoDAO.update(cicloAcademicoDB);
 
     }

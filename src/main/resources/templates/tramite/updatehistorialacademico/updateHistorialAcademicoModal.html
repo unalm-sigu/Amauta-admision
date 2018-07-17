@@ -20,3 +20,27 @@
 
     </div>
 </modal-vik>
+
+<modal-vik ref="cargarFoto"
+           v-bind="dataCargarFoto"
+           v-bind:okaction="createCargarFoto">
+
+    <div slot="body">
+
+        <form id="formCargarFoto"  data-parsley-validate="true">
+
+            <input type="hidden"  name="id" v-bind:value="solicitudActiva.id"/>
+
+            <div class="form-group">
+                <label> </label>
+
+                <vueupload
+                    v-bind:rutaFotoTemporal="rutaFotoTemporal"
+                    ></vueupload>
+
+            </div>
+
+        </form>
+
+    </div>
+</modal-vik>

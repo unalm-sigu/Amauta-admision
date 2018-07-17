@@ -11,11 +11,17 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
-import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CFG;
-import static pe.edu.lamolina.model.enums.CicloEstadoEnum.PEND;
-import static pe.edu.lamolina.model.enums.CicloEstadoEnum.ACT;
-import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CER;
-import pe.edu.lamolina.model.enums.CicloEstadoEnum;
+import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CER;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CFG;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.DES;
+import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
+//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CFG;
+//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.PEND;
+//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.ACT;
+//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CER;
+//import pe.edu.lamolina.model.enums.CicloEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
@@ -52,7 +58,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
                 .filter("me.id", modalidad)
-                .filter("estado", ACT);
+                .filter("estado", CicloAcademicoEstadoEnum.ACT);
 
         return find(sql);
     }
@@ -87,7 +93,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .filter("tipo", "REG")
                 .filter("codigo", "<", ciclo.getCodigo())
-                .filter("estado", "!=", CicloEstadoEnum.DES.name())
+                .filter("estado", "!=", DES)
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
         return find(sql);
@@ -98,7 +104,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .filter("codigo", ">", ciclo.getCodigo())
-                .filter("estado", "!=", CicloEstadoEnum.DES.name())
+                .filter("estado", "!=", DES)
                 .orderBy("ca.year asc", "ca.numeroCiclo asc")
                 .limit(1);
 
@@ -111,7 +117,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .filter("tipo", "REG")
                 .filter("codigo", ">", ciclo.getCodigo())
-                .filter("estado", "!=", CicloEstadoEnum.DES.name())
+                .filter("estado", "!=", DES)
                 .orderBy("ca.year asc", "ca.numeroCiclo asc")
                 .limit(1);
 
@@ -124,7 +130,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .filter("tipo", "NIV")
                 .filter("codigo", ">", ciclo.getCodigo())
-                .filter("estado", "!=", CicloEstadoEnum.DES.name())
+                .filter("estado", "!=", DES)
                 .orderBy("ca.year asc", "ca.numeroCiclo asc")
                 .limit(1);
 
@@ -207,7 +213,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
-                .filter("estado", CicloEstadoEnum.ACT.name());
+                .filter("estado", ACT);
         return find(sql);
     }
 
@@ -217,7 +223,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
                 .filter("me.id", modalidadEstudio)
-                .filter("estado", CicloEstadoEnum.ACT.name());
+                .filter("estado", ACT);
         return find(sql);
     }
 
@@ -286,6 +292,16 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .endBlock()
                 .limit(15);
         return all(sql);
+    }
+
+    @Override
+    public CicloAcademico findByCodigoModalidadEstudio(String codigo, ModalidadEstudio modalidad) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("codigo", codigo)
+                .filter("me.id", modalidad);
+        return find(sql);
     }
 
 }

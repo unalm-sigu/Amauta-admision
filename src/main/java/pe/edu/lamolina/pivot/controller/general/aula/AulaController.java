@@ -7,8 +7,12 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import static javax.management.Query.attr;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +27,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -44,6 +55,9 @@ public class AulaController {
 
     @Autowired
     AulaService service;
+
+    @Autowired
+    SpringTemplateEngine springHtml;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -84,7 +98,7 @@ public class AulaController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allByDynatableee(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -131,6 +145,68 @@ public class AulaController {
             json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+//    @ResponseBody
+//    @RequestMapping("list")
+    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Aula> aulas = service.allByDynatable(filter);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (Aula aula : aulas) {
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                node.put("id", aula.getId());
+                node.put("codigo", aula.getCodigo());
+                node.put("nombre", aula.getNombre());
+                node.put("tipoAmbienteEnum", aula.getTipoAmbienteEnum().getValue());
+                node.put("piso", aula.getPiso());
+                node.put("pisos", aula.getPisos());
+                node.put("aforo", aula.getAforo());
+                node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
+                node.put("capacidad", aula.getCapacidadAula());
+                node.put("tipoAmbiente", aula.getTipoAmbiente());
+                node.put("aulasContenido", aula.getAulasContenido().size());
+                ObjectNode objSede = JsonHelper.createJson(aula.getSede(), JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                node.set("sede", objSede);
+                ObjectNode objTipoAula = JsonHelper.createJson(aula.getTipoAula(), JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                node.set("tipoAula", objTipoAula);
+                ObjectNode objOficina = JsonHelper.createJson(aula.getOficinaSupervisora(), JsonNodeFactory.instance, new String[]{
+                    "*"
+                });
+                node.set("gestor", objOficina);
+                node.put("estado", aula.getEstado());
+                node.put("estadoEnum", aula.getEstadoEnum().getValue());
+                node.put("motivo", aula.getMotivoAnulacion());
+
+                ArrayNode arrayHijas = new ArrayNode(JsonNodeFactory.instance);
+                List<Aula> aulasHijas = aula.getAulasContenido();
+                for (Aula aulaHija : aulasHijas) {
+                    ObjectNode nodeHija = new ObjectNode(JsonNodeFactory.instance);
+                    nodeHija.put("codigo", aulaHija.getCodigo());
+                    nodeHija.put("nombre", aulaHija.getNombre());
+                    arrayHijas.add(nodeHija);
+                }
+                node.set("aulasHijas", arrayHijas);
+                array.add(node);
+            }
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
             json.setTotal(0);
         }
         return json;
@@ -235,6 +311,7 @@ public class AulaController {
 
                 json.put("id", gestor.getId());
                 json.put("nombre", gestor.getNombre());
+                json.put("codigo", gestor.getCodigo());
 
                 jsonList.add(json);
 
@@ -290,6 +367,41 @@ public class AulaController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    //
+    @ResponseBody
+    @RequestMapping("loadModalAulaHorario")
+    public JsonResponse loadModalAulaHorario(
+            @RequestParam("aula") Long aulaId, HttpSession session, Model model) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            Aula aula = service.findAulaFull(aulaId, ds.getCicloAcademico());
+
+            List<Dia> dias = service.allDia();
+            List<HorarioAula> horarioAula = aula.getHorariosAula();
+            Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", horarioAula);
+            HelperHorarioAula helper = new HelperHorarioAula();
+            List<Hora> horas = new ArrayList(mapHoras.values());
+            Collections.sort(horas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+            Context ctx = new Context();
+            ctx.setVariable("horas", horas);
+            ctx.setVariable("dias", dias);
+            ctx.setVariable("horario", horarioAula);
+            ctx.setVariable("helper", helper);
+
+            String htmlContent = springHtml.process("general/aula/aulaHorarioTemplate", ctx);
+            response.setData(htmlContent);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

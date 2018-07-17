@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.gposeccion;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -15,24 +16,30 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 
 public interface GpoSeccionService {
 
+    Oficina findOficinaOera();
+
+    List<Oficina> allOficinas(Compania compania);
+
     List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    void cambiarEstadoGpoSeccion(EstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
+    void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, Usuario usuario);
 
     List<AnexoBoletin> allAnexosSuperiores();
 
@@ -50,7 +57,7 @@ public interface GpoSeccionService {
 
     List<GrupoHoras> allByTipoGrupoHorasCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
-    List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion);
+    List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion, List<DocenteSeccion> docentesSeccion);
 
     void addSeccion(GrupoSeccion grupoSeccion);
 
@@ -80,6 +87,8 @@ public interface GpoSeccionService {
 
     Seccion findSeccion(Long seccionId);
 
+    Seccion findSeccionWithRestriccions(Long seccionId);
+
     List<TipoGrupoHoras> allGrupoHorasActivosTipoAndCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
     List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
@@ -94,43 +103,41 @@ public interface GpoSeccionService {
 
     List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 
-    void saveSeccionGrupoHorario(Long seccionId, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+    void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
     void saveAula(Long seccionId, Long aulaId, CicloAcademico cicloAcademico);
 
     List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico);
 
-    List<Aula> allAulasSuperiorByOficina(Oficina oficina);
+    List<Aula> allPabellonesByOficina(Oficina oficina);
 
-    List<Aula> allAulasBySuperior(Seccion seccion, Aula aula, CicloAcademico cicloAcademico);
+    List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico);
 
-    List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
-
+    //List<HorarioAula> allHorarioAulaByAulaCiclo(Aula aula, Seccion seccion, CicloAcademico cicloAcademico);
     Aula findAula(Long aulaId);
 
     Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico);
 
     List<Oficina> allOficinasWithAula(List<Oficina> oficinas);
 
-    List<Aula> allAulaSuperiorByOficinasWithAula(List<Oficina> oficinas);
+    List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas);
 
-    List<Aula> searchAulaByName(String nombre);
+    List<Aula> searchAulaByName(String nombre, Long seccionId, CicloAcademico ciclo);
 
     TipoGrupoHoras findTipoGrupoHoraByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
-    List<GrupoHoras> allGrupoHorasZetasDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
-            TipoGrupoHoras tipoGrupoHoras,
-            CicloAcademico cicloAcademico);
+    List<GrupoHoras> allGrupoHorasZetasDyna(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos);
+    //List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico ciclo);
+    GrupoHoras findGrupoHorasWithHorario(Seccion seccion, CicloAcademico ciclo);
 
-    GrupoHoras findGrupoHoras(GrupoHoras grupoHoras);
+    GrupoHoras findGrupoHoras(GrupoHoras grupoHoras, CicloAcademico ciclo);
 
     GrupoHoras findGrupoHorasFull(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    TipoGrupoHoras findTipoGrupoHoraByTipoAndCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico);
+    TipoGrupoHoras findTipoGpoByEnumCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico);
 
-    List<GrupoHoras> allGrupoHoraByTipoGrupoHoraDyna(pe.albatross.octavia.dynatable.DynatableFilter filter,
+    List<GrupoHoras> allGrupoByTipoGpoSeccionDynatable(DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
             CicloAcademico cicloAcademico,
             Seccion seccion);
@@ -161,14 +168,15 @@ public interface GpoSeccionService {
 
     void updateDocenteSecFechaFin(DocenteSeccion docenteSeccion);
 
-    void analizedDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
-
-    void analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
+    //void analizedDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
+    List<DocenteSeccion> analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico);
 
     Aula findAulaActiveByCode(String codigoAula);
 
     GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion);
 
     void actualizarSeccionResctriccionCapa(Seccion seccionForm, Usuario usuario);
+
+    List<HorarioSeccion> allHorarioSeccion(Seccion seccion);
 
 }

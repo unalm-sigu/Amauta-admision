@@ -324,7 +324,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursosTodos, ciclo);
         List<SeccionCursoCachimbos> seccionesCachimbos = seccionCursoCachimbosDAO.allByCiclo(ciclo);
 
-        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allBySeccion(secciones);
+        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allBySecciones(secciones);
         Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
         if (vacanteAlumnosMap == null) {
             vacanteAlumnosMap = new LinkedHashMap();

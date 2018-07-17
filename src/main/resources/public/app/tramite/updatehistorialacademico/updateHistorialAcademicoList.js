@@ -10,21 +10,31 @@ new Vue({
             okbtn: 'Aceptar'
         },
         solicitudActiva: {},
+        dataCargarFoto: {
+            id: 'modalCargarFoto',
+            header: true,
+            title: 'Cargar Fotografía',
+            okbtn: 'Aceptar'
+        },
+        rutaFotoTemporal: null
     },
     mounted() {
         let vue = this;
-        $global.$on("eliminar", function(id) {
+        $global.$on("eliminar", function (id) {
             vue.eliminar(id);
         });
-        $global.$on("cancelar", function(id) {
+        $global.$on("cancelar", function (id) {
             vue.cancelar(id);
         });
-        $global.$on("enviarrevision", function(solicitud) {
+        $global.$on("enviarrevision", function (solicitud) {
             vue.enviarrevision(solicitud);
+        });
+        $global.$on("cargarfoto", function (solicitud) {
+            vue.cargarfoto(solicitud);
         });
     },
     methods: {
-        eliminar: function(id) {
+        eliminar: function (id) {
             var vue = this;
             bootbox.confirm({
                 message: '¿Seguro que desea eliminar la solicitud de constancia?',
@@ -32,20 +42,20 @@ new Vue({
                     confirm: {label: 'Si, eliminar', className: "btn-danger"},
                     cancel: {label: 'Salir', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             method: 'POST',
                             url: APP.url('tramite/solicitudconstancia/updatehistorial/delete'),
                             data: {id: id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
                                     dynatable.process();
                                 } else {
                                     notify(response.message, 'error');
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -53,7 +63,7 @@ new Vue({
                 }
             });
         },
-        cancelar: function(id) {
+        cancelar: function (id) {
             var vue = this;
             console.log(id);
             bootbox.confirm({
@@ -62,20 +72,20 @@ new Vue({
                     confirm: {label: 'Si, Cancelar', className: "btn-danger"},
                     cancel: {label: 'Salir', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $.ajax({
                             method: 'POST',
                             url: APP.url('tramite/solicitudconstancia/updatehistorial/cancelar'),
                             data: {id: id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
                                     dynatable.process();
                                 } else {
                                     notify(response.message, 'error');
                                 }
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -83,7 +93,7 @@ new Vue({
                 }
             });
         },
-        imprimirr: function(solicitud, el) {
+        imprimirr: function (solicitud, el) {
 
             let vue = this;
             let self = $(el.currentTarget);
@@ -94,13 +104,13 @@ new Vue({
             $.fileDownload(urll, {
                 httpMethod: "POST",
                 data: {id: solicitud.id}
-            }).done(function() {
-                setTimeout(function() {
+            }).done(function () {
+                setTimeout(function () {
                     self.find('i').removeClass('fa-spinner fa-spin').addClass('fa-print');
                     self.removeProp("disabled");
                 }, 2000);
-            }).fail(function() {
-                setTimeout(function() {
+            }).fail(function () {
+                setTimeout(function () {
                     self.find('i').removeClass('fa-spinner fa-spin').addClass('fa-print');
                     self.removeProp("disabled");
                 }, 2000);
@@ -108,7 +118,7 @@ new Vue({
             });
 
         },
-        selectColaborador: function(vm) {
+        selectColaborador: function (vm) {
             return {
                 allowClear: true,
                 placeholder: "Seleccione un colaborador",
@@ -117,39 +127,39 @@ new Vue({
                     url: APP.url("tramite/solicitudconstancia/updatehistorial/searchcolaborador"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (vm.colaborador.id != null) {
                         callback(vm.colaborador);
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     var colSearch = new ColaboradorSearch();
                     colSearch.colaborador = info;
                     var cmp = colSearch.$mount();
                     return cmp.$el;
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     return info.codigo + " - " + info.nombre;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        enviarrevision: function(solicitud) {
+        enviarrevision: function (solicitud) {
             let vue = this;
             vue.solicitudActiva = solicitud;
             vue.$refs.enviarRevision.open();
             $('[name="colaborador.id"]').select2(vue.selectColaborador(vue));
         },
-        createEnviarRevision: function() {
+        createEnviarRevision: function () {
             var vue = this;
             var valid = $('#formEnviarRevision').parsley().validate();
             if (valid != true) {
@@ -159,16 +169,45 @@ new Vue({
                 method: 'POST',
                 url: APP.url('tramite/solicitudconstancia/updatehistorial/revision'),
                 data: $('#formEnviarRevision').serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         dynatable.reload();
                     } else {
                         notify(response.message, 'error');
                     }
-                }, error: function() {
+                }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        cargarfoto: function (solicitud) {
+            var vue = this;
+            vue.solicitudActiva = solicitud;
+            vue.dataCargarFoto.title = 'Cargar fotografía para ' + solicitud.nombre;
+            vue.$refs.cargarFoto.open();
+        },
+        createCargarFoto: function (solicitud) {
+            var vue = this;
+            
+            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+            
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/solicitudconstancia/updatehistorial/onlyfoto'),
+                data: $('#formCargarFoto').serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        vue.$refs.cargarFoto.close();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                }, error: function () {
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
     },
 });
