@@ -1432,9 +1432,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacionDAO.save(alumnoEvaluacion);
         }
 
-        //List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(planCalificacion);
-        //     BigDecimal bd100 = new BigDecimal("100");
         List<MatriculaSeccion> marticulasSeccion = new ArrayList();
+
         for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
             Alumno alumno = alumnoEvaluacionEach.getAlumno();
             MatriculaSeccion matSecc = new MatriculaSeccion();
@@ -1448,23 +1447,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             marticulasSeccion.add(matSecc);
 
-            /*
-            GrupoSeccion gpoSeccion = evaluacion.getSeccionResponsable().getGrupoSeccion();
-            Curso curso = gpoSeccion.getCurso();
-            List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
-            
-            calcularNotasAlumno(alumno, evaluacion, grupoSeccion, curso, ciclo, evaluacionesPlan);
-            //*/
         }
-
+        //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, ciclo);
         this.calcularNotasLista(marticulasSeccion, ds);
 
         return marticulasSeccion;
-        /*
-        if (evaluacionDAO.countEvaluacionesFaltantesByGrupo(grupoSeccion.getId()).intValue() == 0) {
-            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
-            grupoSeccionDAO.update(seccion.getGrupoSeccion());
-        }*/
     }
 
     @Override
@@ -1474,10 +1461,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             GrupoSeccion gpoSeccion = matSecc.getSeccion().getGrupoSeccion();
             Curso curso = gpoSeccion.getCurso();
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
-            //PlanCalificacion plan = gpoSeccion.getPlanCalificacion();
-            Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
 
-            //List<EvaluacionExpandida> evaluasExpan = evaluacionExpandidaDAO.allByGpoSeccionPlan(gpoSeccion, plan);
+            Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
+            if (matSecc.getSeccion().getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
             calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }

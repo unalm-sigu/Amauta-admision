@@ -38,6 +38,8 @@ var app = new Vue({
                     notify(response.message, "error");
                 }
             });
+        }, agenda() {
+            location.href = APP.url("academico/tramiteacademico/agendareuniones");
         }
     }
 })

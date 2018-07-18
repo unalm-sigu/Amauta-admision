@@ -100,14 +100,14 @@ public class ResolucionServiceImp implements ResolucionService {
             if (tramite.getActivo()) {
                 Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramite, EstadoTramiteEnum.CON_FAC);
                 if (tramite.getSeleccionado()) {
-                    EstadoTramite estadoTramiteAcpRecFac = estadoTramiteDAO.find(EstadoTramiteEnum.ACP_REC_FAC.getId());
+               //     EstadoTramite estadoTramiteAcpRecFac = estadoTramiteDAO.find(EstadoTramiteEnum.ACP_REC_FAC.getId());
 
                     reincorporacion.setResolucion(resolucion);
-                    reincorporacion.setEstadoTramite(estadoTramiteAcpRecFac);
+                  //  reincorporacion.setEstadoTramite(estadoTramiteAcpRecFac);
                     reincorporacionDAO.update(reincorporacion);
                 } else {
-                    EstadoTramite estadoTramiteAcpRhzFac = estadoTramiteDAO.find(EstadoTramiteEnum.RHZ_REC_FAC.getId());
-                    reincorporacion.setEstadoTramite(estadoTramiteAcpRhzFac);
+                 //   EstadoTramite estadoTramiteAcpRhzFac = estadoTramiteDAO.find(EstadoTramiteEnum.RHZ_REC_FAC.getId());
+                  //  reincorporacion.setEstadoTramite(estadoTramiteAcpRhzFac);
                     reincorporacionDAO.update(reincorporacion);
                 }
             }

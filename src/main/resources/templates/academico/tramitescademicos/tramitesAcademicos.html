@@ -3,26 +3,27 @@
         <title>Tramties Academicos</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style>
-.td-vacio {
-    padding-right: 4px !important;
-    padding-left: 4px !important;
-}
-.bg-row {
-    background-color: #f9fafc;
-}
+        .td-vacio {
+            padding-right: 4px !important;
+            padding-left: 4px !important;
+        }
+        .bg-row {
+            background-color: #f9fafc;
+        }
     </style>
 </head>
 
 <body>
     <div layout:fragment="main">
-
+        <div id="tramitesAcademicos">
         <header class="header b-b padder-lg">
 
-            <div class="pull-right m-t-md">      
+            <div class="pull-right m-t-md">  
+                <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
             </div> 
             <h2 >Tramites Academicos</h2>
         </header>
-        <section id="tramitesAcademicos" class="wrapper-lg">
+        <section  class="wrapper-lg">
 
             <section class="panel">
                 <section class="panel-body">
@@ -97,6 +98,8 @@
                 </section>
             </section>
         </section>
+        </div>
+        
         <div th:substituteby="templates/modal"/>
 
 
