@@ -7,7 +7,7 @@
 <body>
     <div layout:fragment="main">
 
-        <div  id="main">
+        <div  id="reunionConsejo">
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-md">
@@ -57,6 +57,9 @@
 
                                 <fullcalendar
                                     ref="fullcalendar"
+                                    v-bind:eventclick="eventClick"
+                                    v-bind:dayclick="dayClick"
+                                    v-bind:daydbclick="dayDbClick"
                                     />
                                 <!--
                                     v-bind:eventclick="eventClick"
@@ -84,7 +87,8 @@
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-fullcalendar.js}"></script>
-        <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/reunionconsejo/reunionconsejo.js}" charset="utf-8"></script>
+
     </div>
 
 </body>

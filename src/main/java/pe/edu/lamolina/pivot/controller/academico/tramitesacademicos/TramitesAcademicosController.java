@@ -159,7 +159,7 @@ public class TramitesAcademicosController {
     public String agendareuniones(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        return "academico/tramitescademicos/reunionconsejo";
+        return "academico/reunionconsejo/reunionconsejo";
     }
 
 }
