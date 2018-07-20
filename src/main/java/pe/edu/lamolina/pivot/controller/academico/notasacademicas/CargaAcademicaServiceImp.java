@@ -1463,9 +1463,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
 
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-            if (matSecc.getSeccion().getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+            /*       if (matSecc.getSeccion().getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;
-            }
+            }*/
             calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
