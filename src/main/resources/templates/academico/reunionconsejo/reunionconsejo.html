@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Evento Académico</title>
+        <title>Reuniones de Consejo</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
 </head>
 
@@ -11,9 +11,11 @@
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-md">
+                    <!-- 
                     <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Agregar Evento Académico</a>
+                    --> 
                 </div>
-                <h2 th:inline="text">Evento Académico [[${cicloAcademico.descripcion}]] </h2>
+                <h2 th:inline="text">Reuniones de Consejo </h2>
             </header>
 
             <section class="wrapper-lg">
@@ -50,7 +52,35 @@
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="lista">
 
-                                raptor aqui
+                                <raptor-table ref="tblReunionesConsejo"
+                                              v-bind:url="URL_REUNIONES" >
+
+                                    <template scope="props">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Es Ordinario</th>
+                                                    <th>Oficina</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in props.data"> 
+                                                    <td>   
+                                            <format-date v-bind:datetext="item.fecha"></format-date>
+                                            </td>
+                                            <td>
+                                                {{item.esOrdinario}}
+                                            </td> 
+                                            <td>
+                                                <span v-if="item.oficina" 
+                                                      v-text="item.oficina.nombre"></span>
+                                            </td> 
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </raptor-table>
 
                             </div>
                             <div role="tabpanel" class="tab-pane" id="calendar">
@@ -75,20 +105,81 @@
             </section>
 
 
+            <modal-vik ref="modalReunionConsejo"
+                       modalsize="modal-md"
+                       v-bind="reunionConsejoModal"
+                       v-bind:okaction="saveReunionConsejo">
+                <div slot="body">
+                    <form id="frmRestriccion" v-if="reunionConsejo!=null">
+
+
+                        <section class="panel-body">
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Fecha</label>
+                                    <div class="form-group">
+                                        <v-date-picker 
+                                            id="fecha"
+                                            v-model="reunionConsejo.fecha"
+                                            required="false"
+                                            ></v-date-picker>
+                                        <!--      
+                                        v-model="docSeccion.fechaInicio"
+                                        
+                                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                                       v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
+                                                       v-if="docSeccion.estado == 'ACT'"
+                                        class="col-md-6" -->
+                                    </div>
+                                </div>
+                            </div>
+                            <!--
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <label>Hora</label>
+                                                                <div class="form-group">
+                                                                    adadad
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                            -->
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label>Es Ordinaria</label>
+                                    <div class="form-group">
+                                        <label class="switch">
+                                            <input type="checkbox" 
+                                                   value="1" 
+                                                   v-model="reunionConsejo.esOrdinario"
+                                                   />
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </form>
+                </div>
+            </modal-vik>
 
         </div>
 
         <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-fullcalendar"/>
+
     </div>
 
     <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-fullcalendar.js}"></script>
         <script th:src="@{/app/academico/reunionconsejo/reunionconsejo.js}" charset="utf-8"></script>
-
+        <script th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
     </div>
 
 </body>

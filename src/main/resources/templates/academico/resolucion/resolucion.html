@@ -59,9 +59,9 @@
                                             <td>
                                                 <small class="block text-muted">Número: {{item.numero}}</small>
                                                 <small class="block text-muted">Serie: {{item.serie}}</small>
-                                                
+
                                                 <small class="block text-muted"
-                                                        v-if="item.rutaUrl">Url: 
+                                                       v-if="item.rutaUrl">Url: 
                                                     <a v-bind:href="item.rutaUrl"
                                                        target="blank"
                                                        >Link
@@ -208,6 +208,7 @@
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
 
         <div th:substituteby="_modules/vue-raptor-table"/>
