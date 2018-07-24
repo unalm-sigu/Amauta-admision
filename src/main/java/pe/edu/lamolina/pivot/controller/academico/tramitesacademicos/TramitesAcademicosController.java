@@ -91,6 +91,21 @@ public class TramitesAcademicosController {
             List<Tramite> tramites = tramitesAcademicosService.allTramitesByFilter(filter);
             logger.debug(this.getClass() + " Cantidad de tramites {}", tramites.size());
 
+            String[] mapperTramite = new String[]{
+                "*",
+                "persona.*",
+                "alumno.*",
+                "compania.*",
+                "cicloAcademico.*",
+                "tipoTramite.*",
+                "userRegistro.*",
+                "userRespuesta.*"
+            };
+            String[] mapperReincorporacion = new String[]{
+                "*",
+                "estadoTramite.*"
+            };
+            JsonNodeFactory jc = JsonNodeFactory.instance;
             for (Tramite tramite : tramites) {
                 array.add(tramite.toJson());
             }
@@ -116,9 +131,12 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            if (EstadoTramiteEnum.SOL_ACEP.name().equals(estadoDestino)) {
+            if (EstadoTramiteEnum.REV_HIS.name().equals(estadoDestino)) {
                 tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), ds.getUsuario());
                 response.setMessage("Solicitud aceptada.");
+            } else if (EstadoTramiteEnum.CON_FAC.name().equals(estadoDestino)) {
+                tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), ds.getUsuario());
+                response.setMessage("Solicitud agendada.");
             }
 
             response.setSuccess(Boolean.TRUE);
@@ -131,6 +149,13 @@ public class TramitesAcademicosController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("agendareuniones")
+    public String agendareuniones(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        return "academico/reunionconsejo/reunionconsejo";
     }
 
 }

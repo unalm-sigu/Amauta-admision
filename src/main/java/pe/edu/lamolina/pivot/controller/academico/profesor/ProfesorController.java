@@ -9,17 +9,18 @@ import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +57,9 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
-import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -115,8 +116,7 @@ public class ProfesorController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-
-            FotoHelper helper = new FotoHelper();
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<Docente> docentes = service.allByDynatable(filter, ds.getDepartamentos());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -138,7 +138,7 @@ public class ProfesorController {
                 node.put("celular", persona.getCelular());
                 node.put("email", persona.getEmail());
                 node.put("emailEmpresa", persona.getEmailCompania());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
+                node.put("rutaFoto", service.getRutaFoto(persona.getFoto(), persona.getSexo()));
 
                 node.put("facultad", fa.getNombre());
                 node.put("departamentoAcademico", da.getNombre());
@@ -276,7 +276,6 @@ public class ProfesorController {
 //
 //        return response;
 //    }
-
     @ResponseBody
     @RequestMapping("estado")
     public JsonResponse estado(Docente docente) {
@@ -323,8 +322,9 @@ public class ProfesorController {
 
                 node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("numeroDoc", persona.getNumeroDocIdentidad());
-
-                docenteDb = service.findDocenteByDocente(docente);
+                if (docente.getId() != null) {
+                    docenteDb = service.findDocenteByDocente(docente);
+                }
             }
 
             node.put("existeDocente", (docenteDb != null));
@@ -336,10 +336,11 @@ public class ProfesorController {
 
             Context ctx = new Context();
             ctx.setVariable("docente", docenteDb);
+            ctx.setVariable("helper", new AlumnoHelper());
             ctx.setVariable("documentos", service.allDocumentos());
             ctx.setVariable("modalidades", service.allModalidadEstudio(compania));
 
-            String htmlContent = springHtml.process("academico/profesor/profesorForm", ctx, new DOMSelectorFragmentSpec("#formularioDocente"));
+            String htmlContent = springHtml.process("academico/profesor/profesorForm", ctx, new DOMSelectorFragmentSpec("#formDocente"));
 
             node.put("html", htmlContent);
             response.setData(node);
@@ -353,6 +354,69 @@ public class ProfesorController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("findPersonaProfesor")
+    public JsonResponse findPersonaProfesor(Docente docente, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        response.setSuccess(false);
+
+        try {
+
+            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
+            Persona personaBD = null;
+            if (persona != null) {
+                personaBD = service.findPersona(persona);
+            }
+            AlumnoHelper helper = new AlumnoHelper();
+
+            if (personaBD != null) {
+                node.put("idPersona", personaBD.getId());
+                node.put("foto", personaBD.getFoto());
+                node.put("tipoDocumentoId", personaBD.getTipoDocumento().getId());
+                node.put("numeroDoc", personaBD.getNumeroDocIdentidad());
+                node.put("paterno", personaBD.getPaterno());
+                node.put("materno", personaBD.getMaterno());
+                node.put("nombres", personaBD.getNombres());
+                node.put("emailCompania", personaBD.getEmailCompania());
+                node.put("sexo", personaBD.getSexo());
+                node.put("paisNacerId", personaBD.getPaisNacer() != null ? personaBD.getPaisNacer().getId() : null);
+                node.put("paisNacerNombre", personaBD.getPaisNacer() != null ? personaBD.getPaisNacer().getNombre() + " | "
+                        + helper.showCodigoPais(personaBD.getPaisNacer()) : null);
+                node.put("ubicacionNacerId", personaBD.getUbicacionNacer() != null ? personaBD.getUbicacionNacer().getId() : null);
+                node.put("ubicacionNacerNombre", personaBD.getUbicacionNacer() != null ? personaBD.getUbicacionNacer().getDistrito() : null);
+                node.put("fechaNacer", personaBD.getFechaNacer() != null ? TypesUtil.getStringDate(personaBD.getFechaNacer(), "dd/MM/yyyy") : "");
+                node.put("nacionalidadId", personaBD.getNacionalidad() != null ? personaBD.getNacionalidad().getId() : null);
+                node.put("nacionalidadNombre", personaBD.getNacionalidad() != null ? personaBD.getNacionalidad().getNombre() : null);
+                node.put("telefono", personaBD.getTelefono());
+                node.put("celular", personaBD.getCelular());
+                node.put("email", personaBD.getEmail());
+                node.put("paisDomiciliodId", personaBD.getPaisDomicilio() != null ? personaBD.getPaisDomicilio().getId() : null);
+                node.put("paisDomicilioNombre", personaBD.getPaisDomicilio() != null ? personaBD.getPaisDomicilio().getNombre() : null);
+                node.put("ubicaiconDomiciliodId", personaBD.getUbicacionDomicilio() != null ? personaBD.getUbicacionDomicilio().getId() : null);
+                node.put("ubicacionDomicilioNombre", personaBD.getUbicacionDomicilio() != null ? personaBD.getUbicacionDomicilio().getDistrito() : null);
+                node.put("direccion", personaBD.getDireccion());
+                node.put("foto", personaBD.getFoto());
+
+                response.setSuccess(true);
+            }
+
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+//    private String getUbicacionFormat(Ubicacion ubicacion) {
+//        Ubicacion provincia = ubicacion.getUbicacionSuperior();
+//        Ubicacion departamento = provincia.getUbicacionSuperior();
+//        
+//    }
 //    @ResponseBody
 //    @RequestMapping("existedocente")
 //    public JsonResponse existedocente(Docente docente, HttpSession session) {
@@ -362,6 +426,7 @@ public class ProfesorController {
 //        try {
 //
 //            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
+//            
 //            Persona personaDb = service.findPersona(docente.getPersona());
 //            node.put("numeroDocOriginal", personaDb.getNumeroDocIdentidad());
 //
@@ -391,7 +456,6 @@ public class ProfesorController {
 //        }
 //        return response;
 //    }
-
     @ResponseBody
     @RequestMapping("upload")
     public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {
@@ -425,7 +489,7 @@ public class ProfesorController {
 
     }
 
-    @RequestMapping("view/{file:.*}")
+//    @RequestMapping("view/{file:.*}")
     public void view(@PathVariable String file, HttpServletResponse response) throws Exception {
 
         String fileNameRoot = Constantine.AVATAR_DIR + file;
@@ -467,6 +531,31 @@ public class ProfesorController {
                 e.printStackTrace();
             }
         }
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "view/{file:.*}")
+    public byte[] showAvatar(@PathVariable("file") String file, HttpServletRequest reextencionquest, HttpSession session) throws IOException {
+
+        FileInputStream in;
+        try {
+            String foto = Constantine.TMP_DIR + file;
+            in = new FileInputStream(foto);
+
+            File photo = new File(foto);
+            if (!photo.exists()) {
+                in = new FileInputStream(foto);
+            }
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            in = new FileInputStream("/phobos/images/unalm/male.png");
+        }
+
+        byte[] img = IOUtils.toByteArray(in);
+
+        in.close();
+
+        return img;
     }
 
     @RequestMapping("{idDocente}/cargaacademica")

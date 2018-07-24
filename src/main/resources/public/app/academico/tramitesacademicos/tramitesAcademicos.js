@@ -24,7 +24,7 @@ var app = new Vue({
                 async: false,
                 data: {
                     tramite: tramite.id,
-                    estado: "SOL_ACEP"
+                    estado: estadoDestino
                 },
                 success: function (response) {
                     if (response.success) {
@@ -38,6 +38,8 @@ var app = new Vue({
                     notify(response.message, "error");
                 }
             });
+        }, agenda() {
+            location.href = APP.url("academico/tramiteacademico/agendareuniones");
         }
     }
 })

@@ -15,14 +15,15 @@
 
 <body>
     <div layout:fragment="main">
-
+        <div id="tramitesAcademicos">
         <header class="header b-b padder-lg">
 
-            <div class="pull-right m-t-md">      
+            <div class="pull-right m-t-md">  
+                <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
             </div> 
             <h2 >Tramites Academicos</h2>
         </header>
-        <section id="tramitesAcademicos" class="wrapper-lg">
+        <section  class="wrapper-lg">
 
             <section class="panel">
                 <section class="panel-body">
@@ -76,9 +77,15 @@
                                                     <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
                                                     <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolReincorporacion">
                                                         <a class="btn-link pointer editar-gpo-seccion" 
-                                                           v-on:click="cambiarEstadoReincorporacion(item,'SOL_ACEP',$event)">
-                                                            Aceptar Sol. Reincorporacion</a>
+                                                           v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
+                                                            Historial Revisado</a>
                                                     </li>
+                                                    <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.isSolicitudHistorialRevisado">
+                                                        <a class="btn-link pointer editar-gpo-seccion" 
+                                                           v-on:click="cambiarEstadoReincorporacion(item,'CON_FAC',$event)">
+                                                            Agendar</a>
+                                                    </li>
+
                                                 </ul>
                                             </div>
                                         </td>
@@ -91,6 +98,8 @@
                 </section>
             </section>
         </section>
+        </div>
+        
         <div th:substituteby="templates/modal"/>
 
 

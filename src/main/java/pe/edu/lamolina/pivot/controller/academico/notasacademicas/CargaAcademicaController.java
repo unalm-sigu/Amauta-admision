@@ -1367,7 +1367,7 @@ public class CargaAcademicaController {
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());
             evaluacion = cargaAcademicaService.findEvaluacion(evaluacion.getId());
             List<MatriculaSeccion> matriculasSeccion = cargaAcademicaService.saveIngresoNotas(evaluacion, alumnoEvaluaciones, ds);
-            //    cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
+            //     cargaAcademicaService.calcularNotasLista(matriculasSeccion, ds);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("evaSeleccionada", evaluacion.getTipoEvaluacion().getCodigo() + evaluacion.getNumero());

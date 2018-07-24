@@ -20,15 +20,10 @@
 
                             <form data-parsley-validate="true" method="POST" id="formDocente" >
 
-
-
                                 <div class="col-md-2 text-center" >
 
                                     <div class="col-xs-12 m-t-lg">
-
                                         <img id="imagenProfile"
-                                             th:src="@{|/academico/docente/view/${docente.persona.foto}|}"
-                                             th:onerror="|this.src='@{/phobos/images/unalm/male.png}';|"
                                              class="img-thumbnail"/>
 
                                         <input type="hidden" id="avatar" name="persona.foto" th:value="${docente.persona.foto}"/>
@@ -55,21 +50,18 @@
                                             <h4 class="m-b-md m-t-md">Datos Generales</h4>
                                         </div>
 
-
                                         <div class="col-sm-6">
                                             <div class="form-group">
-
                                                 <label>Tipo de documento de identidad</label>
-
                                                 <select name="persona.tipoDocumento.id"
-                                                        class="form-control" required="true">
+                                                        class="form-control" required="true" >
                                                     <option></option>
                                                     <option th:each="tipo : ${documentos}"
                                                             th:value="${tipo.id}"
                                                             th:selected="${docente.persona.tipoDocumento!=null?docente.persona.tipoDocumento.id==tipo.id:0}"
-                                                            th:text="${tipo.nombre}"></option>
+                                                            th:text="${tipo.nombre}" >
+                                                    </option>
                                                 </select>
-
                                             </div>
                                         </div>
 
@@ -81,7 +73,7 @@
                                                 <input type="text"
                                                        name="persona.numeroDocIdentidad"
                                                        th:value="${docente.persona.numeroDocIdentidad}"
-                                                       class="form-control" required="true"/>
+                                                       class="form-control" v-on:change="buscarPersona"  required="true"/>
 
                                             </div>
                                         </div>
@@ -128,7 +120,6 @@
                                             </div>
                                         </div>
 
-
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label for="emailEmpresa" >Correo  Institucional</label>
@@ -136,12 +127,9 @@
                                                         data-trigger="change" required="true" type="email"
                                                         data-trim-value="true"
                                                         name="persona.emailCompania" id="emailCompania"
-                                                        th:value=" ${docente.persona.emailCompania}"
-                                                        />
+                                                        th:value=" ${docente.persona.emailCompania}"/>
                                             </div>
                                         </div>
-
-
 
                                         <div class="col-sm-6">
                                             <div class="form-group">
@@ -158,6 +146,7 @@
                                                                         name="persona.sexo"
                                                                         id="inlineCheckbox1"
                                                                         value="M"
+                                                                        v-model="sexoM"
                                                                         th:checked="${docente.persona.sexo=='M'}" /> Masculino
                                                             </label>
 
@@ -170,6 +159,7 @@
                                                                         name="persona.sexo"
                                                                         id="inlineCheckbox2"
                                                                         value="F"
+                                                                        v-model="sexoF"
                                                                         th:checked="${docente.persona.sexo=='F'}" /> Femenino
                                                             </label>
 
@@ -179,11 +169,10 @@
 
                                             </div>
                                         </div>
-
+                                        
                                         <div class="col-xs-12">
                                             <h4  class="m-b-md m-t-md"> Lugar y fecha de nacimiento </h4>
                                         </div>
-
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label>País</label>
@@ -199,7 +188,7 @@
                                         </div>
 
                                         <div class="col-sm-6">
-
+                                            
                                             <div  v-if="showLugarNacimiento" id="lugarNacimiento" class="form-group" >
                                                 <label>Distrito de nacimiento (en Perú)</label>
 
@@ -418,8 +407,6 @@
                 /*<![CDATA[*/
                 var showLugarNacimiento = /*[[${docente.persona.ubicacionNacer != null}]]*/'';
                 var codigoPaisDomicilio = /*[[${docente.persona.paisDomicilio!=null?docente.persona.paisDomicilio.codigo:''}]]*/ '';
-                var showUniverdidadName = /*[[${docente.departamentoAcademico!=null}]]*/'';
-                var showUniverdidadPeru = /*[[${docente.modalidadEstudio!=null}]]*/ '';
                 /*]]>*/
             </script>
 

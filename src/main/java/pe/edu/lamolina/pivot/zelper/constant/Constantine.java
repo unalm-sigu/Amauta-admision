@@ -29,7 +29,12 @@ public interface Constantine {
 
     String S3_LINK = "http://lamolina-admision.s3.amazonaws.com/";
 
-    String S3_DIR = "lamolina-admision";
+    //String S3_DIR = "albatross-pruebas/lamolina-pivot";
+    String S3_DIR = "lamolina-academico";
+
+    String PIVOT_DIR = "lamolina-pivot/";
+
+    String S3_RESOLUCIONES_DIR = "resoluciones/";
 
     String COD_CARRERA_ALUMNO_VISITANTE = "001";
 
@@ -62,7 +67,7 @@ public interface Constantine {
     int IMAGE_WIDTH = 338;
     int IMAGE_DELTA_SIZE = 5;
     String IMAGE_WIDTH_MSG = "la imagen debe de tener un ancho aproximada a 338px";
-    String[] IMAGE_FORMAT = {"JPEG","PNG"};
+    String[] IMAGE_FORMAT = {"JPEG", "PNG"};
     String IMAGE_FORMAT_MSG = "la imagen debe de ser formato jpeg";
     String IMAGE_COLORTYPE = "RGB";
     String IMAGE_COLORTYPE_MSG = "la imagen debe de tener el sistema de color  RGB";
@@ -76,5 +81,8 @@ public interface Constantine {
     String S3_DIR_FOTO_TMP = "fotos/temporal/";
     String S3_DIR_FOTO_DOCUMENTO = "fotos/documentos/";
     String S3_DIR_FOTO_CARNET = "fotos/carnet/";
-    
+
+    String S3_RUTA = "http://lamolina-academico.s3.amazonaws.com/";
+    String S3_FOLDER = "public-unalm/profile/";
+
 }

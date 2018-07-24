@@ -10,6 +10,7 @@
         .bg-row {
             background-color: #f9fafc;
         }
+
     </style>
 </head>
 
@@ -19,7 +20,7 @@
             <header class="header b-b padder-lg">
                 <div class="pull-right panel-body" >
                     <a class="btn btn-success" 
-                       v-on:click="nuevaResolucion($event)" 
+                       th:href="@{/academico/resolucion/nuevo}" 
                        >Nueva Resolución
                     </a>
                 </div>
@@ -40,11 +41,11 @@
                                         <tr>
                                             <th >Tipo Resolución</th>
                                             <th >Oficina</th>
-                                            <th >Serie</th>
-                                            <th >Número</th>
+                                            <th >Documento</th>
                                             <th>Fecha Resolución</th>
                                             <th>Fecha Registro</th>
                                             <th>Usuario Registro </th>
+                                            <th style="width: 20px !important;"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -53,13 +54,19 @@
                                                 {{item.tipoResolucion.nombre}}
                                             </td>
                                             <td>
-
+                                                {{item.oficina.nombre}}    
                                             </td>
                                             <td>
-                                                {{item.serie}}
-                                            </td> 
-                                            <td>
-                                                {{item.numero}}
+                                                <small class="block text-muted">Número: {{item.numero}}</small>
+                                                <small class="block text-muted">Serie: {{item.serie}}</small>
+                                                
+                                                <small class="block text-muted"
+                                                        v-if="item.rutaUrl">Url: 
+                                                    <a v-bind:href="item.rutaUrl"
+                                                       target="blank"
+                                                       >Link
+                                                    </a>
+                                                </small>
                                             </td> 
                                             <td>
                                                 {{item.fecha}}
@@ -68,8 +75,16 @@
                                                 {{item.fechaRegistro}}
                                             </td> 
                                             <td>
-                                                usuario
+                                                {{item.userRegistro.persona.apellidosNombres}}
                                             </td> 
+                                            <td>
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                <ul class="dropdown-menu pull-right" >
+                                                    <li role="presentation">
+                                                        <a class="aceptar-expandir-sistema" href="#">Asignar evaluadores</a>
+                                                    </li>
+                                                </ul>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -138,24 +153,22 @@
                                     <div class="form-group">
 
                                         <file-upload
-                                            extensions="gif,jpg,jpeg,png,webp"
-                                            accept="image/png,image/gif,image/jpeg,image/webp"
+                                            extensions="gif,jpg,jpeg,png,pdf"
+                                            accept="image/png,image/gif,image/jpeg,application/pdf"
                                             class="pull-right"
-                                            post-action="/almacen/producto/addImagen"
-                                            v-bind:data="{id: producto.id}"
+                                            post-action="/academico/resolucion/addFile"
                                             v-model="files"
-                                            v-bind:multiple="true"
+                                            v-bind:multiple="false"
                                             v-on:input-filter="inputFilter"
                                             v-on:input-file="inputFile"
+                                            required="true"
                                             ref="upload">
                                             <span class="btn btn-primary pull-right m-b-md"
                                                   v-if="!$refs.upload || !$refs.upload.active"
                                                   v-on:click="$refs.upload.active = true">
-                                                <i class="fa fa-cloud-upload"></i> &nbsp;Subir imagenes
+                                                <i class="fa fa-cloud-upload"></i> &nbsp;Subir Archivo
                                             </span>
                                         </file-upload>
-
-
 
                                     </div>
                                 </div>
@@ -193,9 +206,10 @@
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
         <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
-        <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
+
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
 

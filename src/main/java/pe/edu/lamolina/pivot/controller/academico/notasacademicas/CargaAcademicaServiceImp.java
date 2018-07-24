@@ -417,7 +417,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 continue;
             }
 
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds.getUsuario());
 
         }
 
@@ -704,6 +704,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 //   evalForm.setEvaluaciones(null);
                 throw new PhobosException("Error. No se puedieron generar las evaluaciones.");
             }
+
+            evalForm.setFechaRegistro(today.toDate());
+            evalForm.setUsuarioRegistro(ds.getUsuario());
             evaluacionExpandidaDAO.save(evalForm);
 
         }
@@ -718,24 +721,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         evaluacionExpBD.setUsuarioActualizacion(ds.getUsuario());
         evaluacionExpandidaDAO.update(evaluacionExpBD);
 
-        List<MatriculaSeccion> matriculasSeccion = this.allMatriculaSeccionByFilter(evaluacionExpBD, ds.getCicloAcademico());
-
-        for (MatriculaSeccion ms : matriculasSeccion) {
-            Seccion seccion = ms.getSeccion();
-            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
-            Alumno alumno = ms.getMatriculaResumen().getAlumno();
-
-            if (gpoSecc.getPlanCalificacion() == null) {
-                break;
-            }
-
-            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                continue;
-            }
-
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds);
-
-        }
+        calculoNotasService.calcularNotas(evaluacionExpBD, ds.getCicloAcademico(), ds.getUsuario());
     }
 
     private void validarEvaluacionesExpandidas(EvaluacionExpandida evaluacionForm, EvaluacionExpandida evaluacionPadreBD) {
@@ -1238,6 +1224,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         grupoSeccion.getCurso().getTipoCurso();
         for (Seccion seccionEach : secciones) {
+            if (seccionEach.getEstado().equals("INA")) {
+                logger.debug("");
+            }
             if (!seccionEach.isEstadoActivo()) {
                 continue;
             }
@@ -1443,9 +1432,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             alumnoEvaluacionDAO.save(alumnoEvaluacion);
         }
 
-        //List<EvaluacionPlan> evaluacionesPlan = evaluacionPlanDAO.allByPlan(planCalificacion);
-        //     BigDecimal bd100 = new BigDecimal("100");
         List<MatriculaSeccion> marticulasSeccion = new ArrayList();
+
         for (AlumnoEvaluacion alumnoEvaluacionEach : alumnosEvaluaciones) {
             Alumno alumno = alumnoEvaluacionEach.getAlumno();
             MatriculaSeccion matSecc = new MatriculaSeccion();
@@ -1459,23 +1447,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
             marticulasSeccion.add(matSecc);
 
-            /*
-            GrupoSeccion gpoSeccion = evaluacion.getSeccionResponsable().getGrupoSeccion();
-            Curso curso = gpoSeccion.getCurso();
-            List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
-            
-            calcularNotasAlumno(alumno, evaluacion, grupoSeccion, curso, ciclo, evaluacionesPlan);
-            //*/
         }
-
+        //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, ciclo);
         this.calcularNotasLista(marticulasSeccion, ds);
 
         return marticulasSeccion;
-        /*
-        if (evaluacionDAO.countEvaluacionesFaltantesByGrupo(grupoSeccion.getId()).intValue() == 0) {
-            grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.CER);
-            grupoSeccionDAO.update(seccion.getGrupoSeccion());
-        }*/
     }
 
     @Override
@@ -1485,11 +1461,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             GrupoSeccion gpoSeccion = matSecc.getSeccion().getGrupoSeccion();
             Curso curso = gpoSeccion.getCurso();
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
-            //PlanCalificacion plan = gpoSeccion.getPlanCalificacion();
-            Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
 
-            //List<EvaluacionExpandida> evaluasExpan = evaluacionExpandidaDAO.allByGpoSeccionPlan(gpoSeccion, plan);
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds);
+            Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
+            /*       if (matSecc.getSeccion().getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }*/
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
 
@@ -1683,7 +1660,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion(),
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCurso(),
                 alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCicloAcademico(),
-                ds);
+                ds.getUsuario());
     }
 
     @Override
