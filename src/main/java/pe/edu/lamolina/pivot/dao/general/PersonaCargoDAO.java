@@ -17,6 +17,6 @@ public interface PersonaCargoDAO extends EasyDAO<PersonaCargo> {
 
     PersonaCargo findSinCerrar(Oficina oficina, Compania cia);
 
-    public PersonaCargo findCargoByPersona(Oficina oficina, PerfilCompania cargo, Persona persona);
+    public PersonaCargo findCargoByPersona(Oficina oficina, Persona persona);
 
 }

@@ -60,4 +60,14 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .filter("tr.id", id);
         return find(sql);
     }
+
+    @Override
+    public Tramite findById(Tramite tramite) {
+        Octavia sql = new Octavia()
+                .from(Tramite.class, "tram")
+                .join("cicloAcademico aca", "compania", "tipoTramite")
+                .left("userRegistro user", "persona", "alumno alum")
+                .filter("tram.id", tramite);
+        return find(sql);
+    }
 }
