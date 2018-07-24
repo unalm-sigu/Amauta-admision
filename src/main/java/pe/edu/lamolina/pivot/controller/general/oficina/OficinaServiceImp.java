@@ -718,16 +718,16 @@ public class OficinaServiceImp implements OficinaService {
             funcionColaboradorDAO.save(funcionColaborador);
             list.add(perfil);
         }
-        Usuario usuario1 = new Usuario();
+        Usuario user = new Usuario();
 
         if (persona.getEmailCompania() != null) {
-            usuario1.setEstadoEnum(UserEstadoEnum.ACT);
-            usuario1.setGoogle(persona.getEmailCompania());
-            usuario1.setPersona(persona);
-            usuario1.setUserRegistro(usuario);
-            usuario1.setFechaRegistro(new Date());
-            usuarioDAO.save(usuario1);
-            addUserRoll(list, oficinaMean, usuario1, colaborador, usuario);
+            user.setEstadoEnum(UserEstadoEnum.ACT);
+            user.setGoogle(persona.getEmailCompania());
+            user.setPersona(persona);
+            user.setUserRegistro(usuario);
+            user.setFechaRegistro(new Date());
+            usuarioDAO.save(user);
+            addUserRoll(list, oficinaMean, user, colaborador, usuario);
         }
 
     }
@@ -864,7 +864,7 @@ public class OficinaServiceImp implements OficinaService {
         colaboradorDAO.update(colaboradorBD);
 
         if (colaboradorForm.getOficina().getId() != oficinaAnterior.getId()) {
-            PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getCargo(), colaboradorForm.getPersona());
+            PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getPersona());
             personaCargo.setEstadoEnum(PerfilEstadoEnum.INA);
             personaCargo.setFechaFin(new Date());
             personaCargo.setFechaModificacion(new Date());
@@ -917,6 +917,7 @@ public class OficinaServiceImp implements OficinaService {
         }
     }
 
+    @Transactional
     private void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Oficina oficinaMean, Colaborador colaborador, DataSessionPivot ds) {
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfilCompania(perfilesCompaniaNuevos);
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);

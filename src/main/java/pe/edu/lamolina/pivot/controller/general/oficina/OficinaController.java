@@ -111,6 +111,7 @@ public class OficinaController {
             "persona.numeroDocIdentidad",
             "persona.tituloAcademico",
             "persona.nombreCompleto",
+            "persona.emailCompania",
             "oficina.id",
             "oficina.codigo",
             "oficina.nombre",
