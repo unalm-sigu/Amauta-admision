@@ -68,6 +68,9 @@ public class TestController {
     SeccionDAO seccionDAO;
 
     @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
     @Autowired
@@ -217,8 +220,11 @@ public class TestController {
                 continue;
             }
 
-            if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
-                continue;
+            CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivo();
+            if (ciclo.getId().compareTo(cicloAcademicoActivo.getId()) != 0) {
+                if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
+                    continue;
+                }
             }
 
             calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
