@@ -42,7 +42,7 @@ public class InterceptorServiceImpl implements InterceptorService {
         }
         Sistema objSis = new Sistema();
         objSis.setId(despliegueConfig.getSistema());
-        obj.setAccion(objNode.get("tipo").toString());
+        obj.setAccion(objNode.get("tipo").asText());
         obj.setBrowser(ds.getBrowser());
         obj.setDireccionIp(ds.getDireccionIp());
         obj.setSistemaOperativo(ds.getSistemaOperativo());

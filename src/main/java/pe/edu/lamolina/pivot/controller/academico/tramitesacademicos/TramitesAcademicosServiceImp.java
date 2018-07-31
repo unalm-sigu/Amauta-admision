@@ -63,6 +63,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
+    @Transactional
     public void aceptarSolReincorporacion(Tramite tramite, Usuario usuario) {
         DateTime today = new DateTime();
 
