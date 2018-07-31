@@ -98,9 +98,6 @@ public class TestController {
     PromedioService promedioService;
 
     @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
 
     @Autowired
