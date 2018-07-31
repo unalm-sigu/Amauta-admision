@@ -1233,7 +1233,11 @@ public class CargaAcademicaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Aceptado correctamente.";
+            GrupoSeccion grupoSeccion = cargaAcademicaService.findGrupo(grupoId);
 
+            if (ObjectUtil.getParentTree(grupoSeccion, "planCalificacion.id") != null) {
+                throw new PhobosException("El grupo ya cuenta con un plan calificación aceptado.");
+            }
             cargaAcademicaService.aceptarPlanCalificacion(planCalificacion, cursoId, grupoId, ds);
             cargaAcademicaService.saveEstructuraEvaluacion(new GrupoSeccion(grupoId), LoggerAccionEnum.ESTRUCTURA_EVALUACION_CRE, session);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
