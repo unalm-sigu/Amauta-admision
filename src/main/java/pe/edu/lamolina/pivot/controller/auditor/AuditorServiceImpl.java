@@ -43,6 +43,13 @@ public class AuditorServiceImpl implements AuditorService {
             DataSessionPivot ds) {
 
         ObjectNode ingresoNotas = new ObjectNode(JsonNodeFactory.instance);
+        ingresoNotas.put("grupoSeccionId", seccion.getGrupoSeccion().getId());
+        ingresoNotas.put("grupoSeccionCodigo", seccion.getGrupoSeccion().getCodigo());
+        ingresoNotas.put("grupoSeccionCodigo2", seccion.getGrupoSeccion().getCodigo2());
+        ingresoNotas.put("grupoSeccionEstadoGrupo", seccion.getGrupoSeccion().getEstadoGrupo());
+        ingresoNotas.put("grupoSeccionEstadoPlan", seccion.getGrupoSeccion().getEstadoPlan());
+        ingresoNotas.put("grupoSeccionVersion", seccion.getGrupoSeccion().getVersion());
+
         ingresoNotas.put("seccionId", seccion.getId());
         ingresoNotas.put("seccionTipo", seccion.getTipoSeccion());
         ingresoNotas.put("seccionClave", seccion.getCodigo2());
