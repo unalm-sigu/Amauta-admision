@@ -20,18 +20,25 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class InterceptorServiceImpl implements InterceptorService {
-
+    
     @Autowired
     UserLoggerDAO userLogger;
-
+    
     @Autowired
     DespliegueConfig despliegueConfig;
-
+    
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveInterceptor(ObjectNode objNode, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        this.saveInterceptor(objNode, ds);
+    }
+    
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveInterceptor(ObjectNode objNode, DataSessionPivot ds) {
         System.err.println("SERVLET --->");
         UserLogger obj = new UserLogger();
         String[] ls = new String[ds.getRoles().size()];
@@ -54,5 +61,5 @@ public class InterceptorServiceImpl implements InterceptorService {
         obj.setSistema(objSis);
         userLogger.save(obj);
     }
-
+    
 }

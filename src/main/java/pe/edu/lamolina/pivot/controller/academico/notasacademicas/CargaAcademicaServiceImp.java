@@ -64,6 +64,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
@@ -170,6 +171,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     InterceptorService interceptorService;
+
+    @Autowired
+    AuditorService auditorService;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -1450,6 +1454,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, ciclo);
         this.calcularNotasLista(marticulasSeccion, ds);
+        auditorService.auditSaveNotas(planCalificacion, sistemaNotas, seccion, curso, ciclo,
+                this.allEvaluacionesByTipoSeccion(seccion),
+                this.allMatriculaSeccionBySeccion(seccion),
+                this.allAlumnoEvaluacionBySeccion(seccion.getId()),
+                this.getMapMatriculasCursoByCicloCurso(ciclo, curso),
+                ds);
 
         return marticulasSeccion;
     }
