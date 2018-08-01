@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
-import static pe.albatross.zelpers.miscelanea.Commutator.findConmutation;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
