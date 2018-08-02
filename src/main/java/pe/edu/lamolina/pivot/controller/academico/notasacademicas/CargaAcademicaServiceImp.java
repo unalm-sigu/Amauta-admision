@@ -1454,7 +1454,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, ciclo);
         this.calcularNotasLista(marticulasSeccion, ds);
-        auditorService.auditSaveNotas(planCalificacion, sistemaNotas, seccion, curso, ciclo,
+        auditorService.auditSaveNotas(evaluacion, planCalificacion, sistemaNotas, seccion, curso, ciclo,
                 this.allEvaluacionesByTipoSeccion(seccion),
                 this.allMatriculaSeccionBySeccion(seccion),
                 this.allAlumnoEvaluacionBySeccion(seccion.getId()),
@@ -1951,6 +1951,20 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         if (!evaluactionsComplete) {
             throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(", ", lstSeccionesIncompletes)));
         }
+        /*
+        Map<Long, MatriculaCurso> matriculaCursoMap = this.getMapMatriculasCursoByCicloCurso(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
+        for (Seccion seccion : grupoSeccion.getSecciones()) {
+            List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+            for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
+                MatriculaCurso matriculaCurso = (MatriculaCurso) matriculaCursoMap.get(matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+                if (matriculaCurso == null) {
+                    lstSeccionesIncompletes.add(seccion.getCodigo2() + " - " + seccion.getGrupoHoras().getCodigo());
+                }
+                resumenAlumnoEvaluacionDAO.findByAlumnoGrupoTipo(alumno, grupoSeccion, tipoEvaluacion);
+            }
+
+        }
+         */
         grupoSeccion.setUsuarioCierraActa(usuario);
         grupoSeccion.setFechaCierreActa(today.toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);

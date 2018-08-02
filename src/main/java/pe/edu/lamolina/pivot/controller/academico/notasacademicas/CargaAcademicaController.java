@@ -53,6 +53,7 @@ import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
@@ -909,7 +910,7 @@ public class CargaAcademicaController {
         logger.debug("Consultara notas por seccion");
         Map<String, AlumnoEvaluacion> mapNotas = cargaAcademicaService.allAlumnoEvaluacionBySeccion(seccion.getId());
 
-        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+        Map<Long, MatriculaCurso> matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
         boolean esDocentePrincipal = false;
         for (Seccion sec : grupoSeccion.getSecciones()) {
@@ -1009,7 +1010,7 @@ public class CargaAcademicaController {
 
         Curso curso = grupoSeccion.getCurso();
 
-        Map matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
+        Map<Long, MatriculaCurso> matriculaCursoMap = cargaAcademicaService.getMapMatriculasCursoByCicloCurso(ds.getCicloAcademico(), curso);
 
         //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", seccion);
