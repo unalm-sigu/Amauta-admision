@@ -217,8 +217,7 @@ public class TestController {
                 continue;
             }
 
-            CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findCicloAcademicoActivo();
-            if (ciclo.getId().compareTo(cicloAcademicoActivo.getId()) != 0) {
+            if (!ciclo.isActivo()) {
                 if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
                     continue;
                 }
