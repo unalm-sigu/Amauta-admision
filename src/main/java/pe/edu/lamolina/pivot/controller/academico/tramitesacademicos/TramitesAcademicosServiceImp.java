@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FlujoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -28,6 +29,7 @@ import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.FlujoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 
@@ -56,6 +58,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Autowired
     AlumnoDAO alumnoDAO;
 
+    @Autowired
+    ReunionConsejoDAO reunionConsejoDAO;
+
     @Override
     public List<Tramite> allTramitesByFilter(DynatableFilter filter) {
         List<Tramite> tramites = tramiteDAO.allByFilter(filter);
@@ -73,7 +78,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         Reincorporacion reincorporacion = reincorporaciones.get(0);
 
-        if (!reincorporacion.getEstadoTramite().isSolicitudReincorporacion()) {
+        if (!reincorporacion.getEstadoTramite().getEsSolicitudReincorporacion()) {
             throw new PhobosException("Estado incorrecto");
         }
 
@@ -143,7 +148,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         Reincorporacion reincorporacion = reincorporaciones.get(0);
 
-        if (!reincorporacion.getEstadoTramite().isSolicitudHistorialRevisado()) {
+        if (!reincorporacion.getEstadoTramite().getEsSolicitudHistorialRevisado()) {
             throw new PhobosException("Estado incorrecto");
         }
 
@@ -173,6 +178,12 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         reincorporacionUpd.setId(reincorporacion.getId());
         reincorporacionUpd.setEstadoTramite(estadoTramiteAcademico.getEstadoTramite());
         reincorporacionDAO.updateEstado(reincorporacionUpd);
+    }
+
+    @Override
+    public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina) {
+        List<ReunionConsejo> reunionesConsejo = reunionConsejoDAO.allByDynatable(filter, oficina);
+        return reunionesConsejo;
     }
 
 }

@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +39,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/reunionconsejo")
 public class ReunionConsejoController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ReunionConsejoService reunionConsejoService;
@@ -119,14 +123,14 @@ public class ReunionConsejoController {
     @RequestMapping("saveReunionConsejo")
     public JsonResponse saveSeccionGrupo(
             @RequestBody ReunionConsejo reunionConsejo, HttpSession session) {
-
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            logger.debug("fecha " + reunionConsejo.getFecha());
             if (reunionConsejo.getId() == null) {
                 reunionConsejoService.saveReunionConsejo(reunionConsejo, oficinaAux, ds);
             } else {
+                reunionConsejo.setOficina(oficinaAux);
                 reunionConsejoService.updateReunionConsejo(reunionConsejo, ds);
             }
             String message = "Reunion consejo grabada correctamente.";

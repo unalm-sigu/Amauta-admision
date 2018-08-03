@@ -120,7 +120,8 @@ public class AuditorServiceImpl implements AuditorService {
             if (matriculaCurso != null) {
                 //creditos matriculados
                 if (sistemaNotas.isLetras()) {
-                    notasNode.put("creditosMatriculados", matriculaCurso.getCreditos());
+                    notasNode.put("creditosAprobados", matriculaCurso.getCreditosAprobados());
+                    notasNode.put("creditos", matriculaCurso.getCreditos());
                 } else if (sistemaNotas.isNumerico()) {
                     notasNode.put("notaAvance", matriculaCurso.getNotaAvanceFull());
                     notasNode.put("notaAcumulada", matriculaCurso.getNotaAcumuladaFull());

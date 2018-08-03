@@ -41,11 +41,11 @@ var app = new Vue({
                         MODAL.showWait("Espere un momento por favor");
                         $.ajax({
                             url: APP.url('academico/reunionconsejo/saveReunionConsejo'),
+                            data: JSON.stringify($vue.reunionConsejo),
                             dataType: "json",
                             contentType: "application/json",
                             type: 'POST',
                             async: true,
-                            data: JSON.stringify($vue.reunionConsejo),
                             success: function (response) {
                                 if (response.success) {
                                     $vue.renderEventos();

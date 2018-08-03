@@ -7,9 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.pivot.dao.tramite.ReunionConsejoDAO;
 
