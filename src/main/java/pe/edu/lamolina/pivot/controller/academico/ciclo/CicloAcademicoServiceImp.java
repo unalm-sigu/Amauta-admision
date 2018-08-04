@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NumeroCicloAcademicoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -40,7 +41,8 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
 
     @Override
     public List<CicloAcademico> allCicloAcademico(Integer maxResultado) {
-        return cicloAcademicoDAO.allForChanges(maxResultado);
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        return cicloAcademicoDAO.allForChanges(maxResultado, modalidad);
     }
 
     @Override
