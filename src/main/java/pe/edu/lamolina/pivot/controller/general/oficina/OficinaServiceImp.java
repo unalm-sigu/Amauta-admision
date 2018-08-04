@@ -541,6 +541,7 @@ public class OficinaServiceImp implements OficinaService {
             node.put("cargo", colaborador.getCargo().getNombre());
             node.put("estado", ColaboradorEstadoEnum.getNombre(colaborador.getEstado()));
             node.put("persona", colaborador.getPersona() == null ? "" : colaborador.getPersona().getNombreCompleto());
+            node.put("personaId", colaborador.getPersona() == null ? null : colaborador.getPersona().getId());
             node.put("dni", colaborador.getPersona() == null ? "" : colaborador.getPersona().getNumeroDocIdentidad());
             node.put("funciones", map.get(colaborador.getId()) == null ? 0 : map.get(colaborador.getId()).size());
             node.put("codigo", colaborador.getCodigo() == null ? "" : colaborador.getCodigo());
@@ -710,6 +711,7 @@ public class OficinaServiceImp implements OficinaService {
             medico.setFechaRegistro(new Date());
             medico.setUserRegistro(usuario);
             medicoDAO.save(medico);
+            addRol(persona, RolEnum.MED, usuario);
         }
 
         ArrayList<PerfilCompania> list = new ArrayList();
@@ -736,6 +738,33 @@ public class OficinaServiceImp implements OficinaService {
             addUserRoll(list, oficinaMean, user, colaborador, usuario);
         }
 
+    }
+
+    @Transactional
+    private void addRol(Persona p, RolEnum rol, Usuario userRegistro) {
+        Usuario usuario = usuarioDAO.findByPersona(p);
+        if (usuario == null) {
+            logger.debug("No se pueded agregar rol porque no tiene usuario");
+            return;
+        }
+
+        Rol rolBD = rolDAO.findByCode(rol);
+        UsuarioRol ur = usuarioRolDAO.findByUsuarioAndRol(usuario, rolBD);
+
+        if (ur != null) {
+            logger.debug("No se pueded agregar rol porque ya lo tiene");
+            return;
+        }
+
+        ur = new UsuarioRol();
+        ur.setRol(rolBD);
+        ur.setUsuario(usuario);
+        ur.setEstado(UserEstadoEnum.ACT);
+        ur.setFechaInicio(new Date());
+        ur.setFechaRegistro(new Date());
+        ur.setUserRegistro(userRegistro);
+
+        usuarioRolDAO.save(ur);
     }
 
     @Override
@@ -795,6 +824,7 @@ public class OficinaServiceImp implements OficinaService {
             medico.setFechaRegistro(new Date());
             medico.setUserRegistro(usuario);
             medicoDAO.save(medico);
+            addRol(personaBD, RolEnum.MED, usuario);
         }
 
         ArrayList<PerfilCompania> perfiles = new ArrayList();
@@ -885,7 +915,14 @@ public class OficinaServiceImp implements OficinaService {
                     medico.setFechaRegistro(new Date());
                     medico.setUserRegistro(ds.getUsuario());
                     medicoDAO.save(medico);
+                    addRol(colaboradorBD.getPersona(), RolEnum.MED, ds.getUsuario());
                 }
+            }
+
+            if ((oficinaAnterior.getId().equals(oficinaCentroMedico.getId()) || (oficinaAnterior.getOficinaSuperior() != null && oficinaAnterior.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
+                    && Arrays.asList("MEDICO", "JMEDICO").contains(colaboradorBD.getCargo().getCodigo())) {
+                Medico antiguo = medicoDAO.findByColaborador(colaboradorBD);
+                medicoDAO.update(antiguo);
             }
 
             PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getPersona());
