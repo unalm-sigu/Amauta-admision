@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -644,12 +645,15 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<PerfilCompania> allCargos(Oficina oficina) {
+        ObjectUtil.printAttr(oficina);
         List<PerfilCompania> oficinaCompanias = perfilCompaniaDAO.allTipoCargoByOfi(oficina);
+        logger.debug("CANTIDAD DE FUNCS = {}", oficinaCompanias.size());
         List<PerfilCompania> companias = perfilCompaniaDAO.allTipoCargo();
         List<PerfilCompania> allCompanias = new ArrayList<PerfilCompania>();
 
         allCompanias.addAll(oficinaCompanias);
         allCompanias.addAll(companias);
+        logger.debug("CANTIDAD DE total = {}", allCompanias.size());
         return allCompanias;
     }
 
@@ -696,9 +700,11 @@ public class OficinaServiceImp implements OficinaService {
         personaPerfilDAO.save(personaCargo);
 
         Oficina oficinaColaborador = oficinaDAO.find(colaborador.getOficina().getId());
-        Oficina oficinaBienestar = oficinaDAO.findByCode("OBUAE");
+        Oficina oficinaCentroMedico = oficinaDAO.findByCode("CENMED");
 
-        if (oficinaColaborador.getId() == oficinaBienestar.getId().longValue()) {
+        if ((oficinaColaborador.getId().equals(oficinaCentroMedico.getId()) || (oficinaColaborador.getOficinaSuperior() != null && oficinaColaborador.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
+                && Arrays.asList("MEDICO", "JMEDICO").contains(colaborador.getCargo().getCodigo())) {
+
             Medico medico = new Medico();
             medico.setColaborador(colaborador);
             medico.setFechaRegistro(new Date());
@@ -779,9 +785,11 @@ public class OficinaServiceImp implements OficinaService {
 
         }
 
-        Oficina oficinaBienestar = oficinaDAO.findByCode("OBUAE");
+        Oficina oficinaCentroMedico = oficinaDAO.findByCode("CENMED");
 
-        if (oficinaColaborador.getId() == oficinaBienestar.getId().longValue()) {
+        if ((oficinaColaborador.getId().equals(oficinaCentroMedico.getId()) || (oficinaColaborador.getOficinaSuperior() != null && oficinaColaborador.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
+                && Arrays.asList("MEDICO", "JMEDICO").contains(colaborador.getCargo().getCodigo())) {
+
             Medico medico = new Medico();
             medico.setColaborador(colaborador);
             medico.setFechaRegistro(new Date());
@@ -853,7 +861,7 @@ public class OficinaServiceImp implements OficinaService {
     public void updateColaborador(Colaborador colaboradorForm, Oficina oficinaMea, DataSessionPivot ds) {
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
         Oficina oficinaAnterior = colaboradorBD.getOficina();
-
+        Oficina oficinaNueva = oficinaDAO.find(colaboradorForm.getOficina().getId());
         ObjectUtil.printAttr(colaboradorForm);
 
         colaboradorBD.setFechaModificacion(new Date());
@@ -864,6 +872,22 @@ public class OficinaServiceImp implements OficinaService {
         colaboradorDAO.update(colaboradorBD);
 
         if (colaboradorForm.getOficina().getId() != oficinaAnterior.getId()) {
+
+            Oficina oficinaCentroMedico = oficinaDAO.findByCode("CENMED");
+
+            if ((oficinaNueva.getId().equals(oficinaCentroMedico.getId()) || (oficinaNueva.getOficinaSuperior() != null && oficinaNueva.getOficinaSuperior().getId().equals(oficinaCentroMedico.getId())))
+                    && Arrays.asList("MEDICO", "JMEDICO").contains(colaboradorForm.getCargo().getCodigo())) {
+
+                Medico antiguo = medicoDAO.findByColaborador(colaboradorBD);
+                if (antiguo == null) {
+                    Medico medico = new Medico();
+                    medico.setColaborador(colaboradorBD);
+                    medico.setFechaRegistro(new Date());
+                    medico.setUserRegistro(ds.getUsuario());
+                    medicoDAO.save(medico);
+                }
+            }
+
             PersonaCargo personaCargo = personaPerfilDAO.findCargoByPersona(oficinaAnterior, colaboradorForm.getPersona());
             personaCargo.setEstadoEnum(PerfilEstadoEnum.INA);
             personaCargo.setFechaFin(new Date());
