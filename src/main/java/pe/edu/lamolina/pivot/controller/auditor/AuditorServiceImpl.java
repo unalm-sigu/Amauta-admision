@@ -119,13 +119,16 @@ public class AuditorServiceImpl implements AuditorService {
             MatriculaCurso matriculaCurso = (MatriculaCurso) matriculaCursoMap.get(matriculaSeccion.getMatriculaResumen().getAlumno().getId());
             if (matriculaCurso != null) {
                 //creditos matriculados
+                notasNode.put("matCursoPorcentajeAvance", matriculaCurso.getPorcentajeAvanceNota());
+                notasNode.put("matCursoNotaAvance", matriculaCurso.getNotaAvance());
+                notasNode.put("matCursoNotaAcumulada", matriculaCurso.getNotaAcumulada());
                 if (sistemaNotas.isLetras()) {
-                    notasNode.put("creditosAprobados", matriculaCurso.getCreditosAprobados());
-                    notasNode.put("creditos", matriculaCurso.getCreditos());
+                    notasNode.put("matCursoCreditosAprobados", matriculaCurso.getCreditosAprobados());
+                    notasNode.put("matCursoCreditos", matriculaCurso.getCreditos());
                 } else if (sistemaNotas.isNumerico()) {
-                    notasNode.put("notaAvance", matriculaCurso.getNotaAvanceFull());
-                    notasNode.put("notaAcumulada", matriculaCurso.getNotaAcumuladaFull());
-                    notasNode.put("notaFinal", matriculaCurso.getNotaFinal());
+                    notasNode.put("matCursoNotaAvance", matriculaCurso.getNotaAvanceFull());
+                    notasNode.put("matCursoNotaAcumulada", matriculaCurso.getNotaAcumuladaFull());
+                    notasNode.put("matCursoNotaFinal", matriculaCurso.getNotaFinal());
                 }
             }
             arrayNotasNode.add(notasNode);
