@@ -1,0 +1,89 @@
+<div>
+    <template id="modal-vik-template">
+        <transition name="modal">
+
+            <div v-bind:id="id" class="modal fade" tabindex="-1" role="dialog"  ref="mimodal"
+                 v-bind:data-backdrop="dataBackdrop" v-bind:data-keyboard="dataKeyboard">
+                <div class="modal-dialog" v-bind:class="modalsize" role="document">
+
+                    <div class="modal-content" v-bind:style="styleModal">
+                        <div v-if="header" class="modal-header">
+                            <slot name="header">
+                                <button v-on:click="close"  type="button"  class="close">
+
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">{{ title }}</h4>
+                            </slot>
+                        </div>
+
+                        <div class="modal-body" v-bind:class="modalscroll" >
+                            <slot name="body">
+                                <p>Modal Body</p>
+                            </slot>
+                        </div>
+
+                        <div v-if="footer"  class="modal-footer">
+                            <slot name="footer">
+                                <button v-on:click="close" type="button" class="btn" v-bind:class="cancelclass" data-dismiss="modal">{{cancelbtn}}</button>
+                                <button v-if="showaccept" v-on:click="okaction" type="button" class="btn" v-bind:class="okclass">{{okbtn}}</button>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </template>
+</div>
+<script>
+    Vue.component('modal-vik', {
+        template: '#modal-vik-template',
+        props: {
+            id: {type: String, default: 'mimodal'},
+            header: {type: Boolean, default: true},
+            footer: {type: Boolean, default: true},
+            title: {type: String, default: 'Modal'},
+            okbtn: {type: String, default: 'Aceptar'},
+            okaction: {type: Function, default: () => {
+                }},
+            okclass: {type: String, default: 'btn-success'},
+            cancelbtn: {type: String, default: 'Cerrar'},
+            cancelaction: {type: Function, default: () => {
+                }},
+            cancelclass: {type: String, default: 'btn-link'},
+            modalsize: {type: String, default: "modal-md"},
+            showaccept: {type: Boolean, default: true},
+            modalscroll: {type: String, default: ''},
+            styleModal: {type: Object, default: null},
+            dataBackdrop: {type: String, default: null},
+            dataKeyboard: {type: String, default: null},
+        },
+        methods: {
+            open() {
+                let $vue = this;
+                $('#' + $vue.id).modal('show');
+            },
+            close() {
+                let $vue = this;
+                $('#' + $vue.id).modal('hide');
+                this.cancelaction();
+            }
+        }
+    });
+    var Vudal = {
+        methods: {
+            vudalOpen() {
+                let $vue = this;
+                $vue.$refs.mimodal.open();
+            },
+            vudalClose() {
+                let $vue = this;
+                $vue.$refs.mimodal.close();
+            },
+            vudalBody() {
+                let $vue = this;
+                return $vue.$refs.mimodal.$el;
+            }
+        }
+    }
+</script>

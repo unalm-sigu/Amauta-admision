@@ -4,66 +4,92 @@
     </head>
 
     <body>
-        <div id="pageRolSistemaVUE" layout:fragment="main">
+        <div layout:fragment="main">
+            <div id="main">
 
-            <header class="header b-b padder-lg">
+                <header class="header b-b padder-lg">
 
-                <div class="btn-group pull-right pointer new-rol">
-                    <a class="btn btn-primary btn-sm">
-                        <i class="fa fa-plus"></i> Nuevo Rol
-                    </a>
-                </div>
+                    <div class="btn-group pull-right pointer new-rol">
+                        <a class="btn btn-primary btn-sm">
+                            <i class="fa fa-plus"></i> Nuevo Rol
+                        </a>
+                    </div>
 
-                <h2>Roles del Sistema</h2>
-            </header>
+                    <h2>Roles del Sistema</h2>
+                </header>
 
-            <section class="panel">
-                <section class="panel-body">
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
 
-                    <raptor-table v-bind:url="rolesUrl">
-                        <template scope="props" >
+                            <raptor-table v-bind:url="rolesUrl">
+                                <template scope="props" >
 
-                            <table class="table table-striped" style="z-index: 1">
-                                <thead>
-                                    <tr>
-                                        <th class="col-md-2 text-center">Código</th>
-                                        <th class="col-md-6">Nombre</th>
-                                        <th class="col-md-4">Rol Superior</th>
-                                        <th class=""></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="item in props.data">
-                                        <td class="v-middle text-center">
-                                            <a class="text-lg bold text-primary pointer" v-text="item.codigo"></a>
-                                        </td>
-                                        <td class="v-middle">
-                                            <span v-text="item.nombre"></span>
-                                        </td>
-                                        <td class="v-middle">
-                                            <span v-text="item.rolSuperior"></span>
-                                        </td>
-                                        <td class="v-middle text-left"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    <table class="table table-striped" style="z-index: 1">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-xs-2 text-center">Código</th>
+                                                <th class="col-xs-3">Nombre</th>
+                                                <th class="col-xs-3">Rol Superior</th>
+                                                <th class="col-xs-2">Cargos</th>
+                                                <th class="col-xs-2">Funciones</th>
+                                                <th class=""></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle text-center">
+                                                    <a class="text-lg bold text-primary pointer" v-text="item.codigo"></a>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span v-text="item.nombre"></span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span v-text="item.rolSuperior"></span>
+                                                </td>
+                                                <td class="v-middle">
+                                                </td>
+                                                <td class="v-middle">
+                                                </td>
+                                                <td class="v-middle text-left">
 
-                        </template>
-                        <div slot="header">
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                        </a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a class="btn-link" href="#" v-on:click.prevent="{{relacionarCargo(item)}}">Relacionar Cargo</a></li>
+                                                            <li><a class="btn-link" href="#" v-on:click.prevent="{{relacionarFuncion(item)}}">Relacionar Función</a></li>
+                                                        </ul>
+                                                    </div>
 
-                        </div>
-                    </raptor-table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
+                                </template>
+
+                                <div slot="header">
+
+                                </div>
+
+                            </raptor-table>
+
+                        </section>
+                    </section>
                 </section>
-            </section>
 
+                <div th:substituteby="seguridad/rol/rolSistemaCargoTemplate"/>
+
+            </div>
+                
         </div>
 
-        <div th:substituteby="_modules/vue-modal"/>
 
         <div layout:fragment="js" th:remove="tag">
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <div th:substituteby="_modules/vue-vudal"></div>
             <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
         </div>
 
