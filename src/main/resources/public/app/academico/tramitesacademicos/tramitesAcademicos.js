@@ -52,6 +52,7 @@ var app = new Vue({
             location.href = APP.url("academico/tramiteacademico/agendareuniones");
         }, loadModalAgendar(tramite) {
             let $vue = this;
+            $vue.reunionConsejoSel = null;
             $.ajax({
                 url: APP.url('academico/tramiteacademico/loadModalAgendar'),
                 data: JSON.stringify(tramite),
@@ -73,17 +74,22 @@ var app = new Vue({
             this.reunionConsejoSel = reunionConsejo;
         }, saveAgendar() {
             console.log("agendara");
+            let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/reunionconsejo/loadModalReunionConsejo'),
+                url: APP.url('academico/tramiteacademico/saveAgendar'),
                 data: {
-                    fechaReunion: fecha
+                    tramite: $vue.tramiteSeleccionado.id,
+                    reunionConsejo: $vue.reunionConsejoSel.id,
                 },
                 success: function (response) {
                     if (response.success) {
-                        $vue.reunionConsejo = response.data.reunionConsejo;
-                        $vue.reunionConsejo.fecha = fecha;
+                        // $vue.reunionConsejo = response.data.reunionConsejo;
+                        // $vue.reunionConsejo.fecha = fecha;
                     }
+                },
+                error: function () {
+                    notify(response.message, "error");
                 }
             });
         }

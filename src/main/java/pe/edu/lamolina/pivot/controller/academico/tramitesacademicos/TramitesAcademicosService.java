@@ -13,7 +13,7 @@ public interface TramitesAcademicosService {
 
     void aceptarSolReincorporacion(Tramite tramite, Usuario usuario);
 
-    void agendarSolicitud(Tramite tramite, Usuario usuario);
+    void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, Usuario usuario);
 
     List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina);
 
