@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.file.excel.AbstractPOIExcelView;
 import pe.albatross.zelpers.file.excel.ExcelStyles;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -77,7 +78,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
 
         List<String> rows = new ArrayList();
 
-        String head = "Curso|Grupo|Departamento|Docente Principal|Email Doc. Principal|Versión Acta|Estado Sistema Calificación|Estado Acta";
+        String head = "Curso|Grupo|Departamento|Docente Principal|Email Doc. Principal|Versión Acta|Estado Sistema Calificación|Estado Acta|Fecha Cierre Acta";
         rows.add(head);
         StringBuilder sb;
         for (GrupoSeccion grupoSeccion : allGruposSeccion) {
@@ -140,10 +141,11 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                 emails = "-";
             }
             sb.append(curso.getNombre()).append("|").append(secciones.substring(0, secciones.length())).append("|").append(departamento.getNombre()).append("|").append(docentes).append("|").append(emails).append("|").append(grupoSeccion.getVersion()).append("|").append(estadoPlan).append("|").append(estadoGrupo);
+            sb.append("|").append(grupoSeccion.getFechaCierreActa() == null ? "" : TypesUtil.getStringDate(grupoSeccion.getFechaCierreActa(), "dd/MM/yyyy"));
             rows.add(sb.toString());
         }
 
-        int totalColumns = 7;
+        int totalColumns = 9;
 
         this.createSheet(workbook, rows, totalColumns, "RecordActas", cellHeader, cellBody);
         String fechaRep = " - " + new DateTime().toString("dd/MM/yyyy H:mm");

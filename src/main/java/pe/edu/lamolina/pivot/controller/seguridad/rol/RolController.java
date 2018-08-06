@@ -94,6 +94,9 @@ public class RolController {
                 node.put("id", rol.getId());
                 node.put("nombre", rol.getNombre());
                 node.put("codigo", rol.getCodigo());
+                if (rol.getRolSuperior() != null) {
+                    node.put("rolSuperior", rol.getRolSuperior().getNombre());
+                }
 
                 array.add(node);
             }

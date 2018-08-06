@@ -51,14 +51,14 @@ Vue.component("v-date-picker", {
     methods: {
         createdDP($vue) {
             $vue.elem = $(this.$el).find(".vdate");
-            $('.date').datepicker({
-                format: 'dd/mm/yyyy'
-            });
+            $('.date').datepicker({format: 'dd/mm/yyyy'});
 
             if (this.value != null) {
                 this.elem.datepicker().datepicker('setDate', this.value);
             }
+
             $vue.elem.datepicker().on('changeDate', function () {
+                console.log("change date");
                 if ($vue.required) {
                     let target = $vue.elem.find("input");
                     target.parsley().destroy();
@@ -67,11 +67,17 @@ Vue.component("v-date-picker", {
                         return;
                     }
                 }
-                var dateObject = $vue.elem.datepicker('getDate');
-                $vue.$emit('input', dateObject);
-                $vue.value = dateObject;
-                //    $vue.elem.datepicker().datepicker('setFormat', 'dd/mm/yyyy');
-                $vue.$emit("changedate");
+                let dateObject = $vue.elem.datepicker('getDate');
+                let currentDate = moment($vue.value, "DD/MM/YYYY");
+                let newDate = moment(dateObject);
+
+                if (currentDate.format("DD/MM/YYYY") != newDate.format("DD/MM/YYYY")) {
+                    console.log("cambiar");
+                    $vue.$emit('input', newDate.format("DD/MM/YYYY"));
+                    $vue.value = newDate.format("DD/MM/YYYY");
+                    $vue.$emit("changedate");
+                 //    this.elem.datepicker().datepicker('setDate', newValue);
+                }
             });
 
             if ($vue.startdate != null) {
@@ -104,6 +110,8 @@ Vue.component("v-date-picker", {
             this.elem.datepicker().datepicker('setDaysOfWeekDisabled', newValue);
         }, datesdisabled(newValue) {
             this.elem.datepicker().datepicker('setDatesDisabled', newValue);
+        }, value(newValue) {
+            this.elem.datepicker().datepicker('setDate', newValue);
         }
     }, beforeDestroy() {
         //  console.log("destruira datepicker")

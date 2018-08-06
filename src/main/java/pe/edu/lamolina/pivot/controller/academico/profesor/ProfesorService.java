@@ -34,6 +34,8 @@ public interface ProfesorService {
 
     Persona findPersona(Persona persona);
 
+    String getRutaFoto(String foto, String sexo);
+
     void update(Docente docente, DataSessionPivot ds);
 
 }

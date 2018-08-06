@@ -47,6 +47,9 @@ Vue.component("dynatable", {
             $("body").delegate(".updateColaborador", "click", function () {
                 $global.$emit("updateColaborador", $(this).attr("rel"));
             });
+            $("body").delegate(".updatePersona", "click", function () {
+                $global.$emit("updatePersona", $(this).attr("rel"));
+            });
 
 
             var divElegido = null;
@@ -107,9 +110,15 @@ new Vue({
         $global.$on("updateColaborador", function (id) {
             $vue.updateColaborador(id);
         });
+        $global.$on("updatePersona", function (id) {
+            $vue.updatePersona(id);
+        });
 
     },
     methods: {
+        updatePersona(id){
+              window.location = APP.url('general/persona/'+id+'/edicion?origen=' + window.location.pathname);
+        },
         addCargo: function () {
             let $vue = this;
             var flag = false;

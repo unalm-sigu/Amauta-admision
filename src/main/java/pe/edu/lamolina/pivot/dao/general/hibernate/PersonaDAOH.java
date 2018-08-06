@@ -26,6 +26,9 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
                 .leftJoin("ubicacionDomicilio ud")
+                .leftJoin("paisNacer ")
+                .leftJoin("ubicacionNacer ")
+                .leftJoin("paisDomicilio ")
                 .filter("per.id", id);
 
         return find(sql);

@@ -20,6 +20,7 @@ public class EstadoTramiteAcademicoDAOH extends AbstractEasyDAO<EstadoTramiteAca
         Octavia sql = Octavia.query()
                 .from(EstadoTramiteAcademico.class, "eta")
                 .join("tipoTramite tt")
+                .left("tipoOficinaOrigen too", "tipoOficinaDestino tod")
                 .filter("tt.id", tipoTramite)
                 .filter("eta.orden", orden);
         return find(sql);

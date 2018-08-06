@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +29,22 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.NotaLetraDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
@@ -65,6 +72,15 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
 
+    @Autowired
+    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    NotaLetraDAO notaLetraDAO;
+
     @Override
     @Transactional
     public void calcularNotasLista(List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds) {
@@ -73,7 +89,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             Curso curso = gpoSeccion.getCurso();
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-            calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds);
+            calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
         }
     }
 
@@ -84,7 +100,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         visorCalculoNotas.incrementarCantidad();
         Curso curso = grupoSeccion.getCurso();
-        calcularNotasAlumno(alumno, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), ds);
+        calcularNotasAlumno(alumno, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), ds.getUsuario());
 
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
@@ -93,13 +109,19 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
     @Override
     @Transactional
-    public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
 
         logger.debug("\n\n\n");
         logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
 
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
+
+        Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
+        List<NotaLetra> notasLetras = notaLetraDAO.all();
+        for (NotaLetra notasLetra : notasLetras) {
+            mapNotaLetra.put(notasLetra.getLetra(), notasLetra);
+        }
 
         int cant = 0;
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
@@ -109,10 +131,22 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
         }
 
-        if (curso.isTieneCreditosVariables() && cant == 1) {
+        if ((curso.isTieneCreditosVariables() || curso.isCreditosZero()) && cant == 1) {
             AlumnoEvaluacion aEvaluacionLetra = evaluacionesAlumno.get(0);
             aEvaluacionLetra = alumnoEvaluacionDAO.findByFilter(aEvaluacionLetra.getId(), null, null);
             Evaluacion evaluacion = evaluacionDAO.find(aEvaluacionLetra.getEvaluacion().getId());
+
+            //     matriculaCurso.setNotaFinal(aEvaluacionLetra.getValorLetra());
+            if (curso.isCreditosZero()) {
+                if (aEvaluacionLetra.getValorLetra().equals("A")) {
+                    matriculaCurso.setCreditosAprobados(matriculaCurso.getCreditos());
+                } else if (aEvaluacionLetra.getValorLetra().equals("D")) {
+                    matriculaCurso.setCreditosAprobados(BigDecimal.ZERO.intValue());
+                }
+            } else if (curso.isTieneCreditosVariables()) {
+                matriculaCurso.setCreditosAprobados(new BigDecimal(aEvaluacionLetra.getNota()).intValue());
+            }
+
             String notaLetra = "";
             if (aEvaluacionLetra.getValorLetra().equals("A")) {
                 notaLetra = "AP";
@@ -189,15 +223,15 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             pesoConNota = pesoConNota.add(pesos.get(i));
         }
 
-        Fraxtion prom = dividendo.divide(pesoTotal);
         Fraxtion avance = dividendo.divide(pesoConNota);
+        Fraxtion prom = dividendo.divide(pesoTotal);
         matriculaCurso.setNotaAvance(NumberFormat.notaDecimal4Decimals(avance.getValue()));
         matriculaCurso.setNotaAcumulada(NumberFormat.notaDecimal4Decimals(prom.getValue()));
         matriculaCurso.setPorcentajeAvanceNota(pesoConNota.getValue().intValue());
         matriculaCurso.setNotaFinal("0");
 
-        avance = dividendo.divide(pesoTotal);
-        prom = dividendo.divide(pesoConNota);
+        avance = dividendo.divide(pesoConNota);
+        prom = dividendo.divide(pesoTotal);
 
         matriculaCurso.setNotaAvanceFull(NumberFormat.notaDecimal10Decimals(avance.getValue(18)));
         matriculaCurso.setNotaAcumuladaFull(NumberFormat.notaDecimal10Decimals(prom.getValue(18)));
@@ -217,7 +251,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 nota.setAlumno(alumno);
                 nota.setEsIngresoRegular(0);
                 nota.setFechaIngresoNota(new Date());
-                nota.setUsuarioIngresoNota(ds.getUsuario());
+                nota.setUsuarioIngresoNota(usuario);
                 nota.setNota(NumberFormat.notaDecimal(nota.getValorNumerico()));
                 alumnoEvaluacionDAO.save(nota);
 
@@ -604,6 +638,30 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         Fraxtion nota = ponderado.divide(pesoTotal);
         return nota.getValue(redondeo, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void calcularNotas(EvaluacionExpandida evaluacionExpandida, CicloAcademico cicloAcademico, Usuario usuario) {
+        evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion(), cicloAcademico);
+
+        for (MatriculaSeccion ms : matriculasSeccion) {
+            Seccion seccion = ms.getSeccion();
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+            if (gpoSecc.getPlanCalificacion() == null) {
+                break;
+            }
+
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+
+            this.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), usuario);
+
+        }
     }
 
 }
