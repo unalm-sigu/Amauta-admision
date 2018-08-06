@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import pe.edu.lamolina.pivot.controller.interceptor.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -86,6 +87,7 @@ public class AuditorServiceImpl implements AuditorService {
         ingresoNotas.put("evaluacionId", evaluacion.getId());
         ingresoNotas.put("evaluacion", evaluacion.getTipoEvaluacion().getNombre() + evaluacion.getNumero());
         ingresoNotas.put("evaluacionFechaRealizada", TypesUtil.getStringDate(evaluacion.getFechaRealizada(), "dd/MM/yyyy"));
+        ingresoNotas.put("evaluacionPeso", evaluacion.getPeso());
 
         //  List<Evaluacion> evaluacionesBySeccionFinal = this.allEvaluacionesByTipoSeccion(seccion);
         //   List<MatriculaSeccion> matriculasSeccionByFilter = this.allMatriculaSeccionBySeccion(seccion);
