@@ -64,6 +64,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
@@ -170,6 +171,9 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
     @Autowired
     InterceptorService interceptorService;
+
+    @Autowired
+    AuditorService auditorService;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -1412,15 +1416,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
                 alumnoEvaluacion.setNota(notax);
             } else {
-                MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEach, curso, ciclo);
-                matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
+          //      MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEach, curso, ciclo);
+           //     matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
                 if (curso.isCreditosZero()) {
                     NotaLetra notaLetra = (NotaLetra) mapNotaLetra.get(alumnoEvaluacionEach.getValorLetra());
                     alumnoEvaluacion.setNota(notaLetra.getValor().toString());
                 } else if (curso.isTieneCreditosVariables()) {
-                    matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacionEach.getNota()));
+                //    matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacionEach.getNota()));
                 }
-                matriculaCursoDAO.update(matriculaCurso);
+            //    matriculaCursoDAO.update(matriculaCurso);
 
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
@@ -1450,6 +1454,12 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
         //   List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allByGpoSeccion(grupoSeccion, ciclo);
         this.calcularNotasLista(marticulasSeccion, ds);
+        auditorService.auditSaveNotas(evaluacion, planCalificacion, sistemaNotas, seccion, curso, ciclo,
+                this.allEvaluacionesByTipoSeccion(seccion),
+                this.allMatriculaSeccionBySeccion(seccion),
+                this.allAlumnoEvaluacionBySeccion(seccion.getId()),
+                this.getMapMatriculasCursoByCicloCurso(ciclo, curso),
+                ds);
 
         return marticulasSeccion;
     }
@@ -1941,6 +1951,20 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         if (!evaluactionsComplete) {
             throw new PhobosException(String.format("Faltan ingresar notas en las secciones %s", String.join(", ", lstSeccionesIncompletes)));
         }
+        /*
+        Map<Long, MatriculaCurso> matriculaCursoMap = this.getMapMatriculasCursoByCicloCurso(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
+        for (Seccion seccion : grupoSeccion.getSecciones()) {
+            List<MatriculaSeccion> matriculasSeccionByFilter = matriculaSeccionDAO.allBySeccion(seccion);
+            for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
+                MatriculaCurso matriculaCurso = (MatriculaCurso) matriculaCursoMap.get(matriculaSeccion.getMatriculaResumen().getAlumno().getId());
+                if (matriculaCurso == null) {
+                    lstSeccionesIncompletes.add(seccion.getCodigo2() + " - " + seccion.getGrupoHoras().getCodigo());
+                }
+                resumenAlumnoEvaluacionDAO.findByAlumnoGrupoTipo(alumno, grupoSeccion, tipoEvaluacion);
+            }
+
+        }
+         */
         grupoSeccion.setUsuarioCierraActa(usuario);
         grupoSeccion.setFechaCierreActa(today.toDate());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
@@ -1957,11 +1981,6 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             Curso curso = matriculaCurso.getCurso();
             promedioService.promedio(matriculaCurso, usuario, true);
-            try {
-                promedioService.generarHistorialNotas(alumno, curso, matriculaCurso, grupoSeccion.getCicloAcademico(), usuario, today);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
     }

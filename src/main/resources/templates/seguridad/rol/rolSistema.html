@@ -27,7 +27,8 @@
                                 <thead>
                                     <tr>
                                         <th class="col-md-2 text-center">Código</th>
-                                        <th class="col-md-10">Nombre</th>
+                                        <th class="col-md-6">Nombre</th>
+                                        <th class="col-md-4">Rol Superior</th>
                                         <th class=""></th>
                                     </tr>
                                 </thead>
@@ -39,6 +40,9 @@
                                         <td class="v-middle">
                                             <span v-text="item.nombre"></span>
                                         </td>
+                                        <td class="v-middle">
+                                            <span v-text="item.rolSuperior"></span>
+                                        </td>
                                         <td class="v-middle text-left"></td>
                                     </tr>
                                 </tbody>
@@ -46,24 +50,13 @@
 
                         </template>
                         <div slot="header">
-                            
+
                         </div>
                     </raptor-table>
 
                 </section>
             </section>
 
-            <template id="modalAulaComp"> 
-                <div> 
-                </div>
-            </template>
-
-            <modal-vik ref="modalMenu"
-                       v-bind="aulaModal">
-                <div slot="body">
-                    <aula-component></aula-component>
-                </div>
-            </modal-vik>
         </div>
 
         <div th:substituteby="_modules/vue-modal"/>

@@ -125,6 +125,16 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return find(sql);
     }
+    
+    @Override
+    public List<CicloAcademico> allActivos() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("estado", CicloAcademicoEstadoEnum.ACT);
+
+        return all(sql);
+    }
 
     @Override
     public CicloAcademico findSiguienteNivelacionActivo(CicloAcademico ciclo) {

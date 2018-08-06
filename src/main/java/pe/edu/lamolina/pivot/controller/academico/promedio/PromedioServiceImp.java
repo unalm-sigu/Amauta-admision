@@ -648,6 +648,7 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
+    //invoked of cargaacademicaservice
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
@@ -816,6 +817,11 @@ public class PromedioServiceImp implements PromedioService {
             alumnoUpd.setCicloActivo(cicloAcademico);
             alumnoUpd.setSituacionAcademica(situacionAcademicaFinal);
             alumnoDAO.updateCicloActivoSituacionAcad(alumnoUpd);
+        }
+        try {
+            this.generarHistorialNotas(alumno, curso, matriculaCurso, cicloAcademico, usuario, today);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.NotaLetra;
 import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoEvaluacion;
@@ -42,6 +44,7 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.NotaLetraDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
@@ -74,6 +77,9 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    NotaLetraDAO notaLetraDAO;
 
     @Override
     @Transactional
@@ -111,6 +117,12 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
         MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
 
+        Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
+        List<NotaLetra> notasLetras = notaLetraDAO.all();
+        for (NotaLetra notasLetra : notasLetras) {
+            mapNotaLetra.put(notasLetra.getLetra(), notasLetra);
+        }
+
         int cant = 0;
         List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
         for (AlumnoEvaluacion nota : evaluacionesAlumno) {
@@ -119,10 +131,22 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
         }
 
-        if (curso.isTieneCreditosVariables() && cant == 1) {
+        if ((curso.isTieneCreditosVariables() || curso.isCreditosZero()) && cant == 1) {
             AlumnoEvaluacion aEvaluacionLetra = evaluacionesAlumno.get(0);
             aEvaluacionLetra = alumnoEvaluacionDAO.findByFilter(aEvaluacionLetra.getId(), null, null);
             Evaluacion evaluacion = evaluacionDAO.find(aEvaluacionLetra.getEvaluacion().getId());
+
+            //     matriculaCurso.setNotaFinal(aEvaluacionLetra.getValorLetra());
+            if (curso.isCreditosZero()) {
+                if (aEvaluacionLetra.getValorLetra().equals("A")) {
+                    matriculaCurso.setCreditosAprobados(matriculaCurso.getCreditos());
+                } else if (aEvaluacionLetra.getValorLetra().equals("D")) {
+                    matriculaCurso.setCreditosAprobados(BigDecimal.ZERO.intValue());
+                }
+            } else if (curso.isTieneCreditosVariables()) {
+                matriculaCurso.setCreditosAprobados(new BigDecimal(aEvaluacionLetra.getNota()).intValue());
+            }
+
             String notaLetra = "";
             if (aEvaluacionLetra.getValorLetra().equals("A")) {
                 notaLetra = "AP";

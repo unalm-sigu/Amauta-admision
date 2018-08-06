@@ -16,99 +16,163 @@
 <body>
     <div layout:fragment="main">
         <div id="tramitesAcademicos">
-        <header class="header b-b padder-lg">
+            <header class="header b-b padder-lg">
 
-            <div class="pull-right m-t-md">  
-                <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
-            </div> 
-            <h2 >Tramites Academicos</h2>
-        </header>
-        <section  class="wrapper-lg">
+                <div class="pull-right m-t-md">  
+                    <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
+                </div> 
+                <h2 >Tramites Academicos</h2>
+            </header>
+            <section  class="wrapper-lg">
 
-            <section class="panel">
-                <section class="panel-body">
+                <section class="panel">
+                    <section class="panel-body">
 
 
-                    <raptor-table ref="tblTramitesAcademicos"
-                                  v-bind:url="URL_TRAMITES" >
+                        <raptor-table ref="tblTramitesAcademicos"
+                                      v-bind:url="URL_TRAMITES" >
+
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th >Tramite</th>
+                                            <th class="col-md-4 text-center">Persona</th>
+                                            <th >Tipo Tramite</th>
+                                            <th>Estado</th>
+                                            <th>Fecha Registro</th>
+                                            <th>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td> 
+                                                <small class="block text-muted">Serie: {{item.serie}}</small>
+                                                <small class="block text-muted">Número: {{item.numero}}</small>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{ item.persona.apellidosNombres}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                {{ item.tipoTramite.nombre}}
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <small class="block text-muted">Tramite:  {{ item.estadoEnum}}</small>
+                                                <small class="block text-muted" 
+                                                       v-if="item.tipoTramite.esTipoTramiteRei">
+                                                    Reincorporación: {{item.reincorporaciones[0].estadoTramite.nombre}}
+                                                </small>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                    <format-date v-bind:datetext="item.fechaRegistro"></format-date>
+                                    </td>
+                                    <td>
+                                        <div class="dropdown actions">
+                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                <i class="glyphicon glyphicon-cog"></i>
+                                            </a> 
+                                            <ul class="dropdown-menu pull-right"> 
+                                                <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
+                                                <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolicitudReincorporacion">
+                                                    <a class="btn-link pointer editar-gpo-seccion" 
+                                                       v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
+                                                        Historial Revisado</a>
+                                                </li>
+                                                <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolicitudHistorialRevisado">
+                                                    <!-- cambiarEstadoReincorporacion(item,'CON_FAC',$event) -->
+                                                    <a class="btn-link pointer editar-gpo-seccion" 
+                                                       v-on:click.prevent="loadModalAgendar(item)">
+                                                        Agendar</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+
+                    </section>
+                </section>
+            </section>
+
+
+            <modal-vik ref="modalAgendar"
+                       modalsize="modal-md"
+                       v-bind="agendarModal"
+                       v-bind:okaction="saveAgendar">
+                <div slot="body">
+
+
+                    <raptor-table ref="tblReunionesConsejo"
+                                  v-bind:url="URL_REUNIONES" 
+                                  rowsperpage="5"
+                                  v-bind:searcher="false">
 
                         <template scope="props">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th >Tramite</th>
-                                        <th class="col-md-4 text-center">Persona</th>
-                                        <th >Tipo Tramite</th>
-                                        <th>Estado</th>
-                                        <th>Fecha Registro</th>
-                                        <th>
-
-                                        </th>
+                                        <th>Fecha</th>
+                                        <th>Es Ordinario</th>
+                                        <th>Oficina</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in props.data"> 
-                                        <td> 
-                                            <small class="block text-muted">Serie: {{item.serie}}</small>
-                                            <small class="block text-muted">Número: {{item.numero}}</small>
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.persona.apellidosNombres}}
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.tipoTramite.nombre}}
-                                        </td>
-                                        <td class="v-middle text-left">
-                                            <small class="block text-muted">Tramite:  {{ item.estadoValue}}</small>
-                                            <small class="block text-muted" 
-                                                   v-if="item.tipoTramite.esTipoTramiteRei">
-                                                Reincorporación: {{item.reincorporaciones[0].estadoTramite.nombre}}
-                                            </small>
-                                        </td>
-                                        <td class="v-middle text-center">
-                                            {{ item.fechaRegistro}}
-                                        </td>
-                                        <td>
-                                            <div class="dropdown actions">
-                                                <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-cog"></i>
-                                                </a> 
-                                                <ul class="dropdown-menu pull-right"> 
-                                                    <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
-                                                    <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolReincorporacion">
-                                                        <a class="btn-link pointer editar-gpo-seccion" 
-                                                           v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
-                                                            Historial Revisado</a>
-                                                    </li>
-                                                    <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.isSolicitudHistorialRevisado">
-                                                        <a class="btn-link pointer editar-gpo-seccion" 
-                                                           v-on:click="cambiarEstadoReincorporacion(item,'CON_FAC',$event)">
-                                                            Agendar</a>
-                                                    </li>
-
-                                                </ul>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                        <td>   
+                                <format-date v-bind:datetext="item.fecha"></format-date>
+                                </td>
+                                <td>
+                                    <label class="switch">
+                                        <input  type="checkbox" 
+                                                value="1"
+                                                checked="{{item.esOrdinario}}"
+                                                disabled="true"/>
+                                        <span></span>
+                                    </label>
+                                </td> 
+                                <td>
+                                    <span v-if="item.oficina" 
+                                          v-text="item.oficina.nombre"></span>
+                                </td> 
+                                <td>
+                                    <a alt="selReunionConsejo"  
+                                       class="btn" 
+                                       v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
+                                       type="button"    
+                                       v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
+                                       href="#" >Seleccionar</a>
+                                </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </template>
                     </raptor-table>
 
-                </section>
-            </section>
-        </section>
-        </div>
-        
-        <div th:substituteby="templates/modal"/>
 
+                </div>
+            </modal-vik>
+
+
+
+        </div>
+
+        <div th:substituteby="templates/modal"/>
+        <div th:substituteby="_modules/vue-modal"/>
 
     </div>
 
     <div layout:fragment="js">
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
         <script th:src="@{/app/academico/tramitesacademicos/tramitesAcademicos.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
     </div>
 
 

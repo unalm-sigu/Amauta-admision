@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Evaluacion;
@@ -69,6 +68,9 @@ public class TestController {
     SeccionDAO seccionDAO;
 
     @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
     @Autowired
@@ -94,9 +96,6 @@ public class TestController {
 
     @Autowired
     PromedioService promedioService;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
@@ -203,28 +202,33 @@ public class TestController {
         int loop = 1;
         visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByCiclo(ciclo);
-        for (MatriculaSeccion ms : alumnosSeccion) {
-            Seccion seccion = ms.getSeccion();
-            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
-            Alumno alumno = ms.getMatriculaResumen().getAlumno();
+        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
 
-            if (gpoSecc.getPlanCalificacion() == null) {
-                continue;
+        for (CicloAcademico cicloActivo : ciclosActivos) {
+            List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allMatriculadosByCiclo(cicloActivo);
+            for (MatriculaSeccion ms : alumnosSeccion) {
+                Seccion seccion = ms.getSeccion();
+                GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+                Alumno alumno = ms.getMatriculaResumen().getAlumno();
+
+                if (gpoSecc.getPlanCalificacion() == null) {
+                    continue;
+                }
+
+                if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                    continue;
+                }
+
+                if (!cicloActivo.isActivo()) {
+                    if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
+                        continue;
+                    }
+                }
+
+                calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
+                loop++;
+
             }
-
-            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                continue;
-            }
-
-            if (seccion.getGrupoSeccion().isEstadoGrupoCerrado()) {
-                continue;
-            }
-
-            calculoNotasService.recalcularAllResumenEvalAlumno(alumno, gpoSecc, loop, ds);
-            loop++;
-
         }
         return "yeah";
     }
