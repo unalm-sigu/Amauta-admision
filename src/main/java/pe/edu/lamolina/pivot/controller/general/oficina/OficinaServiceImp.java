@@ -711,7 +711,7 @@ public class OficinaServiceImp implements OficinaService {
             medico.setFechaRegistro(new Date());
             medico.setUserRegistro(usuario);
             medicoDAO.save(medico);
-            addRol(persona, RolEnum.MED, usuario);
+          //  addRol(persona, RolEnum.MED, usuario);
         }
 
         ArrayList<PerfilCompania> list = new ArrayList();
@@ -824,7 +824,7 @@ public class OficinaServiceImp implements OficinaService {
             medico.setFechaRegistro(new Date());
             medico.setUserRegistro(usuario);
             medicoDAO.save(medico);
-            addRol(personaBD, RolEnum.MED, usuario);
+        //    addRol(personaBD, RolEnum.MED, usuario);
         }
 
         ArrayList<PerfilCompania> perfiles = new ArrayList();
@@ -915,7 +915,7 @@ public class OficinaServiceImp implements OficinaService {
                     medico.setFechaRegistro(new Date());
                     medico.setUserRegistro(ds.getUsuario());
                     medicoDAO.save(medico);
-                    addRol(colaboradorBD.getPersona(), RolEnum.MED, ds.getUsuario());
+               //     addRol(colaboradorBD.getPersona(), RolEnum.MED, ds.getUsuario());
                 }
             }
 
