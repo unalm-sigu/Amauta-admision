@@ -154,10 +154,10 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         AlumnoReunionConsejo alumnoReunionConsejoActiva = null;
         for (AlumnoReunionConsejo alumnoReunionConsejo : alumnoReunionesConsejo) {
-            if (alumnoReunionConsejo.getEsActivo()) {
-                alumnoReunionConsejoActiva = alumnoReunionConsejo;
-                break;
-            }
+//            if (alumnoReunionConsejo.getEsActivo()) {
+//                alumnoReunionConsejoActiva = alumnoReunionConsejo;
+//                break;
+//            }
         }
         if (alumnoReunionConsejoActiva == null || (alumnoReunionConsejoActiva != null && alumnoReunionConsejoActiva.getReunionConsejo().getId().compareTo(reunionConsejo.getId()) != 0)) {
             AlumnoReunionConsejo alumnoReunionConsejo = new AlumnoReunionConsejo();
