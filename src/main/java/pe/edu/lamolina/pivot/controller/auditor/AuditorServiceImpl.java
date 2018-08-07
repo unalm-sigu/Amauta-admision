@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import pe.edu.lamolina.pivot.controller.interceptor.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +17,6 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
@@ -41,7 +41,9 @@ public class AuditorServiceImpl implements AuditorService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     @Override
     @Async
-    public void auditSaveNotas(Evaluacion evaluacion, PlanCalificacion planCalificacion, SistemaNotas sistemaNotas, Seccion seccion, Curso curso,
+    public void auditSaveNotas(LoggerAccionEnum loggerAccionEnum, Evaluacion evaluacion, PlanCalificacion planCalificacion,
+            SistemaNotas sistemaNotas,
+            Seccion seccion, Curso curso,
             CicloAcademico cicloAcademico,
             List<Evaluacion> evaluacionesBySeccionFinal,
             List<MatriculaSeccion> matriculasSeccionByFilter,
@@ -55,7 +57,7 @@ public class AuditorServiceImpl implements AuditorService {
         ingresoNotas.put("planCalificacionFormula", planCalificacion.getFormula());
         ingresoNotas.put("sistemaNotas", sistemaNotas.getNombre());
         ingresoNotas.put("sistemaNotas", sistemaNotas.getNombre());
-        ingresoNotas.put("cursoNombre", curso.getCreditos());
+        ingresoNotas.put("cursoNombre", curso.getNombre());
         ingresoNotas.put("cursoCodigo", curso.getCodigo());
         ingresoNotas.put("cursoTipo", curso.getTipoCurso());
         ingresoNotas.put("cursoTipoCredito", curso.getTipoCredito());
@@ -87,6 +89,7 @@ public class AuditorServiceImpl implements AuditorService {
         ingresoNotas.put("evaluacionId", evaluacion.getId());
         ingresoNotas.put("evaluacion", evaluacion.getTipoEvaluacion().getNombre() + evaluacion.getNumero());
         ingresoNotas.put("evaluacionFechaRealizada", TypesUtil.getStringDate(evaluacion.getFechaRealizada(), "dd/MM/yyyy"));
+        ingresoNotas.put("evaluacionPeso", evaluacion.getPeso());
 
         //  List<Evaluacion> evaluacionesBySeccionFinal = this.allEvaluacionesByTipoSeccion(seccion);
         //   List<MatriculaSeccion> matriculasSeccionByFilter = this.allMatriculaSeccionBySeccion(seccion);
@@ -136,9 +139,25 @@ public class AuditorServiceImpl implements AuditorService {
         ingresoNotas.set("notas", arrayNotasNode);
 
         ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-        objNode.put("tipo", LoggerAccionEnum.GRABAR_NOTAS_ACADEMICAS.name());
+        objNode.put("tipo", loggerAccionEnum.name());
         objNode.set("data", ingresoNotas);
         interceptorService.saveInterceptor(objNode, ds);
+    }
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Override
+    @Async
+    public void auditSaveNotas(Evaluacion evaluacion, PlanCalificacion planCalificacion,
+            SistemaNotas sistemaNotas,
+            Seccion seccion, Curso curso,
+            CicloAcademico cicloAcademico,
+            List<Evaluacion> evaluacionesBySeccionFinal,
+            List<MatriculaSeccion> matriculasSeccionByFilter,
+            Map<String, AlumnoEvaluacion> notas,
+            Map matriculaCursoMap,
+            DataSessionPivot ds) {
+
+        this.auditSaveNotas(LoggerAccionEnum.GRABAR_NOTAS_ACADEMICAS, evaluacion, planCalificacion, sistemaNotas, seccion, curso, cicloAcademico, evaluacionesBySeccionFinal, matriculasSeccionByFilter, notas, matriculaCursoMap, ds);
     }
 
 }

@@ -155,9 +155,6 @@ public class TramitesAcademicosController {
             if (EstadoTramiteEnum.REV_HIS.name().equals(estadoDestino)) {
                 tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), ds.getUsuario());
                 response.setMessage("Solicitud aceptada.");
-            } else if (EstadoTramiteEnum.CON_FAC.name().equals(estadoDestino)) {
-                tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), ds.getUsuario());
-                response.setMessage("Solicitud agendada.");
             }
 
             response.setSuccess(Boolean.TRUE);
@@ -247,6 +244,43 @@ public class TramitesAcademicosController {
         }
 
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAgendar")
+    public JsonResponse saveAgendar(
+            @RequestParam("reunionConsejo") Long reunionConsejoId,
+            @RequestParam("tramite") Long tramiteId,
+            Model model,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), new ReunionConsejo(reunionConsejoId), ds.getUsuario());
+            response.setMessage("Agendado correctamente.");
+            /*
+            ObjectNode node = new ObjectNode(jsonFactory);
+
+      
+            node.set("reunionConsejo", JsonHelper.createJson(reunionConsejo, jsonFactory, true, new String[]{
+                "*",
+                "usuarioRegistro.*",
+                "usuarioActualizacion.*",}));
+             */
+            //  response.setData(node);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
     }
 
 }

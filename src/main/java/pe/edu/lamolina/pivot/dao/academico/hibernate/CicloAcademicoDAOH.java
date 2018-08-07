@@ -64,22 +64,14 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public List<CicloAcademico> allActivos() {
+    public List<CicloAcademico> allForChanges(Integer maxResultado, ModalidadEstudio modalidad) {
+
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
-                .filter("estado", CicloAcademicoEstadoEnum.ACT);
-
-        return all(sql);
-    }
-
-    @Override
-    public List<CicloAcademico> allForChanges(Integer maxResultado) {
-
-        Octavia sql = Octavia.query()
-                .from(CicloAcademico.class, "ca")
+                .filter("me.id", modalidad)
                 .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
-                .orderBy("year desc", "numeroCiclo desc")
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(maxResultado);
 
         return all(sql);
@@ -132,6 +124,16 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .limit(1);
 
         return find(sql);
+    }
+    
+    @Override
+    public List<CicloAcademico> allActivos() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("estado", CicloAcademicoEstadoEnum.ACT);
+
+        return all(sql);
     }
 
     @Override
