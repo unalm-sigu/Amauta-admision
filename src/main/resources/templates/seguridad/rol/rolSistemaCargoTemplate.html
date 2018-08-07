@@ -1,17 +1,114 @@
-<modal-vik v-bind:okaction="saveCargo">
+<modal-vik  ref="cargomodal" v-bind="dataModalCargo" >
 
     <div slot="body">
-        
-        <div class="form-group">
-            <label>Cargo</label>
-            <input type="text" 
-                   class="form-control"
-                   name="cargo.id"
-                   v-model="cargo.id"
-                   required="true"/>
-        </div>
+
+        <form method="POST" class="m-t-md" id="formCargo">
+
+            <input type="hidden" name="rol.id" v-bind:value="rol.id" />
+
+            <div class="col-xs-9">
+                <div class="form-group">
+                    <cargosearh  v-bind:nombre="'perfilCompania.id'" v-bind:cargo="cargo"/>
+                </div>
+            </div>
+
+            <div class="col-xs-3">
+                <button type="button"  class="btn btn-info btn-sm" v-on:click.prevent="saveCargo(rol)">Agregar</button>
+            </div>
+
+        </form>
+
+        <div class="col-xs-12 m-t-lg"></div>
+
+        <table class="table table-hover">
+
+            <tbody>
+
+                <tr v-for="funcionrol in cargos">
+
+                    <td class="col-xs-11 v-middle">
+                        <b class="text-sm">{{funcionrol.perfilCompania.codigo}}</b>
+                        {{funcionrol.perfilCompania.nombre}}
+                    </td>
+
+                    <td class="text-center col-xs-1 v-middle">
+                        <span v-if="funcionrol.estado=='ACT'" class="label label-success" >Activo</span>
+                        <span v-if="funcionrol.estado=='INA'" class="label label-warning" >Desactivado</span>
+                    </td>
+
+                    <td class="v-middle">
+                        <div class="actions">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                            <ul class="dropdown-menu pull-right" >
+                                <li v-if="funcionrol.estado=='ACT'" ><a class="btn-link" href="#"  v-on:click.prevent="updateEstadoFuncionRol(funcionrol,'INA')" >Desactivar</a></li>  
+                                <li v-if="funcionrol.estado=='INA'"><a class="btn-link" href="#" v-on:click.prevent="updateEstadoFuncionRol(funcionrol,'ACT')" >Activar</a></li>  
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
 
     </div>
-    
+
+</modal-vik>
+
+<modal-vik  ref="funcionmodal" v-bind="dataModalFuncion" >
+
+    <div slot="body">
+
+
+        <form method="POST"  class="m-t-md" id="formFuncion">
+            <input type="hidden" name="rol.id" v-bind:value="rol.id" />
+
+
+            <div class="col-xs-9">
+                <div class="form-group">
+                    <funcionsearh v-bind:nombre="'perfilCompania.id'"  v-bind:funcion="funcion"/>
+                </div>
+            </div>
+
+            <div class="col-xs-3">
+                <button type="button"  class="btn btn-info btn-sm" v-on:click.prevent="saveFuncion(rol)">Agregar</button>
+            </div>
+
+        </form>
+
+        <div class="col-xs-12 m-t-lg"></div>
+
+        <table class="table table-hover">
+
+            <tbody>
+
+                <tr v-for="funcionrol in funciones">
+                    <td class=" col-xs-11 v-middle">
+                        <b class="text-sm">{{funcionrol.perfilCompania.codigo}}</b>
+                        {{funcionrol.perfilCompania.nombre}}
+                    </td>
+
+                    <td class="text-center  col-xs-1 v-middle">
+                        <span v-if="funcionrol.estado=='ACT'" class="label label-success" >Activo</span>
+                        <span v-if="funcionrol.estado=='INA'" class="label label-warning" >Desactivado</span>
+                    </td>
+
+                    <td class="v-middle">
+                        <div class="actions">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                            <ul class="dropdown-menu pull-right" >
+                                <li v-if="funcionrol.estado=='ACT'" ><a class="btn-link" href="#"  v-on:click.prevent="updateEstadoFuncionRol(funcionrol,'INA')" >Desactivar</a></li>  
+                                <li v-if="funcionrol.estado=='INA'"><a class="btn-link" href="#" v-on:click.prevent="updateEstadoFuncionRol(funcionrol,'ACT')" >Activar</a></li>  
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
 </modal-vik>
 

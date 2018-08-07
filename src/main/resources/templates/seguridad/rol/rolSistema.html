@@ -44,13 +44,19 @@
                                                 <td class="v-middle">
                                                     <span v-text="item.nombre"></span>
                                                 </td>
+                                                
                                                 <td class="v-middle">
                                                     <span v-text="item.rolSuperior"></span>
                                                 </td>
+                                                
                                                 <td class="v-middle">
+                                                    <p class="subtext-xs" v-for="cargo in item.cargos">{{cargo.nombre}}</p>
                                                 </td>
+                                                
                                                 <td class="v-middle">
+                                                    <p class="subtext-xs" v-for="funcion in item.funciones">{{funcion.nombre}}</p>
                                                 </td>
+                                                
                                                 <td class="v-middle text-left">
 
                                                     <div class="dropdown actions">
@@ -83,13 +89,35 @@
                 <div th:substituteby="seguridad/rol/rolSistemaCargoTemplate"/>
 
             </div>
-                
-        </div>
 
+            <template id="funcionsearhtemp">
+                <input type="text"
+                       class="form-control"
+                       data-trigger="change"
+                       required="true"
+                       v-bind:name="nombre"
+                       v-model="funcion.id"
+                       />
+            </template>
+
+            <template id="cargosearhtemp">
+                <input type="text"
+                       class="form-control"
+                       data-trigger="change"
+                       required="true"
+                       v-bind:name="nombre"
+                       v-model="cargo.id"
+                       />
+            </template>
+
+        </div>
 
         <div layout:fragment="js" th:remove="tag">
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <div th:substituteby="_modules/vue-vudal"></div>
+            <div th:substituteby="_modules/vue-modal2"></div>
+            <div th:substituteby="_layout/includes :: sweetalert"/>
+            <script th:src="@{/app/seguridad/rol/rolbuscarcargo.js}" charset="utf-8"></script>
+            <script th:src="@{/app/seguridad/rol/rolbuscarfuncion.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
         </div>
 
