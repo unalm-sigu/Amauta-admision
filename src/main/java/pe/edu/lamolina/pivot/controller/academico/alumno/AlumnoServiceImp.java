@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
@@ -46,8 +47,10 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -64,8 +67,10 @@ import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 
@@ -113,6 +118,10 @@ public class AlumnoServiceImp implements AlumnoService {
     MailerService mailerService;
     @Autowired
     AvanceCurricularService avanceCurricularService;
+    @Autowired
+    RolDAO rolDAO;
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -230,7 +239,7 @@ public class AlumnoServiceImp implements AlumnoService {
             this.validarDNI(personaForm);
             personaDAO.save(personaForm);
 
-            this.crearUsuario(emailCompania, personaForm, usuario);
+            this.crearUsuarioAlumno(emailCompania, personaForm, usuario);
             this.saveAlumno(alumno, personaForm, ciclo, codigoMatricula);
             this.enviarNotificacionUsuarioCreacion(personaForm);
             this.updateCicloSgteMatricula(ciclo);
@@ -247,7 +256,7 @@ public class AlumnoServiceImp implements AlumnoService {
         Usuario usuarioAlumno = usuarioDAO.findByPersona(personaDB);
 
         if (usuarioAlumno == null) {
-            this.crearUsuario(emailCompania, personaDB, usuario);
+            this.crearUsuarioAlumno(emailCompania, personaDB, usuario);
         }
 
         this.saveAlumno(alumno, personaDB, ciclo, codigoMatricula);
@@ -257,7 +266,7 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Transactional
-    public void crearUsuario(String emailCompania, Persona persona, Usuario usuarioRegistra) {
+    public void crearUsuarioAlumno(String emailCompania, Persona persona, Usuario usuarioRegistra) {
         Usuario usuarioAlumno = new Usuario();
         usuarioAlumno.setGoogle(emailCompania);
         usuarioAlumno.setEstadoEnum(UserEstadoEnum.ACT);
@@ -265,6 +274,17 @@ public class AlumnoServiceImp implements AlumnoService {
         usuarioAlumno.setPersona(persona);
         usuarioAlumno.setUserRegistro(usuarioRegistra);
         usuarioDAO.save(usuarioAlumno);
+
+        Rol rol = rolDAO.findByCode(RolEnum.ALU);
+        UsuarioRol ur = new UsuarioRol();
+        ur.setEstado(UserEstadoEnum.ACT);
+        ur.setFechaInicio(new Date());
+        ur.setFechaRegistro(new Date());
+        ur.setRol(rol);
+        ur.setUserRegistro(usuarioRegistra);
+        ur.setUsuario(usuarioAlumno);
+        usuarioRolDAO.save(ur);
+
     }
 
     @Transactional
@@ -489,12 +509,47 @@ public class AlumnoServiceImp implements AlumnoService {
 
         this.verificarPersona(personaForm);
         this.validarDNI(personaForm);
-
         Persona personaBD = personaDAO.find(personaForm.getId());
         if (personaBD == null) {
             throw new PhobosException("Alumno sin persona registrada.");
         }
 
+        Usuario usuario = usuarioDAO.findByPersona(personaBD);
+
+        if (usuario == null) {
+            this.crearUsuarioAlumno(personaForm.getEmailCompania(), personaBD, usuarioRegistra);
+        } else {
+            logger.debug("{} =? {}", personaBD.getEmailCompania(), personaForm.getEmailCompania());
+            if (!personaBD.getEmailCompania().equals(personaForm.getEmailCompania())) {
+                this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
+                logger.debug("not eq");
+                usuario.setGoogle(personaForm.getEmailCompania());
+                usuario.setFechaModifica(new Date());
+                usuario.setUserModifica(usuarioRegistra);
+                usuarioDAO.update(usuario);
+
+                Rol rol = rolDAO.findByCode(RolEnum.ALU);
+                this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
+
+                UsuarioRol ur = usuarioRolDAO.findByUsuarioRol(usuario, rol);
+
+                if (ur == null) {
+                    ur = new UsuarioRol();
+                    ur.setEstado(UserEstadoEnum.ACT);
+                    ur.setFechaInicio(new Date());
+                    ur.setFechaRegistro(new Date());
+                    ur.setRol(rol);
+                    ur.setUserRegistro(usuarioRegistra);
+                    ur.setUsuario(usuario);
+                    usuarioRolDAO.save(ur);
+                } else {
+                    ur.setEstado(UserEstadoEnum.ACT);
+                    usuarioRolDAO.update(ur);
+                }
+
+            }
+
+        }
         this.updatePersona(personaBD, personaForm);
     }
 

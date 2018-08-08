@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 
 public interface PlantillaConstanciaService {
@@ -17,7 +18,7 @@ public interface PlantillaConstanciaService {
 
     List<PlantillaDocumentoAcademico> all(DynatableFilter filter);
 
-    PlantillaDocumentoAcademico findById(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
+    PlantillaDocumentoAcademico find(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 
     List<Idioma> allIdioma();
 
@@ -25,5 +26,9 @@ public interface PlantillaConstanciaService {
 
     Alumno findAlumno(Long idalumno);
 
+    PlantillaGenerica fillPlantilla(Alumno alumno,PlantillaDocumentoAcademico plantillaForm);
+
+    List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
+    
     AlumnoConstancia findAlumnoConstancia(TipoDocumentoAcademico tipoDoc, Idioma idioma, Alumno alumno, CicloAcademico cicloActual);
 }

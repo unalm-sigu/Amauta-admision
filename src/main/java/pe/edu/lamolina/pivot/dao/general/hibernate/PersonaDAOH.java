@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
@@ -19,7 +20,7 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         super();
         setClazz(Persona.class);
     }
-    
+
     @Override
     public Persona find(long id) {
         Octavia sql = Octavia.query()
@@ -98,6 +99,10 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
 
     @Override
     public List<Persona> allByEmailWithoutPersona(Persona persona) {
+        if (StringUtils.isEmpty(persona.getEmail())) {
+            return new ArrayList();
+        }
+
         Octavia sql = Octavia.query()
                 .from(Persona.class, "per")
                 .leftJoin("tipoDocumento td")
@@ -165,8 +170,6 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
 
         return all(sql);
     }
-
-    
 
     @Override
     public Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad) {
