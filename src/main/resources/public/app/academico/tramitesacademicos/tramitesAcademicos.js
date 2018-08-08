@@ -84,14 +84,17 @@ var app = new Vue({
                 },
                 success: function (response) {
                     if (response.success) {
-                        // $vue.reunionConsejo = response.data.reunionConsejo;
-                        // $vue.reunionConsejo.fecha = fecha;
+                        $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
                     }
                 },
-                error: function () {
+                error: function (response) {
                     notify(response.message, "error");
                 }
             });
+            $vue.$refs.modalAgendar.close();
         }
     }
 })

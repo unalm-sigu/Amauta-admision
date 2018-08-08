@@ -81,10 +81,14 @@
                                                         Historial Revisado</a>
                                                 </li>
                                                 <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolicitudHistorialRevisado">
-                                                    <!-- cambiarEstadoReincorporacion(item,'CON_FAC',$event) -->
                                                     <a class="btn-link pointer editar-gpo-seccion" 
                                                        v-on:click.prevent="loadModalAgendar(item)">
                                                         Agendar</a>
+                                                </li> 
+                                                <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esResolucionFacultad">
+                                                    <a class="btn-link pointer editar-gpo-seccion" 
+                                                       v-on:click.prevent="loadModalAgendar(item)">
+                                                        Subir Pdf</a>
                                                 </li>
                                             </ul>
                                         </div>

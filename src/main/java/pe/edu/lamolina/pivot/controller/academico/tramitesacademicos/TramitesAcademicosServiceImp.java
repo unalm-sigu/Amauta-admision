@@ -145,6 +145,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
+    @Transactional
     public void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, Usuario usuario) {
         DateTime today = new DateTime();
 
@@ -202,10 +203,10 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         flujoTramiteAcademicoDAO.save(flujoTramiteAcademico);
 
         Reincorporacion reincorporacionUpd = new Reincorporacion();
-
         reincorporacionUpd.setId(reincorporacion.getId());
         reincorporacionUpd.setEstadoTramite(estadoTramiteAcademico.getEstadoTramite());
         reincorporacionDAO.updateEstado(reincorporacionUpd);
+
     }
 
     @Override

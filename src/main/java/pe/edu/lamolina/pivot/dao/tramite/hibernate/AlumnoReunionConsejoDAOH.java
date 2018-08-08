@@ -12,13 +12,18 @@ import pe.edu.lamolina.pivot.dao.tramite.AlumnoReunionConsejoDAO;
 @Repository
 public class AlumnoReunionConsejoDAOH extends AbstractEasyDAO<AlumnoReunionConsejo> implements AlumnoReunionConsejoDAO {
 
+    public AlumnoReunionConsejoDAOH() {
+        super();
+        setClazz(AlumnoReunionConsejo.class);
+    }
+
     @Override
     public List<AlumnoReunionConsejo> allByReunionConsejo(ReunionConsejo reunionConsejo) {
         Octavia sql = Octavia.query()
-                .from(AlumnoReunionConsejo.class, "rc")
-                .join("reunionConsejo rc")
+                .from(AlumnoReunionConsejo.class, "arc")
+                .join("reunionConsejo rc", "alumno alu")
                 .filter("rc.id", reunionConsejo)
-                .filter("rc.estado", EstadoEnum.ACT);
+                .filter("arc.estado", EstadoEnum.ACT);
         return all(sql);
     }
 

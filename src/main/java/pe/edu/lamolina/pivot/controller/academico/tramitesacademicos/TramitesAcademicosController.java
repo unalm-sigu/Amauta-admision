@@ -105,6 +105,8 @@ public class TramitesAcademicosController {
                 "alumno.*",
                 "compania.*",
                 "cicloAcademico.*",
+                "tipoTramite.codigo",
+                "tipoTramite.nombre",
                 "tipoTramite.esTipoTramiteRei",
                 "userRegistro.*",
                 "userRespuesta.*"
