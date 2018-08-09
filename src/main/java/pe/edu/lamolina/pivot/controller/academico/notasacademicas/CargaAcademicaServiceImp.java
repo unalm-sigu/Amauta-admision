@@ -1416,15 +1416,15 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
                 alumnoEvaluacion.setNota(notax);
             } else {
-                MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEach, curso, ciclo);
-                matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
+                //      MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumnoEach, curso, ciclo);
+                //     matriculaCurso.setNotaFinal(alumnoEvaluacion.getValorLetra());
                 if (curso.isCreditosZero()) {
                     NotaLetra notaLetra = (NotaLetra) mapNotaLetra.get(alumnoEvaluacionEach.getValorLetra());
                     alumnoEvaluacion.setNota(notaLetra.getValor().toString());
                 } else if (curso.isTieneCreditosVariables()) {
-                    matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacionEach.getNota()));
+                    //    matriculaCurso.setCreditosAprobados(Integer.valueOf(alumnoEvaluacionEach.getNota()));
                 }
-                matriculaCursoDAO.update(matriculaCurso);
+                //    matriculaCursoDAO.update(matriculaCurso);
 
                 alumnoEvaluacion.setValorNumerico(new BigDecimal(alumnoEvaluacion.getNota()));
                 String notax = NumberFormat.notaDecimal(alumnoEvaluacion.getValorNumerico());
@@ -1617,6 +1617,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
 
         AlumnoEvaluacion alumnoEvaluacion = alumnoEvaluacionDAO.findByFilter(null, reclamoNota.getEvaluacion().getId(), reclamoNota.getAlumno().getId());
         Evaluacion evaluacion = evaluacionDAO.find(alumnoEvaluacion.getEvaluacion().getId());
+        GrupoSeccion grupoSeccion = grupoSeccionDAO.find(evaluacion.getSeccionResponsable().getGrupoSeccion().getId());
+
         alumnoEvaluacion.setNota(reclamoNota.getNotaFinal());
         if (evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso().isTieneCreditosVariables()) {
             alumnoEvaluacion.setValorLetra(reclamoNota.getLetraFinal());
@@ -1667,10 +1669,22 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         //evaluacion.getEvaluacionSeccion().getPlanCalificacion().getId().toString(), evaluacion.getEvaluacionSeccion().getPlanCalificacion().getCodigo().toString()
         //);
         calculoNotasService.calcularNotasAlumno(reclamoNota.getAlumno(), //evaluacion,
-                alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion(),
-                alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCurso(),
-                alumnoEvaluacion.getEvaluacion().getSeccionResponsable().getGrupoSeccion().getCicloAcademico(),
+                grupoSeccion,
+                grupoSeccion.getCurso(),
+                grupoSeccion.getCicloAcademico(),
                 ds.getUsuario());
+
+        auditorService.auditSaveNotas(LoggerAccionEnum.GRABAR_NOTAS_ACADEMICAS_CAMBIO_NOTA, evaluacion,
+                grupoSeccion.getPlanCalificacion(),
+                sistemaNotas,
+                alumnoEvaluacion.getEvaluacion().getSeccionResponsable(),
+                grupoSeccion.getCurso(),
+                grupoSeccion.getCicloAcademico(),
+                this.allEvaluacionesByTipoSeccion(evaluacion.getSeccionResponsable()),
+                this.allMatriculaSeccionBySeccion(evaluacion.getSeccionResponsable()),
+                this.allAlumnoEvaluacionBySeccion(evaluacion.getSeccionResponsable().getId()),
+                this.getMapMatriculasCursoByCicloCurso(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso()),
+                ds);
     }
 
     @Override

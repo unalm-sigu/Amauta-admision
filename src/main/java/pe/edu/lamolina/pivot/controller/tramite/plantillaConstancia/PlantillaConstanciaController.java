@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +30,13 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -82,7 +86,7 @@ public class PlantillaConstanciaController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public String editarContenido(@PathVariable("id") Long idPlantilla, Model model) {
-        PlantillaDocumentoAcademico documentoAcademico = service.findById(new PlantillaDocumentoAcademico(idPlantilla));
+        PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(idPlantilla));
         model.addAttribute("id", documentoAcademico.getId());
         model.addAttribute("contenido", documentoAcademico.getContenido());
         model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico().getNombre());
@@ -137,7 +141,7 @@ public class PlantillaConstanciaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
-            System.out.println("ENTRE...... -->");
+
             service.update(plantillaDocumentoAcademico, ds.getUsuario());
             response.setMessage("Se actualizó");
             response.setSuccess(true);
@@ -190,7 +194,7 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            PlantillaDocumentoAcademico documentoAcademico = service.findById(new PlantillaDocumentoAcademico(id));
+            PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(id));
             response.setData(documentoAcademico);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -209,22 +213,19 @@ public class PlantillaConstanciaController {
 
             Alumno alumno = service.findAlumno(idalumno);
 
-            String contenido = plantillaForm.getContenido();
+            PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
+            String contenido = plantillaGenerica.getContenido();
 
-            contenido = contenido.replaceAll("__NUMERO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__SERIE__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__NOMBRE__", alumno.getPersona().getNombreCompleto());
-            contenido = contenido.replaceAll("__CODIGOALUMNO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__ALUMNO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__FACULTAD__", alumno.getCarrera().getFacultad().getNombre());
-            contenido = contenido.replaceAll("__YEARINICIOCICLO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__YEARFINCICLO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__MATRICULADO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__FECHA__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__JEFEOFICINA__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__CICLOINICIOROMANO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__CICLOFINROMANO__", alumno.getCodigo());
-            contenido = contenido.replaceAll("__CICLOACTUAL__", alumno.getCodigo());
+            List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
+            for (VariableGenerica vg : vgs) {
+                String attr = vg.getCodigo();
+                attr = attr.replaceAll("_", "");
+                attr = attr.toLowerCase();
+                String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
+                if (!Strings.isNullOrEmpty(vall)) {
+                    contenido = contenido.replaceAll(vg.getCodigo(), vall);
+                }
+            }
 
             response.setData(contenido);
             response.setSuccess(Boolean.TRUE);
@@ -241,26 +242,22 @@ public class PlantillaConstanciaController {
     public ModelAndView previewpdf(PlantillaDocumentoAcademico plantillaForm, Long idalumno, Model model) {
 
         Alumno alumno = service.findAlumno(idalumno);
+        PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
 
-        String contenido = plantillaForm.getContenido();
+        String contenido = plantillaGenerica.getContenido();
 
-        contenido = contenido.replaceAll("__NUMERO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__SERIE__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__NOMBRE__", alumno.getPersona().getNombreCompleto());
-        contenido = contenido.replaceAll("__CODIGOALUMNO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__ALUMNO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__FACULTAD__", alumno.getCarrera().getFacultad().getNombre());
-        contenido = contenido.replaceAll("__YEARINICIOCICLO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__YEARFINCICLO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__MATRICULADO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__FECHA__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__JEFEOFICINA__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__CICLOINICIOROMANO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__CICLOFINROMANO__", alumno.getCodigo());
-        contenido = contenido.replaceAll("__CICLOACTUAL__", alumno.getCodigo());
+        List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
+        for (VariableGenerica vg : vgs) {
+            String attr = vg.getCodigo();
+            attr = attr.replaceAll("_", "");
+            attr = attr.toLowerCase();
+            String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
+            if (!Strings.isNullOrEmpty(vall)) {
+                contenido = contenido.replaceAll(vg.getCodigo(), vall);
+            }
+        }
 
         model.addAttribute("contenido", contenido);
-
         model.addAttribute("formatoEnum", PDFFormatoEnum.PLANTILLA_CERTIFICADO);
         model.addAttribute("nombrePdf", "CertificadoEstudio");
         model.addAttribute("title", "untitle");

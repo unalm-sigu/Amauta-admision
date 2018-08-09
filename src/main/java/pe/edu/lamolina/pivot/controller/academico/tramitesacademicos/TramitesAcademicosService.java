@@ -2,7 +2,9 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 public interface TramitesAcademicosService {
@@ -11,6 +13,8 @@ public interface TramitesAcademicosService {
 
     void aceptarSolReincorporacion(Tramite tramite, Usuario usuario);
 
-    void agendarSolicitud(Tramite tramite, Usuario usuario);
+    void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, Usuario usuario);
+
+    List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina);
 
 }

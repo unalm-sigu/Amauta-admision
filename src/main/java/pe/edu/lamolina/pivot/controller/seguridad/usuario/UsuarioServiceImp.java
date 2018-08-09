@@ -21,7 +21,6 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;

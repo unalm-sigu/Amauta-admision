@@ -7,12 +7,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
-import pe.edu.lamolina.pivot.dao.tramite.SolicitudConstanciaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoAcademicoDAO;
 
 @Repository
-public class SolicitudConstanciaDAOH extends AbstractEasyDAO<TramiteDocumentoAcademico> implements SolicitudConstanciaDAO {
+public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocumentoAcademico> implements TramiteDocumentoAcademicoDAO {
 
-    public SolicitudConstanciaDAOH() {
+    public TramiteDocumentoAcademicoDAOH() {
         super();
         setClazz(TramiteDocumentoAcademico.class);
     }

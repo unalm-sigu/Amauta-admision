@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.general.persona;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -11,12 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -32,11 +36,31 @@ public class PersonaServiceImp implements PersonaService {
     @Autowired
     TipoDocIdentidadDAO tipoDocIdentidadDAO;
 
+    @Autowired
+    UsuarioDAO usuarioDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<Persona> allByDynatable(DynatableFilter filter) {
         return personaDAO.allByFilter(filter);
+    }
+
+    @Transactional
+    private void crearUsuario(Persona persona, DataSessionPivot ds) {
+        String emailEmpresa = StringUtils.isEmpty(persona.getEmailCompania()) ? null : persona.getEmailCompania();
+        if (emailEmpresa == null) {
+            throw new PhobosException("El correo Institucional es obligatorio");
+        }
+        Usuario usuario = new Usuario();
+        usuario = new Usuario();
+        usuario.setEstadoEnum(UserEstadoEnum.ACT);
+        usuario.setGoogle(persona.getEmailCompania());
+        usuario.setPersona(persona);
+        usuario.setUserRegistro(ds.getUsuario());
+        usuario.setFechaRegistro(new Date());
+        usuarioDAO.save(usuario);
+
     }
 
     @Override
@@ -53,11 +77,9 @@ public class PersonaServiceImp implements PersonaService {
     @Transactional
     public void savePersona(Persona persona, DataSessionPivot ds) {
 
+        boolean personaNueva = persona.getId() == null;
         Persona personaForm = persona;
         String emailCompania = StringUtils.isEmpty(personaForm.getEmailCompania()) ? null : personaForm.getEmailCompania();
-        if (emailCompania == null) {
-            throw new PhobosException("El correo princiapal es obligatorio");
-        }
 
         String email = StringUtils.isEmpty(personaForm.getEmail()) ? null : personaForm.getEmail();
         personaForm.setEmail(email);
@@ -82,6 +104,24 @@ public class PersonaServiceImp implements PersonaService {
 
         } else {
             personaDAO.update(personaForm);
+        }
+
+        if (!personaNueva) {
+            Usuario usuario = usuarioDAO.findByPersona(persona);
+            if (usuario == null) {
+                if (emailCompania != null) {
+                    this.crearUsuario(persona, ds);
+                }
+            } else {
+                usuario.setUserModifica(ds.getUsuario());
+                usuario.setFechaModifica(new Date());
+                usuario.setGoogle(personaForm.getEmailCompania());
+                usuarioDAO.update(usuario);
+            }
+        } else {
+            if (emailCompania != null) {
+                this.crearUsuario(persona, ds);
+            }
         }
 
         logger.debug("PERSONA ID- {}", persona.getId());

@@ -13,21 +13,26 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.AlumnoReunionConsejo;
 import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FlujoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.AlumnoReunionConsejoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.FlujoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 
@@ -55,6 +60,12 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    ReunionConsejoDAO reunionConsejoDAO;
+
+    @Autowired
+    AlumnoReunionConsejoDAO alumnoReunionConsejoDAO;
 
     @Override
     public List<Tramite> allTramitesByFilter(DynatableFilter filter) {
@@ -134,16 +145,44 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     @Override
-    public void agendarSolicitud(Tramite tramite, Usuario usuario) {
+    @Transactional
+    public void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, Usuario usuario) {
         DateTime today = new DateTime();
 
         tramite = tramiteDAO.find(tramite.getId());
+        reunionConsejo = reunionConsejoDAO.find(reunionConsejo.getId());
+        List<AlumnoReunionConsejo> alumnoReunionesConsejo = alumnoReunionConsejoDAO.allByReunionConsejo(reunionConsejo);
+
+        AlumnoReunionConsejo alumnoReunionConsejoActiva = null;
+        for (AlumnoReunionConsejo alumnoReunionConsejo : alumnoReunionesConsejo) {
+//            if (alumnoReunionConsejo.getEsActivo()) {
+//                alumnoReunionConsejoActiva = alumnoReunionConsejo;
+//                break;
+//            }
+        }
+        if (alumnoReunionConsejoActiva == null || (alumnoReunionConsejoActiva != null && alumnoReunionConsejoActiva.getReunionConsejo().getId().compareTo(reunionConsejo.getId()) != 0)) {
+            AlumnoReunionConsejo alumnoReunionConsejo = new AlumnoReunionConsejo();
+            alumnoReunionConsejo.setAlumno(tramite.getAlumno());
+            alumnoReunionConsejo.setEstadoEnum(EstadoEnum.ACT);
+            alumnoReunionConsejo.setFechaRegistro(today.toDate());
+            alumnoReunionConsejo.setFechaActualizacion(today.toDate());
+            alumnoReunionConsejo.setReunionConsejo(reunionConsejo);
+            alumnoReunionConsejo.setUserActualizacion(usuario);
+            alumnoReunionConsejo.setUsuarioRegistro(usuario);
+            alumnoReunionConsejoDAO.save(alumnoReunionConsejo);
+        }
+        if (alumnoReunionConsejoActiva != null && alumnoReunionConsejoActiva.getReunionConsejo().getId().compareTo(reunionConsejo.getId()) != 0) {
+            alumnoReunionConsejoActiva.setEstadoEnum(EstadoEnum.ANU);
+            alumnoReunionConsejoDAO.update(alumnoReunionConsejoActiva);
+        }
+
         Facultad facultad = tramite.getAlumno().getCarrera().getFacultad();
 
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         Reincorporacion reincorporacion = reincorporaciones.get(0);
 
-        if (!reincorporacion.getEstadoTramite().getEsSolicitudReincorporacion()) {
+        if (!reincorporacion.getEstadoTramite()
+                .getEsSolicitudHistorialRevisado()) {
             throw new PhobosException("Estado incorrecto");
         }
 
@@ -151,19 +190,13 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         EstadoTramiteAcademico estadoTramiteAcademico
                 = estadoTramiteAcademicoDAO.findByTipoTramiteOrden(tipoTramiteReincorporacion, BigDecimal.valueOf(3).intValue());
 
-        Oficina oficinaOrigen = oficinaDAO.findByTipoAndFacultad(
-                TipoOficinaEnum.valueOf(estadoTramiteAcademico.getTipoOficinaOrigen().getCodigo()),
-                facultad);
-
-        Oficina oficinaDestino = oficinaDAO.findByTipoAndFacultad(
-                TipoOficinaEnum.valueOf(estadoTramiteAcademico.getTipoOficinaDestino().getCodigo()),
-                facultad);
+        Map oficinas = this.findOficinaOrigenDestinoByEstadoTramiteAcad(estadoTramiteAcademico, tramite.getAlumno());
 
         FlujoTramiteAcademico flujoTramiteAcademico = new FlujoTramiteAcademico();
         flujoTramiteAcademico.setEstadoTramite(estadoTramiteAcademico.getEstadoTramite());
         flujoTramiteAcademico.setFechaRegistro(today.toDate());
-        flujoTramiteAcademico.setOficinaOrigen(oficinaOrigen);
-        flujoTramiteAcademico.setOficinaDestino(oficinaDestino);
+        flujoTramiteAcademico.setOficinaOrigen((Oficina) oficinas.get("oficinaOrigen"));
+        flujoTramiteAcademico.setOficinaDestino((Oficina) oficinas.get("oficinaDestino"));
         flujoTramiteAcademico.setTramiteAcademico(tramite);
         flujoTramiteAcademico.setUserRegistro(usuario);
         flujoTramiteAcademico.setOrden(estadoTramiteAcademico.getOrden());
@@ -173,6 +206,13 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         reincorporacionUpd.setId(reincorporacion.getId());
         reincorporacionUpd.setEstadoTramite(estadoTramiteAcademico.getEstadoTramite());
         reincorporacionDAO.updateEstado(reincorporacionUpd);
+
+    }
+
+    @Override
+    public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina) {
+        List<ReunionConsejo> reunionesConsejo = reunionConsejoDAO.allByDynatable(filter, oficina);
+        return reunionesConsejo;
     }
 
 }

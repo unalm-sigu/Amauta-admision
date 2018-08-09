@@ -96,7 +96,8 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .in("ofi.id", oficinas)
                 .searchFields("ofi.nombre", "co.estado")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("co.id desc");
         return all(sql);
     }
 
