@@ -1,0 +1,115 @@
+<modal-vik ref="modalMensajeria"
+           v-bind="addMensajeria"
+           v-bind:okaction="saveUpdate">
+    <div slot="body">
+        <form id="formMensajeria" data-parsley-validate="true" method="post">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Grupo alumno</label>
+                    <div class="form-group">
+                        <multiselect                                                   
+                            v-model='mensajeria.grupoAlumno'
+                            v-bind:internal-search='false'
+                            v-bind:limit='15'
+                            v-bind:options='gruposAlumno'
+                            placeholder="Seleccione un grupo alumno"
+                            label="nombre"
+                            v-bind:show-labels="false"
+                            v-bind:allow-empty="false"
+                            track-by="id">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Tipo mensaje</label>
+                    <div class="form-group">
+                        <div>
+                            <multiselect                                                   
+                                v-model='mensajeria.tipoMensajeIntranet'
+                                v-bind:internal-search='false'
+                                v-bind:limit='15'
+                                v-bind:options='tiposMensaje'
+                                placeholder="Seleccione un tipo mensaje"
+                                label="nombre"
+                                v-bind:show-labels="false"
+                                v-bind:allow-empty="false"
+                                v-bind:clear-on-select="false"
+                                track-by="id">
+                            </multiselect>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Fecha inicio</label>
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <date-picker v-model="mensajeria.fechaInicio" required="true" 
+                                         v-bind:config="configDate" v-bind:wrap="true">
+                            </date-picker>  
+                            <div class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Fecha fin</label>
+                    <div class="form-group">
+                        <div class="input-group date">
+                            <date-picker v-model="mensajeria.fechaFin" required="true" 
+                                         v-bind:config="configDate" v-bind:wrap="true">
+                            </date-picker>  
+                            <div class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Prioridad</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control numeric" required="true" v-model="mensajeria.prioridad"/>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Veces Visible</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control numeric" required="true" v-model="mensajeria.vecesVisible"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label>Es Obligatorio</label>
+                    <div class="form-group">
+                        <label class="switch">
+                            <input type="checkbox" v-model="mensajeria.esObligatorio"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <label>Con Cronograma</label>
+                    <div class="form-group">
+                        <label class="switch">
+                            <input type="checkbox" v-model="mensajeria.conCronograma"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                <label>Contenido</label>
+                <div class="form-group">
+                    <textarea type="text" required="true" v-model="mensajeria.contenido" class="form-control" rows="4"></textarea>
+                </div>
+                </div>
+            </div>    
+        </form>
+    </div>
+</modal-vik>

@@ -73,7 +73,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         Reincorporacion reincorporacion = reincorporaciones.get(0);
 
-        if (!reincorporacion.getEstadoTramite().isSolicitudReincorporacion()) {
+        if (!reincorporacion.getEstadoTramite().getEsSolicitudReincorporacion()) {
             throw new PhobosException("Estado incorrecto");
         }
 
@@ -143,7 +143,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         Reincorporacion reincorporacion = reincorporaciones.get(0);
 
-        if (!reincorporacion.getEstadoTramite().isSolicitudHistorialRevisado()) {
+        if (!reincorporacion.getEstadoTramite().getEsSolicitudReincorporacion()) {
             throw new PhobosException("Estado incorrecto");
         }
 

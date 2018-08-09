@@ -1,0 +1,22 @@
+<modal-vik ref="modalGpoAlumno"
+           v-bind="addGpoAlumno"
+           v-bind:okaction="saveUpdate">
+    <div slot="body">
+        <form id="formGpoAlumno" data-parsley-validate="true" method="post">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Código</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="gpoAlumno.codigo"/>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Nombre</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="gpoAlumno.nombre"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>
