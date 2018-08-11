@@ -102,8 +102,12 @@ public class PdfServiceImp implements PdfService {
 
         Seccion seccion = null;
         Docente docentePrincipal = null;
+        //  ds.getDocente()
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByGrupoSeccion(grupoSeccion);
         for (DocenteSeccion docSecc : docentesSeccion) {
+            if (!docSecc.isEstadoActivado()) {
+                continue;
+            }
             Seccion secc = docSecc.getSeccion();
             if (secc.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
                 continue;

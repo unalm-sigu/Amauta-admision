@@ -40,7 +40,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("anexoBoletin ab", "curso cur")
-                .leftJoin("ab.anexoSuperior asup", "planCalificacion pc", "pc.sistemaNotas", "secciones s")
+                .leftJoin("ab.anexoSuperior asup", "planCalificacion pc", "pc.sistemaNotas", "secciones s", "cicloAcademico ca")
                 .filter("gs.id", idGrupoSeccion);
         return find(sql);
     }

@@ -1,0 +1,57 @@
+<modal-vik ref="modalTipoMsgIntranet"
+           v-bind="addTipoMsgIntranet"
+           v-bind:okaction="saveUpdate">
+    <div slot="body">
+        <form id="formTipoMsg" data-parsley-validate="true" method="post">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Código</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.codigo"/>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Nombre</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.nombre"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <label>Url</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.url"/>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Boton</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.boton"/>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Tipo pantalla</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.tipoPantalla"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <label>Contenido</label>
+                    <div class="form-group">
+                        <textarea class="form-control" required="true" v-model="tipoMsgIntranet.contenido"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>

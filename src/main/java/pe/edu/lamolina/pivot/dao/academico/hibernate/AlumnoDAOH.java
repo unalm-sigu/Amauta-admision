@@ -24,6 +24,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
@@ -295,8 +296,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico ciclo, List<Alumno> existentes) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe", "situacionAcademica sa")
                 .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
+                .filter("sa.codigo", SituacionAcademicaEnum.S_8.getValue())
                 .filter("moe.id", modalidad)
                 .filter("ci.id", ciclo);
 
