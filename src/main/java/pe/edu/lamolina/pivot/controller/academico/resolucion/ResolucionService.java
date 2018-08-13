@@ -8,9 +8,12 @@ import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.model.tramite.Resolucion;
+import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ResolucionService {
 
@@ -18,8 +21,20 @@ public interface ResolucionService {
 
     List<TipoResolucion> allTiposResolucion();
 
-    void saveResolucion(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico, Oficina oficina);
+    void saveResolucion(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico);
 
     List<Tramite> allTramitesByTipoEstadoTram(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum);
+
+    List<ReunionConsejo> allReunionesConsejoByOficina(Oficina oficina);
+
+    List<TramiteReunionConsejo> allTramiteReunionConsejoByReunion(ReunionConsejo reunionConsejo, TipoResolucion tipoResolucion);
+
+    Resolucion findResolucion(Long resolucionId);
+
+    Tramite findTramite(Long tramiteId);
+
+    void updateResolucion(Resolucion resolucion, DataSessionPivot dataSessionPivot);
+
+    void uploadResolucionFile(Resolucion resolucion, MultipartFile file, DataSessionPivot ds);
 
 }

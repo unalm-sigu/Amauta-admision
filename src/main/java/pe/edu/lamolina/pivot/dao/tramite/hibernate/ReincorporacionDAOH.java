@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 
@@ -28,6 +29,16 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     }
 
     @Override
+    public List<Reincorporacion> allByResolucion(Resolucion resolucion) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tra", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .filter("res.id", resolucion);
+
+        return all(sql);
+    }
+
+    @Override
     public Reincorporacion findByTramiteEstadoTram(Tramite tramite, EstadoTramiteEnum estadoTramiteEnum) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
@@ -42,6 +53,14 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     public void updateEstado(Reincorporacion reincorporacion) {
         Octavia octavia = Octavia.update(Reincorporacion.class);
         octavia.set(reincorporacion, "estadoTramite");
+        this.update(octavia);
+    }
+
+    @Override
+    public void updateAceptado(Reincorporacion reincorporacion) {
+        Octavia octavia = Octavia.update(Reincorporacion.class);
+        octavia.set(reincorporacion, "aceptado");
+        octavia.set(reincorporacion, "resolucion.id");
         this.update(octavia);
     }
 

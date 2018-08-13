@@ -14,9 +14,9 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
-import pe.edu.lamolina.pivot.dao.tramite.AlumnoReunionConsejoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReunionConsejoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteReunionConsejoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,7 +26,7 @@ public class ReunionConsejoServiceImp implements ReunionConsejoService {
     ReunionConsejoDAO reunionConsejoDAO;
 
     @Autowired
-    AlumnoReunionConsejoDAO alumnoReunionConsejoDAO;
+    TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
 
     @Override
     public ReunionConsejo findReunionConsejoByFechaAndOficina(Date fecha, Oficina oficina) {

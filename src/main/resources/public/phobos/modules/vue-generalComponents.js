@@ -20,8 +20,10 @@ Vue.component("format-date", {
     },
     mounted: function () {
         //   var date = moment(this.datetext).format('DD/MM/YYYY', 'hh:mm:ss');
-        let momentDate = moment(this.datetext, this.formatinput);
-        this.formatedDate = momentDate.format(this.formatoutput);
+        if (this.datetext != null && this.datetext != "") {
+            let momentDate = moment(this.datetext, this.formatinput);
+            this.formatedDate = momentDate.format(this.formatoutput);
+        }
     },
     destroyed: function () {
 

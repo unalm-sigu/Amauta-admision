@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -119,15 +120,23 @@ public class TramitesAcademicosController {
                 "estadoTramite.esSolicitudHistorialRevisado",
                 "estadoTramite.esConsejoFacultad"
             };
+
+            String[] mapperReunionConsejo = new String[]{
+                "*",
+                "reunionConsejo.*"
+            };
+
             JsonNodeFactory jc = JsonNodeFactory.instance;
             for (Tramite tramite : tramites) {
                 ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramite);
                 ArrayNode reincorporaciones = null;
                 if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
-                    reincorporaciones = new ArrayNode(jc);
-                    for (Reincorporacion reincorporacionEach : tramite.getReincorporaciones()) {
-                        reincorporaciones.addPOJO(JsonHelper.createJson(reincorporacionEach, jc, false, mapperReincorporacion));
-                    }
+                    Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
+                    tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
+                }
+                if (tramite.getTramitesReunionConsejo() != null && !tramite.getTramitesReunionConsejo().isEmpty()) {
+                    TramiteReunionConsejo tramiteReunionConsejo = tramite.getTramitesReunionConsejo().get(0);
+                    tramiteJson.set("tramiteReunionConsejo", JsonHelper.createJson(tramiteReunionConsejo, jc, false, mapperReunionConsejo));
                 }
                 tramiteJson.set("reincorporaciones", reincorporaciones);
                 array.add(tramiteJson);
@@ -274,6 +283,33 @@ public class TramitesAcademicosController {
                 "usuarioActualizacion.*",}));
              */
             //  response.setData(node);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("revertirEstadoTramite")
+    public JsonResponse revertirEstadoTramite(
+            @RequestBody Tramite tramite,
+            Model model,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            tramitesAcademicosService.revertTramiteAcademico(tramite, ds);
+
+            response.setMessage("Reversión completada");
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
