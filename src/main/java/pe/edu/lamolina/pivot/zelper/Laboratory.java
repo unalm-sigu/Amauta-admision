@@ -1,15 +1,13 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import java.util.Date;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 
 public class Laboratory {
-    
+
     public static void main666(String[] args) {
-        Date hoy = new LocalDate().toDate();
-        Date hoy2 = new DateTime(hoy).plusDays(1).minusSeconds(1).toDate();
-        System.out.println(hoy);
-        System.out.println(hoy2);
+
+        System.out.println(SituacionAcademicaEnum.S_8.name());
+        System.out.println(SituacionAcademicaEnum.S_8.getValue());
+        System.out.println(SituacionAcademicaEnum.S_8.getNombre());
     }
 }
