@@ -25,6 +25,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Tramite.class, "t")
                 .join("compania", "persona", "alumno", "tipoTramite")
+                .left("userRegistro ur", "ur.persona urp")
                 .left("reincorporaciones");
         return this.all(sql);
     }

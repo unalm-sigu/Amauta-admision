@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -15,9 +16,10 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
@@ -86,6 +88,16 @@ public class ResolucionServiceImp implements ResolucionService {
     }
 
     @Override
+    public List<Reincorporacion> allReincorporacionByFilter(DynatableFilter filter, Resolucion resolucion) {
+        if (filter.getQueries() == null) {
+            filter.setQueries(new HashMap());
+        }
+        filter.getQueries().put("res.id", resolucion.getId());
+        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByDyna(filter);
+        return reincorporaciones;
+    }
+
+    @Override
     public List<Tramite> allTramitesByTipoEstadoTram(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum) {
         return tramiteDAO.allByTipoTramiteEstadoTramite(tipoTramiteEnum, estadoTramiteEnum);
     }
@@ -110,7 +122,7 @@ public class ResolucionServiceImp implements ResolucionService {
             throw new PhobosException("Debe seleccionar algun tramite");
         }
 
-        resolucion.setEstadoEnum(EstadoEnum.CRE);
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.CRE);
         resolucion.setUserRegistro(usuario);
         resolucion.setFechaRegistro(today.toDate());
         resolucionDAO.save(resolucion);
@@ -199,12 +211,11 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucion = resolucionDAO.find(resolucion.getId());
         Resolucion resolucionUpd = new Resolucion(resolucion.getId());
 
-        resolucionUpd.setRutaUrl(Constantine.S3_LINK + Constantine.PIVOT_DIR + Constantine.S3_RESOLUCIONES_DIR + name);
-        ///   resolucion.setRutaUrl(Constantine.S3_LINK + Constantine.S3_DIR + Constantine.S3_RESOLUCIONES_DIR + name);
+        resolucionUpd.setRutaUrl(Constantine.S3_LINK + Constantine.S3_RESOLUCIONES_DIR + name);
         s3service.uploadFileSync(Constantine.S3_DIR, Constantine.S3_RESOLUCIONES_DIR, Constantine.TMP_DIR, name, true);
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
-        resolucionUpd.setEstadoEnum(EstadoEnum.ACT);
+        resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.CRE);
         resolucionDAO.updateResolucionFile(resolucionUpd);
         if (resolucion.getEsEstadoCre()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
@@ -245,6 +256,43 @@ public class ResolucionServiceImp implements ResolucionService {
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         tramite.setReincorporaciones(reincorporaciones);
         return tramite;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveConfirmar(Resolucion resolucion, DataSessionPivot ds) {
+        DateTime today = new DateTime();
+
+        resolucion = resolucionDAO.find(resolucion.getId());
+        Resolucion resolucionUpd = new Resolucion();
+        resolucionUpd.setId(resolucion.getId());
+        resolucionUpd.setUserActualizacion(ds.getUsuario());
+        resolucionUpd.setFechaActualizacion(today.toDate());
+        resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.CONF);
+        resolucionDAO.updateEstado(resolucion);
+
+        if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
+            for (Reincorporacion reincorporacion : reincorporaciones) {
+                Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
+                Tramite tramiteUpd = new Tramite(tramite.getId());
+                tramiteUpd.setUserModificacion(ds.getUsuario());
+                tramiteUpd.setFechaModificacion(today.toDate());
+
+                if (!reincorporacion.getEstadoTramite().getEsDocumentoCargado()) {
+                    throw new PhobosException("Estado tramite incorrecto");
+                }
+                if (reincorporacion.getEstaAceptado()) {
+                    flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
+                    tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ACEP);
+                    flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
+                    //falta recalcular situacion academica
+                } else {
+                    tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
+                }
+                tramiteDAO.updateEstado(tramiteUpd);
+            }
+        }
     }
 
 }

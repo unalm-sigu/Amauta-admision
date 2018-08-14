@@ -58,4 +58,13 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         this.update(octavia);
     }
 
+    @Override
+    public void updateEstado(Resolucion resolucion) {
+        Octavia octavia = Octavia.update(Resolucion.class);
+        octavia.set(resolucion, "userActualizacion");
+        octavia.set(resolucion, "fechaActualizacion");
+        octavia.set(resolucion, "estado");
+        this.update(octavia);
+    }
+
 }

@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
@@ -18,6 +19,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public interface ResolucionService {
 
     List<Resolucion> allResolucionesByFilter(DynatableFilter filter);
+
+    List<Reincorporacion> allReincorporacionByFilter(DynatableFilter filter, Resolucion resolucion);
 
     List<TipoResolucion> allTiposResolucion();
 
@@ -36,5 +39,7 @@ public interface ResolucionService {
     void updateResolucion(Resolucion resolucion, DataSessionPivot dataSessionPivot);
 
     void uploadResolucionFile(Resolucion resolucion, MultipartFile file, DataSessionPivot ds);
+
+    void saveConfirmar(Resolucion resolucion, DataSessionPivot ds);
 
 }

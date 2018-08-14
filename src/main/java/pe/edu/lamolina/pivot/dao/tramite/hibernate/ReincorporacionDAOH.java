@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -26,6 +28,15 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("tra.id", tramite);
 
         return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allByDyna(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tra", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .join("tra.persona traPer","tra.tipoTramite");
+        return this.all(sql);
     }
 
     @Override

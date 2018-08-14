@@ -110,6 +110,7 @@ public class TramitesAcademicosController {
                 "tipoTramite.nombre",
                 "tipoTramite.esTipoTramiteRei",
                 "userRegistro.*",
+                "userRegistro.persona.*",
                 "userRespuesta.*"
             };
             String[] mapperReincorporacion = new String[]{

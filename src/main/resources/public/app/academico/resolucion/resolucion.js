@@ -5,6 +5,7 @@ var app = new Vue({
     el: '#resoluciones',
     data: {
         URL_RESOLUCIONES: APP.url('academico/resolucion/listResoluciones'),
+        URL_TRAMITES: APP.url('academico/resolucion/listTramitesToConfirm'),
         colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning"},
         resolucionModal: {
             id: 'modalResolucion',
@@ -12,6 +13,13 @@ var app = new Vue({
             title: 'Resoluciones',
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
+        },
+        confirmarModal: {
+            id: 'modalConfirmar',
+            header: true,
+            title: 'Confirmar Tramite',
+            okbtn: 'Aceptar',
+            modalsize: 'modal-md'
         },
         resolucion: null,
         tiposResoluciones: null,
@@ -153,7 +161,7 @@ var app = new Vue({
                     //  Get the response status code
                     if (newFile.xhr.status == 200) {
                         notify(newFile.response.message, "info");
-                        $vue.tblResoluciones.loadRemoteData();
+                        $vue.$refs.tblResoluciones.loadRemoteData();
                     } else {
                         notify(newFile.response.message, "error");
                     }
@@ -187,6 +195,36 @@ var app = new Vue({
             console.dir(this.files);
         }, getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
+        }, loadModalConfirmar(resolucion, event) {
+            event.preventDefault();
+            this.resolucion = resolucion;
+            this.$refs.tblTramites.ajaxdata = {resolucion: resolucion.id};
+            this.$refs.tblTramites.loadRemoteData();
+            this.$refs.modalConfirmar.open();
+        }, saveConfirmar(event) {
+            let $vue = this;
+            if (event) {
+                event.preventDefault();
+            }
+            $.ajax({
+                url: APP.url('academico/resolucion/saveConfirmar'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify($vue.resolucion),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.$refs.modalResolucion.close();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 })

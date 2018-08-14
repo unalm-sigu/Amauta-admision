@@ -255,6 +255,52 @@ public class ResolucionController {
     }
 
     @ResponseBody
+    @RequestMapping("listTramitesToConfirm")
+    public DynatableResponse listTramitesToConfirm(DynatableFilter filter,
+            @RequestParam(name = "resolucion", required = false) Long resolucionId,
+            HttpSession session) {
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            DateTime today = new DateTime();
+            if (resolucionId == null) {
+                json.setTotal(0);
+                return json;
+            }
+            List<Reincorporacion> reincorporaciones = resolucionService.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
+            logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
+
+            for (Reincorporacion reincorporacion : reincorporaciones) {
+
+                ObjectNode reincorporacionJson = JsonHelper.createJson(reincorporacion, JsonNodeFactory.instance,
+                        new String[]{
+                            "*",
+                            "tramite.*",
+                            "tramite.tipoTramite.*",
+                            "tramite.persona.*",
+                            "estadoTramite.*",
+                            "cicloReincorporacion.*",
+                            "resolucion.*",
+                            "userRegistro.*",
+                            "userRegistro.persona.*"
+                        });
+                array.add(reincorporacionJson);
+            }
+
+            json.setData(array);
+            json.setTotal(reincorporaciones.size());
+            json.setFiltered(reincorporaciones.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("listTramiteReunionConsejo")
     public DynatableResponse listTramiteReunionConsejo(DynatableFilter filter,
             @RequestParam(name = "reunionConsejo", required = false) Long reunionConsejoId,
@@ -427,6 +473,31 @@ public class ResolucionController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveConfirmar")
+    public JsonResponse saveConfirmar(
+            @RequestBody Resolucion resolucion,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
