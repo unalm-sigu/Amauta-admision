@@ -69,7 +69,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .join("compania cia")
                 .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("cia.id", compania)
-                .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre")
+                .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre", "sup.nombre")
                 .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")
                 .searchComplexField("concat(coalesce(pj.nombres,''),' ',coalesce(pj.paterno,''),' ',coalesce(pj.materno,''))")
                 .searchComplexField("concat(coalesce(pje.paterno,''),' ',coalesce(pje.materno,''),' ',coalesce(pje.nombres,''))")

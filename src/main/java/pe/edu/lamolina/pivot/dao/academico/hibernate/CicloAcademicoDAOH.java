@@ -18,11 +18,6 @@ import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CFG;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.DES;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CRE;
-//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CFG;
-//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.PEND;
-//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.ACT;
-//import static pe.edu.lamolina.model.enums.CicloEstadoEnum.CER;
-//import pe.edu.lamolina.model.enums.CicloEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
