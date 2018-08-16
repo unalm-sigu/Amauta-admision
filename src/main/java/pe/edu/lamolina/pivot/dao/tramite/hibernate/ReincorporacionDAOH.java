@@ -35,7 +35,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(Reincorporacion.class, "rei")
                 .join("tramite tra", "resolucion res", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
-                .join("tra.persona traPer","tra.tipoTramite");
+                .join("tra.persona traPer", "tra.tipoTramite");
         return this.all(sql);
     }
 

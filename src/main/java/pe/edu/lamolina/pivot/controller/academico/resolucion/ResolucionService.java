@@ -42,4 +42,6 @@ public interface ResolucionService {
 
     void saveConfirmar(Resolucion resolucion, DataSessionPivot ds);
 
+    List<CicloAcademico> allCiclosToReincorporacion();
+
 }

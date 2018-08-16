@@ -29,12 +29,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
-import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
@@ -112,6 +110,8 @@ public class ResolucionController {
         return "academico/resolucion/resolucionForm";
     }
 
+    @ResponseBody
+    @RequestMapping("loadModalResolucion")
     public JsonResponse loadModalResolucion(@RequestParam(name = "resolucion", required = false) Long resolucionId,
             Model model,
             HttpSession session) {
@@ -123,10 +123,12 @@ public class ResolucionController {
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
             Resolucion resolucion = resolucionService.findResolucion(resolucionId);
+            List<CicloAcademico> ciclos = resolucionService.allCiclosToReincorporacion();
 
             ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, true,
                     new String[]{"*",
                         "oficina.id",
+                        "cicloReincorporacion.*",
                         "oficina.nombre",
                         "reunionConsejo.*",
                         "tipoResolucion.*",
@@ -135,8 +137,14 @@ public class ResolucionController {
                         "userActualizacion.*",
                         "userActualizacion.persona.*"});
 
+            ArrayNode ciclosJson = new ArrayNode(jc);
+            for (CicloAcademico ciclo : ciclos) {
+                ciclosJson.add(JsonHelper.createJson(ciclo, jc));
+            }
+
             ObjectNode data = new ObjectNode(jc);
             data.set("resolucion", resolucionJson);
+            data.set("ciclosToReincorporacion", ciclosJson);
 
             response.setData(data);
 
@@ -490,6 +498,10 @@ public class ResolucionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            resolucionService.saveConfirmar(resolucion, ds);
+
+            response.setMessage("Resolucion confirmada.");
 
             response.setData(node);
             response.setSuccess(true);

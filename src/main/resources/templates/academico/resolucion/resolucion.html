@@ -87,8 +87,8 @@
                                                    v-if="item.esEstadoCre">
                                                     Editar
                                                 </a>
-                                                <a class="aceptar-expandir-sistema" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir Pdf</a>
-                                                <a  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>
+                                                <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir Pdf</a>
+                                                <a v-if="item.esEstadoAct"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>
                                             </li>
                                         </ul>
                                     </td>
@@ -201,94 +201,91 @@
                            v-bind="confirmarModal"
                            v-bind:okaction="saveConfirmar">
                     <div slot="body">
-
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <label>Ciclo Académico</label>
-                                <div class="form-group">
-                                    adad
-                                    <!-- 
-                                    <multiselect 
-                                        v-model="resolucion.cicloReincorporacion" 
-                                        v-bind:options="tiposResoluciones"
-                                        v-bind:disabled="resolucion.esEdicion"
-                                        v-if='tiposResoluciones'
-                                        v-on:input="loadTramitesConsejo" 
-                                        label="nombre"
-                                        track-by="id" 
-                                        required="true"
-                                        >
-                                    </multiselect> -->
+                        <form id="frmConfirmar">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <label>Ciclo Académico</label>
+                                    <div class="form-group">
+                                        <multiselect 
+                                            v-model="resolucion.cicloReincorporacion" 
+                                            v-bind:options="ciclosToReincorporacion"
+                                            v-if='ciclosToReincorporacion' 
+                                            label="descripcion"
+                                            v-bind:custom-label="customLabelCiclosRei"
+                                            track-by="id" 
+                                            required="true"
+                                            v-bind:show-labels="false"
+                                            >
+                                        </multiselect> 
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <raptor-table ref="tblTramites"
-                                      v-bind:url="URL_TRAMITES" 
-                                      rowsperpage="5"
-                                      v-bind:searcher="false">
+                            <raptor-table ref="tblTramites"
+                                          v-bind:url="URL_TRAMITES" 
+                                          rowsperpage="5"
+                                          v-bind:searcher="false">
 
-                            <template scope="props">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th class="v-middle text-center">Tramite</th>
-                                            <th class="v-middle text-center">Persona</th>
-                                            <th class="v-middle text-center">Estado</th>
-                                            <th class="v-middle text-center">Registro</th>
-                                            <th>Aceptado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in props.data"> 
-                                            <td class="v-middle text-left">   
-                                                <small class="block text-muted">{{item.tramite.tipoTramite.nombre}}</small>
-                                                <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
-                                                <small class="block text-muted">Número: {{item.tramite.numero}}</small>
-                                            </td>
-                                            <td class="v-middle text-left">
-                                                {{ item.tramite.persona.apellidosNombres}}
-                                            </td> 
-                                            <td>
-                                                <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum}}</small>
-                                                <small class="block text-muted" 
-                                                       v-if="item.tramite.tipoTramite.esTipoTramiteRei">
-                                                    Reincorporación: {{item.estadoTramite.nombre}}
-                                                </small>
-                                                <!-- 
-                                                <small class="block text-muted" 
-                                                       v-if="item.tramiteReunionConsejo">
-                                                    <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
-                                                </small>
-                                                -->
-                                            </td> 
-                                            <td>
-                                                {{ item.userRegistro.persona.apellidosNombres}}
-                                                <small class="block text-muted">
-                                                    <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
-                                                </small>
-                                                <!--
-                                                <a class="btn" 
-                                                   v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
-                                                   type="button"    
-                                                   v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
-                                                   href="#" >Seleccionar</a> -->
-                                            </td>
-                                            <td>
-                                                <label class="switch">
-                                                    <input  type="checkbox" 
-                                                            value="1"
-                                                            checked="{{item.aceptado}}"
-                                                            disabled="true"/>
-                                                    <span></span>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </template>
-                        </raptor-table>
-
-
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="v-middle text-center">Tramite</th>
+                                                <th class="v-middle text-center">Persona</th>
+                                                <th class="v-middle text-center">Estado</th>
+                                                <th class="v-middle text-center">Registro</th>
+                                                <th>Aceptado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td class="v-middle text-left">   
+                                                    <small class="block text-muted">{{item.tramite.tipoTramite.nombre}}</small>
+                                                    <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
+                                                    <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    {{ item.tramite.persona.apellidosNombres}}
+                                                </td> 
+                                                <td>
+                                                    <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum}}</small>
+                                                    <small class="block text-muted" 
+                                                           v-if="item.tramite.tipoTramite.esTipoTramiteRei">
+                                                        Reincorporación: {{item.estadoTramite.nombre}}
+                                                    </small>
+                                                    <!-- 
+                                                    <small class="block text-muted" 
+                                                           v-if="item.tramiteReunionConsejo">
+                                                        <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
+                                                    </small>
+                                                    -->
+                                                </td> 
+                                                <td>
+                                                    {{ item.userRegistro.persona.apellidosNombres}}
+                                                    <small class="block text-muted">
+                                                        <format-date v-bind:datetext="item.tramite.fechaRegistro"></format-date>
+                                                    </small>
+                                                    <!--
+                                                    <a class="btn" 
+                                                       v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
+                                                       type="button"    
+                                                       v-on:click.prevent="seleccionarReunionConsejo(item,$event)"   
+                                                       href="#" >Seleccionar</a> -->
+                                                </td>
+                                                <td>
+                                                    <label class="switch">
+                                                        <input  type="checkbox" 
+                                                                value="1"
+                                                                checked="{{item.aceptado}}"
+                                                                disabled="true"/>
+                                                        <span></span>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </form>
                     </div>
                 </modal-vik>
 

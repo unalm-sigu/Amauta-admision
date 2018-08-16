@@ -23,7 +23,8 @@ var app = new Vue({
         },
         resolucion: null,
         tiposResoluciones: null,
-        files: []
+        files: [],
+        ciclosToReincorporacion: null
     }, created: function () {
 
     }, mounted: function () {
@@ -197,15 +198,41 @@ var app = new Vue({
             return "label-" + this.colorEstado[estadoCode];
         }, loadModalConfirmar(resolucion, event) {
             event.preventDefault();
-            this.resolucion = resolucion;
-            this.$refs.tblTramites.ajaxdata = {resolucion: resolucion.id};
-            this.$refs.tblTramites.loadRemoteData();
-            this.$refs.modalConfirmar.open();
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/resolucion/loadModalResolucion'),
+                type: 'post',
+                data: {resolucion: resolucion.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.resolucion = response.data.resolucion;
+                        $vue.ciclosToReincorporacion = response.data.ciclosToReincorporacion;
+                        $vue.$refs.tblTramites.ajaxdata = {resolucion: resolucion.id};
+                        $vue.$refs.tblTramites.loadRemoteData();
+                        $vue.$refs.modalConfirmar.open();
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }, saveConfirmar(event) {
             let $vue = this;
             if (event) {
                 event.preventDefault();
             }
+            var form = $("[id='frmConfirmar']");
+            APP.validateMultiSelect(form);
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+            //  $vue.resolucion.estadoEnum = null;
+            delete $vue.resolucion.estadoEnum;
             $.ajax({
                 url: APP.url('academico/resolucion/saveConfirmar'),
                 dataType: "json",
@@ -225,6 +252,10 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        }, customLabelCiclosRei( { descripcion, tipo}) {
+            if (descripcion != '' && tipo != '') {
+                return `${descripcion} - ${tipo}`;
+        }
         }
     }
 })

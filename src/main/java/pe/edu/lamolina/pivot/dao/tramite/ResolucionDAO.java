@@ -16,4 +16,6 @@ public interface ResolucionDAO extends EasyDAO<Resolucion> {
     void updateResolucionFile(Resolucion resolucion);
 
     void updateEstado(Resolucion resolucion);
+
+    void updateEstadoCicloRei(Resolucion resolucion);
 }
