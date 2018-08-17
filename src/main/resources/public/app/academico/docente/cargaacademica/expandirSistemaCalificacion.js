@@ -269,8 +269,8 @@ $(function () {
                 }
             });
         },
-        saveExpandir: function () {
-
+        saveExpandir: function (e) {
+            e.preventDefault();
             var form = $("#frmExpandirEvals");
             form.parsley().destroy();
             form.parsley();
@@ -323,8 +323,8 @@ $(function () {
                 }
             });
         },
-        aceptarAsignacion: function () {
-
+        aceptarAsignacion: function (e) {
+            e.preventDefault();
             var form = $("#frmAsignarDocente");
 
             form.parsley().destroy();
@@ -366,6 +366,7 @@ $(function () {
             });
         },
         aceptarExpansion: function (el) {
+            el.preventDefault();
             bootbox.confirm({
                 message: MESSAGES.confirmAccept,
                 title: 'Aceptar Expansión',
@@ -545,15 +546,15 @@ $(function () {
     });
 
     $("body").delegate(".grabar-expansion", "click", function (e) {
-        ExpandirSCN.saveExpandir();
+        ExpandirSCN.saveExpandir(e);
     });
 
     $("body").delegate(".grabar-asignacion", "click", function (e) {
-        ExpandirSCN.aceptarAsignacion();
+        ExpandirSCN.aceptarAsignacion(e);
     });
 
     $("body").delegate("#btnAceptarExp", "click", function (e) {
-        ExpandirSCN.aceptarExpansion()
+        ExpandirSCN.aceptarExpansion(e)
     });
 
     $("body").delegate(".cboTipoSecEval", "change", function () {

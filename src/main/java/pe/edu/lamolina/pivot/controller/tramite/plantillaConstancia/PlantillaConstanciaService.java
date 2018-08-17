@@ -3,10 +3,12 @@ package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
+import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 
 public interface PlantillaConstanciaService {
 
@@ -19,7 +21,7 @@ public interface PlantillaConstanciaService {
     PlantillaDocumentoAcademico find(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
 
     List<Idioma> allIdioma();
-    
+
     PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 
     Alumno findAlumno(Long idalumno);
@@ -27,4 +29,6 @@ public interface PlantillaConstanciaService {
     PlantillaGenerica fillPlantilla(Alumno alumno,PlantillaDocumentoAcademico plantillaForm);
 
     List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico);
+    
+    AlumnoConstancia findAlumnoConstancia(TipoDocumentoAcademico tipoDoc, Idioma idioma, Alumno alumno, CicloAcademico cicloActual);
 }

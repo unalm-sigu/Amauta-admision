@@ -53,6 +53,7 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -111,6 +112,7 @@ public class OficinaController {
             "persona.numeroDocIdentidad",
             "persona.tituloAcademico",
             "persona.nombreCompleto",
+            "persona.emailCompania",
             "oficina.id",
             "oficina.codigo",
             "oficina.nombre",
@@ -741,4 +743,22 @@ public class OficinaController {
 
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("savefuncion")
+    public JsonResponse saveFuncion(PerfilCompania perfilCompania, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.addFuncion(perfilCompania, ds);
+            response.setMessage(Messages.CREATED);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

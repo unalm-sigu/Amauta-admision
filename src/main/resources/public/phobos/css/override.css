@@ -1687,9 +1687,19 @@ div.notas {
     max-height: 500px;
     overflow-y: scroll
 }
+.modal-scroll-fix-500{
+    max-height: 500px;
+    min-height: 500px;
+    overflow-y: scroll
+}
 /*modal scroll max height 600px*/
 .modal-scroll-600{
     max-height: 600px;
+    overflow-y: scroll
+}
+.modal-scroll-fix-600{
+    max-height: 600px;
+    min-height: 600px;
     overflow-y: scroll
 }
 /*modal scroll max height 700px*/

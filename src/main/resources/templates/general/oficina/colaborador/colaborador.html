@@ -9,25 +9,21 @@
 
             <header class="header b-b padder-lg">
 
-                <div class="btn-group pull-right">
-                    <div class="btn-group pull-right">
-                        <a href="#" v-on:click="regresar" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    </div>
-                    &nbsp;
+                <div class="pull-right m-t-md">
                     <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         <li ><a href="#" v-on:click="nuevoColaborador()" >Nuevo Colaborador</a></li>
                         <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
+                        <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
                         <li class="divider"></li>
                         <li><a href="#" >Ver Cargos</a></li>
                         <li><a href="#">Ver Funciones</a></li>
                     </ul>
+                    <a href="#" v-on:click="regresar" class="btn btn-default btn-sm m-l-sm">Regresar</a>
                 </div>
-
                 <h2>Colaboradores</h2>
-
             </header>
             <section class="wrapper-lg m-b-xs">
                 <section class="panel m-b-xs">
@@ -72,7 +68,7 @@
                         </div>
                     </section>
                 </section>
-                
+
                 <section class="panel">            
                     <section class="panel-body">
                         <div class="col-sm-6">
@@ -92,7 +88,7 @@
                     </section>
                 </section>
             </section>
-            
+
             <!--MODAL INICIO-->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog modal-lg" role="document">
@@ -135,8 +131,13 @@
                 </div>
             </div>
             <!--MODAL FIN-->
+
+            <th:block th:replace="general/oficina/colaborador/colaboradorTemplate"/>
+
         </div>
+
         <th:block th:replace="general/oficina/colaborador/colaboradorDynatable"/>
+
     </div>
 
 </body>
@@ -148,6 +149,8 @@
         var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
         /*]]>*/
     </script>
+    <div th:substituteby="_modules/vue-modal2"></div>
+    <div th:substituteby="_layout/includes :: vue-loader"/>
     <div th:substituteby="_layout/includes :: javascript-dynatable"/>
     <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
 </div>

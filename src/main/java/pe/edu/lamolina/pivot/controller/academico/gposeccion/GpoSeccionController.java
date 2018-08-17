@@ -1010,7 +1010,7 @@ public class GpoSeccionController {
 
         try {
             long t1 = System.currentTimeMillis();
-//            System.out.println("777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777777");
+
             Seccion seccion = service.findSeccion(seccionId);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -1052,8 +1052,6 @@ public class GpoSeccionController {
             response.setSuccess(Boolean.TRUE);
 
             long t2 = System.currentTimeMillis();
-//            System.out.println("Load-modal-gpo en " + (t2 - t1) + " mseg");
-//            System.out.println("898998989989889899898998988989989899898898998989989889899898998988989989899898898998989989889899898998988989989899898");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -1718,7 +1716,7 @@ public class GpoSeccionController {
                     jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
                 }
             }
-            
+
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
             if (horariosAulas != null) {
                 for (HorarioAula horarioAulaEach : horariosAulas) {

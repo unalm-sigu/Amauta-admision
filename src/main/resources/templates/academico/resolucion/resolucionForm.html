@@ -1,0 +1,274 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Calificacion de Postulantes</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style type="text/css">
+        .buscarDocClass {
+            min-width: 300px;
+        }
+        /* Enter and leave animations can use different */
+        /* durations and timing functions.              */
+        .slide-fade-enter-active {
+            transition: all 1s ease;
+        }
+        .slide-fade-leave-active {
+            transition: all 1.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .slide-fade-enter, .slide-fade-leave-to
+        /* .slide-fade-leave-active below version 2.1.8 */ {
+            transform: translateX(10px);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <section  layout:fragment="main">
+        <header class="header b-b padder-lg">
+            <h2>Nueva Resolución <span th:text="${cicloAcademico.descripcion}"></span></h2>
+            <div class="pull-right m-t-md">
+                <a class="btn btn-default"   th:href="@{/academico/resolucion}"  >Regresar</a>
+            </div>
+        </header>
+        <div id="pageGpoResolucionForm">
+            <div >
+
+                <section class="wrapper-lg">
+                    <form id="frmResolucion" v-if="resolucion!=null">
+                        <section class="panel m-b-xs">
+                            <section class="panel-body">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Tipo Resolución</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.tipoResolucion" 
+                                                v-bind:options="tiposResoluciones"
+                                                v-bind:disabled="resolucion.esEdicion"
+                                                v-if='tiposResoluciones'
+                                                v-on:input="loadTramitesConsejo" 
+                                                label="nombre"
+                                                track-by="id" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fecha Resolución</label>
+                                        <div class="form-group">
+                                            <v-date-picker id="dpFecha"
+                                                           v-model="resolucion.fecha"
+                                                           required="true"
+                                                           class="col-md-6"
+                                                           ></v-date-picker>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Serie</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.serie"
+                                                   class="form-control" 
+                                                   required="true"></input>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Número</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.numero"
+                                                   class="form-control" 
+                                                   required="true"> </input>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label>Oficina</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.oficina" 
+                                                v-bind:options="oficinas"
+                                                v-bind:disabled="resolucion.esEdicion"
+                                                v-if='oficinas'
+                                                v-on:input="cambiarOficina" 
+                                                label="nombre"
+                                                track-by="id" 
+                                                required="true"
+                                                >
+                                            </multiselect>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Reunión Consejo</label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.reunionConsejo" 
+                                                v-bind:options="reunionesConsejo"
+                                                v-bind:disabled="resolucion.esEdicion"
+                                                v-on:input="loadTramitesConsejo" 
+                                                label="fecha"
+                                                track-by="id" 
+                                                required="true"
+                                                v-bind:custom-label="customLabel"
+                                                show-labels="false"
+                                                >
+                                                <template slot="singleLabel" slot-scope="props">
+                                                    <span class="option__desc">
+                                                        <span class="option__title"> 
+                                                            <format-date v-bind:datetext="props.option.fecha"></format-date>
+                                                        </span>
+                                                    </span>
+                                                </template>
+                                                <template slot="option" slot-scope="props">    
+                                                    <span  class="block">
+                                                        <format-date v-bind:datetext="props.option.fecha"></format-date>
+                                                    </span>
+                                                </template>
+                                            </multiselect>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" v-if="resolucion.userRegistro!=null &amp;&amp; resolucion.userRegistro.id!=''">
+                                    <div class="col-lg-6">
+                                        <label>Usuario Registro</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.userRegistro.persona.apellidosNombres"
+                                                   readonly="false"
+                                                   class="form-control" 
+                                                   required="true"></input>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fecha Registro</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.fechaRegistro"
+                                                   readonly="false"
+                                                   class="form-control" 
+                                                   required="true"> </input>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" v-if="resolucion.userActualizacion!=null &amp;&amp; resolucion.userActualizacion.id!=''">
+                                    <div class="col-lg-6">
+                                        <label>Usuario Actualización</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.userActualizacion.persona.apellidosNombres"
+                                                   readonly="false"
+                                                   class="form-control" 
+                                                   required="true"></input>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label>Fecha Actualización</label>
+                                        <div class="form-group">
+                                            <input type="text"
+                                                   v-model="resolucion.fechaActualizacion"
+                                                   readonly="false"
+                                                   class="form-control" 
+                                                   required="true"> </input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </section>
+
+                        <section class="panel m-b-xs">
+                            <section class="panel-body">
+                                Seleccione los tramites que incluirá en la resolución.
+                                <raptor-table ref="tblTramitesReunion"
+                                              v-bind:url="URL_TRAMITES_REUNION" 
+                                              v-bind:searcher="false"
+                                              v-bind:paginate="false" >
+
+
+                                    <template scope="props">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th >Tramite</th>
+                                                    <th class="col-md-4 text-center">Persona</th>
+                                                    <th >Tipo Tramite</th>
+                                                    <th>Estado</th>
+                                                    <th>Fecha Agendado</th>
+                                                    <th>
+                                                        Aceptado
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in props.data"> 
+                                                    <td> 
+                                                        <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
+                                                        <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        {{ item.tramite.alumno.persona.apellidosNombres}}
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        {{ item.tramite.tipoTramite.nombre}}
+                                                    </td>
+                                                    <td class="v-middle text-left">
+                                                        <small class="block text-muted">Tramite:  {{ item.tramite.estadoEnum}}</small>
+                                                        <small class="block text-muted" 
+                                                               v-if="item.tramite.tipoTramite.esTipoTramiteRei">
+                                                            Reincorporación: {{item.tramite.reincorporaciones[0].estadoTramite.nombre}}
+                                                        </small>
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        {{ item.fechaRegistro}}
+                                                    </td>
+                                                    <td>
+                                                        <!-- v-bind:click="activacionTramite(item)" -->
+                                                        <label class="switch">
+                                                            <input type="checkbox" 
+                                                                   v-bind:value="item.seleccionado" 
+                                                                   v-model="item.seleccionado"
+                                                                   checked="1"/>
+                                                            <span class="slider round"></span>
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+
+                                </raptor-table>
+                                <!--
+                                                                <a class="btn btn-info btn-sm pull-right m-t-xs">
+                                                                    <i aria-hidden="true" class="fa fa-plus add-seccion"></i> <strong> Agregar Sección</strong></a>
+                                -->
+                                <button type="button" v-on:click="saveResolucion($event)" 
+                                        class="btn btn-success pull-right m-t-xs">Guardar</button>
+                            </section>
+                        </section>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            var resolucionJson = [[${resolucionJson}]];
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
+        <script th:src="@{/app/academico/resolucion/resolucionForm.js}" charset="utf-8"></script> 
+    </div>
+</body>
+</html>

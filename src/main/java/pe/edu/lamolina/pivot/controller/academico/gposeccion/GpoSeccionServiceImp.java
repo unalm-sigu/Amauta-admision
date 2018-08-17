@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
-import static pe.albatross.zelpers.miscelanea.Commutator.findConmutation;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -1291,13 +1290,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (!muertosHSecc.isEmpty()) {
             horarioAulaDAO.deleteAllInList(muertosHAula);
         }
-        for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
-            HorarioAula horarioAula = new HorarioAula();
-            horarioAula.setAula(seccion.getAula());
-            horarioAula.setDia(diaHoraGrupoEach.getDia());
-            horarioAula.setHora(diaHoraGrupoEach.getHora());
-            horarioAula.setSeccion(seccion);
-            horarioAulaDAO.save(horarioAula);
+        
+        if (seccion.getAula() != null) {
+            for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
+                HorarioAula horarioAula = new HorarioAula();
+                horarioAula.setAula(seccion.getAula());
+                horarioAula.setDia(diaHoraGrupoEach.getDia());
+                horarioAula.setHora(diaHoraGrupoEach.getHora());
+                horarioAula.setSeccion(seccion);
+                horarioAulaDAO.save(horarioAula);
+            }
         }
 
         seccionDAO.updateSeccionGrupoHora(seccion);

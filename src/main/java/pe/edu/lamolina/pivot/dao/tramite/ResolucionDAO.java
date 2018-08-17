@@ -7,6 +7,15 @@ import pe.edu.lamolina.model.tramite.Resolucion;
 
 public interface ResolucionDAO extends EasyDAO<Resolucion> {
 
+    Resolucion find();
+
     List<Resolucion> allByDyna(DynatableFilter filter);
 
+    void updateResolucion(Resolucion resolucion);
+
+    void updateResolucionFile(Resolucion resolucion);
+
+    void updateEstado(Resolucion resolucion);
+
+    void updateEstadoCicloRei(Resolucion resolucion);
 }

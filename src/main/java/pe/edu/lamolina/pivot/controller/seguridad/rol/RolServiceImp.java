@@ -1,24 +1,44 @@
 package pe.edu.lamolina.pivot.controller.seguridad.rol;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.mail.handlers.message_rfc822;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.jboss.logging.annotations.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.enums.FuncionRolEstadoEnum;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,17 +53,49 @@ public class RolServiceImp implements RolService {
     @Autowired
     MenuRolDAO menuRolDAO;
 
+    @Autowired
+    FuncionRolDAO funcionRolDAO;
+
+    @Autowired
+    PerfilCompaniaDAO perfilCompaniaDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     @Transactional
     public void save(Rol rol) {
+
+        ObjectUtil.eliminarAttrSinId(rol, "rolSuperior");
+
+        Rol rolCode = rolDAO.findByCode(rol.getCodigo());
+        if (rolCode != null) {
+            throw new PhobosException("Código ya registrado");
+        }
         rolDAO.save(rol);
     }
 
     @Override
     @Transactional
     public void update(Rol rol) {
+
+        ObjectUtil.eliminarAttrSinId(rol, "rolSuperior");
+
+        Rol rolCode = rolDAO.findByCode(rol.getCodigo());
+        
+        if (rolCode != null) {
+            if (rolCode.getId().longValue() != rol.getId()) {
+                throw new PhobosException("Código ya registrado");
+            }
+        }
+        
+        Rol rolDb = rolDAO.find(rol.getId());
+        
+        if (rol.getRolSuperior() != null) {
+            if (rol.getRolSuperior().getId() == rolDb.getId().longValue()) {
+                throw new PhobosException("No puede asignar como rol superior al mismo rol");
+            }
+        }
+
         rolDAO.update(rol);
     }
 
@@ -181,6 +233,92 @@ public class RolServiceImp implements RolService {
     @Override
     public List<Rol> allRolByDynatable(DynatableFilter filter) {
         return rolDAO.allByDynatable(filter);
+    }
+
+    @Override
+    @Transactional
+    public void saveFuncionRol(FuncionRol funcionRol, Usuario usuario) {
+
+        FuncionRol funcionRolDb = funcionRolDAO.findByRolPerfilCompania(funcionRol);
+        if (funcionRolDb != null) {
+            funcionRolDb.setFechaActivacion(new Date());
+            funcionRolDb.setEstado(FuncionRolEstadoEnum.ACT.name());
+            funcionRolDAO.update(funcionRolDb);
+            return;
+        }
+        funcionRol.setFechaActivacion(new Date());
+        funcionRol.setEstado(FuncionRolEstadoEnum.ACT.name());
+        funcionRol.setUsuarioActivacion(usuario);
+        funcionRolDAO.save(funcionRol);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstado(FuncionRol funcionRol, Usuario usuario) {
+        FuncionRol funcionRolDb = funcionRolDAO.find(funcionRol);
+        if (FuncionRolEstadoEnum.ACT.name().equalsIgnoreCase(funcionRol.getEstado())) {
+            funcionRolDb.setEstado(FuncionRolEstadoEnum.ACT.name());
+            funcionRolDb.setUsuarioActivacion(usuario);
+            funcionRolDb.setFechaActivacion(new Date());
+            funcionRolDAO.update(funcionRolDb);
+        } else if (FuncionRolEstadoEnum.INA.name().equalsIgnoreCase(funcionRol.getEstado())) {
+            funcionRolDb.setFechaDesactivacion(new Date());
+            funcionRolDb.setEstado(FuncionRolEstadoEnum.INA.name());
+            funcionRolDb.setUsuarioDesactivacion(usuario);
+            funcionRolDAO.update(funcionRolDb);
+        }
+    }
+
+    @Override
+    public List<PerfilCompania> allPerfilCompaniaByTipo(PerfilCompania perfilCompania, Compania compania) {
+        return perfilCompaniaDAO.allPerfilCompaniaByTipo(perfilCompania, compania);
+    }
+
+    @Override
+    public List<FuncionRol> allFuncionRolTipoPerfil(FuncionRol funcionRol) {
+        return funcionRolDAO.allFuncionRolTipoPerfil(funcionRol);
+    }
+
+    @Override
+    public List<FuncionRol> allFuncionRol(List<Rol> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return funcionRolDAO.allFuncionRolActivoByRoles(roles);
+    }
+
+    @Override
+    public ArrayNode allPerfilCompania(Rol rol, Map<Long, List<FuncionRol>> funcionesRolMap, TipoPerfilCompaniaEnum tipoPerfilCompaniaEnum) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jsonFactory);
+
+        List<FuncionRol> funcionesRoll = funcionesRolMap.get(rol.getId());
+        if (funcionesRoll == null || funcionesRoll.isEmpty()) {
+            return array;
+        }
+
+        for (FuncionRol funcionRol : funcionesRoll) {
+
+            if (FuncionRolEstadoEnum.ACT.name().equalsIgnoreCase(funcionRol.getEstado())) {
+                if (tipoPerfilCompaniaEnum.name().equalsIgnoreCase(funcionRol.getPerfilCompania().getTipo())) {
+
+                    ObjectNode node = JsonHelper.createJson(funcionRol.getPerfilCompania(), jsonFactory, true,
+                            new String[]{
+                                "*"
+                            });
+
+                    array.add(node);
+                }
+            }
+        }
+
+        return array;
+    }
+
+    @Override
+    public List<Rol> allRolSuperior(String nombre) {
+        return rolDAO.allRolSuperior(nombre);
     }
 
 }

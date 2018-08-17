@@ -1,38 +1,34 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import org.apache.commons.lang3.text.WordUtils;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 public class Laboratory {
 
     public static void main666(String[] args) {
 
-        String nom = "Juan cArlis\td'OnofriO, jesús ÑOÑO 3453453 françois \n"
-                + "   tudela-quispe";
-        System.out.println(WordUtils.capitalize(nom.toLowerCase()));
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat formatter2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat formatter3 = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter4 = new SimpleDateFormat("dd/MM/yyyy");
 
-        nom = nom.toLowerCase();
-        nom = nom.replaceAll("[^a-zçñáéíóúü\\s'\\-]", "");
-        nom = nom.replaceAll("[\\n\\r|,\\t]", " ");
-        nom = nom.replaceAll(" +", " ");
-        String[] arr = nom.split(" ");
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = arr[i].substring(0, 1).toUpperCase() + arr[i].substring(1);
+        Date dateResult = null;
+        String date = "05/08/2018";
+
+        List<SimpleDateFormat> formatos = Arrays.asList(formatter, formatter2, formatter3, formatter4);
+        for (SimpleDateFormat formato : formatos) {
+            try {
+                dateResult = formato.parse(date);
+                break;
+            } catch (ParseException e) {
+                System.out.println(formato.toPattern());
+            }
         }
-        nom = String.join(" ", arr);
-
-        arr = nom.split("'");
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = arr[i].substring(0, 1).toUpperCase() + arr[i].substring(1);
+        if (dateResult != null) {
+            System.out.println(dateResult);
         }
-        nom = String.join("'", arr);
-
-        arr = nom.split("-");
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = arr[i].substring(0, 1).toUpperCase() + arr[i].substring(1);
-        }
-        nom = String.join("-", arr);
-
-        System.out.println(nom);
-
     }
 }

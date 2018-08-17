@@ -1,9 +1,12 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('file-upload', VueUploadComponent);
 
 var app = new Vue({
     el: '#resoluciones',
     data: {
         URL_RESOLUCIONES: APP.url('academico/resolucion/listResoluciones'),
+        URL_TRAMITES: APP.url('academico/resolucion/listTramitesToConfirm'),
+        colorEstado: {CRE: "default", ACT: "success", ANU: "danger", BLO: "warning", FUS: "warning"},
         resolucionModal: {
             id: 'modalResolucion',
             header: true,
@@ -11,8 +14,17 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
+        confirmarModal: {
+            id: 'modalConfirmar',
+            header: true,
+            title: 'Confirmar Tramite',
+            okbtn: 'Aceptar',
+            modalsize: 'modal-md'
+        },
         resolucion: null,
-        tiposResoluciones: null
+        tiposResoluciones: null,
+        files: [],
+        ciclosToReincorporacion: null
     }, created: function () {
 
     }, mounted: function () {
@@ -66,22 +78,18 @@ var app = new Vue({
                 }
             });
 
-        },
-        saveResolucion(event) {
+        }, editarResolucion: function (resolucion, e) {
+            e.preventDefault();
+            location.href = APP.url("academico/resolucion/" + resolucion.id + "/editar");
+        }, loadModalSubirDoc: function (resolucion, e) {
+            e.preventDefault();
+            this.resolucion = resolucion;
+            this.$refs.modalResolucion.open();
+        }, saveResolucion(event) {
             if (event) {
                 event.preventDefault();
             }
-            var form = $("[id='frmResolucion']");
-            form.parsley().destroy();
-            form.parsley();
-            if (!form.parsley().validate()) {
-                return;
-            }
             let $vue = this;
-            console.log("save");
-            console.dir($vue.resolucion);
-            console.log(JSON.stringify($vue.resolucion));
-
             $.ajax({
                 url: APP.url('academico/resolucion/saveResolucion'),
                 dataType: "json",
@@ -101,6 +109,153 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        inputFile(newFile, oldFile) {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            if (newFile && oldFile) {
+                // update
+                if (newFile.active && !oldFile.active) {
+                    // beforeSend
+                    // min size
+                    if (newFile.size >= 0 && this.minSize > 0 && newFile.size < this.minSize) {
+                        this.$refs.upload.update(newFile, {error: 'size'})
+                    }
+                }
+                if (newFile.progress !== oldFile.progress) {
+
+                    // progress
+                }
+                if (newFile.error && !oldFile.error) {
+                }
+                if (newFile.success && !oldFile.success) {
+                    //  $vue.producto.productoImagen.splice(0, 0, newFile.response.data)
+                }
+            }
+            if (!newFile && oldFile) {
+                if (oldFile.success && oldFile.response.id) {
+                }
+            }
+            // Automatically activate upload
+            if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
+                if (!this.$refs.upload.active) {
+                    //console.log('subiendo')
+                    this.$refs.upload.active = true
+                } else {
+                    //console.log("FIN?")
+                }
+            }
+
+            if ($vue.$refs.upload.uploaded) {
+                if ($vue.files.length > 0) {
+                    //  $vue.reloadProducto();x
+                    $vue.resolucion.rutaUrl = $vue.files[0].response.data;
+                }
+                if ($vue.$refs.upload.clear()) {
+                    //   console.log("reiniciar img 2")
+                }
+            }
+
+            if (newFile && oldFile && !newFile.active && oldFile.active) {
+                // Get response data
+                if (newFile.xhr) {
+                    //  Get the response status code
+                    if (newFile.xhr.status == 200) {
+                        notify(newFile.response.message, "info");
+                        $vue.$refs.tblResoluciones.loadRemoteData();
+                    } else {
+                        notify(newFile.response.message, "error");
+                    }
+                    $vue.$refs.modalResolucion.close();
+                    MODAL.hideWait();
+                } else {
+                    notify(response.message, "error");
+                }
+            }
+        },
+        inputFilter(newFile, oldFile, prevent) {
+            if (newFile && !oldFile) {
+                if (!/\.(gif|jpg|jpeg|png|pdf)$/i.test(newFile.name)) {
+                    swal(
+                            'Oops...',
+                            'Este archivo no esta permitido!',
+                            'error'
+                            )
+                    return prevent();
+                }
+            }
+            if (newFile && (!oldFile || newFile.file !== oldFile.file)) {
+                newFile.url = ''
+                let URL = window.URL || window.webkitURL
+                if (URL && URL.createObjectURL) {
+                    newFile.url = URL.createObjectURL(newFile.file)
+                }
+            }
+        }, changeFile(value) {
+            console.log("changeFile");
+            console.dir(this.files);
+        }, getEstadoClass: function (estadoCode) {
+            return "label-" + this.colorEstado[estadoCode];
+        }, loadModalConfirmar(resolucion, event) {
+            event.preventDefault();
+            let $vue = this;
+            $.ajax({
+                url: APP.url('academico/resolucion/loadModalResolucion'),
+                type: 'post',
+                data: {resolucion: resolucion.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.resolucion = response.data.resolucion;
+                        $vue.ciclosToReincorporacion = response.data.ciclosToReincorporacion;
+                        $vue.$refs.tblTramites.ajaxdata = {resolucion: resolucion.id};
+                        $vue.$refs.tblTramites.loadRemoteData();
+                        $vue.$refs.modalConfirmar.open();
+                    } else {
+                        notify(MESSAGES.errorComunicacion, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, saveConfirmar(event) {
+            let $vue = this;
+            if (event) {
+                event.preventDefault();
+            }
+            var form = $("[id='frmConfirmar']");
+            APP.validateMultiSelect(form);
+
+            form.parsley().destroy();
+            form.parsley();
+            if (!form.parsley().validate()) {
+                return;
+            }
+            //  $vue.resolucion.estadoEnum = null;
+            delete $vue.resolucion.estadoEnum;
+            $.ajax({
+                url: APP.url('academico/resolucion/saveConfirmar'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: false,
+                data: JSON.stringify($vue.resolucion),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        $vue.$refs.modalResolucion.close();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, customLabelCiclosRei( { descripcion, tipo}) {
+            if (descripcion != '' && tipo != '') {
+                return `${descripcion} - ${tipo}`;
+        }
         }
     }
 })

@@ -341,12 +341,11 @@
             <artifactId>zelpers</artifactId>
             <version>0.1.39</version>
         </dependency>
-
-
+        
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.13.71</version>
+            <version>0.14.47</version>
         </dependency>
 
     </dependencies>

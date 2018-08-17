@@ -12,13 +12,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -31,37 +34,30 @@ import pe.edu.lamolina.pivot.dao.tramite.PlantillaDocumentoAcademicoDAO;
 @Service
 @Transactional(readOnly = true)
 public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaService {
-    
+
     @Autowired
     PlantillaDocumentoAcademicoDAO plantillaConstanciaDAO;
-    
+
     @Autowired
     IdiomaDAO idiomaDAO;
-    
+
     @Autowired
     VariableGenericaDAO variableGenericaDAO;
-    
+
     @Autowired
     VariablePlantillaDAO variablePlantillaDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
-    @Autowired
-    PlantillaDocumentoAcademicoDAO plantillaDocumentoAcademicoDAO;
-    
-    @Autowired
-    ConstanciaPlantillaDAO constanciaPlantillaDAO;
-    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Override
     @Transactional
     public void update(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
-        
+
         plantillaConstanciaDAO.update(plantillaDocumentoAcademico);
     }
-    
+
     @Override
     @Transactional
     public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
@@ -103,7 +99,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         plantilla.setVariablePlantilla(new ArrayList(allVariableMap.values()));
         return plantilla;
     }
-    
+
     @Override
     @Transactional
     public void save(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
@@ -112,22 +108,22 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         plantillaDocumentoAcademico.setContenido("Constancia");
         plantillaConstanciaDAO.save(plantillaDocumentoAcademico);
     }
-    
+
     @Override
     public PlantillaDocumentoAcademico find(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
         return plantillaConstanciaDAO.find(plantillaDocumentoAcademico.getId());
     }
-    
+
     @Override
     public List<PlantillaDocumentoAcademico> all(DynatableFilter filter) {
         return plantillaConstanciaDAO.allDynatable(filter);
     }
-    
+
     @Override
     public List<Idioma> allIdioma() {
         return idiomaDAO.all();
     }
-    
+
     private Map<String, String> getConstants(String contenido) {
         String partes[] = contenido.split("__");
         Map<String, String> mapVariables = new LinkedHashMap();
@@ -142,24 +138,30 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         }
         return mapVariables;
     }
-    
+
     public static boolean isAlpha(String name) {
         return name.matches("[0-9A-Z]+");
     }
-    
+
     @Override
     public Alumno findAlumno(Long idalumno) {
         return alumnoDAO.find(new Alumno(idalumno));
     }
-    
+
+    @Autowired
+    PlantillaDocumentoAcademicoDAO plantillaDocumentoAcademicoDAO;
+
+    @Autowired
+    ConstanciaPlantillaDAO constanciaPlantillaDAO;
+
     @Override
     public PlantillaGenerica fillPlantilla(Alumno alumno, PlantillaDocumentoAcademico plantillaForm) {
-        
+
         PlantillaGenerica plantilla = new PlantillaGenerica();
         PlantillaDocumentoAcademico pda = plantillaDocumentoAcademicoDAO.find(plantillaForm.getId());
         Persona persona = alumno.getPersona();
         plantilla.setContenido(pda.getContenido());
-        
+
         if (TipoDocumentoAcademicoEnum.ALIANZAESTRATEGICAEMPRESARIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.ES.getAcronimo().equals(pda.getIdioma().getCodigo())) {
         } else if (TipoDocumentoAcademicoEnum.ALIANZAESTRATEGICAEMPRESARIAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.EN.getAcronimo().equals(pda.getIdioma().getCodigo())) {
         } else if (TipoDocumentoAcademicoEnum.ALUMNO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.ES.getAcronimo().equals(pda.getIdioma().getCodigo())) {
@@ -201,7 +203,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         } else if (TipoDocumentoAcademicoEnum.ESPECIALPROMEDIOVIGESIMAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.ES.getAcronimo().equals(pda.getIdioma().getCodigo())) {
         } else if (TipoDocumentoAcademicoEnum.ESPECIALPROMEDIOVIGESIMAL.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.EN.getAcronimo().equals(pda.getIdioma().getCodigo())) {
         } else if (TipoDocumentoAcademicoEnum.ESTUDIOSININTERRUMPIDOSOCONTINUOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.ES.getAcronimo().equals(pda.getIdioma().getCodigo())) {
-            
+
             plantilla.setNombre((String) ObjectUtil.getParentTree(alumno, "persona.nombreCompleto"));
             plantilla.setAlumno("alumno");
             if (persona.getSexoEnum() == SexoEnum.F) {
@@ -211,25 +213,24 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             plantilla.setFacultad((String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre"));
             Date fecha = new Date();
             plantilla.setFecha(TypesUtil.getStringDateLongFormat(fecha));
-            
+
             plantilla.setMatriculado("matriculado");
             if (persona.getSexoEnum() == SexoEnum.F) {
                 plantilla.setMatriculado("matriculada");
             }
-            
+
             plantilla.setNumero("000666");
             plantilla.setSerie("000666");
-            
+
             plantilla.setYeariniciociclo("2015");
             plantilla.setYearfinciclo("2017");
-            
+
             plantilla.setCicloinicioromano("I");
             plantilla.setCiclofinromano("V");
-            
+
             plantilla.setCicloactual("V");
             plantilla.setJefeoficina("setJefeoficina");
-         
-            
+
         } else if (TipoDocumentoAcademicoEnum.ESTUDIOSININTERRUMPIDOSOCONTINUOS.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.EN.getAcronimo().equals(pda.getIdioma().getCodigo())) {
         } else if (TipoDocumentoAcademicoEnum.NIVELACADEMICO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.ES.getAcronimo().equals(pda.getIdioma().getCodigo())) {
         } else if (TipoDocumentoAcademicoEnum.NIVELACADEMICO.getValue() == pda.getTipoDocumentoAcademico().getId().longValue() && IdiomaEnum.EN.getAcronimo().equals(pda.getIdioma().getCodigo())) {
@@ -272,7 +273,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         }
         return plantilla;
     }
-    
+
     @Override
     public List<VariableGenerica> allVariableGenericaByPlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico) {
         List<VariablePlantilla> vp = variablePlantillaDAO.allByPlantilla(plantillaDocumentoAcademico);
@@ -281,6 +282,39 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
             return new ArrayList();
         }
         return new ArrayList(vgMap.values());
-        
+
+    }
+
+    @Override
+    public AlumnoConstancia findAlumnoConstancia(TipoDocumentoAcademico tipoDoc, Idioma idioma, Alumno alumno, CicloAcademico cicloActual) {
+        if (tipoDoc.getNombre().equals("Alumno Especial") && idioma.getCodigo().equals("ES")) {
+            return forAlumnoEspecialEspanol(alumno, cicloActual);
+        } else if (tipoDoc.getNombre().equals("Alumno Especial") && idioma.getCodigo().equals("EN")) {
+            return forAlumnoEspecialIngles(alumno, cicloActual);
+        }
+        return null;
+    }
+
+    private AlumnoConstancia forAlumnoEspecialEspanol(Alumno alumno, CicloAcademico cicloActual) {
+        AlumnoConstancia alu = new AlumnoConstancia();
+        Alumno alumnoBD = alumnoDAO.find(alumno);
+        alu.setCodigo(alumnoBD.getCodigo());
+
+        Persona persona = alumnoBD.getPersona();
+        if (persona.getSexoEnum() == SexoEnum.F) {
+            alu.setMatriculado("matriculada");
+        } else if (persona.getSexoEnum() == SexoEnum.M) {
+            alu.setMatriculado("matriculado");
+        } else {
+            throw new PhobosException("Este alumno no tiene definido el valor de SEXO");
+        }
+        alu.setCicloInicio("2014-II");
+        alu.setCicloFin("2017-II");
+
+        return alu;
+    }
+
+    private AlumnoConstancia forAlumnoEspecialIngles(Alumno alumno, CicloAcademico cicloActual) {
+        return null;
     }
 }
