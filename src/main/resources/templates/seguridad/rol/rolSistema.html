@@ -5,15 +5,13 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="main">
+            <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
-                    <div class="btn-group pull-right pointer new-rol">
-                        <a class="btn btn-primary btn-sm">
-                            <i class="fa fa-plus"></i> Nuevo Rol
-                        </a>
-                    </div>
+                    <a class="btn btn-primary btn-sm pull-right" v-on:click.prevent="nuevoRol()">
+                        Nuevo Rol
+                    </a>
 
                     <h2>Roles del Sistema</h2>
                 </header>
@@ -21,18 +19,17 @@
                 <section class="wrapper-lg">
                     <section class="panel">
                         <section class="panel-body">
-
-                            <raptor-table v-bind:url="rolesUrl">
+                            
+                            <raptor-table v-bind:url="rolesUrl" ref="tblroles">
                                 <template scope="props" >
 
                                     <table class="table table-striped" style="z-index: 1">
                                         <thead>
                                             <tr>
                                                 <th class="col-xs-2 text-center">Código</th>
-                                                <th class="col-xs-3">Nombre</th>
-                                                <th class="col-xs-3">Rol Superior</th>
-                                                <th class="col-xs-2">Cargos</th>
-                                                <th class="col-xs-2">Funciones</th>
+                                                <th class="col-xs-4">Nombre</th>
+                                                <th class="col-xs-3">Cargos</th>
+                                                <th class="col-xs-3">Funciones</th>
                                                 <th class=""></th>
                                             </tr>
                                         </thead>
@@ -43,20 +40,17 @@
                                                 </td>
                                                 <td class="v-middle">
                                                     <span v-text="item.nombre"></span>
+                                                    <span class="subtext-xs" v-text="item.rolSuperior"></span>
                                                 </td>
-                                                
+
                                                 <td class="v-middle">
-                                                    <span v-text="item.rolSuperior"></span>
+                                                    <p  v-for="cargo in item.cargos">{{cargo.nombre}}</p>
                                                 </td>
-                                                
+
                                                 <td class="v-middle">
-                                                    <p class="subtext-xs" v-for="cargo in item.cargos">{{cargo.nombre}}</p>
+                                                    <p  v-for="funcion in item.funciones">{{funcion.nombre}}</p>
                                                 </td>
-                                                
-                                                <td class="v-middle">
-                                                    <p class="subtext-xs" v-for="funcion in item.funciones">{{funcion.nombre}}</p>
-                                                </td>
-                                                
+
                                                 <td class="v-middle text-left">
 
                                                     <div class="dropdown actions">
@@ -64,6 +58,9 @@
                                                             <i class="glyphicon glyphicon-cog"></i>
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
+                                                            <li><a class="btn-link" href="#" v-on:click.prevent="{{editarRol(item)}}">Editar</a></li>
+                                                            <li><a class="btn-link" href="#" v-on:click.prevent="{{eliminarRol(item)}}">Eliminar</a></li>
+                                                             <li role="presentation" class="divider"></li>
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="{{relacionarCargo(item)}}">Relacionar Cargo</a></li>
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="{{relacionarFuncion(item)}}">Relacionar Función</a></li>
                                                         </ul>
@@ -110,6 +107,15 @@
                        />
             </template>
 
+            <template id="rolsearhtemp">
+                <input type="text"
+                       class="form-control"
+                       data-trigger="change"
+                       v-bind:name="nombre"
+                       v-model="rolsuperior.id"
+                       />
+            </template>
+
         </div>
 
         <div layout:fragment="js" th:remove="tag">
@@ -118,6 +124,7 @@
             <div th:substituteby="_layout/includes :: sweetalert"/>
             <script th:src="@{/app/seguridad/rol/rolbuscarcargo.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/rolbuscarfuncion.js}" charset="utf-8"></script>
+            <script th:src="@{/app/seguridad/rol/superrolbuscar.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/rolSistema.js}" charset="utf-8"></script>
         </div>
 
