@@ -1065,10 +1065,25 @@ public class OficinaServiceImp implements OficinaService {
         if (perfilCompaniaName != null) {
             throw new PhobosException("La función ingresada ya existe");
         }
-        perfilCompania.setCodigo(this.getCodigoPerfilCompania());
+        perfilCompania.setCodigo(this.getCodigoFuncionCompania());
         perfilCompania.setTipo(TipoPerfilCompaniaEnum.PERFIL.name());
         perfilCompania.setCompania(dsp.getCompania());
         perfilCompania.setEsAutomatico(1l);
         perfilCompaniaDAO.save(perfilCompania);
+    }
+
+    private String getCodigoFuncionCompania() {
+
+        String codigoNuevo = "PER";
+        PerfilCompania compania = perfilCompaniaDAO.findUltimoCodigoFuncion();
+        if (compania != null) {
+            String codigoNume = compania.getCodigo().substring(3);
+            codigoNuevo = codigoNuevo + (Long.parseLong(codigoNume) + 1);
+        } else {
+            codigoNuevo = codigoNuevo.concat("10001");
+        }
+
+        return codigoNuevo;
+
     }
 }

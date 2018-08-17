@@ -132,4 +132,16 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
         return find(sql);
     }
 
+    @Override
+    public PerfilCompania findUltimoCodigoFuncion() {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("esAutomatico", 1)
+                .orderBy("id desc")
+                .limit(1);
+
+        return find(sql);
+    }
+
 }

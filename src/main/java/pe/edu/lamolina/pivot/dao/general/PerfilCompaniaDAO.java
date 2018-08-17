@@ -26,4 +26,6 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
 
     PerfilCompania findFuncionByNombre(String nombre);
 
+    PerfilCompania findUltimoCodigoFuncion();
+
 }

@@ -5,6 +5,7 @@
         <form method="POST"  class="" id="formAddFuncion" >
 
             <input type="hidden" name="id" v-bind:value="funcion.id" />
+            <input type="hidden" name="oficinaContiene.id" th:value="${oficina}" />
 
             <div class="form-group">
                 <label >Nombre Cargo</label>
@@ -16,7 +17,6 @@
                 <label >Nombre Documento Cargo</label>
                 <input name="nombreDocumento"   required="true" type="text" class="form-control" v-model="funcion.nombreDocumento" />                                                
             </div>                                         
-
 
         </form>
 
