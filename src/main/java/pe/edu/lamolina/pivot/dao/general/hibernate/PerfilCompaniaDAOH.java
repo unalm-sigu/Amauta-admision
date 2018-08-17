@@ -128,7 +128,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
                 .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
-                .like("pc.nombreDocumento", nombre);
+                .filter("pc.nombre", nombre);
         return find(sql);
     }
 
@@ -140,7 +140,6 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .filter("esAutomatico", 1)
                 .orderBy("id desc")
                 .limit(1);
-
         return find(sql);
     }
 

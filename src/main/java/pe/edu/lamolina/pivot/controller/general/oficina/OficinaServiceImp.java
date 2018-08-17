@@ -1073,17 +1073,13 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     private String getCodigoFuncionCompania() {
-
-        String codigoNuevo = "PER";
-        PerfilCompania compania = perfilCompaniaDAO.findUltimoCodigoFuncion();
-        if (compania != null) {
-            String codigoNume = compania.getCodigo().substring(3);
-            codigoNuevo = codigoNuevo + (Long.parseLong(codigoNume) + 1);
-        } else {
-            codigoNuevo = codigoNuevo.concat("10001");
+        String codigoNuevo = "F10001";
+        PerfilCompania perfilCompania = perfilCompaniaDAO.findUltimoCodigoFuncion();
+        logger.debug("{}", perfilCompania);
+        if (perfilCompania != null) {
+            String codigoNume = perfilCompania.getCodigo().substring(1);
+            codigoNuevo = "F" + (Long.parseLong(codigoNume) + 1);
         }
-
         return codigoNuevo;
-
     }
 }
