@@ -1,5 +1,6 @@
 new Vue({
     el: '#main',
+    mixins: [VueLoader],
     data: {
         rolesUrl: APP.url('seguridad/rol/list'),
         cargo: {id: null},
@@ -187,26 +188,30 @@ new Vue({
                 return;
             }
 
-            $global.$emit('MODAL-WAIT-OPEN');
+            vue.showLoader();
 
             $.ajax({
                 method: 'POST',
                 url: APP.url('seguridad/rol/save'),
                 data: $('#formNuevoRol').serialize(),
+                async :false,
                 success: function (response) {
 
                     if (response.success) {
+
+                        vue.hideLoader();
                         vue.$refs.nuevorolmodal.close();
                         vue.$refs.tblroles.loadRemoteData();
+
                     } else {
+                        vue.hideLoader();
                         notify(response.message, 'error');
                     }
 
-                    $global.$emit('MODAL-WAIT-CLOSE');
 
                 }, error: function () {
 
-                    $global.$emit('MODAL-WAIT-CLOSE');
+                    vue.hideLoader();
                     notify(MESSAGES.errorComunicacion, "error");
 
                 }
@@ -214,7 +219,7 @@ new Vue({
 
         },
         editarRol: function (rol) {
-            
+
             let vue = this;
             vue.rol = {id: null};
             vue.rolSuperior = {id: null};
@@ -224,12 +229,13 @@ new Vue({
                 method: 'POST',
                 url: APP.url('seguridad/rol/editar'),
                 data: {id: rol.id},
+                async :false,
                 success: function (response) {
                     if (response.success) {
-                        
-                      vue.rol =  response.data;
-                      vue.rolSuperior =  response.data.rolSuperior;
-                        
+
+                        vue.rol = response.data;
+                        vue.rolSuperior = response.data.rolSuperior;
+
                     } else {
                         notify(response.message, 'error');
                     }
@@ -237,7 +243,7 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-            
+
             vue.$refs.nuevorolmodal.open();
 
         },

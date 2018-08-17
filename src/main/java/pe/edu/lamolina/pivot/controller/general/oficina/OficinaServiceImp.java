@@ -1057,4 +1057,18 @@ public class OficinaServiceImp implements OficinaService {
     public List<Persona> allPersonasByNombre(String nombre) {
         return personaDAO.allByNombre(nombre);
     }
+
+    @Override
+    @Transactional
+    public void addFuncion(PerfilCompania perfilCompania, DataSessionPivot dsp) {
+        PerfilCompania perfilCompaniaName = perfilCompaniaDAO.findFuncionByNombre(perfilCompania.getNombre());
+        if (perfilCompaniaName != null) {
+            throw new PhobosException("La función ingresada ya existe");
+        }
+        perfilCompania.setCodigo(this.getCodigoPerfilCompania());
+        perfilCompania.setTipo(TipoPerfilCompaniaEnum.PERFIL.name());
+        perfilCompania.setCompania(dsp.getCompania());
+        perfilCompania.setEsAutomatico(1l);
+        perfilCompaniaDAO.save(perfilCompania);
+    }
 }

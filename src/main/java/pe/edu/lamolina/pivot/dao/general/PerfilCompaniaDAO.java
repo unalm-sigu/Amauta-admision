@@ -22,6 +22,8 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
 
     List<PerfilCompania> allCargo(String nombre, Compania compania);
 
-    public List<PerfilCompania> allPerfilCompaniaByTipo(PerfilCompania perfilCompania, Compania compania);
+    List<PerfilCompania> allPerfilCompaniaByTipo(PerfilCompania perfilCompania, Compania compania);
+
+    PerfilCompania findFuncionByNombre(String nombre);
 
 }
