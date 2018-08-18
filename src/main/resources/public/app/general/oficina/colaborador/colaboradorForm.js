@@ -1,7 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-let vm = 
 new Vue({
     el: '#colaboradorFormVue',
     data: {
@@ -147,7 +146,10 @@ new Vue({
             }
             self.btnEnable();
             $vue.colaboradorData.colaborador = $vue.colaborador;
+            
+            
             $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
+            console.log($vue.colaborador.funcionColaborador.length);
             $vue.colaboradorData.oficinaMean = $vue.oficina;
 
             $.ajax({

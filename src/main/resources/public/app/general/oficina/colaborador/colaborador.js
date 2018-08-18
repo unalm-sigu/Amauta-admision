@@ -93,7 +93,12 @@ new Vue({
         dataModalFuncion: {
             title: 'Nueva Función',
         },
-        funcion: {id: null}
+        dataVerCargo: {
+            title: 'Cargos',
+            showaccept:false
+        },
+        funcion: {id: null},
+        cargos:[]
     },
     computed: {
 
@@ -251,6 +256,57 @@ new Vue({
                 }
             });
 
-        }
+        },
+        verCargo: function () {
+            let vue = this;
+            vue.dataVerCargo.title = "Cargos";
+            vue.$refs.modalvercargo.open();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/vercargo'),
+                data: {id: vue.oficina.id},
+                success: function (response) {
+
+                    if (response.success) {
+
+                        vue.cargos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
+        },
+        verFuncion: function () {
+            let vue = this;
+            vue.dataVerCargo.title = "Funciones";
+            vue.$refs.modalvercargo.open();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/verfuncion'),
+                data: {id: vue.oficina.id},
+                success: function (response) {
+
+                    if (response.success) {
+
+                        vue.cargos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
     }
 });

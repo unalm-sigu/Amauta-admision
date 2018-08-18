@@ -23,3 +23,28 @@
     </div>
 
 </modal-vik>
+
+<modal-vik  ref="modalvercargo" v-bind="dataVerCargo"  >
+
+    <div slot="body">
+        
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Nombre Documento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for='cargo in cargos'>
+                    <td>{{cargo.codigo}}</td>
+                    <td>{{cargo.nombre}}</td>
+                    <td>{{cargo.nombreDocumento}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</modal-vik>

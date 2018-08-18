@@ -97,15 +97,17 @@ public class OficinaController {
     }
 
     @RequestMapping("{idColaborador}/updateColaborador/{idOficina}")
-    public String updateColaborador(@PathVariable("idOficina") Long idOficina, @PathVariable("idColaborador") Long idColaborador, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+    public String updateColaborador(@PathVariable("idOficina") Long idOficina, @PathVariable("idColaborador") Long idColaborador, Model model) {
+
         List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
-        List<PerfilCompania> companias = service.allCargos(new Oficina(idOficina));
+        List<PerfilCompania> misfunciones = service.allCargos(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFunciones();
 
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
-        ObjectNode jsonColaborador = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true, new String[]{
+        ObjectNode jsonColaborador = JsonHelper.createJson(colaborador, jFactory, true, new String[]{
             "*",
             "persona.id",
             "persona.tipoDocumento.*",
@@ -121,13 +123,33 @@ public class OficinaController {
             "cargo.nombre",
             "funcionColaborador.*"
         });
+
+        ArrayNode arrayFunsiones = new ArrayNode(jFactory);
+        for (PerfilCompania perfile : funciones) {
+            ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
+                    new String[]{
+                        "*"
+                    });
+            arrayFunsiones.add(node);
+        }
+
+        ArrayNode arrayMisFunsiones = new ArrayNode(jFactory);
+        for (PerfilCompania perfile : misfunciones) {
+            ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
+                    new String[]{
+                        "*"
+                    });
+            arrayMisFunsiones.add(node);
+        }
+
         model.addAttribute("colaborador", jsonColaborador);
         model.addAttribute("oficina", idOficina);
         model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
         model.addAttribute("sexo", SexoEnum.values());
         model.addAttribute("area", new Oficina().toJsonArray(oficinas));
-        model.addAttribute("compania", new PerfilCompania().toJsonArray(companias));
-        model.addAttribute("funciones", new PerfilCompania().toJsonArray(funciones));
+        
+        model.addAttribute("compania", arrayFunsiones);
+        model.addAttribute("funciones", arrayMisFunsiones);
 
         return "general/oficina/colaborador/colaboradorForm";
     }
@@ -158,12 +180,13 @@ public class OficinaController {
     }
 
     @RequestMapping("{idOficina}/nuevoColaborador")
-    public String nuevoColaborador(@PathVariable("idOficina") Long idOficina, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+    public String nuevoColaborador(@PathVariable("idOficina") Long idOficina, Model model) {
+
         List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
         List<PerfilCompania> companias = service.allCargos(new Oficina(idOficina));
         List<PerfilCompania> funciones = service.allFunciones();
+
         ObjectNode colaboradorJson = JsonHelper.createJson(new Colaborador(), JsonNodeFactory.instance, true, new String[]{
             "*",
             "persona.id",
@@ -243,18 +266,21 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("validarDoc")
-    public JsonResponse validarDoc(@RequestBody Persona persona, HttpSession session) {
+    public JsonResponse validarDoc(@RequestBody Persona persona) {
+
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         try {
 
-            Persona perso = service.verifiDocumento(persona);
-            if (perso == null) {
+            Persona personaDb = service.verifiDocumento(persona);
+            if (personaDb == null) {
                 response.setSuccess(true);
             } else {
-                response.setData(perso.toJson());
                 response.setSuccess(false);
             }
+
+            ObjectNode node = JsonHelper.createJson(personaDb, JsonNodeFactory.instance, true, new String[]{"*", "tipoDocumento.*"});
+            response.setData(node);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -752,6 +778,58 @@ public class OficinaController {
         try {
             service.addFuncion(perfilCompania, ds);
             response.setMessage(Messages.CREATED);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("vercargo")
+    public JsonResponse verCargo(Oficina oficina, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            List<PerfilCompania> perfilCompanias = service.allCargoByOficina(oficina);
+            ArrayNode array = new ArrayNode(jFactory);
+            for (PerfilCompania perfile : perfilCompanias) {
+                ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
+                        new String[]{
+                            "*"
+                        });
+                array.add(node);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("verfuncion")
+    public JsonResponse verFuncion(Oficina oficina, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            List<PerfilCompania> perfilCompanias = service.allFuncionByOficina(oficina);
+            ArrayNode array = new ArrayNode(jFactory);
+            for (PerfilCompania perfile : perfilCompanias) {
+                ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
+                        new String[]{
+                            "*"
+                        });
+                array.add(node);
+            }
+            response.setData(array);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

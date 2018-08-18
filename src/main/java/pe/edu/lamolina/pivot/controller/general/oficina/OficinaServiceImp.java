@@ -870,9 +870,16 @@ public class OficinaServiceImp implements OficinaService {
 
     private void addUserRoll(List<PerfilCompania> perfilesCompania, Oficina oficinaMean, Usuario Usuariocolaborador, Colaborador colaborador, Usuario usuario) {
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfilCompania(perfilesCompania);
+        logger.debug("funcionRol size {}",funcionRol.size());
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
-        for (PerfilCompania compania : perfilesCompania) {
-            for (Rol rol : mapRol.get(compania.getId())) {
+        logger.debug("mapRol size {}",mapRol.size());
+        for (PerfilCompania perfilComp : perfilesCompania) {
+            List<Rol> roless=mapRol.get(perfilComp.getId());
+            logger.debug("mapRol size {} {}  ",perfilComp.getId(),roless);
+            if(roless==null){
+                continue;
+            }
+            for (Rol rol : roless) {
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstado(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
@@ -1081,5 +1088,15 @@ public class OficinaServiceImp implements OficinaService {
             codigoNuevo = "F" + (Long.parseLong(codigoNume) + 1);
         }
         return codigoNuevo;
+    }
+
+    @Override
+    public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
+        return perfilCompaniaDAO.allCargoByOficina(oficina);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
+        return perfilCompaniaDAO.allFuncionByOficina(oficina);
     }
 }
