@@ -28,7 +28,8 @@
                             <div >
                                 <h4 class="block text-primary bold">{{colaborador.persona.tituloAcademico}} {{colaborador.persona.nombreCompleto}}</h4>
                                 <spam class="block bold" v-text="colaborador.persona.tipoDocumento.simbolo + ': '+ colaborador.persona.numeroDocIdentidad"></spam>
-                                <spam class="bold" v-text="'Código colaborador: '+ colaborador.codigo"></spam>
+                                <spam class="block bold" v-text="'Código colaborador: '+ colaborador.codigo"></spam>
+                                <spam class="block bold" v-text="'Correo Institucional: '+ colaborador.persona.emailCompania"></spam>
                             </div>
                         </div>
                     </section>

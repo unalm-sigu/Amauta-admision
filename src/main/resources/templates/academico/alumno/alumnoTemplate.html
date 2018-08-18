@@ -1,7 +1,13 @@
 <tr rel="{{:index}}">
     <td class="v-middle">
         <div class="pull-left">
-            <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+            {{if tipoFoto=="POSTUL"}}
+            <a class="img-responsive img-thumbnail img-circle div-foto" href='#'>
+                <img class="img-foto" src="{{:rutaFoto}}" />
+            </a>
+            {{else}}
+                <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+            {{/if}}
         </div>
     </td>
     <td class="v-middle">
