@@ -73,20 +73,21 @@
                     <section class="panel-body">
                         <div class="col-sm-6">
                             <div class="form-group">                                
-                                <multiselect v-model="oficina" 
-                                             v-bind:options='oficinas'
-                                             label='nombre'
-                                             track-by='id'
-                                             v-bind:hide-selected="true"
-                                             placeholder="Seleccione una oficina"
-                                             v-on:input="oficinaSeleccionada()"
-                                             >
+                                <multiselect 
+                                    v-model="oficina" 
+                                    v-bind:options='oficinas'
+                                    label='nombre'
+                                    track-by='id'
+                                    v-bind:hide-selected="true"
+                                    placeholder="Seleccione una oficina"
+                                    v-on:input="oficinaSeleccionada()" >
                                 </multiselect>
                             </div>
                         </div>                        
                         <dynatable/>
                     </section>
                 </section>
+                
             </section>
 
             <!--MODAL INICIO-->

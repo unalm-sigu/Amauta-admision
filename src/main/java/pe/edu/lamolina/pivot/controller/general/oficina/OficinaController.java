@@ -59,13 +59,13 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("general/oficina")
 public class OficinaController {
-
+    
     @Autowired
     OficinaService service;
-
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-
+        
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -76,7 +76,7 @@ public class OficinaController {
                 }
             }
         });
-
+        
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -88,24 +88,19 @@ public class OficinaController {
             }
         });
     }
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model) {
         return "general/oficina/oficina";
     }
-
+    
     @RequestMapping("{idColaborador}/updateColaborador/{idOficina}")
     public String updateColaborador(@PathVariable("idOficina") Long idOficina, @PathVariable("idColaborador") Long idColaborador, Model model) {
-
-        List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
-        List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
-        List<PerfilCompania> misfunciones = service.allCargos(new Oficina(idOficina));
-        List<PerfilCompania> funciones = service.allFunciones();
-
+        
         JsonNodeFactory jFactory = JsonNodeFactory.instance;
-
+        
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
         ObjectNode jsonColaborador = JsonHelper.createJson(colaborador, jFactory, true, new String[]{
             "*",
@@ -120,57 +115,72 @@ public class OficinaController {
             "oficina.nombre",
             "cargo.id",
             "cargo.codigo",
-            "cargo.nombre",
-            "funcionColaborador.*"
-        });
-
+            "cargo.nombre",});
+        
+        List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
+        List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
+        
+        List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
+        List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
+        
+        List<PerfilCompania> misfunciones = service.allFuncionByColaborador(colaborador);
+        
+        ArrayNode arrayCargos = new ArrayNode(jFactory);
+        for (PerfilCompania cargo : cargos) {
+            ObjectNode node = JsonHelper.createJson(cargo, jFactory, true, new String[]{"*"});
+            arrayCargos.add(node);
+        }
+        
         ArrayNode arrayFunsiones = new ArrayNode(jFactory);
-        for (PerfilCompania perfile : funciones) {
-            ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
-                    new String[]{
-                        "*"
-                    });
+        for (PerfilCompania funcion : funciones) {
+            ObjectNode node = JsonHelper.createJson(funcion, jFactory, true, new String[]{"*"});
             arrayFunsiones.add(node);
         }
-
+        
         ArrayNode arrayMisFunsiones = new ArrayNode(jFactory);
-        for (PerfilCompania perfile : misfunciones) {
-            ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
-                    new String[]{
-                        "*"
-                    });
+        for (PerfilCompania mifuncion : misfunciones) {
+            ObjectNode node = JsonHelper.createJson(mifuncion, jFactory, true, new String[]{"*"});
             arrayMisFunsiones.add(node);
         }
-
+        
         model.addAttribute("colaborador", jsonColaborador);
         model.addAttribute("oficina", idOficina);
         model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
         model.addAttribute("sexo", SexoEnum.values());
         model.addAttribute("area", new Oficina().toJsonArray(oficinas));
         
-        model.addAttribute("compania", arrayFunsiones);
-        model.addAttribute("funciones", arrayMisFunsiones);
-
+        model.addAttribute("funciones", arrayFunsiones);
+        model.addAttribute("cargos", arrayCargos);
+        model.addAttribute("misfunciones", arrayMisFunsiones);
+        
         return "general/oficina/colaborador/colaboradorForm";
     }
-
+    
     @ResponseBody
     @RequestMapping("updateColaborador")
     public JsonResponse saveUpdateColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            List<FuncionColaborador> funciones = new ArrayList();
+            
+            ObjectUtil.printAttr(colaboradorBean);
             Colaborador colaborador = colaboradorBean.getColaborador();
-            for (PerfilCompania perfilCompania : colaboradorBean.getPerfilCompanias()) {
-                FuncionColaborador funcionColaborador = new FuncionColaborador();
-                funcionColaborador.setFuncion(perfilCompania);
-                funciones.add(funcionColaborador);
-            }
+            ObjectUtil.printAttr(colaborador);
+            List<PerfilCompania> perfilCompanias = colaboradorBean.getPerfilCompanias();
+            List<FuncionColaborador> funciones = new ArrayList();
+            if (perfilCompanias != null) {
+                for (PerfilCompania perfilCompania : perfilCompanias) {
+                    FuncionColaborador funcionColaborador = new FuncionColaborador();
+                    funcionColaborador.setFuncion(perfilCompania);
+                    funciones.add(funcionColaborador);
+                }
+            }            
             colaborador.setFuncionColaborador(funciones);
             service.updateColaborador(colaborador, colaboradorBean.getOficinaMean(), ds);
+            
             response.setMessage("Se actualizó el colaborador satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -178,15 +188,15 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @RequestMapping("{idOficina}/nuevoColaborador")
     public String nuevoColaborador(@PathVariable("idOficina") Long idOficina, Model model) {
-
+        
         List<TipoDocIdentidad> tipoDoc = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.findOficinas(new Oficina(idOficina));
-        List<PerfilCompania> companias = service.allCargos(new Oficina(idOficina));
-        List<PerfilCompania> funciones = service.allFunciones();
-
+        List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
+        List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
+        
         ObjectNode colaboradorJson = JsonHelper.createJson(new Colaborador(), JsonNodeFactory.instance, true, new String[]{
             "*",
             "persona.id",
@@ -197,17 +207,21 @@ public class OficinaController {
             "cargo.id",
             "funcionColaborador.id"
         });
-
+        
+        JsonNodeFactory jFactory = JsonNodeFactory.instance;
+        ArrayNode arrayMisFunsiones = new ArrayNode(jFactory);
+        
         model.addAttribute("oficina", idOficina);
         model.addAttribute("colaborador", colaboradorJson);
         model.addAttribute("tipoDocumento", new TipoDocIdentidad().toJsonArray(tipoDoc));
         model.addAttribute("sexo", SexoEnum.values());
         model.addAttribute("area", new Oficina().toJsonArray(oficinas));
-        model.addAttribute("compania", new PerfilCompania().toJsonArray(companias));
+        model.addAttribute("cargos", new PerfilCompania().toJsonArray(cargos));
         model.addAttribute("funciones", new PerfilCompania().toJsonArray(funciones));
+        model.addAttribute("misfunciones", arrayMisFunsiones);
         return "general/oficina/colaborador/colaboradorForm";
     }
-
+    
     @ResponseBody
     @RequestMapping("saveColaborador")
     public JsonResponse saveColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
@@ -242,14 +256,14 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("validarEmail")
     public JsonResponse validarEmail(@RequestBody Persona persona, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-
+            
             Usuario usu = service.verifiEmail(persona);
             if (usu == null) {
                 response.setSuccess(true);
@@ -263,22 +277,22 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("validarDoc")
     public JsonResponse validarDoc(@RequestBody Persona persona) {
-
+        
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             Persona personaDb = service.verifiDocumento(persona);
             if (personaDb == null) {
                 response.setSuccess(true);
             } else {
                 response.setSuccess(false);
             }
-
+            
             ObjectNode node = JsonHelper.createJson(personaDb, JsonNodeFactory.instance, true, new String[]{"*", "tipoDocumento.*"});
             response.setData(node);
         } catch (PhobosException e) {
@@ -288,7 +302,7 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @RequestMapping("{oficina}/colaboradores")
     public String colaboradores(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -301,7 +315,7 @@ public class OficinaController {
         model.addAttribute("cargos", new PerfilCompania().toJsonArray(perfilCompania));
         return "general/oficina/colaborador/colaborador";
     }
-
+    
     @ResponseBody
     @RequestMapping("updateEstado")
     public JsonResponse updateEstado(@RequestBody Colaborador colaborador, HttpSession session) {
@@ -318,7 +332,7 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cargo")
     public JsonResponse cargo(@RequestBody PerfilCompania perfilCompania, HttpSession session) {
@@ -335,18 +349,18 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("{idOficina}/listColaboradores")
     public DynatableResponse listColaboradores(@PathVariable("idOficina") Long idOficina, DynatableFilter filter, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse response = new DynatableResponse();
         try {
-
+            
             ArrayNode colaboradores = service.getColaboradoresJson(filter, new Oficina(idOficina));
-
+            
             response.setData(colaboradores);
-
+            
             response.setTotal(filter.getTotal());
             response.setFiltered(filter.getFiltered());
         } catch (Exception e) {
@@ -355,30 +369,30 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("all")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
-
+        
         DynatableResponse json = new DynatableResponse();
-
+        
         try {
-
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
-
+            
             List<Oficina> oficinas = service.allByDynatable(filter, compania);
             List<Colaborador> colaboradoresTodos = service.allColaborador(oficinas);
             Map<Long, List<Colaborador>> colaboradoresMap = TypesUtil.convertListToMapList("oficina.id", colaboradoresTodos);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (Oficina oficina : oficinas) {
-
+                
                 List<Colaborador> colaboradores = colaboradoresMap.get(oficina.getId());
                 if (colaboradores == null) {
                     colaboradores = new ArrayList();
                 }
-
+                
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("id", oficina.getId());
                 node.put("nombre", oficina.getNombre());
@@ -397,21 +411,21 @@ public class OficinaController {
                 node.put("encargado", (String) ObjectUtil.getParentTree(oficina, "jefeEncargado.nombreConTitulo"));
                 node.put("idJefe", (Long) ObjectUtil.getParentTree(oficina, "personaJefe.id"));
                 node.put("idEncargado", (Long) ObjectUtil.getParentTree(oficina, "jefeEncargado.id"));
-
+                
                 array.add(node);
             }
-
+            
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-
+    
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -421,7 +435,7 @@ public class OficinaController {
         model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
     }
-
+    
     @RequestMapping("{oficina}/update")
     public String update(@PathVariable("oficina") Long idOficina, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -433,14 +447,14 @@ public class OficinaController {
         model.addAttribute("tipos", tipoOficina);
         return "general/oficina/oficinaForm";
     }
-
+    
     @RequestMapping("save")
     public String save(Oficina oficina, HttpSession session, RedirectAttributes redirectAttr) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             oficina.setCompania(compania);
-
+            
             if (oficina.getId() != null) {
                 service.update(oficina, ds);
                 Notificaciones.crearMsg("Oficina Actualizado", redirectAttr);
@@ -455,7 +469,7 @@ public class OficinaController {
         }
         return "redirect:/general/oficina";
     }
-
+    
     @ResponseBody
     @RequestMapping("delete")
     public JsonResponse delete(Oficina oficina) {
@@ -471,19 +485,19 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("allUnidadSuperior")
     public JsonResponse allUnidadSuperior(@RequestParam("nombre") String nombre, HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
-
+            
             List<Oficina> oficinas = service.allUnidadSuperior(nombre, compania);
             ArrayNode array = new ArrayNode(jsonFactory);
             for (Oficina oficina : oficinas) {
@@ -493,11 +507,11 @@ public class OficinaController {
                 a.put("nombre", oficina.getNombre());
                 array.add(a);
             }
-
+            
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -505,16 +519,16 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("allReferencia")
     public JsonResponse allReferencia(@RequestParam("tipo") String tipo, HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
@@ -549,11 +563,11 @@ public class OficinaController {
                     array.add(a);
                 }
             }
-
+            
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -561,40 +575,40 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("estado")
     public JsonResponse estado(Oficina oficina) {
-
+        
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             service.estado(oficina);
             response.setMessage("Oficina actualizado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("allPersona")
     public JsonResponse allPersona(@RequestParam("nombre") String nombre, HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             List<Persona> personas = service.allPersona(nombre);
             ArrayNode array = new ArrayNode(jsonFactory);
-
+            
             for (Persona persona : personas) {
                 ObjectNode per = new ObjectNode(jsonFactory);
                 per.put("id", persona.getId());
@@ -605,11 +619,11 @@ public class OficinaController {
                 per.put("hastitulo", Strings.isNullOrEmpty(persona.getTituloAcademico()) ? 0 : 1);
                 array.add(per);
             }
-
+            
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -617,16 +631,16 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("allColaborador")
     public JsonResponse allColaborador(Oficina oficina, HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             List<Colaborador> colaboradores = service.allColaboradorByOficina(oficina);
             ArrayNode array = new ArrayNode(jsonFactory);
             for (Colaborador colaborador : colaboradores) {
@@ -639,7 +653,7 @@ public class OficinaController {
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -647,16 +661,16 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("allCargo")
     public JsonResponse allCargo(@RequestParam("nombre") String nombre, HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
-
+            
             List<PerfilCompania> cargos = service.allCargo(nombre);
             ArrayNode array = new ArrayNode(jsonFactory);
             for (PerfilCompania cargo : cargos) {
@@ -668,7 +682,7 @@ public class OficinaController {
             response.setData(array);
             response.setTotal(array.size());
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -676,14 +690,14 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("asignarJefe")
     public JsonResponse asignarJefe(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.asignarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -694,14 +708,14 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("asignarEncargado")
     public JsonResponse asignarEncargado(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.asignarEncargado(oficina, ds);
             response.setMessage("Encargado asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -712,14 +726,14 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("retirarJefe")
     public JsonResponse retirarJefe(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.retirarJefe(oficina, ds);
             response.setMessage("Jefe retirado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -730,14 +744,14 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("retirarEncargado")
     public JsonResponse retirarEncargado(AusenciaJefe ausencia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.retirarEncargado(ausencia, ds);
             response.setMessage("Encargado retirado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -748,28 +762,28 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("searchPersona")
     public JsonResponse searchPersona(@RequestParam("nombre") String buscar) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         logger.debug("buscar {}", buscar);
         try {
-
+            
             List<Persona> personas = service.allPersonasByNombre(buscar);
-
+            
             response.setData(new Persona().toJsonArray(personas));
             response.setSuccess(true);
-
+            
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("savefuncion")
     public JsonResponse saveFuncion(PerfilCompania perfilCompania, HttpSession session) {
@@ -786,11 +800,11 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("vercargo")
     public JsonResponse verCargo(Oficina oficina, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
@@ -812,11 +826,11 @@ public class OficinaController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("verfuncion")
     public JsonResponse verFuncion(Oficina oficina, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
@@ -838,5 +852,31 @@ public class OficinaController {
         }
         return response;
     }
-
+    
+    @ResponseBody
+    @RequestMapping("verfuncionColaborador")
+    public JsonResponse verfuncionColaborador(Colaborador colaborador, HttpSession session) {
+        
+        JsonResponse response = new JsonResponse();
+        try {
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            List<PerfilCompania> perfilCompanias = service.allFuncionByColaborador(colaborador);
+            ArrayNode array = new ArrayNode(jFactory);
+            for (PerfilCompania perfile : perfilCompanias) {
+                ObjectNode node = JsonHelper.createJson(perfile, jFactory, true,
+                        new String[]{
+                            "*"
+                        });
+                array.add(node);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
 }

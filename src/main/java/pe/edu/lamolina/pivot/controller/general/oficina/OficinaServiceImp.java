@@ -1099,4 +1099,16 @@ public class OficinaServiceImp implements OficinaService {
     public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
         return perfilCompaniaDAO.allFuncionByOficina(oficina);
     }
+
+    @Override
+    public List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador) {
+        List<FuncionColaborador> funcionColaborador= funcionColaboradorDAO.allByColaborador(colaborador);
+        Map<Long,PerfilCompania> funcionesMap=TypesUtil.convertListToMap("funcion.id", "funcion", funcionColaborador);
+        List<PerfilCompania> funciones=new ArrayList();
+        for (PerfilCompania value : funcionesMap.values()) {
+            funciones.add(value);
+        }
+        return funciones;
+    }
+    
 }

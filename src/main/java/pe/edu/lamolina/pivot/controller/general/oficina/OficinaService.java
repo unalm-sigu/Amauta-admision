@@ -100,4 +100,7 @@ public interface OficinaService {
     List<PerfilCompania> allCargoByOficina(Oficina oficina);
 
     List<PerfilCompania> allFuncionByOficina(Oficina oficina);
+
+    List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
+
 }

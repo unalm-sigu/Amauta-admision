@@ -37,7 +37,7 @@
                             <button href="#" v-on:click="searchPerson" class="btn btn-success btn-sm pull-right">Buscar Persona</button>
 
                             <h2>Información Personal</h2>
-                            
+
                         </div>
 
                         <form data-parsley-validate="true" id="formConfig"  method="post">
@@ -45,7 +45,7 @@
                                 <div class="col-sm-6">
                                     <label>Tipo de Documento</label>                                   
                                     <div   class="form-group">  
-                                        
+
                                         <multiselect v-model="persona.tipoDocumento" 
                                                      required="true"
                                                      v-bind:options='tipoDoc'
@@ -56,7 +56,7 @@
                                                      placeholder=" "
                                                      >
                                         </multiselect>
-                                        
+
                                     </div>
                                 </div>      
                                 <div class="col-sm-6">
@@ -135,12 +135,7 @@
                             <div class="m-b-lg"> 
                                 <h2>Información laboral</h2>
                             </div>  
-                            
-                            
-                            
-                            
-                            
-                            
+
                             <div class="row">
                                 <div class="col-sm-6">
                                     <label>Área</label>
@@ -167,65 +162,67 @@
                                     </div>
                                 </div>                                
                             </div>
-                            
-                            
-                            
-                            
-                            
+
+
+
+
+
                             <div class="row">
+                                
                                 <div class="col-sm-6">
                                     <label>Cargo</label>
                                     <div class="form-group">                                
-                                        <multiselect v-model="colaborador.cargo" 
-                                                     v-bind:options='compania'
-                                                     label='nombre'
-                                                     track-by='id'
-                                                     required="true"
-                                                     placeholder=" "
-                                                     v-bind:hide-selected="true"
-                                                     >
+                                        <multiselect 
+                                            v-model="colaborador.cargo" 
+                                            v-bind:options='cargos'
+                                            label='nombre'
+                                            track-by='id'
+                                            required="true"
+                                            placeholder=" "
+                                            v-bind:hide-selected="true" >
                                         </multiselect>
                                     </div>
-                                </div>      
+                                </div>
+                                
                                 <div class="col-sm-6">                                    
                                     <label>Funciones</label>
                                     <div class="form-group">                                
-                                        <multiselect v-model="colaborador.funcionColaborador" 
-                                                     v-bind:options='funciones'
-                                                     label='nombre'
-                                                     track-by='id'
-                                                     v-bind:multiple="true" 
-                                                     required="true"
-                                                     placeholder=" "
-                                                     v-bind:taggable="true"
-                                                     >
+                                        <multiselect 
+                                            v-model="misfunciones" 
+                                            v-bind:options='funciones'
+                                            label='nombre'
+                                            track-by='id'
+                                            v-bind:multiple="true" 
+                                            required="true"
+                                            placeholder=" "
+                                            v-bind:taggable="true" >
                                         </multiselect>
                                     </div>
-                                </div>                                  
+                                </div>  
+                                
                             </div>
 
 
                             <div class="line line-dashed b-b line-lg pull-in"></div>
 
-
                             <div class="m-t-xxlg text-center">
-                                
+
                                 <div id="footerOficina" class="">
-                                    
+
                                     <button class="btn btn-primary" 
                                             type="submit"
                                             v-on:click.prevent="save"     
                                             v-if="!newCola" v-text="'Guardar'"
                                             ></button> 
-                                    
+
                                     <button class="btn btn-primary" 
                                             type="submit"
                                             v-on:click.prevent="update"      
                                             v-if="newCola" v-text="'Actualizar'"
                                             ></button>  
-                                    
+
                                     <a v-on:click="regresar" class="btn btn-link" >Cancelar</a>
-                                    
+
                                 </div>
                             </div>
 
@@ -233,9 +230,9 @@
                     </section>
                 </section>
             </section>
-            
-            
-            
+
+
+
 
             <!--MODAL INICIO-->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -264,8 +261,8 @@
                 </div>
             </div>
             <!--MODAL FIN-->
-            
-            
+
+
         </div>
         <div th:substituteby="_modules/vue-searchPerson"></div>
     </div>
@@ -279,8 +276,9 @@
         var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
         var sexoJson = /*[[${sexo}]]*/ 'json';
         var areaJson = /*[[${area.toString()}]]*/ 'json';
-        var companiaJson = /*[[${compania.toString()}]]*/ 'json';
+        var misfuncionesJson = /*[[${misfunciones.toString()}]]*/ 'json';
         var funcionesJson = /*[[${funciones.toString()}]]*/ 'json';
+        var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
         /*]]>*/
     </script>
     <script type="text/javascript" th:src="@{/phobos/modules/vue-searchPerson.js}"></script>

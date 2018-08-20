@@ -17,10 +17,14 @@ Vue.component("dynatable", {
             $vue.oficina = valor.id;
             $dynatable.process();
         });
-        $('.dynatable-search').addClass('col-md-2 pull-right');
+        $('.dynatable-search').addClass('pull-right');
+        $('.dynatable-search').parents('.panel:first').removeClass('padder-v');
+        $('.dynatable-search').parents('.footer:first').removeClass('m-t-lg');
         $('.dynatable-search').find('input')
-                .addClass('form-control input-sm')
+                .addClass('form-control')
                 .attr('placeholder', 'Buscar');
+          $('.dynatable-search').find('input')
+                .removeClass('input-sm');
 
         $('multiselect').select2({
             placeholder: {
@@ -49,6 +53,9 @@ Vue.component("dynatable", {
             });
             $("body").delegate(".updatePersona", "click", function () {
                 $global.$emit("updatePersona", $(this).attr("rel"));
+            });
+            $("body").delegate(".showFuncionesColaborador", "click", function () {
+                $global.$emit("showFuncionesColaborador", $(this).attr("rel"));
             });
 
 
@@ -95,10 +102,10 @@ new Vue({
         },
         dataVerCargo: {
             title: 'Cargos',
-            showaccept:false
+            showaccept: false
         },
         funcion: {id: null},
-        cargos:[]
+        cargos: []
     },
     computed: {
 
@@ -122,6 +129,9 @@ new Vue({
         });
         $global.$on("updatePersona", function (id) {
             $vue.updatePersona(id);
+        });
+        $global.$on("showFuncionesColaborador", function (id) {
+            $vue.showFuncionesColaborador(id);
         });
 
     },
@@ -292,6 +302,37 @@ new Vue({
                 method: 'POST',
                 url: APP.url('general/oficina/verfuncion'),
                 data: {id: vue.oficina.id},
+                success: function (response) {
+
+                    if (response.success) {
+
+                        vue.cargos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        getRecord: function (id) {
+            var id=parseInt(id);
+            return $dynatable.settings.dataset.records.find(item => item.id === id);
+        },
+        showFuncionesColaborador: function (id) {
+            let vue = this;
+            var colaboradorr = vue.getRecord(id);
+     
+            vue.dataVerCargo.title = "Funciones de "+colaboradorr.persona;
+            vue.$refs.modalvercargo.open();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/verfuncionColaborador'),
+                data: {id: id},
                 success: function (response) {
 
                     if (response.success) {
