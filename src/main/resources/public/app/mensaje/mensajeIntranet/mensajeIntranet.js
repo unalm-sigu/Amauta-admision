@@ -137,6 +137,10 @@ new Vue({
 
                 }
             });
+        },
+        tipoSelected(item) {
+            let $vue = this;
+            $vue.mensajeria.contenido = item.contenido;
         }
     }
 });
