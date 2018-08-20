@@ -24,7 +24,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("tipomsgintranet")
+@RequestMapping("mensajeria/tipomsgintranet")
 public class TipoMsgIntranetController {
 
     @Autowired
