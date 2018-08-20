@@ -1752,3 +1752,32 @@ div.notas {
     display: none;
 }
 
+.div-foto {
+    width: 200px; 
+    height: 200px; 
+    overflow: hidden;
+}
+.img-foto {
+    height: 200px; 
+    position: relative; 
+    left: -100px;
+}
+
+.div-foto-list {
+    width: 120px; 
+    height: 120px; 
+    overflow: hidden;
+}
+.img-foto-list {
+    height: 120px; 
+    position: relative; 
+    left: -60px;
+}
+
+.img-foto-tempo {
+    width: 120px !important; 
+    height: auto; 
+    overflow: hidden;
+    max-width: none;
+}
+

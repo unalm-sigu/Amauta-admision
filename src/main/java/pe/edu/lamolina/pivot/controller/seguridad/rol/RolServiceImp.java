@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.mail.handlers.message_rfc822;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,8 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.FuncionRolEstadoEnum;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.PerfilCompania;
@@ -29,11 +32,13 @@ import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.FuncionRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
 
 @Service
 @Transactional(readOnly = true)
@@ -59,12 +64,38 @@ public class RolServiceImp implements RolService {
     @Override
     @Transactional
     public void save(Rol rol) {
+
+        ObjectUtil.eliminarAttrSinId(rol, "rolSuperior");
+
+        Rol rolCode = rolDAO.findByCode(rol.getCodigo());
+        if (rolCode != null) {
+            throw new PhobosException("Código ya registrado");
+        }
         rolDAO.save(rol);
     }
 
     @Override
     @Transactional
     public void update(Rol rol) {
+
+        ObjectUtil.eliminarAttrSinId(rol, "rolSuperior");
+
+        Rol rolCode = rolDAO.findByCode(rol.getCodigo());
+        
+        if (rolCode != null) {
+            if (rolCode.getId().longValue() != rol.getId()) {
+                throw new PhobosException("Código ya registrado");
+            }
+        }
+        
+        Rol rolDb = rolDAO.find(rol.getId());
+        
+        if (rol.getRolSuperior() != null) {
+            if (rol.getRolSuperior().getId() == rolDb.getId().longValue()) {
+                throw new PhobosException("No puede asignar como rol superior al mismo rol");
+            }
+        }
+
         rolDAO.update(rol);
     }
 
@@ -206,7 +237,7 @@ public class RolServiceImp implements RolService {
 
     @Override
     @Transactional
-    public void saveFuncionRol(FuncionRol funcionRol) {
+    public void saveFuncionRol(FuncionRol funcionRol, Usuario usuario) {
 
         FuncionRol funcionRolDb = funcionRolDAO.findByRolPerfilCompania(funcionRol);
         if (funcionRolDb != null) {
@@ -217,20 +248,23 @@ public class RolServiceImp implements RolService {
         }
         funcionRol.setFechaActivacion(new Date());
         funcionRol.setEstado(FuncionRolEstadoEnum.ACT.name());
+        funcionRol.setUsuarioActivacion(usuario);
         funcionRolDAO.save(funcionRol);
     }
 
     @Override
     @Transactional
-    public void cambiarEstado(FuncionRol funcionRol) {
+    public void cambiarEstado(FuncionRol funcionRol, Usuario usuario) {
         FuncionRol funcionRolDb = funcionRolDAO.find(funcionRol);
         if (FuncionRolEstadoEnum.ACT.name().equalsIgnoreCase(funcionRol.getEstado())) {
             funcionRolDb.setEstado(FuncionRolEstadoEnum.ACT.name());
+            funcionRolDb.setUsuarioActivacion(usuario);
             funcionRolDb.setFechaActivacion(new Date());
             funcionRolDAO.update(funcionRolDb);
         } else if (FuncionRolEstadoEnum.INA.name().equalsIgnoreCase(funcionRol.getEstado())) {
             funcionRolDb.setFechaDesactivacion(new Date());
             funcionRolDb.setEstado(FuncionRolEstadoEnum.INA.name());
+            funcionRolDb.setUsuarioDesactivacion(usuario);
             funcionRolDAO.update(funcionRolDb);
         }
     }
@@ -250,7 +284,7 @@ public class RolServiceImp implements RolService {
         if (roles == null || roles.isEmpty()) {
             return new ArrayList<>();
         }
-        return funcionRolDAO.allFuncionRolByRoles(roles);
+        return funcionRolDAO.allFuncionRolActivoByRoles(roles);
     }
 
     @Override
@@ -280,6 +314,11 @@ public class RolServiceImp implements RolService {
         }
 
         return array;
+    }
+
+    @Override
+    public List<Rol> allRolSuperior(String nombre) {
+        return rolDAO.allRolSuperior(nombre);
     }
 
 }

@@ -36,12 +36,12 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th >Tramite</th>
-                                            <th class="col-md-4 text-center">Persona</th>
-                                            <th >Tipo Tramite</th>
-                                            <th>Estado</th>
-                                            <th>Fecha Registro</th>
-                                            <th>
+                                            <th class="text-center">Tramite</th>
+                                            <th class="col-md-3 text-center">Persona</th>
+                                            <th class="text-center">Tipo Tramite</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="text-center">Registro</th>
+                                            <th class="text-center">
 
                                             </th>
                                         </tr>
@@ -52,48 +52,61 @@
                                                 <small class="block text-muted">Serie: {{item.serie}}</small>
                                                 <small class="block text-muted">Número: {{item.numero}}</small>
                                             </td>
-                                            <td class="v-middle text-center">
+                                            <td class="v-middle text-left">
                                                 {{ item.persona.apellidosNombres}}
                                             </td>
-                                            <td class="v-middle text-center">
+                                            <td class="v-middle text-left">
                                                 {{ item.tipoTramite.nombre}}
                                             </td>
                                             <td class="v-middle text-left">
                                                 <small class="block text-muted">Tramite:  {{ item.estadoEnum}}</small>
                                                 <small class="block text-muted" 
                                                        v-if="item.tipoTramite.esTipoTramiteRei">
-                                                    Reincorporación: {{item.reincorporaciones[0].estadoTramite.nombre}}
+                                                    Reincorporación: {{item.reincorporacion.estadoTramite.nombre}}
+                                                </small>
+                                                <small class="block text-muted" 
+                                                       v-if="item.tramiteReunionConsejo">
+                                                    <span>Reunion Consejo <format-date v-bind:datetext="item.tramiteReunionConsejo.reunionConsejo.fecha"></format-date></span>
                                                 </small>
                                             </td>
-                                            <td class="v-middle text-center">
-                                    <format-date v-bind:datetext="item.fechaRegistro"></format-date>
-                                    </td>
-                                    <td>
-                                        <div class="dropdown actions">
-                                            <a class="dropdown-toggle" data-toggle="dropdown">
-                                                <i class="glyphicon glyphicon-cog"></i>
-                                            </a> 
-                                            <ul class="dropdown-menu pull-right"> 
-                                                <li><a class="btn-link pointer editar-gpo-seccion" >Editar</a></li>
-                                                <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolicitudReincorporacion">
-                                                    <a class="btn-link pointer editar-gpo-seccion" 
-                                                       v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
-                                                        Historial Revisado</a>
-                                                </li>
-                                                <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esSolicitudHistorialRevisado">
-                                                    <a class="btn-link pointer editar-gpo-seccion" 
-                                                       v-on:click.prevent="loadModalAgendar(item)">
-                                                        Agendar</a>
-                                                </li> 
-                                                <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporaciones[0].estadoTramite.esResolucionFacultad">
-                                                    <a class="btn-link pointer editar-gpo-seccion" 
-                                                       v-on:click.prevent="loadModalAgendar(item)">
-                                                        Subir Pdf</a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
-                                    </tr>
+                                            <td class="v-middle text-left">
+                                                    {{item.userRegistro.persona.apellidosNombres}}
+                                                    <small class="block text-muted">
+                                                        <format-date v-bind:datetext="item.fechaRegistro"></format-date>
+                                                    </small>
+                                                    
+                                            </td>
+                                            <td>
+                                                <div class="dropdown actions">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-cog"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right"> 
+                                                        <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporacion.estadoTramite.esSolicitudReincorporacion">
+                                                            <a class="btn-link pointer" 
+                                                               v-on:click="cambiarEstadoReincorporacion(item,'REV_HIS',$event)">
+                                                                Historial Revisado</a>
+                                                        </li>
+                                                        <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporacion.estadoTramite.esSolicitudHistorialRevisado">
+                                                            <a class="btn-link pointer" 
+                                                               v-on:click.prevent="loadModalAgendar(item)">
+                                                                Agendar</a>
+                                                        </li> 
+                                                        <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporacion.estadoTramite.esResolucionFacultad">
+                                                            <a class="btn-link pointer" 
+                                                               v-on:click.prevent="loadModalAgendar(item)">
+                                                                Subir Pdf</a>
+                                                        </li>
+                                                        <li v-if="item.tipoTramite.esTipoTramiteRei &amp;&amp; item.reincorporacion.esPosibleRevertirEstadoTram">
+                                                            <a class="btn-link pointer" 
+                                                               v-on:click.prevent="revertirEstadoTramite(item,$event)">
+                                                                Revertir Estado
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </template>

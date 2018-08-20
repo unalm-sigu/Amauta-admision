@@ -99,4 +99,20 @@ public class RolDAOH extends AbstractEasyDAO<Rol> implements RolDAO {
 
     }
 
+    @Override
+    public List<Rol> allRolSuperior(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(Rol.class, "r")
+                .isNull("r.rolSuperior");
+        return all(sql);
+    }
+
+    @Override
+    public Rol findByCode(String codigo) {
+        Octavia sql = Octavia.query()
+                .from(Rol.class, "r")
+                .filter("r.codigo", codigo);
+        return find(sql);
+    }
+
 }

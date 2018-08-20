@@ -1,7 +1,15 @@
 <tr rel="{{:index}}">
     <td class="v-middle">
         <div class="pull-left">
-            <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+            {{if tipoFoto=="POSTUL"}}
+                <div class="img-responsive img-thumbnail img-circle div-foto-list">
+                    <img class="img-foto-list" src="{{:rutaFoto}}" />
+                </div>
+            {{else tipoFoto=="COMUN"}}
+                <img class="img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+            {{else}}
+                <img class="img-foto-tempo img-responsive img-thumbnail img-circle" src="{{:rutaFoto}}" />
+            {{/if}}
         </div>
     </td>
     <td class="v-middle">
@@ -33,7 +41,7 @@
         <span class="block"><b>Último ciclo:</b> {{:cicloActivo}}</span>
     </td>
 
-    <td>
+    <td class="v-middle">
         <span class="block"><b>ppa:</b> {{:ppa}}</span>
         <span class="block"><b>cca:</b> {{:cca}}</span>
         <span class="block"><b>capa:</b> {{:capa}}</span>

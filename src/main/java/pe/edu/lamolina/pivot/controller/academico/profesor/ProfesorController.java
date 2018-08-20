@@ -116,7 +116,7 @@ public class ProfesorController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<Docente> docentes = service.allByDynatable(filter, ds.getDepartamentos());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -138,7 +138,8 @@ public class ProfesorController {
                 node.put("celular", persona.getCelular());
                 node.put("email", persona.getEmail());
                 node.put("emailEmpresa", persona.getEmailCompania());
-                node.put("rutaFoto", service.getRutaFoto(persona.getFoto(), persona.getSexo()));
+                node.put("rutaFoto", persona.getRutaFoto());
+                node.put("tipoFoto", persona.getTipoFoto());
 
                 node.put("facultad", fa.getNombre());
                 node.put("departamentoAcademico", da.getNombre());
@@ -232,50 +233,6 @@ public class ProfesorController {
         return response;
     }
 
-//    @ResponseBody
-//    @RequestMapping("validarEmail")
-//    public JsonResponse validarEmail(@RequestParam("email") String email, @RequestParam("docente") Long idDocente) {
-//
-//        JsonResponse response = new JsonResponse();
-//        try {
-//            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-//            String msg = service.validarEmailByDocente(email, new Docente(idDocente));
-//
-//            node.put("respuesta", msg);
-//            response.setData(node);
-//            response.setSuccess(StringUtils.isEmpty(msg));
-//
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//
-//        return response;
-//    }
-//
-//    @ResponseBody
-//    @RequestMapping("validarEmailEmpresa")
-//    public JsonResponse validarEmailEmpresa(@RequestParam("email") String email, @RequestParam("docente") Long idDocente) {
-//
-//        JsonResponse response = new JsonResponse();
-//
-//        try {
-//
-//            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-//            String msg = service.validarEmailEmpresaByDocente(email, new Docente(idDocente));
-//            node.put("respuesta", msg);
-//            response.setData(node);
-//            response.setSuccess(StringUtils.isEmpty(msg));
-//
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//
-//        return response;
-//    }
     @ResponseBody
     @RequestMapping("estado")
     public JsonResponse estado(Docente docente) {
@@ -412,50 +369,6 @@ public class ProfesorController {
         return response;
     }
 
-//    private String getUbicacionFormat(Ubicacion ubicacion) {
-//        Ubicacion provincia = ubicacion.getUbicacionSuperior();
-//        Ubicacion departamento = provincia.getUbicacionSuperior();
-//        
-//    }
-//    @ResponseBody
-//    @RequestMapping("existedocente")
-//    public JsonResponse existedocente(Docente docente, HttpSession session) {
-//
-//        JsonResponse response = new JsonResponse();
-//        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-//        try {
-//
-//            Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
-//            
-//            Persona personaDb = service.findPersona(docente.getPersona());
-//            node.put("numeroDocOriginal", personaDb.getNumeroDocIdentidad());
-//
-//            if (personaDb.getFechaValidacionReniec() != null) {
-//                logger.debug("No puede editar el numero del documento de un registro ya validado");
-//                response.setMessage("No puede editar el numero del documento de un registro ya validado");
-//                node.put("tipoDocOriginal", personaDb.getTipoDocumento().getNombre());
-//                node.put("tipoIdDocOriginal", personaDb.getTipoDocumento().getId());
-//                node.put("validadoReniec", (personaDb.getFechaValidacionReniec() != null));
-//            }
-//
-//            node.put("existePersona", (persona != null));
-//            if (persona != null) {
-//                Persona personaForm = docente.getPersona();
-//                node.put("passPersona", (personaForm.getId().longValue() == persona.getId()));
-//                node.put("simboloDoc", persona.getTipoDocumento().getSimbolo());
-//                node.put("numeroDoc", persona.getNumeroDocIdentidad());
-//
-//            }
-//            response.setData(node);
-//            response.setSuccess(true);
-//
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//    }
     @ResponseBody
     @RequestMapping("upload")
     public JsonResponse upload(@RequestParam("file") MultipartFile archivo, HttpSession session) {

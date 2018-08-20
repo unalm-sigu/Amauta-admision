@@ -16,6 +16,7 @@
                     <ul class="dropdown-menu">
                         <li ><a href="#" v-on:click="nuevoColaborador()" >Nuevo Colaborador</a></li>
                         <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
+                        <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
                         <li class="divider"></li>
                         <li><a href="#" >Ver Cargos</a></li>
                         <li><a href="#">Ver Funciones</a></li>
@@ -130,8 +131,13 @@
                 </div>
             </div>
             <!--MODAL FIN-->
+
+            <th:block th:replace="general/oficina/colaborador/colaboradorTemplate"/>
+
         </div>
+
         <th:block th:replace="general/oficina/colaborador/colaboradorDynatable"/>
+
     </div>
 
 </body>
@@ -143,6 +149,8 @@
         var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
         /*]]>*/
     </script>
+    <div th:substituteby="_modules/vue-modal2"></div>
+    <div th:substituteby="_layout/includes :: vue-loader"/>
     <div th:substituteby="_layout/includes :: javascript-dynatable"/>
     <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
 </div>

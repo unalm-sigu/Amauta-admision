@@ -82,13 +82,18 @@ Vue.component("dynatable", {
 });
 new Vue({
     el: '#colaboradorVue',
+    mixins: [VueLoader],
     data: {
         oficinas: JSON.parse(oficinasJson),
         oficina: {id: JSON.parse(oficinaId)},
         listaCargos: JSON.parse(cargosJson),
         persona: {},
         colaborador: {},
-        perfilCompania: {}
+        perfilCompania: {},
+        dataModalFuncion: {
+            title: 'Nueva Función',
+        },
+        funcion: {id: null}
     },
     computed: {
 
@@ -116,8 +121,8 @@ new Vue({
 
     },
     methods: {
-        updatePersona(id){
-              window.location = APP.url('general/persona/'+id+'/edicion?origen=' + window.location.pathname);
+        updatePersona(id) {
+            window.location = APP.url('general/persona/' + id + '/edicion?origen=' + window.location.pathname);
         },
         addCargo: function () {
             let $vue = this;
@@ -202,6 +207,50 @@ new Vue({
                     });
                 }
             });
+        },
+        nuevaFuncion: function () {
+            let vue = this;
+            vue.funcion = {id: null};
+            vue.dataModalFuncion.title = "Nueva Función";
+            vue.$refs.modaladdfuncion.open();
+        },
+        saveFuncion: function () {
+            var vue = this;
+
+            var valid = $('#formAddFuncion').parsley().validate();
+
+            if (valid != true) {
+                return;
+            }
+
+            vue.showLoader();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/savefuncion'),
+                data: $('#formAddFuncion').serialize(),
+                async: false,
+                success: function (response) {
+
+                    if (response.success) {
+
+                        notify(response.message, 'info');
+                        vue.$refs.modaladdfuncion.close();
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                    vue.hideLoader();
+
+                }, error: function () {
+
+                    vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+
+                }
+            });
+
         }
     }
 });

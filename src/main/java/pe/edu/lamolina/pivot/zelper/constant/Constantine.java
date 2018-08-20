@@ -27,7 +27,7 @@ public interface Constantine {
 
     String S3_TMP = "tmp/";
 
-    String S3_LINK = "http://lamolina-admision.s3.amazonaws.com/";
+    String S3_LINK = "http://lamolina-academico.s3.amazonaws.com/";
 
     //String S3_DIR = "albatross-pruebas/lamolina-pivot";
     String S3_DIR = "lamolina-academico";

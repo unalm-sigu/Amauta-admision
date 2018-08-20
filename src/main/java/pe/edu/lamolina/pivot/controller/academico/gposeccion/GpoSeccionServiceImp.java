@@ -1290,13 +1290,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (!muertosHSecc.isEmpty()) {
             horarioAulaDAO.deleteAllInList(muertosHAula);
         }
-        for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
-            HorarioAula horarioAula = new HorarioAula();
-            horarioAula.setAula(seccion.getAula());
-            horarioAula.setDia(diaHoraGrupoEach.getDia());
-            horarioAula.setHora(diaHoraGrupoEach.getHora());
-            horarioAula.setSeccion(seccion);
-            horarioAulaDAO.save(horarioAula);
+        
+        if (seccion.getAula() != null) {
+            for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
+                HorarioAula horarioAula = new HorarioAula();
+                horarioAula.setAula(seccion.getAula());
+                horarioAula.setDia(diaHoraGrupoEach.getDia());
+                horarioAula.setHora(diaHoraGrupoEach.getHora());
+                horarioAula.setSeccion(seccion);
+                horarioAulaDAO.save(horarioAula);
+            }
         }
 
         seccionDAO.updateSeccionGrupoHora(seccion);

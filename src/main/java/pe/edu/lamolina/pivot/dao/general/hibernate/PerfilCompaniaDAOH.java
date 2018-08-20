@@ -5,12 +5,10 @@ import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
-import pe.edu.lamolina.model.general.Persona;
 
 @Repository
 public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implements PerfilCompaniaDAO {
@@ -123,6 +121,26 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .endBlock()
                 .limit(15);
         return all(sql);
+    }
+
+    @Override
+    public PerfilCompania findFuncionByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.nombre", nombre);
+        return find(sql);
+    }
+
+    @Override
+    public PerfilCompania findUltimoCodigoFuncion() {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("esAutomatico", 1)
+                .orderBy("id desc")
+                .limit(1);
+        return find(sql);
     }
 
 }
