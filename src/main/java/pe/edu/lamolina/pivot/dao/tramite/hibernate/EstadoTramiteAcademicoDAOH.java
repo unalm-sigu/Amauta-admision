@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteAcademicoDAO;
@@ -23,6 +24,17 @@ public class EstadoTramiteAcademicoDAOH extends AbstractEasyDAO<EstadoTramiteAca
                 .left("tipoOficinaOrigen too", "tipoOficinaDestino tod")
                 .filter("tt.id", tipoTramite)
                 .filter("eta.orden", orden);
+        return find(sql);
+    }
+
+    @Override
+    public EstadoTramiteAcademico findByTipoAndEstadoTramite(TipoTramite tipoTramite, EstadoTramite estadoTramite) {
+        Octavia sql = Octavia.query()
+                .from(EstadoTramiteAcademico.class, "eta")
+                .join("tipoTramite tt", "estadoTramite e")
+                .left("tipoOficinaOrigen too", "tipoOficinaDestino tod")
+                .filter("tt.id", tipoTramite)
+                .filter("e.id", estadoTramite);
         return find(sql);
     }
 

@@ -11,7 +11,8 @@ var app = new Vue({
             modalsize: 'modal-lg'
         },
         tramiteSeleccionado: null,
-        reunionConsejoSel: null
+        reunionConsejoSel: null,
+        processing: false
     }, created: function () {
 
     }, mounted: function () {
@@ -75,6 +76,10 @@ var app = new Vue({
         }, saveAgendar() {
             console.log("agendara");
             let $vue = this;
+            if ($vue.reunionConsejoSel == null) {
+                notify("Seleccione la reunión consejo.", "error");
+                return;
+            }
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramiteacademico/saveAgendar'),
@@ -95,6 +100,50 @@ var app = new Vue({
                 }
             });
             $vue.$refs.modalAgendar.close();
+        }, revertirEstadoTramite(tramite, event) {
+            console.log("agendara");
+            let $vue = this;
+            event.preventDefault();
+            bootbox.confirm({
+                message: "¿Está seguro que desea revertir?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result && !$vue.processing) {
+                        MODAL.showWait("Espere un momento por favor");
+
+                        $vue.processing = true;
+                        $.ajax({
+                            url: APP.url('academico/tramiteacademico/revertirEstadoTramite'),
+                            data: JSON.stringify(tramite),
+                            dataType: "json",
+                            contentType: "application/json",
+                            type: 'POST',
+                            //    async: true,
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                                    $vue.tramiteSeleccionado = null;
+                                    notify(response.message, "info");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                                MODAL.hideWait();
+                                $vue.$refs.modalAgendar.close();
+                            }, error: function () {
+                                notify(response.message, "error");
+                                MODAL.hideWait();
+                                $vue.$refs.modalAgendar.close();
+                            }
+                        });
+                    }
+                    $vue.processing = false;
+
+                }
+            });
+
         }
     }
 })

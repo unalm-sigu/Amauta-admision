@@ -25,6 +25,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Tramite.class, "t")
                 .join("compania", "persona", "alumno", "tipoTramite")
+                .left("userRegistro ur", "ur.persona urp")
                 .left("reincorporaciones");
         return this.all(sql);
     }
@@ -57,6 +58,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .from(Tramite.class, "tr")
                 .join("alumno alum", "tipoTramite tt", "cicloAcademico ca")
                 .join("alum.carrera car", "car.facultad fac")
+                .left("userRegistro user", "user.persona")
                 .filter("tr.id", id);
         return find(sql);
     }
@@ -66,7 +68,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         Octavia sql = new Octavia()
                 .from(Tramite.class, "tram")
                 .join("cicloAcademico aca", "compania", "tipoTramite")
-                .left("userRegistro user", "persona", "alumno alum")
+                .left("userRegistro user", "user.persona", "alumno alum")
                 .filter("tram.id", tramite);
         return find(sql);
     }

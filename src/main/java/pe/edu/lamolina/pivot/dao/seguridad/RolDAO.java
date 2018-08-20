@@ -23,4 +23,8 @@ public interface RolDAO extends EasyDAO<Rol> {
 
     List<Rol> allByDynatable(DynatableFilter filter);
 
+    List<Rol> allRolSuperior(String nombre);
+
+    Rol findByCode(String codigo);
+
 }

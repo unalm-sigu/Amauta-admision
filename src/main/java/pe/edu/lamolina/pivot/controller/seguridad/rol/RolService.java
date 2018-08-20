@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface RolService {
 
@@ -29,9 +30,7 @@ public interface RolService {
 
     List<Rol> allRolByDynatable(DynatableFilter filter);
 
-    void saveFuncionRol(FuncionRol funcionRol);
-
-    void cambiarEstado(FuncionRol funcionRol);
+    void cambiarEstado(FuncionRol funcionRol, Usuario usuario);
 
     List<PerfilCompania> allPerfilCompaniaByTipo(PerfilCompania perfilCompania, Compania compania);
 
@@ -40,5 +39,9 @@ public interface RolService {
     List<FuncionRol> allFuncionRol(List<Rol> roles);
 
     ArrayNode allPerfilCompania(Rol rol, Map<Long, List<FuncionRol>> funcionesRolMap, TipoPerfilCompaniaEnum tipoPerfilCompaniaEnum);
+
+    void saveFuncionRol(FuncionRol funcionRol, Usuario usuario);
+
+    List<Rol> allRolSuperior(String nombre);
 
 }
