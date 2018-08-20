@@ -47,4 +47,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico);
 
     ActaResumen findResumenByDepartamento(CicloAcademico ciclo, DepartamentoAcademico dpto);
+
+    List<GrupoSeccion> allByCicloCurso(CicloAcademico ciclo, String codigo, Long curso);
 }

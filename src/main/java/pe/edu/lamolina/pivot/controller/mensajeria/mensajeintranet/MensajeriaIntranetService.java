@@ -22,4 +22,6 @@ public interface MensajeriaIntranetService {
 
     void eliminar(MensajeIntranet mensajeria);
 
+    MensajeIntranet findMensajeria(Long id);
+
 }
