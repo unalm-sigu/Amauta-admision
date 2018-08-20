@@ -103,7 +103,6 @@ public class AlumnoController {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            FotoHelper helper = new FotoHelper();
             List<Alumno> alumnos = service.allAlumnosByCicloDynatable(filter, ds.getCarreras());
 
             for (Alumno alumn : alumnos) {
@@ -115,7 +114,8 @@ public class AlumnoController {
                 node.put("id", alumn.getId());
                 node.put("nombre", persona.getApellidosNombres());
                 node.put("codigo", alumn.getCodigo());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
+                node.put("rutaFoto", persona.getRutaFoto());
+                node.put("tipoFoto", persona.getTipoFoto());
                 node.put("tipoDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("nroDocumento", persona.getNumeroDocIdentidad());
                 node.put("telefono", persona.getTelefono());
