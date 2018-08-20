@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.flujo;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.joda.time.DateTime;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FlujoTramiteAcademico;
@@ -16,6 +18,7 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.FlujoTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
@@ -38,6 +41,9 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
 
     @Override
     @Transactional(readOnly = false)
@@ -64,7 +70,9 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
                 = estadoTramiteAcademicoDAO.findByTipoTramiteOrden(tramite.getTipoTramite(), currentEstadoTramiteAcademico.getOrden() + incremento);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        Map oficinas = oficinaDAO.findOficinaOrigenDestinoByEstadoTramiteAcad(newEstadoTramiteAcademico, alumno);
+        //  Map oficinas = oficinaDAO.findOficinaOrigenDestinoByEstadoTramiteAcad(newEstadoTramiteAcademico, alumno);
+
+        Map oficinas = new HashMap();
 
         FlujoTramiteAcademico flujoTramiteAcademico = new FlujoTramiteAcademico();
         flujoTramiteAcademico.setEstadoTramite(newEstadoTramiteAcademico.getEstadoTramite());
@@ -85,6 +93,19 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
             reincorporacionUpd.setEstadoTramite(newEstadoTramiteAcademico.getEstadoTramite());
             reincorporacionDAO.updateEstado(reincorporacionUpd);
         }
+    }
+
+    @Override
+    public List<AccionTramiteAcademico> allAccionesTramiteByTramite(Tramite tramite) {
+        EstadoTramite estadoTramite = null;
+        if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
+            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
+            Reincorporacion reincorporacion = reincorporaciones.get(0);
+            estadoTramite = reincorporacion.getEstadoTramite();
+        }
+        List<AccionTramiteAcademico> accionesTramites = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(
+                tramite.getTipoTramite(), estadoTramite);
+        return accionesTramites;
     }
 
 }

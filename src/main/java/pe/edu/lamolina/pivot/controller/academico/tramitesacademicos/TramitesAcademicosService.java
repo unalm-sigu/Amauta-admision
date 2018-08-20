@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -19,5 +20,9 @@ public interface TramitesAcademicosService {
     List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, Oficina oficina);
 
     void revertTramiteAcademico(Tramite tramite, DataSessionPivot ds);
+
+    Tramite findTramite(Long tramiteId);
+
+    void procesarTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, String motivo, DataSessionPivot ds);
 
 }

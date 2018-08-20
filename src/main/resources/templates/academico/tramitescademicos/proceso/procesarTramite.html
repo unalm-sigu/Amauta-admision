@@ -1,0 +1,85 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Procesar Tramties Academicos</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+    <style>
+        .td-vacio {
+            padding-right: 4px !important;
+            padding-left: 4px !important;
+        }
+        .bg-row {
+            background-color: #f9fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <header class="header b-b padder-lg">
+            <h2 >Procesar Tramites Academicos</h2>
+            <div class="pull-right m-t-md">
+                <a class="btn btn-default"   th:href="@{/academico/tramiteacademico}"  >Regresar</a>
+            </div>
+        </header>
+        <div id="procesarTramitesAcademicos">
+            <div v-cloak="">
+                <section class="wrapper-lg">
+                    <form id="frmEditGpoSeccion">
+                        <section class="panel m-b-xs">
+                            <section class="panel-body">
+                                <section class="panel-body">
+                                    <tramite-detalle v-bind:tramite="tramite"></tramite-detalle>  
+                                </section>
+                            </section>
+                        </section>
+                        <section class="panel m-b-xs">
+                            <section class="panel m-b-xs">
+                                <section class="panel-body">
+                                    <keep-alive>
+                                        <component is="historial-component" v-bind="compomentProps" v-if="compomentProps"></component>
+                                    </keep-alive>
+                                </section>
+                            </section>
+                        </section>
+                        <section class="panel m-b-xs">
+                            <section class="panel-body text-center">
+                                <a class="btn btn-success m-r-md"
+                                   v-if="tramite"
+                                   v-for="accion in tramite.accionesTramitesAcademico"
+                                   v-text="accion.opcion"
+                                   v-on:click.prevent="procesarTramite(accion)"
+                                   >
+                                </a>
+                                <!-- 
+                                <a class="btn btn-success" id="cmbAceptar">Revisar Historial</a> -->
+                            </section>
+                        </section>
+                    </form>
+                </section>
+            </div>
+        </div>
+        <div th:substituteby="academico/alumno/includes/historial"/>
+        <div th:substituteby="templates/modal"/>
+        <div th:substituteby="_modules/vue-modal"/>
+
+    </div>
+
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+            var tramiteJson = [[${tramiteJson}]];
+        </script>
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <div th:substituteby="academico/tramitescademicos/component/tramiteDetalleComponent"/>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
+        <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
+        <script th:src="@{/app/academico/tramitesacademicos/proceso/procesarTramite.js}" charset="utf-8"></script>
+
+
+    </div>
+
+
+</body>
+</html>
