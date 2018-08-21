@@ -10,7 +10,7 @@
     <name>pivot</name>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
+        <groupId>org.springframework.boot</groupId>model
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>1.3.2.RELEASE</version>
         <relativePath/>
@@ -345,7 +345,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.14.47</version>
+            <version>0.14.53</version>
         </dependency>
 
     </dependencies>
