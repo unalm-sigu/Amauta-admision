@@ -1,7 +1,7 @@
 new Vue({
     el: '#tipoMsgVUE',
     data: {
-        tipoMsgURL: APP.url('tipomsgintranet/list'),
+        tipoMsgURL: APP.url('mensajeria/tipomsgintranet/list'),
         tipoMsgIntranet: {},
         cicloAcademico: JSON.parse(cicloJson),
         addTipoMsgIntranet: {
@@ -44,7 +44,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('tipomsgintranet/saveUpdate'),
+                url: APP.url('mensajeria/tipomsgintranet/saveUpdate'),
                 data: JSON.stringify($vue.tipoMsgIntranet),
                 contentType: "application/json",
                 success: function (response) {
@@ -85,7 +85,7 @@ new Vue({
                 if (success) {
                     $.ajax({
                         method: 'POST',
-                        url: APP.url('tipomsgintranet/eliminar'),
+                        url: APP.url('mensajeria/tipomsgintranet/eliminar'),
                         data: JSON.stringify(item),
                         contentType: "application/json",
                         success: function (response) {

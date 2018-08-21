@@ -13,6 +13,8 @@ public interface FuncionColaboradorDAO extends EasyDAO<FuncionColaborador> {
 
     public List<FuncionColaborador> findFuncionByColaborador(Colaborador colaborador);
 
+    public List<FuncionColaborador> allByColaborador(Colaborador colaborador);
+
 
    
 }

@@ -1,7 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-let vm = 
 new Vue({
     el: '#colaboradorFormVue',
     data: {
@@ -10,11 +9,12 @@ new Vue({
         oficina: {id: JSON.parse(oficinaId)},
         sexo: sexoJson,
         area: JSON.parse(areaJson),
-        compania: JSON.parse(companiaJson),
+        misfunciones: JSON.parse(misfuncionesJson),
         funciones: JSON.parse(funcionesJson),
+        cargos: JSON.parse(cargosJson),
         colabo: JSON.parse(colaboradorJson),
         funcionColaborador: [],
-        colaborador: {},
+        colaborador: {id:null,funcionColaborador:[]},
         personaValidTemp: {},
         newCola: false,
         colaboradorData: {},
@@ -92,7 +92,7 @@ new Vue({
                 return;
             }
             $vue.persona.fechaNacer = moment($vue.persona.fechaNacer, "dd/MM/yyyy");
-            
+
             $.ajax({
                 url: APP.url('general/oficina/validarEmail'),
                 type: 'POST',
@@ -145,9 +145,11 @@ new Vue({
                 self.btnEnable();
                 return;
             }
+            
             self.btnEnable();
+            
             $vue.colaboradorData.colaborador = $vue.colaborador;
-            $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
+            $vue.colaboradorData.perfilCompanias = $vue.misfunciones;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
 
             $.ajax({
@@ -183,9 +185,9 @@ new Vue({
             $vue.colaborador.persona = $vue.persona;
             $vue.colaborador.persona.fechaNacer = moment($vue.colaborador.persona.fechaNacer, "dd/MM/yyyy");
             $vue.colaboradorData.colaborador = $vue.colaborador;
-            $vue.colaboradorData.perfilCompanias = $vue.colaborador.funcionColaborador;
+            $vue.colaboradorData.perfilCompanias = $vue.misfunciones;
             $vue.colaboradorData.oficinaMean = $vue.oficina;
-            
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/oficina/saveColaborador'),
@@ -220,7 +222,7 @@ new Vue({
                 $vue.temp = $vue.persona;
             }
             $vue.personaValidTemp = {};
-            
+
             var map = new Map(Object.entries($vue.persona));
             Object.keys($vue.persona).forEach(function (elem) {
                 if (elem == 'materno' && map.get(elem) !== null) {

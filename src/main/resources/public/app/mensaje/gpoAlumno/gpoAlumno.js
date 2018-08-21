@@ -1,7 +1,7 @@
 new Vue({
     el: '#gpoAlumnoVUE',
     data: {
-        gpoAlumnoURL: APP.url('gpoalumno/list'),
+        gpoAlumnoURL: APP.url('mensajeria/gpoalumno/list'),
         gpoAlumno: {},
         cicloAcademico: JSON.parse(cicloJson),
         addGpoAlumno: {
@@ -44,7 +44,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('gpoalumno/saveUpdate'),
+                url: APP.url('mensajeria/gpoalumno/saveUpdate'),
                 data: JSON.stringify($vue.gpoAlumno),
                 contentType: "application/json",
                 success: function (response) {
@@ -85,7 +85,7 @@ new Vue({
                 if (success) {
                     $.ajax({
                         method: 'POST',
-                        url: APP.url('gpoalumno/eliminar'),
+                        url: APP.url('mensajeria/gpoalumno/eliminar'),
                         data: JSON.stringify(item),
                         contentType: "application/json",
                         success: function (response) {

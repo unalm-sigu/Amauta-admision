@@ -353,4 +353,17 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         return (ActaResumen) sql.find(getCurrentSession());
     }
 
+    @Override
+    public List<GrupoSeccion> allByCicloCurso(CicloAcademico ciclo, String codigo, Long curso) {
+        Octavia sql = Octavia.query(GrupoSeccion.class, "gs")
+                .join("cicloAcademico ca", "curso cur")
+                .filter("ca.id", ciclo)
+                .like("gs.codigo", codigo)
+                .limit(15);
+        if (curso != null) {
+            sql.filter("cur.id", curso);
+        }
+        return sql.all(getCurrentSession());
+    }
+
 }

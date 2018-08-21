@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuRolDAO;
@@ -49,7 +50,7 @@ public class MenuServiceImp implements MenuService {
 
     @Autowired
     VisorMenu visorMenu;
-    
+
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -78,6 +79,7 @@ public class MenuServiceImp implements MenuService {
             mayorOrden = 1;
         }
         menu.setOrden(mayorOrden);
+        menu.setClave(StringUtils.randomAlphanumeric(20));
         menuDAO.save(menu);
     }
 

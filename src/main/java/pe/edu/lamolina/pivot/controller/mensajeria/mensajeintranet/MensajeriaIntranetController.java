@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -74,6 +75,8 @@ public class MensajeriaIntranetController {
 
             List<MensajeIntranet> mensajes = service.allByDynatble(filter);
             for (MensajeIntranet mensaje : mensajes) {
+                String contenido = mensaje.getContenido();
+                contenido = contenido.length() > 250 ? contenido.substring(0, 200) + "..." : contenido;
                 ObjectNode obj = JsonHelper.createJson(mensaje, JsonNodeFactory.instance, new String[]{
                     "*",
                     "cicloAcademico.id",
@@ -84,6 +87,7 @@ public class MensajeriaIntranetController {
                     "tipoMensajeIntranet.nombre",
                     "tipoMensajeIntranet.contenido"
                 });
+                obj.put("contenido", Jsoup.parse(contenido).text());
                 array.add(obj);
             }
             json.setData(array);
@@ -96,6 +100,36 @@ public class MensajeriaIntranetController {
         }
 
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("edit")
+    public JsonResponse edit(@RequestBody MensajeIntranet mensajeria, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+        try {
+
+            MensajeIntranet mensajeriaDB = service.findMensajeria(mensajeria.getId());
+            ObjectNode obj = JsonHelper.createJson(mensajeriaDB, JsonNodeFactory.instance, new String[]{
+                "*",
+                "cicloAcademico.id",
+                "cicloAcademico.descripcion",
+                "grupoAlumno.id",
+                "grupoAlumno.nombre",
+                "tipoMensajeIntranet.id",
+                "tipoMensajeIntranet.nombre",
+                "tipoMensajeIntranet.contenido"
+            });
+            response.setData(obj);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody
