@@ -21,4 +21,6 @@ public interface FuncionRolDAO extends EasyDAO<FuncionRol> {
     public List<FuncionRol> allFuncionRolTipoPerfil(FuncionRol funcionRol);
 
     public List<FuncionRol> allFuncionRolByRoles(List<Rol> roles);
+
+    public List<FuncionRol> allFuncionRolActivoByRoles(List<Rol> roles);
 }

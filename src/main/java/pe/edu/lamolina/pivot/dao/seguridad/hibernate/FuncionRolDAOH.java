@@ -92,4 +92,14 @@ public class FuncionRolDAOH extends AbstractEasyDAO<FuncionRol> implements Funci
         return all(sql);
     }
 
+    @Override
+    public List<FuncionRol> allFuncionRolActivoByRoles(List<Rol> roles) {
+        Octavia sql = Octavia.query()
+                .from(FuncionRol.class, "fr")
+                .join("rol r", "perfilCompania p")
+                .filter("fr.estado", FuncionRolEstadoEnum.ACT.name())
+                .in("r.id", roles);
+        return all(sql);
+    }
+
 }

@@ -7,7 +7,7 @@
                 <div class="modal-dialog" v-bind:class="modalsize" role="document">
 
                     <div class="modal-content" v-bind:style="styleModal">
-                        <div v-if="header" class="modal-header bg-white">
+                        <div v-if="header" class="modal-header" v-bind:class="{ 'bg-white': iswhite }">
                             <slot name="header">
                                 <button v-on:click="close"  type="button"  class="close">
                                     <span aria-hidden="true">&times;</span>
@@ -56,6 +56,7 @@
             styleModal: {type: Object, default: null},
             dataBackdrop: {type: String, default: 'static'},
             dataKeyboard: {type: String, default: 'false'},
+            iswhite: {type: Boolean, default: false}
         },
         methods: {
             open() {

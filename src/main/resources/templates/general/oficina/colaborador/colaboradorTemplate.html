@@ -1,0 +1,50 @@
+<modal-vik  ref="modaladdfuncion" v-bind="dataModalFuncion" v-bind:okaction="saveFuncion" >
+
+    <div slot="body">
+
+        <form method="POST"  class="" id="formAddFuncion" >
+
+            <input type="hidden" name="id" v-bind:value="funcion.id" />
+            <input type="hidden" name="oficinaContiene.id" th:value="${oficina}" />
+
+            <div class="form-group">
+                <label >Nombre Cargo</label>
+                <input name="nombre"  required="true" type="text" class="form-control" v-model="funcion.nombre" />                                                
+            </div>
+
+
+            <div class="form-group">
+                <label >Nombre Documento Cargo</label>
+                <input name="nombreDocumento"   required="true" type="text" class="form-control" v-model="funcion.nombreDocumento" />                                                
+            </div>                                         
+
+        </form>
+
+    </div>
+
+</modal-vik>
+
+<modal-vik  ref="modalvercargo" v-bind="dataVerCargo"  >
+
+    <div slot="body">
+        
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Nombre Documento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for='cargo in cargos'>
+                    <td>{{cargo.codigo}}</td>
+                    <td>{{cargo.nombre}}</td>
+                    <td>{{cargo.nombreDocumento}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</modal-vik>

@@ -42,8 +42,8 @@
                v-model="persona.rutaFotoTemporal" />
         <input type="file" id="fileupload" class="hidden" name="file"  placeholder="seleccionar archivo" />
         <div>
-            <div id="dragarea" class="bg-info img-rounded text-center v-bottom text-muted" style="width: 140px; height: 140px;">
-                <img alt=""  id="imgDocument"  class="img-rounded" style="width: 140px; height: 140px;"
+            <div id="dragarea" class="v-bottom m-t" style="width: 180px;">
+                <img alt=""  id="imgDocument"  class="img-responsive img-thumbnail img-circle" style="width: 200px;border-radius: 20%;"
                      v-bind:src="persona.fullRutaFotoTemporal"
                      data-holder-rendered="true" />
             </div>

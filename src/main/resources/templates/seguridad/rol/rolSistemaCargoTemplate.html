@@ -112,3 +112,34 @@
 
 </modal-vik>
 
+<modal-vik  ref="nuevorolmodal" v-bind="dataModalRol" v-bind:okaction="saveRol" >
+
+    <div slot="body">
+
+
+        <form method="POST"  class="m-t-md" id="formNuevoRol" >
+
+            <input type="hidden" name="id" v-bind:value="rol.id" />
+
+
+            <div class="form-group">
+                <label>Nombre</label>
+                <input name="nombre" class="form-control input-sm" maxlength='100' required="true" v-bind:value="rol.nombre"/>
+            </div>
+
+            <div class="form-group">
+                <label>Código</label>
+                <input name="codigo" class="form-control  input-sm" maxlength="20" required="true" v-bind:value="rol.codigo"/>
+            </div>
+
+            <div class="form-group">
+                <label>Rol Superior</label>
+                <rolsearh v-bind:nombre="'rolSuperior.id'"  v-bind:rolsuperior="rolSuperior" />
+            </div>
+
+        </form>
+
+    </div>
+
+</modal-vik>
+

@@ -41,7 +41,7 @@
                                                                 <i class="glyphicon glyphicon-cog"></i>
                                                             </a> 
                                                             <ul class="dropdown-menu pull-right">
-                                                                <li><a class="" v-on:click="detalle(item)" >Detalle grupo</a></li>
+                                                                <li><a class="" v-bind:href="'/mensajeria/gpoalumno/' + item.id + '/detalle'" v-on:click="detalle(item)" >Detalle grupo</a></li>
                                                                 <li><a class="" v-on:click="eliminar(item)" >Eliminar</a></li>
                                                                 <li><a class="" v-on:click="eliminar(item)" >Eliminar</a></li>
                                                             </ul>

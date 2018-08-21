@@ -870,9 +870,16 @@ public class OficinaServiceImp implements OficinaService {
 
     private void addUserRoll(List<PerfilCompania> perfilesCompania, Oficina oficinaMean, Usuario Usuariocolaborador, Colaborador colaborador, Usuario usuario) {
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfilCompania(perfilesCompania);
+        logger.debug("funcionRol size {}",funcionRol.size());
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
-        for (PerfilCompania compania : perfilesCompania) {
-            for (Rol rol : mapRol.get(compania.getId())) {
+        logger.debug("mapRol size {}",mapRol.size());
+        for (PerfilCompania perfilComp : perfilesCompania) {
+            List<Rol> roless=mapRol.get(perfilComp.getId());
+            logger.debug("mapRol size {} {}  ",perfilComp.getId(),roless);
+            if(roless==null){
+                continue;
+            }
+            for (Rol rol : roless) {
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstado(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
@@ -1057,4 +1064,51 @@ public class OficinaServiceImp implements OficinaService {
     public List<Persona> allPersonasByNombre(String nombre) {
         return personaDAO.allByNombre(nombre);
     }
+
+    @Override
+    @Transactional
+    public void addFuncion(PerfilCompania perfilCompania, DataSessionPivot dsp) {
+        PerfilCompania perfilCompaniaName = perfilCompaniaDAO.findFuncionByNombre(perfilCompania.getNombre());
+        if (perfilCompaniaName != null) {
+            throw new PhobosException("La función ingresada ya existe");
+        }
+        perfilCompania.setCodigo(this.getCodigoFuncionCompania());
+        perfilCompania.setTipo(TipoPerfilCompaniaEnum.PERFIL.name());
+        perfilCompania.setCompania(dsp.getCompania());
+        perfilCompania.setEsAutomatico(1l);
+        perfilCompaniaDAO.save(perfilCompania);
+    }
+
+    private String getCodigoFuncionCompania() {
+        String codigoNuevo = "F10001";
+        PerfilCompania perfilCompania = perfilCompaniaDAO.findUltimoCodigoFuncion();
+        logger.debug("{}", perfilCompania);
+        if (perfilCompania != null) {
+            String codigoNume = perfilCompania.getCodigo().substring(1);
+            codigoNuevo = "F" + (Long.parseLong(codigoNume) + 1);
+        }
+        return codigoNuevo;
+    }
+
+    @Override
+    public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
+        return perfilCompaniaDAO.allCargoByOficina(oficina);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
+        return perfilCompaniaDAO.allFuncionByOficina(oficina);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador) {
+        List<FuncionColaborador> funcionColaborador= funcionColaboradorDAO.allByColaborador(colaborador);
+        Map<Long,PerfilCompania> funcionesMap=TypesUtil.convertListToMap("funcion.id", "funcion", funcionColaborador);
+        List<PerfilCompania> funciones=new ArrayList();
+        for (PerfilCompania value : funcionesMap.values()) {
+            funciones.add(value);
+        }
+        return funciones;
+    }
+    
 }

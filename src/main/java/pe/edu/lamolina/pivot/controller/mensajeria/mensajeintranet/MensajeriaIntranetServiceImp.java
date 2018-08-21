@@ -73,4 +73,9 @@ public class MensajeriaIntranetServiceImp implements MensajeriaIntranetService {
         mensajeIntranetDAO.delete(mensajeria);
     }
 
+    @Override
+    public MensajeIntranet findMensajeria(Long id) {
+        return mensajeIntranetDAO.find(id);
+    }
+
 }

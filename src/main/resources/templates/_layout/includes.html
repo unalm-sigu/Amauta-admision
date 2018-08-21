@@ -38,6 +38,7 @@
 
 
 <link rel="stylesheet" type="text/css" href="/jquery-timepicker/jquery.timepicker.css" />
+<link rel="stylesheet" type="text/css" th:href="@{/vendor/fullscreen-loading/css/jquery.loadingModal.min.css}" />
 
 
 
@@ -160,6 +161,7 @@
     <script th:src="@{/vendor/vue-pagination/vue-pagination-2.min.js}" charset="utf-8"></script>
 
     <script  type="text/javascript"  th:src="@{/meteor-x-editable-bootstrap-master/lib/bootstrap-editable/js/bootstrap-editable.js}"/>
+    <script type="text/javascript" th:src="@{/vendor/fullscreen-loading/js/jquery.loadingModal.min.js}"/>
 
 </div>
 
@@ -299,5 +301,8 @@
 </div>
 <div th:fragment="sweetalert" th:remove="tag">
     <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+</div>
+<div th:fragment="vue-loader" th:remove="tag">
+    <script th:src="@{/phobos/js/vue-loader.js}" charset="utf-8"></script>
 </div>
 

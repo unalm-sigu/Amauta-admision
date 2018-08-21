@@ -42,6 +42,16 @@ public class FuncionColaboradorDAOH extends AbstractEasyDAO<FuncionColaborador> 
         return all(sql);
     }
 
- 
+    @Override
+    public List<FuncionColaborador> allByColaborador(Colaborador colaborador) {
+        Octavia sql = Octavia.query()
+                .from(FuncionColaborador.class, "fc")
+                .join("colaborador col", "funcion fun")
+                .filter("col.id", colaborador)
+                .filter("estado", EstadoEnum.ACT)
+                .orderBy("fc.id");
+
+        return all(sql);
+    }
 
 }

@@ -93,5 +93,14 @@ public interface OficinaService {
 
     void addCargo(PerfilCompania perfilCompania, DataSessionPivot ds);
 
-    public List<Persona> allPersonasByNombre(String buscar);
+    List<Persona> allPersonasByNombre(String buscar);
+
+    void addFuncion(PerfilCompania perfilCompania, DataSessionPivot dsp);
+
+    List<PerfilCompania> allCargoByOficina(Oficina oficina);
+
+    List<PerfilCompania> allFuncionByOficina(Oficina oficina);
+
+    List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
+
 }

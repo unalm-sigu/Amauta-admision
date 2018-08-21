@@ -1,7 +1,7 @@
-Vue.component("funcionsearh", {
-    template: "#funcionsearhtemp",
+Vue.component("rolsearh", {
+    template: "#rolsearhtemp",
     props: {
-        funcion: {id: null},
+        rolsuperior: {id: null},
         nombre: {type: String, default: ''},
     },
     mounted: function () {
@@ -17,32 +17,32 @@ Vue.component("funcionsearh", {
     methods: {
         buscar: function (vue) {
             return {
-                minimumInputLength: 2,
+                minimumInputLength: -1,
                 allowClear: true,
-                placeholder: "Seleccione una función para agregar",
+                placeholder: "  ",
                 ajax: {
-                    url: APP.url("seguridad/rol/allperfilcompania"),
+                    url: APP.url("seguridad/rol/allRolSuperior"),
                     dataType: 'json',
                     type: 'post',
                     data: function (term, page) {
-                        return {nombre: term, page: page,tipo:'PERFIL'};
+                        return {nombre: term, page: page};
                     },
                     results: function (response, page) {
                         return {results: response.data};
                     }
                 },
                 initSelection: function (element, callback) {
-                    if (vue.funcion.id != null) {
-                        callback(vue.funcion);
+                    if (vue.rolsuperior.id != null) {
+                        callback(vue.rolsuperior);
                     }
                 },
                 formatResult: function (info) {
                     return info.codigo + ' - ' + info.nombre;
                 },
                 formatSelection: function (info) {
-                    vue.funcion.nombre = info.nombre;
-                    vue.funcion.codigo = info.codigo;
-                    vue.funcion.id = info.id;
+                    vue.rolsuperior.nombre = info.nombre;
+                    vue.rolsuperior.codigo = info.codigo;
+                    vue.rolsuperior.id = info.id;
                     return info.nombre;
                 },
                 escapeMarkup: function (m) {
