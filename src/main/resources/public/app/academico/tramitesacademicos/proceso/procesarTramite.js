@@ -4,7 +4,8 @@ var app = new Vue({
         tramite: null,
         componentForm: null,
         compomentProps: null,
-        accionSeleccionada: null
+        accionSeleccionada: null,
+        processingAjaxData: null
     }, created: function () {
         this.tramite = JSON.parse(tramiteJson);
         console.dir(this.tramite);
@@ -22,32 +23,47 @@ var app = new Vue({
                     if (response.success) {
                         $vue.tramite = response.data.tramite;
                         $vue.componentForm = $vue.tramite.formularioEstadoTramite.formulario;
-                        $vue.compomentProps = {alumno: $vue.tramite.alumno};
+                        console.dir($vue.componentForm);
+                        //    var returnParams = Object.assign(params, $vue.ajaxdata);
+                        $vue.compomentProps = {alumno: $vue.tramite.alumno, tramite: $vue.tramite};
                     }
                 }
             });
         }, procesarTramite(accion) {
             let $vue = this;
+            $vue.processingAjaxData = {
+                tramite: $vue.tramite.id,
+                accionTramite: accion.id
+            }
+            if (accion.estadoTramiteFinal.esAgendadoConsejoFacultad) {
+                if ($vue.$refs.procesarComponent.reunionConsejoSel == null) {
+                    notify("Seleccione la reunión consejo.", "error");
+                    return;
+                }
+              //  $vue.processingAjaxData.tramiteReunionConsejo={};
+                $vue.processingAjaxData.reunionConsejo = $vue.$refs.procesarComponent.reunionConsejoSel.id;
+            }
             $vue.accionSeleccionada = accion;
             if ($vue.accionSeleccionada.esSolicitarMotivo) {
                 bootbox.prompt("Cual es motivo", function (result) {
                     if (result) {
-                        $vue.procesarTramitePost(result, $vue);
+                        $vue.processingAjaxData.motivo = result;
+                        $vue.procesarTramitePost($vue);
                     }
                 });
             } else {
-                $vue.procesarTramitePost(null, $vue);
+                $vue.procesarTramitePost($vue);
             }
-        }, procesarTramitePost(motivo, $vue) {
-            //  let $vue = this;
+        }, procesarTramitePost($vue) {
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/tramiteacademico/procesarTramite'),
-                data: {
-                    tramite: $vue.tramite.id,
-                    accionTramite: $vue.accionSeleccionada.id,
-                    motivo: motivo
-                },
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.processingAjaxData),
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
@@ -59,6 +75,7 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+
         }
     }
 })
