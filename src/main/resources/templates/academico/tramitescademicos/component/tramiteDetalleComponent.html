@@ -1,0 +1,78 @@
+<template id="tramiteDetetalleComp">
+    <div v-if="tramite" class="m-b-xs"> 
+        <div class="row">
+            <div class="form-group">
+
+                <label class="col-md-2 bold">Tipo Tramite</label>
+                <div class="col-md-2">
+                    <span v-if="tramite.tipoTramite"> {{tramite.tipoTramite.nombre}} </span>
+                </div>
+
+                <label class="col-md-2 bold">Serie</label>
+
+                <div class="col-md-2">
+                    <span> {{tramite.serie}} </span>
+                </div>
+
+                <label class="col-md-2 bold">Número</label>
+
+                <div class="col-md-2">
+                    <span> {{tramite.numero}} </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+
+                <label class="col-md-2 bold">Persona</label>
+                <div class="col-md-2">
+                    <span v-if="tramite.tipoTramite"> {{tramite.persona.apellidosNombres}} </span>
+                </div>
+
+                <label class="col-md-2 bold">Estado Tramite</label>
+
+                <div class="col-md-2">
+                    <span> {{tramite.estadoEnum}} </span>
+                </div>
+
+                <label class="col-md-2 bold">Situación Tramite</label>
+
+                <div class="col-md-2">
+                    <span v-if="tramite.estadoTramite"> {{tramite.estadoTramite.nombre}} </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+    Vue.component('tramite-detalle', {
+        template: '#tramiteDetetalleComp',
+        props: {
+            tramite: null
+        },
+        mounted() {
+
+        },
+        methods: {
+            loadTramiteDetalle(tramite) {
+                let $vue = this;
+                $vue.reunionConsejoSel = null;
+                $.ajax({
+                    url: APP.url('academico/tramiteacademico/loadTramiteDetalle'),
+                    data: JSON.stringify(tramite),
+                    dataType: "json",
+                    contentType: "application/json",
+                    type: 'POST',
+                    //    async: true,
+                    success: function (response) {
+                        if (response.success) {
+                            $vue.tramiteSeleccionado = tramite;
+                        }
+                    }
+                });
+                //  $vue.$refs.modalAgendar.open();
+            }
+        }
+    });
+
+</script>

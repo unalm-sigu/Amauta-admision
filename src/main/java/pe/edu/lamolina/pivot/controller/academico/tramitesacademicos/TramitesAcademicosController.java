@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.joda.time.DateTime;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +18,24 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
@@ -85,6 +87,7 @@ public class TramitesAcademicosController {
         return "academico/tramitescademicos/tramitesAcademicos";
     }
 
+    /*
     @ResponseBody
     @RequestMapping("listTramites")
     public DynatableResponse listTramites(DynatableFilter filter,
@@ -111,9 +114,11 @@ public class TramitesAcademicosController {
                 "tipoTramite.esTipoTramiteRei",
                 "userRegistro.*",
                 "userRegistro.persona.*",
-                "userRespuesta.*"
+                "userRespuesta.*",
+                "formularioEstadoTramite.*"
             };
-            String[] mapperReincorporacion = new String[]{
+
+            String[] mapperEstadoTramite = new String[]{
                 "estadoTramite.nombre",
                 "estadoTramite.id",
                 "estadoTramite.nombre",
@@ -122,6 +127,8 @@ public class TramitesAcademicosController {
                 "estadoTramite.esConsejoFacultad"
             };
 
+            String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
+
             String[] mapperReunionConsejo = new String[]{
                 "*",
                 "reunionConsejo.*"
@@ -129,17 +136,22 @@ public class TramitesAcademicosController {
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
             for (Tramite tramite : tramites) {
-                ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramite);
-                ArrayNode reincorporaciones = null;
-                if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
-                    Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
-                    tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
-                }
+                ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramiteComplex);
+                //   ArrayNode reincorporaciones = null;
+              
+           //     if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
+             //       Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
+            //        tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
+           //     }
                 if (tramite.getTramitesReunionConsejo() != null && !tramite.getTramitesReunionConsejo().isEmpty()) {
                     TramiteReunionConsejo tramiteReunionConsejo = tramite.getTramitesReunionConsejo().get(0);
                     tramiteJson.set("tramiteReunionConsejo", JsonHelper.createJson(tramiteReunionConsejo, jc, false, mapperReunionConsejo));
                 }
-                tramiteJson.set("reincorporaciones", reincorporaciones);
+                ArrayNode accionesTramiteJson = new ArrayNode(jc);
+                for (AccionTramiteAcademico accionTramiteAcademico : tramite.getAccionesTramitesAcademico()) {
+                    accionesTramiteJson.add(JsonHelper.createJson(accionTramiteAcademico, jc, new String[]{"*"}));
+                }
+                tramiteJson.set("accionesTramite", accionesTramiteJson);
                 array.add(tramiteJson);
             }
 
@@ -153,7 +165,7 @@ public class TramitesAcademicosController {
         }
         return json;
     }
-
+     */
     @ResponseBody
     @RequestMapping("cambiarEstadoReincorporacion")
     public JsonResponse cambiarAulaDirect(
@@ -258,6 +270,7 @@ public class TramitesAcademicosController {
         return json;
     }
 
+    /*
     @ResponseBody
     @RequestMapping("saveAgendar")
     public JsonResponse saveAgendar(
@@ -272,18 +285,9 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), new ReunionConsejo(reunionConsejoId), ds.getUsuario());
+            // tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), new ReunionConsejo(reunionConsejoId), ds.getUsuario());
             response.setMessage("Agendado correctamente.");
-            /*
-            ObjectNode node = new ObjectNode(jsonFactory);
 
-      
-            node.set("reunionConsejo", JsonHelper.createJson(reunionConsejo, jsonFactory, true, new String[]{
-                "*",
-                "usuarioRegistro.*",
-                "usuarioActualizacion.*",}));
-             */
-            //  response.setData(node);
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -294,7 +298,7 @@ public class TramitesAcademicosController {
 
         return response;
     }
-
+     */
     @ResponseBody
     @RequestMapping("revertirEstadoTramite")
     public JsonResponse revertirEstadoTramite(
@@ -320,6 +324,116 @@ public class TramitesAcademicosController {
         }
 
         return response;
+    }
+
+    @RequestMapping("procesar/{tramite}")
+    public String procesarTramite(Model model,
+            @PathVariable("tramite") Long tramiteId,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ObjectNode tramiteJson = JsonHelper.createJson(new Tramite(tramiteId), JsonNodeFactory.instance);
+
+        model.addAttribute("tramiteJson", tramiteJson.toString());
+        return "academico/tramitescademicos/proceso/procesarTramite";
+    }
+
+    @ResponseBody
+    @RequestMapping("{tramite}/loadFormProcesar")
+    public JsonResponse loadGpoSeccionForm(@PathVariable("tramite") Long tramiteId, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            ObjectNode node = new ObjectNode(jsonFactory);
+            Tramite tramite = tramitesAcademicosService.findTramite(tramiteId);
+
+            String[] mapperTramite = new String[]{
+                "*",
+                "persona.*",
+                "alumno.*",
+                "compania.*",
+                "cicloAcademico.*",
+                "tipoTramite.codigo",
+                "tipoTramite.nombre",
+                "tipoTramite.esTipoTramiteRei",
+                "userRegistro.*",
+                "userRegistro.persona.*",
+                "userRespuesta.*",
+                "accionesTramitesAcademico.*",
+                "accionesTramitesAcademico.estadoTramiteFinal.*",
+                "accionesTramitesAcademico.estadoTramiteInicio.*",
+                "formularioEstadoTramite.*"
+            };
+
+            String[] mapperEstadoTramite = new String[]{
+                "estadoTramite.nombre",
+                "estadoTramite.id",
+                "estadoTramite.nombre",
+                "estadoTramite.esSolicitudReincorporacion",
+                "estadoTramite.esSolicitudHistorialRevisado",
+                "estadoTramite.esConsejoFacultad"
+            };
+
+            String[] mapperTramiteReunionConsejo = new String[]{
+                "tramiteReunionConsejo.*",
+                "tramiteReunionConsejo.reunionConsejo.*"
+            };
+
+            String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
+            mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramiteComplex, mapperTramiteReunionConsejo);
+
+            node.set("tramite", JsonHelper.createJson(tramite, jsonFactory, true, mapperTramiteComplex));
+
+            response.setData(node);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("procesarTramite")
+    public JsonResponse procesarTramite(@RequestBody ObjectNode tramiteNode,
+            Model model,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            Tramite tramite = new Tramite(tramiteNode.get("tramite").asLong());
+            if (tramiteNode.get("motivo") != null) {
+                tramite.setObservacion(tramiteNode.get("motivo").asText());
+            }
+            tramite.setTramiteReunionConsejo(new TramiteReunionConsejo());
+            tramite.getTramiteReunionConsejo().setReunionConsejo(new ReunionConsejo(tramiteNode.get("reunionConsejo").asText()));
+
+            AccionTramiteAcademico accionTramiteAcademico = new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong());
+            tramitesAcademicosService.procesarTramite(tramite, accionTramiteAcademico, ds);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("/successProcess")
+    public String successProcess(RedirectAttributes redirectAttr, HttpSession session) {
+        Notificaciones.crearMsg("Tramite procesado correctamente.", redirectAttr);
+        return "redirect:/academico/tramiteacademico";
     }
 
 }

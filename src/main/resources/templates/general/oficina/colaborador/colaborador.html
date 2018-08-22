@@ -18,8 +18,8 @@
                         <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
                         <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
                         <li class="divider"></li>
-                        <li><a href="#" >Ver Cargos</a></li>
-                        <li><a href="#">Ver Funciones</a></li>
+                        <li><a href="#" v-on:click="verCargo()">Ver Cargos</a></li>
+                        <li><a href="#" v-on:click="verFuncion()">Ver Funciones</a></li>
                     </ul>
                     <a href="#" v-on:click="regresar" class="btn btn-default btn-sm m-l-sm">Regresar</a>
                 </div>
@@ -73,20 +73,21 @@
                     <section class="panel-body">
                         <div class="col-sm-6">
                             <div class="form-group">                                
-                                <multiselect v-model="oficina" 
-                                             v-bind:options='oficinas'
-                                             label='nombre'
-                                             track-by='id'
-                                             v-bind:hide-selected="true"
-                                             placeholder="Seleccione una oficina"
-                                             v-on:input="oficinaSeleccionada()"
-                                             >
+                                <multiselect 
+                                    v-model="oficina" 
+                                    v-bind:options='oficinas'
+                                    label='nombre'
+                                    track-by='id'
+                                    v-bind:hide-selected="true"
+                                    placeholder="Seleccione una oficina"
+                                    v-on:input="oficinaSeleccionada()" >
                                 </multiselect>
                             </div>
                         </div>                        
                         <dynatable/>
                     </section>
                 </section>
+                
             </section>
 
             <!--MODAL INICIO-->
