@@ -82,11 +82,20 @@ public class UpdateHistorialAcademicoController {
 
     @RequestMapping("{idAlumno}/updatehistorial")
     public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        FotoHelper helper = new FotoHelper();
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
-        ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
-        alumnoJson.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
+
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode alumnoJson = JsonHelper.createJson(alumno, factory, true, new String[]{
+            "*",
+            "carrera.*",
+            "carrera.orientacionCarrera.*",
+            "situacionAcademica.*",
+            "planCurricular.*",
+            "modalidadEstudio.*",
+            "persona.*",
+            "persona.tipoDocumento.*"});
+
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclosAcademico", ciclosAcademico);
         return "tramite/updatehistorialacademico/updateHistorialAcademico";
@@ -334,7 +343,7 @@ public class UpdateHistorialAcademicoController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.cancelar(solicitudConstancia,ds);
+            service.cancelar(solicitudConstancia, ds);
             response.setMessage("Tipo de documento cancelado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
