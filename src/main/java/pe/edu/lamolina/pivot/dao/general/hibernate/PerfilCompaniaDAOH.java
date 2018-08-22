@@ -127,7 +127,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findFuncionByNombre(String nombre) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
                 .filter("pc.nombre", nombre);
         return find(sql);
     }
@@ -136,11 +136,31 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public PerfilCompania findUltimoCodigoFuncion() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("tipo", TipoPerfilCompaniaEnum.PERFIL.name())
-                .filter("esAutomatico", 1)
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("pc.esAutomatico", 1)
                 .orderBy("id desc")
                 .limit(1);
         return find(sql);
+    }
+
+    @Override
+    public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .join("pc.oficinaContiene ofi")
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO.name())
+                .filter("ofi.id", oficina);
+        return all(sql);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .join("pc.oficinaContiene ofi")
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
+                .filter("ofi.id", oficina);
+        return all(sql);
     }
 
 }

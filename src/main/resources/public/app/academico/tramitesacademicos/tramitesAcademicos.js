@@ -144,6 +144,10 @@ var app = new Vue({
                 }
             });
 
+        }, procesarTramite(item, event) {
+            event.preventDefault();
+
+            location.href = APP.url("academico/tramiteacademico/procesar/"+item.id);
         }
     }
 })

@@ -38,4 +38,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allCursoByNameExceptList(String nombre, List<Curso> cursos);
 
     List<Curso> allByDptoEstado(Long idDpto, String estado);
+
+    List<Curso> allActiveByCodigo(String codigo, CicloAcademico ciclo);
 }

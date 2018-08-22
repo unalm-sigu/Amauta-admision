@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,16 +21,19 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.TipoMensajeIntranet;
+import pe.edu.lamolina.model.enums.TipoMensajeIntranetEnum;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("tipomsgintranet")
+@RequestMapping("mensajeria/tipomsgintranet")
 public class TipoMsgIntranetController {
 
     @Autowired
     TipoMsgIntranetService service;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -36,8 +41,16 @@ public class TipoMsgIntranetController {
 
         ObjectNode cicloJSON = new ObjectNode(JsonNodeFactory.instance);
         cicloJSON.put("descripcion", ds.getCicloAcademico().getDescripcion());
+        ArrayNode enums = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoMensajeIntranetEnum msjEnum : TipoMensajeIntranetEnum.values()) {
+            ObjectNode enumObj = new ObjectNode(JsonNodeFactory.instance);
+            enumObj.put("value", msjEnum.getValue());
+            enumObj.put("name", msjEnum.name());
+            enums.add(enumObj);
+        }
 
         model.addAttribute("ciclo", cicloJSON);
+        model.addAttribute("TipoMensajeIntranetEnums", enums);
 
         return "mensaje/tipoMsgIntranet/tipoMsgIntranet";
     }
@@ -55,6 +68,11 @@ public class TipoMsgIntranetController {
                 ObjectNode obj = JsonHelper.createJson(tipoMsg, JsonNodeFactory.instance, new String[]{
                     "*"
                 });
+
+//                ObjectNode enumObj = new ObjectNode(JsonNodeFactory.instance);
+//                enumObj.put("value", tipoMsg.getCodigoEnum().getValue());
+//                enumObj.put("name", tipoMsg.getCodigoEnum().name());
+//                obj.set("codigoEnum", enumObj);
                 array.add(obj);
             }
             json.setData(array);

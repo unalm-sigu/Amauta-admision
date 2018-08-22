@@ -1,4 +1,3 @@
-
 Vue.component("multiselect", window.VueMultiselect.default)
 Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
@@ -48,7 +47,7 @@ new Vue({
             if (!$("#formMensajeria").parsley().validate() == true) {
                 return;
             }
-            
+
             $vue.mensajeria.esObligatorio = $vue.getBoolean($vue.mensajeria.esObligatorio);
             $vue.mensajeria.conCronograma = $vue.getBoolean($vue.mensajeria.conCronograma);
 
@@ -62,7 +61,6 @@ new Vue({
                         $vue.$refs.modalMensajeria.close();
                         $vue.$refs.load.loadRemoteData();
                         notify(response.message, "success");
-
                     } else {
                         notify(response.message, "error");
                     }
@@ -82,10 +80,27 @@ new Vue({
         editar(item) {
             let $vue = this;
             $vue.init();
-            $vue.mensajeria = JSON.parse(JSON.stringify(item));
-            $vue.addMensajeria.okbtn = "Actualizar";
-            $vue.addMensajeria.title = "Actualizar Mensaje Intranet";
-            $vue.$refs.modalMensajeria.open();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('mensajeria/edit'),
+                data: JSON.stringify(item),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.mensajeria = response.data;
+                        $vue.addMensajeria.okbtn = "Actualizar";
+                        $vue.addMensajeria.title = "Actualizar Mensaje Intranet";
+                        $vue.$refs.modalMensajeria.open();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function (error) {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
         },
         eliminar: function (item) {
             console.log(item)
@@ -121,6 +136,10 @@ new Vue({
 
                 }
             });
+        },
+        tipoSelected(item) {
+            let $vue = this;
+            $vue.mensajeria.contenido = item.contenido;
         }
     }
 });

@@ -26,7 +26,8 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .from(Tramite.class, "t")
                 .join("compania", "persona", "alumno", "tipoTramite")
                 .left("userRegistro ur", "ur.persona urp")
-                .left("reincorporaciones");
+                .left("reincorporaciones")
+                .filter("t.id", "!=", 5);
         return this.all(sql);
     }
 
@@ -45,6 +46,15 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
 
     @Override
     public void updateEstado(Tramite tramite) {
+        Octavia octavia = Octavia.update(Tramite.class);
+        octavia.set(tramite, "estado");
+        octavia.set(tramite, "userModificacion");
+        octavia.set(tramite, "fechaModificacion");
+        this.update(octavia);
+    }
+    
+    @Override
+    public void updateObservacion(Tramite tramite) {
         Octavia octavia = Octavia.update(Tramite.class);
         octavia.set(tramite, "estado");
         octavia.set(tramite, "userModificacion");

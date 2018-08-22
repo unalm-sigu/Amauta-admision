@@ -16,6 +16,7 @@
                             label="nombre"
                             v-bind:show-labels="false"
                             v-bind:allow-empty="false"
+                            v-bind:clear-on-select="false"
                             track-by="id">
                         </multiselect>
                     </div>
@@ -32,8 +33,7 @@
                                 placeholder="Seleccione un tipo mensaje"
                                 label="nombre"
                                 v-bind:show-labels="false"
-                                v-bind:allow-empty="false"
-                                v-bind:clear-on-select="false"
+                                v-on:select="tipoSelected"
                                 track-by="id">
                             </multiselect>
                         </div>
@@ -104,10 +104,10 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                <label>Contenido</label>
-                <div class="form-group">
-                    <textarea type="text" required="true" v-model="mensajeria.contenido" class="form-control" rows="4"></textarea>
-                </div>
+                    <label>Contenido</label>
+                    <div class="form-group">
+                        <textarea type="text" required="true" v-model="mensajeria.contenido" class="form-control" rows="4"></textarea>
+                    </div>
                 </div>
             </div>    
         </form>

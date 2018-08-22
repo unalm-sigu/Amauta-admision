@@ -28,4 +28,8 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
 
     PerfilCompania findUltimoCodigoFuncion();
 
+    List<PerfilCompania> allCargoByOficina(Oficina oficina);
+
+    List<PerfilCompania> allFuncionByOficina(Oficina oficina);
+
 }
