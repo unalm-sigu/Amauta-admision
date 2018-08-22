@@ -44,7 +44,6 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.medico.Medico;
 import pe.edu.lamolina.model.seguridad.FuncionRol;
-import pe.edu.lamolina.model.seguridad.PerfilRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
