@@ -1,9 +1,12 @@
+Vue.component("multiselect", window.VueMultiselect.default);
+
 new Vue({
     el: '#tipoMsgVUE',
     data: {
         tipoMsgURL: APP.url('mensajeria/tipomsgintranet/list'),
         tipoMsgIntranet: {},
         cicloAcademico: JSON.parse(cicloJson),
+        tipoEnums: JSON.parse(tipoMsjIntraEnums),
         addTipoMsgIntranet: {
             id: 'modalTipoMsgIntranet',
             header: 'true',
@@ -11,7 +14,8 @@ new Vue({
             okbtn: 'Guardar',
             showaccept: true,
             modalsize: "modal-md"
-        }
+        },
+        isLoading: false
     },
     computed: {
 
@@ -34,13 +38,11 @@ new Vue({
         saveUpdate(event) {
             let $vue = this;
 
-            console.log(event.target)
+            $vue.tipoMsgIntranet.codigo = $vue.tipoMsgIntranet.codigoEnum.name;
 
             if (!$("#formTipoMsg").parsley().validate() == true) {
                 return;
             }
-
-            console.dir($vue.tipoMsgIntranet);
 
             $.ajax({
                 method: 'POST',

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.TipoMensajeIntranet;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -31,6 +32,7 @@ public class TipoMsgIntranetServiceImp implements TipoMsgIntranetService {
     @Override
     @Transactional
     public void update(TipoMensajeIntranet tipoMsg, CicloAcademico cicloAcademico, Usuario usuario) {
+        ObjectUtil.printAttr(tipoMsg);
         tipoMensajeIntranetDAO.update(tipoMsg);
     }
 

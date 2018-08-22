@@ -82,8 +82,19 @@ public class infoAcademicoController {
     public String infoAcademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
-        ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
+        ObjectNode alumnoJson = JsonHelper.createJson(alumno, factory, true, new String[]{
+            "*",
+            "carrera.*",
+            "carrera.orientacionCarrera.*",
+            "situacionAcademica.*",
+            "planCurricular.*",
+            "modalidadEstudio.*",
+            "persona.*",
+            "persona.tipoDocumento.*"});
+
         ArrayNode planesJson = new ArrayNode(JsonNodeFactory.instance);
 
         List<PlanCurricular> planes = service.allPlanCurricularByCarrera(alumno.getCarrera());

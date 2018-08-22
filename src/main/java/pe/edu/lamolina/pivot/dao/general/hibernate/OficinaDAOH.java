@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
@@ -182,24 +183,24 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     }
 
     @Override
-    public Map findOficinaOrigenDestinoByEstadoTramiteAcad(EstadoTramiteAcademico estadoTramiteAcademico, Alumno alumno) {
+    public Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno) {
         Oficina oficinaOrigen = null;
-        if (ObjectUtil.getParentTree(estadoTramiteAcademico, "oficinaOrigen.id") != null) {
-            oficinaOrigen = this.find(estadoTramiteAcademico.getOficinaOrigen().getId());
+        if (ObjectUtil.getParentTree(accionTramiteAcademico, "oficinaOrigen.id") != null) {
+            oficinaOrigen = this.find(accionTramiteAcademico.getOficinaOrigen().getId());
         } else {
-            if (estadoTramiteAcademico.getTipoOficinaOrigen().isTipoFacultad()) {
+            if (accionTramiteAcademico.getTipoOficinaOrigen().isTipoFacultad()) {
                 oficinaOrigen = this.findByTipoAndFacultad(
-                        TipoOficinaEnum.valueOf(estadoTramiteAcademico.getTipoOficinaOrigen().getCodigo()),
+                        TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaOrigen().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
         }
         Oficina oficinaDestino = null;
-        if (ObjectUtil.getParentTree(estadoTramiteAcademico, "oficinaDestino.id") != null) {
-            oficinaDestino = this.find(estadoTramiteAcademico.getOficinaDestino().getId());
+        if (ObjectUtil.getParentTree(accionTramiteAcademico, "oficinaDestino.id") != null) {
+            oficinaDestino = this.find(accionTramiteAcademico.getOficinaDestino().getId());
         } else {
-            if (estadoTramiteAcademico.getTipoOficinaDestino().isTipoFacultad()) {
+            if (accionTramiteAcademico.getTipoOficinaDestino().isTipoFacultad()) {
                 oficinaDestino = this.findByTipoAndFacultad(
-                        TipoOficinaEnum.valueOf(estadoTramiteAcademico.getTipoOficinaDestino().getCodigo()),
+                        TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaDestino().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
         }

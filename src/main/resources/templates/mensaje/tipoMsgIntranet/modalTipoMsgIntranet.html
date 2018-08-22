@@ -7,7 +7,13 @@
                 <div class="col-sm-6">
                     <label>Código</label>
                     <div class="form-group">
-                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.codigo"/>
+                        <multiselect v-model="tipoMsgIntranet.codigoEnum" 
+                                     v-bind:limit='15' 
+                                     v-bind:options='tipoEnums' 
+                                     placeholder="Selecciona el código" 
+                                     label='value' track-by="name" 
+                                     :loading="isLoading">
+                        </multiselect>
                     </div>
                 </div>
                 <div class="col-sm-6">
@@ -20,7 +26,7 @@
             <div class="row">
 
                 <div class="col-sm-12">
-                    <label>Url</label>
+                    <label>Url del botón</label>
                     <div class="form-group">
                         <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.url"/>
                     </div>
@@ -30,7 +36,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-6">
-                    <label>Boton</label>
+                    <label>Texto del botón</label>
                     <div class="form-group">
                         <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.boton"/>
                     </div>
@@ -48,7 +54,7 @@
                 <div class="col-sm-12">
                     <label>Contenido</label>
                     <div class="form-group">
-                        <textarea class="form-control" required="true" v-model="tipoMsgIntranet.contenido"></textarea>
+                        <textarea class="form-control" rows="5" required="true" v-model="tipoMsgIntranet.contenido" style="resize: vertical;"></textarea>
                     </div>
                 </div>
             </div>

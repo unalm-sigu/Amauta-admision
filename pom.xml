@@ -338,20 +338,20 @@
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>octavia</artifactId>
-            <version>1.0.14</version>
+            <version>1.0.15</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>zelpers</artifactId>
-            <version>0.1.43</version>
+            <version>0.1.45</version>
         </dependency>
         
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.14.51</version>
+            <version>0.14.59</version>
         </dependency>
 
     </dependencies>

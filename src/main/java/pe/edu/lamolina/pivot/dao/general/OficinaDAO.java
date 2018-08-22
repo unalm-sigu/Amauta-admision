@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 
 public interface OficinaDAO extends EasyDAO<Oficina> {
@@ -36,6 +37,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     Oficina findByTipoAndFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad);
 
-    Map findOficinaOrigenDestinoByEstadoTramiteAcad(EstadoTramiteAcademico estadoTramiteAcademico, Alumno alumno);
+    Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno);
 
 }
