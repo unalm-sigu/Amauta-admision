@@ -13,22 +13,22 @@
     <td class="v-middle text-center">
         <span class="block">{{:cargoJefe}}</span>
         {{if encargado }}
-        <span class="text-primary block">{{:encargado}}</span>
-        {{if fechaEncargatura}}
-        <span class="text-sm block m-b">(Encargado desde el {{:fechaEncargatura}})</span>
-        {{else}}
-        <span class="text-sm block m-b">(Encargado)</span>
-
+            <span class="text-primary block">{{:encargado}}</span>
+            {{if fechaEncargatura}}
+                <span class="text-sm block m-b">(Encargado desde el {{:fechaEncargatura}})</span>
+            {{else}}
+                <span class="text-sm block m-b">(Encargado)</span>
+            {{/if}}
         {{/if}}
-        {{/if}}
+        
         <span class="text-primary block">{{:jefe}}</span>
 
         {{if fechaInicioJefatura}}
-        <span class="text-sm block">Desde el {{:fechaInicioJefatura}}</span>
+            <span class="text-sm block">Desde el {{:fechaInicioJefatura}}</span>
         {{/if}}
 
         {{if motivoAusenciaJefe }}
-        <p class="text-sm block text-danger">({{:motivoAusenciaJefe}})</p>
+            <p class="text-sm block text-danger">({{:motivoAusenciaJefe}})</p>
         {{/if}}
     </td>
 
@@ -52,31 +52,31 @@
 
                 <li role="presentation">
                     {{if estado == 'ACT'}}
-                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
+                        <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Desactivar</a>
                     {{/if}}
                     {{if estado == 'INA'}}
-                    <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
+                        <a class="btn-link estado" rel="{{:id}}" rev="{{:estado}}" href="#">Activar</a>
                     {{/if}}
                 </li>
 
                 <li role="presentation" class="divider"></li>
 
                 {{if jefe }}
-                <li><a class="btn-link retirar-jefe" rel="{{:id}}" href="#">Retirar Jefe</a></li>
+                    <li><a class="btn-link retirar-jefe" rel="{{:id}}" href="#">Retirar Jefe</a></li>
                 {{else}}
-                <li><a class="btn-link asignar-jefe" rel="{{:id}}" href="#"> Asignar Jefe</a></li>
+                    <li><a class="btn-link asignar-jefe" rel="{{:id}}" href="#"> Asignar Jefe</a></li>
                 {{/if}}
 
                 {{if encargado }}
-                <li><a class="btn-link retirar-encargado" rel="{{:id}}" href="#">Retirar Encargado</a></li>
+                    <li><a class="btn-link retirar-encargado" rel="{{:id}}" href="#">Retirar Encargado</a></li>
                 {{else}}
-                <li><a class="btn-link asignar-encargado" rel="{{:id}}" href="#">Asignar Encargado</a></li>
+                    <li><a class="btn-link asignar-encargado" rel="{{:id}}" href="#">Asignar Encargado</a></li>
                 {{/if}}
 
                 <li role="presentation" class="divider"></li>
                 <li><a class="btn-link delete" rel="{{:id}}" href="#">Eliminar</a></li>
                 {{if nivel == "Oficina" }}
-                <li><a class="btn-link"  th:href="@{/general/oficina/{{:id}}/colaboradores}">Colaboradores</a></li>
+                    <li><a class="btn-link"  th:href="@{/general/oficina/{{:id}}/colaboradores}">Colaboradores</a></li>
                 {{/if}}
             </ul>
 
