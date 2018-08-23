@@ -1,0 +1,124 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Costo Documento</title>
+        <style>
+            .label-status {
+                width: 50px;
+            }
+            .value-status{
+                margin-left: 5px;
+            }
+            .value-vacantes{
+                margin-left: 10px;
+            }
+            .label-vacantes {
+                margin-left: 30px;
+                text-align: right;
+            }
+            .iblock{
+                display: inline-block;
+            }
+        </style>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="bolsainvestigacionVUE" v-cloak="">
+
+            <header class="header b-b padder-lg">
+
+                <div class="pull-right m-t-lg">                
+                    <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
+                    <ul class="dropdown-menu pointer">
+                        <li><a v-on:click="nuevoAlumnoBolsa"> Agregar alumno</a></li>
+                        <li><a v-on:click="enviarInvitaciones"> Enviar Invitaciones </a></li>
+                    </ul>
+                </div> 
+                <p class="h2" th:inline="text"> Bolsa de Investigación [[${ciclo}]] </p>
+
+                <div class="block m-b-sm">
+                    <div class="iblock label-status">
+                        Estado  
+                    </div>
+                    <div class="iblock value-status">
+                        <span class="label" v-bind:class="labelType[bolsaInvestigacion.estado]"> {{ labelText[bolsaInvestigacion.estado] }} </span>
+                    </div>
+                    <div class="iblock label-vacantes">
+                        Vacantes
+                    </div>
+                    <div class="iblock value-vacantes">
+                        <span class="badge"> {{ bolsaInvestigacion.becados - bolsaInvestigacion.postulantes }} </span> <span class="text-muted"> alumnos </span>
+
+                    </div>
+                </div>
+            </header>
+            <section class="wrapper-lg m-b-xs">
+                <section class="panel  ">           
+                    <section class="panel-body ">
+                        <raptor-table url="/tramite/bolsainvestigacion/list" ref="raptor">
+
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-4">Alumno</th>
+                                            <th class="col-md-4">Investigación</th>
+                                            <th class="col-md-3">Supervisor</th>
+                                            <th class="col-md-1 text-center">Estado</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td class="v-middle">
+                                                <span class="block text-primary"> {{ item.alumno.persona.nombreCompleto }} </span> 
+                                                <span class="block"> {{ item.alumno.codigo }} </span> 
+                                                <span class="block small text-muted"> {{ item.alumno.persona.tipoDocumento.simbolo }} {{ item.alumno.persona.numeroDocIdentidad }} </span> 
+                                            </td>
+                                            <td class="v-middle">
+                                                <span class="block"> {{ item.nombreInvestigacion }} </span> 
+                                            </td>
+                                            <td class="v-middle">
+                                                <span class="block text-primary"> {{ item.supervisor.persona.nombreCompleto }} </span> 
+                                                <span class="block small text-muted"> {{ item.supervisor.persona.tipoDocumento.simbolo }} {{ item.supervisor.persona.numeroDocIdentidad }} </span> 
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span class="label" v-bind:class="labelAlumnoType[item.estado]"> {{ labelAlumnoText[item.estado] }} </span> 
+                                            </td>
+                                            <td class="v-middle"> 
+                                                <div class="dropdown actions" v-if="item.estado !== 'INVI'">                
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right">
+                                                        <li><a href="#" v-on:click="findAlumnoBolsa(item.id)">Editar</a></li>
+                                                        <li><a href="#" v-on:click="eliminarAlumnoBolsa(item)">Eliminar</a></li>
+                                                    </ul>                
+                                                </div>
+                                            </td>        
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+                    </section>
+                </section>
+            </section>
+            <div th:substituteby="tramite/bolsainvestigacion/bolsainvestigacionModal"/>
+        </div>
+    </div>
+
+    <div layout:fragment="js">
+        <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+        <div th:substituteby="_modules/vue-modal"/>
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            /*]]>*/
+        </script>
+        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+        <script th:src="@{/app/tramite/bolsainvestigacion/bolsainvestigacion.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

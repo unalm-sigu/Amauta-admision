@@ -598,3 +598,19 @@ $.fn.upperCase = function () {
     });
 };
 var $global = new Vue({});
+
+const AXIOS = axios.create({});
+
+AXIOS.interceptors.response.use(function (response) {
+    if (!response.data.success) {
+        notify(response.data.message, 'error');
+    } else {
+        if (response.data.message) {
+            notify(response.data.message, 'info');
+        }
+    }
+    return response;
+}, function (error) {
+    notify(MESSAGES.errorComunicacion, 'error');
+    return Promise.reject(error);
+});
