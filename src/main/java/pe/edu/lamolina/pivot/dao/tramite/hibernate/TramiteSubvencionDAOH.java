@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.SUBV;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
@@ -39,6 +40,17 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
                 .join("tramite tra", "tra.cicloAcademico ca", "tra.tipoTramite tt", "supervisor sup")
                 .filter("ts.id", tramiteSubvencion);
         return find(sql);
+    }
+
+    @Override
+    public TramiteSubvencion findSubvencionByAlumnoCicloAcademico(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(TramiteSubvencion.class, "ts")
+                .join("tramite tra", "tra.alumno alu", "tra.cicloAcademico ca", "tra.tipoTramite tt", "tipoSubvencion bb")
+                .filter("ca.id", cicloAcademico)
+                .filter("alu.id", alumno)
+                .filter("tt.codigo", "SUBV");
+        return (TramiteSubvencion) sql.find(getCurrentSession());
     }
 
 }

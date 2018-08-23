@@ -165,6 +165,31 @@ public class GpoAlumnoController {
                     "curso.codigo",
                     "curso.nombre"
                 });
+//                if (detalle.getFacultad() != null) {
+//                    obj.set("facultad", JsonHelper.createJson(detalle.getFacultad(), JsonNodeFactory.instance, new String[]{"id", "nombre"}));
+//                }
+//                if (detalle.getCarrera() != null) {
+//                    obj.set("carrera", JsonHelper.createJson(detalle.getCarrera(), JsonNodeFactory.instance, new String[]{"id", "nombre"}));
+//                }
+//                if (detalle.getGrupoSeccion() != null) {
+//                    obj.set("grupoSeccion", JsonHelper.createJson(detalle.getGrupoSeccion(), JsonNodeFactory.instance, new String[]{"id", "codigo",
+//                        "curso.codigo", "curso.nombre"}));
+//                }
+//                if (detalle.getSeccion() != null) {
+//                    obj.set("seccion", JsonHelper.createJson(detalle.getSeccion(), JsonNodeFactory.instance, new String[]{"id", "codigo2",
+//                        "grupoSeccion.curso.codigo", "grupoSeccion.curso.nombre", "grupoHoras.codigo"}));
+//                }
+//                if (detalle.getSituacionAcademica() != null) {
+//                    obj.set("situacionAcademica", JsonHelper.createJson(detalle.getSituacionAcademica(), JsonNodeFactory.instance, new String[]{"id",
+//                        "codigo", "nombre"}));
+//                }
+//                if (detalle.getCurso() != null) {
+//                    obj.set("curso", JsonHelper.createJson(detalle.getCurso(), JsonNodeFactory.instance, new String[]{"id", "codigo", "nombre"}));
+//                }
+//                if (detalle.getModalidadEstudio() != null) {
+//                    obj.set("modalidadEstudio", JsonHelper.createJson(detalle.getModalidadEstudio(), JsonNodeFactory.instance, new String[]{"id",
+//                        "nombre"}));
+//                }
                 array.add(obj);
             }
             json.setData(array);

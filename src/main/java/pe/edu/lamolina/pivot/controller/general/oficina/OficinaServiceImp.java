@@ -667,6 +667,7 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) {
+        oficinaMean = oficinaDAO.find(oficinaMean.getId());
 //        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
@@ -872,6 +873,7 @@ public class OficinaServiceImp implements OficinaService {
     }
 
     private void addUserRoll(List<PerfilCompania> perfilesCompania, Oficina oficinaMean, Usuario Usuariocolaborador, Colaborador colaborador, Usuario usuario) {
+        oficinaMean = oficinaDAO.find(oficinaMean.getId());
         List<FuncionRol> funcionRol = funcionRolDAO.allByPerfilCompania(perfilesCompania);
         logger.debug("funcionRol size {}", funcionRol.size());
         Map<Long, List<Rol>> mapRol = TypesUtil.convertListToMapList("perfilCompania.id", "rol", funcionRol);
@@ -889,6 +891,8 @@ public class OficinaServiceImp implements OficinaService {
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMean);
+                usuarioRol.setIdInstancia(oficinaMean.getInstanciaOficina());
+                usuarioRol.setTipoOficina(oficinaMean.getTipoOficina().getCodigo());
                 usuarioRol.setRol(rol);
                 usuarioRol.setUserRegistro(usuario);
                 usuarioRol.setUsuario(Usuariocolaborador);
@@ -900,6 +904,7 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void updateColaborador(Colaborador colaboradorForm, Oficina oficinaMea, DataSessionPivot ds) {
+        oficinaMea = oficinaDAO.find(oficinaMea.getId());
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
         Oficina oficinaAnterior = colaboradorBD.getOficina();
         Oficina oficinaNueva = oficinaDAO.find(colaboradorForm.getOficina().getId());
@@ -998,6 +1003,7 @@ public class OficinaServiceImp implements OficinaService {
 
     @Transactional
     private void updateUserRol(Usuario usuarioColaborador, List<PerfilCompania> perfilesCompaniaNuevos, Oficina oficinaMean, Colaborador colaborador, DataSessionPivot ds) {
+        logger.info("ENTRA A UPDATE USER ROL");
         List<FuncionRol> funcionRolNuevos = funcionRolDAO.allByPerfilCompania(perfilesCompaniaNuevos);
         Map<Long, List<Rol>> mapRolNuevos = TypesUtil.convertListToMapList("rol.id", "rol", funcionRolNuevos);
 
@@ -1005,6 +1011,7 @@ public class OficinaServiceImp implements OficinaService {
         Map<Long, List<Rol>> mapRolTengo = TypesUtil.convertListToMapList("rol.id", "rol", rolesUsuarioTengo);
 
         for (UsuarioRol usuarioRol : rolesUsuarioTengo) {
+            logger.info("ENTRA AL PRIMER LOOP");
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
                 usuarioRol.setUsuario(usuarioColaborador);
@@ -1014,12 +1021,19 @@ public class OficinaServiceImp implements OficinaService {
         }
 
         for (FuncionRol funcionRolNuevo : funcionRolNuevos) {
-            if (mapRolTengo.get(funcionRolNuevo.getRol().getId()) == null) {
+            logger.info("ENTRA AL SEGUNDO LOOP");
+            if (!mapRolTengo.containsKey(funcionRolNuevo.getRol().getId())) {
+                logger.info("ENTRA AL IF");
+
+                ObjectUtil.printAttr(oficinaMean);
+
                 UsuarioRol usuarioRol = new UsuarioRol();
                 usuarioRol.setEstado(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMean);
+                usuarioRol.setIdInstancia(oficinaMean.getInstanciaOficina());
+                usuarioRol.setTipoOficina(oficinaMean.getTipoOficina().getCodigoEnum().name());
                 usuarioRol.setUserRegistro(ds.getUsuario());
                 usuarioRol.setUsuario(usuarioColaborador);
                 usuarioRol.setRol(funcionRolNuevo.getRol());

@@ -52,4 +52,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateSituacionDocente(Seccion seccion);
 
+    List<Seccion> allByCodigo(String codigo);
+
 }
