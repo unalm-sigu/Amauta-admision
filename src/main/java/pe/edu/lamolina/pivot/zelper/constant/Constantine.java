@@ -85,4 +85,7 @@ public interface Constantine {
     String S3_RUTA = "http://lamolina-academico.s3.amazonaws.com/";
     String S3_FOLDER = "public-unalm/profile/";
 
+    // 
+    Long ID_TIPO_SUBVENCION_INVESTIGACION = 5l;
+    Long ID_TIPO_TRAMITE_SUBVENCION = 1l;
 }
