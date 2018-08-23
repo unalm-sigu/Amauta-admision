@@ -15,11 +15,11 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-md-10" >
-                            <label class="block">Horas a laborar</label>
-                            <multiselect v-model="tramiteSubvencion.horas" 
-                                         v-bind:options='horas'
-                                         :custom-label='valor'
-                                         track-by='value'
+                            <label class="block">Horas a laborar {{tramiteSubvencion.horas}}</label>
+                            <multiselect v-model="value" 
+                                         v-bind:options='horasTrabajo'
+                                         label="horas"
+                                         track-by='horas'
                                          placeholder="Seleccione una hora"
                                          >
                             </multiselect>
@@ -49,7 +49,7 @@
                     <div class="form-group row" v-if="!rechazado">
                         <div class="col-md-10 ">
                             <label class="block">Motivo de rechazo</label>
-                            <textarea  v-model="tramiteSubvencion.motivo" class="form-control" rows="2"></textarea>
+                            <textarea  v-model="tramiteSubvencion.comentario" class="form-control" rows="2"></textarea>
                         </div>
                     </div>
                 </div>

@@ -8,4 +8,5 @@ public interface EgresadoDAO extends EasyDAO<Egresado> {
 
     Egresado findByAlumno(Alumno alumno);
 
+    
 }
