@@ -87,12 +87,12 @@
                         <dynatable/>
                     </section>
                 </section>
-                
+
             </section>
 
             <!--MODAL INICIO-->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-dialog modal-md" role="document">
                     <form data-parsley-validate="true" id="formConfig"  method="post">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -100,32 +100,25 @@
                                 <h4 class="modal-title" id="myModalLabel"> Agregar cargos </h4>
                             </div>
                             <div class="modal-body">
-                                <div class="col-md-offset-1 ">                                  
-                                    <div class='row'>
-                                        <div class="col-sm-10">
-                                            <label >Nombre Cargo</label>
-                                            <div class="form-group">
-                                                <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre de cargo" list="listaCargos" v-model="perfilCompania.nombre" />                                                
-                                            </div>
-                                            <datalist  id="listaCargos" >
-                                                <option class="inline form-control" v-for="cargo in listaCargos" v-bind:value="cargo.nombre" v-text="cargo.nombre" readonly=""> </option>
-                                            </datalist>
-                                        </div>
+                                <div class="form-group">
+                                    <label >Nombre Cargo</label>
+                                    <div class="form-group">
+                                        <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre de cargo" list="listaCargos" v-model="perfilCompania.nombre" />                                                
                                     </div>
-                                    <div class='row'>
-                                        <div class="col-sm-10">
-                                            <label >Nombre Documento Cargo</label>
-                                            <div class="form-group">
-                                                <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre documento"  v-model="perfilCompania.nombreDocumento" />                                                
-                                            </div>                                         
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-success" v-on:click.prevent="addCargo" >Guardar</button>
-                                    </div>
+                                    <datalist  id="listaCargos" >
+                                        <option class="inline form-control" v-for="cargo in listaCargos" v-bind:value="cargo.nombre" v-text="cargo.nombre" readonly=""> </option>
+                                    </datalist>
                                 </div>
+                                <div class="form-group">
+                                    <label >Nombre Documento Cargo</label>
+                                    <div class="form-group">
+                                        <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre documento"  v-model="perfilCompania.nombreDocumento" />                                                
+                                    </div>                                         
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-success" v-on:click.prevent="addCargo" >Agregar</button>
                             </div>
                         </div>
                     </form>

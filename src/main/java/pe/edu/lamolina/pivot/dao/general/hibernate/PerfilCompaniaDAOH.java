@@ -147,9 +147,13 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .join("pc.oficinaContiene ofi")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO.name())
-                .filter("ofi.id", oficina);
+                .left("pc.oficinaContiene")
+                .beginBlock()
+                .__().filter("pc.oficinaContiene", oficina)
+                .__().isNull("pc.oficinaContiene")
+                .endBlock()
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO);
+
         return all(sql);
     }
 
@@ -157,9 +161,13 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .join("pc.oficinaContiene ofi")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL.name())
-                .filter("ofi.id", oficina);
+                .left("pc.oficinaContiene")
+                .beginBlock()
+                .__().filter("pc.oficinaContiene", oficina)
+                .__().isNull("pc.oficinaContiene")
+                .endBlock()
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.PERFIL);
+        
         return all(sql);
     }
 
