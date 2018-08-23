@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramiteTrabajo;
+package pe.edu.lamolina.pivot.controller.tramite.bolsaTrabajo;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -15,20 +15,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.EvaluacionExpandida;
-import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -36,10 +32,10 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("tramite/bolsatrabajo")
-public class TramiteTrabajoController {
+public class BolsaTrabajoController {
 
     @Autowired
-    TramiteTrabajoService service;
+    BolsaTrabajoService service;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
