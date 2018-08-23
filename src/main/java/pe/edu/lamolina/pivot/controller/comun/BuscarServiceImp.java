@@ -147,9 +147,9 @@ public class BuscarServiceImp implements BuscarService {
     }
 
     @Override
-    public List<Seccion> allSeccionByGrupoSeccion(Long gs) {
-        GrupoSeccion gruposSeccion = new GrupoSeccion(gs);
-        return seccionDAO.allActivosByGpoSeccion(gruposSeccion);
+    public List<Seccion> allSeccionByCodigo(String codigo, CicloAcademico ciclo) {
+        codigo = forLike(codigo);
+        return seccionDAO.allByCodigo(codigo);
     }
 
 }

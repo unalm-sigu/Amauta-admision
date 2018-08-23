@@ -35,14 +35,13 @@ new Vue({
             $vue.addTipoMsgIntranet.title = "Nuevo Tipo Mensaje Intranet";
             $vue.$refs.modalTipoMsgIntranet.open();
         },
-        saveUpdate(event) {
+        saveUpdate(e) {
             let $vue = this;
-
-            $vue.tipoMsgIntranet.codigo = $vue.tipoMsgIntranet.codigoEnum.name;
 
             if (!$("#formTipoMsg").parsley().validate() == true) {
                 return;
             }
+            $vue.tipoMsgIntranet.codigo = $vue.tipoMsgIntranet.codigoEnum.name;
 
             $.ajax({
                 method: 'POST',

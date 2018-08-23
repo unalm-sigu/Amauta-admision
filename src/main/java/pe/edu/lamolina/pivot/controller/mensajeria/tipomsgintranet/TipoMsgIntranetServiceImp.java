@@ -26,6 +26,7 @@ public class TipoMsgIntranetServiceImp implements TipoMsgIntranetService {
     @Override
     @Transactional
     public void save(TipoMensajeIntranet tipoMsg, CicloAcademico cicloAcademico, Usuario usuario) {
+        ObjectUtil.printAttr(tipoMsg);
         tipoMensajeIntranetDAO.save(tipoMsg);
     }
 
