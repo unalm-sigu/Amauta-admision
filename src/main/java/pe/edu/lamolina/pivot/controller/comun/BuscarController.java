@@ -490,16 +490,16 @@ public class BuscarController {
 
     @ResponseBody
     @RequestMapping("allSeccion")
-    public JsonResponse allSeccion(@RequestParam("gs") Long gs, HttpSession session) {
+    public JsonResponse allSeccion(@RequestParam("codigo") String codigo, HttpSession session) {
 
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        logger.debug("Codigo {}", gs);
+        logger.debug("Codigo {}", codigo);
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            List<Seccion> secciones = buscarService.allSeccionByGrupoSeccion(gs);
+            List<Seccion> secciones = buscarService.allSeccionByCodigo(codigo, ds.getCicloAcademico());
             logger.debug("Size sec {}", secciones.size());
             for (Seccion seccion : secciones) {
 

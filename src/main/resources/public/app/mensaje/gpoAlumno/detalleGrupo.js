@@ -85,13 +85,14 @@ new Vue({
         editar(item) {
             let $vue = this;
             $vue.detalleGrupo = item;
+            console.log(item);
             if (item.curso != null && item.curso != undefined) {
                 $vue.cursos.push(item.curso);
             }
-            if (item.grupoSeccion != null && item.grupoSeccion != undefined && !jQuery.isEmptyObject(item.grupoSeccion)) {
-                $vue.grupoSecciones.push(item.grupoSeccion);
-                $vue.allSeccion(item.grupoSeccion.id);
-            }
+//            if (item.grupoSeccion != null && item.grupoSeccion != undefined && !jQuery.isEmptyObject(item.grupoSeccion)) {
+//                $vue.grupoSecciones.push(item.grupoSeccion);
+//                $vue.allSeccion(item.grupoSeccion.id);
+//            }
             $vue.modalDetalleGrupo.okbtn = "Actualizar";
             $vue.modalDetalleGrupo.title = "Actualizar Detalle";
             $vue.$refs.modalDetalleGrupo.open();
@@ -217,18 +218,20 @@ new Vue({
             $vue.detalleGrupo.grupoSeccion = {};
             $vue.grupoSecciones = [];
         },
-        allSeccion(gs) {
+        searchSeccion(codigo) {
             let $vue = this;
             $vue.isLoading = true;
             $.ajax({
                 url: APP.url("comun/buscar/allSeccion"),
                 dataType: 'json',
                 type: 'post',
-                data: {gs: gs}
+                data: {codigo: codigo}
             }).then(response => {
                 $vue.secciones = response.data;
                 $vue.isLoading = false;
-            })
+            }, error => {
+                Logger.debug(error.responseText);
+            });
         },
         grupoSeccionSelected(item) {
             let $vue = this;

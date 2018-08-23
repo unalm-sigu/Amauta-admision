@@ -110,9 +110,11 @@
                     <label>Sección</label>
                     <div class="form-group">
                         <multiselect v-model="detalleGrupo.seccion" 
+                                     v-bind:internal-search='false' 
                                      v-bind:limit='15' 
                                      v-bind:options='secciones' 
-                                     placeholder="Selecciona la Sección" 
+                                     v-on:search-change="searchSeccion" 
+                                     placeholder="Ingresa un caracter" 
                                      label='codigo2' 
                                      track-by="id"
                                      :custom-label="seccionInfo"

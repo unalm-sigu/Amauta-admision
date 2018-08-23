@@ -68,11 +68,6 @@ public class TipoMsgIntranetController {
                 ObjectNode obj = JsonHelper.createJson(tipoMsg, JsonNodeFactory.instance, new String[]{
                     "*"
                 });
-
-//                ObjectNode enumObj = new ObjectNode(JsonNodeFactory.instance);
-//                enumObj.put("value", tipoMsg.getCodigoEnum().getValue());
-//                enumObj.put("name", tipoMsg.getCodigoEnum().name());
-//                obj.set("codigoEnum", enumObj);
                 array.add(obj);
             }
             json.setData(array);

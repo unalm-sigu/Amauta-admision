@@ -45,6 +45,6 @@ public interface BuscarService {
 
     List<Curso> allCurso(String codigo, CicloAcademico ciclo);
 
-    List<Seccion> allSeccionByGrupoSeccion(Long gs);
+    List<Seccion> allSeccionByCodigo(String codigo, CicloAcademico ciclo);
 
 }
