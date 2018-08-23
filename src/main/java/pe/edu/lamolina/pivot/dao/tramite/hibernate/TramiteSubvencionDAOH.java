@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.SUBV;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
@@ -27,7 +28,7 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
                 .filter("ca.id", cicloAcademico)
                 .filter("tra.estado", TramiteEstadoEnum.SOL)
                 .filter("sup.id", colaborador)
-                .filter("tt.codigo", "SUBV")
+                .filter("tt.codigo", SUBV)
                 .filter("bb.id", 1);
         return all(sql);
     }

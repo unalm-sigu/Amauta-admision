@@ -4,7 +4,7 @@ new Vue({
     el: '#bolsaTrabajoVue',
     data: {
         cicloAcademico: JSON.parse(cicloacademicoJson),
-        citasAlumnoURL: APP.url('tramite/bolsatrabajo/list'),
+        tramiteAlumnosURL: APP.url('tramite/bolsatrabajo/list'),
         verTramiteModal: {
             id: 'verTramiteModal',
             header: true,
@@ -13,8 +13,9 @@ new Vue({
         },
         tramiteSubvencion: {},
         persona: {},
-        horas: [{value: 40}, {value: 20}],
+        horasTrabajo: [{id: 1, horas: 40}, {id: 2, horas: 20}],
         solicitud: {},
+        value: {},
         rechazado: true
     },
     computed: {
@@ -31,21 +32,27 @@ new Vue({
     methods: {
         verTramite(item) {
             var $vue = this;
+            console.log(item.horas);
+            $vue.horasTrabajo.forEach(function (val) {
+                if (val.horas === item.horas) {
+                    $vue.value = val;
+                }
+            });
             $vue.tramiteSubvencion = item;
             $vue.persona = item.tramite.alumno.persona;
 
             $vue.$refs.verTramiteModal.open();
 
-        }, valor(horas) {
-            return horas.value;
         },
         saveRespuesta() {
             var $vue = this;
-            $vue.tramiteSubvencion.horas = $vue.tramiteSubvencion.horas.value;
-            if (this.rechazado) {
-                $vue.tramiteSubvencion.tramite.estado = "VBS";
+            $vue.tramiteSubvencion.horas = $vue.value.horas;
+            if ($vue.rechazado) {
+                $vue.tramiteSubvencion.respuesta = "OK";
+                $vue.tramiteSubvencion.voboSupervisor = 1;
             } else {
-                $vue.tramiteSubvencion.tramite.estado = "RCHS";
+                $vue.tramiteSubvencion.respuesta = "FALLO";
+                $vue.tramiteSubvencion.voboSupervisor = 0;
             }
             $.ajax({
                 url: APP.url("tramite/bolsatrabajo/save"),
