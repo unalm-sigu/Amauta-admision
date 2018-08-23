@@ -99,7 +99,9 @@ public class infoAcademicoController {
 
         List<PlanCurricular> planes = service.allPlanCurricularByCarrera(alumno.getCarrera());
         for (PlanCurricular plan : planes) {
-            planesJson.add(plan.toJson());
+            ObjectNode planJson = JsonHelper.createJson(plan, factory, true,
+                    new String[]{"*", "cicloInicioVigencia.*", "carrera.*"});
+            planesJson.add(planJson);
         }
 
         model.addAttribute("datoAlumno", alumnoJson);

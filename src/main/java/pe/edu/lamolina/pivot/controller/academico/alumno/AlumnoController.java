@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -439,20 +440,35 @@ public class AlumnoController {
         try {
             Alumno alumno = service.allInfo(new Alumno(idAlumno));
 
+            ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "carrera.*",
+                "carrera.orientacionCarrera.*",
+                "carrera.facultad.*",
+                "situacionAcademica.*",
+                "planCurricular.*",
+                "planCurricular.cicloInicioVigencia.*",
+                "planCurricular.orientacionCarrera.*",
+                "modalidadEstudio.*",
+                "persona.*",
+                "persona.tipoDocumento.*"});
+
             ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
-            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
-            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
-            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
-            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
-            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
-            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
-            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
-            if (alumno.getPlanCurricular() != null) {
-                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
-            }
-            objNode.set("alumno", objNodeInfo);
+            objNode.set("alumno", alumnoJson);
+
+//            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
+//            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
+//            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
+//            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
+//            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
+//            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
+//            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+//            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
+//            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
+//            if (alumno.getPlanCurricular() != null) {
+//                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
+//            }
+//            objNode.set("alumno", objNodeInfo);
             response.setData(objNode);
             response.setSuccess(true);
         } catch (PhobosException e) {
