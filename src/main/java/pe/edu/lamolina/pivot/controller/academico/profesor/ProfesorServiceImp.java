@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
-import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -79,6 +79,11 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<Docente> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos) {
         return docenteDAO.allByFilter(filter, dptos);
+    }
+
+    @Override
+    public List<Docente> allByFacultadesDynatable(DynatableFilter filter, List<Facultad> facultades) {
+        return docenteDAO.allByFacultadesDyantable(filter, facultades);
     }
 
     @Override
