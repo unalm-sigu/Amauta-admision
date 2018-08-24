@@ -1,0 +1,89 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Detalle Grupo Alumno </title>
+        <style  type="text/css">
+            .multiselect--active {
+                z-index: 1000;
+            }
+        </style>    
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="detalleGrupoVUE">
+                <header class="header b-b padder-lg">
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-default" href="/mensajeria/gpoalumno">Regresar</a>
+                            <a type="button" class="btn btn-success" v-on:click="nuevo">Nuevo</a>
+                        </div>
+                    </div> 
+                    <h2 v-text="'Grupo Alumno: ' + grupo.nombre">Grupo Alumno</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <raptor-table v-bind:url="detalleGrupoURL" ref="load">
+                                    <template  scope="props" >
+                                        <table class="table table-striped table-hover">
+                                            <thead> 
+                                                <tr class=""> 
+                                                    <th class="col-md-2">Grupo alumno</th>
+                                                    <th class="col-md-9">Modalidad</th>
+                                                    <th class="col-md-9">Situación Académica</th>
+                                                    <th class="col-md-9">Facultad/Carrera</th>
+                                                    <th class="col-md-9">Curso/Sección/Curso</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in props.data">
+                                                    <td class="v-middle" v-text="item.grupoAlumno.nombre"></td>
+                                                    <td class="v-middle" v-text="item.modalidadEstudio.nombre"></td>
+                                                    <td class="v-middle" v-text="item.situacionAcademica.nombre"></td>
+                                                    <td class="v-middle" v-text="item.facultad.nombre"></td>
+                                                    <td class="v-middle" v-text="item.facultad.nombre"></td>
+                                                    <td class="v-middle"> 
+                                                        <div class="dropdown actions">
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="glyphicon glyphicon-cog"></i>
+                                                            </a> 
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class="pointer" v-on:click="editar(item)" >Editar</a></li>
+                                                                <li><a class="pointer" v-on:click="eliminar(item)" >Eliminar</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </raptor-table>
+                            </div>
+                        </section>
+                    </section>
+                </section>    
+                <div th:substituteby="mensaje/gpoalumno/detalleGpoAlumno/modalDetalleGrupo"></div>
+            </div>
+            <div th:substituteby="_modules/vue-modal"></div>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>  
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var grupoAl = /*[[${grupo.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/mensaje/gpoAlumno/detalleGrupo.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

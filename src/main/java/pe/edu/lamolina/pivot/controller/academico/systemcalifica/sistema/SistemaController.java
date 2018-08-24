@@ -292,11 +292,13 @@ public class SistemaController {
     @ResponseBody
     @RequestMapping("aprobar")
     public JsonResponse aprobar(@RequestParam("sistema") Long sistema,
-            @RequestParam(value = "comentario", required = false) String comentario) {
+            @RequestParam(value = "comentario", required = false) String comentario,
+            HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("el comentario es {}", comentario);
-            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.ACEP);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.ACEP, ds.getUsuario());
             response.setMessage(Messages.APPROVED);
             response.setSuccess(true);
 
@@ -313,11 +315,14 @@ public class SistemaController {
     @ResponseBody
     @RequestMapping("rechazar")
     public JsonResponse rechazar(@RequestParam("sistema") Long sistema,
-            @RequestParam(value = "comentario", required = false) String comentario) {
+            @RequestParam(value = "comentario", required = false) String comentario,
+            HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("el comentario es {}", comentario);
-            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.RHZ);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.RHZ, ds.getUsuario());
             response.setMessage(Messages.REJECT);
             response.setSuccess(true);
 
@@ -334,10 +339,13 @@ public class SistemaController {
     @ResponseBody
     @RequestMapping("observar")
     public JsonResponse observar(@RequestParam("sistema") Long sistema,
-            @RequestParam(value = "comentario", required = false) String comentario) {
+            @RequestParam(value = "comentario", required = false) String comentario,
+            HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS, ds.getUsuario());
             response.setMessage(Messages.OBSERVED);
             response.setSuccess(true);
 
@@ -353,10 +361,12 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("activar")
-    public JsonResponse activar(@RequestParam("sistema") Long sistema) {
+    public JsonResponse activar(@RequestParam("sistema") Long sistema, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT, ds.getUsuario());
             response.setMessage(Messages.ACTIVATED);
             response.setSuccess(true);
 
@@ -372,10 +382,12 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("inactivar")
-    public JsonResponse inactivar(@RequestParam("sistema") Long sistema) {
+    public JsonResponse inactivar(@RequestParam("sistema") Long sistema, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA, ds.getUsuario());
             response.setMessage(Messages.INACTIVATED);
             response.setSuccess(true);
 
@@ -391,10 +403,11 @@ public class SistemaController {
 
     @ResponseBody
     @RequestMapping("anull")
-    public JsonResponse anull(@RequestParam("sistema") Long sistema) {
+    public JsonResponse anull(@RequestParam("sistema") Long sistema, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA, ds.getUsuario());
             response.setMessage(Messages.ANNULL);
             response.setSuccess(true);
 

@@ -1,5 +1,8 @@
 package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -8,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,19 +23,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
+import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
 @Controller
 @RequestMapping("tramite/plantillaconstancia")
@@ -40,6 +52,11 @@ public class PlantillaConstanciaController {
 
     @Autowired
     TipoConstanciaService tipoConstanciaService;
+
+    @Autowired
+    PdfHtmlView pdfHtmlView;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -69,7 +86,7 @@ public class PlantillaConstanciaController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public String editarContenido(@PathVariable("id") Long idPlantilla, Model model) {
-        PlantillaDocumentoAcademico documentoAcademico = service.findById(new PlantillaDocumentoAcademico(idPlantilla));
+        PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(idPlantilla));
         model.addAttribute("id", documentoAcademico.getId());
         model.addAttribute("contenido", documentoAcademico.getContenido());
         model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico().getNombre());
@@ -90,18 +107,25 @@ public class PlantillaConstanciaController {
 
     @ResponseBody
     @RequestMapping("updateContenido")
-    public JsonResponse updateContenido(@RequestParam("id") Long id,
-            @RequestParam("contenido") String contenido, HttpSession session) {
+    public JsonResponse updateContenido(PlantillaDocumentoAcademico documentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            PlantillaDocumentoAcademico documentoAcademico = new PlantillaDocumentoAcademico();
-            documentoAcademico.setId(id);
-            documentoAcademico.setContenido(contenido);
-            service.updateContenido(documentoAcademico, ds.getUsuario());
-            response.setMessage("Se actualizó");
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            response.setSuccess(false);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            PlantillaDocumentoAcademico psa = service.updateContenido(documentoAcademico, ds.getUsuario());
+
+            ObjectNode jPlantillaDocumentoAcademico = JsonHelper.createJson(psa, jsonFactory, true, new String[]{
+                "id",
+                "variablePlantilla.*",
+                "variablePlantilla.variableGenerica.*"
+            });
+
+            response.setData(jPlantillaDocumentoAcademico);
+            response.setMessage("Registro actualizado satisfactoriamente");
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -117,7 +141,7 @@ public class PlantillaConstanciaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
-            System.out.println("ENTRE...... -->");
+
             service.update(plantillaDocumentoAcademico, ds.getUsuario());
             response.setMessage("Se actualizó");
             response.setSuccess(true);
@@ -170,7 +194,7 @@ public class PlantillaConstanciaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            PlantillaDocumentoAcademico documentoAcademico = service.findById(new PlantillaDocumentoAcademico(id));
+            PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(id));
             response.setData(documentoAcademico);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -180,4 +204,65 @@ public class PlantillaConstanciaController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("preview")
+    public JsonResponse preview(PlantillaDocumentoAcademico plantillaForm, Long idalumno) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            Alumno alumno = service.findAlumno(idalumno);
+
+            PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
+            String contenido = plantillaGenerica.getContenido();
+
+            List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
+            for (VariableGenerica vg : vgs) {
+                String attr = vg.getCodigo();
+                attr = attr.replaceAll("_", "");
+                attr = attr.toLowerCase();
+                String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
+                if (!Strings.isNullOrEmpty(vall)) {
+                    contenido = contenido.replaceAll(vg.getCodigo(), vall);
+                }
+            }
+
+            response.setData(contenido);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("previewpdf")
+    public ModelAndView previewpdf(PlantillaDocumentoAcademico plantillaForm, Long idalumno, Model model) {
+
+        Alumno alumno = service.findAlumno(idalumno);
+        PlantillaGenerica plantillaGenerica = service.fillPlantilla(alumno, plantillaForm);
+
+        String contenido = plantillaGenerica.getContenido();
+
+        List<VariableGenerica> vgs = service.allVariableGenericaByPlantilla(plantillaForm);
+        for (VariableGenerica vg : vgs) {
+            String attr = vg.getCodigo();
+            attr = attr.replaceAll("_", "");
+            attr = attr.toLowerCase();
+            String vall = (String) ObjectUtil.getParentTree(plantillaGenerica, attr);
+            if (!Strings.isNullOrEmpty(vall)) {
+                contenido = contenido.replaceAll(vg.getCodigo(), vall);
+            }
+        }
+
+        model.addAttribute("contenido", contenido);
+        model.addAttribute("formatoEnum", PDFFormatoEnum.PLANTILLA_CERTIFICADO);
+        model.addAttribute("nombrePdf", "CertificadoEstudio");
+        model.addAttribute("title", "untitle");
+
+        return new ModelAndView(pdfHtmlView);
+    }
+
 }

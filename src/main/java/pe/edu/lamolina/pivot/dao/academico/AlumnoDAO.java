@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -14,6 +15,8 @@ import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
 
 public interface AlumnoDAO extends EasyDAO<Alumno> {
+
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
 
     Alumno findByCodigo(String codigoAlumno);
 
@@ -61,4 +64,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateCicloActivoRegular(Alumno alumno);
 
+    Alumno findSituacionAcademica(Alumno alumno);
+
+    List<Alumno> allByNombreFacultad(String name, Facultad facultad);
+    
 }

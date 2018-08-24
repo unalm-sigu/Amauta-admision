@@ -6,7 +6,8 @@ import java.util.Map;
 public enum PDFFormatoEnum {
 
     BOLETA_PAGO_ING("BoletaPago", "pdf/boletaPago", "Boleta Pago", "Boleta Pago"),
-    BOLETA_PAGO_SOL("BoletaPagoSolicitudConstancia", "pdf/boletaPagoSolicitudConstancia", "Boleta Pago Solicitud Constancia", "Boleta Pago Solicitud Constancia");
+    BOLETA_PAGO_SOL("BoletaPagoSolicitudConstancia", "pdf/boletaPagoSolicitudConstancia", "Boleta Pago Solicitud Constancia", "Boleta Pago Solicitud Constancia"),
+    PLANTILLA_CERTIFICADO("Plantilla Genérica", "pdf/contenidobase", "Plantilla Genérica", "Plantilla Genérica");
 
     private final String name;
     private final String fileTemplate;

@@ -82,11 +82,20 @@ public class UpdateHistorialAcademicoController {
 
     @RequestMapping("{idAlumno}/updatehistorial")
     public String datoacademico(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
-        FotoHelper helper = new FotoHelper();
         Alumno alumno = service.allInfo(new Alumno(idAlumno));
         List<CicloAcademico> ciclosAcademico = service.allCicloAcademico();
-        ObjectNode alumnoJson = alumno.toJsonInfoAcademico();
-        alumnoJson.put("rutaFoto", helper.getRutaFoto(alumno.getPersona().getFoto(), alumno.getPersona().getSexo()));
+
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode alumnoJson = JsonHelper.createJson(alumno, factory, true, new String[]{
+            "*",
+            "carrera.*",
+            "carrera.orientacionCarrera.*",
+            "situacionAcademica.*",
+            "planCurricular.*",
+            "modalidadEstudio.*",
+            "persona.*",
+            "persona.tipoDocumento.*"});
+
         model.addAttribute("datoAlumno", alumnoJson);
         model.addAttribute("ciclosAcademico", ciclosAcademico);
         return "tramite/updatehistorialacademico/updateHistorialAcademico";
@@ -329,10 +338,12 @@ public class UpdateHistorialAcademicoController {
 
     @ResponseBody
     @RequestMapping("cancelar")
-    public JsonResponse cancelar(TramiteDocumentoAcademico solicitudConstancia) {
+    public JsonResponse cancelar(TramiteDocumentoAcademico solicitudConstancia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.cancelar(solicitudConstancia);
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cancelar(solicitudConstancia, ds);
             response.setMessage("Tipo de documento cancelado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -511,6 +522,7 @@ public class UpdateHistorialAcademicoController {
                 json.put("codigo", colaborador.getCodigo());
                 json.put("tipo", colaborador.getPersona().getTipoDocumento().getSimbolo());
                 json.put("numero", colaborador.getPersona().getNumeroDocIdentidad());
+                json.put("oficina", colaborador.getOficina().getNombre());
                 json.put("rutaFoto", helper.getRutaFoto(colaborador.getPersona().getFoto(), colaborador.getPersona().getSexo()));
                 jColaborador.add(json);
             }

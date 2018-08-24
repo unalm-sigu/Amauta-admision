@@ -49,24 +49,23 @@
             <span   v-if="solicitud.estado=='PEND' " class="label label-default ">{{solicitud.estadoEnum}}</span>
             <span   v-if="solicitud.estado=='DEV' " class="label label-default ">{{solicitud.estadoEnum}}</span>
             <span   v-if="solicitud.estado=='ENV' " class="label label-default ">{{solicitud.estadoEnum}}</span>
-            <span   v-if="solicitud.estado=='ANU' " class="label label-default ">{{solicitud.estadoEnum}}</span>
+            <span   v-if="solicitud.estado=='ANU' " class="label label-danger ">{{solicitud.estadoEnum}}</span>
             <span   v-if="solicitud.estado=='ACT' " class="label label-primary ">{{solicitud.estadoEnum}}</span>
             <span   v-if="solicitud.estado=='CRE' " class="label label-default ">{{solicitud.estadoEnum}}</span>
         </td>
 
         <td class="v-middle">
-            <div class="dropdown actions">
+            <div class="dropdown actions" v-if="solicitud.estado!='ANU' ">
                 <a class="dropdown-toggle" data-toggle="dropdown">
                     <i class="glyphicon glyphicon-option-vertical"></i>
                 </a>
-                <ul class="dropdown-menu pull-right">
+                <ul  class="dropdown-menu pull-right">
                     <li v-if="solicitud.showUpdateHistorial"><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')">Actualizar historial academico</a></li>
                     <li><a  v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.id+'/update')">Editar Solicitud Documento</a></li>
                     <li> <a v-on:click.prevent="cargarfoto(solicitud)"  href="#">Cargar fotografía</a></li>
                     <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
-                    <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
                     <li class="divider"></li>
-                    <li><a v-on:click.prevent="eliminar(solicitud.id)"  href="#">Eliminar Solicitud Documento</a></li>
+                    <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>
                 </ul>
             </div>
         </td>
@@ -80,8 +79,9 @@
             <img class="img-responsive img-thumbnail img-circle" v-bind:src="colaborador.rutaFoto" ></img>
         </div>
         <span class="block bold m-t-sm" v-text='colaborador.nombre' ></span>
+        <span class="block text-xs" v-text="colaborador.oficina"></span>
         <span class="block" v-text="colaborador.tipo+'  '+colaborador.numero" ></span>
-        <span class="block text-xs" v-text="'Cod:'+colaborador.codigo"></span>
+        <span class="block text-xs" v-text="'Codigo:'+colaborador.codigo"></span>
     </div>
 </template>
 

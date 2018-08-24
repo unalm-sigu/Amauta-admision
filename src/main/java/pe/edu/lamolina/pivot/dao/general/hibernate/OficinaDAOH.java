@@ -1,19 +1,27 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.EstadoTramiteAcademico;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
@@ -62,7 +70,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .join("compania cia")
                 .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("cia.id", compania)
-                .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre")
+                .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre", "sup.nombre")
                 .searchComplexField("concat(coalesce(pj.paterno,''),' ',coalesce(pj.materno,''),' ',coalesce(pj.nombres,''))")
                 .searchComplexField("concat(coalesce(pj.nombres,''),' ',coalesce(pj.paterno,''),' ',coalesce(pj.materno,''))")
                 .searchComplexField("concat(coalesce(pje.paterno,''),' ',coalesce(pje.materno,''),' ',coalesce(pje.nombres,''))")
@@ -161,6 +169,45 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca", "tipoOficina")
                 .filter("cia.id", compania);
         return all(sql);
+    }
+
+    @Override
+    public Oficina findByTipoAndFacultad(TipoOficinaEnum tipoOficinaEnum, Facultad facultad) {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "o")
+                .join("tipoOficina to")
+                .filter("to.codigo", tipoOficinaEnum)
+                .filter("o.instanciaOficina", facultad);
+
+        return (Oficina) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public Map findOficinaOrigenDestinoByEstadoTramiteAcad(AccionTramiteAcademico accionTramiteAcademico, Alumno alumno) {
+        Oficina oficinaOrigen = null;
+        if (ObjectUtil.getParentTree(accionTramiteAcademico, "oficinaOrigen.id") != null) {
+            oficinaOrigen = this.find(accionTramiteAcademico.getOficinaOrigen().getId());
+        } else {
+            if (accionTramiteAcademico.getTipoOficinaOrigen().isTipoFacultad()) {
+                oficinaOrigen = this.findByTipoAndFacultad(
+                        TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaOrigen().getCodigo()),
+                        alumno.getCarrera().getFacultad());
+            }
+        }
+        Oficina oficinaDestino = null;
+        if (ObjectUtil.getParentTree(accionTramiteAcademico, "oficinaDestino.id") != null) {
+            oficinaDestino = this.find(accionTramiteAcademico.getOficinaDestino().getId());
+        } else {
+            if (accionTramiteAcademico.getTipoOficinaDestino().isTipoFacultad()) {
+                oficinaDestino = this.findByTipoAndFacultad(
+                        TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaDestino().getCodigo()),
+                        alumno.getCarrera().getFacultad());
+            }
+        }
+        Map resultado = new HashMap();
+        resultado.put("oficinaOrigen", oficinaOrigen);
+        resultado.put("oficinaDestino", oficinaDestino);
+        return resultado;
     }
 
 }

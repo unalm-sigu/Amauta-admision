@@ -1,0 +1,128 @@
+<modal-vik ref="modalDetalleGrupo"
+           v-bind="modalDetalleGrupo"
+           v-bind:okaction="save">
+    <div slot="body">
+        <form id="formGrupoDetalle" data-parsley-validate="true" method="post">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Matriculables</label>
+                    <div class="form-group">
+                        <label class="switch">
+                            <input type="checkbox" id="chkbMatrbls" true-value="1" false-value="0" v-model="detalleGrupo.matriculables"
+                                   data-parsley-multiple="checkbox" data-parsley-mincheck="1" required="true" v-on:click="chkbMatrbls"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Matriculados</label>
+                    <div class="form-group">
+                        <label class="switch">
+                            <input type="checkbox" id="chkbMatrdos" true-value="1" false-value="0" v-model="detalleGrupo.matriculados"
+                                   data-parsley-multiple="checkbox" data-parsley-mincheck="1" required="true"/>
+                            <span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Modalidad de Estudio</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.modalidadEstudio" 
+                                     v-bind:limit='15' 
+                                     v-bind:options='modalidadEstudios' 
+                                     placeholder="Selecciona la Modalidad" 
+                                     label='nombre' track-by="id" :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Situación Académica</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.situacionAcademica" 
+                                     v-bind:limit='15' 
+                                     v-bind:options='situacionAcademcas' 
+                                     placeholder="Selecciona la Situación" 
+                                     :custom-label="situacionInfo"
+                                     label='nombre' track-by="id" :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Facultad</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.facultad" 
+                                     v-bind:limit='15' 
+                                     v-bind:options='facultades' 
+                                     placeholder="Selecciona la Facultad" 
+                                     label='nombre' track-by="id" :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Carrera</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.carrera" 
+                                     v-bind:internal-search='false' 
+                                     v-bind:limit='15' 
+                                     v-on:search-change="searchCarrera" 
+                                     v-bind:options='carreras' 
+                                     placeholder="Ingresa un caracter" 
+                                     label='nombre' track-by="id" 
+                                     :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Curso</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.curso" 
+                                     v-bind:internal-search='false' 
+                                     v-bind:limit='15' 
+                                     v-on:search-change="searchCurso" 
+                                     v-bind:options='cursos' 
+                                     placeholder="Ingresa un caracter" 
+                                     label='codigo' track-by="id" 
+                                     :custom-label="cursoInfo"
+                                     v-on:select="cursoSelected"
+                                     v-on:remove="cursoSelected"
+                                     :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Grupo Sección</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.grupoSeccion" 
+                                     v-bind:internal-search='false' 
+                                     v-bind:limit='15' 
+                                     v-on:search-change="searchGrupoSeccion" 
+                                     v-bind:options='grupoSecciones' 
+                                     placeholder="Ingresa un caracter" 
+                                     label='codigo' track-by="id" 
+                                     v-on:select="grupoSeccionSelected"
+                                     v-on:remove="grupoSeccionSelected"
+                                     :custom-label="grupoSeccionInfo"
+                                     :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Sección</label>
+                    <div class="form-group">
+                        <multiselect v-model="detalleGrupo.seccion" 
+                                     v-bind:internal-search='false' 
+                                     v-bind:limit='15' 
+                                     v-bind:options='secciones' 
+                                     v-on:search-change="searchSeccion" 
+                                     placeholder="Ingresa un caracter" 
+                                     label='codigo2' 
+                                     track-by="id"
+                                     :custom-label="seccionInfo"
+                                     :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>

@@ -15,6 +15,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.PlanCurricular;
@@ -24,6 +25,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.matriculable.MatriculableResumen;
@@ -34,6 +36,25 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public AlumnoDAOH() {
         super();
         setClazz(Alumno.class);
+    }
+
+    @Override
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Alumno.class, "al")
+                .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .in("fac.id", facultades)
+                .searchFields("ca.nombre", "al.estado", "al.codigo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("al.id desc");
+
+        sql.beginRelativeFilters();
+        setCondicionModalidad(filter, sql);
+
+        List<Alumno> alumnos = sql.all(getCurrentSession());
+        return alumnos;
     }
 
     @Override
@@ -295,8 +316,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico ciclo, List<Alumno> existentes) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio moe", "situacionAcademica sa")
                 .leftJoin("per.tipoDocumento td", "cicloIngreso ci")
+                .filter("sa.codigo", SituacionAcademicaEnum.S_8.getValue())
                 .filter("moe.id", modalidad)
                 .filter("ci.id", ciclo);
 
@@ -411,6 +433,35 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         Octavia octavia = Octavia.update(Alumno.class);
         octavia.set(alumno, "cicloActivoRegular");
         this.update(octavia);
+    }
+
+    @Override
+    public Alumno findSituacionAcademica(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("situacionAcademica sia")
+                .filter("alu.id", alumno);
+        return find(sql);
+    }
+
+    @Override
+    public List<Alumno> allByNombreFacultad(String nombre, Facultad facultad) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td")
+                .filter("fa.id", facultad)
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .limit(15);
+
+        return sql.all(getCurrentSession());
     }
 
 }

@@ -76,10 +76,12 @@
             searcher: {type: Boolean, default: true},
             paginate: {type: Boolean, default: true},
             page: {type: Object, default: {currentPage: 1}},
+            rowsperpage: {type: Number, default: 10},
             pagination: {type: Object, default: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true}}
         },
         mounted() {
             console.log("vue raptor table");
+            this.pagination['items-per-page'] = this.rowsperpage;
             this.loadRemoteData();
         },
         methods: {
@@ -146,6 +148,7 @@
                 let $vue = this;
                 let page = $vue.page['currentPage'];
                 let perPage = $vue.pagination['items-per-page'];
+                //    let perPage = $vue.rowsperpage;
                 let offset = page * perPage - perPage;
                 let params = {};
                 if ($vue.paginate) {

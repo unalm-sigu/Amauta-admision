@@ -1,0 +1,87 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Tipo Mensaje Intranet </title>    
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div id="tipoMsgVUE">
+                <header class="header b-b padder-lg">
+
+                    <div class="pull-right m-t-md">                 
+                        <div class="btn-group">
+                            <a type="button" class="btn btn-default" href="/mensajeria">Atrás</a>
+                            <a type="button" class="btn btn-success" v-on:click="nuevo">Nuevo</a>
+                        </div>
+                    </div> 
+                    <h2 v-text="'Tipos de Mensajeria Intranet ' + cicloAcademico.descripcion">Tipo de Mensajeria Intranet</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <raptor-table v-bind:url="tipoMsgURL" ref="load">
+                                    <template  scope="props" >
+                                        <table class="table table-striped table-hover">
+                                            <thead> 
+                                                <tr class=""> 
+                                                    <th class="col-md-1">Código </th>
+                                                    <th class="col-md-2">Nombre</th>
+                                                    <th class="col-md-3">Contenido</th>
+                                                    <th class="col-md-2">Tipo pantalla</th>
+                                                    <th class="col-md-2">Url</th>
+                                                    <th class="col-md-1">Boton</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in props.data">
+                                                    <td class="v-middle" v-text="item.codigo"></td>
+                                                    <td class="v-middle" v-text="item.nombre"></td>
+                                                    <td class="v-middle" v-text="item.contenido"></td>
+                                                    <td class="v-middle" v-text="item.tipoPantalla"></td>
+                                                    <td class="v-middle" v-text="item.url"></td>
+                                                    <td class="v-middle" v-text="item.boton"></td>
+                                                    <td class="v-middle"> 
+                                                        <div class="dropdown actions">
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="glyphicon glyphicon-cog"></i>
+                                                            </a> 
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class="pointer" v-on:click="editar(item)" >Editar</a></li>
+                                                                <li><a class="pointer" v-on:click="eliminar(item)" >Eliminar</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </raptor-table>
+                            </div>
+                        </section>
+                    </section>
+                </section>    
+
+                <div th:substituteby="mensaje/tipoMsgIntranet/modalTipoMsgIntranet"></div>
+            </div>
+            <div th:substituteby="_modules/vue-modal"></div>
+        </div>
+
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>  
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
+                var tipoMsjIntraEnums = /*[[${TipoMensajeIntranetEnums.toString()}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
+            <script th:src="@{/app/mensaje/tipoMsgIntranet/tipoMsgIntranet.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +26,22 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("seguridad/rol")
@@ -85,15 +96,28 @@ public class RolController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            List<Rol> roles = service.allRolByDynatable(filter);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+
+            List<Rol> roles = service.allRolByDynatable(filter);
+            List<FuncionRol> funcionesRol = service.allFuncionRol(roles);
+            Map<Long, List<FuncionRol>> funcionesRolMap = TypesUtil.convertListToMapList("rol.id", funcionesRol);
+
+            ArrayNode array = new ArrayNode(jsonFactory);
+
             for (Rol rol : roles) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+                ObjectNode node = new ObjectNode(jsonFactory);
 
                 node.put("id", rol.getId());
                 node.put("nombre", rol.getNombre());
                 node.put("codigo", rol.getCodigo());
+                node.set("funciones", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.PERFIL));
+                node.set("cargos", service.allPerfilCompania(rol, funcionesRolMap, TipoPerfilCompaniaEnum.CARGO));
+
+                if (rol.getRolSuperior() != null) {
+                    node.put("rolSuperior", rol.getRolSuperior().getNombre());
+                }
 
                 array.add(node);
             }
@@ -162,12 +186,159 @@ public class RolController {
 
             if (rol.getId() == null) {
                 service.save(rol);
-                response.setMessage("Registro creado satisfactoriamente");
+                response.setMessage(Messages.CREATED);
             } else {
                 service.update(rol);
-                response.setMessage("Registro actualizado satisfactoriamente");
+                response.setMessage(Messages.UPDATED);
             }
 
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(Rol rol, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            service.delete(rol);
+            response.setMessage(Messages.DELETED);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, "Este registro se encuentra relacionado a otros objetos del Sistema.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("editar")
+    public JsonResponse editar(Rol rol, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            Rol rolDb = service.findRol(rol);
+            
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            
+            ObjectNode node = JsonHelper.createJson(rolDb, jsonFactory, true,
+                    new String[]{
+                        "*","rolSuperior.*"
+                    });
+
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allperfilcompania")
+    public JsonResponse allPerfilCompania(PerfilCompania perfilCompaniaForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Compania compania = ds.getCompania();
+
+            List<PerfilCompania> perfilesCompania = service.allPerfilCompaniaByTipo(perfilCompaniaForm, compania);
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jsonFactory);
+
+            for (PerfilCompania perfilCompania : perfilesCompania) {
+
+                ObjectNode node = JsonHelper.createJson(perfilCompania, jsonFactory, true,
+                        new String[]{
+                            "*"
+                        });
+
+                array.add(node);
+            }
+
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+
+    }
+
+    @ResponseBody
+    @RequestMapping("allfuncionrol")
+    public JsonResponse allFuncionRol(FuncionRol funcionRolForm) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            List<FuncionRol> funciones = service.allFuncionRolTipoPerfil(funcionRolForm);
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jsonFactory);
+
+            for (FuncionRol funcionRol : funciones) {
+
+                ObjectNode node = JsonHelper.createJson(funcionRol, jsonFactory, true,
+                        new String[]{
+                            "*", "rol.*", "perfilCompania.*"
+                        });
+
+                array.add(node);
+            }
+
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+
+    }
+
+    @ResponseBody
+    @RequestMapping("savefuncionrol")
+    public JsonResponse saveFuncionRol(FuncionRol funcionRol, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+
+            service.saveFuncionRol(funcionRol, usuario);
+            response.setMessage(Messages.CREATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -181,38 +352,58 @@ public class RolController {
     }
 
     @ResponseBody
-    @RequestMapping("delete")
-    public JsonResponse delete(Rol rol, HttpSession session) {
+    @RequestMapping("cambiarEstado")
+    public JsonResponse cambiarEstado(FuncionRol funcionRol, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
-            service.delete(rol);
-            response.setMessage("Registro eliminado satisfactoriamente");
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Usuario usuario = ds.getUsuario();
+
+            service.cambiarEstado(funcionRol, usuario);
+            response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, "Este registro se encuentra relacionado a otros objetos del Sistema.");
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         } finally {
             return response;
         }
+
     }
 
-    @RequestMapping("editarRol")
-    public String editarRol(Rol rol, Model model) {
+    @ResponseBody
+    @RequestMapping("allRolSuperior")
+    public JsonResponse allRolSuperior(@RequestParam("nombre") String nombre, HttpSession session) {
 
-        Rol rolInfo = service.findRol(rol);
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
 
-        model.addAttribute("rol", rolInfo);
-        return "seguridad/rol/rolModal";
-    }
+        try {
 
-    @RequestMapping("nuevoRol")
-    public String nuevoRol(Model model) {
+            List<Rol> roles = service.allRolSuperior(nombre);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
 
-        return "seguridad/rol/rolModal";
+            for (Rol rol : roles) {
+                ObjectNode node = JsonHelper.createJson(rol, jsonFactory, true,
+                        new String[]{
+                            "*"
+                        });
+                jsonList.add(node);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 }

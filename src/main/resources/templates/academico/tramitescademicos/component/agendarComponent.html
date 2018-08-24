@@ -1,0 +1,104 @@
+<template id="agendarComponent">
+    <raptor-table ref="tblReunionesConsejo"
+                  v-bind:url="URL_REUNIONES" 
+                  rowsperpage="5"
+                  v-bind:searcher="false">
+
+        <template scope="props">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Es Ordinario</th>
+                        <th>Oficina</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in props.data"> 
+                        <td>   
+                <format-date v-bind:datetext="item.fecha"></format-date>
+                </td>
+                <td>
+                    <label class="switch">
+                        <input  type="checkbox" 
+                                value="1"
+                                checked="{{item.esOrdinario}}"
+                                disabled="true"/>
+                        <span></span>
+                    </label>
+                </td> 
+                <td>
+                    <span v-if="item.oficina" 
+                          v-text="item.oficina.nombre"></span>
+                </td> 
+                <td>
+                    <a alt="selReunionConsejo"  
+                       class="btn" 
+                       v-bind:class="{'btn-default' : (reunionConsejoSel==null || reunionConsejoSel.id!=item.id), 'btn-success': (reunionConsejoSel!=null &amp;&amp; reunionConsejoSel.id==item.id)}"
+                       type="button"    
+                       v-on:click.prevent="reunionConsejoSel = item"   
+                       href="#" >Seleccionar</a>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+        </template>
+    </raptor-table>
+</template>
+<script >
+    Vue.component('agendar-component', {
+        template: '#agendarComponent',
+        props: {
+            tramite: null
+        }, data: function () {
+            return {
+                URL_REUNIONES: APP.url('academico/tramiteacademico/listReunionesConsejo'),
+                reunionConsejoSel: null
+            }
+        },
+        mounted() {
+            console.log("1111");
+            let $vue = this;
+            if ($vue.tramite != null) {
+                if ($vue.tramite.id != null) {
+                    this.reunionConsejoSel = $vue.tramite.tramiteReunionConsejo.reunionConsejo;
+                    this.loadAgendarComponent();
+                }
+            }
+
+        }, watch: {
+            tramite(newValue) {
+                if (this.tramite != null) {
+                    if (this.tramite.id != null) {
+                        if (this.tramite.id != newValue.id) {
+                            this.reunionConsejoSel = $vue.tramite.tramiteReunionConsejo.reunionConsejo;
+                            this.loadAgendarComponent();
+                            // this.$refs.tblReunionesConsejo.loadRemoteData();
+                        }
+                    }
+                }
+            }
+        },
+        methods: {
+            loadAgendarComponent() {
+                let $vue = this;
+                $vue.reunionConsejoSel = null;
+                /*  $.ajax({
+                 url: APP.url('academico/tramiteacademico/loadModalAgendar'),
+                 data: JSON.stringify($vue.tramite),
+                 dataType: "json",
+                 contentType: "application/json",
+                 type: 'POST',
+                 success: function (response) {
+                 if (response.success) {
+                 $vue.tramiteSeleccionado = tramite;
+                 }
+                 }
+                 });*/
+                //  $vue.$refs.modalAgendar.open();
+            }
+        }
+    });
+
+</script>

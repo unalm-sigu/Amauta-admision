@@ -1,21 +1,53 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title> Docente </title>
+        <style>
+            .img-foto-list{
+                left: 0px;
+            }
+            .header-docente {
+                padding-top: 20px;
+            }
+        </style>
     </head>
     <body>
         <section layout:fragment="main">
 
-            <div id="main">
+            <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
                     <a th:href="@{/academico/profesor}" class="btn btn-default btn-sm pull-right">Regresar</a>
 
-                    <h2  v-text="docente.persona.id!=null ? docente.persona.nombreCompleto : 'Nuevo Docente' " >Nuevo Docente</h2>
+
+
+
+                    <table class="block m-b-n header-docente">
+                        <tbody>
+                            <tr>
+                                <td class="col-lg-1 v-middle text-center text-primary">
+                                    <div class="img-responsive img-thumbnail img-circle div-foto-list">
+                                        <img class="img-foto-list" v-bind:src="docente.persona.rutaFoto" />
+                                    </div>
+                                </td>
+                                <td class="col-lg-11 v-middle">
+                                    <span class="block h2 bold" v-text="docente.persona.id!=null ? docente.persona.nombreCompleto : 'Nuevo Docente' " >Nuevo Docente</span>
+                                    <small class="block text-muted m-b-md"> 
+                                        <i class="fa fa-university"></i> Departamento Académico:
+                                        {{docente.departamentoAcademico.nombre}}
+                                    </small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+
+
+
 
                     <div class="tabbable-line">
                         <ul class="nav nav-tabs" >
-
 
                             <!--tab 1-->
                             <li  v-bind:class="{ 'active': stepactivo==1 }">
@@ -31,6 +63,12 @@
                             <li  v-bind:class="{ 'active': stepactivo==3 }">
                                 <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=3" >Datos Laborales</a>
                             </li>
+
+                            <!--tab 4-->
+                            <li  v-bind:class="{ 'active': stepactivo==4 }">
+                                <a href="#" data-toggle="tab" v-on:click.prevent="stepactivo=4" >Carga Académica</a>
+                            </li>
+
                         </ul>
                     </div>
 
@@ -70,6 +108,11 @@
 
                                 </div>
 
+                                <div v-show="stepactivo==4"  >
+
+                                    <th:block th:replace="academico/profesor/informacion/informacioncarga"/>
+
+                                </div>
 
                             </form>
 
@@ -101,6 +144,7 @@
             </script>
             <div th:substituteby="_layout/includes :: javascript-upload"> </div>
             <div th:substituteby="_layout/includes :: vuemodal"/>
+            <div th:substituteby="_modules/vue-raptor-table"/>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicapais.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicaubicacion.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/profesor/informacion/informacionacademicadepartamento.js}" charset="utf-8"></script>

@@ -4,11 +4,11 @@
             <table id="dynaTable" class="table table-striped table-hover">
                 <thead> 
                     <tr>
-                        <th class="text-center v-middle">Persona</th>
-                        <th class="text-center">Área</th>
-                        <th class="text-center">Funciones</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-center">Editar</th>
+                        <th class="col-md-4 v-middle">Persona</th>
+                        <th class="col-md-4 text-center">Área</th>
+                        <th class="col-md-2 text-center">Funciones</th>
+                        <th class="col-md-2 text-center">Estado</th>
+                        <th></th>
                     </tr> 
                 </thead>
                 <tbody></tbody>
@@ -35,14 +35,17 @@
             <span>Cargo: {{:cargo}}</span> 
         </td>
         <td class="v-middle text-center">
-            <span class="estado-blue">{{:funciones}}</span> 
+            <span class="estado-blue pointer showFuncionesColaborador" rel="{{:id}}">{{:funciones}}</span> 
         </td>
-        <td class="v-middle text-center col-md-1">
-            {{if estado != "Despedido"}}
-            <span class="label label-success">{{:estado}}</span> 
-            {{/if}}
+        <td class="v-middle text-center">
             {{if estado == "Despedido"}}
             <span class="label label-danger">{{:estado}}</span> 
+            {{/if}}
+            {{if estado == "Descanso"}}
+            <span class="label label-warning">{{:estado}}</span> 
+            {{/if}}
+            {{if estado == "Activo"}}
+            <span class="label label-success">{{:estado}}</span> 
             {{/if}}
         </td>
 
@@ -59,10 +62,11 @@
                         {{/for}}
                     </li>
                     <li  class="divider"></li>
-                    <li><a  rel="{{:id}}" class="updateColaborador" >Editar Funciones</a></li>
-                    <li><a  rel="{{:id}}" href="#" >Editar Info personal</a></li>
+                    <li><a  rel="{{:id}}" class="updateColaborador" href="#" >Editar Funciones</a></li>
+                    <li><a  rel="{{:personaId}}" class="updatePersona" href="#" >Editar Info personal</a></li>
                 </ul>
             </div>
+            
         </td>
     </tr>
 </template>

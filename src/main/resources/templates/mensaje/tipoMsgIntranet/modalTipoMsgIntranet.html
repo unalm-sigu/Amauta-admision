@@ -1,0 +1,63 @@
+<modal-vik ref="modalTipoMsgIntranet"
+           v-bind="addTipoMsgIntranet"
+           v-bind:okaction="saveUpdate">
+    <div slot="body">
+        <form id="formTipoMsg" data-parsley-validate="true" method="post">
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Código</label>
+                    <div class="form-group">
+                        <multiselect v-model="tipoMsgIntranet.codigoEnum" 
+                                     v-bind:limit='15' 
+                                     v-bind:options='tipoEnums' 
+                                     placeholder="Selecciona el código" 
+                                     label='value' track-by="name" 
+                                     :loading="isLoading">
+                        </multiselect>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Nombre</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.nombre"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <label>Url del botón</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.url"/>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <label>Texto del botón</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.boton"/>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label>Tipo pantalla</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control" required="true" v-model="tipoMsgIntranet.tipoPantalla"/>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <label>Contenido</label>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="5" required="true" v-model="tipoMsgIntranet.contenido" style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>

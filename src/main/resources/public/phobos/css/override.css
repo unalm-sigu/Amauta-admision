@@ -1687,6 +1687,26 @@ div.notas {
     max-height: 500px;
     overflow-y: scroll
 }
+.modal-scroll-fix-500{
+    max-height: 500px;
+    min-height: 500px;
+    overflow-y: scroll
+}
+/*modal scroll max height 600px*/
+.modal-scroll-600{
+    max-height: 600px;
+    overflow-y: scroll
+}
+.modal-scroll-fix-600{
+    max-height: 600px;
+    min-height: 600px;
+    overflow-y: scroll
+}
+/*modal scroll max height 700px*/
+.modal-scroll-700{
+    max-height: 700px;
+    overflow-y: scroll
+}
 /*table tbody sin borde */
 .unborder.table th {
     border-bottom: 1px solid #eaeef1;
@@ -1730,5 +1750,34 @@ div.notas {
 
 [v-cloak] {
     display: none;
+}
+
+.div-foto {
+    width: 200px; 
+    height: 200px; 
+    overflow: hidden;
+}
+.img-foto {
+    height: 200px; 
+    position: relative; 
+    left: -100px;
+}
+
+.div-foto-list {
+    width: 120px; 
+    height: 120px; 
+    overflow: hidden;
+}
+.img-foto-list {
+    height: 120px; 
+    position: relative; 
+    left: -60px;
+}
+
+.img-foto-tempo {
+    width: 120px !important; 
+    height: auto; 
+    overflow: hidden;
+    max-width: none;
 }
 

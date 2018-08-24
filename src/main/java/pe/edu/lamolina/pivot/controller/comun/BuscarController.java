@@ -22,14 +22,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
@@ -301,6 +308,218 @@ public class BuscarController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allSituacionAcademica")
+    public JsonResponse allSituacionAcademica(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<SituacionAcademica> situaciones = buscarService.allSituaciones();
+            for (SituacionAcademica situacion : situaciones) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", situacion.getId());
+                json.put("codigo", situacion.getCodigo());
+                json.put("nombre", situacion.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allModalidadEstudio")
+    public JsonResponse allModalidadEstudio(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<ModalidadEstudio> modalidadEstudios = buscarService.allModalidadEstudios();
+            for (ModalidadEstudio modalidad : modalidadEstudios) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", modalidad.getId());
+                json.put("nombre", modalidad.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allFacultad")
+    public JsonResponse allFacultad(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Facultad> facultades = buscarService.allFacultades();
+            for (Facultad facultad : facultades) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", facultad.getId());
+                json.put("nombre", facultad.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCarrera")
+    public JsonResponse allCarrera(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Carrera> carreras = buscarService.allCarrerasByName(nombre);
+            for (Carrera carrera : carreras) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", carrera.getId());
+                json.put("nombre", carrera.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allGrupoSeccion")
+    public JsonResponse allGrupoSeccion(@RequestParam("codigo") String codigo,
+            @RequestParam("curso") Long curso, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        logger.debug("Codigo {}", codigo);
+        logger.debug("curso {}", curso);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<GrupoSeccion> grupoSecciones = buscarService.allGrupoSeccionesByCiclo(ciclo, codigo, curso);
+            for (GrupoSeccion grupoSeccion : grupoSecciones) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", grupoSeccion.getId());
+                json.put("codigo", grupoSeccion.getCodigo());
+                json.set("curso", grupoSeccion.getCurso().toJson());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCurso")
+    public JsonResponse allCurso(@RequestParam("codigo") String codigo, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Curso> cursos = buscarService.allCurso(codigo, ds.getCicloAcademico());
+            for (Curso curso : cursos) {
+                ObjectNode json = new ObjectNode(jsonFactory);
+
+                json.put("id", curso.getId());
+                json.put("codigo", curso.getCodigo());
+                json.put("nombre", curso.getNombre());
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allSeccion")
+    public JsonResponse allSeccion(@RequestParam("codigo") String codigo, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        logger.debug("Codigo {}", codigo);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Seccion> secciones = buscarService.allSeccionByCodigo(codigo, ds.getCicloAcademico());
+            logger.debug("Size sec {}", secciones.size());
+            for (Seccion seccion : secciones) {
+
+                ObjectNode json = JsonHelper.createJson(seccion, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "codigo2",
+                    "grupoHoras.codigo",
+                    "grupoSeccion.curso.codigo",
+                    "grupoSeccion.curso.nombre"
+                });
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

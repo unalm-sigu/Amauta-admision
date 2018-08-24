@@ -3,7 +3,7 @@ Vue.component("historial-component", {
     props: {
         alumno: {},
     },
-    data: function() {
+    data: function () {
         return {
             cursos: [],
             alumnoCurso: [],
@@ -20,7 +20,20 @@ Vue.component("historial-component", {
         }
     },
     beforeMount() {
-        this.cargaHistorial();
+        if (this.alumno != null && this.alumno.id != null) {
+            this.cargaHistorial();
+        }
+    },
+    mounted() {
+        // this.cargaHistorial();
+    }, watch: {
+        alumno(newValue) {
+            if (this.alumno != null && this.alumno.id != null) {
+                if (this.alumno.id != newValue.id) {
+                    this.cargaHistorial();
+                }
+            }
+        }
     },
     methods: {
         cargaHistorial() {
@@ -29,11 +42,11 @@ Vue.component("historial-component", {
                 method: 'GET',
                 url: APP.url('academico/alumno/' + this.alumno.id + '/historial'),
                 contentType: "application/json",
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         $vue.alumnoCurso = response.data;
                         var i = 1;
-                        $vue.alumnoCurso.forEach(function(element) {
+                        $vue.alumnoCurso.forEach(function (element) {
                             var obj = {id: 1, value: element.descripción};
                             $vue.listCiclos.push(obj);
                             i++;
@@ -56,7 +69,7 @@ Vue.component("historial-component", {
                     method: 'GET',
                     url: APP.url('academico/alumno/' + this.alumno.id + '/listHistorial'),
                     contentType: "application/json",
-                    success: function(response) {
+                    success: function (response) {
                         $vue.cursos = response.data.cursos;
                         $vue.general = false;
                     }
@@ -84,7 +97,7 @@ Vue.component("historial-component", {
                     return true;
             }
         },
-        calcularPromedio: function() {
+        calcularPromedio: function () {
             var vue = this;
             if (vue.alumno.id == null) {
                 return;
@@ -95,14 +108,14 @@ Vue.component("historial-component", {
                     confirm: {label: 'Si, Calcular', className: "btn-primary"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
                         $.ajax({
                             method: 'POST',
                             url: APP.url('academico/alumno/calcularpromedio'),
                             data: {id: vue.alumno.id},
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.success) {
                                     vue.cargaHistorial();
                                     notify(response.message, 'error');
@@ -110,7 +123,7 @@ Vue.component("historial-component", {
                                     notify(response.message, 'error');
                                 }
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                            }, error: function() {
+                            }, error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }

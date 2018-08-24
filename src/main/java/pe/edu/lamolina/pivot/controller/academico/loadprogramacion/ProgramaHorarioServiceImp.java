@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -994,12 +995,15 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
                 }
 
                 Curso curso = new Curso();
+                curso.setEstadoEnum(EstadoEnum.ACT);
                 curso.setCodigo(curNuevo);
                 curso.setNombre(nombre);
                 curso.setCreditos(Integer.parseInt(curCredit));
                 curso.setDepartamentoAcademico(mapDepartamentosAcademicos.get(depCodigo));
                 curso.setCodigoAnterior1(curCodigo);
-                curso.setCreditosVariables(Integer.parseInt(curCrevar));
+                if (!StringUtils.isEmpty(curCrevar)) {
+                    curso.setCreditosVariables(Integer.parseInt(curCrevar));
+                }
                 curso.setHorasTeoria(Integer.parseInt(curTeoria));
                 curso.setHorasPractica(Integer.parseInt(curPracti));
 

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.general;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 
@@ -16,5 +17,19 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
     List<PerfilCompania> allTipoFuncion();
 
     PerfilCompania findUltimoCodigo();
+
+    List<PerfilCompania> allFuncion(String nombre, Compania compania);
+
+    List<PerfilCompania> allCargo(String nombre, Compania compania);
+
+    List<PerfilCompania> allPerfilCompaniaByTipo(PerfilCompania perfilCompania, Compania compania);
+
+    PerfilCompania findFuncionByNombre(String nombre);
+
+    PerfilCompania findUltimoCodigoFuncion();
+
+    List<PerfilCompania> allCargoByOficina(Oficina oficina);
+
+    List<PerfilCompania> allFuncionByOficina(Oficina oficina);
 
 }

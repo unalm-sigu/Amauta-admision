@@ -6,10 +6,14 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.MenuRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -20,6 +24,43 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
     public UsuarioRolDAOH() {
         super();
         setClazz(UsuarioRol.class);
+    }
+
+    @Override
+    public List<UsuarioRol> allByUsuarioMenu(Usuario usuario, Menu menu) {
+        Octavia subquery = Octavia.query()
+                .from(MenuRol.class, "mr")
+                .join("menu m", "rol r2")
+                .filter("m.id", menu);
+
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "rol r1")
+                .filter("u.id", usuario)
+                .exists(subquery)
+                .linkedBy("r1.id", "r2.id");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Long> allInstanciasByUsuarioMenuTipoOficna(Usuario usuario, Menu menu, TipoOficinaEnum tipoOficina) {
+        Octavia subquery = Octavia.query()
+                .from(MenuRol.class, "mr")
+                .join("menu m", "rol r2")
+                .filter("m.id", menu);
+
+        Octavia sql = Octavia.query()
+                .select("ur.idInstancia")
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "rol r1")
+                .isNotNull("ur.idInstancia")
+                .filter("ur.tipoOficina", tipoOficina)
+                .filter("u.id", usuario)
+                .exists(subquery)
+                .linkedBy("r1.id", "r2.id");
+
+        return sql.all(getCurrentSession());
     }
 
     @Override
@@ -127,4 +168,5 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
         query.executeUpdate();
 
     }
+
 }

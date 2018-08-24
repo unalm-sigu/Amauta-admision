@@ -76,13 +76,12 @@ public class PersonaCargoDAOH extends AbstractEasyDAO<PersonaCargo> implements P
     }
 
     @Override
-    public PersonaCargo findCargoByPersona(Oficina oficina, PerfilCompania cargo, Persona persona) {
+    public PersonaCargo findCargoByPersona(Oficina oficina, Persona persona) {
         Octavia sql = Octavia.query()
                 .from(PersonaCargo.class, "pp")
                 .join("perfilCompania pc", "persona per")
                 .leftJoin("oficina ofi")
                 .filter("per.id", persona)
-                .filter("pc.id", cargo)
                 .filter("ofi.id", oficina)
                 .filter("estado", EstadoEnum.ACT);
 

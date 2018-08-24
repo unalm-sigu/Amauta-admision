@@ -9,25 +9,21 @@
 
             <header class="header b-b padder-lg">
 
-                <div class="btn-group pull-right">
-                    <div class="btn-group pull-right">
-                        <a href="#" v-on:click="regresar" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    </div>
-                    &nbsp;
+                <div class="pull-right m-t-md">
                     <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
                         <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         <li ><a href="#" v-on:click="nuevoColaborador()" >Nuevo Colaborador</a></li>
                         <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
+                        <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
                         <li class="divider"></li>
-                        <li><a href="#" >Ver Cargos</a></li>
-                        <li><a href="#">Ver Funciones</a></li>
+                        <li><a href="#" v-on:click="verCargo()">Ver Cargos</a></li>
+                        <li><a href="#" v-on:click="verFuncion()">Ver Funciones</a></li>
                     </ul>
+                    <a href="#" v-on:click="regresar" class="btn btn-default btn-sm m-l-sm">Regresar</a>
                 </div>
-
                 <h2>Colaboradores</h2>
-
             </header>
             <section class="wrapper-lg m-b-xs">
                 <section class="panel m-b-xs">
@@ -72,30 +68,31 @@
                         </div>
                     </section>
                 </section>
-                
+
                 <section class="panel">            
                     <section class="panel-body">
                         <div class="col-sm-6">
                             <div class="form-group">                                
-                                <multiselect v-model="oficina" 
-                                             v-bind:options='oficinas'
-                                             label='nombre'
-                                             track-by='id'
-                                             v-bind:hide-selected="true"
-                                             placeholder="Seleccione una oficina"
-                                             v-on:input="oficinaSeleccionada()"
-                                             >
+                                <multiselect 
+                                    v-model="oficina" 
+                                    v-bind:options='oficinas'
+                                    label='nombre'
+                                    track-by='id'
+                                    v-bind:hide-selected="true"
+                                    placeholder="Seleccione una oficina"
+                                    v-on:input="oficinaSeleccionada()" >
                                 </multiselect>
                             </div>
                         </div>                        
                         <dynatable/>
                     </section>
                 </section>
+
             </section>
-            
+
             <!--MODAL INICIO-->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-dialog modal-md" role="document">
                     <form data-parsley-validate="true" id="formConfig"  method="post">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -103,40 +100,38 @@
                                 <h4 class="modal-title" id="myModalLabel"> Agregar cargos </h4>
                             </div>
                             <div class="modal-body">
-                                <div class="col-md-offset-1 ">                                  
-                                    <div class='row'>
-                                        <div class="col-sm-10">
-                                            <label >Nombre Cargo</label>
-                                            <div class="form-group">
-                                                <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre de cargo" list="listaCargos" v-model="perfilCompania.nombre" />                                                
-                                            </div>
-                                            <datalist  id="listaCargos" >
-                                                <option class="inline form-control" v-for="cargo in listaCargos" v-bind:value="cargo.nombre" v-text="cargo.nombre" readonly=""> </option>
-                                            </datalist>
-                                        </div>
+                                <div class="form-group">
+                                    <label >Nombre Cargo</label>
+                                    <div class="form-group">
+                                        <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre de cargo" list="listaCargos" v-model="perfilCompania.nombre" />                                                
                                     </div>
-                                    <div class='row'>
-                                        <div class="col-sm-10">
-                                            <label >Nombre Documento Cargo</label>
-                                            <div class="form-group">
-                                                <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre documento"  v-model="perfilCompania.nombreDocumento" />                                                
-                                            </div>                                         
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-success" v-on:click.prevent="addCargo" >Guardar</button>
-                                    </div>
+                                    <datalist  id="listaCargos" >
+                                        <option class="inline form-control" v-for="cargo in listaCargos" v-bind:value="cargo.nombre" v-text="cargo.nombre" readonly=""> </option>
+                                    </datalist>
                                 </div>
+                                <div class="form-group">
+                                    <label >Nombre Documento Cargo</label>
+                                    <div class="form-group">
+                                        <input   required="true" type="text" class="inline form-control" placeholder="Ingrese nombre documento"  v-model="perfilCompania.nombreDocumento" />                                                
+                                    </div>                                         
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-success" v-on:click.prevent="addCargo" >Agregar</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
             <!--MODAL FIN-->
+
+            <th:block th:replace="general/oficina/colaborador/colaboradorTemplate"/>
+
         </div>
+
         <th:block th:replace="general/oficina/colaborador/colaboradorDynatable"/>
+
     </div>
 
 </body>
@@ -148,6 +143,8 @@
         var cargosJson = /*[[${cargos.toString()}]]*/ 'json';
         /*]]>*/
     </script>
+    <div th:substituteby="_modules/vue-modal2"></div>
+    <div th:substituteby="_layout/includes :: vue-loader"/>
     <div th:substituteby="_layout/includes :: javascript-dynatable"/>
     <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
 </div>

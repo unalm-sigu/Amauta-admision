@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -39,12 +41,9 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import pe.edu.lamolina.model.enums.RolEnum;
-import static pe.edu.lamolina.model.enums.RolEnum.FAC;
-import static pe.edu.lamolina.model.enums.RolEnum.MOD;
-import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.Hora;
@@ -52,6 +51,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -63,6 +63,9 @@ public class AlumnoController {
 
     @Autowired
     AlumnoService service;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -89,8 +92,9 @@ public class AlumnoController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        verificadorService.revisarPermiso(request, ds);
         model.addAttribute("resumen", service.findResumen());
 
         return "academico/alumno/alumno";
@@ -98,17 +102,23 @@ public class AlumnoController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+            List<Alumno> alumnos = null;
 
-            FotoHelper helper = new FotoHelper();
-            List<Alumno> alumnos = service.allAlumnosByCicloDynatable(filter, ds.getCarreras());
+            if (facultades.isEmpty()) {
+                alumnos = service.allAlumnosByCicloDynatable(filter, ds.getCarreras());
+            } else {
+                alumnos = service.allAlumnosByFacultadDynatable(filter, facultades);
+            }
+            
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Alumno alumn : alumnos) {
                 Persona persona = alumn.getPersona();
@@ -119,7 +129,8 @@ public class AlumnoController {
                 node.put("id", alumn.getId());
                 node.put("nombre", persona.getApellidosNombres());
                 node.put("codigo", alumn.getCodigo());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
+                node.put("rutaFoto", persona.getRutaFoto());
+                node.put("tipoFoto", persona.getTipoFoto());
                 node.put("tipoDoc", persona.getTipoDocumento().getSimbolo());
                 node.put("nroDocumento", persona.getNumeroDocIdentidad());
                 node.put("telefono", persona.getTelefono());
@@ -443,20 +454,35 @@ public class AlumnoController {
         try {
             Alumno alumno = service.allInfo(new Alumno(idAlumno));
 
+            ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "carrera.*",
+                "carrera.orientacionCarrera.*",
+                "carrera.facultad.*",
+                "situacionAcademica.*",
+                "planCurricular.*",
+                "planCurricular.cicloInicioVigencia.*",
+                "planCurricular.orientacionCarrera.*",
+                "modalidadEstudio.*",
+                "persona.*",
+                "persona.tipoDocumento.*"});
+
             ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
-            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
-            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
-            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
-            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
-            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
-            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
-            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
-            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
-            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
-            if (alumno.getPlanCurricular() != null) {
-                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
-            }
-            objNode.set("alumno", objNodeInfo);
+            objNode.set("alumno", alumnoJson);
+
+//            ObjectNode objNodeInfo = new ObjectNode(JsonNodeFactory.instance);
+//            objNodeInfo.put("Modalidad", alumno.getModalidadEstudio() == null ? "" : alumno.getModalidadEstudio().getNombre());
+//            objNodeInfo.put("promedioAcumulado", alumno.getPromedioAcumulado());
+//            objNodeInfo.put("creditosCursados", alumno.getCreditosCursados());
+//            objNodeInfo.put("creditosAprobados", alumno.getCreditosAprobados());
+//            objNodeInfo.put("carrera", alumno.getCarrera().getNombre());
+//            objNodeInfo.put("facultad", alumno.getCarrera().getFacultad().getNombre());
+//            objNodeInfo.put("cicloIngreso", alumno.getCicloIngreso() == null ? "" : alumno.getCicloIngreso().getDescripcion());
+//            objNodeInfo.put("ultimoCiclo", alumno.getCodigoCicloActivo() == null ? "" : alumno.getCicloActivo().getDescripcion());
+//            if (alumno.getPlanCurricular() != null) {
+//                objNodeInfo.set("planCurricular", alumno.getPlanCurricular().toJson());
+//            }
+//            objNode.set("alumno", objNodeInfo);
             response.setData(objNode);
             response.setSuccess(true);
         } catch (PhobosException e) {

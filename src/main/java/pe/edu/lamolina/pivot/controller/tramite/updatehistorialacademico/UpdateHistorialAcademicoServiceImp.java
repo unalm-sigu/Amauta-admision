@@ -70,7 +70,7 @@ import pe.edu.lamolina.pivot.dao.tramite.TipoConstanciaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
-import pe.edu.lamolina.pivot.dao.tramite.hibernate.SolicitudConstanciaDAOH;
+import pe.edu.lamolina.pivot.dao.tramite.hibernate.TramiteDocumentoAcademicoDAOH;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -100,7 +100,7 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
     CursoDAO cursoDAO;
 
     @Autowired
-    SolicitudConstanciaDAOH tramiteDocumentoAcademicoDAO;
+    TramiteDocumentoAcademicoDAOH tramiteDocumentoAcademicoDAO;
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
@@ -558,10 +558,15 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
 
     @Override
     @Transactional
-    public void cancelar(TramiteDocumentoAcademico solicitudConstancia) {
+    public void cancelar(TramiteDocumentoAcademico solicitudConstancia, DataSessionPivot ds) {
         TramiteDocumentoAcademico tda = tramiteDocumentoAcademicoDAO.find(solicitudConstancia.getId());
+        AcreenciaTramiteDocumento atd = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tda);
         tda.setEstadoEnum(TramiteEstadoEnum.ANU);
+        atd.setEstadoEnum(EstadoAcreenciaTramiteEnum.ANU);
         tramiteDocumentoAcademicoDAO.update(tda);
+        atd.setFechaAnulacion(new Date());
+        atd.setUserAnulacion(ds.getUsuario());
+        acreenciaTramiteDocumentoDAO.update(atd);
     }
 
     @Override
@@ -669,4 +674,5 @@ public class UpdateHistorialAcademicoServiceImp implements UpdateHistorialAcadem
             this.uploadS3(persona.getRutaFotoTemporal());
         }
     }
+
 }

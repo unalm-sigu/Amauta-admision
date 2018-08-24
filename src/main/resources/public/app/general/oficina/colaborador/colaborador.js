@@ -17,10 +17,14 @@ Vue.component("dynatable", {
             $vue.oficina = valor.id;
             $dynatable.process();
         });
-        $('.dynatable-search').addClass('col-md-2 pull-right');
+        $('.dynatable-search').addClass('pull-right');
+        $('.dynatable-search').parents('.panel:first').removeClass('padder-v');
+        $('.dynatable-search').parents('.footer:first').removeClass('m-t-lg');
         $('.dynatable-search').find('input')
-                .addClass('form-control input-sm')
+                .addClass('form-control')
                 .attr('placeholder', 'Buscar');
+          $('.dynatable-search').find('input')
+                .removeClass('input-sm');
 
         $('multiselect').select2({
             placeholder: {
@@ -46,6 +50,12 @@ Vue.component("dynatable", {
             });
             $("body").delegate(".updateColaborador", "click", function () {
                 $global.$emit("updateColaborador", $(this).attr("rel"));
+            });
+            $("body").delegate(".updatePersona", "click", function () {
+                $global.$emit("updatePersona", $(this).attr("rel"));
+            });
+            $("body").delegate(".showFuncionesColaborador", "click", function () {
+                $global.$emit("showFuncionesColaborador", $(this).attr("rel"));
             });
 
 
@@ -79,13 +89,23 @@ Vue.component("dynatable", {
 });
 new Vue({
     el: '#colaboradorVue',
+    mixins: [VueLoader],
     data: {
         oficinas: JSON.parse(oficinasJson),
         oficina: {id: JSON.parse(oficinaId)},
         listaCargos: JSON.parse(cargosJson),
         persona: {},
         colaborador: {},
-        perfilCompania: {}
+        perfilCompania: {},
+        dataModalFuncion: {
+            title: 'Nueva Función',
+        },
+        dataVerCargo: {
+            title: 'Cargos',
+            showaccept: false
+        },
+        funcion: {id: null},
+        cargos: []
     },
     computed: {
 
@@ -107,9 +127,18 @@ new Vue({
         $global.$on("updateColaborador", function (id) {
             $vue.updateColaborador(id);
         });
+        $global.$on("updatePersona", function (id) {
+            $vue.updatePersona(id);
+        });
+        $global.$on("showFuncionesColaborador", function (id) {
+            $vue.showFuncionesColaborador(id);
+        });
 
     },
     methods: {
+        updatePersona(id) {
+            window.location = APP.url('general/persona/' + id + '/edicion?origen=' + window.location.pathname);
+        },
         addCargo: function () {
             let $vue = this;
             var flag = false;
@@ -193,6 +222,132 @@ new Vue({
                     });
                 }
             });
-        }
+        },
+        nuevaFuncion: function () {
+            let vue = this;
+            vue.funcion = {id: null};
+            vue.dataModalFuncion.title = "Nueva Función";
+            vue.$refs.modaladdfuncion.open();
+        },
+        saveFuncion: function () {
+            var vue = this;
+
+            var valid = $('#formAddFuncion').parsley().validate();
+
+            if (valid != true) {
+                return;
+            }
+
+            vue.showLoader();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/savefuncion'),
+                data: $('#formAddFuncion').serialize(),
+                async: false,
+                success: function (response) {
+
+                    if (response.success) {
+
+                        notify(response.message, 'info');
+                        vue.$refs.modaladdfuncion.close();
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                    vue.hideLoader();
+
+                }, error: function () {
+
+                    vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+
+                }
+            });
+
+        },
+        verCargo: function () {
+            let vue = this;
+            vue.dataVerCargo.title = "Cargos";
+            vue.$refs.modalvercargo.open();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/vercargo'),
+                data: {id: vue.oficina.id},
+                success: function (response) {
+
+                    if (response.success) {
+
+                        vue.cargos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+
+        },
+        verFuncion: function () {
+            let vue = this;
+            vue.dataVerCargo.title = "Funciones";
+            vue.$refs.modalvercargo.open();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/verfuncion'),
+                data: {id: vue.oficina.id},
+                success: function (response) {
+
+                    if (response.success) {
+
+                        vue.cargos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
+        getRecord: function (id) {
+            var id=parseInt(id);
+            return $dynatable.settings.dataset.records.find(item => item.id === id);
+        },
+        showFuncionesColaborador: function (id) {
+            let vue = this;
+            var colaboradorr = vue.getRecord(id);
+     
+            vue.dataVerCargo.title = "Funciones de "+colaboradorr.persona;
+            vue.$refs.modalvercargo.open();
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('general/oficina/verfuncionColaborador'),
+                data: {id: id},
+                success: function (response) {
+
+                    if (response.success) {
+
+                        vue.cargos = response.data;
+
+                    } else {
+                        notify(response.message, 'error');
+                    }
+
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        },
     }
 });

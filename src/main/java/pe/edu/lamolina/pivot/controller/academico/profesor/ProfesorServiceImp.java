@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +14,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.aws.S3Service;
-import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -81,6 +83,16 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
+    public List<Docente> allByFacultadesDynatable(DynatableFilter filter, List<Facultad> facultades) {
+        return docenteDAO.allByFacultadesDyantable(filter, facultades);
+    }
+
+    @Override
+    public List<ModalidadEstudio> allModalidadEstudioByCodes(List<ModalidadEstudioEnum> codes, Compania compania) {
+        return modalidadEstudioDAO.allActivoByCodesCompania(codes, compania);
+    }
+
+    @Override
     public Docente find(Docente docente) {
         return docenteDAO.findByDocente(docente);
     }
@@ -112,7 +124,7 @@ public class ProfesorServiceImp implements ProfesorService {
             if (Strings.isNullOrEmpty(personaForm.getFoto())) {
                 personaForm.setFoto(null);
             } else {
-                this.uploadS3(personaForm.getRutaFotoTemporal());
+                this.uploadS3(personaForm.getFoto());
             }
             personaForm.setFechaRegistro(new Date());
             personaForm.setUserRegistro(user);
@@ -140,17 +152,14 @@ public class ProfesorServiceImp implements ProfesorService {
             if (persona.getFechaValidacionReniec() == null) {
                 persona = this.getPersonaBDreniec(personaForm);
             }
-            if (Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
-                persona.setRutaFotoTemporal(null);
-            } else {
-                persona.setRutaFotoTemporal(personaForm.getFoto());
-                this.uploadS3(personaForm.getRutaFotoTemporal());
-            }
+            persona.setFoto(personaForm.getFoto());
+            this.uploadS3(personaForm.getFoto());
+
         }
 
         List<Docente> docentesBD = docenteDAO.allByPersona(docente.getPersona());
         logger.debug("existe docente en db {}", (docentesBD != null));
-        if (docentesBD.isEmpty()) {
+        if (!docentesBD.isEmpty()) {
             throw new PhobosException("Docente ya existe");
         }
 
@@ -225,12 +234,10 @@ public class ProfesorServiceImp implements ProfesorService {
             persona = this.getPersonaBDreniec(personaForm);
             logger.debug("-> Dato basicos de persona actualizados");
         }
-        if (Strings.isNullOrEmpty(personaForm.getRutaFotoTemporal())) {
-            persona.setRutaFotoTemporal(null);
-        } else {
-            persona.setRutaFotoTemporal(personaForm.getRutaFotoTemporal());
-            this.uploadS3(personaForm.getRutaFotoTemporal());
-        }
+
+        persona.setFoto(personaForm.getFoto());
+        this.uploadS3(personaForm.getFoto());
+
         personaDAO.update(persona);
         logger.debug("***Resolviendo en Tabla Docente***");
         Docente docenteBD = docenteDAO.findByDocente(docente);
@@ -520,17 +527,35 @@ public class ProfesorServiceImp implements ProfesorService {
 //        }
 //        FileHelper.renameFile(oldName, newName);
 //    }
-    
     @Override
     public Persona findPersona(Persona persona) {
         return personaDAO.find(persona.getId());
     }
 
+    @Override
+    public String getRutaFoto(String foto, String sexo) {
+
+        if (!StringUtils.isEmpty(foto)) {
+            return Constantine.S3_RUTA + Constantine.S3_FOLDER + foto;
+        }
+
+        if (!StringUtils.isEmpty(sexo)) {
+            switch (sexo) {
+                case "M":
+                    return "/phobos/images/unalm/male.png";
+                case "F":
+                    return "/phobos/images/unalm/female.png";
+            }
+        }
+
+        return "/phobos/images/unalm/unknown-person.gif";
+    }
+
     public void uploadS3(String fileName) {
-        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUKET, "public-unalm/profile/", Constantine.TMP_DIR, fileName, true);
         File f = new File(Constantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+            s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_FOLDER, Constantine.TMP_DIR, fileName, true);
         }
     }
 
