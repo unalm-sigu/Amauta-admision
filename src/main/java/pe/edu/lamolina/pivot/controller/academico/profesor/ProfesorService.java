@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -16,6 +17,8 @@ public interface ProfesorService {
     List<Docente> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos);
 
     public List<Docente> allByFacultadesDynatable(DynatableFilter filter, List<Facultad> facultades);
+
+    List<ModalidadEstudio> allModalidadEstudioByCodes(List<ModalidadEstudioEnum> codes, Compania compania);
 
     Docente find(Docente docente);
 

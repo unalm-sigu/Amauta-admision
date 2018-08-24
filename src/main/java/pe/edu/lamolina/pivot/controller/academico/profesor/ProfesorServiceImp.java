@@ -22,6 +22,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -84,6 +85,11 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public List<Docente> allByFacultadesDynatable(DynatableFilter filter, List<Facultad> facultades) {
         return docenteDAO.allByFacultadesDyantable(filter, facultades);
+    }
+
+    @Override
+    public List<ModalidadEstudio> allModalidadEstudioByCodes(List<ModalidadEstudioEnum> codes, Compania compania) {
+        return modalidadEstudioDAO.allActivoByCodesCompania(codes, compania);
     }
 
     @Override
