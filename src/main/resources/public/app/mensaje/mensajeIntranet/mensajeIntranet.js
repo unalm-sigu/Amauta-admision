@@ -32,11 +32,10 @@ new Vue({
         init() {
             let $vue = this;
             $vue.mensajeria = {};
-
         },
         nuevo() {
             let $vue = this;
-            $vue.init();
+            $vue.mensajeria = {esObligatorio: 0};
             $vue.addMensajeria.okbtn = "Guardar";
             $vue.addMensajeria.title = "Nuevo Mensaje Intranet";
             $vue.$refs.modalMensajeria.open();
@@ -48,8 +47,8 @@ new Vue({
                 return;
             }
 
-            $vue.mensajeria.esObligatorio = $vue.getBoolean($vue.mensajeria.esObligatorio);
-            $vue.mensajeria.conCronograma = $vue.getBoolean($vue.mensajeria.conCronograma);
+//            $vue.mensajeria.esObligatorio = $vue.getBoolean($vue.mensajeria.esObligatorio);
+//            $vue.mensajeria.conCronograma = $vue.getBoolean($vue.mensajeria.conCronograma);
 
             $.ajax({
                 method: 'POST',
@@ -71,12 +70,12 @@ new Vue({
             });
 
         },
-        getBoolean(valor) {
-            if (valor) {
-                return 1;
-            }
-            return 0;
-        },
+//        getBoolean(valor) {
+//            if (valor) {
+//                return 1;
+//            }
+//            return 0;
+//        },
         editar(item) {
             let $vue = this;
             $vue.init();
@@ -99,8 +98,6 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-
-
         },
         eliminar: function (item) {
             console.log(item)
@@ -140,6 +137,21 @@ new Vue({
         tipoSelected(item) {
             let $vue = this;
             $vue.mensajeria.contenido = item.contenido;
+        },
+        onChangePreObli(e) {
+            let $vue = this;
+            let val = e.target.value;
+            if (val > 0) {
+                $vue.mensajeria.esObligatorio = 1;
+            } else {
+                $vue.mensajeria.esObligatorio = 0;
+            }
+        },
+        chkbIsObli(e) {
+            let $vue = this;
+            if (!e.target.checked) {
+                $vue.mensajeria.preObligatorio = 0;
+            }
         }
     }
 });
