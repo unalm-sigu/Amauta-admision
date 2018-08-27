@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -61,4 +62,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updateCicloActivoRegular(Alumno alumno);
 
+    Alumno findSituacionAcademica(Alumno alumno);
+
+    List<Alumno> allByNombreFacultad(String name, Facultad facultad);
+    
 }
