@@ -75,6 +75,9 @@ public class InformacionProfesorController {
         model.addAttribute("docente", new Docente(idDocente));
         model.addAttribute("tiposDocIdentidad", service.allDocumentos());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
+        model.addAttribute("categorias", service.allCategorias());
+        model.addAttribute("situaciones", service.allSituaciones());
+        model.addAttribute("dedicaciones", service.allDedicaciones());
         return "academico/profesor/informacion/informacion";
     }
 

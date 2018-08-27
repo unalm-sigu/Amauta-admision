@@ -17,6 +17,17 @@ new Vue({
                 ubicacionNacer: {id: null}
             },
         },
+        labelContrato: {'ACT': 'label-success'},
+        textContrato: {'ACT': 'Activo'},
+        modalContrato: {
+            id: 'modalContrato',
+            header: true,
+            title: 'Nuevo contrato',
+            okbtn: 'Agregar',
+            cancelbtn: 'Cancelar',
+            cancelclass: 'btn btn-link',
+            showaccept: true
+        }
     },
     mounted: function () {
 
@@ -30,14 +41,24 @@ new Vue({
         });
 
         self.find('[name="persona.tipoDocumento.id"]').
-            select2({minimumResultsForSearch: -1}).
-            on("change.select2", function (el) {
-                vue.docente.persona.tipoDocumento.id = el.val;
-            });
+                select2({minimumResultsForSearch: -1}).
+                on("change.select2", function (el) {
+                    vue.docente.persona.tipoDocumento.id = el.val;
+                });
 
         self.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
 
-        if (vue.docente.id != null) {
+        self.find("[name='categoria.id']").select2({minimumResultsForSearch: -1});
+
+        self.find("[name='situacion.id']").select2({minimumResultsForSearch: -1});
+
+        self.find("[name='dedicacion.id']").select2({minimumResultsForSearch: -1});
+
+        self.find("[name='cicloInicioContrato.id']").select2({minimumResultsForSearch: -1});
+
+        self.find("[name='cicloFinContrato.id']").select2({minimumResultsForSearch: -1});
+
+        if (vue.docente.id !== null) {
             vue.updateDocente(vue.docente.id);
         }
 
@@ -130,6 +151,14 @@ new Vue({
                 return '<div class="block"><strong>Responsable:</strong> ' + record.responsable + '</div>';
             } else {
                 return '<div class="text-danger block">Sin responsable</div>';
+            }
+        },
+        nuevoContrato() {
+            this.$refs.modalContrato.open();
+        },
+        saveContrato() {
+            if (!$('#formContrato').parsley().validate()) {
+                return;
             }
         }
     },

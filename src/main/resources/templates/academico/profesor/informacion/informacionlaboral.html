@@ -1,1 +1,132 @@
-info laboral
+<div class="block">
+    <a href="#" class="btn btn-success" v-on:click="nuevoContrato"> Agregar contrato </a>
+</div>
+<raptor-table v-bind:url="`/academico/profesor/${docente.id}/contratos`" v-bind:searcher="false">
+    <template scope="props">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="col-md-1 text-center">Ciclo Inicio</th>
+                    <th class="col-md-1 text-center">Ciclo Fin</th>
+                    <th class="col-md-2">Categoría</th>
+                    <th class="col-md-2">Dedicación</th>
+                    <th class="col-md-2">Situación</th>
+                    <th class="col-md-2">Resolución Facultad </th>
+                    <th class="col-md-2">Resolución CUN </th>
+                    <th class="col-md-1 text-center">Estado </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in props.data"> 
+                    <td class="v-middle text-center">
+                        <span>  {{ item.cicloInicioContrato.descripcion }} </span> 
+                    </td>
+                    <td class="v-middle text-center">
+                        <span>  {{ item.cicloFinContrato.descripcion }} </span> 
+
+                    </td>
+                    <td class="v-middle">
+                        <span class="block"> {{ item.categoria.nombre }} </span>
+                        <span class="block small text-muted"> {{ item.categoria.codigo }} </span>
+                    </td>
+                    <td class="v-middle">
+                        <span class="block"> {{ item.dedicacion.nombre }} </span>
+                        <span class="block small text-muted"> {{ item.dedicacion.codigo }} </span>
+                    </td>
+                    <td class="v-middle">
+                        <span class="block"> {{ item.situacion.nombre }} </span>
+                        <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
+                    </td>
+                    <td class="v-middle">
+                    </td>
+                    <td class="v-middle">
+
+                    </td>
+                    <td class="v-middle text-center">
+                        <span>  {{ item.estado }} </span> 
+
+                    </td>
+                    <td class="v-middle">
+                        <div class="dropdown actions">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                            <ul class="dropdown-menu pull-right" >
+                                <li role="presentation">
+                                    <a href="#">Visto bueno de Estudios</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#">Agregar Resolución de Facultad</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#">Agregar Resolución de CUN</a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+</raptor-table>
+
+
+<modal-vik ref="modalContrato"
+           v-bind="modalContrato"
+           v-bind:okaction="saveContrato">
+    <div slot="body">
+        <form id="formContrato">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Categoría </label>
+                        <select class="form-control" name="categoria.id" required="">
+                            <option></option>
+                            <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Dedicación </label>
+                        <select class="form-control" name="dedicacion.id" required="">
+                            <option></option>
+                            <option th:each="dedicacion : ${dedicaciones}" th:value="${dedicacion.id}" th:text="${dedicacion.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Situación </label>
+                        <select class="form-control" name="situacion.id" required="">
+                            <option></option>
+                            <option th:each="situacion : ${situaciones}" th:value="${situacion.id}" th:text="${situacion.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Ciclo Inicio </label>
+                        <select class="form-control" name="cicloInicioContrato.id" required="">
+                            <option></option>
+                            <option th:each="situacion : ${situaciones}" th:value="${situacion.id}" th:text="${situacion.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Ciclo Fin </label>
+                        <select class="form-control" name="cicloFinContrato.id" required="">
+                            <option></option>
+                            <option th:each="situacion : ${situaciones}" th:value="${situacion.id}" th:text="${situacion.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>

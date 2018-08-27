@@ -1,4 +1,4 @@
-<raptor-table v-bind:url="`/academico/profesor/${docente.id}/listCargaAcademicaDocente`">
+<raptor-table v-bind:url="`/academico/profesor/${docente.id}/listCargaAcademicaDocente`" v-bind:searcher="false" v-bind:paginate="false">
     <template scope="props">
         <table class="table table-striped">
             <thead>
