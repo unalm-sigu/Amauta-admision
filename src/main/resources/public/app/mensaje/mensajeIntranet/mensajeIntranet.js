@@ -143,8 +143,6 @@ new Vue({
             let val = e.target.value;
             if (val > 0) {
                 $vue.mensajeria.esObligatorio = 1;
-            } else {
-                $vue.mensajeria.esObligatorio = 0;
             }
         },
         chkbIsObli(e) {
