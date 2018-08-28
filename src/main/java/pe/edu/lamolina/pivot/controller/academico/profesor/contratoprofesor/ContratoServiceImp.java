@@ -143,7 +143,18 @@ public class ContratoServiceImp implements ContratoService {
 
         if (cicloInicio.getCodigo().compareTo(actual.getCodigo()) <= 0 && cicloFin.getCodigo().compareTo(actual.getCodigo()) > 0) {
             Docente docenteBD = docenteDAO.find(docente.getId());
+            
+            docenteBD.setCategoria(contratoDocente.getCategoria());
+            docenteBD.setSituacion(contratoDocente.getSituacion());
+            docenteBD.setDedicacion(contratoDocente.getDedicacion());
+            
+            docenteBD.setCicloInicioContrato(cicloInicio);
+            docenteBD.setCicloFinContrato(cicloFin);
+            
+            docenteBD.setCategoria(contratoDocente.getCategoria());
             docenteBD.setEstado(DocenteEstadoEnum.ACT);
+
+            docenteDAO.update(docenteBD);
         }
 
     }
