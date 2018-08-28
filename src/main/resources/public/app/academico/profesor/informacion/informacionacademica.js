@@ -17,12 +17,32 @@ new Vue({
                 ubicacionNacer: {id: null}
             },
         },
-        labelContrato: {'ACT': 'label-success'},
-        textContrato: {'ACT': 'Activo'},
+        resolucion: {
+            id: ''
+        },
+        labelContrato: {'ACT': 'label-success', 'PEND': 'label-warning', 'RESL':'label-primary', 'CFIN':'label-danger', 'VENC':'label-default'},
         modalContrato: {
             id: 'modalContrato',
             header: true,
             title: 'Nuevo contrato',
+            okbtn: 'Agregar',
+            cancelbtn: 'Cancelar',
+            cancelclass: 'btn btn-link',
+            showaccept: true
+        },
+        modalResolucionConsejo: {
+            id: 'modalResolucionConsejo',
+            header: true,
+            title: 'Agregar Resolución del Consejo',
+            okbtn: 'Agregar',
+            cancelbtn: 'Cancelar',
+            cancelclass: 'btn btn-link',
+            showaccept: true
+        },
+        modalResolucionFacultad: {
+            id: 'modalResolucionFacultad',
+            header: true,
+            title: 'Agregar Resolucíon de Facultad',
             okbtn: 'Agregar',
             cancelbtn: 'Cancelar',
             cancelclass: 'btn btn-link',
@@ -33,30 +53,109 @@ new Vue({
 
         let vue = this;
         let self = $(vue.$el);
-
         self.find(".numerico").numeric({negative: false});
         self.find(".date").datepickerBoot().on('changeDate', function (e) {
             var ella = $(e.currentTarget);
             vue.docente.persona.fechaNacer = ella.find('input').val();
         });
-
         self.find('[name="persona.tipoDocumento.id"]').
-                select2({minimumResultsForSearch: -1}).
-                on("change.select2", function (el) {
-                    vue.docente.persona.tipoDocumento.id = el.val;
-                });
-
+            select2({minimumResultsForSearch: -1}).
+            on("change.select2", function (el) {
+                vue.docente.persona.tipoDocumento.id = el.val;
+            });
         self.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
-
         self.find("[name='categoria.id']").select2({minimumResultsForSearch: -1});
-
         self.find("[name='situacion.id']").select2({minimumResultsForSearch: -1});
-
         self.find("[name='dedicacion.id']").select2({minimumResultsForSearch: -1});
+        self.find("[name='cicloFinContrato.id']").select2({
+            minimumInputLength: 1,
+            ajax: {
+                url: APP.url("academico/profesor/contrato/searchciclo"),
+                dataType: 'json',
+                type: 'post',
+                data: function (term, page) {
+                    return {nombre: term, page: page};
+                },
+                results: function (response, page) {
+                    return {results: response.data};
+                }
+            },
+            formatResult: function (info) {
+                return info.descripcion;
+            },
+            formatSelection: function (info) {
+                return info.descripcion;
+            }
+        });
+        self.find("[name='cicloInicioContrato.id']").select2({
+            placeholder: '',
+            minimumInputLength: 1,
+            ajax: {
+                url: APP.url("academico/profesor/contrato/searchciclo"),
+                dataType: 'json',
+                type: 'post',
+                data: function (term, page) {
+                    return {nombre: term, page: page};
+                },
+                results: function (response, page) {
+                    return {results: response.data};
+                }
+            },
+            initSelection: function (element, callback) {
+                return null;
+            },
+            formatResult: function (info) {
+                return info.descripcion;
+            },
+            formatSelection: function (info) {
+                return info.descripcion;
+            },
+            escapeMarkup: function (m) {
+                return m;
+            }
+        });
 
-        self.find("[name='cicloInicioContrato.id']").select2({minimumResultsForSearch: -1});
+        self.find("#resConsejoId").select2({
+            minimumInputLength: 1,
+            ajax: {
+                url: APP.url("academico/profesor/contrato/searchresolucionconsejo"),
+                dataType: 'json',
+                type: 'post',
+                data: function (term, page) {
+                    return {nombre: term, page: page};
+                },
+                results: function (response, page) {
+                    return {results: response.data};
+                }
+            },
+            formatResult: function (info) {
+                return info.descripcion;
+            },
+            formatSelection: function (info) {
+                return info.descripcion;
+            }
+        });
 
-        self.find("[name='cicloFinContrato.id']").select2({minimumResultsForSearch: -1});
+        self.find("#resFacultadId").select2({
+            minimumInputLength: 1,
+            ajax: {
+                url: APP.url("academico/profesor/contrato/searchresolucionfacultad"),
+                dataType: 'json',
+                type: 'post',
+                data: function (term, page) {
+                    return {nombre: term, page: page};
+                },
+                results: function (response, page) {
+                    return {results: response.data};
+                }
+            },
+            formatResult: function (info) {
+                return info.descripcion;
+            },
+            formatSelection: function (info) {
+                return info.descripcion;
+            }
+        });
 
         if (vue.docente.id !== null) {
             vue.updateDocente(vue.docente.id);
@@ -128,7 +227,6 @@ new Vue({
         buildSeccionesHtml: function (record) {
             var seccionesHtml = "";
             var secciones = record.secciones.split(",");
-
             for (var i = 0; i < secciones.length; i++) {
                 seccionesHtml += '<div class="m-l-md inline"><a href="#" ';
                 if (record.estado == 'ACEP' && secciones[i].split("|")[4] == "VER") {
@@ -154,12 +252,100 @@ new Vue({
             }
         },
         nuevoContrato() {
+            let self = $(this.$el);
+            self.find("[name='modalidadEstudio.id']").select2("val", "");
+            self.find("[name='categoria.id']").select2("val", "");
+            self.find("[name='situacion.id']").select2("val", "");
+            self.find("[name='dedicacion.id']").select2("val", "");
+            self.find("[name='cicloFinContrato.id']").select2("val", "");
+            self.find("[name='cicloInicioContrato.id']").select2("val", "");
             this.$refs.modalContrato.open();
         },
         saveContrato() {
-            if (!$('#formContrato').parsley().validate()) {
+            let form = $('#formContrato');
+            if (!form.parsley().validate()) {
                 return;
             }
+            let envelope = form.serialize();
+            AXIOS.post(`/academico/profesor/${this.docente.id}/contratos/save`, envelope)
+                .then(response => {
+                    if (response.data.success) {
+                        this.$refs.raptorContratos.loadRemoteData();
+                        this.$refs.modalContrato.close();
+                    }
+                })
+        },
+        addVistoBueno(item) {
+            bootbox.confirm({
+                message: `¿Seguro que desea añadir el visto bueno al contrato?`,
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: 'btn-success'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        AXIOS.post(`/academico/profesor/contrato/${item.id}/vistobueno`)
+                            .then(response => {
+                                if (response.data.success) {
+                                    this.$refs.raptorContratos.loadRemoteData();
+                                }
+                            })
+                    }
+                }
+            });
+        },
+        addResolucionFacultad(item) {
+            this.resolucion.id = item.id;
+            this.$refs.modalResolucionFacultad.open();
+        },
+        addResolucionConsejo(item) {
+            this.resolucion.id = item.id;
+            this.$refs.modalResolucionConsejo.open();
+        },
+        saveResolucionFacultad() {
+            let form = $('#formResolucionFacultad');
+            if (!form.parsley().validate()) {
+                return;
+            }
+            AXIOS.post(`/academico/profesor/contrato/${this.resolucion.id}/resolucionfacultad`, form.serialize())
+                .then(response => {
+                    if (response.data.success) {
+                        this.$refs.raptorContratos.loadRemoteData();
+                        this.$refs.modalResolucionFacultad.close();
+                    }
+                })
+        },
+        saveResolucionConsejo() {
+            let form = $('#formResolucionConsejo');
+            if (!form.parsley().validate()) {
+                return;
+            }
+            AXIOS.post(`/academico/profesor/contrato/${this.resolucion.id}/resolucionconsejo`, form.serialize())
+                .then(response => {
+                    if (response.data.success) {
+                        this.$refs.raptorContratos.loadRemoteData();
+                        this.$refs.modalResolucionConsejo.close();
+                    }
+                })
+        },
+        finalizar(item){
+             bootbox.confirm({
+                message: `¿Seguro que desea finalizar el contrato?`,
+                buttons: {
+                    confirm: {label: 'Sí, seguro', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: (result) => {
+                    if (result) {
+                        AXIOS.post(`/academico/profesor/contrato/${item.id}/finalizar`)
+                            .then(response => {
+                                if (response.data.success) {
+                                    this.$refs.raptorContratos.loadRemoteData();
+                                }
+                            })
+                    }
+                }
+            });
         }
     },
 });
