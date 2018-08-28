@@ -66,11 +66,12 @@ public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
         subvencion.setHoras(tramiteSubvencion.getHoras());
         subvencion.setLaborRealizar(tramiteSubvencion.getLaborRealizar());
         subvencion.setLugar(tramiteSubvencion.getLugar());
+        
         subvencionDAO.update(subvencion);
         
         t.setEstado(accion.getEstadoFinal());
         t.setFechaModificacion(new Date());
-        t.setUserModificacion(tramite.getUserRegistro());
+        t.setUserModificacion(usuario);
         t.setObservacion(tramiteSubvencion.getComentario());
         tramiteDAO.update(t);
         

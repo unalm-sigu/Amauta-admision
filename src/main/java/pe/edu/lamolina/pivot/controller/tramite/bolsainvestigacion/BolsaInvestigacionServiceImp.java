@@ -17,18 +17,31 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.bienestar.TipoSubvencion;
 import pe.edu.lamolina.model.enums.AlumnoBolsaInvestigacionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.SerieDocumento;
+import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.tramite.AlumnoBolsaInvestigacion;
 import pe.edu.lamolina.model.tramite.BolsaInvestigacion;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteSubvencion;
+import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteBienestarDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AlumnoBolsaInvestigacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.BolsaInvestigacionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteSubvencionDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_TIPO_SUBVENCION_INVESTIGACION;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_TIPO_TRAMITE_SUBVENCION;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -58,6 +71,18 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
     @Autowired
     ColaboradorDAO colaboradorDAO;
 
+    @Autowired
+    AccionTramiteBienestarDAO accionTramiteBienestarDAO;
+
+    @Autowired
+    TramiteDAO tramiteDAO;
+
+    @Autowired
+    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+
+    @Autowired
+    SerieDocumentoService serieDocumentoService;
+
     @Override
     @Transactional
     public void agregarAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds) {
@@ -71,12 +96,37 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
         AlumnoBolsaInvestigacion abiBD = alumnoBolsaInvestigacionDAO.findByBolsaInvestigacionAlumno(bi, alumno.getAlumno());
         Assert.isNull(abiBD, "Ya se ha registrado una investigación de este alumno");
 
-        Assert.isTrue(!checkearAlumno(alumno.getAlumno(), cicloAcademico).isEmpty(), "Alumno no válido");
+        Assert.isTrue(checkearAlumno(alumno.getAlumno(), cicloAcademico).isEmpty(), "Alumno no válido");
+        TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
+
+        Tramite tramite = new Tramite();
+        tramite.setSerie(Long.parseLong(serie.getNumeroSerie()));
+        tramite.setNumero(Long.parseLong(serie.getNumeroDocumento()));
+        tramite.setAlumno(alumno.getAlumno());
+        tramite.setCicloAcademico(cicloAcademico);
+        tramite.setCompania(ds.getCompania());
+        tramite.setEstado(TramiteEstadoEnum.CRE.name());
+        tramite.setFechaRegistro(new Date());
+        tramite.setPersona(alumno.getAlumno().getPersona());
+        tramite.setTipoTramite(new TipoTramite(ID_TIPO_TRAMITE_SUBVENCION));
+        tramite.setUserRegistro(ds.getUsuario());
+        tramiteDAO.save(tramite);
+
+        TramiteSubvencion subvencion = new TramiteSubvencion();
+        subvencion.setFechaRegistro(new Date());
+        subvencion.setSupervisor(alumno.getSupervisor());
+        subvencion.setTipoSubvencion(new TipoSubvencion(ID_TIPO_SUBVENCION_INVESTIGACION));
+        subvencion.setTramite(tramite);
+        subvencion.setUserRegistro(ds.getUsuario());
+        subvencion.setVoboSupervisor(1);
+        tramiteSubvencionDAO.save(subvencion);
 
         alumno.setBolsaInvestigacion(bi);
         alumno.setEstado(AlumnoBolsaInvestigacionEstadoEnum.CRE);
         alumno.setUserRegistro(ds.getUsuario());
         alumno.setFechaRegistro(new Date());
+        alumno.setTramiteSubvencion(subvencion);
         alumnoBolsaInvestigacionDAO.save(alumno);
     }
 
@@ -201,7 +251,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
     @Override
     public Facultad findByDataSession(DataSessionPivot ds) {
-        return new Facultad(10L);
+        return new Facultad(5L);
     }
 
 }

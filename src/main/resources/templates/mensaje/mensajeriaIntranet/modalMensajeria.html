@@ -83,11 +83,19 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-sm-6">
+                    <label>Veces antes de ser Obligatorio</label>
+                    <div class="form-group">
+                        <input type="text" class="form-control numeric" v-on:keyup="onChangePreObli" required="true" v-model="mensajeria.preObligatorio"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-sm-3">
                     <label>Es Obligatorio</label>
                     <div class="form-group">
                         <label class="switch">
-                            <input type="checkbox" v-model="mensajeria.esObligatorio"/>
+                            <input type="checkbox" id="chkbObli" v-on:change="chkbIsObli" true-value="1" false-value="0" v-model="mensajeria.esObligatorio"/>
                             <span></span>
                         </label>
                     </div>
@@ -96,7 +104,7 @@
                     <label>Con Cronograma</label>
                     <div class="form-group">
                         <label class="switch">
-                            <input type="checkbox" v-model="mensajeria.conCronograma"/>
+                            <input type="checkbox" true-value="1" false-value="0" v-model="mensajeria.conCronograma"/>
                             <span></span>
                         </label>
                     </div>

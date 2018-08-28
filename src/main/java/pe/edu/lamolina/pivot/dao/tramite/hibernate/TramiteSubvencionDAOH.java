@@ -29,8 +29,7 @@ public class TramiteSubvencionDAOH extends AbstractEasyDAO<TramiteSubvencion> im
                 .filter("ca.id", cicloAcademico)
                 .filter("tra.estado", TramiteEstadoEnum.SOL)
                 .filter("sup.id", colaborador)
-                .filter("tt.codigo", SUBV)
-                .filter("bb.id", 1);
+                .filter("tt.codigo", SUBV);
         return all(sql);
     }
 
