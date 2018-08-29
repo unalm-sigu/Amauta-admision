@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
-import javax.persistence.Column;
 import javax.servlet.http.HttpSession;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,12 +20,11 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -300,6 +298,36 @@ public class EncuestaDocenteController {
             response.setData(encuJson);
             response.setSuccess(true);
 
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+  
+    @ResponseBody
+    @RequestMapping(value = "/{id}/resumen/preguntas", method = RequestMethod.GET)
+    public JsonResponse resumenPreguntas(@PathVariable Long id) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            List<ResumenEncuestaDocente> resumenes = service.resumenPreguntas(new EncuestaDocente(id));
+            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+            
+            for (ResumenEncuestaDocente resumene : resumenes) {
+                arr.add(JsonHelper.createJson(resumene, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "puntaje",
+                    "opcionLikert.id",
+                    "opcionLikert.opcion",
+                    "pregunta.id",
+                    "pregunta.texto"
+                }));
+            }
+            response.setData(arr);
+            response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

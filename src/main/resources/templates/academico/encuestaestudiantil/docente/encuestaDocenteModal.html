@@ -89,15 +89,15 @@
                         <tbody>
                             <tr v-for="(periodo,idx) in periodosEncuesta">
                                 <td>
-                                    <date-picker v-model="periodo.fechaInicio" lang="es" format="dd/MM/yyyy" ></date-picker>
-                                </td>
-                                <td>
-                                    <date-picker v-model="periodo.fechaFin" lang="es" format="dd/MM/yyyy" ></date-picker>
-                                </td>
-                                <td class="pointer" v-on:click="removePeriodo(idx)">
-                                    <i class="fa fa-times text-danger"></i>
-                                </td>
-                            </tr>
+                        <date-picker v-model="periodo.fechaInicio" lang="es" format="dd/MM/yyyy" ></date-picker>
+                        </td>
+                        <td>
+                        <date-picker v-model="periodo.fechaFin" lang="es" format="dd/MM/yyyy" ></date-picker>
+                        </td>
+                        <td class="pointer" v-on:click="removePeriodo(idx)">
+                            <i class="fa fa-times text-danger"></i>
+                        </td>
+                        </tr>
                         </tbody>
                     </table>
                     <div class="block text-center">
@@ -111,3 +111,36 @@
 
     </div>
 </modal-vik>
+
+<modal-vik ref="modalPreguntas"
+           v-bind="modalPreguntas">
+
+    <div slot="body">
+
+        <div class="row">
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 15px" >
+                        <li v-for="p in preguntas.slice(0, preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }} &nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 10px">
+                        <li v-for="p in preguntas.slice(preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }} &nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-vik>
+
+<style>
+</style>

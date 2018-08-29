@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
@@ -36,6 +37,7 @@ import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.ResumenEncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -66,6 +68,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     VisorEncuestaDocente visorEncuestaDocente;
     @Autowired
     GeneradorEncuestaDocenteService generadorEncuestaDocenteService;
+    @Autowired
+    ResumenEncuestaDocenteDAO resumenEncuestaDocenteDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -241,6 +245,11 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         updateConfigEncuesta(encuestaBD, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
         updateConfigEncuesta(encuestaBD, encuestaForm.getPeriodosEncuesta(), ciclo, ds);
 
+    }
+
+    @Override
+    public List<ResumenEncuestaDocente> resumenPreguntas(EncuestaDocente encuestaDocente) {
+        return resumenEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
     }
 
 }
