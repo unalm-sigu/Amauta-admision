@@ -116,6 +116,7 @@ public class BolsaInvestigacionController {
                 node.put("id", alumno.getId());
                 node.put("nombre", (String) ObjectUtil.getParentTree(alumno, "persona.nombreCompleto"));
                 node.put("codigo", alumno.getCodigo());
+                node.set("persona", JsonHelper.createJson(alumno.getPersona(), JsonNodeFactory.instance, new String[]{"*"}));
                 arr.add(node);
             }
             response.setData(arr);

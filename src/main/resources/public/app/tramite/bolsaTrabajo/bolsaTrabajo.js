@@ -16,10 +16,9 @@ new Vue({
         horasTrabajo: [{id: 1, horas: 40}, {id: 2, horas: 20}],
         solicitud: {},
         value: {},
-        rechazado: true
-    },
-    computed: {
-
+        rechazado: true,
+        habilitarBolsaTrabajo: false,
+        habilitarAreasVerdes: false,
     },
     created() {
         let $vue = this;
@@ -32,6 +31,8 @@ new Vue({
     methods: {
         verTramite(item) {
             var $vue = this;
+            $vue.habilitarBolsaTrabajo = false;
+            $vue.habilitarAreasVerdes = false;
             console.log(item.horas);
             $vue.horasTrabajo.forEach(function (val) {
                 if (val.horas === item.horas) {
@@ -39,8 +40,14 @@ new Vue({
                 }
             });
             $vue.tramiteSubvencion = item;
+
             $vue.persona = item.tramite.alumno.persona;
 
+            if (item.tipoSubvencion.id === 3) {
+                $vue.habilitarBolsaTrabajo = true;
+            } else if (item.tipoSubvencion.id === 4) {
+                $vue.habilitarAreasVerdes = true;
+            }
             $vue.$refs.verTramiteModal.open();
 
         },

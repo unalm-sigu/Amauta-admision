@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoAlumno;
 import pe.edu.lamolina.model.academico.MensajeIntranet;
@@ -55,16 +56,13 @@ public class MensajeriaIntranetServiceImp implements MensajeriaIntranetService {
     @Transactional
     public void updateMensajeria(MensajeIntranet mensajeriaForm, CicloAcademico cicloAcademico, Usuario usuario) {
         MensajeIntranet mensajeria = mensajeIntranetDAO.find(mensajeriaForm);
-        mensajeria.setGrupoAlumno(mensajeriaForm.getGrupoAlumno());
-        mensajeria.setTipoMensajeIntranet(mensajeriaForm.getTipoMensajeIntranet());
-        mensajeria.setFechaInicio(mensajeriaForm.getFechaInicio());
-        mensajeria.setFechaFin(mensajeriaForm.getFechaFin());
-        mensajeria.setPrioridad(mensajeriaForm.getPrioridad());
-        mensajeria.setVecesVisible(mensajeriaForm.getVecesVisible());
-        mensajeria.setEsObligatorio(mensajeriaForm.getEsObligatorio());
-        mensajeria.setConCronograma(mensajeriaForm.getConCronograma());
-        mensajeria.setContenido(mensajeriaForm.getContenido());
-        mensajeIntranetDAO.update(mensajeria);
+        if (mensajeria == null) {
+            throw new PhobosException("La mensajería que intenta editar no es correcta");
+        }
+        mensajeriaForm.setFechaRegistro(mensajeria.getFechaRegistro());
+        mensajeriaForm.setUserRegistro(usuario);
+        mensajeriaForm.setCicloAcademico(mensajeria.getCicloAcademico());
+        mensajeIntranetDAO.update(mensajeriaForm);
     }
 
     @Override
