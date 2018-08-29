@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.academico.encuestaestudiantil.curso;
 
 import com.google.common.base.Strings;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +16,12 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
@@ -30,11 +31,13 @@ import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaAlumnoDAO;
@@ -67,29 +70,59 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     EncuestaAlumnoDAO encuestaAlumnoDAO;
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<EncuestaCurso> allEncuestaCurso(DynatableFilter filter, CicloAcademico ciclo) {
-        return encuestaCursoDAO.allByDynatable(filter, ciclo);
+        List<EncuestaCurso> encuestas = encuestaCursoDAO.allByDynatable(filter, ciclo);
+        Map<Long, List<EncuestaCurso>> mapEncuestas = TypesUtil.convertListToMapList("grupoSeccion.id", encuestas);
+
+        List<GrupoSeccion> gpoSecciones = new ArrayList();
+        for (EncuestaCurso enc : encuestas) {
+            gpoSecciones.add(enc.getGrupoSeccion());
+        }
+
+        List<Seccion> secciones = seccionDAO.allActivosByGposSeccion(gpoSecciones);
+        List<DocenteSeccion> profesSecciones = docenteSeccionDAO.allPersonasActivasBySecciones(secciones);
+        Map<Long, List<DocenteSeccion>> mapProfesSecciones = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", profesSecciones);
+
+        for (Seccion seccion : secciones) {
+            if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
+                continue;
+            }
+            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+            List<EncuestaCurso> encus = mapEncuestas.get(gpoSecc.getId());
+            if (encus == null) {
+                continue;
+            }
+            for (EncuestaCurso encu : encus) {
+                GrupoSeccion gpoSeccEnc = encu.getGrupoSeccion();
+                List<DocenteSeccion> docentesSecc = mapProfesSecciones.get(gpoSecc.getId());
+                docentesSecc = (docentesSecc == null) ? new ArrayList() : docentesSecc;
+                gpoSeccEnc.setSecciones(new ArrayList());
+                gpoSeccEnc.getSecciones().add(seccion);
+                seccion.setDocenteSeccion(docentesSecc);
+            }
+        }
+
+        return encuestas;
     }
 
     @Override
     @Transactional
-    public void generarEncuesta(DataSessionPivot ds) {
-        logger.debug("generar encuesta");
+    public void generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         long DAYSINMS = 1000 * 60 * 60 * 24;
 
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        logger.debug("cicloAcademico {}", cicloAcademico.getId());
+        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
 
-        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-        logger.debug("modalidad {}", modalidad.getId());
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.allByCicloTipo(cicloAcademico, modalidad, TipoExamenVirtualEnum.ENC_CUR);
         if (encuestaEstudiantil == null) {
             throw new PhobosException("No existe ninguna encuesta activa");
         }
+
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByModalidadEstudioCiclo(modalidad, cicloAcademico);
         logger.debug("matriculaSeccions {}", matriculaSeccions.size());
         EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE2);
@@ -99,15 +132,15 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         logger.debug("eventosCicloAcademico {}", eventoCicloAcademico.getId());
 
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
-        Map<Long, Curso> cursosSinEncuestaMap = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
 
-        Map<Long, GrupoSeccion> gruposSeccion = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", matriculaSeccions);
-        logger.debug("grupoSeccionMap {}", gruposSeccion.size());
+        Map<Long, GrupoSeccion> mapGposSeccion = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", matriculaSeccions);
+        logger.debug("mapGposSeccion {}", mapGposSeccion.size());
 
-        Map<Long, List<Alumno>> alumnoPorGrupoSeccion = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", "matriculaResumen.alumno", matriculaSeccions);
-        logger.debug("grupoSeccionMap {}", gruposSeccion.size());
+        Map<Long, List<Alumno>> mapAlumnosByGpoSecc = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", "matriculaResumen.alumno", matriculaSeccions);
+        logger.debug("mapAlumnosByGpoSecc {}", mapAlumnosByGpoSecc.size());
 
-        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findConfiguraEncuestaByEncuestaEstudiantil(encuestaEstudiantil);
+        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
         if (configuraEncuesta == null) {
             throw new PhobosException("No esta configurada la encuesta activa");
         }
@@ -116,15 +149,15 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         Long minimoAlumnos = configuraEncuesta.getCantidadMinimaAlumnos();
         logger.debug("cantidadMaximaDocentes {} cantidadMinimaAlumnos {}", maximoDocentes, minimoAlumnos);
 
-        for (GrupoSeccion grupoSeccion : gruposSeccion.values()) {
+        for (GrupoSeccion grupoSeccion : mapGposSeccion.values()) {
             Curso curso = grupoSeccion.getCurso();
             logger.debug("grupoSeccion {} curso {} {} ", grupoSeccion.getId(), curso.getId(), curso.getNombre());
-            Curso cursoSinEncuesta = cursosSinEncuestaMap.get(curso.getId());
+            Curso cursoSinEncuesta = mapCursosNoEncuestar.get(curso.getId());
             if (cursoSinEncuesta != null) {
                 logger.debug("cursoSinEncuesta {} ", cursoSinEncuesta.getId());
                 continue;
             }
-            List<Alumno> alumnos = alumnoPorGrupoSeccion.get(grupoSeccion.getId());
+            List<Alumno> alumnos = clearAlumnosDuplicados(mapAlumnosByGpoSecc.get(grupoSeccion.getId()));
             if (alumnos == null) {
                 alumnos = new ArrayList();
             }
@@ -135,9 +168,9 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             Date fechaFin = new Date(fechaFinEvento.getTime() - 7 * DAYSINMS);
 
             EncuestaCurso encuestaCurso = new EncuestaCurso();
-            encuestaCurso.setAlumnoFin(0L);
-            encuestaCurso.setAlumnosEncuestados((long) alumnos.size());
+            encuestaCurso.setAlumnosFin((long) alumnos.size());
             encuestaCurso.setAlumnosInicio((long) alumnos.size());
+            encuestaCurso.setAlumnosEncuestados(0L);
             encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
             if (minimoAlumnos > alumnos.size()) {
                 encuestaCurso.setDescripcion(Constantine.REQ_MIN_ALUMNO);
@@ -164,6 +197,11 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             }
 
         }
+    }
+
+    private List<Alumno> clearAlumnosDuplicados(List<Alumno> alumnosDobles) {
+        Map<Long, Alumno> mapAlumnos = TypesUtil.convertListToMap("id", alumnosDobles);
+        return new ArrayList(mapAlumnos.values());
     }
 
     @Override

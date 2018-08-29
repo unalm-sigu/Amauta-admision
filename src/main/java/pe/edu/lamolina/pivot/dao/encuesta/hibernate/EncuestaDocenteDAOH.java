@@ -26,12 +26,12 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
                 .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
                 .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
-                .join("cur.departamentoAcademico da", "da.facultad")
+                .join("cur.departamentoAcademico da", "da.facultad fa")
                 .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
                 .filter("ciclo.id", cicloAcademico)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .searchFields("da.nombre", "cur.nombre", "en.nombre")
+                .searchFields("da.nombre", "cur.nombre", "cur.codigo", "fa.nombre", "sec.codigo2", "gh.codigo", "doc.codigo")
                 .orderBy("ed.id");
         sql.beginRelativeFilters();
         return sql.all(getCurrentSession());

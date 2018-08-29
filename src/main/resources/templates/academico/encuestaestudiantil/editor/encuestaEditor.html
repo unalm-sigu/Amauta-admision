@@ -6,14 +6,14 @@
 
         <div layout:fragment="main">
 
-            <div  id="main">
+            <div  id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
                     <a class="btn btn-primary nuevo-agrupador pull-right"
                        th:href="@{/academico/encuestaestudiantil/editor/nuevo}" >Nueva Encuesta</a>
 
-                    <h2 th:inline="text">Encuestas de Docente  [[${cicloAcademico.descripcion}]] </h2>
+                    <h2 th:inline="text">Encuestas Estudiantiles</h2>
 
                 </header>
 
@@ -40,7 +40,6 @@
         <div layout:fragment="js">
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-            <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/editor/encuestaEditorDynatable.js}"></script>
             <script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/editor/buscarCurso.js}"></script>
