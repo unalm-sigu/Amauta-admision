@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
@@ -69,9 +70,34 @@ public class EditorEncuestaController {
                 node.put("codigo", encuesta.getCodigo());
                 node.put("preguntasDisponibles", encuesta.getPreguntasDisponibles());
                 node.put("preguntasVisibles", encuesta.getPreguntasVisibles());
-                node.put("cicloInicio", (String) ObjectUtil.getParentTree(encuesta, "cicloInicio.cicloAcademico.descripcion"));
-                node.put("cicloFin", (String) ObjectUtil.getParentTree(encuesta, "cicloFin.cicloAcademico.descripcion"));
+//                node.put("cicloInicio", (String) ObjectUtil.getParentTree(encuesta, "cicloAcademicoInicio.descripcion"));
+//                node.put("cicloFin", (String) ObjectUtil.getParentTree(encuesta, "cicloAcademicoFin.descripcion"));
                 node.put("tipoName", (String) ObjectUtil.getParentTree(encuesta, "tipoExamen.nombre"));
+                node.put("tipoCodigo", (String) ObjectUtil.getParentTree(encuesta, "tipoExamen.codigo"));
+
+                ArrayNode arrayEncus = new ArrayNode(JsonNodeFactory.instance);
+                List<EncuestaEstudiantil> encusEstudiantes = encuesta.getEncuestasEstudiantiles();
+                int loop = 1;
+                for (EncuestaEstudiantil encuEst : encusEstudiantes) {
+                    ObjectNode nodeEncu = new ObjectNode(JsonNodeFactory.instance);
+                    if (encusEstudiantes.size() > 8 && loop == 7) {
+                        nodeEncu.put("ciclo", "...");
+                        loop++;
+                        continue;
+                    }
+
+                    if (encusEstudiantes.size() > 8 && loop == 8) {
+                        EncuestaEstudiantil encuEstFinal = encusEstudiantes.get(encusEstudiantes.size() - 1);
+                        nodeEncu.put("ciclo", encuEstFinal.getCicloAcademico().getDescripcion());
+                        break;
+                    }
+
+                    nodeEncu.put("ciclo", encuEst.getCicloAcademico().getDescripcion());
+                    arrayEncus.add(nodeEncu);
+                    loop++;
+                }
+                node.set("cicloEncuestas", arrayEncus);
+
                 array.add(node);
             }
 
@@ -308,46 +334,46 @@ public class EditorEncuestaController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping("getconfiguracion")
-    public JsonResponse getConfiguracion(ExamenVirtual encuesta, HttpSession session) {
+//    @ResponseBody
+//    @RequestMapping("getconfiguracion")
+//    public JsonResponse getConfiguracion(ExamenVirtual encuesta, HttpSession session) {
+//
+//        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+//        JsonResponse response = new JsonResponse();
+//        try {
+//
+//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//            ConfiguraEncuesta configuraEncuesta = service.getConfiguracion(encuesta, ds);
+//            response.setData(service.toJson(configuraEncuesta));
+//            response.setSuccess(true);
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-        JsonResponse response = new JsonResponse();
-        try {
-
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            ConfiguraEncuesta configuraEncuesta = service.getConfiguracion(encuesta, ds);
-            response.setData(service.toJson(configuraEncuesta));
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("addconfigencuesta")
-    public JsonResponse addConfigEncuesta(ConfiguraEncuesta configuraEncuesta, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            if (configuraEncuesta.getId() == null) {
-                service.saveConfigEncuesta(configuraEncuesta, ds);
-                response.setMessage("Registro creado satisfactoriamente");
-            } else {
-                service.updateConfigEncuesta(configuraEncuesta, ds);
-                response.setMessage("Registro actualizado satisfactoriamente");
-            }
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
+//    @ResponseBody
+//    @RequestMapping("addconfigencuesta")
+//    public JsonResponse addConfigEncuesta(ConfiguraEncuesta configuraEncuesta, HttpSession session) {
+//        JsonResponse response = new JsonResponse();
+//        try {
+//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//            if (configuraEncuesta.getId() == null) {
+//                service.saveConfigEncuesta(configuraEncuesta, ds);
+//                response.setMessage("Registro creado satisfactoriamente");
+//            } else {
+//                service.updateConfigEncuesta(configuraEncuesta, ds);
+//                response.setMessage("Registro actualizado satisfactoriamente");
+//            }
+//            response.setSuccess(true);
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
 
 }

@@ -10,7 +10,7 @@
                     <th class="col-md-1 text-center v-middle">Tipo</th>
                     <th class="col-md-1 text-center v-middle">Preguntas visibles</th>
                     <th class="col-md-1 text-center v-middle">Total preguntas</th>
-                    <th class="col-md-2 text-center v-middle">Periodos de vigencia</th>
+                    <th class="col-md-2 text-center v-middle">Periodos</th>
                     <th class="col-md-1 text-center v-middle">Estado</th>
                     <th></th>
                 </tr>
@@ -23,14 +23,27 @@
 </template>
 
 <template  type="text/x-template" id="dynatableRowTemplate">
-    <tr>
+    <tr v-bind:class="{'text-primary':encuesta.tipoCodigo=='ENC_DOC','text-success':encuesta.tipoCodigo=='ENC_CUR'}">
 
         <td class="v-middle text-center"> {{encuesta.codigo}} </td>
         <td class="v-middle"> {{encuesta.nombre}} </td>
-        <td class="v-middle"> {{encuesta.tipoName}} </td>
+        <td class="v-middle text-center" 
+            
+            > {{encuesta.tipoName}} 
+        </td>
         <td class="v-middle text-center"> {{encuesta.preguntasVisibles}} </td>
         <td class="v-middle text-center"> {{encuesta.preguntasDisponibles}} </td>
-        <td class="v-middle text-center"> {{encuesta.cicloInicio}} &nbsp; - &nbsp; {{encuesta.cicloFin}} </td>
+        <td class="v-middle text-center"> 
+            <div class="row">
+                <div v-for="(cicloEncu, ii) in encuesta.cicloEncuestas"
+                     class="col-sm-6">
+                    <div class="label label-warning" style="width: 100%; display: block; margin-top: 3px; margin-bottom: 3px; font-size: 12px;">
+                    {{cicloEncu.ciclo}}
+                    </div>
+                </div>
+            </div>
+            
+        </td>
         <td class="v-middle text-center">
             <span  v-if="encuesta.estado=='ACT' " class="label label-success">{{encuesta.estadoEnum}}</span>
             <span  v-if="encuesta.estado=='INA' " class="label label-default">{{encuesta.estadoEnum}}</span>

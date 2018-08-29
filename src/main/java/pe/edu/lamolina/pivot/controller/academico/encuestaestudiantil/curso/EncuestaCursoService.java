@@ -10,7 +10,7 @@ public interface EncuestaCursoService {
 
     List<EncuestaCurso> allEncuestaCurso(DynatableFilter filter, CicloAcademico ciclo);
 
-    void generarEncuesta(DataSessionPivot ds);
+    void generarEncuesta(CicloAcademico ciclo, DataSessionPivot ds);
 
     void cambiarEstadoEncuesta(EncuestaCurso encuesta);
 

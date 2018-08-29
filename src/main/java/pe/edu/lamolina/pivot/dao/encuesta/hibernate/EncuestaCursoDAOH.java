@@ -7,8 +7,11 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaCursoDAO;
 
 @Repository
@@ -21,14 +24,24 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
 
     @Override
     public List<EncuestaCurso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        Octavia subquerySecciones = Octavia.query()
+                .from(Seccion.class, "se")
+                .join("grupoSeccion gpo")
+                .left("grupoHoras gh")
+                .filter("se.estado", SeccionEstadoEnum.ACT)
+                .filter("se.tipoSeccion", "<>", TipoSeccionEnum.PCUR);
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(EncuestaCurso.class, "ec")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
                 .join("grupoSeccion gs", "gs.curso cur")
-                .join("cur.departamentoAcademico da", "da.facultad")
+                .join("cur.departamentoAcademico da", "da.facultad fa")
                 .filter("ciclo.id", cicloAcademico)
-                .searchFields("da.nombre", "cur.nombre", "en.nombre")
-                .orderBy("ec.id");
+                .searchFields("cur.nombre", "cur.codigo", "da.nombre", "fa.nombre")
+                .__().searchSubquery(subquerySecciones)
+                .__().subqueryLinkedBy("gs.id", "gpo.id")
+                .__().searchSubqueryFields("se.codigo2", "gh.codigo")
+                .orderBy("ec.id DESC");
         sql.beginRelativeFilters();
         return sql.all(getCurrentSession());
 

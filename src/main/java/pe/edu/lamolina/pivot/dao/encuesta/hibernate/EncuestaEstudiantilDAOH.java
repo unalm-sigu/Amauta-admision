@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
@@ -31,7 +30,7 @@ public class EncuestaEstudiantilDAOH extends AbstractEasyDAO<EncuestaEstudiantil
     }
 
     @Override
-    public EncuestaEstudiantil allByCicloTipo(CicloAcademico cicloAcademico, ModalidadEstudio modalidad, TipoExamenVirtualEnum tipoExamenVirtualEnum) {
+    public EncuestaEstudiantil findByCicloTipo(CicloAcademico cicloAcademico, TipoExamenVirtualEnum tipoExamenVirtualEnum) {
         Octavia sql = Octavia.query()
                 .from(EncuestaEstudiantil.class, "ep")
                 .join("encuesta en", "cicloAcademico ci")
@@ -41,4 +40,14 @@ public class EncuestaEstudiantilDAOH extends AbstractEasyDAO<EncuestaEstudiantil
                 .filter("ci.id", cicloAcademico);
         return find(sql);
     }
+
+    @Override
+    public List<EncuestaEstudiantil> allByEncuestas(List<ExamenVirtual> encuestas) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaEstudiantil.class, "ep")
+                .join("encuesta en", "cicloAcademico ci")
+                .in("en.id", encuestas);
+        return all(sql);
+    }
+
 }

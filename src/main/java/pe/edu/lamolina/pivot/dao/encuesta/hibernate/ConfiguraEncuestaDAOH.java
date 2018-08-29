@@ -18,10 +18,10 @@ public class ConfiguraEncuestaDAOH extends AbstractEasyDAO<ConfiguraEncuesta> im
     }
 
     @Override
-    public ConfiguraEncuesta findByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil) {
+    public ConfiguraEncuesta findByEncuesta(EncuestaEstudiantil encuestaEstudiantil) {
         Octavia sql = Octavia.query()
                 .from(ConfiguraEncuesta.class, "ce")
-                .join("encuestaEstudiantil ee")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ca")
                 .filter("ee.id", encuestaEstudiantil);
         return find(sql);
     }
@@ -30,7 +30,7 @@ public class ConfiguraEncuestaDAOH extends AbstractEasyDAO<ConfiguraEncuesta> im
     public ConfiguraEncuesta find(ConfiguraEncuesta configuraEncuestaForm) {
         Octavia sql = Octavia.query()
                 .from(ConfiguraEncuesta.class, "ce")
-                .join("encuestaEstudiantil ee")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ca")
                 .filter("ce.id", configuraEncuestaForm);
         return find(sql);
     }
@@ -42,15 +42,6 @@ public class ConfiguraEncuestaDAOH extends AbstractEasyDAO<ConfiguraEncuesta> im
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ca")
                 .filter("en.id", encuesta)
                 .filter("ca.id", ciclo);
-        return find(sql);
-    }
-
-    @Override
-    public ConfiguraEncuesta findConfiguraEncuestaByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil) {
-        Octavia sql = Octavia.query()
-                .from(ConfiguraEncuesta.class, "ce")
-                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ca")
-                .filter("ee.id", encuestaEstudiantil);
         return find(sql);
     }
 

@@ -19,7 +19,6 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.dao.encuesta.EncuestaCicloDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.OpcionPreguntaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PreguntaExamenDAO;
@@ -38,7 +37,6 @@ import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
-import pe.edu.lamolina.model.inscripcion.EncuestaCiclo;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CicloPostulaDAO;
@@ -50,15 +48,13 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class EditorEncuestaServiceImp implements EditorEncuestaService {
-
+    
     @Autowired
     PreguntaExamenDAO preguntaExamenDAO;
     @Autowired
     OpcionPreguntaDAO opcionPreguntaDAO;
     @Autowired
     ExamenVirtualDAO examenVirtualDAO;
-    @Autowired
-    EncuestaCicloDAO encuestaCicloDAO;
     @Autowired
     CicloPostulaDAO cicloPostulaDAO;
     @Autowired
@@ -73,43 +69,44 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     CursoSinEncuestaDAO cursoSinEncuestaDAO;
     @Autowired
     ConfiguraEncuestaDAO configuraEncuestaDAO;
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Override
     public CicloPostula findCicloActivo() {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         return cicloPostulaDAO.findActivo(modalidad);
     }
-
+    
     @Override
     public List<ExamenVirtual> allEncuesta(DynatableFilter filter) {
         List<ExamenVirtual> encuestas = examenVirtualDAO.allEncuestasByDynatable(filter);
-        List<EncuestaCiclo> encuestasCiclos = encuestaCicloDAO.allByEncuestas(encuestas);
-        Map<Long, List<EncuestaCiclo>> mapEncuestaCiclos = TypesUtil.convertListToMapList("examenVirtual.id", encuestasCiclos);
-
+        List<EncuestaEstudiantil> encuestasEstudiantiles = encuestaEstudiantilDAO.allByEncuestas(encuestas);
+        Map<Long, List<EncuestaEstudiantil>> mapEncuestasEstudiantiles = TypesUtil.convertListToMapList("encuesta.id", encuestasEstudiantiles);
+        
         for (ExamenVirtual encuesta : encuestas) {
-            List<EncuestaCiclo> encuestaCiclos = mapEncuestaCiclos.get(encuesta.getId());
-            if (encuestaCiclos == null) {
-                continue;
-            }
-            Collections.sort(encuestaCiclos, new EncuestaCiclo.ComparePeriodo());
-            encuesta.setCicloInicio(encuestaCiclos.get(0).getCicloPostula());
-            encuesta.setCicloFin(encuestaCiclos.get(encuestaCiclos.size() - 1).getCicloPostula());
+            List<EncuestaEstudiantil> encuestasHistorial = mapEncuestasEstudiantiles.get(encuesta.getId());
+            encuestasHistorial = (encuestasHistorial == null) ? new ArrayList() : encuestasHistorial;
+            Collections.sort(encuestasHistorial, new EncuestaEstudiantil.ComparePeriodo());
+            encuesta.setEncuestasEstudiantiles(encuestasHistorial);
+
+//            Collections.sort(encuestasAnteriores, new EncuestaEstudiantil.ComparePeriodo());
+//            encuesta.setCicloAcademicoInicio(encuestasAnteriores.get(0).getCicloAcademico());
+//            encuesta.setCicloAcademicoFin(encuestasAnteriores.get(encuestasAnteriores.size() - 1).getCicloAcademico());
         }
         return encuestas;
     }
-
+    
     @Override
     @Transactional
     public void saveEncuesta(ExamenVirtual encuesta, DataSessionPivot ds) {
-
+        
         encuesta.setEstado(ExamenVirtualEstadoEnum.CRE);
         encuesta.setPreguntasDisponibles(0);
         encuesta.setPreguntasVisibles(0);
         encuesta.setUserCreacion(ds.getUsuario());
         encuesta.setFechaCreacion(new Date());
-
+        
         ExamenVirtual ultimaEncuesta = examenVirtualDAO.findEncuestaUltimoCodigo();
         if (ultimaEncuesta == null) {
             encuesta.setCodigo("ENC001");
@@ -117,10 +114,10 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
             Integer nroEnc = Integer.valueOf(ultimaEncuesta.getCodigo().substring(3)) + 1;
             encuesta.setCodigo("ENC" + NumberFormat.codigo(nroEnc, 3));
         }
-
+        
         examenVirtualDAO.save(encuesta);
     }
-
+    
     @Override
     @Transactional
     public void updateEncuesta(ExamenVirtual encuestaForm) {
@@ -129,18 +126,18 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         encuestaBD.setTipoExamen(encuestaForm.getTipoExamen());
         examenVirtualDAO.update(encuestaBD);
     }
-
+    
     @Override
     public ExamenVirtual findEncuesta(Long idEncuesta) {
         return examenVirtualDAO.find(idEncuesta);
     }
-
+    
     @Override
     @Transactional
     public void delete(ExamenVirtual encuesta) {
         examenVirtualDAO.delete(encuesta);
     }
-
+    
     @Override
     @Transactional
     public void duplicar(ExamenVirtual encuesta, DataSessionPivot ds) {
@@ -148,21 +145,21 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         List<PreguntaExamen> preguntas = preguntaExamenDAO.allByEncuesta(encuesta);
         List<OpcionPregunta> opciones = opcionPreguntaDAO.allByPreguntas(preguntas);
         Map<Long, List<OpcionPregunta>> mapOpciones = TypesUtil.convertListToMapList("pregunta.id", opciones);
-
+        
         for (PreguntaExamen pregunta : preguntas) {
             pregunta.setOpcionPregunta(mapOpciones.get(pregunta.getId()));
             if (pregunta.getOpcionPregunta() == null) {
                 pregunta.setOpcionPregunta(new ArrayList());
             }
         }
-
+        
         ExamenVirtual encuestaNew = new ExamenVirtual();
         encuestaNew.setNombre("Encuesta nueva copia del " + encuestaBD.getCodigo());
         this.saveEncuesta(encuestaNew, ds);
-
+        
         Map<Integer, PreguntaExamen> mapPreguntasNew = new LinkedHashMap();
         Map<String, OpcionPregunta> mapOpcionesNew = new LinkedHashMap();
-
+        
         for (PreguntaExamen pregunta : preguntas) {
             PreguntaExamen preguntaNew = new PreguntaExamen(pregunta);
             preguntaNew.setUserCreacion(ds.getUsuario());
@@ -170,14 +167,14 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
             preguntaNew.setExamenVirtual(encuestaNew);
             preguntaNew.setOpcionPregunta(new ArrayList());
             preguntaExamenDAO.save(preguntaNew);
-
+            
             encuestaNew.setPreguntasDisponibles(encuestaNew.getPreguntasDisponibles() + 1);
             if (preguntaNew.getEstadoEnum() == PreguntaEstadoEnum.ACT) {
                 encuestaNew.setPreguntasVisibles(encuestaNew.getPreguntasVisibles() + 1);
             }
-
+            
             mapPreguntasNew.put(pregunta.getNumero(), preguntaNew);
-
+            
             List<OpcionPregunta> opcionPgta = pregunta.getOpcionPregunta();
             for (OpcionPregunta opcion : opcionPgta) {
                 OpcionPregunta opcionNew = new OpcionPregunta(opcion);
@@ -185,79 +182,79 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
                 opcionNew.setFechaCreacion(new Date());
                 opcionNew.setPregunta(preguntaNew);
                 opcionPreguntaDAO.save(opcionNew);
-
+                
                 preguntaNew.getOpcionPregunta().add(opcionNew);
                 mapOpcionesNew.put(pregunta.getNumero() + "-" + opcion.getLetra(), opcionNew);
             }
-
+            
         }
-
+        
         for (PreguntaExamen pregunta : preguntas) {
             OpcionPregunta opcionRef = pregunta.getOpcionReferencia();
             if (opcionRef != null) {
                 PreguntaExamen preguntaNew = mapPreguntasNew.get(pregunta.getNumero());
                 OpcionPregunta opcionNew = mapOpcionesNew.get(opcionRef.getPregunta().getNumero() + "-" + opcionRef.getLetra());
-
+                
                 preguntaNew.setOpcionReferencia(opcionNew);
                 preguntaExamenDAO.update(preguntaNew);
             }
         }
-
+        
         examenVirtualDAO.update(encuestaNew);
-
+        
     }
-
+    
     @Override
     @Transactional
     public void cambiarEstadoEncuesta(ExamenVirtual encuesta, DataSessionPivot ds) {
-
+        
         CicloAcademico ciclo = ds.getCicloAcademico();
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByCicloEncuesta(ciclo, encuesta);
-
+        
         if (configuraEncuesta == null) {
             throw new PhobosException("No puede activarse una encuesta que no este configurado");
         }
-
+        
         ExamenVirtual encuestaBD = examenVirtualDAO.findExamenVirtual(encuesta);
         if (encuestaBD.getEstado() == null) {
             encuestaBD.setEstado(ExamenVirtualEstadoEnum.INA);
         }
-
+        
         if (encuestaBD.getEstadoEnum() == ExamenVirtualEstadoEnum.ACT) {
             Long respuestas = examenVirtualDAO.countRespuestas(encuestaBD);
             encuestaBD.setEstado(respuestas == 0L ? ExamenVirtualEstadoEnum.CRE : ExamenVirtualEstadoEnum.INA);
             examenVirtualDAO.update(encuestaBD);
             return;
         }
-
+        
         if (encuestaBD.getPreguntasVisibles() < 1) {
             throw new PhobosException("No puede activarse una encuesta que no tiene preguntas visibles");
         }
-
+        
         ExamenVirtual encuestaActiva = examenVirtualDAO.findEncuestaActivaByTipo(encuestaBD.getTipoExamen());
         if (encuestaActiva != null) {
             Long respuestas = examenVirtualDAO.countRespuestas(encuestaActiva);
             encuestaActiva.setEstado(respuestas == 0L ? ExamenVirtualEstadoEnum.CRE : ExamenVirtualEstadoEnum.INA);
             examenVirtualDAO.update(encuestaActiva);
         }
-
+        
         encuestaBD.setEstado(ExamenVirtualEstadoEnum.ACT);
         examenVirtualDAO.update(encuestaBD);
-
+        
     }
-
+    
     @Override
     public List<PreguntaExamen> allPreguntasByEncuesta(ExamenVirtual encuesta) {
         List<PreguntaExamen> preguntas = preguntaExamenDAO.allByEncuesta(encuesta);
         List<OpcionPregunta> opciones = opcionPreguntaDAO.allByPreguntas(preguntas);
-
+        
         Map<Long, List<OpcionPregunta>> mapOpciones = TypesUtil.convertListToMapList("pregunta.id", opciones);
         Map<Long, PreguntaExamen> mapPreguntas = TypesUtil.convertListToMap("id", preguntas);
-
+        
         preguntas.forEach((pregunta) -> {
             pregunta.setOpcionPregunta(mapOpciones.get(pregunta.getId()));
         });
-
+        
         Map<String, OpcionPregunta> mapOpcionesStr = new LinkedHashMap();
         opciones.forEach((opcion) -> {
             PreguntaExamen pregunta = mapPreguntas.get(opcion.getPregunta().getId());
@@ -265,7 +262,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
             opcion.setPregunta(pregunta);
             opcion.setPreguntaReferencia(new ArrayList());
         });
-
+        
         preguntas.forEach((pgta) -> {
             if (pgta.getOpcionReferencia() != null) {
                 OpcionPregunta opcion = pgta.getOpcionReferencia();
@@ -275,59 +272,59 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
                 opcionRef.getPreguntaReferencia().add(pgta);
             }
         });
-
+        
         preguntas.forEach((pgta) -> {
             pgta.setOrden((pgta.getOrden() == null) ? pgta.getNumero() : pgta.getOrden());
         });
-
+        
         Collections.sort(preguntas, new PreguntaExamen.CompareOrden());
         return preguntas;
-
+        
     }
-
+    
     @Override
     public List<TipoExamenVirtual> allTipoEncuesta() {
         return tipoExamenVirtualDAO.allEncuestaEstudiantil();
     }
-
+    
     @Override
     public List<Curso> allCursoByName(String nombre) {
         return cursoDAO.allCursoByName(nombre);
     }
-
+    
     @Override
     @Transactional
     public void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
-
+        
         CicloAcademico ciclo = ds.getCicloAcademico();
         Curso curso = cursoSinEncuestaForm.getCurso();
         ExamenVirtual encuesta = cursoSinEncuestaForm.getEncuestaEstudiantil().getEncuesta();
         EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-
+        
         if (encuestaEstudiantil == null) {
             encuestaEstudiantil = new EncuestaEstudiantil();
             encuestaEstudiantil.setCicloAcademico(ciclo);
             encuestaEstudiantil.setEncuesta(encuesta);
-            encuestaEstudiantil.setFechaCreacion(new Date());
-            encuestaEstudiantil.setUserCreacion(ds.getUsuario());
+            encuestaEstudiantil.setFechaRegistro(new Date());
+            encuestaEstudiantil.setUserRegistro(ds.getUsuario());
             encuestaEstudiantilDAO.save(encuestaEstudiantil);
         }
-
+        
         CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(encuestaEstudiantil, curso);
-
+        
         if (cursoSinEncuesta != null) {
             throw new PhobosException("Curso ya registrado");
         }
-
+        
         cursoSinEncuesta = new CursoSinEncuesta();
         cursoSinEncuesta.setCurso(curso);
         cursoSinEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
         cursoSinEncuesta.setFechaCreacion(new Date());
         cursoSinEncuesta.setUserCreacion(ds.getUsuario());
         cursoSinEncuestaDAO.save(cursoSinEncuesta);
-
+        
     }
-
+    
     @Override
     public List<Curso> allCursoSinEncuesta(ExamenVirtual encuestaForm, DataSessionPivot ds) {
         CicloAcademico ciclo = ds.getCicloAcademico();
@@ -342,7 +339,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         Map<Long, Curso> cursosMap = TypesUtil.convertListToMap("curso.id", "curso", cursoSinEncuestas);
         return cursosMap.values().stream().collect(Collectors.toList());
     }
-
+    
     @Override
     @Transactional
     public void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
@@ -356,64 +353,64 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         }
         cursoSinEncuestaDAO.delete(cursoSinEncuesta);
     }
-
-    @Override
-    public ConfiguraEncuesta getConfiguracion(ExamenVirtual encuesta, DataSessionPivot ds) {
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-        if (encuestaEstudiantil == null) {
-            return new ConfiguraEncuesta();
-        }
-        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuestaEstudiantil(encuestaEstudiantil);
-        if (configuraEncuesta == null) {
-            return new ConfiguraEncuesta();
-        }
-        return configuraEncuesta;
-    }
-
+    
+//    @Override
+//    public ConfiguraEncuesta getConfiguracion(ExamenVirtual encuesta, DataSessionPivot ds) {
+//        CicloAcademico ciclo = ds.getCicloAcademico();
+//        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
+//        if (encuestaEstudiantil == null) {
+//            return new ConfiguraEncuesta();
+//        }
+//        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
+//        if (configuraEncuesta == null) {
+//            return new ConfiguraEncuesta();
+//        }
+//        return configuraEncuesta;
+//    }
+    
     @Override
     public ObjectNode toJson(ConfiguraEncuesta configuraEncuesta) {
         JsonNodeFactory fc = JsonNodeFactory.instance;
         ObjectNode node = JsonHelper.createJson(configuraEncuesta, fc);
         return node;
     }
-
-    @Override
-    @Transactional
-    public void saveConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds) {
-
-        CicloAcademico ciclo = ds.getCicloAcademico();
-        ExamenVirtual encuesta = configuraEncuesta.getEncuestaEstudiantil().getEncuesta();
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
-        if (encuestaEstudiantil == null) {
-            encuestaEstudiantil = new EncuestaEstudiantil();
-            encuestaEstudiantil.setCicloAcademico(ciclo);
-            encuestaEstudiantil.setEncuesta(encuesta);
-            encuestaEstudiantil.setFechaCreacion(new Date());
-            encuestaEstudiantil.setUserCreacion(ds.getUsuario());
-            encuestaEstudiantilDAO.save(encuestaEstudiantil);
-        }
-        ConfiguraEncuesta configuraEncuestaDb = configuraEncuestaDAO.findByEncuestaEstudiantil(encuestaEstudiantil);
-        if (configuraEncuestaDb != null) {
-            throw new PhobosException("Configuración Encuesta ya registrado");
-        }
-        configuraEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
-        configuraEncuesta.setFechaRegistro(new Date());
-        configuraEncuesta.setUserRegistro(ds.getUsuario());
-        configuraEncuesta.setEncuestaTeoriaPractica(configuraEncuesta.getEncuestaTeoriaPractica() == null ? 0L : 1L);
-        configuraEncuestaDAO.save(configuraEncuesta);
-    }
-
-    @Override
-    @Transactional
-    public void updateConfigEncuesta(ConfiguraEncuesta configuraEncuestaForm, DataSessionPivot ds) {
-        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.find(configuraEncuestaForm);
-        configuraEncuesta.setCantidadMaximaDocentes(configuraEncuestaForm.getCantidadMaximaDocentes());
-        configuraEncuesta.setCantidadMinimaAlumnos(configuraEncuestaForm.getCantidadMinimaAlumnos());
-        configuraEncuesta.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
-        configuraEncuesta.setFechaModificacion(new Date());
-        configuraEncuesta.setUserModificacion(ds.getUsuario());
-        configuraEncuestaDAO.update(configuraEncuesta);
-    }
-
+    
+//    @Override
+//    @Transactional
+//    public void saveConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds) {
+//        
+//        CicloAcademico ciclo = ds.getCicloAcademico();
+//        ExamenVirtual encuesta = configuraEncuesta.getEncuestaEstudiantil().getEncuesta();
+//        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuesta);
+//        if (encuestaEstudiantil == null) {
+//            encuestaEstudiantil = new EncuestaEstudiantil();
+//            encuestaEstudiantil.setCicloAcademico(ciclo);
+//            encuestaEstudiantil.setEncuesta(encuesta);
+//            encuestaEstudiantil.setFechaCreacion(new Date());
+//            encuestaEstudiantil.setUserCreacion(ds.getUsuario());
+//            encuestaEstudiantilDAO.save(encuestaEstudiantil);
+//        }
+//        ConfiguraEncuesta configuraEncuestaDb = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
+//        if (configuraEncuestaDb != null) {
+//            throw new PhobosException("Configuración Encuesta ya registrado");
+//        }
+//        configuraEncuesta.setEncuestaEstudiantil(encuestaEstudiantil);
+//        configuraEncuesta.setFechaRegistro(new Date());
+//        configuraEncuesta.setUserRegistro(ds.getUsuario());
+//        configuraEncuesta.setEncuestaTeoriaPractica(configuraEncuesta.getEncuestaTeoriaPractica() == null ? 0L : 1L);
+//        configuraEncuestaDAO.save(configuraEncuesta);
+//    }
+//    
+//    @Override
+//    @Transactional
+//    public void updateConfigEncuesta(ConfiguraEncuesta configuraEncuestaForm, DataSessionPivot ds) {
+//        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.find(configuraEncuestaForm);
+//        configuraEncuesta.setCantidadMaximaDocentes(configuraEncuestaForm.getCantidadMaximaDocentes());
+//        configuraEncuesta.setCantidadMinimaAlumnos(configuraEncuestaForm.getCantidadMinimaAlumnos());
+//        configuraEncuesta.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
+//        configuraEncuesta.setFechaModificacion(new Date());
+//        configuraEncuesta.setUserModificacion(ds.getUsuario());
+//        configuraEncuestaDAO.update(configuraEncuesta);
+//    }
+    
 }

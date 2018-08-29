@@ -641,7 +641,7 @@ public class AlumnoServiceImp implements AlumnoService {
             secciones.add(seccionesHorario.getSeccion());
         }
 
-        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allDocenteSeccionPrincipalBySeccion(secciones);
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySeccion(secciones);
         Map<Long, DocenteSeccion> docenteSeccionesMap = TypesUtil.convertListToMap("seccion.id", docenteSecciones);
 
         List<Dia> dias = diaDAO.allDia();

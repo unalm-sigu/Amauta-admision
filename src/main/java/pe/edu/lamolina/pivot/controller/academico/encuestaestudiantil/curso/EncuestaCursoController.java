@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -56,28 +57,22 @@ public class EncuestaCursoController {
 
             for (EncuestaCurso enCurso : encuestaCursos) {
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", enCurso.getId());
-                node.put("estado", enCurso.getEstado());
-                node.put("estadoEnum", enCurso.getEstadoEnum().getValue());
-                node.put("fechaInicio", enCurso.getFechaInicio() != null ? new DateTime(enCurso.getFechaInicio()).toString("dd/MM/yyyy hh:mm") : "");
-                node.put("fechaFin", enCurso.getFechaFin() != null ? new DateTime(enCurso.getFechaFin()).toString("dd/MM/yyyy hh:mm") : "");
-                node.put("fechaEncuestaInicio", enCurso.getFechaEncuestaInicio() != null ? new DateTime(enCurso.getFechaEncuestaInicio()).toString("dd/MM/yyyy") : "");
-                node.put("fechaEncuestaFin", enCurso.getFechaEncuestaFin() != null ? new DateTime(enCurso.getFechaEncuestaFin()).toString("dd/MM/yyyy") : "");
-                node.put("alumnosInicio", enCurso.getAlumnosInicio());
-                node.put("alumnoFin", enCurso.getAlumnoFin());
-                node.put("alumnosEncuestados", enCurso.getAlumnosEncuestados());
-                node.put("descripcion", enCurso.getDescripcion());
-
-                node.put("grupoSeccion", (String) ObjectUtil.getParentTree(enCurso, "grupoSeccion.codigo"));
-                node.put("curso", (String) ObjectUtil.getParentTree(enCurso, "grupoSeccion.curso.nombre"));
-                node.put("cursoCodigo", (String) ObjectUtil.getParentTree(enCurso, "grupoSeccion.curso.codigo"));
-                node.put("tpc", (String) ObjectUtil.getParentTree(enCurso, "grupoSeccion.curso.tpc"));
-
-                node.put("facultad", (String) ObjectUtil.getParentTree(enCurso, "grupoSeccion.curso.departamentoAcademico.facultad.nombre"));
-                node.put("departamentoAcademico", (String) ObjectUtil.getParentTree(enCurso, "grupoSeccion.curso.departamentoAcademico.nombre"));
-
-                node.put("examen", (String) ObjectUtil.getParentTree(enCurso, "encuestaEstudiantil.encuesta.nombre"));
+                ObjectNode node = JsonHelper.createJson(enCurso, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "*",
+                            "grupoSeccion.secciones.codigo2",
+                            "grupoSeccion.secciones.docenteSeccion.principal",
+                            "grupoSeccion.secciones.docenteSeccion.seccion.codigo2",
+                            "grupoSeccion.secciones.docenteSeccion.seccion.tipoSeccion",
+                            "grupoSeccion.secciones.docenteSeccion.docente.codigo",
+                            "grupoSeccion.secciones.docenteSeccion.docente.persona.apellidosNombres",
+                            "grupoSeccion.secciones.grupoHoras.codigo",
+                            "grupoSeccion.curso.codigo",
+                            "grupoSeccion.curso.nombre",
+                            "grupoSeccion.curso.tpc",
+                            "grupoSeccion.curso.departamentoAcademico.nombre",
+                            "grupoSeccion.curso.departamentoAcademico.facultad.nombre"
+                        });
 
                 array.add(node);
             }
@@ -102,7 +97,7 @@ public class EncuestaCursoController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.generarEncuesta(ds);
+            service.generarEncuesta(ds.getCicloAcademico(), ds);
             response.setMessage("Registro modificado satisfactoriamente");
             response.setSuccess(true);
 
