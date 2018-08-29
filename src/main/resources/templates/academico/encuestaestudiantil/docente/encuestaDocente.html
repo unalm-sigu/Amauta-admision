@@ -6,43 +6,287 @@
 
         <div layout:fragment="main">
 
-            <div  id="main">
+            <div  id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
-                    <button
-                        v-bind:disabled="generando"
-                        class="btn btn-primary pull-right"
-                        v-on:click="generarEncuesta"   >
-                        <i class="fa fa-spinner fa-spin" v-if="generando" aria-hidden="true"></i>
-                        Generar Encuesta
-                    </button>
+                    <div class="btn-group pull-right"
+                         v-if="encuesta.estado!='ACT'">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li v-if="encuesta.estado=='NCRE'"><a href="#" v-on:click="activarEncuesta"> Activar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Eliminar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Publicar encuestas </a></li>
+                        </ul>
+                    </div>
 
-                    <h2 th:inline="text">Encuestas de Docente  [[${cicloAcademico.descripcion}]] </h2>
+                    <h2 th:inline="text" class="m-b-n">Encuesta de Docentes  [[${cicloAcademico.descripcion}]] </h2>
+                    <div class="block m-b">
+                        <span v-if="encuesta.estado=='NCRE'" class="label label-danger">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='CRE'" class="label label-default">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='ACT'" class="label label-success">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='CER'" class="label label-primary">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='CFG'" class="label label-warning">{{encuesta.estadoEnum.value}}</span>
+                    </div>
 
                 </header>
 
                 <section class="wrapper-lg">
-                    <section class="panel">
+
+                    <section v-if="encuesta.estado != 'NCRE' "
+                             class="panel m-b-xs">
                         <section class="panel-body">
 
-                            <dynatable />
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-success" rel="anulados">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="anulados">10</div>
+                                            <div class="block m-b-xs m-t">Activos</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-muted" rel="interesados">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="interesados">20</div>
+                                            <div class="block m-b-xs m-t">Anulados</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-warning" rel="preinscritos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="preinscritos">40</div>
+                                            <div class="block m-b-xs m-t">Innecesarios</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-danger" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">30</div>
+                                            <div class="block m-b-xs m-t">Sin periodo</div>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-success" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">8</div>
+                                            <div class="block m-b-xs m-t">Cerrados</div>
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-primary" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{encuesta.objetivosEncuesta}}</div>
+                                            <div class="block m-b-xs m-t">Encuestables</div>
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-success" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{encuesta.objetivosEncuestados}}</div>
+                                            <div class="block m-b-xs m-t">Encuestados</div>
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-warning" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{cursosNoEncuestar.length}}</div>
+                                            <div class="block m-t">Cursos no</div>
+                                            <div class="block m-b-xs">encuestar</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+
+                    <section v-if="configuraEncuesta.cantidadMinimaAlumnos != null"
+                             class="panel m-b-xs">
+                        <section class="panel-body">
+                            <div class="col-md-12 h4 bold m-t-xs">Condiciones:</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnos}} alumnos como mínimo por sección</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMaximaDocentes}} docentes como máximo por sección</div>
+                            <div class="col-md-3" v-if="configuraEncuesta.encuestaTeoriaPractica==1">Una encuesta si el docente es de teoría y práctica</div>
+                            <div class="col-md-3">{{configuraEncuesta.diasEncuesta}} días de encuesta para secciónes polidocentes</div>
+
 
                         </section>
                     </section>
+
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="encuestaURL" ref="load">
+
+                                <template scope="props">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-5 v-middle">Docente</th>
+                                                <th class="col-md-2 text-center v-middle">Periodo Programado</th>
+                                                <th class="col-md-1 text-center v-middle">Actividad</th>
+                                                <th class="col-md-2 text-center v-middle">Alumnos</th>
+                                                <th class="col-md-1 text-center v-middle">Resultados</th>
+                                                <th class="col-md-1 text-center v-middle">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <span class="block text-primary h4 bold m-t-xs m-b-xs">
+                                                        {{item.docenteSeccion.docente.persona.apellidosNombres}}
+
+                                                        <span class="text-muted" style="font-size: 6px;">{{item.id}}</span>
+                                                    </span>
+                                                    <small class="block text-muted">
+                                                        Departamento Académico: 
+                                                        {{item.docenteSeccion.docente.departamentoAcademico.nombre}}
+                                                    </small>
+                                                    <small class="block text-muted">
+                                                        Facultad: 
+                                                        {{item.docenteSeccion.docente.departamentoAcademico.facultad.nombre}}
+                                                    </small>
+                                                    <span class="block text-dark">
+
+                                                    </span>
+
+                                                    <span class="text-primary h5 block m-t-xs m-b-xs">
+                                                        <span class="bold">
+                                                            <i v-if="item.docenteSeccion.seccion.tipoSeccion=='TCUR' " class="fa fa-book"></i>
+                                                            <i v-if="item.docenteSeccion.seccion.tipoSeccion=='TEO' " class="fa fa-book"></i>
+                                                            <i v-if="item.docenteSeccion.seccion.tipoSeccion=='PRA' " class="fa fa-flask"></i>
+                                                            <i v-if="item.docenteSeccion.seccion.tipoSeccion=='PCUR' " class="fa fa-flask"></i>
+                                                            Docente de la 
+                                                            <span v-if="item.docenteSeccion.seccion.tipoSeccion=='TCUR' ">teoría</span>
+                                                            <span v-if="item.docenteSeccion.seccion.tipoSeccion=='TEO' ">teoría</span>
+                                                            <span v-if="item.docenteSeccion.seccion.tipoSeccion=='PRA' ">práctica</span>
+                                                            <span v-if="item.docenteSeccion.seccion.tipoSeccion=='PCUR' ">práctica</span> &nbsp;|&nbsp; 
+                                                            Código: {{item.docenteSeccion.docente.codigo}}
+                                                        </span>
+
+
+                                                    </span>
+
+                                                    <span class="text-dark h5 block m-t-xs m-b-xs">
+                                                        <i class="fa fa-users"></i>
+                                                        Sección: {{item.docenteSeccion.seccion.codigo2}} &nbsp;|&nbsp; 
+                                                        Grupo: {{item.docenteSeccion.seccion.grupoHoras.codigo}} &nbsp;|&nbsp; 
+                                                        Docentes: <span class="badge"> {{item.docenteSeccion.seccion.docenteSeccion.length}} </span>
+                                                    </span>
+
+                                                    <span class="text-dark h5 block m-t-xs">
+                                                        <i class="fa fa-graduation-cap"></i>
+                                                        {{item.docenteSeccion.seccion.grupoSeccion.curso.codigo}} &nbsp;
+                                                        <i class="fa fa-bookmark-o"></i> {{item.docenteSeccion.seccion.grupoSeccion.curso.tpc}} &nbsp;
+                                                        {{item.docenteSeccion.seccion.grupoSeccion.curso.nombre}}
+                                                    </span>
+
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.estado=='ACT'">
+                                                        <span class="block m-b-xs"><strong>Desde:</strong> {{item.fechaEncuestaInicio}}</span>
+                                                        <span class="block"><strong>Hasta:</strong> {{item.fechaEncuestaFin}}</span>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.estado=='ACT'">
+                                                        <div v-if="item.fechaInicio!='' " class="text-primary">
+                                                            <span class="block"><strong>Primera:</strong> {{getDia(item.fechaInicio)}}</span>
+                                                            <span class="block m-b-xs">{{getHora(item.fechaInicio)}}</span>
+                                                            <span class="block"><strong>Última:</strong> {{getDia(item.fechaFin)}}</span>
+                                                            <span class="block">{{getHora(item.fechaFin)}}</span>
+                                                        </div>
+                                                        <div v-else="" class="text-muted">Ninguna</div>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="block text-success bold" v-if="item.alumnosEncuestados>0">
+                                                        <strong>Encuestados:</strong> {{item.alumnosEncuestados}}
+                                                    </span>
+                                                    <span class="block"><strong>Iniciales:</strong> {{item.alumnosInicio}}</span>
+                                                    <span class="block"><strong>Actuales:</strong> {{item.alumnosFin}}</span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.estado=='ACT'">
+                                                        <span class="pointer m-r-xs text-primary"><i class="fa fa-list-ul"></i></span>
+                                                        <span class="pointer m-r-xs text-success"><i class="fa fa-comments"></i></span>
+                                                        <span class="pointer text-warning"><i class="fa fa-bar-chart"></i></span>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+
+                                                    <span v-if="item.estado=='ACT'" class="label pointer label-success" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='INA'" class="label pointer label-danger" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='FECH'" class="label pointer label-danger" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='TEO'" class="label pointer label-warning" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='ANU'" class="label pointer label-default" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado=='CER'" class="label pointer label-primary" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
+
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+
+                                                            <li v-if="item.estado=='ACT' "><a  v-on:click.prevent="estado(item)" href="#">Desactivar</a></li>
+                                                            <li v-if="item.estado=='INA' "><a  v-on:click.prevent="estado(item)" href="#">Activar</a></li>
+                                                            <li v-if="item.estado=='TEO' "><a  v-on:click.prevent="estado(item)" href="#">Activar</a></li>
+
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                    <div th:substituteby="academico/encuestaestudiantil/docente/encuestaDocenteModal"></div>
                 </section>
 
             </div>
 
-            <th:block th:replace="academico/encuestaestudiantil/docente/encuestaDocenteDynatable"/>
+            <!--<th:block th:replace="academico/encuestaestudiantil/docente/encuestaDocenteDynatable"/>-->
+            <div th:substituteby="_modules/vue-modal"></div>
 
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var encuestaJson = /*[[${encuesta.toString()}]]*/ 'json';
+                var visor = /*[[${visor.estadoEnum}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
+            <!--<script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocenteDynatable.js}"></script>-->
+            <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-            <script th:src="@{/vendor/vuejs/vue.js}" charset="utf-8"></script>
-            <script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocenteDynatable.js}"></script>
+            <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>
             <script th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocente.js}" charset="utf-8"></script>
         </div>
 
