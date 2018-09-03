@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -19,10 +19,10 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -32,6 +32,8 @@ public class EncuestaCursoController {
 
     @Autowired
     EncuestaCursoService service;
+    @Autowired
+    VisorEncuestaCurso visorEncuestaCurso;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -39,7 +41,11 @@ public class EncuestaCursoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        EncuestaEstudiantil encuesta = service.findEncuestaCurso(cicloAcademico);
+
         model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("visor", visorEncuestaCurso);
+        model.addAttribute("encuesta", JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"}));
         return "academico/encuestaestudiantil/curso/encuestaCurso";
     }
 
@@ -88,6 +94,27 @@ public class EncuestaCursoController {
         return json;
     }
 
+//    @ResponseBody
+//    @RequestMapping("generar")
+//    public JsonResponse generar(HttpSession session) {
+//
+//        JsonResponse response = new JsonResponse();
+//
+//        try {
+//
+//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//            service.generarEncuesta(ds.getCicloAcademico(), ds);
+//            response.setMessage("Registro modificado satisfactoriamente");
+//            response.setSuccess(true);
+//
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//
+//    }
     @ResponseBody
     @RequestMapping("generar")
     public JsonResponse generar(HttpSession session) {
@@ -97,13 +124,16 @@ public class EncuestaCursoController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.generarEncuesta(ds.getCicloAcademico(), ds);
-            response.setMessage("Registro modificado satisfactoriamente");
-            response.setSuccess(true);
+            String msg = service.generarEncuesta(ds.getCicloAcademico(), ds);
+            response.setSuccess(msg == null);
+            response.setMessage(msg == null ? "Se inició proceso de generación en encuestas" : msg);
 
         } catch (PhobosException e) {
+            visorEncuestaCurso.cancelarProceso();
             ExceptionHandler.handlePhobosEx(e, response);
+
         } catch (Exception e) {
+            visorEncuestaCurso.cancelarProceso();
             ExceptionHandler.handleException(e, response);
         }
         return response;
@@ -120,6 +150,109 @@ public class EncuestaCursoController {
 
             service.cambiarEstadoEncuesta(encuesta);
             response.setMessage("Registro actualizado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activar")
+    public JsonResponse activar(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.activarEncuesta(ds.getCicloAcademico(), ds);
+            response.setMessage("Encuesta activada satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("saveConfigEncuesta")
+    public JsonResponse saveConfigEncuesta(@RequestBody EncuestaEstudiantil encuestaEstudiantil, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.saveDetalleConfigEncuesta(encuestaEstudiantil, ciclo, ds);
+            response.setMessage("Encuesta configurada satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("estadoGenerarEncuestas")
+    public JsonResponse estadoGenerarEncuestas(HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            json.setData(visorEncuestaCurso.getPorcentaje());
+            json.setSuccess(visorEncuestaCurso.estaProcesando());
+            json.setMessage(visorEncuestaCurso.getEstado());
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+
+        } finally {
+            return json;
+        }
+
+    }
+
+    @ResponseBody
+    @RequestMapping("encuestaCurso")
+    public JsonResponse encuestaCurso(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            EncuestaEstudiantil encuesta = service.findEncuestaCurso(cicloAcademico);
+
+            ObjectNode encuJson = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "id", "estado", "estadoEnum", "objetivosEncuesta", "objetivosEncuestados",
+                        "encuestasActivas", "encuestasAnuladas", "encuestasSinPeriodo", "encuestasCerradas", "encuestasInnecesarias",
+                        "encuestasProgramadas", "encuestasEjecutadas",
+                        "periodosEncuesta.fechaInicio",
+                        "periodosEncuesta.fechaFin",
+                        "configuraEncuesta.cantidadMinimaAlumnos",
+                        "configuraEncuesta.cantidadMaximaDocentes",
+                        "configuraEncuesta.encuestaTeoriaPractica",
+                        "configuraEncuesta.diasEncuesta",
+                        "cursosNoEncuestar.curso.codigo",
+                        "cursosNoEncuestar.curso.nombre",
+                        "cursosNoEncuestar.curso.tpc"
+                    });
+
+            response.setData(encuJson);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

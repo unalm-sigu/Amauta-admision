@@ -2,7 +2,7 @@
            v-bind="cfgVerProgreso">
 
     <div slot="body">
-        <h4 class="m-b text-center">Generación de encuesta de docentes</h4>
+        <h4 class="m-b text-center">Generación de encuesta de cursos</h4>
 
         <div class="alert alert-success text-center" id="divAlert">
             <i class="fa fa-spinner fa-spin fa-lg"></i> {{mensajeProgreso}}
@@ -40,44 +40,13 @@
                                    v-bind:value="configuraEncuesta.cantidadMinimaAlumnos"
                                    required="true"/>
                         </div>
-                        <div class="form-group">
-                            <label>Cantidad máxima de docentes por sección</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="cantidadMaximaDocentes"
-                                   v-model="configuraEncuesta.cantidadMaximaDocentes"
-                                   v-bind:value="configuraEncuesta.cantidadMaximaDocentes"
-                                   required="true"/>
-                        </div>
-                        <div class="form-group">
-                            <div>Solo una encuesta para el docente que dicta la teoría 
-                                y la práctica</div>
-                            <label class="switch">
-                                <input type="checkbox"
-                                       name="encuestaTeoriaPractica"
-                                       v-model="configuraEncuesta.encuestaTeoriaPractica"
-                                       v-bind:value="configuraEncuesta.encuestaTeoriaPractica==true?1:0"
-                                       />
-                                <span></span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>Días de encuesta antes del última día de clases
-                                para secciones polidocentes</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="diasEncuesta"
-                                   v-model="configuraEncuesta.diasEncuesta"
-                                   v-bind:value="configuraEncuesta.diasEncuesta"
-                                   required="true"/>
-                        </div>
                     </form>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="panel-body">
-                    Fechas en que se efectuarán las encuestas para secciones con un solo docente
+                    Fechas en que se efectuarán las encuestas para secciones con un solo curso
                     <table class="table table-condensed m-t">
                         <thead>
                             <tr>
@@ -116,8 +85,6 @@
                 </div>
             </div>
         </div>
-
-
 
     </div>
 </modal-vik>

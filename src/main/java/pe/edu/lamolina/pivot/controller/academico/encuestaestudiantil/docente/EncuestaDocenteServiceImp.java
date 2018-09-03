@@ -89,6 +89,36 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                 encuesta.getConfiguraEncuesta().add(cfg);
             }
             encuesta.setCursosNoEncuestar(cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuesta));
+            List<EncuestaDocente> encDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuesta);
+            int activos = 0;
+            int anulados = 0;
+            int innecesa = 0;
+            int cerrados = 0;
+            int sinperio = 0;
+            for (EncuestaDocente encDocente : encDocentes) {
+                switch (encDocente.getEstadoEnum()) {
+                    case ACT:
+                        activos++;
+                        break;
+                    case ANU:
+                        anulados++;
+                        break;
+                    case TEO:
+                        innecesa++;
+                        break;
+                    case CER:
+                        cerrados++;
+                        break;
+                    case FECH:
+                        sinperio++;
+                        break;
+                }
+            }
+            encuesta.setEncuestasActivas(activos);
+            encuesta.setEncuestasAnuladas(anulados);
+            encuesta.setEncuestasCerradas(cerrados);
+            encuesta.setEncuestasInnecesarias(innecesa);
+            encuesta.setEncuestasSinPeriodo(sinperio);
         }
 
         return encuesta;
@@ -163,14 +193,14 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm) {
         EncuestaDocente encuesta = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
         if (Strings.isNullOrEmpty(encuesta.getEstado())) {
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
         }
         if (encuesta.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT
                 || encuesta.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.TEO) {
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
             List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuesta);
             for (EncuestaAlumno encuestaAlumno : encuestas) {
-                encuestaAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+                encuestaAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
                 encuestaAlumnoDAO.update(encuestaAlumno);
             }
             return;

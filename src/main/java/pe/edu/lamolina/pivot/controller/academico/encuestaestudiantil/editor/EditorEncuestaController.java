@@ -25,7 +25,6 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
@@ -353,7 +352,6 @@ public class EditorEncuestaController {
 //        }
 //        return response;
 //    }
-
 //    @ResponseBody
 //    @RequestMapping("addconfigencuesta")
 //    public JsonResponse addConfigEncuesta(ConfiguraEncuesta configuraEncuesta, HttpSession session) {
@@ -375,5 +373,4 @@ public class EditorEncuestaController {
 //        }
 //        return response;
 //    }
-
 }
