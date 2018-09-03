@@ -32,9 +32,28 @@ new Vue({
             title: 'Resumen de preguntas',
             modalsize: 'modal-lg',
             header: true,
+            footer: false,
             showaccept: false
         },
-        preguntas: []
+        preguntas: [],
+        modalComentarios: {
+            id: 'modalComentarios',
+            title: 'Comentarios',
+            modalsize: 'modal-md',
+            header: true,
+            footer: false,
+            showaccept: false
+        },
+        comentarios:[],
+        modalTemas: {
+            id: 'modalTemas',
+            title: 'Temas',
+            modalsize: 'modal-md',
+            header: true,
+            footer: false,
+            showaccept: false
+        },
+        temas:[]
     },
     mounted: function () {
         let vue = this;
@@ -259,6 +278,24 @@ new Vue({
                     if (response.data.success) {
                         this.preguntas = response.data.data;
                         this.$refs.modalPreguntas.open();
+                    }
+                })
+        },
+        findComentarios(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/comentarios`)
+                .then(response => {
+                    if (response.data.success) {
+                        this.comentarios = response.data.data;
+                        this.$refs.modalComentarios.open();
+                    }
+                })
+        },
+        findTemas(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/temas`)
+                .then(response => {
+                    if (response.data.success) {
+                        this.temas = response.data.data;
+                        this.$refs.modalTemas.open();
                     }
                 })
         }

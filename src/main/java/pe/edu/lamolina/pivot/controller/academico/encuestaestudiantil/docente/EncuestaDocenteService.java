@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -22,5 +23,10 @@ public interface EncuestaDocenteService {
 
     void saveDetalleConfigEncuesta(EncuestaEstudiantil encuestaEstudiantil, CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<ResumenEncuestaDocente> resumenPreguntas(EncuestaDocente encuestaDocente);
+    List<ResumenEncuestaDocente> resumenPreguntasLikert(EncuestaDocente encuestaDocente);
+
+    List<String> resumenComentarios(EncuestaDocente encuestaDocente);
+
+    List<PuntajeEncuestaDocente> resumenPuntajeTemas(EncuestaDocente encuestaDocente);
+    
 }

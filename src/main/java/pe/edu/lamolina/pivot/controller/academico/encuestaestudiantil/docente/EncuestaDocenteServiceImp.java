@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
+import pe.edu.lamolina.model.encuestaestudiantil.RespuestaEncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
@@ -37,6 +40,8 @@ import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.PuntajeEncuestaDocenteDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.RespuestaEncuestaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ResumenEncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -63,13 +68,16 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     PeriodoEncuestaDAO periodoEncuestaDAO;
     @Autowired
     CursoSinEncuestaDAO cursoSinEncuestaDAO;
-
     @Autowired
     VisorEncuestaDocente visorEncuestaDocente;
     @Autowired
     GeneradorEncuestaDocenteService generadorEncuestaDocenteService;
     @Autowired
     ResumenEncuestaDocenteDAO resumenEncuestaDocenteDAO;
+    @Autowired
+    RespuestaEncuestaAlumnoDAO respuestaEncuestaAlumnoDAO;
+    @Autowired
+    PuntajeEncuestaDocenteDAO puntajeEncuestaDocenteDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -155,7 +163,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
             generadorEncuestaDocenteService.generarEncuesta(cicloAcademico, ds);
             return null;
-
         } else {
             return "No se puede iniciar la generación de encuestas de docentes";
         }
@@ -248,8 +255,18 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     }
 
     @Override
-    public List<ResumenEncuestaDocente> resumenPreguntas(EncuestaDocente encuestaDocente) {
+    public List<ResumenEncuestaDocente> resumenPreguntasLikert(EncuestaDocente encuestaDocente) {
         return resumenEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
     }
 
+    @Override
+    public List<String> resumenComentarios(EncuestaDocente encuestaDocente) {
+        List<RespuestaEncuestaAlumno> respuestas = respuestaEncuestaAlumnoDAO.allComentariosByEncuestaDocente(encuestaDocente);
+        return respuestas.stream().map(RespuestaEncuestaAlumno::getComentario).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PuntajeEncuestaDocente> resumenPuntajeTemas(EncuestaDocente encuestaDocente) {
+        return puntajeEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
+    }
 }

@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
+import pe.edu.lamolina.model.enums.TipoPreguntaEncuestaEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.ResumenEncuestaDocenteDAO;
 
 @Repository
@@ -20,8 +21,9 @@ public class ResumenEncuestaDocenteDAOH extends AbstractEasyDAO<ResumenEncuestaD
     public List<ResumenEncuestaDocente> allByEncuestaDocente(EncuestaDocente encuestaDocente) {
         Octavia sql = Octavia.query(ResumenEncuestaDocente.class, "red")
                 .join("red.encuestaDocente ed", "pregunta p")
-                .filter("ed.id", encuestaDocente);
-        
+                .filter("ed.id", encuestaDocente)
+                .filter("p.tipo", TipoPreguntaEncuestaEnum.LIKERT);
+
         return all(sql);
     }
 
