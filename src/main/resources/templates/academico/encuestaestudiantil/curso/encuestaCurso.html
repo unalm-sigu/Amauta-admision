@@ -10,19 +10,111 @@
 
                 <header class="header b-b padder-lg">
 
-                    <button
-                        v-bind:disabled="generando"
-                        class="btn btn-primary pull-right"
-                        v-on:click="generarEncuesta"   >
-                        <i class="fa fa-spinner fa-spin" v-if="generando" aria-hidden="true"></i>
-                        Generar Encuesta
-                    </button>
+                    <div class="btn-group pull-right"
+                         v-if="encuesta.estado!='ACT'">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li v-if="encuesta.estado=='NCRE'"><a href="#" v-on:click="activarEncuesta"> Activar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Eliminar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Publicar encuestas </a></li>
+                        </ul>
+                    </div>
 
                     <h2 th:inline="text">Encuesta de Cursos  [[${cicloAcademico.descripcion}]] </h2>
 
                 </header>
 
+
+
                 <section class="wrapper-lg">
+                    <section v-if="encuesta.estado != 'NCRE' "
+                             class="panel m-b-xs">
+                        <section class="panel-body">
+
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-success" rel="anulados">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="anulados">{{encuesta.encuestasActivas}}</div>
+                                            <div class="block m-b-xs m-t">Activos</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-muted" rel="interesados">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="interesados">{{encuesta.encuestasAnuladas}}</div>
+                                            <div class="block m-b-xs m-t">Anulados</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-warning" rel="preinscritos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="preinscritos">{{encuesta.encuestasInnecesarias}}</div>
+                                            <div class="block m-b-xs m-t">Innecesarios</div>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-danger" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{encuesta.encuestasSinPeriodo}}</div>
+                                            <div class="block m-b-xs m-t">Sin periodo</div>
+                                        </a>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-success" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{encuesta.encuestasCerradas}}</div>
+                                            <div class="block m-b-xs m-t">Cerrados</div>
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-primary" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{encuesta.objetivosEncuesta}}</div>
+                                            <div class="block m-b-xs m-t">Encuestables</div>
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-success" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{encuesta.objetivosEncuestados}}</div>
+                                            <div class="block m-b-xs m-t">Encuestados</div>
+                                        </a>
+                                    </div>
+
+                                    <div class="col-md-3 text-center">
+                                        <a href="#" class="ver-interesados text-warning" rel="prospectos">
+                                            <div class="h1 block bold m-t-xs m-b-n"
+                                                 id="prospectos">{{cursosNoEncuestar.length}}</div>
+                                            <div class="block m-t">Cursos no</div>
+                                            <div class="block m-b-xs">encuestar</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+
+
+
+
+
+
+
+
                     <section class="panel">
                         <section class="panel-body">
 
@@ -178,7 +270,7 @@
 
                     </section>
                 </section>
-
+                <div th:substituteby="academico/encuestaestudiantil/curso/encuestaCursoModal"></div>
             </div>
 
             <div th:substituteby="_modules/vue-modal"></div>
@@ -186,6 +278,14 @@
         </div>
 
         <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var encuestaJson = /*[[${encuesta.toString()}]]*/ 'json';
+                var visor = /*[[${visor.estadoEnum}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>

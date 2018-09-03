@@ -89,15 +89,25 @@
                         <tbody>
                             <tr v-for="(periodo,idx) in periodosEncuesta">
                                 <td>
-                        <date-picker v-model="periodo.fechaInicio" lang="es" format="dd/MM/yyyy" ></date-picker>
-                        </td>
-                        <td>
-                        <date-picker v-model="periodo.fechaFin" lang="es" format="dd/MM/yyyy" ></date-picker>
-                        </td>
-                        <td class="pointer" v-on:click="removePeriodo(idx)">
-                            <i class="fa fa-times text-danger"></i>
-                        </td>
-                        </tr>
+                                    <div class="input-group">
+                                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaInicio"></date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaFin"></date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="pointer" v-on:click="removePeriodo(idx)">
+                                    <i class="fa fa-times text-danger"></i>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                     <div class="block text-center">

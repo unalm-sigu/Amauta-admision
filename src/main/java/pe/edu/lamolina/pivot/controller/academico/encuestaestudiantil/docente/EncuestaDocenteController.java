@@ -284,6 +284,7 @@ public class EncuestaDocenteController {
             ObjectNode encuJson = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true,
                     new String[]{
                         "id", "estado", "estadoEnum", "objetivosEncuesta", "objetivosEncuestados",
+                        "encuestasActivas", "encuestasAnuladas", "encuestasSinPeriodo", "encuestasCerradas", "encuestasInnecesarias",
                         "encuestasProgramadas", "encuestasEjecutadas",
                         "periodosEncuesta.fechaInicio",
                         "periodosEncuesta.fechaFin",

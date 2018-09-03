@@ -1,5 +1,4 @@
-Vue.component("date-picker", window.DatePicker.default);
-
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#main',
     data: {
@@ -27,6 +26,10 @@ new Vue({
         estadoVisor: visor,
         porcentajeProgreso: 0,
         mensajeProgreso: "Calculado Información a procesar",
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
+        },
         modalPreguntas: {
             id: 'modalPreguntas',
             title: 'Resumen de preguntas',

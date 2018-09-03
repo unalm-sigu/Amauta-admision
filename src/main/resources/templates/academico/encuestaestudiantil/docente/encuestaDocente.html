@@ -47,28 +47,28 @@
                                     <div class="col-md-3 text-center">
                                         <a href="#" class="ver-interesados text-success" rel="anulados">
                                             <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="anulados">10</div>
+                                                 id="anulados">{{encuesta.encuestasActivas}}</div>
                                             <div class="block m-b-xs m-t">Activos</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center">
                                         <a href="#" class="ver-interesados text-muted" rel="interesados">
                                             <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="interesados">20</div>
+                                                 id="interesados">{{encuesta.encuestasAnuladas}}</div>
                                             <div class="block m-b-xs m-t">Anulados</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center">
                                         <a href="#" class="ver-interesados text-warning" rel="preinscritos">
                                             <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="preinscritos">40</div>
+                                                 id="preinscritos">{{encuesta.encuestasInnecesarias}}</div>
                                             <div class="block m-b-xs m-t">Innecesarios</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center">
                                         <a href="#" class="ver-interesados text-danger" rel="prospectos">
                                             <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">30</div>
+                                                 id="prospectos">{{encuesta.encuestasSinPeriodo}}</div>
                                             <div class="block m-b-xs m-t">Sin periodo</div>
                                         </a>
                                     </div>
@@ -80,7 +80,7 @@
                                     <div class="col-md-3 text-center">
                                         <a href="#" class="ver-interesados text-success" rel="prospectos">
                                             <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">8</div>
+                                                 id="prospectos">{{encuesta.encuestasCerradas}}</div>
                                             <div class="block m-b-xs m-t">Cerrados</div>
                                         </a>
                                     </div>
@@ -271,7 +271,6 @@
 
             </div>
 
-            <!--<th:block th:replace="academico/encuestaestudiantil/docente/encuestaDocenteDynatable"/>-->
             <div th:substituteby="_modules/vue-modal"></div>
 
         </div>
@@ -285,6 +284,8 @@
             </script>
             <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
             <!--<script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocenteDynatable.js}"></script>-->
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
             <script type="text/javascript" th:src="@{/phobos/modules/vue-modal.js}"></script>

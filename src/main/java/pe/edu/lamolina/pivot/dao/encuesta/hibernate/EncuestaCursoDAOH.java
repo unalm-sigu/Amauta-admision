@@ -54,7 +54,7 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
                 .join("grupoSeccion gs", "gs.curso cur")
                 .join("cur.departamentoAcademico da", "da.facultad")
-                .leftJoin("per.tipoDocumento tdoc")
+//                .leftJoin("per.tipoDocumento tdoc")
                 .filter("ee.id", encuestaEstudiantil);
         return all(sql);
     }
