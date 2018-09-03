@@ -191,7 +191,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                 puntaje.setEncuestaDocenteModalidad(encuProfeModalidad);
                 puntaje.setTemaEncuesta(tema);
                 puntaje.setPuntaje(BigDecimal.ZERO);
-                puntaje.setDesvisacionStandar(BigDecimal.ZERO);
+                puntaje.setDesviacionStandar(BigDecimal.ZERO);
                 puntajeEncuestaDocenteModalidadDAO.save(puntaje);
             }
         }
@@ -214,6 +214,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         
         if (impedido != null) {
             EncuestaDocente enc = new EncuestaDocente();
+            enc.setModalidadEstudio(profeSecc.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio());
             enc.setAlumnosEncuestados(0L);
             enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
             enc.setAlumnosFin(Long.valueOf(alumnos.size()));
@@ -232,6 +233,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         if (profesoresSecc.size() == 1 && configuraEncuesta.getEncuestaTeoriaPractica() == 0l) {
             for (PeriodoEncuesta periodo : periodosEncuesta) {
                 EncuestaDocente enc = new EncuestaDocente();
+                enc.setModalidadEstudio(profeSecc.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio());
                 enc.setAlumnosEncuestados(0L);
                 enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
                 enc.setAlumnosFin(Long.valueOf(alumnos.size()));
@@ -264,6 +266,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                 boolean esProfeTeoriaPractica = esProfeTeoriaPractica(docente, profeSeccByGpoSecc);
                 if (esProfeTeoriaPractica) {
                     EncuestaDocente enc = new EncuestaDocente();
+                    enc.setModalidadEstudio(profeSecc.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio());
                     enc.setAlumnosEncuestados(0L);
                     enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
                     enc.setAlumnosFin(Long.valueOf(alumnos.size()));
@@ -284,6 +287,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         if (profesoresSecc.size() == 1) {
             for (PeriodoEncuesta periodo : periodosEncuesta) {
                 EncuestaDocente enc = new EncuestaDocente();
+                enc.setModalidadEstudio(profeSecc.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio());
                 enc.setAlumnosEncuestados(0L);
                 enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
                 enc.setAlumnosFin(Long.valueOf(alumnos.size()));
@@ -311,6 +315,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         
         if (profeSecc.getFechaFin() == null) {
             EncuestaDocente enc = new EncuestaDocente();
+            enc.setModalidadEstudio(profeSecc.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio());
             enc.setAlumnosEncuestados(0L);
             enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
             enc.setAlumnosFin(Long.valueOf(alumnos.size()));
@@ -329,6 +334,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         
         Date inicioEncuesta = new DateTime(profeSecc.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
         EncuestaDocente enc = new EncuestaDocente();
+        enc.setModalidadEstudio(profeSecc.getSeccion().getGrupoSeccion().getCurso().getModalidadEstudio());
         enc.setAlumnosEncuestados(0L);
         enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
         enc.setAlumnosFin(Long.valueOf(alumnos.size()));
