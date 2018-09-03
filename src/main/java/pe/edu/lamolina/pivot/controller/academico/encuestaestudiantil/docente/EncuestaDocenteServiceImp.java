@@ -73,7 +73,10 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public EncuestaEstudiantil findEncuestaDocente(CicloAcademico cicloAcademico) {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+        EncuestaEstudiantil encuesta = null;
+        if (encuestaModelo != null) {
+            encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+        }
         if (encuesta == null) {
             encuesta = new EncuestaEstudiantil();
             encuesta.setEstadoEnum(EncuestaEstadoEnum.NCRE);
