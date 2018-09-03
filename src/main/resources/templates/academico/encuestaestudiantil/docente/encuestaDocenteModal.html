@@ -121,3 +121,67 @@
 
     </div>
 </modal-vik>
+
+<modal-vik ref="modalPreguntas"
+           v-bind="modalPreguntas">
+
+    <div slot="body">
+
+        <div class="row">
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 15px" >
+                        <li v-for="p in preguntas.slice(0, preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 10px">
+                        <li v-for="p in preguntas.slice(preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalComentarios"
+           v-bind="modalComentarios">
+    <div slot="body">
+        <div style="max-height: 500px !important; overflow: auto">
+            <table class="table table-striped">
+                <tbody>
+                    <tr v-for="c in comentarios">
+                        <td>
+                            {{ c }} 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalTemas"
+           v-bind="modalTemas">
+    <div slot="body">
+        <table class="table table-striped">
+            <tr v-for="tema in temas">
+                <td class="v-middle col-md-8">
+                    <span class="block text-justify"> {{ tema.temaEncuesta.nombre }} </span>  
+
+                </td>
+                <td class="v-middle col-md-4 text-center">
+                    <span class="text-lg"> {{ tema.puntaje.toFixed(2) }} </span >
+                </td>
+            </tr>
+        </table>
+    </div>
+</modal-vik>
