@@ -246,80 +246,80 @@ public class EncuestaCursoController {
         return response;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/{id}/resumen/preguntas", method = RequestMethod.GET)
-    public JsonResponse resumenPreguntas(@PathVariable Long id) {
-
-        JsonResponse response = new JsonResponse();
-        try {
-
-            List<ResumenEncuestaDocente> resumenes = service.resumenPreguntasLikert(new EncuestaDocente(id));
-            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-
-            for (ResumenEncuestaDocente resumene : resumenes) {
-                arr.add(JsonHelper.createJson(resumene, JsonNodeFactory.instance, new String[]{
-                    "id",
-                    "puntaje",
-                    "opcionLikert.id",
-                    "opcionLikert.opcion",
-                    "pregunta.id",
-                    "pregunta.texto"
-                }));
-            }
-            response.setData(arr);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/{id}/resumen/comentarios", method = RequestMethod.GET)
-    public JsonResponse resumenComentarios(@PathVariable Long id) {
-
-        JsonResponse response = new JsonResponse();
-        try {
-            List<String> resumenes = service.resumenComentarios(new EncuestaDocente(id));
-            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-            for (String resumen : resumenes) {
-                arr.add(resumen);
-            }
-            response.setData(arr);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/{id}/resumen/temas", method = RequestMethod.GET)
-    public JsonResponse resumenTemas(@PathVariable Long id) {
-
-        JsonResponse response = new JsonResponse();
-        try {
-            List<PuntajeEncuestaDocente> resumenes = service.resumenPuntajeTemas(new EncuestaDocente(id));
-            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-            for (PuntajeEncuestaDocente resumen : resumenes) {
-                arr.add(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{
-                    "puntaje",
-                    "desviacionStandar",
-                    "temaEncuesta.nombre"
-                }));
-            }
-            response.setData(arr);
-            response.setSuccess(true);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
+//    @ResponseBody
+//    @RequestMapping(value = "/{id}/resumen/preguntas", method = RequestMethod.GET)
+//    public JsonResponse resumenPreguntas(@PathVariable Long id) {
+//
+//        JsonResponse response = new JsonResponse();
+//        try {
+//
+//            List<ResumenEncuestaDocente> resumenes = service.resumenPreguntasLikert(new EncuestaDocente(id));
+//            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+//
+//            for (ResumenEncuestaDocente resumene : resumenes) {
+//                arr.add(JsonHelper.createJson(resumene, JsonNodeFactory.instance, new String[]{
+//                    "id",
+//                    "puntaje",
+//                    "opcionLikert.id",
+//                    "opcionLikert.opcion",
+//                    "pregunta.id",
+//                    "pregunta.texto"
+//                }));
+//            }
+//            response.setData(arr);
+//            response.setSuccess(true);
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/{id}/resumen/comentarios", method = RequestMethod.GET)
+//    public JsonResponse resumenComentarios(@PathVariable Long id) {
+//
+//        JsonResponse response = new JsonResponse();
+//        try {
+//            List<String> resumenes = service.resumenComentarios(new EncuestaDocente(id));
+//            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+//            for (String resumen : resumenes) {
+//                arr.add(resumen);
+//            }
+//            response.setData(arr);
+//            response.setSuccess(true);
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
+//
+//    @ResponseBody
+//    @RequestMapping(value = "/{id}/resumen/temas", method = RequestMethod.GET)
+//    public JsonResponse resumenTemas(@PathVariable Long id) {
+//
+//        JsonResponse response = new JsonResponse();
+//        try {
+//            List<PuntajeEncuestaDocente> resumenes = service.resumenPuntajeTemas(new EncuestaDocente(id));
+//            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+//            for (PuntajeEncuestaDocente resumen : resumenes) {
+//                arr.add(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{
+//                    "puntaje",
+//                    "desviacionStandar",
+//                    "temaEncuesta.nombre"
+//                }));
+//            }
+//            response.setData(arr);
+//            response.setSuccess(true);
+//        } catch (PhobosException e) {
+//            ExceptionHandler.handlePhobosEx(e, response);
+//        } catch (Exception e) {
+//            ExceptionHandler.handleException(e, response);
+//        }
+//        return response;
+//    }
 
 }

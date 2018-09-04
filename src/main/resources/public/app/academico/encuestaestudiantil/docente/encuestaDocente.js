@@ -51,7 +51,7 @@ new Vue({
         modalTemas: {
             id: 'modalTemas',
             title: 'Temas',
-            modalsize: 'modal-md',
+            modalsize: 'modal-lg',
             header: true,
             footer: false,
             showaccept: false
@@ -317,14 +317,17 @@ new Vue({
                     type: 'column'
                 },
                 title: {
-                    text: 'Temas de Encuesta'
+                    text: 'Encuesta Estudiantil'
+                },
+                subtitle: {
+                    text: '(Escala 1 - 5)'
                 },
                 xAxis: {
                     type: 'category'
                 },
                 yAxis: {
                     title: {
-                        text: 'Porcentaje basados del 1 al 5'
+                        text: 'Puntaje'
                     }
                 },
                 legend: {
