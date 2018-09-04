@@ -253,6 +253,83 @@ new Vue({
                     .catch(function (error) {
                         console.log(error);
                     });
+        },
+        findPreguntas(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/curso/${item.id}/resumen/preguntas`)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.preguntas = response.data.data;
+                            this.$refs.modalPreguntas.open();
+                        }
+                    })
+        },
+        findComentarios(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/curso/${item.id}/resumen/comentarios`)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.comentarios = response.data.data;
+                            this.$refs.modalComentarios.open();
+                        }
+                    })
+        },
+        findTemas(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/curso/${item.id}/resumen/temas`)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.temas = response.data.data;
+                            this.$refs.modalTemas.open();
+                            this.generateChart(response.data.data);
+                        }
+                    })
+        },
+        generateChart(items) {
+            var aData = [];
+            for (var i = 0; i < items.length; i++) {
+                let obj = {};
+                obj.name = items[i].temaEncuesta.nombre;
+                obj.y = items[i].puntaje;
+                aData.push(obj);
+            }
+
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Temas de Encuesta'
+                },
+                xAxis: {
+                    type: 'category'
+                },
+                yAxis: {
+                    title: {
+                        text: 'Porcentaje basados del 1 al 5'
+                    }
+                },
+                legend: {
+                    enabled: false
+                },
+                plotOptions: {
+                    series: {
+                        borderWidth: 0,
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.y:.1f}%'
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+                },
+                "series": [
+                    {
+                        "name": "Tema",
+                        "colorByPoint": true,
+                        "data": aData
+                    }
+                ]
+            });
         }
     }
 });

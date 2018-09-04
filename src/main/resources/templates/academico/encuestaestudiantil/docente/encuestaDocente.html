@@ -226,7 +226,7 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados > configuraEncuesta.cantidadMinimaAlumnos)">
+                                                    <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados >= configuraEncuesta.cantidadMinimaAlumnos)">
                                                     <!--<span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados > 0)">-->
                                                         <span class="pointer m-r-xs text-primary" v-on:click="findPreguntas(item)"><i class="fa fa-list-ul"></i></span>
                                                         <span class="pointer m-r-xs text-success" v-on:click="findComentarios(item)"><i class="fa fa-comments"></i></span>
@@ -284,6 +284,7 @@
             </script>
             <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
             <!--<script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocenteDynatable.js}"></script>-->
+            <div th:substituteby="_layout/includes :: javascript-highcharts"></div>
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>

@@ -47,7 +47,7 @@ new Vue({
             footer: false,
             showaccept: false
         },
-        comentarios:[],
+        comentarios: [],
         modalTemas: {
             id: 'modalTemas',
             title: 'Temas',
@@ -56,7 +56,7 @@ new Vue({
             footer: false,
             showaccept: false
         },
-        temas:[]
+        temas: []
     },
     mounted: function () {
         let vue = this;
@@ -83,21 +83,21 @@ new Vue({
         refreshEncuesta() {
             let vue = this;
             axios.post('/academico/encuestaestudiantil/docente/encuestaDocente')
-                .then(response => {
-                    if (response.data.success) {
-                        vue.encuesta = response.data.data;
-                        vue.periodosEncuesta = vue.encuesta.periodosEncuesta;
-                        vue.cursosNoEncuestar = vue.encuesta.cursosNoEncuestar;
-                        if (vue.encuesta.configuraEncuesta.length > 0) {
-                            vue.configuraEncuesta = vue.encuesta.configuraEncuesta[0];
-                        } else {
-                            vue.configuraEncuesta = {};
+                    .then(response => {
+                        if (response.data.success) {
+                            vue.encuesta = response.data.data;
+                            vue.periodosEncuesta = vue.encuesta.periodosEncuesta;
+                            vue.cursosNoEncuestar = vue.encuesta.cursosNoEncuestar;
+                            if (vue.encuesta.configuraEncuesta.length > 0) {
+                                vue.configuraEncuesta = vue.encuesta.configuraEncuesta[0];
+                            } else {
+                                vue.configuraEncuesta = {};
+                            }
                         }
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
         },
         configurarEncuesta() {
             let vue = this;
@@ -124,19 +124,19 @@ new Vue({
             vue.encuestaForm.configuraEncuesta.push(vue.configuraEncuesta);
 
             axios.post('/academico/encuestaestudiantil/docente/saveConfigEncuesta', vue.encuestaForm)
-                .then(response => {
-                    if (response.data.success) {
-                        notify(response.data.message, 'info');
-                        vue.$refs.modalEncuestaConfig.close();
-                        vue.refreshEncuesta();
-                    } else {
-                        notify(response.data.message, "error");
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    notify(MESSAGES.errorComunicacion, "error");
-                });
+                    .then(response => {
+                        if (response.data.success) {
+                            notify(response.data.message, 'info');
+                            vue.$refs.modalEncuestaConfig.close();
+                            vue.refreshEncuesta();
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
         },
         activarEncuesta() {
             let vue = this;
@@ -149,18 +149,18 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         axios.post('/academico/encuestaestudiantil/docente/activar')
-                            .then(response => {
-                                if (response.data.success) {
-                                    notify(response.data.message, 'info');
-                                    vue.refreshEncuesta();
-                                } else {
-                                    notify(response.data.message, "error");
-                                }
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                                notify(MESSAGES.errorComunicacion, "error");
-                            });
+                                .then(response => {
+                                    if (response.data.success) {
+                                        notify(response.data.message, 'info');
+                                        vue.refreshEncuesta();
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                });
                     }
                 }
             });
@@ -176,18 +176,18 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         axios.post('/academico/encuestaestudiantil/docente/generar')
-                            .then(response => {
-                                if (response.data.success) {
-                                    vue.$refs.modalVerProgreso.open();
-                                    vue.refreshProgresoEncuesta();
-                                } else {
-                                    notify(response.data.message, "error");
-                                }
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                                notify(MESSAGES.errorComunicacion, "error");
-                            });
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.$refs.modalVerProgreso.open();
+                                        vue.refreshProgresoEncuesta();
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                });
                     }
                 }
             });
@@ -196,29 +196,29 @@ new Vue({
             let vue = this;
 
             axios.post('/academico/encuestaestudiantil/docente/estadoGenerarEncuestas')
-                .then(response => {
-                    vue.porcentajeProgreso = response.data.data;
-                    vue.mensajeProgreso = response.data.message;
-                    if (response.data.success) {
-                        setTimeout(function () {
-                            vue.refreshProgresoEncuesta();
-                        }, 1000);
-                    } else {
-                        vue.$refs.modalVerProgreso.close();
-                        bootbox.alert({
-                            message: "Finalizó la generación de encuesta de docentes",
-                            buttons: {ok: {label: "Aceptar"}},
-                            callback: function () {
-                                vue.$refs.load.loadRemoteData();
-                                vue.refreshEncuesta();
-                            }
-                        });
-                    }
-                })
-                .catch(function (error) {
-                    vue.generando = false;
-                    notify(MESSAGES.errorComunicacion, "error");
-                });
+                    .then(response => {
+                        vue.porcentajeProgreso = response.data.data;
+                        vue.mensajeProgreso = response.data.message;
+                        if (response.data.success) {
+                            setTimeout(function () {
+                                vue.refreshProgresoEncuesta();
+                            }, 1000);
+                        } else {
+                            vue.$refs.modalVerProgreso.close();
+                            bootbox.alert({
+                                message: "Finalizó la generación de encuesta de docentes",
+                                buttons: {ok: {label: "Aceptar"}},
+                                callback: function () {
+                                    vue.$refs.load.loadRemoteData();
+                                    vue.refreshEncuesta();
+                                }
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        vue.generando = false;
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
 
         },
         getDia(fecha) {
@@ -277,30 +277,80 @@ new Vue({
         },
         findPreguntas(item) {
             AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/preguntas`)
-                .then(response => {
-                    if (response.data.success) {
-                        this.preguntas = response.data.data;
-                        this.$refs.modalPreguntas.open();
-                    }
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.preguntas = response.data.data;
+                            this.$refs.modalPreguntas.open();
+                        }
+                    })
         },
         findComentarios(item) {
             AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/comentarios`)
-                .then(response => {
-                    if (response.data.success) {
-                        this.comentarios = response.data.data;
-                        this.$refs.modalComentarios.open();
-                    }
-                })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.comentarios = response.data.data;
+                            this.$refs.modalComentarios.open();
+                        }
+                    })
         },
         findTemas(item) {
             AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/temas`)
-                .then(response => {
-                    if (response.data.success) {
-                        this.temas = response.data.data;
-                        this.$refs.modalTemas.open();
+                    .then(response => {
+                        if (response.data.success) {
+                            this.temas = response.data.data;
+                            this.$refs.modalTemas.open();
+                            this.generateChart(response.data.data);
+                        }
+                    })
+        },
+        generateChart(items) {
+            var aData = [];
+            for (var i = 0; i < items.length; i++) {
+                let obj = {};
+                obj.name = items[i].temaEncuesta.nombre;
+                obj.y = items[i].puntaje;
+                aData.push(obj);
+            }
+
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Temas de Encuesta'
+                },
+                xAxis: {
+                    type: 'category'
+                },
+                yAxis: {
+                    title: {
+                        text: 'Porcentaje basados del 1 al 5'
                     }
-                })
+                },
+                legend: {
+                    enabled: false
+                },
+                plotOptions: {
+                    series: {
+                        borderWidth: 0,
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.y:.1f}%'
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+                },
+                "series": [
+                    {
+                        "name": "Tema",
+                        "colorByPoint": true,
+                        "data": aData
+                    }
+                ]
+            });
         }
     }
 });

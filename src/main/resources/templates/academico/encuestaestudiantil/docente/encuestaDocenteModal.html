@@ -132,7 +132,7 @@
                 <div class="col-md-12">
                     <ul style="list-style: circle; padding-left: 15px" >
                         <li v-for="p in preguntas.slice(0, preguntas.length/2)">
-                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp; <br/> <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
                             </p>
                         </li>
                     </ul>
@@ -142,7 +142,7 @@
                 <div class="col-md-12">
                     <ul style="list-style: circle; padding-left: 10px">
                         <li v-for="p in preguntas.slice(preguntas.length/2)">
-                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp; <br/> <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
                             </p>
                         </li>
                     </ul>
@@ -183,5 +183,9 @@
                 </td>
             </tr>
         </table>
+        
+        <div id="container">
+            
+        </div>
     </div>
 </modal-vik>

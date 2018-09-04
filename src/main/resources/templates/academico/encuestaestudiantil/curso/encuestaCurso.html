@@ -206,6 +206,14 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
+                                                    <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados >= configuraEncuesta.cantidadMinimaAlumnos)">
+                                                        <span class="pointer m-r-xs text-primary" v-on:click="findPreguntas(item)"><i class="fa fa-list-ul"></i></span>
+                                                        <span class="pointer m-r-xs text-success" v-on:click="findComentarios(item)"><i class="fa fa-comments"></i></span>
+                                                        <span class="pointer text-warning" v-on:click="findTemas(item)"><i class="fa fa-bar-chart"></i></span>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
 
                                                     <span v-if="item.estado=='ACT'" class="label pointer label-success" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
                                                     <span v-if="item.estado=='INA'" class="label pointer label-danger" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
