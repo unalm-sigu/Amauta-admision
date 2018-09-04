@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,10 +22,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
-import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
-import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
-import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -245,81 +241,5 @@ public class EncuestaCursoController {
         }
         return response;
     }
-
-//    @ResponseBody
-//    @RequestMapping(value = "/{id}/resumen/preguntas", method = RequestMethod.GET)
-//    public JsonResponse resumenPreguntas(@PathVariable Long id) {
-//
-//        JsonResponse response = new JsonResponse();
-//        try {
-//
-//            List<ResumenEncuestaDocente> resumenes = service.resumenPreguntasLikert(new EncuestaDocente(id));
-//            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-//
-//            for (ResumenEncuestaDocente resumene : resumenes) {
-//                arr.add(JsonHelper.createJson(resumene, JsonNodeFactory.instance, new String[]{
-//                    "id",
-//                    "puntaje",
-//                    "opcionLikert.id",
-//                    "opcionLikert.opcion",
-//                    "pregunta.id",
-//                    "pregunta.texto"
-//                }));
-//            }
-//            response.setData(arr);
-//            response.setSuccess(true);
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//    }
-//
-//    @ResponseBody
-//    @RequestMapping(value = "/{id}/resumen/comentarios", method = RequestMethod.GET)
-//    public JsonResponse resumenComentarios(@PathVariable Long id) {
-//
-//        JsonResponse response = new JsonResponse();
-//        try {
-//            List<String> resumenes = service.resumenComentarios(new EncuestaDocente(id));
-//            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-//            for (String resumen : resumenes) {
-//                arr.add(resumen);
-//            }
-//            response.setData(arr);
-//            response.setSuccess(true);
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//    }
-//
-//    @ResponseBody
-//    @RequestMapping(value = "/{id}/resumen/temas", method = RequestMethod.GET)
-//    public JsonResponse resumenTemas(@PathVariable Long id) {
-//
-//        JsonResponse response = new JsonResponse();
-//        try {
-//            List<PuntajeEncuestaDocente> resumenes = service.resumenPuntajeTemas(new EncuestaDocente(id));
-//            ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
-//            for (PuntajeEncuestaDocente resumen : resumenes) {
-//                arr.add(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{
-//                    "puntaje",
-//                    "desviacionStandar",
-//                    "temaEncuesta.nombre"
-//                }));
-//            }
-//            response.setData(arr);
-//            response.setSuccess(true);
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//    }
 
 }

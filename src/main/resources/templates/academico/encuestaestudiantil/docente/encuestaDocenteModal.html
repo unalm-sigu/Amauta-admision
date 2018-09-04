@@ -180,15 +180,8 @@
                     </th>
                 </tr>
                 <tr class="text-center">
-                    <td rowspan="2" class="text-center v-middle">
-                        Clave
-                    </td>
-                    <th colspan="2" class="text-center v-middle">Conducción del aprendizaje</th>
-                    <th colspan="2" class="text-center v-middle">Disposición y cumplimiento</th>
-                    <th colspan="2" class="text-center v-middle">Motivación</th>
-                    <th colspan="2" class="text-center v-middle">Evaluación</th>
-                    <th colspan="2" class="text-center v-middle">Uso de material educativo</th>
-                    <td rowspan="2" class="text-center v-middle">Indicador del desempeño por clave</td>
+                    <th colspan="2" class="text-center v-middle col-md-2" v-for="tema in temas">{{ tema.temaEncuesta.nombre }}</th>
+                    <td rowspan="2" class="text-center v-middle col-md-1">Indicador del desempeño por clave</td>
                 </tr>
                 <tr>
                     <th class="text-center v-middle">Prom</th>
@@ -205,40 +198,13 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="text-center v-middle">D940</td>
-                    <td class="text-center v-middle">7.00</td>
-                    <td class="text-center v-middle">0.00</td>
-                    <td class="text-center v-middle">7.00</td>
-                    <td class="text-center v-middle">0.00</td>
-                    <td class="text-center v-middle">7.00</td>
-                    <td class="text-center v-middle">0.00</td>
-                    <td class="text-center v-middle">7.00</td>
-                    <td class="text-center v-middle">0.00</td>
-                    <td class="text-center v-middle">7.00</td>
-                    <td class="text-center v-middle">0.00</td>
-                    <td class="text-center v-middle">7.00</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td class="text-center v-middle" colspan="2">8.68</td>
-                    <td class="text-center v-middle" colspan="2">8.71</td>
-                    <td class="text-center v-middle" colspan="2">8.58</td>
-                    <td class="text-center v-middle" colspan="2">8.40</td>
-                    <td class="text-center v-middle" colspan="2">8.50</td>
-                    <td class="text-center v-middle" colspan="2"></td>
-                </tr>
-            </tbody>
-        </table>
-        <table class="table table-striped">
-            <tr v-for="tema in temas">
-                <td class="v-middle col-md-8">
-                    <span class="block text-justify"> {{ tema.temaEncuesta.nombre }} </span>  
-
-                </td>
-                <td class="v-middle col-md-4 text-center">
-                    <span class="text-lg"> {{ tema.puntaje.toFixed(2) }} </span >
-                </td>
+            <template v-for="tema in temas">
+                <td class="text-center v-middle">{{ tema.puntaje.toFixed(2) *2 }}</td>
+                <td class="text-center v-middle">0.00</td>
+            </template>
+            <td class="text-center v-middle">7.00</td>
             </tr>
+            </tbody>
         </table>
 
         <div id="container">
