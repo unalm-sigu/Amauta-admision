@@ -181,25 +181,38 @@ public class infoAcademicoController {
             Alumno alumno = new Alumno(idAlumno);
             List<MatriculaCurso> matriculaCursos = service.allCursosMatriculadosByAlumnoCiclo(alumno, ciclo);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
-                ObjectNode matriculaCursoNode = matriculaCurso.toJson();
-                ArrayNode detalle = new ArrayNode(factory);
-                List<MatriculaSeccion> matriculaSeccions = matriculaCurso.getMatriculaSeccion();
-                if (matriculaSeccions == null) {
-                    continue;
-                }
-                for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
-                    ObjectNode node = new ObjectNode(factory);
-                    node.put("tipo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.tipoSeccion"));
-                    node.put("codigo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.codigo"));
-                    node.put("grupo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.grupoHoras.codigo"));
-                    node.put("aula", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.aula.codigo"));
-                    DocenteSeccion docenteSeccion = matriculaSeccion.getSeccion().getDocenteSeccion().get(0);
-                    node.put("docente", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.persona.nombreCompleto"));
-                    node.put("docenteCodigo", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.codigo"));
-                    detalle.add(node);
-                }
-                matriculaCursoNode.set("detalle", detalle);
-                cursosJson.add(matriculaCursoNode);
+                ObjectNode matriCursoJson = JsonHelper.createJson(matriculaCurso, factory, true,
+                        new String[]{
+                            "*",
+                            "curso.codigo",
+                            "curso.nombre",
+                            "curso.tpc",
+                            "matriculaSeccion.seccion.codigo2",
+                            "matriculaSeccion.seccion.tipoSeccion",
+                            "matriculaSeccion.seccion.grupoHoras.codigo",
+                            "matriculaSeccion.seccion.aula.codigo",
+                            "matriculaSeccion.seccion.docenteSeccion.docente.codigo",
+                            "matriculaSeccion.seccion.docenteSeccion.docente.persona.nombreCompleto"
+                        });
+//                ObjectNode matriCursoJson = matriculaCurso.toJson();
+//                ArrayNode detalle = new ArrayNode(factory);
+//                List<MatriculaSeccion> matriculaSeccions = matriculaCurso.getMatriculaSeccion();
+//                if (matriculaSeccions == null) {
+//                    continue;
+//                }
+//                for (MatriculaSeccion matriculaSeccion : matriculaSeccions) {
+//                    ObjectNode node = new ObjectNode(factory);
+//                    node.put("tipo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.tipoSeccion"));
+//                    node.put("codigo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.codigo"));
+//                    node.put("grupo", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.grupoHoras.codigo"));
+//                    node.put("aula", (String) ObjectUtil.getParentTree(matriculaSeccion, "seccion.aula.codigo"));
+//                    DocenteSeccion docenteSeccion = matriculaSeccion.getSeccion().getDocenteSeccion().get(0);
+//                    node.put("docente", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.persona.nombreCompleto"));
+//                    node.put("docenteCodigo", (String) ObjectUtil.getParentTree(docenteSeccion, "docente.codigo"));
+//                    detalle.add(node);
+//                }
+//                matriCursoJson.set("detalle", detalle);
+                cursosJson.add(matriCursoJson);
 
             }
             data.set("cursos", cursosJson);

@@ -227,7 +227,6 @@
 
                                                 <td class="v-middle text-center">
                                                     <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados >= configuraEncuesta.cantidadMinimaAlumnos)">
-                                                    <!--<span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados > 0)">-->
                                                         <span class="pointer m-r-xs text-primary" v-on:click="findPreguntas(item)"><i class="fa fa-list-ul"></i></span>
                                                         <span class="pointer m-r-xs text-success" v-on:click="findComentarios(item)"><i class="fa fa-comments"></i></span>
                                                         <span class="pointer text-warning" v-on:click="findTemas(item)"><i class="fa fa-bar-chart"></i></span>

@@ -181,14 +181,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Map<Long, DocenteSeccion> mapDocentesSeccion = MapUtil.storeItems("seccion.id", docentesSecciones);
 
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
-        List<Long> lstIds = new ArrayList<>();
+        List<Long> idsGpoSecc = new ArrayList<>();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
-            lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+            idsGpoSecc.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
             logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
         }
 
-        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
-        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, ciclo, null, EstadoEnum.ACT);
+        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(idsGpoSecc, ","));
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(idsGpoSecc, ciclo, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         List<DocenteSeccion> responsables = docenteSeccionDAO.allResponsablesByGpoSecciones(gruposSeccion, ciclo);
         Map<Long, DocenteSeccion> mapResponsables = MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
