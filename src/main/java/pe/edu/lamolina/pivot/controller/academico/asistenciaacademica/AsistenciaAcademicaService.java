@@ -6,12 +6,14 @@ import org.joda.time.DateTime;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TemaLeccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.LeccionReprogramada;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AsistenciaAcademicaService {
 
@@ -40,5 +42,7 @@ public interface AsistenciaAcademicaService {
     void saveReprogramacion(LeccionReprogramada leccionReprogramada, Usuario usuario, Docente docente, CicloAcademico cicloAcademico);
 
     List<Aula> searchAulaByName(String nombre);
+
+    List<GrupoSeccion> allGposSeccionesByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds);
 
 }

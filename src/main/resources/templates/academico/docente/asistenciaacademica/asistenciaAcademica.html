@@ -7,7 +7,7 @@
 <body>
     <div layout:fragment="main">
         <header class="header b-b padder-lg">        
-            <h2>Aistencia Académica - <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
+            <h2>Control de Asistencia <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
             <span class="block"><strong >Departamento Académico:</strong> <span th:text="${dptoAcad.nombre}">Matematicas</span></span>
             <span class="block"><strong>Docente:</strong> <span  th:text="${docente.persona.nombreCompleto}">Juan Perez</span></span>          
         </header>
@@ -24,21 +24,19 @@
                                     <tr>
                                         <th class="col-md-4">Curso</th>
                                         <th class="col-md-1 text-center">Tipo Ciclo</th>
-                                        <th class="col-md-3 text-center">Claves</th>
+                                        <th class="col-md-3 text-center">Secciones</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in props.data"> 
-                                        <td> 
-                                            <p class="h4 text-info">{{item.curso.nombre}}</p>
+                                        <td class="v-middle"> 
+                                            <span class="block h4 text-primary m-b-xs">{{item.curso.nombre}}</span>
                                             <small class="block text-muted">Código: {{item.curso.codigo}}</small>
-                                            <small class="block text-muted">TPC: {{item.curso.tpc}}</small>
-
-
+                                            <small class="block text-muted m-b">TPC: {{item.curso.tpc}}</small>
                                         </td>
                                         <td class="v-middle text-center">
-                                            {{ item.cicloAcademico.tipoCicloEnumValue}}
+                                            {{ item.cicloAcademico.tipoEnum.value}}
                                         </td>
                                         <td class="v-middle text-center">
                                             <div v-for="sec in item.secciones" class="m-l-md inline">
