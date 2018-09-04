@@ -1,0 +1,187 @@
+<modal-vik ref="modalVerProgreso"
+           v-bind="cfgVerProgreso">
+
+    <div slot="body">
+        <h4 class="m-b text-center">Generación de encuesta de docentes</h4>
+
+        <div class="alert alert-success text-center" id="divAlert">
+            <i class="fa fa-spinner fa-spin fa-lg"></i> {{mensajeProgreso}}
+        </div>
+        <div class="progress " id="progress">
+            <div class="progress-bar progress-bar-success progress-bar-striped active" 
+                 v-bind:style="{width:porcentajeProgreso+'%'}">{{porcentajeProgreso}}% de avance</div>
+        </div>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalEncuestaConfig"
+           v-bind="cfgEncuestaConfig"
+           v-bind:okaction="saveConfiguracion"
+           v-bind:cancelaction="cancelConfiguracion">
+
+    <div slot="body" vclass="panel">
+
+        <div class="text-center">
+            <h4>Configuración de la encuesta</h4>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel-body">
+
+                    <form id='formConfiguraEncuesta' class="form-horizontal" data-parsley-validate="true">
+                        <div class="form-group">
+                            <label>Cantidad mínima de alumnos por sección</label>
+                            <input type="text"
+                                   class="form-control input-sm"
+                                   name="cantidadMinimaAlumnos"
+                                   v-model="configuraEncuesta.cantidadMinimaAlumnos"
+                                   v-bind:value="configuraEncuesta.cantidadMinimaAlumnos"
+                                   required="true"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Cantidad máxima de docentes por sección</label>
+                            <input type="text"
+                                   class="form-control input-sm"
+                                   name="cantidadMaximaDocentes"
+                                   v-model="configuraEncuesta.cantidadMaximaDocentes"
+                                   v-bind:value="configuraEncuesta.cantidadMaximaDocentes"
+                                   required="true"/>
+                        </div>
+                        <div class="form-group">
+                            <div>Solo una encuesta para el docente que dicta la teoría 
+                                y la práctica</div>
+                            <label class="switch">
+                                <input type="checkbox"
+                                       name="encuestaTeoriaPractica"
+                                       v-model="configuraEncuesta.encuestaTeoriaPractica"
+                                       v-bind:value="configuraEncuesta.encuestaTeoriaPractica==true?1:0"
+                                       />
+                                <span></span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Días de encuesta antes del última día de clases
+                                para secciones polidocentes</label>
+                            <input type="text"
+                                   class="form-control input-sm"
+                                   name="diasEncuesta"
+                                   v-model="configuraEncuesta.diasEncuesta"
+                                   v-bind:value="configuraEncuesta.diasEncuesta"
+                                   required="true"/>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="panel-body">
+                    Fechas en que se efectuarán las encuestas para secciones con un solo docente
+                    <table class="table table-condensed m-t">
+                        <thead>
+                            <tr>
+                                <th class="col-md-6 text-center">Fecha inicio</th>
+                                <th class="col-md-6 text-center">Fecha fin</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(periodo,idx) in periodosEncuesta">
+                                <td>
+                                    <div class="input-group">
+                                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaInicio"></date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaFin"></date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="pointer" v-on:click="removePeriodo(idx)">
+                                    <i class="fa fa-times text-danger"></i>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="block text-center">
+                        <a class="btn btn-sm btn-primary pointer" v-on:click="addPeriodoEncuesta">Agregar periodo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalPreguntas"
+           v-bind="modalPreguntas">
+
+    <div slot="body">
+
+        <div class="row">
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 15px" >
+                        <li v-for="p in preguntas.slice(0, preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 10px">
+                        <li v-for="p in preguntas.slice(preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp;  <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalComentarios"
+           v-bind="modalComentarios">
+    <div slot="body">
+        <div style="max-height: 500px !important; overflow: auto">
+            <table class="table table-striped">
+                <tbody>
+                    <tr v-for="c in comentarios">
+                        <td>
+                            {{ c }} 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalTemas"
+           v-bind="modalTemas">
+    <div slot="body">
+        <table class="table table-striped">
+            <tr v-for="tema in temas">
+                <td class="v-middle col-md-8">
+                    <span class="block text-justify"> {{ tema.temaEncuesta.nombre }} </span>  
+
+                </td>
+                <td class="v-middle col-md-4 text-center">
+                    <span class="text-lg"> {{ tema.puntaje.toFixed(2) }} </span >
+                </td>
+            </tr>
+        </table>
+    </div>
+</modal-vik>

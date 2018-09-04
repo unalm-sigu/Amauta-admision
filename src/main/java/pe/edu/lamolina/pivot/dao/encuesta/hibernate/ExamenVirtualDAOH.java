@@ -8,9 +8,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.ExamenVirtualEstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC_CUR;
 import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC_DOC;
-import static pe.edu.lamolina.model.enums.TipoExamenVirtualEnum.ENC;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
@@ -42,7 +42,7 @@ public class ExamenVirtualDAOH extends AbstractEasyDAO<ExamenVirtual> implements
                 .from(ExamenVirtual.class, "ev")
                 .join("tipoExamen tipo")
                 .in("tipo.codigo", Arrays.asList(ENC_CUR, ENC_DOC, ENC))
-                .orderBy("CONVERT( SUBSTRING(ev.codigo, 3) ,  UNSIGNED )   desc")
+                .orderBy("SUBSTRING(ev.codigo,3) desc")
                 .limit(1);
         return find(sql);
     }

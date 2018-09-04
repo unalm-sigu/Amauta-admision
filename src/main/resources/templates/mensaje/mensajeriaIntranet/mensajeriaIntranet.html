@@ -33,7 +33,10 @@
                                                 <tr class=""> 
                                                     <th class="col-md-2">Grupo Alumno </th>
                                                     <th class="col-md-2">Tipo Mensaje</th>
-                                                    <th class="col-md-7">Contenido</th>
+                                                    <th class="col-md-4">Contenido</th>
+                                                    <th class="col-md-1">Inicio</th>
+                                                    <th class="col-md-1">Fin</th>
+                                                    <th class="col-md-1">P / V / O / C</th>
                                                     <th class="col-md-1"></th>
                                                 </tr>
                                             </thead>
@@ -42,6 +45,12 @@
                                                     <td class="v-middle" v-text="item.grupoAlumno.nombre"></td>
                                                     <td class="v-middle" v-text="item.tipoMensajeIntranet.nombre"></td>
                                                     <td class="v-middle" v-text="item.contenido"></td>
+                                                    <td class="v-middle" v-text="item.fechaInicio"></td>
+                                                    <td class="v-middle" v-text="item.fechaFin"></td>
+                                                    <td class="v-middle">
+                                                        {{item.prioridad}} / {{item.vecesVisible}} / 
+                                                        {{item.esObligatorio == 1 ? 'Si': 'No'}} / {{item.conCronograma == 1 ? 'Si' : 'No'}}
+                                                    </td>
                                                     <td class="v-middle"> 
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">

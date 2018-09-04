@@ -11,17 +11,23 @@
                 </span>
             </div>
 
-            <div class="col-md-10">
-                <slot name="header">  </slot>
-            </div>
+            <div v-if="searcher">
+                <div class="col-md-10">
+                    <slot name="header"> </slot>
+                </div>
 
-            <div class="col-md-2">
-                <input v-on:change="executeSearch"
-                       v-model="search" 
-                       placeholder="Buscar"
-                       type="text"
-                       class="form-control input-sm" 
-                       v-if="searcher"/>
+                <div class="col-md-2">
+                    <input v-on:change="executeSearch"
+                           v-model="search" 
+                           placeholder="Buscar"
+                           type="text"
+                           class="form-control input-sm"/>
+                </div>
+            </div>
+            <div v-else="">
+                <div class="col-md-12">
+                    <slot name="header"> </slot>
+                </div>
             </div>
 
             <div class="col-md-1 hidden">
@@ -39,7 +45,7 @@
             </div>
 
             <div class="wrapper">
-                <div class="col-md-6" v-if="paginate">
+                <div class="col-md-6" v-if="commented">
                     <small class="text-muted">
                         {{footer}}
                     </small>
@@ -60,122 +66,4 @@
 
     </template>
 </div> 
-<script>
-    Vue.component('raptor-table', {
-        template: '#raptor-table-base',
-        props: {
-            processing: false,
-            processtext: {type: String, default: '<i class="fa fa-spinner fa-spin"></i> Cargando información...'},
-            timesleep: {type: Number, default: 500},
-            search: {type: String, default: ""},
-            footer: {type: String, default: ""},
-            data: {type: Object, default: []},
-            header: {type: Object, default: []},
-            url: {type: String, default: null},
-            ajaxdata: {type: Object, default: {}},
-            searcher: {type: Boolean, default: true},
-            paginate: {type: Boolean, default: true},
-            page: {type: Object, default: {currentPage: 1}},
-            rowsperpage: {type: Number, default: 10},
-            pagination: {type: Object, default: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true}}
-        },
-        mounted() {
-            console.log("vue raptor table");
-            this.pagination['items-per-page'] = this.rowsperpage;
-            this.loadRemoteData();
-        },
-        methods: {
-            executeSearch() {
-                let $vue = this;
-                Vue.set($vue.page, 'currentPage', 1);
-                $vue.loadRemoteData();
-            },
-            loadRemoteData() {
-                if (this.url === null) {
-                    return;
-                }
-
-                let $vue = this;
-                $vue.processing = true;
-                let params = $vue.generateParams();
-                axios.get($vue.url, {params})
-                        .then(function (response) {
-                            $vue.sleep();
-                            if (response.data.total === 0) {
-                                $vue.processing = false;
-                                return;
-                            }
-                            console.dir("log 1");
-                            console.dir(response);
-                            $vue.data = response.data.data;
-                            if (response.data.header != null) {
-                                console.dir("log 2");
-                                console.dir(response.data.header);
-                                $vue.header = response.data.header;
-                            }
-                            $vue.generateFooterInfo(params, response.data);
-                            $vue.pagination['total-items'] = response.data.filtered;
-                            $vue.processing = false;
-
-                        })
-                        .catch(function (error) {
-                            $vue.processing = false;
-                            console.log(error);
-                        });
-            },
-            generateFooterInfo(params, data) {
-                let $vue = this;
-                let total = data.total;
-                if (total == 0) {
-                    $vue.footer = '0 registros';
-                    return;
-                }
-
-                let first = params.offset + 1;
-                let tos = params.offset + data.data.length;
-                let filtero = data.filtered;
-                let info = first + " a " + tos + " de " + filtero + " registros";
-
-                if (typeof $vue.search !== "undefined") {
-                    if ($vue.search != "") {
-                        info += " (filtrados de " + total + " registros)";
-                    }
-                }
-
-                $vue.footer = info;
-            },
-            generateParams() {
-                let $vue = this;
-                let page = $vue.page['currentPage'];
-                let perPage = $vue.pagination['items-per-page'];
-                //    let perPage = $vue.rowsperpage;
-                let offset = page * perPage - perPage;
-                let params = {};
-                if ($vue.paginate) {
-                    params = {
-                        page: page,
-                        offset: offset,
-                        perPage: perPage
-                    };
-                }
-                if ($vue.search !== "") {
-                    params['queries[search]'] = $vue.search;
-                }
-
-                var returnParams = Object.assign(params, $vue.ajaxdata);
-                return returnParams;
-            },
-            sleep() {
-                let $vue = this;
-                let start = new Date().getTime();
-                for (; ; ) {
-                    let after = new Date().getTime();
-                    if (after > start + $vue.timesleep) {
-                        break;
-                    }
-                }
-            }
-        }
-    });
-
-</script>
+<script type="text/javascript" th:src="@{/phobos/modules/vue-raptor-table.js}"></script>

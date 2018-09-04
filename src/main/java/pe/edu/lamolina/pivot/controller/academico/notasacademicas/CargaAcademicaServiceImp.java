@@ -181,14 +181,14 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         Map<Long, DocenteSeccion> mapDocentesSeccion = MapUtil.storeItems("seccion.id", docentesSecciones);
 
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
-        List<Long> lstIds = new ArrayList<>();
+        List<Long> idsGpoSecc = new ArrayList<>();
         for (DocenteSeccion docenteSeccion : docentesSecciones) {
-            lstIds.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
+            idsGpoSecc.add(docenteSeccion.getSeccion().getGrupoSeccion().getId());
             logger.debug("la seccion {}, grupo {}", docenteSeccion.getSeccion().getId(), docenteSeccion.getSeccion().getGrupoSeccion().getId());
         }
 
-        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(lstIds, ","));
-        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(lstIds, ciclo, null, EstadoEnum.ACT);
+        logger.debug("Lista de grupos para el filtro {}", StringUtils.join(idsGpoSecc, ","));
+        List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(idsGpoSecc, ciclo, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         List<DocenteSeccion> responsables = docenteSeccionDAO.allResponsablesByGpoSecciones(gruposSeccion, ciclo);
         Map<Long, DocenteSeccion> mapResponsables = MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
@@ -636,7 +636,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             }
         }
 
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allPersonasActivasBySecciones(secciones);
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapDocentesSeccion = MapUtil.storeLists("seccion.id", docentesSecciones);
 
         List<Evaluacion> evaluacionesSuperiores = evaluacionDAO.allByEvaluacionExpandidaSecciones(evaluacionPadreBD, secciones);
@@ -1258,7 +1258,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
                         }
                     }
                     if (evaluacion.getDocenteEvaluador() == null) {
-                        List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySeccion(evaluacion.getSeccionResponsable());
+                        List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySecciones(evaluacion.getSeccionResponsable());
                         if (docentesSecc.size() == 1) {
                             Docente profe = docentesSecc.get(0).getDocente();
                             evaluacion.setDocenteEvaluador(profe);
@@ -1755,7 +1755,7 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     @Transactional
     public void saveEvaluacion(Evaluacion evaluacion) {
         if (evaluacion.getDocenteEvaluador() == null) {
-            List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySeccion(evaluacion.getSeccionResponsable());
+            List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySecciones(evaluacion.getSeccionResponsable());
             if (docentesSecc.size() == 1) {
                 Docente profe = docentesSecc.get(0).getDocente();
                 evaluacion.setDocenteEvaluador(profe);

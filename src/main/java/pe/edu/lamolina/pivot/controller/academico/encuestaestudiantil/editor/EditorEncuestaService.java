@@ -42,12 +42,12 @@ public interface EditorEncuestaService {
 
     void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
 
-    ConfiguraEncuesta getConfiguracion(ExamenVirtual encuesta, DataSessionPivot ds);
+//    ConfiguraEncuesta getConfiguracion(ExamenVirtual encuesta, DataSessionPivot ds);
 
     ObjectNode toJson(ConfiguraEncuesta configuraEncuesta);
 
-    void saveConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds);
-
-    void updateConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds);
+//    void saveConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds);
+//
+//    void updateConfigEncuesta(ConfiguraEncuesta configuraEncuesta, DataSessionPivot ds);
 
 }

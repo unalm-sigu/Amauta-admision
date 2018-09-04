@@ -1,40 +1,241 @@
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 new Vue({
     el: '#main',
     data: {
         generando: false,
+        encuestaURL: APP.url('academico/encuestaestudiantil/docente/list'),
+        docentesSecciones: [],
+        encuesta: JSON.parse(encuestaJson),
+        cfgVerProgreso: {
+            id: 'modalVerProgreso',
+            header: false,
+            footer: false,
+            showaccept: false,
+            modalsize: 'modal-lg',
+            dataBackdrop: 'static',
+            dataKeyboard: 'false'
+        },
+        cfgEncuestaConfig: {
+            id: 'modalEncuestaConfig',
+            modalsize: 'modal-lg',
+            header: false
+        },
+        configuraEncuesta: {},
+        periodosEncuesta: [],
+        cursosNoEncuestar: [],
+        estadoVisor: visor,
+        porcentajeProgreso: 0,
+        mensajeProgreso: "Calculado Información a procesar",
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
+        },
+        modalPreguntas: {
+            id: 'modalPreguntas',
+            title: 'Resumen de preguntas',
+            modalsize: 'modal-lg',
+            header: true,
+            footer: false,
+            showaccept: false
+        },
+        preguntas: [],
+        modalComentarios: {
+            id: 'modalComentarios',
+            title: 'Comentarios',
+            modalsize: 'modal-md',
+            header: true,
+            footer: false,
+            showaccept: false
+        },
+        comentarios:[],
+        modalTemas: {
+            id: 'modalTemas',
+            title: 'Temas',
+            modalsize: 'modal-md',
+            header: true,
+            footer: false,
+            showaccept: false
+        },
+        temas:[]
     },
-    mounted: function() {
+    mounted: function () {
         let vue = this;
-        $global.$on("estado", function(encuestaDocente) {
+        $global.$on("estado", function (encuestaDocente) {
             vue.estado(encuestaDocente);
         });
+        if (vue.estadoVisor == 'INICIADO' || vue.estadoVisor == 'OCUPADO') {
+            setTimeout(function () {
+                vue.$refs.modalVerProgreso.open();
+                vue.refreshProgresoEncuesta();
+            }, 1000);
+        }
+        vue.refreshEncuesta();
     },
     methods: {
-        generarEncuesta: function() {
+        removePeriodo(i) {
+            var vue = this;
+            vue.periodosEncuesta.splice(i, 1);
+        },
+        addPeriodoEncuesta() {
+            var vue = this;
+            vue.periodosEncuesta.push({fechaInicio: "", fechaFin: ""});
+        },
+        refreshEncuesta() {
             let vue = this;
-            vue.generando = true;
-
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/docente/generar'),
-                async: false,
-                success: function(response) {
-                    if (response.success) {
-                        notify(response.message, 'info');
-                        dynatable.process();
-                    } else {
-                        notify(response.message, 'error');
+            axios.post('/academico/encuestaestudiantil/docente/encuestaDocente')
+                .then(response => {
+                    if (response.data.success) {
+                        vue.encuesta = response.data.data;
+                        vue.periodosEncuesta = vue.encuesta.periodosEncuesta;
+                        vue.cursosNoEncuestar = vue.encuesta.cursosNoEncuestar;
+                        if (vue.encuesta.configuraEncuesta.length > 0) {
+                            vue.configuraEncuesta = vue.encuesta.configuraEncuesta[0];
+                        } else {
+                            vue.configuraEncuesta = {};
+                        }
                     }
-                    vue.generando = false;
-                }, error: function() {
-                    vue.generando = false;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        },
+        configurarEncuesta() {
+            let vue = this;
+            vue.$refs.modalEncuestaConfig.open();
+        },
+        cancelConfiguracion() {
+            var vue = this;
+            vue.refreshEncuesta();
+        },
+        saveConfiguracion() {
+            var vue = this;
+
+            var form = $("#formConfiguraEncuesta");
+            if (!(form.parsley().validate() === true)) {
+                return;
+            }
+
+
+            vue.encuestaForm = {
+                periodosEncuesta: vue.periodosEncuesta,
+                configuraEncuesta: []
+            };
+            vue.configuraEncuesta.encuestaTeoriaPractica = vue.configuraEncuesta.encuestaTeoriaPractica == true ? 1 : 0
+            vue.encuestaForm.configuraEncuesta.push(vue.configuraEncuesta);
+
+            axios.post('/academico/encuestaestudiantil/docente/saveConfigEncuesta', vue.encuestaForm)
+                .then(response => {
+                    if (response.data.success) {
+                        notify(response.data.message, 'info');
+                        vue.$refs.modalEncuestaConfig.close();
+                        vue.refreshEncuesta();
+                    } else {
+                        notify(response.data.message, "error");
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
                     notify(MESSAGES.errorComunicacion, "error");
+                });
+        },
+        activarEncuesta() {
+            let vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea activar la encuesta de docentes para este ciclo?',
+                buttons: {
+                    confirm: {label: 'Si, activar encuesta'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post('/academico/encuestaestudiantil/docente/activar')
+                            .then(response => {
+                                if (response.data.success) {
+                                    notify(response.data.message, 'info');
+                                    vue.refreshEncuesta();
+                                } else {
+                                    notify(response.data.message, "error");
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                notify(MESSAGES.errorComunicacion, "error");
+                            });
+                    }
                 }
             });
+        },
+        generarEncuesta() {
+            let vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea activar la encuesta de docentes para este ciclo?',
+                buttons: {
+                    confirm: {label: 'Si, activar encuesta'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post('/academico/encuestaestudiantil/docente/generar')
+                            .then(response => {
+                                if (response.data.success) {
+                                    vue.$refs.modalVerProgreso.open();
+                                    vue.refreshProgresoEncuesta();
+                                } else {
+                                    notify(response.data.message, "error");
+                                }
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                                notify(MESSAGES.errorComunicacion, "error");
+                            });
+                    }
+                }
+            });
+        },
+        refreshProgresoEncuesta: function () {
+            let vue = this;
 
+            axios.post('/academico/encuestaestudiantil/docente/estadoGenerarEncuestas')
+                .then(response => {
+                    vue.porcentajeProgreso = response.data.data;
+                    vue.mensajeProgreso = response.data.message;
+                    if (response.data.success) {
+                        setTimeout(function () {
+                            vue.refreshProgresoEncuesta();
+                        }, 1000);
+                    } else {
+                        vue.$refs.modalVerProgreso.close();
+                        bootbox.alert({
+                            message: "Finalizó la generación de encuesta de docentes",
+                            buttons: {ok: {label: "Aceptar"}},
+                            callback: function () {
+                                vue.$refs.load.loadRemoteData();
+                                vue.refreshEncuesta();
+                            }
+                        });
+                    }
+                })
+                .catch(function (error) {
+                    vue.generando = false;
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
 
         },
-        estado: function(encuestaDocente) {
+        getDia(fecha) {
+            if (fecha == "") {
+                return "";
+            }
+            return fecha.split(" ")[0];
+        },
+        getHora(fecha) {
+            if (fecha == "")
+                return "";
+            var time = fecha.split(" ")[1].split(":");
+            var aamm = (parseInt(time[0]) > 11) ? "pm" : "am";
+            var hh = (parseInt(time[0]) > 12) ? (parseInt(time[0]) - 12) : parseInt(time[0]);
+            return (hh < 10 ? "0" : "") + hh + ":" + time[1] + " " + aamm;
+        },
+        estado: function (encuestaDocente) {
             let vue = this;
             swal({
                 text: "¿Está seguro que desea cambiar el estado a la encuesta del docente?",
@@ -53,26 +254,53 @@ new Vue({
                 }
             });
         },
-        changeEstado: function(encuestaDocente) {
+        changeEstado: function (encuestaDocente) {
             let vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/encuestaestudiantil/docente/estado'),
                 async: false,
                 data: {'id': encuestaDocente.id},
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        dynatable.process();
+                        vue.$refs.load.loadRemoteData();
                     } else {
                         notify(response.message, 'error');
                     }
                     vue.generando = false;
-                }, error: function() {
+                }, error: function () {
                     vue.generando = false;
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        findPreguntas(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/preguntas`)
+                .then(response => {
+                    if (response.data.success) {
+                        this.preguntas = response.data.data;
+                        this.$refs.modalPreguntas.open();
+                    }
+                })
+        },
+        findComentarios(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/comentarios`)
+                .then(response => {
+                    if (response.data.success) {
+                        this.comentarios = response.data.data;
+                        this.$refs.modalComentarios.open();
+                    }
+                })
+        },
+        findTemas(item) {
+            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/temas`)
+                .then(response => {
+                    if (response.data.success) {
+                        this.temas = response.data.data;
+                        this.$refs.modalTemas.open();
+                    }
+                })
         }
     }
 });

@@ -8,12 +8,9 @@ import pe.edu.lamolina.model.examen.ExamenVirtual;
 
 public interface ConfiguraEncuestaDAO extends EasyDAO<ConfiguraEncuesta> {
 
-    public ConfiguraEncuesta findByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil);
+    ConfiguraEncuesta findByEncuesta(EncuestaEstudiantil encuestaEstudiantil);
 
-    public ConfiguraEncuesta find(ConfiguraEncuesta configuraEncuestaForm);
+    ConfiguraEncuesta find(ConfiguraEncuesta configuraEncuestaForm);
 
-    public ConfiguraEncuesta findByCicloEncuesta(CicloAcademico ciclo, ExamenVirtual encuesta);
-
-    public ConfiguraEncuesta findConfiguraEncuestaByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil);
-
+    ConfiguraEncuesta findByCicloEncuesta(CicloAcademico ciclo, ExamenVirtual encuesta);
 }
