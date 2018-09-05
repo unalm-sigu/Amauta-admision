@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -38,7 +39,7 @@ public class VerificadorServiceImp implements VerificadorService {
         Menu menu = findMenu(ds.getMenu(), obtainPath(request));
 
         if (menu == null) {
-            return new ArrayList<>();
+            return new ArrayList();
         }
 
         List<Long> instancias = usuarioRolDAO.allInstanciasByUsuarioMenuTipoOficna(ds.getUsuario(), menu, tipoOficina);
@@ -50,6 +51,8 @@ public class VerificadorServiceImp implements VerificadorService {
                 return (List) instancias.stream().map(x -> new Oficina(x)).collect(Collectors.toList());
             case DPTO:
                 return (List) instancias.stream().map(x -> new DepartamentoAcademico(x)).collect(Collectors.toList());
+            case ESP:
+                return (List) instancias.stream().map(x -> new Carrera(x)).collect(Collectors.toList());
             default:
                 throw new AssertionError();
         }

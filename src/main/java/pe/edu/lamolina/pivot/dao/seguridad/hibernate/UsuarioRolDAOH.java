@@ -6,7 +6,6 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;

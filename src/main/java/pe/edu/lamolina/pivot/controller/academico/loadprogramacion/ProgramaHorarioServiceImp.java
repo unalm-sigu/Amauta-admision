@@ -310,6 +310,12 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
+        logger.debug("revisionPreviaGpoSecciones");
+        progDataService.revisionPreviaGpoSecciones(gruposSecciones, ciclo);
+        t2 = System.currentTimeMillis();
+        logger.debug("\revisionPreviaGpoSecciones ejecutado en {} mseg", (t2 - t1));
+        
+        t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
         Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
