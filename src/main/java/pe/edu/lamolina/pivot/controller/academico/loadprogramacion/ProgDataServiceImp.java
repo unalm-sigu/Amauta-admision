@@ -882,7 +882,6 @@ public class ProgDataServiceImp implements ProgDataService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void revisionPreviaGpoSecciones(List<GrupoSeccion> gruposSecciones, CicloAcademico ciclo) {
-        int loop = 0;
         List<GrupoSeccion> gpoSeccionesBD = grupoSeccionDAO.allByCiclo(ciclo);
         Map<String, GrupoSeccion> mapGpoSeccionBD = TypesUtil.convertListToMap("codigo", gpoSeccionesBD);
 
@@ -935,10 +934,10 @@ public class ProgDataServiceImp implements ProgDataService {
 
             gposSeccionesUnused.add(gpoSeccBD);
 
-            visor.agregarLog("gpoSecc", "saveGpoSecc", "El codigo del gpo-Seccion " + codGpoAntes
+            visor.agregarLog("gpoSecc", "revisionGpoSecc", "El codigo del gpo-Seccion " + codGpoAntes
                     + " fue cambiado al UNUSED " + codGpoSecc + " porque el archivo tiene al curso " + curso.getCodigo()
                     + " pero en la base de datos es " + cursoBD.getCodigo(),
-                    true, "info");
+                    false, "info");
 
         }
     }
@@ -1104,8 +1103,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Seccion seccionBD = mapSeccionBD.get(seccion.getCodigo());
             GrupoHoras gpoHoras = findGrupoHoras(seccion, mapGpoHoraBD);
             Aula aula = findAula(seccion, mapAulaBD);
-
-            System.out.println("SECCION " + seccion.getCodigo() + " :::: vac:" + seccion.getMatriculados() + " mat:" + seccion.getMatriculados());
 
             if (seccionBD == null) {
                 seccionBD = new Seccion();
