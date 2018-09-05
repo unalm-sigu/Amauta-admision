@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -309,5 +310,40 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         } else {
             return "No se puede iniciar la generación de encuestas de docentes";
         }
+    }
+
+    @Override
+    @Transactional
+    public void delete(EncuestaEstudiantil encuesta) {
+        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
+        if (encuestaDB == null) {
+            throw new PhobosException("La encuesta no existe");
+        }
+        List<EncuestaCurso> encuestasCur = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaDB);
+
+        List<Long> idEncuestasCur = encuestasCur.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+
+        encuestaAlumnoDAO.deleteByEncuestasCurso(idEncuestasCur);
+        encuestaCursoDAO.deleteByEncuestaEstudiantil(encuesta);
+        configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        encuestaEstudiantilDAO.delete(encuestaDB);
+    }
+
+    @Override
+    @Transactional
+    public void publicar(EncuestaEstudiantil encuesta) {
+        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
+        if (encuestaDB == null) {
+            throw new PhobosException("La encuesta no existe");
+        }
+
+        if (encuestaDB.getEstadoEnum() != EncuestaEstadoEnum.CFG) {
+            throw new PhobosException("La encuesta no se encuentra configurada");
+        }
+        encuestaDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
+        encuestaEstudiantilDAO.update(encuestaDB);
+
     }
 }
