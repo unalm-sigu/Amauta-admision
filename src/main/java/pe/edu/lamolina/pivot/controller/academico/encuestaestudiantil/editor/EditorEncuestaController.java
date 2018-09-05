@@ -25,7 +25,6 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
@@ -333,47 +332,5 @@ public class EditorEncuestaController {
         }
         return response;
     }
-
-//    @ResponseBody
-//    @RequestMapping("getconfiguracion")
-//    public JsonResponse getConfiguracion(ExamenVirtual encuesta, HttpSession session) {
-//
-//        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-//        JsonResponse response = new JsonResponse();
-//        try {
-//
-//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//            ConfiguraEncuesta configuraEncuesta = service.getConfiguracion(encuesta, ds);
-//            response.setData(service.toJson(configuraEncuesta));
-//            response.setSuccess(true);
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//    }
-
-//    @ResponseBody
-//    @RequestMapping("addconfigencuesta")
-//    public JsonResponse addConfigEncuesta(ConfiguraEncuesta configuraEncuesta, HttpSession session) {
-//        JsonResponse response = new JsonResponse();
-//        try {
-//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//            if (configuraEncuesta.getId() == null) {
-//                service.saveConfigEncuesta(configuraEncuesta, ds);
-//                response.setMessage("Registro creado satisfactoriamente");
-//            } else {
-//                service.updateConfigEncuesta(configuraEncuesta, ds);
-//                response.setMessage("Registro actualizado satisfactoriamente");
-//            }
-//            response.setSuccess(true);
-//        } catch (PhobosException e) {
-//            ExceptionHandler.handlePhobosEx(e, response);
-//        } catch (Exception e) {
-//            ExceptionHandler.handleException(e, response);
-//        }
-//        return response;
-//    }
 
 }

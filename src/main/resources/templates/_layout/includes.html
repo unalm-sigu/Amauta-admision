@@ -141,7 +141,6 @@
     </script>
     <script type="text/javascript" th:src="@{/vendor/axios/axios.min.js}" ></script>
     <script type="text/javascript" th:src="@{/vendor/vuejs/vue.min.js}" />
-    <script type="text/javascript" th:src="@{/vendor/vue2-datepicker/build.js}"></script>
     <script type="text/javascript" th:src="@{/vendor/vuejs-uib-pagination/vuejs-uib-pagination.js}"></script>
     <script type="text/javascript" th:src="@{/phobos/js/app.plugin.js}" charset="utf-8"/>
     <script type="text/javascript" th:src="@{/phobos/js/app.js}"/>
@@ -198,11 +197,17 @@
     <script type="text/javascript" th:src="@{/jquery-ui/jquery-ui.min.js}"/>
 </div>
 
-<div th:fragment="javascript-highcharts">
+<!--<div th:fragment="javascript-highcharts">
     <script type="text/javascript" th:src="@{/highcharts/highcharts.js}" />
     <script type="text/javascript" th:src="@{/highcharts/highcharts-3d.js}" />
     <script type="text/javascript" th:src="@{/highcharts/highcharts-more.js}" />
-    <!--<script type="text/javascript" th:src="@{/highcharts/modules/exporting.js}" />-->
+    <script type="text/javascript" th:src="@{/highcharts/modules/exporting.js}" />
+</div>-->
+<div th:fragment="javascript-highcharts">
+    <script type="text/javascript" th:src="@{/vendor/highcharts/highcharts.js}"></script>
+    <script type="text/javascript" th:src="@{/vendor/highcharts/highcharts-3d.js}" ></script>
+    <script type="text/javascript" th:src="@{/vendor/highcharts/highcharts-more.js}" ></script>
+    <script type="text/javascript" th:src="@{/vendor/highcharts/modules/exporting.js}" ></script>
 </div>
 
 <div th:fragment="notify">

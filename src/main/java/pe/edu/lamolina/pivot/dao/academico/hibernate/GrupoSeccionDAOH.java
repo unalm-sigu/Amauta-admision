@@ -13,6 +13,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
@@ -29,12 +30,12 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 
 @Repository
 public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements GrupoSeccionDAO {
-
+    
     public GrupoSeccionDAOH() {
         super();
         setClazz(GrupoSeccion.class);
     }
-
+    
     @Override
     public GrupoSeccion find(Long idGrupoSeccion) {
         Octavia sql = Octavia.query()
@@ -44,7 +45,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("gs.id", idGrupoSeccion);
         return find(sql);
     }
-
+    
     @Override
     public GrupoSeccion findLast() {
         Octavia sql = Octavia.query()
@@ -53,7 +54,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .limit(1);
         return find(sql);
     }
-
+    
     @Override
     public String findMaxCodigoByCiclo(CicloAcademico cicloAcademico) {
         /*  Octavia sql = Octavia.query()
@@ -63,18 +64,18 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .orderBy("gs.id desc")
                 .limit(1);
              return find(sql);*/
-
+        
         StringBuilder strb = new StringBuilder();
         strb.append("Select max(gs.codigo) from GrupoSeccion gs ");
         strb.append(" join gs.cicloAcademico cs ");
         strb.append(" where cs.id=:prm_ciclo ");
-
+        
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
-
+        
         return (String) query.uniqueResult();
     }
-
+    
     @Override
     public List<String> allCodigoByCiclo(CicloAcademico cicloAcademico) {
         /*  Octavia sql = Octavia.query()
@@ -84,25 +85,25 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .orderBy("gs.id desc")
                 .limit(1);
              return find(sql);*/
-
+        
         StringBuilder strb = new StringBuilder();
         strb.append("Select gs.codigo from GrupoSeccion gs ");
         strb.append(" join gs.cicloAcademico cs ");
         strb.append(" where cs.id=:prm_ciclo ");
-
+        
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
-
+        
         return query.list();
     }
-
+    
     @Override
     public List<GrupoSeccion> allByFilter(List<Long> ids, CicloAcademico ciclo, DepartamentoAcademico dpto, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca", "cur.departamentoAcademico da")
                 .leftJoin("cur.planCalificacion pcc", "cur.planCalificacionRegular pcr");
-
+        
         if (ciclo != null) {
             sql.filter("ca.id", ciclo);
         }
@@ -115,10 +116,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         if (estadoEnum != null) {
             sql.filter("gs.estado", estadoEnum);
         }
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<GrupoSeccion> allByDynatableCicloDpto(CicloAcademico ciclo, DepartamentoAcademico dpto, DynatableFilter filter) {
         Octavia sqlSub = Octavia.query()
@@ -127,7 +128,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .join("doc.persona per")
                 .filter("ds.principal", 1)
                 .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.PCUR);
-
+        
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
                 .join("cicloAcademico ca", "curso cu", "cu.departamentoAcademico da")
@@ -145,7 +146,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         setCondicionEstado(filter, sql);
         return all(sql);
     }
-
+    
     public void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
@@ -165,17 +166,17 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
             }
         }
     }
-
+    
     @Override
     public List<GrupoSeccion> allByPlan(PlanCalificacion plan) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("planCalificacion pc")
                 .filter("pc.id", plan);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public GrupoSeccion findByCodeCiclo(String codigo, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -184,10 +185,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .leftJoin("planCalificacion pc")
                 .filter("ca.id", ciclo)
                 .filter("gs.codigo", codigo);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<GrupoSeccion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -195,10 +196,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .join("secciones s", "curso cur", "cicloAcademico ca")
                 .leftJoin("planCalificacion pc")
                 .filter("ca.id", ciclo);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<DocenteCursoPlan> allDocenteCursoPlanByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -212,17 +213,17 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("s.tipoSeccion", "<>", TipoSeccionEnum.PCUR)
                 .filter("ds.principal", 1)
                 .groupBy("doc.id", "cu.id");
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         Octavia subQuery = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("docente doc", "seccion se", "se.grupoSeccion ggss")
                 .left("doc.persona per", "se.grupoHoras gh", "se.aula au");
-
+        
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoSeccion.class, "gs")
                 .join("cicloAcademico ca", "anexoBoletin ab", "curso cu")
@@ -235,19 +236,19 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("gs.id desc");
-
+        
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     private void setGrupoAnexo(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
             return;
         }
-
+        
         for (String key : queries.keySet()) {
             if (!key.equals("superior.id")) {
                 continue;
@@ -258,7 +259,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 sql.filter("abs.id", gpoE.getValue());
             }
         }
-
+        
         for (String key : queries.keySet()) {
             if (!key.equals("anexo.id")) {
                 continue;
@@ -266,7 +267,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
             sql.filter("ab.id", queries.get(key));
         }
     }
-
+    
     @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
@@ -282,17 +283,17 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         sql.append(" inner join gs.anexoBoletin ab ");
         sql.append(" inner join ab.anexoSuperior abs ");
         sql.append(" where ca.id = :CICLO ");
-
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());
         query.setParameter("DPTO", GrupoAnexoEnum.DPTO.getValue());
         query.setParameter("ACTI", GrupoAnexoEnum.ACTIVIDADES.getValue());
         query.setParameter("POST", GrupoAnexoEnum.POSTGRADO.getValue());
         query.setParameter("CICLO", ciclo.getId());
-
+        
         return (GpoSeccionResumen) query.uniqueResult();
     }
-
+    
     @Override
     public void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion) {
         Octavia octavia = Octavia.update(GrupoSeccion.class);
@@ -301,26 +302,26 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         octavia.set(grupoSeccion, "fechaModificacion");
         this.update(grupoSeccion);
     }
-
+    
     @Override
     @Transactional(readOnly = false, propagation = Propagation.MANDATORY)
     public GrupoSeccion findLock(Long id) {
         return (GrupoSeccion) getCurrentSession().load(GrupoSeccion.class, id, LockOptions.UPGRADE);
     }
-
+    
     @Override
     public List<GrupoSeccion> allActivoByCiclo(CicloAcademico cicloAcademico) {
-
+        
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("secciones s", "curso cur", "cicloAcademico ca")
                 .leftJoin("planCalificacion pc")
                 .filter("gs.estado", EstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<GrupoSeccion> allActivoByCicloGrupoNoCerrado(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -330,10 +331,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("gs.estado", EstadoEnum.ACT)
                 .filter("gs.estadoGrupo", "<>", EstadoGrupoSeccionEnum.CER)
                 .filter("ca.id", cicloAcademico);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public ActaResumen findResumenByDepartamento(CicloAcademico ciclo, DepartamentoAcademico dpto) {
         Octavia sql = Octavia.query()
@@ -349,10 +350,10 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("da.id", dpto)
                 .filter("gs.estado", EstadoEnum.ACT)
                 .orderBy("cu.nombre");
-
+        
         return (ActaResumen) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public List<GrupoSeccion> allByCicloCurso(CicloAcademico ciclo, String codigo, Long curso) {
         Octavia sql = Octavia.query(GrupoSeccion.class, "gs")
@@ -363,7 +364,23 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         if (curso != null) {
             sql.filter("cur.id", curso);
         }
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
-
+    
+    @Override
+    public List<GrupoSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("gs")
+                .from(DocenteSeccion.class, "ds")
+                .join("ds.seccion se", "se.grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur")
+                .join("ds.docente doc", "doc.persona per")
+                .leftJoin("per.tipoDocumento")
+                .filter("ca.id", ciclo)
+                .filter("doc.id", docente)
+                .filter("se.estado", EstadoEnum.ACT)
+                .filter("ds.estado", EstadoEnum.ACT);
+        
+        return all(sql);
+    }
+    
 }

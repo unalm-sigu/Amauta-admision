@@ -89,10 +89,20 @@
                         <tbody>
                             <tr v-for="(periodo,idx) in periodosEncuesta">
                                 <td>
-                                    <date-picker v-model="periodo.fechaInicio" lang="es" format="dd/MM/yyyy" ></date-picker>
+                                    <div class="input-group">
+                                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaInicio"></date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
-                                    <date-picker v-model="periodo.fechaFin" lang="es" format="dd/MM/yyyy" ></date-picker>
+                                    <div class="input-group">
+                                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaFin"></date-picker>
+                                        <div class="input-group-addon">
+                                            <span class="fa fa-calendar"></span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="pointer" v-on:click="removePeriodo(idx)">
                                     <i class="fa fa-times text-danger"></i>
@@ -109,5 +119,97 @@
 
 
 
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalPreguntas"
+           v-bind="modalPreguntas">
+
+    <div slot="body">
+
+        <div class="row">
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 15px" >
+                        <li v-for="p in preguntas.slice(0, preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp; <br/> <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b> <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 preguntas-col">
+                <div class="col-md-12">
+                    <ul style="list-style: circle; padding-left: 10px">
+                        <li v-for="p in preguntas.slice(preguntas.length/2)">
+                            <p class="block text-justify"> {{ p.pregunta.texto }}&nbsp; <br/> <b v-if="p.opcionLikert.id">  {{ p.opcionLikert.opcion }} </b>  <b v-else=""> {{ p.puntaje.toFixed(2) }} </b> 
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalComentarios"
+           v-bind="modalComentarios">
+    <div slot="body">
+        <div style="max-height: 500px !important; overflow: auto">
+            <table class="table table-striped">
+                <tbody>
+                    <tr v-for="c in comentarios">
+                        <td>
+                            {{ c }} 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalTemas"
+           v-bind="modalTemas">
+    <div slot="body">
+        <table class="table table-condensed table-striped table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center" colspan="12">
+                        PUNTAJE ALCANZADO POR CATEGORIA - ESCALA 1 AL 10
+                    </th>
+                </tr>
+                <tr class="text-center">
+                    <th colspan="2" class="text-center v-middle col-md-2" 
+                        v-for="tema in temas">{{ tema.temaEncuesta.nombre }}</th>
+                    <td rowspan="2" class="text-center v-middle col-md-1">Indicador del desempeño por clave</td>
+                </tr>
+                <tr>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                    <th class="text-center v-middle">Prom</th>
+                    <th class="text-center v-middle">Dsv.St.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+            <template v-for="tema in temas">
+                <td class="text-center v-middle">{{ tema.puntaje.toFixed(2) *2 }}</td>
+                <td class="text-center v-middle">0.00</td>
+            </template>
+            <td class="text-center v-middle">7.00</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div id="container">
+
+        </div>
     </div>
 </modal-vik>

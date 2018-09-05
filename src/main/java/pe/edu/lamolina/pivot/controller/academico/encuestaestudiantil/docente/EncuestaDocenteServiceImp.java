@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
+import pe.edu.lamolina.model.encuestaestudiantil.RespuestaEncuestaAlumno;
+import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
@@ -36,6 +40,9 @@ import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.PuntajeEncuestaDocenteDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.RespuestaEncuestaAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.ResumenEncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -61,11 +68,16 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     PeriodoEncuestaDAO periodoEncuestaDAO;
     @Autowired
     CursoSinEncuestaDAO cursoSinEncuestaDAO;
-
     @Autowired
     VisorEncuestaDocente visorEncuestaDocente;
     @Autowired
     GeneradorEncuestaDocenteService generadorEncuestaDocenteService;
+    @Autowired
+    ResumenEncuestaDocenteDAO resumenEncuestaDocenteDAO;
+    @Autowired
+    RespuestaEncuestaAlumnoDAO respuestaEncuestaAlumnoDAO;
+    @Autowired
+    PuntajeEncuestaDocenteDAO puntajeEncuestaDocenteDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -73,7 +85,10 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public EncuestaEstudiantil findEncuestaDocente(CicloAcademico cicloAcademico) {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+        EncuestaEstudiantil encuesta = null;
+        if (encuestaModelo != null) {
+            encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+        }
         if (encuesta == null) {
             encuesta = new EncuestaEstudiantil();
             encuesta.setEstadoEnum(EncuestaEstadoEnum.NCRE);
@@ -89,6 +104,36 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                 encuesta.getConfiguraEncuesta().add(cfg);
             }
             encuesta.setCursosNoEncuestar(cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuesta));
+            List<EncuestaDocente> encDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuesta);
+            int activos = 0;
+            int anulados = 0;
+            int innecesa = 0;
+            int cerrados = 0;
+            int sinperio = 0;
+            for (EncuestaDocente encDocente : encDocentes) {
+                switch (encDocente.getEstadoEnum()) {
+                    case ACT:
+                        activos++;
+                        break;
+                    case ANU:
+                        anulados++;
+                        break;
+                    case TEO:
+                        innecesa++;
+                        break;
+                    case CER:
+                        cerrados++;
+                        break;
+                    case FECH:
+                        sinperio++;
+                        break;
+                }
+            }
+            encuesta.setEncuestasActivas(activos);
+            encuesta.setEncuestasAnuladas(anulados);
+            encuesta.setEncuestasCerradas(cerrados);
+            encuesta.setEncuestasInnecesarias(innecesa);
+            encuesta.setEncuestasSinPeriodo(sinperio);
         }
 
         return encuesta;
@@ -151,7 +196,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
             generadorEncuestaDocenteService.generarEncuesta(cicloAcademico, ds);
             return null;
-
         } else {
             return "No se puede iniciar la generación de encuestas de docentes";
         }
@@ -163,14 +207,14 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm) {
         EncuestaDocente encuesta = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
         if (Strings.isNullOrEmpty(encuesta.getEstado())) {
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
         }
         if (encuesta.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT
                 || encuesta.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.TEO) {
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
             List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuesta);
             for (EncuestaAlumno encuestaAlumno : encuestas) {
-                encuestaAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.INA);
+                encuestaAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
                 encuestaAlumnoDAO.update(encuestaAlumno);
             }
             return;
@@ -243,4 +287,19 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     }
 
+    @Override
+    public List<ResumenEncuestaDocente> resumenPreguntasLikert(EncuestaDocente encuestaDocente) {
+        return resumenEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
+    }
+
+    @Override
+    public List<String> resumenComentarios(EncuestaDocente encuestaDocente) {
+        List<RespuestaEncuestaAlumno> respuestas = respuestaEncuestaAlumnoDAO.allComentariosByEncuestaDocente(encuestaDocente);
+        return respuestas.stream().map(RespuestaEncuestaAlumno::getComentario).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PuntajeEncuestaDocente> resumenPuntajeTemas(EncuestaDocente encuestaDocente) {
+        return puntajeEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
+    }
 }
