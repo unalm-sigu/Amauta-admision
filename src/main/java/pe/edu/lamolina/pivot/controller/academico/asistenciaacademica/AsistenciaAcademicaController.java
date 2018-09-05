@@ -164,7 +164,8 @@ public class AsistenciaAcademicaController {
             for (TemaLeccion leccion : lecciones) {
            //     DateTime editLimitDATE = new DateTime().plusDays(pe.edu.lamolina.model.miscelaneo.Constantine.DAYS_EDIT_TEMA_CICLO * -1);
                 DateTime fechaRegistro = new DateTime(leccion.getFechaRegistro());
-                ObjectNode node = leccion.toJson();
+//                ObjectNode node = leccion.toJson();
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                 node.put("allowEdit", leccion.isAllowEdit());
                 array.add(node);
             }
@@ -194,7 +195,7 @@ public class AsistenciaAcademicaController {
         Curso curso = grupoSeccion.getCurso();
 
         model.addAttribute("seccion", seccion);
-        model.addAttribute("seccionJson", seccion.toJson().toString());
+//        model.addAttribute("seccionJson", seccion.toJson().toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
@@ -222,8 +223,8 @@ public class AsistenciaAcademicaController {
         Curso curso = grupoSeccion.getCurso();
 
         model.addAttribute("seccion", seccion);
-        model.addAttribute("seccionJson", seccion.toJson().toString());
-        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
+//        model.addAttribute("seccionJson", seccion.toJson().toString());
+//        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
 
@@ -249,8 +250,8 @@ public class AsistenciaAcademicaController {
         Curso curso = grupoSeccion.getCurso();
 
         model.addAttribute("seccion", seccion);
-        model.addAttribute("seccionJson", seccion.toJson().toString());
-        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
+//        model.addAttribute("seccionJson", seccion.toJson().toString());
+//        model.addAttribute("temaLeccionJson", temaLeccion.toJson().toString());
         model.addAttribute("grupoSeccion", grupoSeccion);
         model.addAttribute("curso", curso);
 
