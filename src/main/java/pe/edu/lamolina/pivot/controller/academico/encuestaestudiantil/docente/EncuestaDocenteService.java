@@ -28,5 +28,9 @@ public interface EncuestaDocenteService {
     List<String> resumenComentarios(EncuestaDocente encuestaDocente);
 
     List<PuntajeEncuestaDocente> resumenPuntajeTemas(EncuestaDocente encuestaDocente);
-    
+
+    void delete(EncuestaEstudiantil encuesta);
+
+    void publicar(EncuestaEstudiantil encuesta);
+
 }

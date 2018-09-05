@@ -242,4 +242,38 @@ public class EncuestaCursoController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.delete(encuesta);
+            response.setMessage("Encuesta Eliminada.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("publicar")
+    public JsonResponse publicar(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.publicar(encuesta);
+            response.setMessage("Encuesta Publicada correctamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

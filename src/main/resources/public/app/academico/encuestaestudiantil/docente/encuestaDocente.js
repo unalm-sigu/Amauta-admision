@@ -60,9 +60,6 @@ new Vue({
     },
     mounted: function () {
         let vue = this;
-        $global.$on("estado", function (encuestaDocente) {
-            vue.estado(encuestaDocente);
-        });
         if (vue.estadoVisor == 'INICIADO' || vue.estadoVisor == 'OCUPADO') {
             setTimeout(function () {
                 vue.$refs.modalVerProgreso.open();
@@ -235,46 +232,6 @@ new Vue({
             var hh = (parseInt(time[0]) > 12) ? (parseInt(time[0]) - 12) : parseInt(time[0]);
             return (hh < 10 ? "0" : "") + hh + ":" + time[1] + " " + aamm;
         },
-        estado: function (encuestaDocente) {
-            let vue = this;
-            swal({
-                text: "¿Está seguro que desea cambiar el estado a la encuesta del docente?",
-                icon: "warning",
-                type: "warning",
-                dangerMode: true,
-                showCancelButton: true,
-                closeOnConfirm: false,
-                buttons: {
-                    cancel: "No",
-                    confirm: "Si, estoy seguro"
-                }
-            }).then((willDelete) => {
-                if (willDelete) {
-                    vue.changeEstado(encuestaDocente);
-                }
-            });
-        },
-        changeEstado: function (encuestaDocente) {
-            let vue = this;
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/docente/estado'),
-                async: false,
-                data: {'id': encuestaDocente.id},
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, 'info');
-                        vue.$refs.load.loadRemoteData();
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                    vue.generando = false;
-                }, error: function () {
-                    vue.generando = false;
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
         findPreguntas(item) {
             AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/preguntas`)
                     .then(response => {
@@ -353,6 +310,61 @@ new Vue({
                         "data": aData
                     }
                 ]
+            });
+        },
+        eliminar() {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea eliminar la encuesta de docentes para este ciclo?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar encuesta'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post('/academico/encuestaestudiantil/docente/delete', {id: $vue.encuesta.id})
+                                .then(response => {
+                                    if (response.data.success) {
+                                        $vue.$refs.load.loadRemoteData();
+                                        $vue.refreshEncuesta();
+                                        notify(response.data.message, "info");
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                });
+                    }
+                }
+            });
+        },
+        publicar() {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea publicar la encuesta de docentes para este ciclo?',
+                buttons: {
+                    confirm: {label: 'Si, publicar encuesta'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post('/academico/encuestaestudiantil/docente/publicar', {id: $vue.encuesta.id})
+                                .then(response => {
+                                    if (response.data.success) {
+                                        $vue.refreshEncuesta();
+                                        notify(response.data.message, "info");
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                });
+                    }
+                }
             });
         }
     }
