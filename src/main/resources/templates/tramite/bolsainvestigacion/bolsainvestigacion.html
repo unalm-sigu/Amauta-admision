@@ -31,10 +31,11 @@
                     <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
                     <ul class="dropdown-menu pointer">
                         <li><a v-on:click="nuevoAlumnoBolsa"> Agregar alumno</a></li>
-                        <li><a v-on:click="enviarInvitaciones"> Enviar Invitaciones </a></li>
+                        <!--li><a v-on:click="enviarInvitaciones"> Enviar Invitaciones </a></li-->
                     </ul>
                 </div> 
-                <p class="h2" th:inline="text"> Bolsa de Investigación [[${ciclo}]] </p>
+                <p class="h2 m-b-n" th:inline="text"> Bolsa de Investigación [[${ciclo}]] </p>
+                <p class="h4 block m-t-xs m-b" th:inline="text"> Facultad de Ciencias </p>
 
                 <div class="block m-b-sm">
                     <div class="iblock label-status">
@@ -72,8 +73,18 @@
                                         <tr v-for="item in props.data"> 
                                             <td class="v-middle">
                                                 <span class="block text-primary"> {{ item.alumno.persona.nombreCompleto }} </span> 
-                                                <span class="block"> {{ item.alumno.codigo }} </span> 
-                                                <span class="block small text-muted"> {{ item.alumno.persona.tipoDocumento.simbolo }} {{ item.alumno.persona.numeroDocIdentidad }} </span> 
+                                                <span class="block"
+                                                      v-if="item.alumno.carrera.codigo != item.alumno.carrera.facultad.codigo"> 
+                                                    Especialidad: {{ item.alumno.carrera.nombre }} 
+                                                </span> 
+                                                <span class="block"> Matrícula: {{ item.alumno.codigo }} </span> 
+                                                <span class="block small text-muted"
+                                                      v-if="item.alumno.persona.tipoDocumento.simbolo"> 
+                                                    <span v-if="item.alumno.persona.numeroDocIdentidad != '' ">
+                                                        {{ item.alumno.persona.tipoDocumento.simbolo }} 
+                                                    </span>
+                                                    {{ item.alumno.persona.numeroDocIdentidad }} 
+                                                </span> 
                                             </td>
                                             <td class="v-middle">
                                                 <span class="block"> {{ item.nombreInvestigacion }} </span> 
@@ -81,6 +92,8 @@
                                             <td class="v-middle">
                                                 <span class="block text-primary"> {{ item.supervisor.persona.nombreCompleto }} </span> 
                                                 <span class="block small text-muted"> {{ item.supervisor.persona.tipoDocumento.simbolo }} {{ item.supervisor.persona.numeroDocIdentidad }} </span> 
+                                                <span class="block">Unidad: {{ item.supervisor.oficina.nombre }}</span>
+                                                <span class="block">Cargo: {{ item.supervisor.cargo.nombre }}</span>
                                             </td>
                                             <td class="v-middle text-center">
                                                 <span class="label" v-bind:class="labelAlumnoType[item.estado]"> {{ labelAlumnoText[item.estado] }} </span> 

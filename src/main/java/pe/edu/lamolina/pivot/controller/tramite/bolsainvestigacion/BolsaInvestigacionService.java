@@ -12,26 +12,26 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface BolsaInvestigacionService {
 
-    public void agregarAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds);
+    void agregarAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds);
 
-    public List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+    List<String> checkearAlumno(Alumno alumno, CicloAcademico cicloAcademico);
 
-    public AlumnoBolsaInvestigacion findAlumnoBolsaInvestigacion(Long id);
+    AlumnoBolsaInvestigacion findAlumnoBolsaInvestigacion(Long id);
 
-    public List<Alumno> searchAlumnosByFacultadNombre(Facultad facultad, String nombre);
+    List<Alumno> searchAlumnosByFacultadNombre(Facultad facultad, String nombre, CicloAcademico ciclo);
 
-    public List<Colaborador> searchColaboradoresByFacultadNombre(Facultad facultad, String nombre);
-    
-    public void updateAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds);
+    List<Colaborador> searchColaboradoresByFacultadNombre(Facultad facultad, String nombre);
 
-    public List<AlumnoBolsaInvestigacion> allByDynatableFacultadCicloAcademico(DynatableFilter filter, Facultad facultad, CicloAcademico cicloAcademico);
+    void updateAlumno(Facultad facultad, CicloAcademico cicloAcademico, AlumnoBolsaInvestigacion alumno, DataSessionPivot ds);
 
-    public void eliminarAlumno(Long id, CicloAcademico cicloAcademico, Facultad facultad);
+    List<AlumnoBolsaInvestigacion> allByDynatableFacultadCicloAcademico(DynatableFilter filter, Facultad facultad, CicloAcademico cicloAcademico);
 
-    public void enviarInvitaciones(Facultad facultad, CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void eliminarAlumno(Long id, CicloAcademico cicloAcademico, Facultad facultad);
+
+    void enviarInvitaciones(Facultad facultad, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     Facultad findByDataSession(DataSessionPivot ds);
 
-    public BolsaInvestigacion findByFacultadCicloAcademico(Facultad facultad, CicloAcademico cicloAcademico);
+    BolsaInvestigacion findByFacultadCicloAcademico(Facultad facultad, CicloAcademico cicloAcademico);
 
 }
