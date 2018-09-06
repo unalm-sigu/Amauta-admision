@@ -22,6 +22,18 @@ public class ModalidadEstudioDAOH extends AbstractEasyDAO<ModalidadEstudio> impl
     }
 
     @Override
+    public List<ModalidadEstudio> allActivoByCodesCompania(List<ModalidadEstudioEnum> codes, Compania compania) {
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "mo")
+                .join("compania")
+                .in("mo.codigo", codes)
+                .filter("compania", compania)
+                .filter("estado", EstadoEnum.ACT);
+
+        return all(sql);
+    }
+
+    @Override
     public ModalidadEstudio findByCodigo(ModalidadEstudioEnum codigo) {
         Octavia sql = Octavia.query()
                 .from(ModalidadEstudio.class, "me")

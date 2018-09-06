@@ -58,7 +58,8 @@ public class RolDAOH extends AbstractEasyDAO<Rol> implements RolDAO {
     public List<Rol> allRol(List<Rol> rolesMenu) {
         Octavia sql = Octavia.query()
                 .from(Rol.class, "rol")
-                .notIn("rol.id", rolesMenu);
+                .notIn("rol.id", rolesMenu)
+                .orderBy("rol.nombre");
 
         return all(sql);
     }

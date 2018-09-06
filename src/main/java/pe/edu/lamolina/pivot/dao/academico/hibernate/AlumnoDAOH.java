@@ -39,6 +39,25 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public List<Alumno> allByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Alumno.class, "al")
+                .join("persona per", "carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .leftJoin("situacionAcademica sita", "per.tipoDocumento tdoc", "cicloIngreso ci", "cicloActivo cia")
+                .in("fac.id", facultades)
+                .searchFields("ca.nombre", "al.estado", "al.codigo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("al.id desc");
+
+        sql.beginRelativeFilters();
+        setCondicionModalidad(filter, sql);
+
+        List<Alumno> alumnos = sql.all(getCurrentSession());
+        return alumnos;
+    }
+
+    @Override
     public Alumno findByCodigo(String codigoAlumno) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
@@ -430,8 +449,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("persona per", "carrera car", "car.facultad fa")
-                .leftJoin("per.tipoDocumento td")
+                .join("persona per", "carrera car", "car.facultad fa", "situacionAcademica sa")
+                .join("modalidadEstudio me")
+                .leftJoin("per.tipoDocumento td", "orientacionCarrera oc")
                 .filter("fa.id", facultad)
                 .filter("per.estado", PersonaEstadoEnum.ACT)
                 .beginBlock()
@@ -441,7 +461,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .__().filter("alu.codigo", "like", nombre)
                 .endBlock()
                 .limit(15);
-        
+
         return sql.all(getCurrentSession());
     }
 

@@ -33,4 +33,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     void updateTurnoAtencion(CicloAcademico cicloAcademico, TurnoAtencion turnoAtencion);
 
     List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno);
+
+    List<MatriculaResumen> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 }

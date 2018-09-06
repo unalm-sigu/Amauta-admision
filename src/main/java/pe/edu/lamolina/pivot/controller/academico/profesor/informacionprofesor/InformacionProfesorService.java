@@ -6,11 +6,20 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.rrhh.CategoriaDocente;
+import pe.edu.lamolina.model.rrhh.DedicacionDocente;
+import pe.edu.lamolina.model.rrhh.SituacionDocente;
 
 public interface InformacionProfesorService {
 
     Docente findDocente(Docente docente);
 
+    List<SituacionDocente> allSituaciones();
+    
+    List<CategoriaDocente> allCategorias();
+    
+    List<DedicacionDocente> allDedicaciones();
+    
     List<TipoDocIdentidad> allDocumentos();
 
     List<ModalidadEstudio> allModalidadEstudio(Compania compania);

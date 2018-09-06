@@ -20,11 +20,11 @@ public class ContenidoCartaDAOH extends AbstractEasyDAO<ContenidoCarta> implemen
     }
 
     @Override
-    public List<ContenidoCarta> allByDynaTableBySistema(DynatableFilter filter, Sistema sistema) {
+    public List<ContenidoCarta> allByDynaTableBySistema(DynatableFilter filter, List<Sistema> sistemas) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(ContenidoCarta.class, "coc")
                 .join("sistema sis")
-                .filter("sis.id", sistema)
+                .in("sis.id", sistemas)
                 .searchFields("coc.nombre", "coc.codigo")
                 .orderBy("coc.id desc");
 

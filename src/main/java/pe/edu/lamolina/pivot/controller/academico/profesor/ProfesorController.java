@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,15 +53,19 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.pivot.controller.academico.notasacademicas.CargaAcademicaService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -75,6 +81,9 @@ public class ProfesorController {
 
     @Autowired
     CargaAcademicaService cargaAcademicaService;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -111,14 +120,23 @@ public class ProfesorController {
 
     @ResponseBody
     @RequestMapping("all")
-    public DynatableResponse allDocente(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allDocente(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Docente> docentes = service.allByDynatable(filter, ds.getDepartamentos());
+            List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+
+            List<Docente> docentes;
+
+            if (facultades.isEmpty()) {
+                docentes = service.allByDynatable(filter, ds.getDepartamentos());
+            } else {
+                docentes = service.allByFacultadesDynatable(filter, facultades);
+            }
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Docente docente : docentes) {
@@ -176,7 +194,7 @@ public class ProfesorController {
         Docente docente = new Docente();
         docente.setPersona(new Persona());
         model.addAttribute("documentos", service.allDocumentos());
-        model.addAttribute("modalidades", service.allModalidadEstudio(compania));
+        model.addAttribute("modalidades", service.allModalidadEstudioByCodes(Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG), compania));
         model.addAttribute("docente", docente);
         model.addAttribute("helper", new AlumnoHelper());
         return "academico/profesor/profesorForm";
@@ -422,7 +440,6 @@ public class ProfesorController {
         BufferedOutputStream output = null;
 
         try {
-
             input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             IOUtils.copy(input, output);

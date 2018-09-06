@@ -5,10 +5,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Persona;
 
 public interface DocenteDAO extends EasyDAO<Docente> {
+
+    List<Docente> allByFacultadesDyantable(DynatableFilter filter, List<Facultad> facultades);
 
     Docente findByCode(String codigo);
 

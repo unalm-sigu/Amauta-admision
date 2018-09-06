@@ -1,1 +1,163 @@
-info laboral
+<div class="block">
+    <a href="#" class="btn btn-success" v-on:click="nuevoContrato"> Agregar contrato </a>
+</div>
+<raptor-table v-bind:url="`/academico/profesor/${docente.id}/contratos`" v-bind:searcher="false" ref="raptorContratos">
+    <template scope="props">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th class="col-md-1 text-center">Ciclo Inicio</th>
+                    <th class="col-md-1 text-center">Ciclo Fin</th>
+                    <th class="col-md-2">Categoría</th>
+                    <th class="col-md-2">Dedicación</th>
+                    <th class="col-md-2">Situación</th>
+                    <th class="col-md-2">Resolución Facultad </th>
+                    <th class="col-md-2">Resolución CUN </th>
+                    <th class="col-md-1 text-center">Estado </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in props.data"> 
+                    <td class="v-middle text-center">
+                        <span>  {{ item.cicloInicioContrato.descripcion }} </span> 
+                    </td>
+                    <td class="v-middle text-center">
+                        <span>  {{ item.cicloFinContrato.descripcion }} </span> 
+
+                    </td>
+                    <td class="v-middle">
+                        <span class="block"> {{ item.categoria.nombre }} </span>
+                        <span class="block small text-muted"> {{ item.categoria.codigo }} </span>
+                    </td>
+                    <td class="v-middle">
+                        <span class="block"> {{ item.dedicacion.nombre }} </span>
+                        <span class="block small text-muted"> {{ item.dedicacion.codigo }} </span>
+                    </td>
+                    <td class="v-middle">
+                        <span class="block"> {{ item.situacion.nombre }} </span>
+                        <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
+                    </td>
+                    <td class="v-middle">
+                        <div v-if="item.resolucionFacultad.id">
+                            <a class="block pointer bold text-info-dk"> {{ item.resolucionFacultad.descripcion }} </a>
+                            <span class="block small text-muted"> {{ item.resolucionFacultad.fechaRegistro }} </span>
+                        </div>
+                    </td>
+                    <td class="v-middle">
+                        <div v-if="item.resolucionConsejo.id">
+                            <a class="block pointer bold"> {{ item.resolucionConsejo.descripcion }} </a>
+                            <span class="block small text-muted"> {{ item.resolucionConsejo.fechaRegistro }} </span>
+                        </div>
+                    </td>
+                    <td class="v-middle text-center">
+                        <span class="label" v-bind:class="labelContrato[item.estadoEnum.name]">  {{ item.estadoEnum.value }} </span> 
+
+                    </td>
+                    <td class="v-middle">
+                        <div class="dropdown actions" v-if=" item.estadoEnum.name === 'RESL' || !item.resolucionFacultad.id || !item.resolucionConsejo.id || item.estadoEnum.name==='ACT'">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                            <ul class="dropdown-menu pull-right" >
+                                <li role="presentation" v-if="item.estadoEnum.name === 'RESL'">
+                                    <a href="#" v-on:click="addVistoBueno(item)">Visto bueno de Estudios</a>
+                                </li>
+                                <li role="presentation" v-if="!item.resolucionFacultad.id">
+                                    <a href="#" v-on:click="addResolucionFacultad(item)">Agregar Resolución de Facultad</a>
+                                </li>
+                                <li role="presentation" v-if="!item.resolucionConsejo.id">
+                                    <a href="#" v-on:click="addResolucionConsejo(item)">Agregar Resolución de CUN</a>
+                                </li>
+                                <li role="presentation" v-if="item.estadoEnum.name === 'ACT'">
+                                    <a href="#" v-on:click="finalizar(item)">Finalizar Contrato</a>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+</raptor-table>
+
+
+<modal-vik ref="modalContrato"
+           v-bind="modalContrato"
+           v-bind:okaction="saveContrato">
+    <div slot="body">
+        <form id="formContrato">
+            <input type="hidden" name="id" value=""/>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Categoría </label>
+                        <select class="form-control" name="categoria.id" required="">
+                            <option></option>
+                            <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Dedicación </label>
+                        <select class="form-control" name="dedicacion.id" required="">
+                            <option></option>
+                            <option th:each="dedicacion : ${dedicaciones}" th:value="${dedicacion.id}" th:text="${dedicacion.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Situación </label>
+                        <select class="form-control" name="situacion.id" required="">
+                            <option></option>
+                            <option th:each="situacion : ${situaciones}" th:value="${situacion.id}" th:text="${situacion.nombre}"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Ciclo Inicio </label>
+                        <input class="form-control" name="cicloInicioContrato.id" required=""/>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Ciclo Fin </label>
+                        <input class="form-control" name="cicloFinContrato.id" required=""/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalResolucionFacultad"
+           v-bind="modalResolucionFacultad"
+           v-bind:okaction="saveResolucionFacultad">
+    <div slot="body">
+        <form id="formResolucionFacultad">
+            <div class="form-group">
+                <label> Resolución </label>
+                <input class="form-control" id="resFacultadId" name="id" required=""/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalResolucionConsejo"
+           v-bind="modalResolucionConsejo"
+           v-bind:okaction="saveResolucionConsejo">
+    <div slot="body">
+        <form id="formResolucionConsejo">
+            <div class="form-group">
+                <label> Resolución </label>
+                <input class="form-control" id="resConsejoId" name="id" required=""/>
+            </div>
+        </form>
+    </div>
+</modal-vik>

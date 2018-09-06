@@ -8,6 +8,8 @@ import pe.edu.lamolina.model.general.Compania;
 
 public interface ModalidadEstudioDAO extends EasyDAO<ModalidadEstudio> {
 
+    List<ModalidadEstudio> allActivoByCodesCompania(List<ModalidadEstudioEnum> codes, Compania compania);
+
     ModalidadEstudio findByCodigo(ModalidadEstudioEnum codigo);
 
     List<ModalidadEstudio> allByCompania(Compania compania);

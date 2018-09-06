@@ -284,15 +284,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-oauth</artifactId>
-            <version>1.6.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
+        
         <dependency>
-            <groupId>org.pac4j</groupId>
-            <artifactId>spring-security-pac4j</artifactId>
-            <version>1.2.4</version>
+            <groupId>com.github.scribejava</groupId>
+            <artifactId>scribejava-apis</artifactId>
+            <version>5.5.0</version>
         </dependency>
 
         <dependency>
@@ -351,7 +350,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-            <version>0.14.75</version>
+            <version>0.14.77</version>
         </dependency>
 
     </dependencies>

@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -19,6 +20,8 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 public interface AlumnoService {
 
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
+
+    List<Alumno> allAlumnosByFacultadDynatable(DynatableFilter filter, List<Facultad> facultades);
 
     AlumnoResumen findResumen();
 

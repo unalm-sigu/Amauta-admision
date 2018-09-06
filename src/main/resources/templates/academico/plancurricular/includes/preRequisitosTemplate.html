@@ -1,6 +1,11 @@
 <p class="h5 m-b-lg">
     {{if tipoRequisitos=="pre"}}
-    Los pre-requisitos del curso <b class="text-primary">{{:curso}}</b> son:
+    {{if requisitosOr}}
+    Uno de los siguientes cursos es pre-requisito del curso <b class="text-primary">{{:curso}}</b>
+    {{else}}
+    Todos los siguientes cursos son pre-requisitos del curso <b class="text-primary">{{:curso}}</b>
+    {{/if}}
+    
     {{else tipoRequisitos=="post"}}
     El curso <b class="text-primary">{{:curso}}</b> es pre-requisito de los siguientes cursos:
     {{/if}}

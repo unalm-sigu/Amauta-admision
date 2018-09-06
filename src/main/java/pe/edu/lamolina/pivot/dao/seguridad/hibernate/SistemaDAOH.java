@@ -16,6 +16,14 @@ public class SistemaDAOH extends AbstractEasyDAO<Sistema> implements SistemaDAO 
         super();
         setClazz(Sistema.class);
     }
+    
+    @Override
+    public List<Sistema> all() {
+        Octavia sql = Octavia.query()
+                .from(Sistema.class, "si")
+                .orderBy("si.id desc");
+        return all(sql);
+    }
 
     @Override
     public Sistema findByRolSistema(Rol rol, Sistema sys) {
@@ -30,10 +38,12 @@ public class SistemaDAOH extends AbstractEasyDAO<Sistema> implements SistemaDAO 
     }
 
     @Override
-    public List<Sistema> allSistema() {
+    public List<Sistema> allByCodes(List<String> codigos) {
         Octavia sql = Octavia.query()
                 .from(Sistema.class, "si")
-                .orderBy("si.id desc");
+                .in("si.codigo", codigos);
         return all(sql);
     }
+
+    
 }
