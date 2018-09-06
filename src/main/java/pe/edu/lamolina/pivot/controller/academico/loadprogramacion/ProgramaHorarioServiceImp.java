@@ -297,12 +297,11 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
 
         crearCursos(rutaFileCursos, mapCursos, mapDepartamentosAcademicos);
 
-        t1 = System.currentTimeMillis();
-        logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
-        t2 = System.currentTimeMillis();
-        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
-
+//        t1 = System.currentTimeMillis();
+//        logger.debug("saveAlumnos");
+//        this.saveAlumnos(alumnos, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+//        t2 = System.currentTimeMillis();
+//        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
         t1 = System.currentTimeMillis();
         logger.debug("loadDataDocentes");
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
@@ -314,7 +313,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         progDataService.revisionPreviaGpoSecciones(gruposSecciones, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\revisionPreviaGpoSecciones ejecutado en {} mseg", (t2 - t1));
-        
+
         t1 = System.currentTimeMillis();
         logger.debug("loadDataGpoSecciones");
         Map<String, GrupoSeccion> mapGpoSecciones = progDataService.loadDataGpoSecciones(gruposSecciones, ciclo);
@@ -404,6 +403,7 @@ public class ProgramaHorarioServiceImp implements ProgramaHorarioService {
         ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
 
         long loop = 1;
+        visor.inicializar("loadDocente", docentes.size());
         for (Docente docente : docentes) {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");

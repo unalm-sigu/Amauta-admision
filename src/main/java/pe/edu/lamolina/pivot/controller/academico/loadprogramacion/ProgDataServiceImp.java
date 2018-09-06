@@ -503,7 +503,7 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserRegistro(ds.getUsuario());
             docenteDAO.save(profeBD);
 
-            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " ya existe, se actualizo", true, "info");
+            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " es nuevo", true, "info");
 
         } else if (profeBD.getEstadoEnum() != DocenteEstadoEnum.ACT) {
             profeBD.setEstado(DocenteEstadoEnum.ACT);
@@ -511,8 +511,11 @@ public class ProgDataServiceImp implements ProgDataService {
             profeBD.setUserModifica(ds.getUsuario());
             docenteDAO.update(profeBD);
 
-            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " nuevo", true, "info");
+            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " ya existe, se actualizo", true, "info");
+        } else {
+            visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " no necesita ser actualizacion", true, "info");
         }
+
         saveUsuario(persona, RolEnum.DOC, ds);
         return profeBD;
     }
@@ -897,12 +900,14 @@ public class ProgDataServiceImp implements ProgDataService {
 
             GrupoSeccion gpoSeccBD = mapGpoSeccionBD.get(gpoSecc.getCodigo());
             if (gpoSeccBD == null) {
+                visor.agregarLog("gpoSecc", "revisionGpoSecc", "No es necesario revisar " + gpoSecc.getCodigo() + " porque es es nuevo", true, "info");
                 continue;
             }
 
             Curso curso = mapCursoBD.get(gpoSecc.getCodigoCurso());
             Curso cursoBD = gpoSeccBD.getCurso();
             if (curso.getId() == cursoBD.getId().longValue()) {
+                visor.agregarLog("gpoSecc", "revisionGpoSecc", "No es necesario revisar " + gpoSecc.getCodigo() + " porque datos son iguales", true, "info");
                 continue;
             }
 
@@ -910,7 +915,7 @@ public class ProgDataServiceImp implements ProgDataService {
             for (Seccion seccion : seccionesBD) {
                 List<MatriculaSeccion> alumnosSeccion = matriculaSeccionDAO.allBySeccion(seccion);
                 if (alumnosSeccion.size() > 0) {
-                    visor.agregarLog("gpoSecc", "saveGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo()
+                    visor.agregarLog("gpoSecc", "revisionGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo()
                             + " está relacionado al curso " + curso.getCodigo() + " pero en la base de datos es " + cursoBD.getCodigo(),
                             false, "error-proceso");
                     String msg = String.format("El curso del grupo-seccion %s está relacionado al curso %s pero en la base de datos es %s",
@@ -937,7 +942,7 @@ public class ProgDataServiceImp implements ProgDataService {
             visor.agregarLog("gpoSecc", "revisionGpoSecc", "El codigo del gpo-Seccion " + codGpoAntes
                     + " fue cambiado al UNUSED " + codGpoSecc + " porque el archivo tiene al curso " + curso.getCodigo()
                     + " pero en la base de datos es " + cursoBD.getCodigo(),
-                    false, "info");
+                    true, "info");
 
         }
     }
