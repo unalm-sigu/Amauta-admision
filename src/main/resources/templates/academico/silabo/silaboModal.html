@@ -1,0 +1,28 @@
+<modal-vik ref="modalSilabo"
+           v-bind="modalSilabo"
+           v-bind:okaction="save"
+           v-bind:cancelaction="cancelSave">
+
+    <div slot="body" vclass="panel">
+
+        <div class="text-center">
+            <h4>Agregar nuevo Silabo</h4>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label>Curso</label>
+                        <input type="text"
+                               class="form-control input-sm"
+                               v-model="silaboCurso.curso"
+                               required="true"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</modal-vik>
