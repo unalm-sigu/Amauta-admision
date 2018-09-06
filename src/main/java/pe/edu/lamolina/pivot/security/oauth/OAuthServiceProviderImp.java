@@ -2,6 +2,9 @@ package pe.edu.lamolina.pivot.security.oauth;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.scribejava.apis.GoogleApi20;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -11,8 +14,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.oauth.OAuthService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -121,15 +122,13 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public OAuthService getService() {
-        return new ServiceBuilder()
-                .provider(config.getApiClass())
-                .apiKey(config.getKey())
+    public OAuth20Service getService() {
+        return new ServiceBuilder(config.getKey())
                 .apiSecret(config.getSecret())
-                .callback(config.getCallback())
                 .scope("https://www.googleapis.com/auth/userinfo.email "
                         + "https://www.googleapis.com/auth/userinfo.profile")
-                .build();
+                .callback(config.getCallback())
+                .build(GoogleApi20.instance());
     }
 
     @Override

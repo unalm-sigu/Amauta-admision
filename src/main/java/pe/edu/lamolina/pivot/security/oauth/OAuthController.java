@@ -2,15 +2,16 @@ package pe.edu.lamolina.pivot.security.oauth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
-import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,33 +54,34 @@ public class OAuthController {
     @RequestMapping(value = "login", method = RequestMethod.GET)
     public String loginGoogle() {
 
-        OAuthService service = serviceProvider.getService();
-
-        return "redirect:" + service.getAuthorizationUrl(null);
+        OAuth20Service service = serviceProvider.getService();
+        return "redirect:" + service.getAuthorizationUrl();
     }
 
     @RequestMapping(value = "callback", method = RequestMethod.GET)
-    public String callback(@RequestParam(value = "oauth_token", required = false) String oauthToken,
-            @RequestParam(value = "code", required = false) String oauthVerifier, HttpSession session, HttpServletRequest servlet) throws IOException {
+    public String callback(
+            @RequestParam(value = "oauth_token", required = false) String oauthToken,
+            @RequestParam(value = "code", required = false) String oauthVerifier,
+            HttpSession session, HttpServletRequest servlet) throws IOException {
 
         try {
-            OAuthService service = serviceProvider.getService();
-
-            Verifier verifier = new Verifier(oauthVerifier);
-
-            Token accessToken = service.getAccessToken(null, verifier);
-
+            OAuth20Service service = serviceProvider.getService();
+            OAuth2AccessToken accessToken = service.getAccessToken(oauthVerifier);
             session.setAttribute(OAuthConstant.ACCESS_TOKEN, accessToken);
 
             OAuthRequest oauthRequest = new OAuthRequest(Verb.GET, OAuthConstant.USER_INFO);
             service.signRequest(accessToken, oauthRequest);
-            Response oauthResponse = oauthRequest.send();
+            Response oauthResponse = service.execute(oauthRequest);
 
             JsonNode jsonNode = new ObjectMapper().readTree(oauthResponse.getBody());
-
             serviceProvider.loginManually(jsonNode.get("email").asText(), session, servlet);
 
         } catch (PhobosException e) {
+            session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
+            return "security/nologin";
+
+        } catch (InterruptedException | ExecutionException ex) {
+            logger.error(ex.getLocalizedMessage());
             session.removeAttribute(OAuthConstant.ACCESS_TOKEN);
             return "security/nologin";
         }

@@ -1,17 +1,14 @@
 package pe.edu.lamolina.pivot.security.oauth;
 
-import java.util.List;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.scribe.oauth.OAuthService;
-import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OAuthServiceProvider {
 
-    OAuthService getService();
+    OAuth20Service getService();
 
     void loginManually(String email, HttpSession session, HttpServletRequest servlet);
 
