@@ -22,4 +22,8 @@ public interface EncuestaCursoService {
 
     String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
+    void delete(EncuestaEstudiantil encuesta);
+
+    void publicar(EncuestaEstudiantil encuesta);
+
 }

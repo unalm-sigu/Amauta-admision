@@ -20,15 +20,20 @@
                             <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
-                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Eliminar encuestas </a></li>
-                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Publicar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="eliminar"> Eliminar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="publicar"> Publicar encuestas </a></li>
                         </ul>
                     </div>
 
                     <h2 th:inline="text">Encuesta de Cursos  [[${cicloAcademico.descripcion}]] </h2>
-
+                    <div class="block m-b">
+                        <span v-if="encuesta.estado=='NCRE'" class="label label-danger">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='CRE'" class="label label-default">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='ACT'" class="label label-success">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='CER'" class="label label-primary">{{encuesta.estadoEnum.value}}</span>
+                        <span v-if="encuesta.estado=='CFG'" class="label label-warning">{{encuesta.estadoEnum.value}}</span>
+                    </div>
                 </header>
-
 
 
                 <section class="wrapper-lg">
@@ -107,10 +112,6 @@
                             </div>
                         </section>
                     </section>
-
-
-
-
 
 
 
@@ -214,8 +215,6 @@
                                                     <span v-if="item.estado=='CER'" class="label pointer label-primary" v-bind:title="item.descripcion">{{item.estadoEnum.value}}</span>
 
                                                 </td>
-
-
 
 
                                                 <td class="v-middle">

@@ -253,6 +253,61 @@ new Vue({
                     .catch(function (error) {
                         console.log(error);
                     });
+        },
+        eliminar() {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea eliminar la encuesta de cursos para este ciclo?',
+                buttons: {
+                    confirm: {label: 'Si, eliminar encuesta'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post('/academico/encuestaestudiantil/curso/delete', {id: $vue.encuesta.id})
+                                .then(response => {
+                                    if (response.data.success) {
+                                        $vue.$refs.load.loadRemoteData();
+                                        $vue.refreshEncuesta();
+                                        notify(response.data.message, "info");
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                });
+                    }
+                }
+            });
+        },
+        publicar() {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Está seguro que desea publicar la encuesta de docentes para este ciclo?',
+                buttons: {
+                    confirm: {label: 'Si, publicar encuesta'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        axios.post('/academico/encuestaestudiantil/curso/publicar', {id: $vue.encuesta.id})
+                                .then(response => {
+                                    if (response.data.success) {
+                                        $vue.refreshEncuesta();
+                                        notify(response.data.message, "info");
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                    notify(MESSAGES.errorComunicacion, "error");
+                                });
+                    }
+                }
+            });
         }
     }
 });

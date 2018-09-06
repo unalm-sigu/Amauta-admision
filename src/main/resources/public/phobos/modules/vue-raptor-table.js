@@ -50,10 +50,10 @@ Vue.component('raptor-table', {
         },
         updateQueryString(key, value) {
             var uri = window.location.href;
-            uri = uri.replace("[", "OPEN_BRACKET");
-            uri = uri.replace("]", "CLOSE_BRACKET");
-            key = key.replace("[", "OPEN_BRACKET");
-            key = key.replace("]", "CLOSE_BRACKET");
+            uri = uri.split("[").join("OPEN_BRACKET");
+            uri = uri.split("]").join("CLOSE_BRACKET");
+            key = key.split("[").join("OPEN_BRACKET");
+            key = key.split("]").join("CLOSE_BRACKET");
 
             var re = new RegExp("([?&])" + key + "=.*?(&|#|$)(.*)", "gi"), hash;
             if (re.test(uri)) {
@@ -77,8 +77,8 @@ Vue.component('raptor-table', {
                 }
             }
 
-            uri = uri.replace("OPEN_BRACKET", "[");
-            uri = uri.replace("CLOSE_BRACKET", "]");
+            uri = uri.split("OPEN_BRACKET").join("[");
+            uri = uri.split("CLOSE_BRACKET").join("]");
             return uri;
         },
         executeSearch() {

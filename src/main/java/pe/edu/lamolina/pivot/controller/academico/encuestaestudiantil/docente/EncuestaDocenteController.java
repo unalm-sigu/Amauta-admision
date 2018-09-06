@@ -84,70 +84,6 @@ public class EncuestaDocenteController {
                             "docenteSeccion.seccion.grupoSeccion.curso.tpc"
                         });
                 node.put("esTeoriaPractica", enDocente.getEsTeoriaPractica() == 1 ? "Teo/Prac" : "");
-
-                /**
-                 * node.put("id", enDocente.getId());
-                 * node.put("esTeoriaPractica", enDocente.getEsTeoriaPractica()
-                 * == 1 ? "Teo/Prac" : ""); node.put("estado",
-                 * enDocente.getEstado()); node.put("estadoEnum",
-                 * enDocente.getEstadoEnum().getValue());
-                 * node.put("fechaInicio", enDocente.getFechaInicio() != null ?
-                 * new DateTime(enDocente.getFechaInicio()).toString("dd/MM/yyyy
-                 * hh:mm") : ""); node.put("fechaFin", enDocente.getFechaFin()
-                 * != null ? new
-                 * DateTime(enDocente.getFechaFin()).toString("dd/MM/yyyy
-                 * hh:mm") : ""); node.put("fechaEncuestaInicio",
-                 * enDocente.getFechaEncuestaInicio() != null ? new
-                 * DateTime(enDocente.getFechaEncuestaInicio()).toString("dd/MM/yyyy")
-                 * : ""); node.put("fechaEncuestaFin",
-                 * enDocente.getFechaEncuestaFin() != null ? new
-                 * DateTime(enDocente.getFechaEncuestaFin()).toString("dd/MM/yyyy")
-                 * : ""); node.put("alumnosInicio",
-                 * enDocente.getAlumnosInicio()); node.put("alumnoFin",
-                 * enDocente.getAlumnosFin()); node.put("alumnosEncuestados",
-                 * enDocente.getAlumnosEncuestados()); node.put("descripcion",
-                 * enDocente.getDescripcion());
-                 *
-                 * node.put("nombre", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.docente.persona.apellidosNombres"));
-                 * node.put("tipoDoc", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.docente.persona.tipoDocumento.simbolo"));
-                 * node.put("nroDocumento", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.docente.persona.numeroDocIdentidad"));
-                 * node.put("codigo", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.docente.codigo")); node.put("seccion",
-                 * (String) ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.codigo")); node.put("seccionCodigo2",
-                 * (String) ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.codigo2")); node.put("grupoSeccion",
-                 * (String) ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoSeccion.codigo"));
-                 * node.put("grupoHoras", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoHoras.codigo"));
-                 * node.put("curso", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoSeccion.curso.nombre"));
-                 * node.put("cursoCodigo", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoSeccion.curso.codigo"));
-                 * node.put("tpc", (String) ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoSeccion.curso.tpc"));
-                 *
-                 * node.put("examen", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "encuestaEstudiantil.encuesta.nombre")); node.put("facultad",
-                 * (String) ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoSeccion.curso.departamentoAcademico.facultad.nombre"));
-                 * node.put("departamentoAcademico", (String)
-                 * ObjectUtil.getParentTree(enDocente,
-                 * "docenteSeccion.seccion.grupoSeccion.curso.departamentoAcademico.nombre"));
-                 *
-                 */
                 array.add(node);
             }
 
@@ -376,6 +312,40 @@ public class EncuestaDocenteController {
             }
             response.setData(arr);
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.delete(encuesta);
+            response.setMessage("Encuesta Eliminada.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("publicar")
+    public JsonResponse publicar(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.publicar(encuesta);
+            response.setMessage("Encuesta Publicada correctamente.");
+            response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

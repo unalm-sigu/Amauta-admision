@@ -13,4 +13,6 @@ public interface ConfiguraEncuestaDAO extends EasyDAO<ConfiguraEncuesta> {
     ConfiguraEncuesta find(ConfiguraEncuesta configuraEncuestaForm);
 
     ConfiguraEncuesta findByCicloEncuesta(CicloAcademico ciclo, ExamenVirtual encuesta);
+
+    void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta);
 }

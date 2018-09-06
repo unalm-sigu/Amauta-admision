@@ -302,4 +302,41 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public List<PuntajeEncuestaDocente> resumenPuntajeTemas(EncuestaDocente encuestaDocente) {
         return puntajeEncuestaDocenteDAO.allByEncuestaDocente(encuestaDocente);
     }
+
+    @Override
+    @Transactional
+    public void delete(EncuestaEstudiantil encuesta) {
+
+        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
+        if (encuestaDB == null) {
+            throw new PhobosException("La encuesta no existe");
+        }
+        List<EncuestaDocente> encuestasDoc = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaDB);
+
+        List<Long> idEncuestasDoc = encuestasDoc.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+
+        encuestaAlumnoDAO.deleteByEncuestasDocente(idEncuestasDoc);
+        encuestaDocenteDAO.deleteByEncuestaEstudiantil(encuesta);
+        configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
+        encuestaEstudiantilDAO.delete(encuestaDB);
+
+    }
+
+    @Override
+    @Transactional
+    public void publicar(EncuestaEstudiantil encuesta) {
+        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
+        if (encuestaDB == null) {
+            throw new PhobosException("La encuesta no existe");
+        }
+
+        if (encuestaDB.getEstadoEnum() != EncuestaEstadoEnum.CFG) {
+            throw new PhobosException("La encuesta no se encuentra configurada");
+        }
+        encuestaDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
+        encuestaEstudiantilDAO.update(encuestaDB);
+
+    }
 }

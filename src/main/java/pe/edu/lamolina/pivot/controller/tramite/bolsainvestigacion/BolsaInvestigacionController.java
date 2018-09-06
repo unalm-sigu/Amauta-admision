@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,35 +25,41 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.tramite.AlumnoBolsaInvestigacion;
 import pe.edu.lamolina.model.tramite.BolsaInvestigacion;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("tramite/bolsainvestigacion")
 public class BolsaInvestigacionController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     BolsaInvestigacionService service;
-
+    
+    @Autowired
+    VerificadorService verificadorService;
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico().getDescripcion());
         return "tramite/bolsainvestigacion/bolsainvestigacion";
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/find", method = RequestMethod.GET)
-    public JsonResponse find(HttpSession session) {
+    public JsonResponse find(HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
         JsonResponse response = new JsonResponse();
         try {
-            Facultad facultad = service.findByDataSession(ds);
+            Facultad facultad = facultades.get(0);
             BolsaInvestigacion bi = service.findByFacultadCicloAcademico(facultad, ds.getCicloAcademico());
             response.setData(JsonHelper.createJson(bi, JsonNodeFactory.instance));
             response.setSuccess(Boolean.TRUE);
@@ -61,20 +68,20 @@ public class BolsaInvestigacionController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Facultad facultad = service.findByDataSession(ds);
         DynatableResponse json = new DynatableResponse();
-
+        
         List<AlumnoBolsaInvestigacion> alumnos = service.allByDynatableFacultadCicloAcademico(filter, facultad, ds.getCicloAcademico());
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
+        
         for (AlumnoBolsaInvestigacion alumno : alumnos) {
             array.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
                 "id",
@@ -94,14 +101,14 @@ public class BolsaInvestigacionController {
                 "estado"
             }));
         }
-
+        
         json.setData(array);
         json.setTotal(filter.getTotal());
         json.setFiltered(filter.getFiltered());
-
+        
         return json;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/alumnos", method = RequestMethod.POST)
     public JsonResponse alumnos(@RequestBody String nombre, HttpSession session) {
@@ -128,7 +135,7 @@ public class BolsaInvestigacionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/supervisores", method = RequestMethod.POST)
     public JsonResponse supervisores(@RequestBody String nombre, HttpSession session) {
@@ -154,7 +161,7 @@ public class BolsaInvestigacionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/alumnos/save", method = RequestMethod.POST)
     public JsonResponse saveAlumno(@RequestBody AlumnoBolsaInvestigacion alumno, HttpSession session) {
@@ -177,7 +184,7 @@ public class BolsaInvestigacionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/alumnos/{id}/find", method = RequestMethod.GET)
     public JsonResponse findAlumno(@PathVariable Long id, HttpSession session) {
@@ -185,18 +192,18 @@ public class BolsaInvestigacionController {
         JsonResponse response = new JsonResponse();
         try {
             AlumnoBolsaInvestigacion abi = service.findAlumnoBolsaInvestigacion(id);
-
+            
             ObjectNode node = JsonHelper.createJson(abi, JsonNodeFactory.instance, new String[]{
                 "id",
                 "nombreInvestigacion"
             });
-
+            
             ObjectNode nodeAlumno = new ObjectNode(JsonNodeFactory.instance);
             nodeAlumno.put("id", abi.getAlumno().getId());
             nodeAlumno.put("nombre", (String) ObjectUtil.getParentTree(abi, "alumno.persona.nombreCompleto"));
             nodeAlumno.put("codigo", (String) ObjectUtil.getParentTree(abi, "alumno.codigo"));
             node.set("alumno", nodeAlumno);
-
+            
             if (abi.getSupervisor() != null) {
                 ObjectNode nodeSupervisor = new ObjectNode(JsonNodeFactory.instance);
                 nodeSupervisor.put("id", abi.getSupervisor().getId());
@@ -204,7 +211,7 @@ public class BolsaInvestigacionController {
                 nodeSupervisor.put("codigo", (String) ObjectUtil.getParentTree(abi, "sueprvisor.codigo"));
                 node.set("supervisor", nodeSupervisor);
             }
-
+            
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -214,7 +221,7 @@ public class BolsaInvestigacionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/alumnos/{id}/eliminar", method = RequestMethod.POST)
     public JsonResponse eliminarAlumno(@PathVariable Long id, HttpSession session) {
@@ -232,7 +239,7 @@ public class BolsaInvestigacionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/alumnos/{id}/checkear", method = RequestMethod.POST)
     public JsonResponse checkearAlumno(@PathVariable Long id, HttpSession session) {
@@ -255,7 +262,7 @@ public class BolsaInvestigacionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping(value = "/enviarinvitaciones", method = RequestMethod.POST)
     public JsonResponse enviarInvitaciones(HttpSession session) {

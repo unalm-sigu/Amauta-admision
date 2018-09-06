@@ -37,6 +37,8 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     String findMaxCodigoByCiclo(CicloAcademico cicloAcademico);
 
+    List<GrupoSeccion> allUnusedByCiclo(CicloAcademico ciclo);
+
     List<String> allCodigoByCiclo(CicloAcademico cicloAcademico);
 
     void updateEstadoFechaModUsuarioMod(GrupoSeccion grupoSeccion);
@@ -52,4 +54,5 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allByCicloCurso(CicloAcademico ciclo, String codigo, Long curso);
 
     List<GrupoSeccion> allActivosByDocenteCiclo(Docente docente, CicloAcademico ciclo);
+
 }

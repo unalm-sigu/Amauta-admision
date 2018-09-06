@@ -20,8 +20,8 @@
                             <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
-                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Eliminar encuestas </a></li>
-                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#"> Publicar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="eliminar"> Eliminar encuestas </a></li>
+                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="publicar"> Publicar encuestas </a></li>
                         </ul>
                     </div>
 
@@ -281,8 +281,7 @@
                 var visor = /*[[${visor.estadoEnum}]]*/ 'json';
                 /*]]>*/
             </script>
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
-            <!--<script type="text/javascript" th:src="@{/app/academico/encuestaestudiantil/docente/encuestaDocenteDynatable.js}"></script>-->
+            <div th:substituteby="_layout/includes :: javascript-highcharts"></div>
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>

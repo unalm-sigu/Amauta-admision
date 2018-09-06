@@ -76,7 +76,7 @@
                                         <small class="block text-muted">{{item.fechaRegistro}}</small>
                                     </td> 
                                     <td>
-                                        <span class="label" v-bind:class="getEstadoClass(item.estado)">{{item.estadoEnum}}</span>
+                                        <span class="label" v-bind:class="getEstadoClass(item.estado)">{{item.estadoEnum.value}}</span>
                                     </td>
                                     <td>
                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
