@@ -1,0 +1,372 @@
+<html>
+    <head>
+        <title> Resultado de las encuestas  </title>
+    </head>
+    <style>
+        body{
+            font-size: 10px !important;	
+        }
+
+        .fecha {
+            font-size: 10px;
+            font-style: italic;
+        }
+
+        .table{
+            border: solid .25px;
+            border-collapse: collapse;
+            font-size:9px !important;
+        }
+
+        .table-datos-cursos > thead > tr, .table-datos-cursos > tbody > tr {
+            border: solid .5px;
+        }
+
+        .table-datos-encuesta {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .table-datos-encuesta > tbody {
+            margin-top: 10px;
+            padding-top: 10px;
+        }
+
+        .table-datos-encuesta > tbody > tr > td {
+            border: solid .25px;
+        }
+
+        .table-datos-cursos {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .table-datos-cursos > tbody > tr > td {
+            border-top: solid .5px;
+        }
+
+        .table-puntajes{
+            margin-top: 20px;
+        }
+
+        .table-puntajes > tbody > tr > td{
+            border: solid .25px;
+        }
+
+        .table-desempeno{
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .table-desempeno > tbody > tr > td, .table-desempeno > thead > tr > td  {
+            border: solid .25px;
+        }
+
+        .table-no-encuestados{
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .gray-bg{
+            background-color: #D6D6D6;
+        }
+        .text-center {
+            text-align: center;
+        }
+
+        table td {
+            padding: 5px !important;
+        }
+
+        .info-adicional{
+            font-size: 10px;
+            font-style: italic;
+        }
+        .header {
+            display: block;
+            padding-bottom: 20px;
+        }
+        .col-sm{
+            width: 30px;
+        }
+
+        .col-xs {
+            width: 20px;
+        }
+
+        .col-xxs {
+            width: 7px;
+        }
+      
+    </style>
+    <body>
+        <table  cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td width="200" style="text-center">
+                    <img height= "80px" src="logo-min.jpg" />
+                </td>
+                <td width="80%" style="text-align: center; padding-bottom: 20px;">
+                    <b style="font-size: 16px;"> UNIVERSIDAD NACIONAL AGRARIA LA MOLINA </b>
+                    <p style="font-family: serif; font-size: 12px;"> OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS </p>
+                    <p style="font-size: 10px; font-style: italic;"> Email: estudios@lamolina.edu.pe</p>
+                    <p style="font-size: 10px; font-style: italic;"> Teléfono: 349 - 5669 / 349 - 5647 anexo 135 </p>
+                </td>
+                <td width="200">
+                </td>
+            </tr>
+        </table>
+
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> SUBVENCIÓN POR CARGA ACADÉMICA ADICIONAL <br/> CICLO [[${cicloAcademico.descripcion}]]</b><br/>
+        </div>
+
+        <div style="text-align: right; padding-top: 20px;">
+            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        </div>
+        <table class="table table-datos-encuesta">
+            <tbody>
+                <tr>
+                    <td style="width: 50px; border-right: .5px solid">
+                        <b> FACULTAD - DEPARTAMENTO </b>  
+                    </td>
+                    <td>
+                        <span th:inline="text"> [[${docente?.departamentoAcademico?.facultad?.nombre}]] -  [[${docente?.departamentoAcademico?.nombre}]] </span>  
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50px; border-right:  .5px solid">
+                        <b> PROFESOR </b>  
+                    </td>
+                    <td>
+                        <span th:inline="text">[[${docente?.persona?.apellidosNombres}]] </span>  
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="table table-datos-cursos">
+            <thead>
+                <tr>
+                    <td class="gray-bg text-center col-sm"> 
+                        SECCIÓN
+                    </td>
+                    <td class="gray-bg text-center col-sm">
+                        CÓDIGO
+                    </td>
+                    <td class="gray-bg text-center">
+                        NOMBRE DEL CURSO
+                    </td>
+                    <td class="gray-bg text-center col-xxs">
+                        T
+                    </td>
+                    <td class="gray-bg text-center col-xxs">
+                        P
+                    </td>
+                    <td class="gray-bg text-center col-xxs">
+                        C
+                    </td>
+                    <td class="gray-bg text-center col-sm">
+                        Horas <br/> Teoría
+                    </td>
+                    <td class="gray-bg text-center col-sm">
+                        Horas <br/> Práctica
+                    </td>
+                    <td class="gray-bg text-center col-xs">
+                        MAT
+                    </td>
+                    <td class="gray-bg text-center col-xs">
+                        ENC
+                    </td>
+                    <td class="gray-bg text-center col-xs">    
+                        %
+                    </td>
+                    <td class="gray-bg text-center col-sm">
+                        MODO
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${mapCursos}">
+                    <td class="text-center">
+                        <span th:text="${item.key.codigo}"> seccion </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${item.key.curso.codigo}"> codigo </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${item.key.curso.nombre}"> nombre del curso </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${item.key.curso.horasTeoria}"> horas teoria </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${item.key.curso.horasPractica}"> horas practica </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${item.key.curso.creditos}"> creditos </span>
+                    </td>
+                    <td class="text-center">
+                        <span> 0.20 </span>
+                    </td>
+                    <td class="text-center">
+                        <span> 0.20 </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${mapMatriculados.get(item.key)}"> 1 </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${mapEncuestados.get(item.key)}"> 1 </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${mapEncuestados.get(item.key)/mapMatriculados.get(item.key)}"> 1 </span>
+                    </td>
+                    <td class="text-center">
+                        <span> WEB </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table cellpadding="0" cellspacing="0" style="margin-bottom: 20px">
+            <tbody>
+                <tr>
+                    <td style="text-align: left">
+                        <table class="table table-puntajes">
+                            <col width="5"/>
+                            <col width="80"/>
+                            <col width="80"/>
+                            <col width="2"/>
+                            <tbody>
+                                <tr>
+                                    <td th:colspan="${2 + 2 * temas.size() }"  class="gray-bg text-center">
+                                        <b>PUNTAJE ALCANZADO POR CATEGORÍA - ESCALA DEL 1 AL 10</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2" class="text-center" style="width: 35px">
+                                        Sección
+                                    </td>
+                                    <td th:each="tema : ${temas}" colspan="2" class="gray-bg text-center" style="width: 76px">
+                                        <span th:text="${tema.nombre}"> nombre del tema </span>
+                                    </td>
+                                    <td rowspan="2" class="text-center" style="width: 60px">
+                                        Indicador del desempeño por clave
+                                    </td>
+                                </tr>
+                                <tr>
+                            <th:block th:each="tema : ${temas}">
+                                <td class="gray-bg text-center"  style="width: 5%">
+                                    Prom.  
+                                </td>
+                                <td class="gray-bg text-center"  style="width: 5%">
+                                    Dsv.St.
+                                </td>
+                            </th:block>
+
+                </tr>
+                <tr th:each="item : ${mapCursos}">
+                    <td class="text-center">
+                        <span th:text="${item.key.codigo}"> seccion </span>  
+                    </td>
+            <th:block th:each="tema : ${item.value}">
+                <td class="text-center">
+                    <span th:text="${#numbers.formatDecimal(tema.puntaje, 1, 'DEFAULT', 2, 'DEFAULT')}"> puntaje </span>
+                </td>
+                <td class="text-center">
+                    <span th:text="${#numbers.formatDecimal(tema.desviacionStandar, 1, 'DEFAULT', 2, 'DEFAULT')}"> sd </span>
+                </td>
+            </th:block>
+            <td class="text-center">
+                10.00
+            </td>
+        </tr>
+    </tbody>
+</table>
+</td>
+<td style="width: 20px">
+</td>
+<td style="text-align: right">
+    <table class="table table-desempeno" style="float: right; width: 130px">
+        <thead>
+            <tr>
+                <td colspan="2" class="gray-bg text-center" >
+                    Indicador del desempeño general
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="text-center">
+                    Escala
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="gray-bg text-center">
+                    1 - 10
+                </td>
+                <td class="gray-bg text-center">
+                    1 - 5
+                </td>
+            </tr>
+            <tr>
+                <td class="text-center">
+                    <b th:text="${#numbers.formatDecimal(edm.puntajeBase10, 1, 'DEFAULT', 2, 'DEFAULT')}"> base10 </b>
+                </td>
+                <td class="text-center">
+                    <b th:text="${#numbers.formatDecimal(edm.puntajeBase5, 1, 'DEFAULT', 2, 'DEFAULT')}"> base5 </b>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</td>
+</tr>
+</tbody>
+</table>
+
+<img height= "350px" width="670px" src="logo-min.jpg" style="margin-top: 20px;"/>
+
+<table class="table table-no-encuestados">
+    <thead>
+        <tr>
+            <td colspan="4" class="gray-bg text-center" >
+                Claves no encuestadas
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Seción
+            </td>
+            <td>
+                Código
+            </td>
+            <td>
+                Nombre del curso
+            </td>
+            <td>
+                Comentario
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="anulada : ${anuladas}">
+            <td>
+                <span th:text="${anulada.docenteSeccion.seccion.grupoSeccion.codigo}"> seccion </span>
+            </td>
+            <td>
+                <span th:text="${anulada.docenteSeccion.seccion.grupoSeccion.curso.codigo}"> codigo del curso </span>
+            </td>
+            <td>
+                <span th:text="${anulada.docenteSeccion.seccion.grupoSeccion.curso.nombre}"> nombre del curso </span>
+            </td>
+            <td>
+                <span th:text="${anulada.descripcion}"> descripcion </span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div>
+
+</div>
+</body>
+</html>
