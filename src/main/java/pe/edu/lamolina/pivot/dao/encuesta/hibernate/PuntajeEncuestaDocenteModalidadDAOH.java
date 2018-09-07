@@ -23,7 +23,18 @@ public class PuntajeEncuestaDocenteModalidadDAOH extends AbstractEasyDAO<Puntaje
                 .join("encuestaDocenteModalidad edm", "temaEncuesta te")
                 .filter("edm.id", encuestaDocenteModalidad)
                 .orderBy("te.nombre");
-        
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PuntajeEncuestaDocenteModalidad> allByEncuestasDocenteModalidad(List<EncuestaDocenteModalidad> encuestas) {
+        Octavia sql = Octavia.query()
+                .from(PuntajeEncuestaDocenteModalidad.class, "pedm")
+                .join("encuestaDocenteModalidad edm", "temaEncuesta te")
+                .in("edm.id", encuestas)
+                .orderBy("te.nombre");
+
         return all(sql);
     }
 

@@ -28,6 +28,23 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
+    public List<DocenteSeccion> allByModalidadEstudioCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc", "cur.modalidadEstudio med")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
+                .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .filter("ca.id", cicloAcademico)
+                .filter("med.id", modalidadEstudio)
+                .isNotNull("ds.porcentajeCarga")
+                .filter("sec.estado", EstadoEnum.ACT)
+                .filter("ds.estado", EstadoEnum.ACT);
+
+        return all(sql);
+    }
+
+    @Override
     public DocenteSeccion find(long id) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")

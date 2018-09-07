@@ -3,8 +3,8 @@ new Vue({
     el: '#docentemodalidadVUE',
     data: {
         url: '/academico/encuestaestudiantil/docentemodalidad/',
-        label: {'INA': 'label-warning', 'ACT': 'label-success'},
-        labelText: {'INA': 'Inactivo', 'ACT': 'Activo'},
+        label: {'INA': 'label-warning', 'ACT': 'label-success', 'ANU': 'label-danger'},
+        labelText: {'INA': 'Inactivo', 'ACT': 'Activo', 'ANU': 'Anulado'},
         puntajeDocenteModalidad: [],
         modalTemas: {
             id: 'modalTemas',

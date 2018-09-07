@@ -10,7 +10,9 @@ public interface EncuestaDocenteModalidadService {
 
     List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico ciclo);
 
-    String reporteTodos();
+    String reporte(EncuestaDocenteModalidad encuestaDocenteModalidad);
+
+    String reporteTodos(CicloAcademico cicloAcademico);
 
     List<PuntajeEncuestaDocenteModalidad> resumenTemas(EncuestaDocenteModalidad encuestaDocenteModalidad);
 

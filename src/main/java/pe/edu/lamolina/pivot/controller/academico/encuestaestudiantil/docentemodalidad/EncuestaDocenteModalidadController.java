@@ -30,6 +30,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -116,10 +117,24 @@ public class EncuestaDocenteModalidadController {
         return response;
     }
 
+    @RequestMapping("{id}/reporte")
+    public void reporte(@PathVariable Long id, Model model, HttpSession session, HttpServletResponse response) {
+        try {
+            String fileName = service.reporte(new EncuestaDocenteModalidad(id));
+            pdfResponse(fileName, response);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, model);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, model);
+        }
+    }
+
     @RequestMapping("reporte/todos")
     public void reporteTodos(Model model, HttpSession session, HttpServletResponse response) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         try {
-            String fileName = service.reporteTodos();
+            String fileName = service.reporteTodos(ds.getCicloAcademico());
             pdfResponse(fileName, response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);

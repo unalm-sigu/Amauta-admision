@@ -7,8 +7,11 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 
 @Repository
@@ -17,6 +20,35 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
     public EncuestaDocenteDAOH() {
         super();
         setClazz(EncuestaDocente.class);
+    }
+
+    @Override
+    public List<EncuestaDocente> allAnuladaByModalidadEstudioCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo", "modalidadEstudio me")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("me.id", modalidadEstudio)
+                .filter("ed.estado", EstadoEnum.ANU);
+        return all(sql);
+    }
+
+    @Override
+    public List<EncuestaDocente> allAnuladaByModalidadEstudioDocenteCicloAcademico(ModalidadEstudio modalidadEstudio, Docente docente, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo", "modalidadEstudio me")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("doc.id", docente)
+                .filter("me.id", modalidadEstudio)
+                .filter("ed.estado", EstadoEnum.ANU);
+        return all(sql);
     }
 
     @Override

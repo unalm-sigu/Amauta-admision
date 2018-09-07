@@ -21,14 +21,4 @@ public class CustomRenderer extends BarRenderer3D {
         return this.colors[column % this.colors.length];
     }
 
-    @Override
-    public Stroke getItemStroke(int row, int column) {
-        System.out.println(" asdsd " + row + "   --------  " +column);
-        if (row > 2) {
-            return dashed;
-        } else {
-            return soild;
-        }
-    }
-
 }

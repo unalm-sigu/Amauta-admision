@@ -122,6 +122,7 @@ public class AsistenciaAcademicaController {
                     }
                 }
                 ObjectNode node = grupoSeccion.toJson();
+                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
                 node.put("estadoGrupoEnum", grupoSeccion.getEstadoGrupoEnum().getValue());
                 node.put("estadoGrupoCerrado", grupoSeccion.isEstadoGrupoCerrado());
@@ -292,7 +293,7 @@ public class AsistenciaAcademicaController {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (MatriculaSeccion matriculaSeccionEach : matriculasSeccionByFilter) {
-                array.addPOJO(matriculaSeccionEach.toJson());
+//                array.addPOJO(matriculaSeccionEach.toJson());
             }
 
             json.setData(array);

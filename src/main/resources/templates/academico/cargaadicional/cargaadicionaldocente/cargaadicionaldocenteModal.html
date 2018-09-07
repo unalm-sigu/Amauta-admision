@@ -1,0 +1,14 @@
+<modal-vik ref="modalConfigura"
+           v-bind="modalConfigura"
+           v-bind:okaction="saveConfigura">
+    <div slot="body">
+        <div class="form-group">
+            <label> RCA </label>
+            <input class="form-control" v-model="configura.rca"/> 
+        </div>
+        <div class="form-group">
+            <label> Cantidad mínima de alumnos </label>
+            <input class="form-control" v-model="configura.minimoAlumnos"/> 
+        </div>
+    </div>
+</modal-vik>

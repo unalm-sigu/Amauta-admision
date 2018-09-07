@@ -14,7 +14,7 @@
                             <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a href="#"> Reporte final </a></li>
+                            <li><a v-bind:href="`${url}/reporte/todos`"> Reporte general </a></li>
                         </ul>
                     </div>
                     <h2 th:inline="text">Resultado de Encuestas [[${cicloAcademico.descripcion}]] </h2>
@@ -72,6 +72,7 @@
                                                         <span class="pointer m-r-xs text-success"><i class="fa fa-comments"></i></span>
                                                         <span class="pointer text-warning" v-on:click="findTemas(item)"><i class="fa fa-bar-chart"></i></span>
                                                     </span>
+                                                    <a class="block" v-bind:href="`${url}/${item.id}/reporte`"> Reporte </a>
                                                     <span class="block m-t-xs" v-if="item.codigo"> {{ item.codigo }}</span>
                                                 </td>
                                                 <td class="v-middle text-center">
