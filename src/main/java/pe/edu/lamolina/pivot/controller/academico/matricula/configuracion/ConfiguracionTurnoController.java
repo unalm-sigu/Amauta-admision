@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -80,9 +81,14 @@ public class ConfiguracionTurnoController {
             objNode.put(d.name(), d.getValue());
         };
 
+        ObjectNode cicloJson = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true,
+                new String[]{
+                    "*", "modalidadEstudio.*"
+                });
+
         model.addAttribute("eventos", new EventoCicloAcademico().toJsonArray(evento));
         model.addAttribute("configuraciones", new ConfiguracionTurnosAtencion().toJsonArray(configuraciones));
-        model.addAttribute("ciclo", ds.getCicloAcademico().toJson());
+        model.addAttribute("ciclo", cicloJson);
         model.addAttribute("tipoMatricula", objNode.toString());
 
         return "academico/matricula/matriculaConfiguracion";
@@ -144,7 +150,6 @@ public class ConfiguracionTurnoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Long Id = service.saveConfiguracion(config);
 
-   
             response.setSuccess(true);
             response.setData(Id);
             response.setMessage("Se guardó la configuración satisfactoriamente");
